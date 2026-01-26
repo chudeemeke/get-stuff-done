@@ -37,7 +37,7 @@ MODEL_PROFILE="{{model_profile}}"
 LOG_DIR="$PROJECT_DIR/.planning/logs"
 CHECKPOINT_DIR="$PROJECT_DIR/.planning/checkpoints"
 STATE_FILE="$PROJECT_DIR/.planning/STATE.md"
-LOCK_FILE="$PROJECT_DIR/.planning/autopilot.lock"
+# Note: Lock uses directory (atomic mkdir) not file - see LOCK_DIR below
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Setup
@@ -46,9 +46,14 @@ LOCK_FILE="$PROJECT_DIR/.planning/autopilot.lock"
 cd "$PROJECT_DIR"
 mkdir -p "$LOG_DIR" "$CHECKPOINT_DIR/pending" "$CHECKPOINT_DIR/approved"
 
-# Lock file to prevent concurrent runs
-echo $$ > "$LOCK_FILE"
-trap "rm -f '$LOCK_FILE'" EXIT
+# Lock directory (atomic creation prevents race condition)
+LOCK_DIR="$PROJECT_DIR/.planning/autopilot.lock.d"
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+  echo "ERROR: Autopilot already running (lock exists: $LOCK_DIR)"
+  echo "If previous run crashed, remove manually: rmdir '$LOCK_DIR'"
+  exit 1
+fi
+trap "rmdir '$LOCK_DIR' 2>/dev/null" EXIT INT TERM
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Logging & Notifications
@@ -220,9 +225,10 @@ execute_phase() {
       echo "◆ Planning phase $phase..."
       echo ""
 
-      if ! echo "/gsd:plan-phase $phase" | claude -p \
-          --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite" \
-          2>&1 | tee -a "$phase_log"; then
+      echo "/gsd:plan-phase $phase" | claude -p \
+          --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite,AskUserQuestion" \
+          2>&1 | tee -a "$phase_log"
+      if [ ${PIPESTATUS[1]} -ne 0 ]; then
         log "ERROR" "Planning failed for phase $phase"
         ((attempt++))
         sleep 5
@@ -239,9 +245,10 @@ execute_phase() {
     echo "◆ Executing phase $phase..."
     echo ""
 
-    if ! echo "/gsd:execute-phase $phase" | claude -p \
-        --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite" \
-        2>&1 | tee -a "$phase_log"; then
+    echo "/gsd:execute-phase $phase" | claude -p \
+        --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite,AskUserQuestion" \
+        2>&1 | tee -a "$phase_log"
+    if [ ${PIPESTATUS[1]} -ne 0 ]; then
       log "ERROR" "Execution failed for phase $phase"
       ((attempt++))
       sleep 5
@@ -274,9 +281,10 @@ execute_phase() {
         echo "◆ Planning gap closure for phase $phase..."
         echo ""
 
-        if ! echo "/gsd:plan-phase $phase --gaps" | claude -p \
-            --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite" \
-            2>&1 | tee -a "$phase_log"; then
+        echo "/gsd:plan-phase $phase --gaps" | claude -p \
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite,AskUserQuestion" \
+            2>&1 | tee -a "$phase_log"
+        if [ ${PIPESTATUS[1]} -ne 0 ]; then
           log "ERROR" "Gap planning failed for phase $phase"
           ((attempt++))
           continue
@@ -286,9 +294,10 @@ execute_phase() {
         echo "◆ Executing gap closure for phase $phase..."
         echo ""
 
-        if ! echo "/gsd:execute-phase $phase --gaps-only" | claude -p \
-            --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite" \
-            2>&1 | tee -a "$phase_log"; then
+        echo "/gsd:execute-phase $phase --gaps-only" | claude -p \
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite,AskUserQuestion" \
+            2>&1 | tee -a "$phase_log"
+        if [ ${PIPESTATUS[1]} -ne 0 ]; then
           log "ERROR" "Gap execution failed for phase $phase"
           ((attempt++))
           continue
@@ -392,8 +401,9 @@ main() {
   echo ""
 
   echo "/gsd:complete-milestone" | claude -p \
-    --allowedTools "Read,Write,Edit,Glob,Grep,Bash" \
+    --allowedTools "Read,Write,Edit,Glob,Grep,Bash,AskUserQuestion" \
     2>&1 | tee -a "$LOG_DIR/milestone-complete.log"
+  # Don't fail on milestone completion - phases are done
 
   notify "Milestone COMPLETE! ${#PHASES[@]} phases, \$$TOTAL_COST" "success"
 

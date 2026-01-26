@@ -71,6 +71,23 @@ None yet.
 Last session: [YYYY-MM-DD HH:MM]
 Stopped at: [Description of last completed action]
 Resume file: [Path to .continue-here*.md if exists, otherwise "None"]
+
+## Autopilot
+
+- **Mode:** [idle | running | paused | completed | failed]
+- **Started:** [timestamp or "—"]
+- **Current Phase:** [phase number or "—"]
+- **Phases Remaining:** [list or "none"]
+- **Checkpoints Pending:** [count or "none"]
+- **Last Error:** [error description or "none"]
+- **Updated:** [timestamp]
+
+## Cost Tracking
+
+| Phase | Tokens | Est. Cost |
+|-------|--------|-----------|
+| — | — | — |
+| **Total** | 0 | $0.00 |
 ```
 
 <purpose>
@@ -160,6 +177,26 @@ Enables instant resumption:
 - When was last session
 - What was last completed
 - Is there a .continue-here file to resume from
+
+### Autopilot
+Tracks autonomous execution state:
+- **Mode:** idle (not running), running (actively executing), paused (budget/checkpoint), completed, failed
+- **Started:** When autopilot began
+- **Current Phase:** Which phase is being executed
+- **Phases Remaining:** Phases yet to execute
+- **Checkpoints Pending:** Count of checkpoints awaiting human approval
+- **Last Error:** Most recent error if failed/paused
+- **Updated:** Last state change timestamp
+
+Updated by autopilot script during execution.
+
+### Cost Tracking
+Tracks token usage and estimated cost:
+- Per-phase breakdown
+- Running total
+- Used for budget enforcement
+
+Updated after each phase completes.
 
 </sections>
 

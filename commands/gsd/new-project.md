@@ -348,9 +348,23 @@ Create `.planning/config.json` with all settings:
     "research": true|false,
     "plan_check": true|false,
     "verifier": true|false
+  },
+  "autopilot": {
+    "checkpoint_mode": "queue|skip",
+    "max_retries": 3,
+    "budget_limit_usd": 0,
+    "notify_webhook": ""
   }
 }
 ```
+
+**Autopilot settings (defaults shown):**
+- `checkpoint_mode`: How to handle plans needing human input
+  - `queue`: Write to `.planning/checkpoints/pending/`, continue with other work
+  - `skip`: Skip non-autonomous plans entirely
+- `max_retries`: Retry count before marking phase as failed (default: 3)
+- `budget_limit_usd`: Stop if estimated cost exceeds this (0 = unlimited)
+- `notify_webhook`: URL to POST notifications (empty = disabled)
 
 **If commit_docs = No:**
 - Set `commit_docs: false` in config.json
@@ -948,6 +962,41 @@ Present completion with next steps:
 **[N] phases** | **[X] requirements** | Ready to build ✓
 
 ───────────────────────────────────────────────────────────────
+```
+
+Use AskUserQuestion to offer next steps:
+
+- header: "Next"
+- question: "How would you like to proceed?"
+- options:
+  - "Run autopilot" — Execute entire milestone autonomously (Recommended)
+  - "Plan phase 1" — Start with manual phase-by-phase execution
+  - "Discuss phase 1" — Gather context before planning
+
+**If "Run autopilot":**
+```
+/gsd:autopilot
+```
+Route to autopilot command.
+
+**If "Plan phase 1":**
+```
+───────────────────────────────────────────────────────────────
+
+## ▶ Next Up
+
+**Phase 1: [Phase Name]** — [Goal from ROADMAP.md]
+
+/gsd:plan-phase 1
+
+<sub>/clear first → fresh context window</sub>
+
+───────────────────────────────────────────────────────────────
+```
+
+**If "Discuss phase 1":**
+```
+───────────────────────────────────────────────────────────────
 
 ## ▶ Next Up
 
@@ -957,10 +1006,11 @@ Present completion with next steps:
 
 <sub>/clear first → fresh context window</sub>
 
----
+───────────────────────────────────────────────────────────────
 
 **Also available:**
 - /gsd:plan-phase 1 — skip discussion, plan directly
+- /gsd:autopilot — execute entire milestone autonomously
 
 ───────────────────────────────────────────────────────────────
 ```

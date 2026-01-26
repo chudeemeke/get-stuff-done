@@ -599,119 +599,26 @@ must_haves:
 
 <checkpoints>
 
-## Checkpoint Types
+## Checkpoint Reference
 
-**checkpoint:human-verify (90% of checkpoints)**
-Human confirms Claude's automated work works correctly.
+For checkpoint types, structures, writing guidelines, examples, and anti-patterns:
+@~/.claude/get-shit-done/references/checkpoint-types.md
 
-Use for:
-- Visual UI checks (layout, styling, responsiveness)
-- Interactive flows (click through wizard, test user flows)
-- Functional verification (feature works as expected)
-- Animation smoothness, accessibility testing
+**Quick reference:**
 
-Structure:
-```xml
-<task type="checkpoint:human-verify" gate="blocking">
-  <what-built>[What Claude automated]</what-built>
-  <how-to-verify>
-    [Exact steps to test - URLs, commands, expected behavior]
-  </how-to-verify>
-  <resume-signal>Type "approved" or describe issues</resume-signal>
-</task>
-```
+| Type | Use For | Frequency |
+|------|---------|-----------|
+| `checkpoint:human-verify` | Visual/functional verification after automation | 90% |
+| `checkpoint:decision` | Implementation choices requiring user input | 9% |
+| `checkpoint:human-action` | Truly unavoidable manual steps (email links, 2FA) | 1% |
 
-**checkpoint:decision (9% of checkpoints)**
-Human makes implementation choice that affects direction.
+**Core principle:** Claude automates everything with CLI/API. Checkpoints are for verification and decisions, not manual work.
 
-Use for:
-- Technology selection (which auth provider, which database)
-- Architecture decisions (monorepo vs separate repos)
-- Design choices, feature prioritization
-
-Structure:
-```xml
-<task type="checkpoint:decision" gate="blocking">
-  <decision>[What's being decided]</decision>
-  <context>[Why this matters]</context>
-  <options>
-    <option id="option-a">
-      <name>[Name]</name>
-      <pros>[Benefits]</pros>
-      <cons>[Tradeoffs]</cons>
-    </option>
-  </options>
-  <resume-signal>Select: option-a, option-b, or ...</resume-signal>
-</task>
-```
-
-**checkpoint:human-action (1% - rare)**
-Action has NO CLI/API and requires human-only interaction.
-
-Use ONLY for:
-- Email verification links
-- SMS 2FA codes
-- Manual account approvals
-- Credit card 3D Secure flows
-
-Do NOT use for:
-- Deploying to Vercel (use `vercel` CLI)
-- Creating Stripe webhooks (use Stripe API)
-- Creating databases (use provider CLI)
-- Running builds/tests (use Bash tool)
-- Creating files (use Write tool)
-
-## Authentication Gates
-
-When Claude tries CLI/API and gets auth error, this is NOT a failure - it's a gate.
-
-Pattern: Claude tries automation -> auth error -> creates checkpoint -> user authenticates -> Claude retries -> continues
-
-Authentication gates are created dynamically when Claude encounters auth errors during automation. They're NOT pre-planned.
-
-## Writing Guidelines
-
-**DO:**
-- Automate everything with CLI/API before checkpoint
-- Be specific: "Visit https://myapp.vercel.app" not "check deployment"
-- Number verification steps
-- State expected outcomes
-
-**DON'T:**
-- Ask human to do work Claude can automate
-- Mix multiple verifications in one checkpoint
-- Place checkpoints before automation completes
-
-## Anti-Patterns
-
-**Bad - Asking human to automate:**
-```xml
-<task type="checkpoint:human-action">
-  <action>Deploy to Vercel</action>
-  <instructions>Visit vercel.com, import repo, click deploy...</instructions>
-</task>
-```
-Why bad: Vercel has a CLI. Claude should run `vercel --yes`.
-
-**Bad - Too many checkpoints:**
-```xml
-<task type="auto">Create schema</task>
-<task type="checkpoint:human-verify">Check schema</task>
-<task type="auto">Create API</task>
-<task type="checkpoint:human-verify">Check API</task>
-```
-Why bad: Verification fatigue. Combine into one checkpoint at end.
-
-**Good - Single verification checkpoint:**
-```xml
-<task type="auto">Create schema</task>
-<task type="auto">Create API</task>
-<task type="auto">Create UI</task>
-<task type="checkpoint:human-verify">
-  <what-built>Complete auth flow (schema + API + UI)</what-built>
-  <how-to-verify>Test full flow: register, login, access protected page</how-to-verify>
-</task>
-```
+**Golden rules:**
+1. If Claude can run it, Claude runs it
+2. Claude sets up verification environment (starts servers, seeds data)
+3. User only does what requires human judgment (visual checks, UX evaluation)
+4. Authentication gates are created dynamically when auth errors occur — not pre-planned
 
 </checkpoints>
 

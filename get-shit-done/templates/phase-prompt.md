@@ -40,7 +40,7 @@ Output: [What artifacts will be created]
 @~/.claude/get-shit-done/workflows/execute-plan.md
 @~/.claude/get-shit-done/templates/summary.md
 [If plan contains checkpoint tasks (type="checkpoint:*"), add:]
-@~/.claude/get-shit-done/references/checkpoints.md
+@~/.claude/get-shit-done/references/checkpoint-types.md
 </execution_context>
 
 <context>
@@ -75,7 +75,7 @@ Output: [What artifacts will be created]
   <done>[Acceptance criteria]</done>
 </task>
 
-<!-- For checkpoint task examples and patterns, see @~/.claude/get-shit-done/references/checkpoints.md -->
+<!-- For checkpoint task examples and patterns, see @~/.claude/get-shit-done/references/checkpoint-types.md -->
 <!-- Key rule: Claude starts dev server BEFORE human-verify checkpoints. User only visits URLs. -->
 
 <task type="checkpoint:decision" gate="blocking">
@@ -374,7 +374,7 @@ Output: Working dashboard component.
 <execution_context>
 @~/.claude/get-shit-done/workflows/execute-plan.md
 @~/.claude/get-shit-done/templates/summary.md
-@~/.claude/get-shit-done/references/checkpoints.md
+@~/.claude/get-shit-done/references/checkpoint-types.md
 </execution_context>
 
 <context>
@@ -393,7 +393,7 @@ Output: Working dashboard component.
   <done>Dashboard renders without errors</done>
 </task>
 
-<!-- Checkpoint pattern: Claude starts server, user visits URL. See checkpoints.md for full patterns. -->
+<!-- Checkpoint pattern: Claude starts server, user visits URL. See checkpoint-types.md for full patterns. -->
 <task type="auto">
   <name>Start dev server</name>
   <action>Run `npm run dev` in background, wait for ready</action>

@@ -461,7 +461,7 @@ I'll verify after: [verification]
 - If verification passes or N/A: continue to next task
 - If verification fails: inform user, wait for resolution
 
-See ~/.claude/get-shit-done/references/checkpoints.md for complete checkpoint type guidance.
+See ~/.claude/get-shit-done/references/checkpoint-execution.md for complete execution protocol and automation reference.
 </step>
 
 <step name="checkpoint_return_for_orchestrator">

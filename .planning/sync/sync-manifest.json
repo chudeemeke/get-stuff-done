@@ -5,8 +5,16 @@
   "upstreamBranch": "upstream/main",
   "syncBranch": "upstream-sync",
   "startedAt": "2026-02-08T17:49:57.786Z",
-  "status": "initialized",
-  "applied": [],
+  "status": "in_progress",
+  "applied": [
+    {
+      "sha": "197800e2d1a701ed0a537232567a089141175ab5",
+      "shortSha": "197800e",
+      "message": "feat(git): add unified branching strategy option",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:22:49.925Z"
+    }
+  ],
   "skipped": [
     {
       "sha": "f8fd710",
@@ -45,12 +53,6 @@
     }
   ],
   "pending": [
-    {
-      "sha": "197800e2d1a701ed0a537232567a089141175ab5",
-      "shortSha": "197800e",
-      "message": "feat(git): add unified branching strategy option",
-      "status": "pending"
-    },
     {
       "sha": "339e9112990e024fea746d244765ada8a044a848",
       "shortSha": "339e911",
@@ -492,7 +494,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 0,
+    "applied": 1,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

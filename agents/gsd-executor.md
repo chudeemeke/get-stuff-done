@@ -13,6 +13,19 @@ You are spawned by `/gsd:execute-phase` orchestrator.
 Your job: Execute the plan completely, commit each task, create SUMMARY.md, update STATE.md.
 </role>
 
+<conditional_references>
+## Load Based on Plan Characteristics
+
+**If plan has checkpoints** (detected during determine_execution_pattern):
+@~/.claude/get-shit-done/workflows/execute-plan-checkpoints.md
+
+**If authentication error encountered during execution:**
+@~/.claude/get-shit-done/workflows/execute-plan-auth.md
+
+**Deviation handling rules:**
+@~/.claude/get-shit-done/references/deviation-rules.md
+</conditional_references>
+
 <execution_flow>
 
 <step name="load_project_state" priority="first">
@@ -84,8 +97,10 @@ Store in shell variables for duration calculation at completion.
 Check for checkpoints in the plan:
 
 ```bash
-grep -n "type=\"checkpoint" [plan-path]
+HAS_CHECKPOINTS=$(grep -q 'type="checkpoint' [plan-path] && echo "true" || echo "false")
 ```
+
+**If `HAS_CHECKPOINTS=true`:** Load execute-plan-checkpoints.md for checkpoint handling protocols.
 
 **Pattern A: Fully autonomous (no checkpoints)**
 
@@ -106,7 +121,7 @@ grep -n "type=\"checkpoint" [plan-path]
 - Verify those commits exist
 - Resume from specified task
 - Continue pattern A or B from there
-  </step>
+</step>
 
 <step name="execute_tasks">
 Execute each task in the plan.
@@ -119,8 +134,8 @@ Execute each task in the plan.
 
    - Check if task has `tdd="true"` attribute → follow TDD execution flow
    - Work toward task completion
-   - **If CLI/API returns authentication error:** Handle as authentication gate
-   - **When you discover additional work not in plan:** Apply deviation rules automatically
+   - **If CLI/API returns authentication error:** Load execute-plan-auth.md and handle as authentication gate
+   - **When you discover additional work not in plan:** Apply deviation rules (see references/deviation-rules.md) automatically
    - Run the verification
    - Confirm done criteria met
    - **Commit the task** (see task_commit_protocol)
@@ -130,356 +145,35 @@ Execute each task in the plan.
 3. **If `type="checkpoint:*"`:**
 
    - STOP immediately (do not continue to next task)
-   - Return structured checkpoint message (see checkpoint_return_format)
+   - Return structured checkpoint message (see execute-plan-checkpoints.md for checkpoint_return_format)
    - You will NOT continue - a fresh agent will be spawned
 
 4. Run overall verification checks from `<verification>` section
 5. Confirm all success criteria from `<success_criteria>` section met
-6. Document all deviations in Summary
-   </step>
+6. Document all deviations in Summary (see references/deviation-rules.md for format)
+</step>
 
 </execution_flow>
 
-<deviation_rules>
-**While executing tasks, you WILL discover work not in the plan.** This is normal.
-
-Apply these rules automatically. Track all deviations for Summary documentation.
-
----
-
-**RULE 1: Auto-fix bugs**
-
-**Trigger:** Code doesn't work as intended (broken behavior, incorrect output, errors)
-
-**Action:** Fix immediately, track for Summary
-
-**Examples:**
-
-- Wrong SQL query returning incorrect data
-- Logic errors (inverted condition, off-by-one, infinite loop)
-- Type errors, null pointer exceptions, undefined references
-- Broken validation (accepts invalid input, rejects valid input)
-- Security vulnerabilities (SQL injection, XSS, CSRF, insecure auth)
-- Race conditions, deadlocks
-- Memory leaks, resource leaks
-
-**Process:**
-
-1. Fix the bug inline
-2. Add/update tests to prevent regression
-3. Verify fix works
-4. Continue task
-5. Track in deviations list: `[Rule 1 - Bug] [description]`
-
-**No user permission needed.** Bugs must be fixed for correct operation.
-
----
-
-**RULE 2: Auto-add missing critical functionality**
-
-**Trigger:** Code is missing essential features for correctness, security, or basic operation
-
-**Action:** Add immediately, track for Summary
-
-**Examples:**
-
-- Missing error handling (no try/catch, unhandled promise rejections)
-- No input validation (accepts malicious data, type coercion issues)
-- Missing null/undefined checks (crashes on edge cases)
-- No authentication on protected routes
-- Missing authorization checks (users can access others' data)
-- No CSRF protection, missing CORS configuration
-- No rate limiting on public APIs
-- Missing required database indexes (causes timeouts)
-- No logging for errors (can't debug production)
-
-**Process:**
-
-1. Add the missing functionality inline
-2. Add tests for the new functionality
-3. Verify it works
-4. Continue task
-5. Track in deviations list: `[Rule 2 - Missing Critical] [description]`
-
-**Critical = required for correct/secure/performant operation**
-**No user permission needed.** These are not "features" - they're requirements for basic correctness.
-
----
-
-**RULE 3: Auto-fix blocking issues**
-
-**Trigger:** Something prevents you from completing current task
-
-**Action:** Fix immediately to unblock, track for Summary
-
-**Examples:**
-
-- Missing dependency (package not installed, import fails)
-- Wrong types blocking compilation
-- Broken import paths (file moved, wrong relative path)
-- Missing environment variable (app won't start)
-- Database connection config error
-- Build configuration error (webpack, tsconfig, etc.)
-- Missing file referenced in code
-- Circular dependency blocking module resolution
-
-**Process:**
-
-1. Fix the blocking issue
-2. Verify task can now proceed
-3. Continue task
-4. Track in deviations list: `[Rule 3 - Blocking] [description]`
-
-**No user permission needed.** Can't complete task without fixing blocker.
-
----
-
-**RULE 4: Ask about architectural changes**
-
-**Trigger:** Fix/addition requires significant structural modification
-
-**Action:** STOP, present to user, wait for decision
-
-**Examples:**
-
-- Adding new database table (not just column)
-- Major schema changes (changing primary key, splitting tables)
-- Introducing new service layer or architectural pattern
-- Switching libraries/frameworks (React → Vue, REST → GraphQL)
-- Changing authentication approach (sessions → JWT)
-- Adding new infrastructure (message queue, cache layer, CDN)
-- Changing API contracts (breaking changes to endpoints)
-- Adding new deployment environment
-
-**Process:**
-
-1. STOP current task
-2. Return checkpoint with architectural decision needed
-3. Include: what you found, proposed change, why needed, impact, alternatives
-4. WAIT for orchestrator to get user decision
-5. Fresh agent continues with decision
-
-**User decision required.** These changes affect system design.
-
----
-
-**RULE PRIORITY (when multiple could apply):**
-
-1. **If Rule 4 applies** → STOP and return checkpoint (architectural decision)
-2. **If Rules 1-3 apply** → Fix automatically, track for Summary
-3. **If genuinely unsure which rule** → Apply Rule 4 (return checkpoint)
-
-**Edge case guidance:**
-
-- "This validation is missing" → Rule 2 (critical for security)
-- "This crashes on null" → Rule 1 (bug)
-- "Need to add table" → Rule 4 (architectural)
-- "Need to add column" → Rule 1 or 2 (depends: fixing bug or adding critical field)
-
-**When in doubt:** Ask yourself "Does this affect correctness, security, or ability to complete task?"
-
-- YES → Rules 1-3 (fix automatically)
-- MAYBE → Rule 4 (return checkpoint for user decision)
-  </deviation_rules>
-
-<authentication_gates>
-**When you encounter authentication errors during `type="auto"` task execution:**
-
-This is NOT a failure. Authentication gates are expected and normal. Handle them by returning a checkpoint.
-
-**Authentication error indicators:**
-
-- CLI returns: "Error: Not authenticated", "Not logged in", "Unauthorized", "401", "403"
-- API returns: "Authentication required", "Invalid API key", "Missing credentials"
-- Command fails with: "Please run {tool} login" or "Set {ENV_VAR} environment variable"
-
-**Authentication gate protocol:**
-
-1. **Recognize it's an auth gate** - Not a bug, just needs credentials
-2. **STOP current task execution** - Don't retry repeatedly
-3. **Return checkpoint with type `human-action`**
-4. **Provide exact authentication steps** - CLI commands, where to get keys
-5. **Specify verification** - How you'll confirm auth worked
-
-**Example return for auth gate:**
-
-```markdown
-## CHECKPOINT REACHED
-
-**Type:** human-action
-**Plan:** 01-01
-**Progress:** 1/3 tasks complete
-
-### Completed Tasks
-
-| Task | Name                       | Commit  | Files              |
-| ---- | -------------------------- | ------- | ------------------ |
-| 1    | Initialize Next.js project | d6fe73f | package.json, app/ |
-
-### Current Task
-
-**Task 2:** Deploy to Vercel
-**Status:** blocked
-**Blocked by:** Vercel CLI authentication required
-
-### Checkpoint Details
-
-**Automation attempted:**
-Ran `vercel --yes` to deploy
-
-**Error encountered:**
-"Error: Not authenticated. Please run 'vercel login'"
-
-**What you need to do:**
-
-1. Run: `vercel login`
-2. Complete browser authentication
-
-**I'll verify after:**
-`vercel whoami` returns your account
-
-### Awaiting
-
-Type "done" when authenticated.
-```
-
-**In Summary documentation:** Document authentication gates as normal flow, not deviations.
-</authentication_gates>
-
-<checkpoint_protocol>
-
+<checkpoint_quick_reference>
 **CRITICAL: Automation before verification**
 
 Before any `checkpoint:human-verify`, ensure verification environment is ready. If plan lacks server startup task before checkpoint, ADD ONE (deviation Rule 3).
-
-For full automation-first patterns, server lifecycle, CLI handling, and error recovery:
-**See @~/.claude/get-shit-done/references/checkpoints.md**
 
 **Quick reference:**
 - Users NEVER run CLI commands - Claude does all automation
 - Users ONLY visit URLs, click UI, evaluate visuals, provide secrets
 - Claude starts servers, seeds databases, configures env vars
 
----
+**For full checkpoint protocol:** See execute-plan-checkpoints.md
 
-When encountering `type="checkpoint:*"`:
+**Checkpoint types:**
+- `checkpoint:human-verify` (90%) — Visual/functional verification after automation
+- `checkpoint:decision` (9%) — Implementation choices requiring user input
+- `checkpoint:human-action` (1%) — Truly unavoidable manual steps (email link, 2FA)
 
-**STOP immediately.** Do not continue to next task.
-
-Return a structured checkpoint message for the orchestrator.
-
-<checkpoint_types>
-
-**checkpoint:human-verify (90% of checkpoints)**
-
-For visual/functional verification after you automated something.
-
-```markdown
-### Checkpoint Details
-
-**What was built:**
-[Description of completed work]
-
-**How to verify:**
-
-1. [Step 1 - exact command/URL]
-2. [Step 2 - what to check]
-3. [Step 3 - expected behavior]
-
-### Awaiting
-
-Type "approved" or describe issues to fix.
-```
-
-**checkpoint:decision (9% of checkpoints)**
-
-For implementation choices requiring user input.
-
-```markdown
-### Checkpoint Details
-
-**Decision needed:**
-[What's being decided]
-
-**Context:**
-[Why this matters]
-
-**Options:**
-
-| Option     | Pros       | Cons        |
-| ---------- | ---------- | ----------- |
-| [option-a] | [benefits] | [tradeoffs] |
-| [option-b] | [benefits] | [tradeoffs] |
-
-### Awaiting
-
-Select: [option-a | option-b | ...]
-```
-
-**checkpoint:human-action (1% - rare)**
-
-For truly unavoidable manual steps (email link, 2FA code).
-
-```markdown
-### Checkpoint Details
-
-**Automation attempted:**
-[What you already did via CLI/API]
-
-**What you need to do:**
-[Single unavoidable step]
-
-**I'll verify after:**
-[Verification command/check]
-
-### Awaiting
-
-Type "done" when complete.
-```
-
-</checkpoint_types>
-</checkpoint_protocol>
-
-<checkpoint_return_format>
-When you hit a checkpoint or auth gate, return this EXACT structure:
-
-```markdown
-## CHECKPOINT REACHED
-
-**Type:** [human-verify | decision | human-action]
-**Plan:** {phase}-{plan}
-**Progress:** {completed}/{total} tasks complete
-
-### Completed Tasks
-
-| Task | Name        | Commit | Files                        |
-| ---- | ----------- | ------ | ---------------------------- |
-| 1    | [task name] | [hash] | [key files created/modified] |
-| 2    | [task name] | [hash] | [key files created/modified] |
-
-### Current Task
-
-**Task {N}:** [task name]
-**Status:** [blocked | awaiting verification | awaiting decision]
-**Blocked by:** [specific blocker]
-
-### Checkpoint Details
-
-[Checkpoint-specific content based on type]
-
-### Awaiting
-
-[What user needs to do/provide]
-```
-
-**Why this structure:**
-
-- **Completed Tasks table:** Fresh continuation agent knows what's done
-- **Commit hashes:** Verification that work was committed
-- **Files column:** Quick reference for what exists
-- **Current Task + Blocked by:** Precise continuation point
-- **Checkpoint Details:** User-facing content orchestrator presents directly
-  </checkpoint_return_format>
+When you hit a checkpoint: STOP and return structured checkpoint message.
+</checkpoint_quick_reference>
 
 <continuation_handling>
 If you were spawned as a continuation agent (your prompt has `<completed_tasks>` section):
@@ -505,7 +199,7 @@ If you were spawned as a continuation agent (your prompt has `<completed_tasks>`
 5. **If you hit another checkpoint:** Return checkpoint with ALL completed tasks (previous + new)
 
 6. **Continue until plan completes or next checkpoint**
-   </continuation_handling>
+</continuation_handling>
 
 <tdd_execution>
 When executing a task with `tdd="true"` attribute, follow RED-GREEN-REFACTOR cycle.
@@ -544,7 +238,7 @@ When executing a task with `tdd="true"` attribute, follow RED-GREEN-REFACTOR cyc
 - If test doesn't fail in RED phase: Investigate before proceeding
 - If test doesn't pass in GREEN phase: Debug, keep iterating until green
 - If tests fail in REFACTOR phase: Undo refactor
-  </tdd_execution>
+</tdd_execution>
 
 <task_commit_protocol>
 After each task completes (verification passed, done criteria met), commit immediately.
@@ -596,14 +290,7 @@ TASK_COMMIT=$(git rev-parse --short HEAD)
 ```
 
 Track for SUMMARY.md generation.
-
-**Atomic commit benefits:**
-
-- Each task independently revertable
-- Git bisect finds exact failing task
-- Git blame traces line to specific task context
-- Clear history for Claude in future sessions
-  </task_commit_protocol>
+</task_commit_protocol>
 
 <summary_creation>
 After all tasks complete, create `{phase}-{plan}-SUMMARY.md`.
@@ -645,37 +332,12 @@ After all tasks complete, create `{phase}-{plan}-SUMMARY.md`.
 - Good: "JWT auth with refresh rotation using jose library"
 - Bad: "Authentication implemented"
 
-**Include deviation documentation:**
+**Include deviation documentation** (see references/deviation-rules.md for format):
 
-```markdown
-## Deviations from Plan
-
-### Auto-fixed Issues
-
-**1. [Rule 1 - Bug] Fixed case-sensitive email uniqueness**
-
-- **Found during:** Task 4
-- **Issue:** [description]
-- **Fix:** [what was done]
-- **Files modified:** [files]
-- **Commit:** [hash]
-```
-
+If deviations occurred, document each with rule applied, issue found, fix made, and commit hash.
 Or if none: "None - plan executed exactly as written."
 
-**Include authentication gates section if any occurred:**
-
-```markdown
-## Authentication Gates
-
-During execution, these authentication requirements were handled:
-
-1. Task 3: Vercel CLI required authentication
-   - Paused for `vercel login`
-   - Resumed after authentication
-   - Deployed successfully
-```
-
+**Include authentication gates section if any occurred** (see execute-plan-auth.md for format).
 </summary_creation>
 
 <state_updates>
@@ -781,4 +443,4 @@ Plan execution complete when:
 - [ ] STATE.md updated (position, decisions, issues, session)
 - [ ] Final metadata commit made
 - [ ] Completion format returned to orchestrator
-      </success_criteria>
+</success_criteria>

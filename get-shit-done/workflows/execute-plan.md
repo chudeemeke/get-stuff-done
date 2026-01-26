@@ -9,6 +9,19 @@ Read config.json for planning behavior settings.
 @~/.claude/get-shit-done/references/git-integration.md
 </required_reading>
 
+<conditional_loading>
+## Load Based on Plan Characteristics
+
+**If plan has checkpoints** (detect with: `grep -q 'type="checkpoint' PLAN.md`):
+@~/.claude/get-shit-done/workflows/execute-plan-checkpoints.md
+
+**If authentication error encountered during execution:**
+@~/.claude/get-shit-done/workflows/execute-plan-auth.md
+
+**Deviation handling rules (reference as needed):**
+@~/.claude/get-shit-done/references/deviation-rules.md
+</conditional_loading>
+
 <process>
 
 <step name="resolve_model_profile" priority="first">
@@ -109,6 +122,14 @@ SUMMARY naming follows same pattern:
 
 Confirm with user if ambiguous.
 
+**Check for checkpoints (determines which workflow extensions to load):**
+
+```bash
+HAS_CHECKPOINTS=$(grep -q 'type="checkpoint' .planning/phases/XX-name/{phase}-{plan}-PLAN.md && echo "true" || echo "false")
+```
+
+If `HAS_CHECKPOINTS=true`, load execute-plan-checkpoints.md for checkpoint handling logic.
+
 <config-check>
 ```bash
 cat .planning/config.json 2>/dev/null
@@ -123,7 +144,7 @@ cat .planning/config.json 2>/dev/null
 Starting execution...
 ```
 
-Proceed directly to parse_segments step.
+Proceed directly to load_prompt step.
 </if>
 
 <if mode="interactive" OR="custom with gates.execute_next_plan true">
@@ -151,384 +172,11 @@ PLAN_START_EPOCH=$(date +%s)
 Store in shell variables for duration calculation at completion.
 </step>
 
-<step name="parse_segments">
-**Intelligent segmentation: Parse plan into execution segments.**
-
-Plans are divided into segments by checkpoints. Each segment is routed to optimal execution context (subagent or main).
-
-**1. Check for checkpoints:**
-
-```bash
-# Find all checkpoints and their types
-grep -n "type=\"checkpoint" .planning/phases/XX-name/{phase}-{plan}-PLAN.md
-```
-
-**2. Analyze execution strategy:**
-
-**If NO checkpoints found:**
-
-- **Fully autonomous plan** - spawn single subagent for entire plan
-- Subagent gets fresh 200k context, executes all tasks, creates SUMMARY, commits
-- Main context: Just orchestration (~5% usage)
-
-**If checkpoints found, parse into segments:**
-
-Segment = tasks between checkpoints (or start→first checkpoint, or last checkpoint→end)
-
-**For each segment, determine routing:**
-
-```
-Segment routing rules:
-
-IF segment has no prior checkpoint:
-  → SUBAGENT (first segment, nothing to depend on)
-
-IF segment follows checkpoint:human-verify:
-  → SUBAGENT (verification is just confirmation, doesn't affect next work)
-
-IF segment follows checkpoint:decision OR checkpoint:human-action:
-  → MAIN CONTEXT (next tasks need the decision/result)
-```
-
-**3. Execution pattern:**
-
-**Pattern A: Fully autonomous (no checkpoints)**
-
-```
-Spawn subagent → execute all tasks → SUMMARY → commit → report back
-```
-
-**Pattern B: Segmented with verify-only checkpoints**
-
-```
-Segment 1 (tasks 1-3): Spawn subagent → execute → report back
-Checkpoint 4 (human-verify): Main context → you verify → continue
-Segment 2 (tasks 5-6): Spawn NEW subagent → execute → report back
-Checkpoint 7 (human-verify): Main context → you verify → continue
-Aggregate results → SUMMARY → commit
-```
-
-**Pattern C: Decision-dependent (must stay in main)**
-
-```
-Checkpoint 1 (decision): Main context → you decide → continue in main
-Tasks 2-5: Main context (need decision from checkpoint 1)
-No segmentation benefit - execute entirely in main
-```
-
-**4. Why segment:** Fresh context per subagent preserves peak quality. Main context stays lean (~15% usage).
-
-**5. Implementation:**
-
-**For fully autonomous plans:**
-
-```
-1. Run init_agent_tracking step first (see step below)
-
-2. Use Task tool with subagent_type="gsd-executor" and model="{executor_model}":
-
-   Prompt: "Execute plan at .planning/phases/{phase}-{plan}-PLAN.md
-
-   This is an autonomous plan (no checkpoints). Execute all tasks, create SUMMARY.md in phase directory, commit with message following plan's commit guidance.
-
-   Follow all deviation rules and authentication gate protocols from the plan.
-
-   When complete, report: plan name, tasks completed, SUMMARY path, commit hash."
-
-3. After Task tool returns with agent_id:
-
-   a. Write agent_id to current-agent-id.txt:
-      echo "[agent_id]" > .planning/current-agent-id.txt
-
-   b. Append spawn entry to agent-history.json:
-      {
-        "agent_id": "[agent_id from Task response]",
-        "task_description": "Execute full plan {phase}-{plan} (autonomous)",
-        "phase": "{phase}",
-        "plan": "{plan}",
-        "segment": null,
-        "timestamp": "[ISO timestamp]",
-        "status": "spawned",
-        "completion_timestamp": null
-      }
-
-4. Wait for subagent to complete
-
-5. After subagent completes successfully:
-
-   a. Update agent-history.json entry:
-      - Find entry with matching agent_id
-      - Set status: "completed"
-      - Set completion_timestamp: "[ISO timestamp]"
-
-   b. Clear current-agent-id.txt:
-      rm .planning/current-agent-id.txt
-
-6. Report completion to user
-```
-
-**For segmented plans (has verify-only checkpoints):**
-
-```
-Execute segment-by-segment:
-
-For each autonomous segment:
-  Spawn subagent with prompt: "Execute tasks [X-Y] from plan at .planning/phases/{phase}-{plan}-PLAN.md. Read the plan for full context and deviation rules. Do NOT create SUMMARY or commit - just execute these tasks and report results."
-
-  Wait for subagent completion
-
-For each checkpoint:
-  Execute in main context
-  Wait for user interaction
-  Continue to next segment
-
-After all segments complete:
-  Aggregate all results
-  Create SUMMARY.md
-  Commit with all changes
-```
-
-**For decision-dependent plans:**
-
-```
-Execute in main context (standard flow below)
-No subagent routing
-Quality maintained through small scope (2-3 tasks per plan)
-```
-
-See step name="segment_execution" for detailed segment execution loop.
-</step>
-
-<step name="init_agent_tracking">
-**Initialize agent tracking for subagent resume capability.**
-
-Before spawning any subagents, set up tracking infrastructure:
-
-**1. Create/verify tracking files:**
-
-```bash
-# Create agent history file if doesn't exist
-if [ ! -f .planning/agent-history.json ]; then
-  echo '{"version":"1.0","max_entries":50,"entries":[]}' > .planning/agent-history.json
-fi
-
-# Clear any stale current-agent-id (from interrupted sessions)
-# Will be populated when subagent spawns
-rm -f .planning/current-agent-id.txt
-```
-
-**2. Check for interrupted agents (resume detection):**
-
-```bash
-# Check if current-agent-id.txt exists from previous interrupted session
-if [ -f .planning/current-agent-id.txt ]; then
-  INTERRUPTED_ID=$(cat .planning/current-agent-id.txt)
-  echo "Found interrupted agent: $INTERRUPTED_ID"
-fi
-```
-
-**If interrupted agent found:**
-- The agent ID file exists from a previous session that didn't complete
-- This agent can potentially be resumed using Task tool's `resume` parameter
-- Present to user: "Previous session was interrupted. Resume agent [ID] or start fresh?"
-- If resume: Use Task tool with `resume` parameter set to the interrupted ID
-- If fresh: Clear the file and proceed normally
-
-**3. Prune old entries (housekeeping):**
-
-If agent-history.json has more than `max_entries`:
-- Remove oldest entries with status "completed"
-- Never remove entries with status "spawned" (may need resume)
-- Keep file under size limit for fast reads
-
-**When to run this step:**
-- Pattern A (fully autonomous): Before spawning the single subagent
-- Pattern B (segmented): Before the segment execution loop
-- Pattern C (main context): Skip - no subagents spawned
-</step>
-
-<step name="segment_execution">
-**Detailed segment execution loop for segmented plans.**
-
-**This step applies ONLY to segmented plans (Pattern B: has checkpoints, but they're verify-only).**
-
-For Pattern A (fully autonomous) and Pattern C (decision-dependent), skip this step.
-
-**Execution flow:**
-
-````
-1. Parse plan to identify segments:
-   - Read plan file
-   - Find checkpoint locations: grep -n "type=\"checkpoint" PLAN.md
-   - Identify checkpoint types: grep "type=\"checkpoint" PLAN.md | grep -o 'checkpoint:[^"]*'
-   - Build segment map:
-     * Segment 1: Start → first checkpoint (tasks 1-X)
-     * Checkpoint 1: Type and location
-     * Segment 2: After checkpoint 1 → next checkpoint (tasks X+1 to Y)
-     * Checkpoint 2: Type and location
-     * ... continue for all segments
-
-2. For each segment in order:
-
-   A. Determine routing (apply rules from parse_segments):
-      - No prior checkpoint? → Subagent
-      - Prior checkpoint was human-verify? → Subagent
-      - Prior checkpoint was decision/human-action? → Main context
-
-   B. If routing = Subagent:
-      ```
-      Spawn Task tool with subagent_type="gsd-executor" and model="{executor_model}":
-
-      Prompt: "Execute tasks [task numbers/names] from plan at [plan path].
-
-      **Context:**
-      - Read the full plan for objective, context files, and deviation rules
-      - You are executing a SEGMENT of this plan (not the full plan)
-      - Other segments will be executed separately
-
-      **Your responsibilities:**
-      - Execute only the tasks assigned to you
-      - Follow all deviation rules and authentication gate protocols
-      - Track deviations for later Summary
-      - DO NOT create SUMMARY.md (will be created after all segments complete)
-      - DO NOT commit (will be done after all segments complete)
-
-      **Report back:**
-      - Tasks completed
-      - Files created/modified
-      - Deviations encountered
-      - Any issues or blockers"
-
-      **After Task tool returns with agent_id:**
-
-      1. Write agent_id to current-agent-id.txt:
-         echo "[agent_id]" > .planning/current-agent-id.txt
-
-      2. Append spawn entry to agent-history.json:
-         {
-           "agent_id": "[agent_id from Task response]",
-           "task_description": "Execute tasks [X-Y] from plan {phase}-{plan}",
-           "phase": "{phase}",
-           "plan": "{plan}",
-           "segment": [segment_number],
-           "timestamp": "[ISO timestamp]",
-           "status": "spawned",
-           "completion_timestamp": null
-         }
-
-      Wait for subagent to complete
-      Capture results (files changed, deviations, etc.)
-
-      **After subagent completes successfully:**
-
-      1. Update agent-history.json entry:
-         - Find entry with matching agent_id
-         - Set status: "completed"
-         - Set completion_timestamp: "[ISO timestamp]"
-
-      2. Clear current-agent-id.txt:
-         rm .planning/current-agent-id.txt
-
-      ```
-
-   C. If routing = Main context:
-      Execute tasks in main using standard execution flow (step name="execute")
-      Track results locally
-
-   D. After segment completes (whether subagent or main):
-      Continue to next checkpoint/segment
-
-3. After ALL segments complete:
-
-   A. Aggregate results from all segments:
-      - Collect files created/modified from all segments
-      - Collect deviations from all segments
-      - Collect decisions from all checkpoints
-      - Merge into complete picture
-
-   B. Create SUMMARY.md:
-      - Use aggregated results
-      - Document all work from all segments
-      - Include deviations from all segments
-      - Note which segments were subagented
-
-   C. Commit:
-      - Stage all files from all segments
-      - Stage SUMMARY.md
-      - Commit with message following plan guidance
-      - Include note about segmented execution if relevant
-
-   D. Report completion
-
-**Example execution trace:**
-
-````
-
-Plan: 01-02-PLAN.md (8 tasks, 2 verify checkpoints)
-
-Parsing segments...
-
-- Segment 1: Tasks 1-3 (autonomous)
-- Checkpoint 4: human-verify
-- Segment 2: Tasks 5-6 (autonomous)
-- Checkpoint 7: human-verify
-- Segment 3: Task 8 (autonomous)
-
-Routing analysis:
-
-- Segment 1: No prior checkpoint → SUBAGENT ✓
-- Checkpoint 4: Verify only → MAIN (required)
-- Segment 2: After verify → SUBAGENT ✓
-- Checkpoint 7: Verify only → MAIN (required)
-- Segment 3: After verify → SUBAGENT ✓
-
-Execution:
-[1] Spawning subagent for tasks 1-3...
-→ Subagent completes: 3 files modified, 0 deviations
-[2] Executing checkpoint 4 (human-verify)...
-╔═══════════════════════════════════════════════════════╗
-║  CHECKPOINT: Verification Required                    ║
-╚═══════════════════════════════════════════════════════╝
-
-Progress: 3/8 tasks complete
-Task: Verify database schema
-
-Built: User and Session tables with relations
-
-How to verify:
-  1. Check src/db/schema.ts for correct types
-
-────────────────────────────────────────────────────────
-→ YOUR ACTION: Type "approved" or describe issues
-────────────────────────────────────────────────────────
-User: "approved"
-[3] Spawning subagent for tasks 5-6...
-→ Subagent completes: 2 files modified, 1 deviation (added error handling)
-[4] Executing checkpoint 7 (human-verify)...
-User: "approved"
-[5] Spawning subagent for task 8...
-→ Subagent completes: 1 file modified, 0 deviations
-
-Aggregating results...
-
-- Total files: 6 modified
-- Total deviations: 1
-- Segmented execution: 3 subagents, 2 checkpoints
-
-Creating SUMMARY.md...
-Committing...
-✓ Complete
-
-````
-
-**Benefit:** Each subagent starts fresh (~20-30% context), enabling larger plans without quality degradation.
-</step>
-
 <step name="load_prompt">
 Read the plan prompt:
 ```bash
 cat .planning/phases/XX-name/{phase}-{plan}-PLAN.md
-````
+```
 
 This IS the execution instructions. Follow it exactly.
 
@@ -554,10 +202,10 @@ Use AskUserQuestion:
   - "Proceed anyway" - Issues won't block this phase
   - "Address first" - Let's resolve before continuing
   - "Review previous" - Show me the full summary
-    </step>
+</step>
 
 <step name="execute">
-Execute each task in the prompt. **Deviations are normal** - handle them automatically using embedded rules below.
+Execute each task in the prompt. **Deviations are normal** - handle them using deviation rules (see references/deviation-rules.md).
 
 1. Read the @context files listed in the prompt
 
@@ -570,8 +218,8 @@ Execute each task in the prompt. **Deviations are normal** - handle them automat
    - If no: Standard implementation
 
    - Work toward task completion
-   - **If CLI/API returns authentication error:** Handle as authentication gate (see below)
-   - **When you discover additional work not in plan:** Apply deviation rules (see below) automatically
+   - **If CLI/API returns authentication error:** Load execute-plan-auth.md and follow authentication gate protocol
+   - **When you discover additional work not in plan:** Apply deviation rules (see references/deviation-rules.md) automatically
    - Continue implementing, applying rules as needed
    - Run the verification
    - Confirm done criteria met
@@ -582,327 +230,15 @@ Execute each task in the prompt. **Deviations are normal** - handle them automat
    **If `type="checkpoint:*"`:**
 
    - STOP immediately (do not continue to next task)
-   - Execute checkpoint_protocol (see below)
+   - Execute checkpoint_protocol (see execute-plan-checkpoints.md)
    - Wait for user response
    - Verify if possible (check files, env vars, etc.)
    - Only after user confirmation: continue to next task
 
 3. Run overall verification checks from `<verification>` section
 4. Confirm all success criteria from `<success_criteria>` section met
-5. Document all deviations in Summary (automatic - see deviation_documentation below)
-   </step>
-
-<authentication_gates>
-
-## Handling Authentication Errors During Execution
-
-**When you encounter authentication errors during `type="auto"` task execution:**
-
-This is NOT a failure. Authentication gates are expected and normal. Handle them dynamically:
-
-**Authentication error indicators:**
-
-- CLI returns: "Error: Not authenticated", "Not logged in", "Unauthorized", "401", "403"
-- API returns: "Authentication required", "Invalid API key", "Missing credentials"
-- Command fails with: "Please run {tool} login" or "Set {ENV_VAR} environment variable"
-
-**Authentication gate protocol:**
-
-1. **Recognize it's an auth gate** - Not a bug, just needs credentials
-2. **STOP current task execution** - Don't retry repeatedly
-3. **Create dynamic checkpoint:human-action** - Present it to user immediately
-4. **Provide exact authentication steps** - CLI commands, where to get keys
-5. **Wait for user to authenticate** - Let them complete auth flow
-6. **Verify authentication works** - Test that credentials are valid
-7. **Retry the original task** - Resume automation where you left off
-8. **Continue normally** - Don't treat this as an error in Summary
-
-**Example: Vercel deployment hits auth error**
-
-```
-Task 3: Deploy to Vercel
-Running: vercel --yes
-
-Error: Not authenticated. Please run 'vercel login'
-
-[Create checkpoint dynamically]
-
-╔═══════════════════════════════════════════════════════╗
-║  CHECKPOINT: Action Required                          ║
-╚═══════════════════════════════════════════════════════╝
-
-Progress: 2/8 tasks complete
-Task: Authenticate Vercel CLI
-
-Attempted: vercel --yes
-Error: Not authenticated
-
-What you need to do:
-  1. Run: vercel login
-  2. Complete browser authentication
-
-I'll verify: vercel whoami returns your account
-
-────────────────────────────────────────────────────────
-→ YOUR ACTION: Type "done" when authenticated
-────────────────────────────────────────────────────────
-
-[Wait for user response]
-
-[User types "done"]
-
-Verifying authentication...
-Running: vercel whoami
-✓ Authenticated as: user@example.com
-
-Retrying deployment...
-Running: vercel --yes
-✓ Deployed to: https://myapp-abc123.vercel.app
-
-Task 3 complete. Continuing to task 4...
-```
-
-**In Summary documentation:**
-
-Document authentication gates as normal flow, not deviations:
-
-```markdown
-## Authentication Gates
-
-During execution, I encountered authentication requirements:
-
-1. Task 3: Vercel CLI required authentication
-   - Paused for `vercel login`
-   - Resumed after authentication
-   - Deployed successfully
-
-These are normal gates, not errors.
-```
-
-**Key principles:**
-
-- Authentication gates are NOT failures or bugs
-- They're expected interaction points during first-time setup
-- Handle them gracefully and continue automation after unblocked
-- Don't mark tasks as "failed" or "incomplete" due to auth gates
-- Document them as normal flow, separate from deviations
-  </authentication_gates>
-
-<deviation_rules>
-
-## Automatic Deviation Handling
-
-**While executing tasks, you WILL discover work not in the plan.** This is normal.
-
-Apply these rules automatically. Track all deviations for Summary documentation.
-
----
-
-**RULE 1: Auto-fix bugs**
-
-**Trigger:** Code doesn't work as intended (broken behavior, incorrect output, errors)
-
-**Action:** Fix immediately, track for Summary
-
-**Examples:**
-
-- Wrong SQL query returning incorrect data
-- Logic errors (inverted condition, off-by-one, infinite loop)
-- Type errors, null pointer exceptions, undefined references
-- Broken validation (accepts invalid input, rejects valid input)
-- Security vulnerabilities (SQL injection, XSS, CSRF, insecure auth)
-- Race conditions, deadlocks
-- Memory leaks, resource leaks
-
-**Process:**
-
-1. Fix the bug inline
-2. Add/update tests to prevent regression
-3. Verify fix works
-4. Continue task
-5. Track in deviations list: `[Rule 1 - Bug] [description]`
-
-**No user permission needed.** Bugs must be fixed for correct operation.
-
----
-
-**RULE 2: Auto-add missing critical functionality**
-
-**Trigger:** Code is missing essential features for correctness, security, or basic operation
-
-**Action:** Add immediately, track for Summary
-
-**Examples:**
-
-- Missing error handling (no try/catch, unhandled promise rejections)
-- No input validation (accepts malicious data, type coercion issues)
-- Missing null/undefined checks (crashes on edge cases)
-- No authentication on protected routes
-- Missing authorization checks (users can access others' data)
-- No CSRF protection, missing CORS configuration
-- No rate limiting on public APIs
-- Missing required database indexes (causes timeouts)
-- No logging for errors (can't debug production)
-
-**Process:**
-
-1. Add the missing functionality inline
-2. Add tests for the new functionality
-3. Verify it works
-4. Continue task
-5. Track in deviations list: `[Rule 2 - Missing Critical] [description]`
-
-**Critical = required for correct/secure/performant operation**
-**No user permission needed.** These are not "features" - they're requirements for basic correctness.
-
----
-
-**RULE 3: Auto-fix blocking issues**
-
-**Trigger:** Something prevents you from completing current task
-
-**Action:** Fix immediately to unblock, track for Summary
-
-**Examples:**
-
-- Missing dependency (package not installed, import fails)
-- Wrong types blocking compilation
-- Broken import paths (file moved, wrong relative path)
-- Missing environment variable (app won't start)
-- Database connection config error
-- Build configuration error (webpack, tsconfig, etc.)
-- Missing file referenced in code
-- Circular dependency blocking module resolution
-
-**Process:**
-
-1. Fix the blocking issue
-2. Verify task can now proceed
-3. Continue task
-4. Track in deviations list: `[Rule 3 - Blocking] [description]`
-
-**No user permission needed.** Can't complete task without fixing blocker.
-
----
-
-**RULE 4: Ask about architectural changes**
-
-**Trigger:** Fix/addition requires significant structural modification
-
-**Action:** STOP, present to user, wait for decision
-
-**Examples:**
-
-- Adding new database table (not just column)
-- Major schema changes (changing primary key, splitting tables)
-- Introducing new service layer or architectural pattern
-- Switching libraries/frameworks (React → Vue, REST → GraphQL)
-- Changing authentication approach (sessions → JWT)
-- Adding new infrastructure (message queue, cache layer, CDN)
-- Changing API contracts (breaking changes to endpoints)
-- Adding new deployment environment
-
-**Process:**
-
-1. STOP current task
-2. Present clearly:
-
-```
-⚠️ Architectural Decision Needed
-
-Current task: [task name]
-Discovery: [what you found that prompted this]
-Proposed change: [architectural modification]
-Why needed: [rationale]
-Impact: [what this affects - APIs, deployment, dependencies, etc.]
-Alternatives: [other approaches, or "none apparent"]
-
-Proceed with proposed change? (yes / different approach / defer)
-```
-
-3. WAIT for user response
-4. If approved: implement, track as `[Rule 4 - Architectural] [description]`
-5. If different approach: discuss and implement
-6. If deferred: note in Summary and continue without change
-
-**User decision required.** These changes affect system design.
-
----
-
-**RULE PRIORITY (when multiple could apply):**
-
-1. **If Rule 4 applies** → STOP and ask (architectural decision)
-2. **If Rules 1-3 apply** → Fix automatically, track for Summary
-3. **If genuinely unsure which rule** → Apply Rule 4 (ask user)
-
-**Edge case guidance:**
-
-- "This validation is missing" → Rule 2 (critical for security)
-- "This crashes on null" → Rule 1 (bug)
-- "Need to add table" → Rule 4 (architectural)
-- "Need to add column" → Rule 1 or 2 (depends: fixing bug or adding critical field)
-
-**When in doubt:** Ask yourself "Does this affect correctness, security, or ability to complete task?"
-
-- YES → Rules 1-3 (fix automatically)
-- MAYBE → Rule 4 (ask user)
-
-</deviation_rules>
-
-<deviation_documentation>
-
-## Documenting Deviations in Summary
-
-After all tasks complete, Summary MUST include deviations section.
-
-**If no deviations:**
-
-```markdown
-## Deviations from Plan
-
-None - plan executed exactly as written.
-```
-
-**If deviations occurred:**
-
-```markdown
-## Deviations from Plan
-
-### Auto-fixed Issues
-
-**1. [Rule 1 - Bug] Fixed case-sensitive email uniqueness constraint**
-
-- **Found during:** Task 4 (Follow/unfollow API implementation)
-- **Issue:** User.email unique constraint was case-sensitive - Test@example.com and test@example.com were both allowed, causing duplicate accounts
-- **Fix:** Changed to `CREATE UNIQUE INDEX users_email_unique ON users (LOWER(email))`
-- **Files modified:** src/models/User.ts, migrations/003_fix_email_unique.sql
-- **Verification:** Unique constraint test passes - duplicate emails properly rejected
-- **Commit:** abc123f
-
-**2. [Rule 2 - Missing Critical] Added JWT expiry validation to auth middleware**
-
-- **Found during:** Task 3 (Protected route implementation)
-- **Issue:** Auth middleware wasn't checking token expiry - expired tokens were being accepted
-- **Fix:** Added exp claim validation in middleware, reject with 401 if expired
-- **Files modified:** src/middleware/auth.ts, src/middleware/auth.test.ts
-- **Verification:** Expired token test passes - properly rejects with 401
-- **Commit:** def456g
-
----
-
-**Total deviations:** 4 auto-fixed (1 bug, 1 missing critical, 1 blocking, 1 architectural with approval)
-**Impact on plan:** All auto-fixes necessary for correctness/security/performance. No scope creep.
-```
-
-**This provides complete transparency:**
-
-- Every deviation documented
-- Why it was needed
-- What rule applied
-- What was done
-- User can see exactly what happened beyond the plan
-
-</deviation_documentation>
+5. Document all deviations in Summary (see references/deviation-rules.md for documentation format)
+</step>
 
 <tdd_plan_execution>
 ## TDD Plan Execution
@@ -1046,164 +382,6 @@ TASK_COMMITS+=("Task ${TASK_NUM}: ${TASK_COMMIT}")
 ```
 
 </task_commit>
-
-<step name="checkpoint_protocol">
-When encountering `type="checkpoint:*"`:
-
-**Critical: Claude automates everything with CLI/API before checkpoints.** Checkpoints are for verification and decisions, not manual work.
-
-**Display checkpoint clearly:**
-
-```
-╔═══════════════════════════════════════════════════════╗
-║  CHECKPOINT: [Type]                                   ║
-╚═══════════════════════════════════════════════════════╝
-
-Progress: {X}/{Y} tasks complete
-Task: [task name]
-
-[Display task-specific content based on type]
-
-────────────────────────────────────────────────────────
-→ YOUR ACTION: [Resume signal instruction]
-────────────────────────────────────────────────────────
-```
-
-**For checkpoint:human-verify (90% of checkpoints):**
-
-```
-Built: [what was automated - deployed, built, configured]
-
-How to verify:
-  1. [Step 1 - exact command/URL]
-  2. [Step 2 - what to check]
-  3. [Step 3 - expected behavior]
-
-────────────────────────────────────────────────────────
-→ YOUR ACTION: Type "approved" or describe issues
-────────────────────────────────────────────────────────
-```
-
-**For checkpoint:decision (9% of checkpoints):**
-
-```
-Decision needed: [decision]
-
-Context: [why this matters]
-
-Options:
-1. [option-id]: [name]
-   Pros: [pros]
-   Cons: [cons]
-
-2. [option-id]: [name]
-   Pros: [pros]
-   Cons: [cons]
-
-[Resume signal - e.g., "Select: option-id"]
-```
-
-**For checkpoint:human-action (1% - rare, only for truly unavoidable manual steps):**
-
-```
-I automated: [what Claude already did via CLI/API]
-
-Need your help with: [the ONE thing with no CLI/API - email link, 2FA code]
-
-Instructions:
-[Single unavoidable step]
-
-I'll verify after: [verification]
-
-[Resume signal - e.g., "Type 'done' when complete"]
-```
-
-**After displaying:** WAIT for user response. Do NOT hallucinate completion. Do NOT continue to next task.
-
-**After user responds:**
-
-- Run verification if specified (file exists, env var set, tests pass, etc.)
-- If verification passes or N/A: continue to next task
-- If verification fails: inform user, wait for resolution
-
-See ~/.claude/get-shit-done/references/checkpoints.md for complete checkpoint guidance.
-</step>
-
-<step name="checkpoint_return_for_orchestrator">
-**When spawned by an orchestrator (execute-phase or execute-plan command):**
-
-If you were spawned via Task tool and hit a checkpoint, you cannot directly interact with the user. Instead, RETURN to the orchestrator with structured checkpoint state so it can present to the user and spawn a fresh continuation agent.
-
-**Return format for checkpoints:**
-
-**Required in your return:**
-
-1. **Completed Tasks table** - Tasks done so far with commit hashes and files created
-2. **Current Task** - Which task you're on and what's blocking it
-3. **Checkpoint Details** - User-facing content (verification steps, decision options, or action instructions)
-4. **Awaiting** - What you need from the user
-
-**Example return:**
-
-```
-## CHECKPOINT REACHED
-
-**Type:** human-action
-**Plan:** 01-01
-**Progress:** 1/3 tasks complete
-
-### Completed Tasks
-
-| Task | Name | Commit | Files |
-|------|------|--------|-------|
-| 1 | Initialize Next.js 15 project | d6fe73f | package.json, tsconfig.json, app/ |
-
-### Current Task
-
-**Task 2:** Initialize Convex backend
-**Status:** blocked
-**Blocked by:** Convex CLI authentication required
-
-### Checkpoint Details
-
-**Automation attempted:**
-Ran `npx convex dev` to initialize Convex backend
-
-**Error encountered:**
-"Error: Not authenticated. Run `npx convex login` first."
-
-**What you need to do:**
-1. Run: `npx convex login`
-2. Complete browser authentication
-3. Run: `npx convex dev`
-4. Create project when prompted
-
-**I'll verify after:**
-`cat .env.local | grep CONVEX` returns the Convex URL
-
-### Awaiting
-
-Type "done" when Convex is authenticated and project created.
-```
-
-**After you return:**
-
-The orchestrator will:
-1. Parse your structured return
-2. Present checkpoint details to the user
-3. Collect user's response
-4. Spawn a FRESH continuation agent with your completed tasks state
-
-You will NOT be resumed. A new agent continues from where you stopped, using your Completed Tasks table to know what's done.
-
-**How to know if you were spawned:**
-
-If you're reading this workflow because an orchestrator spawned you (vs running directly), the orchestrator's prompt will include checkpoint return instructions. Follow those instructions when you hit a checkpoint.
-
-**If running in main context (not spawned):**
-
-Use the standard checkpoint_protocol - display checkpoint and wait for direct user response.
-</step>
 
 <step name="verification_failure_gate">
 If any task verification fails:
@@ -1376,7 +554,7 @@ The one-liner must be SUBSTANTIVE:
 
 - If more plans exist in this phase: "Ready for {phase}-{next-plan}-PLAN.md"
 - If this is the last plan: "Phase complete, ready for transition"
-  </step>
+</step>
 
 <step name="update_current_position">
 Update Current Position section in STATE.md to reflect plan completion.
@@ -1434,7 +612,7 @@ Progress: ███████░░░ 50%
 - [ ] Status reflects current state (In progress / Phase complete)
 - [ ] Last activity shows today's date and the plan just completed
 - [ ] Progress bar calculated correctly from total completed plans
-      </step>
+</step>
 
 <step name="extract_decisions_and_issues">
 Extract decisions, issues, and concerns from SUMMARY.md into STATE.md accumulated context.
@@ -1451,7 +629,7 @@ Extract decisions, issues, and concerns from SUMMARY.md into STATE.md accumulate
 - Read SUMMARY.md "## Next Phase Readiness" section
 - If contains blockers or concerns:
   - Add to STATE.md "Blockers/Concerns Carried Forward"
-    </step>
+</step>
 
 <step name="update_session_continuity">
 Update Session Continuity section in STATE.md to enable resumption in future sessions.
@@ -1841,4 +1019,4 @@ All {Y} plans finished.
 - ROADMAP.md updated
 - If codebase map exists: map updated with execution changes (or skipped if no significant changes)
 - If USER-SETUP.md created: prominently surfaced in completion output
-  </success_criteria>
+</success_criteria>

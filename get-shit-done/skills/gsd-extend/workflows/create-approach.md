@@ -1,129 +1,199 @@
 <purpose>
-Create a complete GSD approach through conversational discovery. An approach is a cohesive methodology with a workflow and supporting components (references, agents, templates) that work together.
+Create a complete GSD approach through conversational discovery. An approach is a cohesive methodology - a workflow with supporting references, agents, and templates that work together.
+
+You are a thinking partner, not an interviewer. The user knows what they want to achieve differently. Your job is to understand their vision and translate it into GSD components.
 </purpose>
 
 <required_reading>
 @~/.claude/get-shit-done/skills/gsd-extend/references/extension-anatomy.md
-@~/.claude/get-shit-done/skills/gsd-extend/references/workflow-structure.md
-@~/.claude/get-shit-done/skills/gsd-extend/references/agent-structure.md
-@~/.claude/get-shit-done/skills/gsd-extend/references/reference-structure.md
-@~/.claude/get-shit-done/skills/gsd-extend/references/template-structure.md
 </required_reading>
+
+<philosophy>
+**User = methodology designer. Claude = builder.**
+
+The user knows:
+- What frustrates them about current workflow
+- What they imagine working better
+- When they'd use this approach
+- What success looks like
+
+The user doesn't know (and shouldn't need to):
+- GSD extension architecture
+- Workflow vs agent vs reference distinctions
+- XML structure and frontmatter format
+- How to wire components together
+
+Ask about their vision. You figure out the implementation.
+</philosophy>
 
 <process>
 
-<step name="open_conversation">
-Start with an open question to understand what the user wants to achieve.
+<step name="open_conversation" priority="first">
+**Display stage banner:**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GSD ► CREATE APPROACH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**Open the conversation:**
 
 Ask inline (freeform, NOT AskUserQuestion):
 
-"What would you like GSD to do differently? Describe the approach or methodology you have in mind."
+"What would you like GSD to do differently? Describe the workflow or approach you have in mind."
 
-Wait for their response. This gives context for intelligent follow-up.
+Wait for their response. This gives you context to ask intelligent follow-up questions.
 </step>
 
-<step name="explore_the_approach">
-Based on their response, explore what they're describing. Use AskUserQuestion to clarify:
+<step name="follow_the_thread">
+Based on what they said, ask follow-up questions that dig into their response.
 
-**Understand the trigger:**
-- When should this approach activate?
-- Does it replace something built-in or add new capability?
+**Use AskUserQuestion with options that probe what they mentioned:**
+- Interpretations of vague terms
+- Clarifications on triggers
+- Concrete examples of what success looks like
 
-**Understand the flow:**
-- What happens first? Then what?
-- Are there decision points?
-- What verification happens?
+**Keep following threads.** Each answer opens new threads. Ask about:
+- What frustrates them about the current approach
+- What specifically would be different
+- When this approach applies vs doesn't
+- What outputs or artifacts they expect
+- What domain knowledge would help
 
-**Understand the expertise:**
-- What domain knowledge is needed?
-- Is there specialized analysis required?
-- What patterns should be followed/avoided?
+**Example follow-up patterns:**
 
-**Understand the output:**
-- What artifacts are produced?
-- Are there specific formats required?
-- How does it integrate with existing GSD artifacts?
+If they mention "spike first":
+- "When you say spike, do you mean throwaway code or a minimal prototype?"
+- "What happens after the spike? Formal plans, or iterate on the spike?"
+- "How do you know when the spike is done?"
 
-Ask follow-up questions naturally. Don't interrogate - collaborate.
+If they mention "security review":
+- "At what point - before commit, before PR, after each task?"
+- "What should it check? OWASP top 10, or specific patterns?"
+- "Should it block on findings or just report?"
 
-Example questions:
-- "When you say X, do you mean A or B?"
-- "Walk me through what happens after Y"
-- "What makes this different from the default GSD flow?"
-- "What knowledge would Claude need to do this well?"
+If they mention "API first":
+- "OpenAPI spec, or informal contract?"
+- "Generate code from spec, or just validate against it?"
+- "Who writes the spec - you or Claude?"
+
+**The 4-then-check pattern:**
+
+After ~4 questions on a thread, check:
+
+- header: "Thread"
+- question: "More questions about [topic], or move on?"
+- options:
+  - "More questions" — I want to clarify further
+  - "Move on" — I've said enough about this
+
+If "More questions" → ask 4 more, then check again.
 </step>
 
 <step name="identify_components">
-Based on the conversation, identify what components are needed:
+As you converse, mentally map what they're describing to GSD components:
 
-**Workflow (always needed):**
-- What's the sequence of steps?
-- What triggers it? (plan-phase, execute-plan, verify-phase, custom)
-- Does it replace a built-in or run alongside?
+**Workflow signals:**
+- "First I want to..., then..." → sequence of steps
+- "At this point, check..." → verification step
+- "If X happens, then..." → conditional logic
+- "This replaces..." → override built-in
 
-**References (if domain knowledge needed):**
-- What patterns/practices should be known?
-- What anti-patterns should be avoided?
-- Is there project-specific context?
+**Reference signals:**
+- "Claude should know about..." → domain knowledge
+- "There are patterns for..." → best practices
+- "Watch out for..." → anti-patterns
+- "In our codebase, we..." → project conventions
 
-**Agent (if specialized work needed):**
-- Is there analysis that requires focus?
-- Would a dedicated worker improve quality?
-- What tools would it need?
+**Agent signals:**
+- "Specialized analysis of..." → focused worker
+- "Review for..." → auditing task
+- "Research..." → investigation task
+- "Generate..." → creation task
 
-**Template (if structured output needed):**
-- Are there specific artifacts to produce?
-- Is consistent formatting important?
-- What placeholders are needed?
+**Template signals:**
+- "The output should look like..." → structured format
+- "Always include..." → required sections
+- "Following this format..." → consistency need
 
-Present the component plan:
+Don't surface this analysis. Just track it internally.
+</step>
+
+<step name="ready_check">
+When you could design the approach, use AskUserQuestion:
+
+- header: "Ready?"
+- question: "I think I understand what you're after. Ready to design the approach?"
+- options:
+  - "Design it" — Let's see what you've got
+  - "Keep exploring" — I want to share more
+
+If "Keep exploring" — ask what they want to add, or identify gaps and probe naturally.
+
+Loop until "Design it" selected.
+</step>
+
+<step name="present_design">
+Present the approach design:
 
 ```
 ## Proposed Approach: {name}
 
 Based on our conversation, here's what I'll create:
 
-**Workflow:** {name}-workflow.md
-- Triggers: {triggers}
-- Replaces: {replaces or "Nothing (new capability)"}
-- Steps: {brief description of flow}
+**Workflow:** {name}.md
+- Triggers: {when it activates}
+- {Replaces: {built-in} OR Adds new capability}
+- Flow:
+  1. {step 1}
+  2. {step 2}
+  3. {step 3}
 
 {If reference needed:}
 **Reference:** {name}-patterns.md
-- Contains: {what knowledge}
+- Domain knowledge about: {what}
 - Loaded when: {triggers}
 
 {If agent needed:}
-**Agent:** {name}-agent.md
+**Agent:** {name}-{role}.md
 - Purpose: {what it does}
-- Tools: {tools}
-- Spawned by: {when}
+- Spawned: {when in the workflow}
 
 {If template needed:}
-**Template:** {name}-template.md
+**Template:** {name}-{artifact}.md
 - Produces: {what artifact}
-- Used by: {workflow/agent}
+- Used by: {workflow step}
 
-Does this capture your approach? Anything to add or change?
+---
+
+Does this capture your approach?
 ```
 
-Wait for confirmation or iterate.
+Use AskUserQuestion:
+- header: "Design"
+- question: "Does this design capture what you described?"
+- options:
+  - "Yes, create it" — Build all the components
+  - "Adjust" — Let me tell you what's different
+  - "Start over" — I want to describe it differently
+
+If "Adjust" — get their feedback, update design, present again.
+If "Start over" — return to open_conversation.
 </step>
 
 <step name="determine_scope">
-Ask where the approach should live:
+Use AskUserQuestion:
 
 - header: "Scope"
 - question: "Where should this approach be available?"
 - options:
-  - "All my projects" - Install to ~/.claude/gsd-extensions/ (Recommended)
-  - "This project only" - Install to .planning/extensions/
+  - "All my projects (Recommended)" — Install to ~/.claude/gsd-extensions/
+  - "This project only" — Install to .planning/extensions/
 </step>
 
 <step name="generate_components">
 Create all components with proper cross-references.
-
-**Naming convention:** All components share a prefix (e.g., `spike-*` for spike-first approach).
 
 **1. Create directories:**
 
@@ -135,125 +205,111 @@ else
 fi
 
 mkdir -p "$BASE/workflows"
-mkdir -p "$BASE/references"  # if needed
-mkdir -p "$BASE/agents"      # if needed
-mkdir -p "$BASE/templates"   # if needed
+[[ -n "$NEEDS_REFERENCE" ]] && mkdir -p "$BASE/references"
+[[ -n "$NEEDS_AGENT" ]] && mkdir -p "$BASE/agents"
+[[ -n "$NEEDS_TEMPLATE" ]] && mkdir -p "$BASE/templates"
 ```
 
-**2. Generate workflow:**
+**2. Generate each component:**
 
-The workflow is the orchestrator. It must:
-- Reference any supporting components via @-paths
-- Define when agents are spawned
-- Specify which templates to use for output
+For each component, use the appropriate structure from references/:
+- Workflow: @references/workflow-structure.md
+- Agent: @references/agent-structure.md
+- Reference: @references/reference-structure.md
+- Template: @references/template-structure.md
 
-Use the structure from workflow-structure.md.
+**3. Wire components together:**
 
-**3. Generate reference (if needed):**
+In the workflow, add @-references to other components:
 
-Populate with actual domain knowledge gathered from conversation.
-Include patterns, anti-patterns, and quick reference.
-
-Use the structure from reference-structure.md.
-
-**4. Generate agent (if needed):**
-
-Define role, expertise, execution flow, and output format.
-Grant minimum necessary tools.
-
-Use the structure from agent-structure.md.
-
-**5. Generate template (if needed):**
-
-Include template body, guidelines, and examples.
-Document all placeholders.
-
-Use the structure from template-structure.md.
-
-**Wire components together:**
-
-In the workflow:
 ```xml
 <required_reading>
 @{BASE}/references/{name}-patterns.md
 </required_reading>
 
-<step name="spawn_agent">
+<step name="spawn_specialized_agent">
 Task(
-  prompt="@{BASE}/agents/{name}-agent.md
+  prompt="@{BASE}/agents/{name}-{role}.md
 
-  <context>...</context>",
+  <context>
+  {context from workflow state}
+  </context>",
   subagent_type="general-purpose",
-  model="sonnet"
+  model="sonnet",
+  description="{brief}"
 )
 </step>
 
 <output>
-Use template: @{BASE}/templates/{name}-template.md
+Use template: @{BASE}/templates/{name}-{artifact}.md
 </output>
 ```
 </step>
 
-<step name="validate_all">
-Validate each component:
+<step name="validate">
+Validate all components:
 
 ```bash
-for file in "$BASE"/*/"${PREFIX}-"*.md; do
-  echo "Validating: $file"
-  # Check YAML frontmatter
-  head -20 "$file" | grep -E "^(name|description):"
-  # Check XML balance
-  OPEN=$(grep -oE '<[a-z_]+[^/>]*>' "$file" | wc -l)
-  CLOSE=$(grep -oE '</[a-z_]+>' "$file" | wc -l)
-  [[ "$OPEN" -eq "$CLOSE" ]] && echo "  ✓ XML balanced" || echo "  ✗ XML unbalanced"
+echo "Validating approach..."
+
+for file in "$BASE"/*/"${PREFIX}"*.md; do
+  echo "  Checking: $(basename $file)"
+
+  # YAML frontmatter
+  head -5 "$file" | grep -q "^---" && echo "    ✓ Frontmatter" || echo "    ✗ Missing frontmatter"
+
+  # Required fields
+  grep -q "^name:" "$file" && echo "    ✓ Name field" || echo "    ✗ Missing name"
+  grep -q "^description:" "$file" && echo "    ✓ Description" || echo "    ✗ Missing description"
 done
-```
 
-Check cross-references resolve:
-```bash
-grep -oE '@[~./][^[:space:]]+' "$BASE/workflows/${PREFIX}-"*.md | while read ref; do
+# Check cross-references resolve
+echo "  Checking references..."
+grep -ohE '@[~./][^[:space:]<>]+' "$BASE/workflows/${PREFIX}"*.md 2>/dev/null | while read ref; do
   path="${ref#@}"
   path="${path/#\~/$HOME}"
-  [[ -f "$path" ]] && echo "  ✓ $ref" || echo "  ✗ $ref NOT FOUND"
+  [[ -f "$path" ]] && echo "    ✓ $ref" || echo "    ✗ $ref NOT FOUND"
 done
+
+echo "Validation complete."
 ```
 </step>
 
-<step name="provide_usage">
-Show the user how to use their new approach:
-
+<step name="present_result">
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► APPROACH CREATED: {name}
+ GSD ► APPROACH CREATED ✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## Components
+## {Approach Name}
 
-| Type | File | Purpose |
-|------|------|---------|
-| Workflow | {path} | {purpose} |
-| Reference | {path} | {purpose} |
-| Agent | {path} | {purpose} |
-| Template | {path} | {purpose} |
+| Component | Location |
+|-----------|----------|
+| Workflow | {path} |
+| Reference | {path} |
+| Agent | {path} |
+| Template | {path} |
+
+───────────────────────────────────────────────────────────────
 
 ## How to Use
 
 {If replaces built-in:}
-Your approach automatically activates when you run `{trigger command}`.
-GSD will use your workflow instead of the built-in.
+Automatically activates when you run `{command}`.
+GSD uses your workflow instead of the built-in.
 
 {If new capability:}
-Reference the workflow in your commands or other workflows:
+Reference in your plans or workflows:
 @{workflow_path}
 
-{If has custom trigger:}
-Add to your PLAN.md or invoke directly:
-@{workflow_path}
+Or invoke the workflow step name from your commands.
 
-## To Customize Later
+───────────────────────────────────────────────────────────────
 
-Edit the files directly at:
-{BASE}/{type}/{name}.md
+## To Customize
+
+Edit files directly:
+{list paths}
 
 ## To Remove
 
@@ -266,11 +322,11 @@ Edit the files directly at:
 </process>
 
 <success_criteria>
-- [ ] User's approach fully understood through conversation
-- [ ] All needed components identified
-- [ ] Scope determined (project vs global)
-- [ ] All components generated with correct structure
+- [ ] User's vision fully understood through conversation
+- [ ] Follow-up questions probed what user mentioned (not generic)
+- [ ] User confirmed design before generation
+- [ ] All needed components identified and created
 - [ ] Components properly cross-referenced
 - [ ] All components pass validation
-- [ ] User knows how to use the approach
+- [ ] User knows how to use and customize the approach
 </success_criteria>

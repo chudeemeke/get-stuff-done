@@ -1,7 +1,7 @@
 ---
 name: gsd:autopilot
 description: Fully automated milestone execution from existing roadmap
-argument-hint: "[--from-phase N] [--dry-run] [--background]"
+argument-hint: "[--from-phase N] [--dry-run] [--background] [--model file.json]"
 allowed-tools:
   - Read
   - Write
@@ -34,6 +34,97 @@ Arguments: $ARGUMENTS
 - `--from-phase N` — Start from specific phase (default: first incomplete)
 - `--dry-run` — Generate script but don't run it
 - `--background` — Run detached with nohup (default: attached with streaming output)
+- `--model file.json` — Use custom phase models config (default: .planning/phase-models.json)
+</context>
+
+**Model Configuration:**
+
+The autopilot supports per-phase model selection via CCR (Claude Code Router). When CCR is detected:
+1. Creates `.planning/phase-models.json` from template (first run)
+2. Allows custom model per phase for different task types
+3. Falls back to native `claude` command if CCR unavailable
+
+Example configuration structure:
+```json
+{
+  "default_model": "claude-3-5-sonnet-latest",
+  "phases": {
+    "1": { "model": "claude-3-5-sonnet-latest" },
+    "2": { "model": "claude-3-5-opus-latest" },
+    "gaps": { "model": "claude-3-5-sonnet-latest" }
+  },
+  "provider_routing": {
+    "claude-3-5-sonnet-latest": {
+      "provider": "anthropic",
+      "base_url": "https://api.anthropic.com"
+    },
+    "glm-4.7": {
+      "provider": "z-ai",
+      "base_url": "https://open.bigmodel.cn/api/paas/v4/"
+    }
+  }
+}
+```
+
+**Benefits:**
+- Use expensive models (Opus) only for complex phases
+- Use GLM-4.7 for cost-effective routine tasks
+- Mix providers (Anthropic + OpenAI + Z-AI) for optimization
+- Per-phase routing matches task complexity to model capability
+
+**New: Beautiful Ink TUI**
+
+The autopilot now includes a stunning React/Ink-based terminal UI that provides:
+
+- **Rich visual components** with proper layouts, borders, and spacing
+- **Real-time phase progress** with completion tracking
+- **Live activity feed** with emoji indicators and color coding
+- **Cost and time statistics** with visual progress bars
+- **Smooth animations** and transitions
+- **Professional terminal graphics** using modern Ink components
+
+**Requirements:** Node.js 16+ for the Ink TUI. Falls back to bash TUI if unavailable.
+
+**Auto-detection:** The autopilot automatically detects and uses the Ink TUI if:
+1. Node.js is installed
+2. The TUI package is available (installed with GSD)
+
+Otherwise, it gracefully falls back to the classic bash display.
+
+## Example TUI Layout
+
+```
+╔═══════════════════════════════════════════════════════════════╗
+║     ██████╗ ███████╗██████╗                                     ║
+║    ██╔════╝ ██╔════╝██╔══██╗                                    ║
+║    ██║  ███╗███████╗██║  ██║                                    ║
+║    ██║   ██║╚════██║██║  ██║                                    ║
+║    ╚██████╔╝███████║██████╔╝                                     ║
+║     ╚═════╝ ╚══════╝╚═════╝                                      ║
+║                                                                   ║
+║          GET SHIT DONE - AUTOPILOT                                ║
+╚═══════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────┬─────────────────────────────────┐
+│ ┌─────────────────────────────┐ │ ┌─────────────────────────────┐ │
+│ │ PHASE 1: Project Setup      │ │ │ Activity Feed               │ │
+│ │                             │ │ │                             │ │
+│ │ Progress ████████░░░░░ 50%  │ │ │ [14:32:15] 🔧 BUILDING:     │ │
+│ │                             │ │ │   src/components/App.tsx    │ │
+│ │ Stages                      │ │ │                             │ │
+│ │ ✓ RESEARCH                 2m │ │ [14:32:01] ✓ COMMIT:        │ │
+│ │ ✓ PLANNING                 1m │ │   Initial commit            │ │
+│ │ ○ BUILDING                active│ │                             │ │
+│ └─────────────────────────────┘ │ └─────────────────────────────┘ │
+└─────────────────────────────────┴─────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 📊 Execution Stats                              Elapsed: 5m 23s │
+│ Phases ██████████████░░░░░░░░░░░░░░░░░░░ 2/5                        │
+│ Time   5m 23s (remaining: ~13m)                                  │
+│ Tokens: 45,230                Cost: $0.68                        │
+└─────────────────────────────────────────────────────────────────┘
+```
 </context>
 
 <process>
@@ -91,6 +182,29 @@ WEBHOOK_URL=$(cat .planning/config.json 2>/dev/null | grep -o '"notify_webhook"[
 MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
 ```
 
+**Check for CCR availability:**
+```bash
+if command -v ccr &> /dev/null; then
+  CCR_AVAILABLE=true
+  if [ ! -f .planning/phase-models.json ]; then
+    # Copy template
+    cp ~/.claude/get-shit-done/templates/phase-models-template.json .planning/phase-models.json
+    echo "Created .planning/phase-models.json from template"
+  fi
+else
+  CCR_AVAILABLE=false
+fi
+```
+
+**Load model configuration:**
+```bash
+if [ "$CCR_AVAILABLE" = true ] && [ -f .planning/phase-models.json ]; then
+  PHASE_MODELS_CONFIG=".planning/phase-models.json"
+else
+  PHASE_MODELS_CONFIG=""
+fi
+```
+
 ## 4. Present Execution Plan
 
 ```
@@ -110,17 +224,31 @@ MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"
 - Max retries: {N}
 - Budget limit: ${N} (0 = unlimited)
 - Notifications: {webhook|bell|none}
+- Model Routing: {CCR|native claude}
+
+───────────────────────────────────────────────────────────────
+
+**Model Configuration:**
+{if CCR_AVAILABLE}
+Available models from .planning/phase-models.json:
+- Default: {default_model}
+- Per-phase routing: enabled
+{/if}
+{if !CCR_AVAILABLE}
+Using native claude command (CCR not detected)
+{/if}
 
 ───────────────────────────────────────────────────────────────
 
 **Execution Plan:**
 
 For each remaining phase:
-1. Plan phase (if no plans exist)
-2. Execute phase (parallel waves)
-3. Verify phase goal
-4. If gaps found → plan gaps → execute gaps → re-verify
-5. Move to next phase
+1. Load model config for phase
+2. Plan phase (if no plans exist)
+3. Execute phase (parallel waves)
+4. Verify phase goal
+5. If gaps found → plan gaps → execute gaps → re-verify
+6. Move to next phase
 
 Checkpoints queued to: `.planning/checkpoints/pending/`
 
@@ -155,6 +283,7 @@ GITIGNORE_ENTRIES="
 .planning/autopilot.lock
 .planning/logs/
 .planning/checkpoints/
+.planning/phase-models.json
 "
 
 if [ -f .gitignore ]; then
@@ -163,6 +292,23 @@ if [ -f .gitignore ]; then
   fi
 else
   echo "$GITIGNORE_ENTRIES" > .gitignore
+fi
+```
+
+**Copy phase models template:**
+```bash
+if [ -n "$PHASE_MODELS_CONFIG" ] && [ ! -f ".planning/phase-models.json" ]; then
+  cp ~/.claude/get-shit-done/templates/phase-models-template.json \
+     .planning/phase-models.json
+  echo "Created .planning/phase-models.json from template"
+  echo "Edit this file to customize per-phase model selection"
+fi
+```
+
+**Update gitignore for phase models:**
+```bash
+if ! grep -q "phase-models.json" .gitignore; then
+  echo ".planning/phase-models.json" >> .gitignore
 fi
 ```
 
@@ -178,6 +324,7 @@ Present the following:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Script generated: .planning/autopilot.sh
+Model config: {if CCR_AVAILABLE}.planning/phase-models.json{else}CCR not detected - using default model{endif}
 
 ───────────────────────────────────────────────────────────────
 
@@ -193,12 +340,22 @@ cd {project_dir} && bash .planning/autopilot.sh
 cd {project_dir} && nohup bash .planning/autopilot.sh > .planning/logs/autopilot.log 2>&1 &
 ```
 
+**With CCR model routing:**
+```
+cd {project_dir} && ccr code --model {default_model} -- bash .planning/autopilot.sh
+```
+
 **Monitor logs:**
 ```
 tail -f .planning/logs/autopilot.log
 ```
 
 ───────────────────────────────────────────────────────────────
+
+**Model Selection:**
+- Phase models configured in .planning/phase-models.json
+- CCR detected: {if CCR_AVAILABLE}Yes - using per-phase routing{else}No - using native claude{endif}
+- Edit phase-models.json to customize models per phase
 
 **Why a separate terminal?**
 Claude Code's Bash tool has a 10-minute timeout. Autopilot runs for

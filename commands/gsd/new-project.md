@@ -323,13 +323,13 @@ questions: [
     ]
   },
   {
-    header: "Model Profile",
-    question: "Which AI models for planning agents?",
+    header: "Planning Quality",
+    question: "How thorough should planning agents be?",
     multiSelect: false,
     options: [
-      { label: "Balanced (Recommended)", description: "Sonnet for most agents — good quality/cost ratio" },
-      { label: "Quality", description: "Opus for research/roadmap — higher cost, deeper analysis" },
-      { label: "Budget", description: "Haiku where possible — fastest, lowest cost" }
+      { label: "Balanced (Recommended)", description: "Good quality/cost for planning agents" },
+      { label: "Quality", description: "Deeper analysis, higher cost" },
+      { label: "Budget", description: "Faster, lower cost" }
     ]
   }
 ]
@@ -343,7 +343,7 @@ Create `.planning/config.json` with all settings:
   "depth": "quick|standard|comprehensive",
   "parallelization": true|false,
   "commit_docs": true|false,
-  "model_profile": "quality|balanced|budget",
+  "model_profile": "balanced|quality|budget",
   "workflow": {
     "research": true|false,
     "plan_check": true|false,
@@ -353,7 +353,8 @@ Create `.planning/config.json` with all settings:
     "checkpoint_mode": "queue|skip",
     "max_retries": 3,
     "budget_limit_usd": 0,
-    "notify_webhook": ""
+    "notify_webhook": "",
+    "model": "default"
   }
 }
 ```

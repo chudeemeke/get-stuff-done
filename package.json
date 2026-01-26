@@ -34,12 +34,17 @@
   "engines": {
     "node": ">=16.7.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "ink": "^6.6.0",
+    "react": "^19.2.4"
+  },
   "devDependencies": {
     "esbuild": "^0.24.0"
   },
   "scripts": {
     "build:hooks": "node scripts/build-hooks.js",
-    "prepublishOnly": "npm run build:hooks"
+    "build:tui": "cd get-shit-done/tui && npm run build",
+    "postinstall": "npm run build:tui",
+    "prepublishOnly": "npm run build:hooks && npm run build:tui"
   }
 }

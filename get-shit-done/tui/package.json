@@ -1,0 +1,22 @@
+{
+  "name": "@taches/gsd-autopilot-tui",
+  "version": "1.0.0",
+  "description": "Beautiful terminal UI for GSD Autopilot",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "gsd-autopilot-tui": "dist/index.js"
+  },
+  "scripts": {
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "ink": "^4.4.1",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.0.0"
+  }
+}

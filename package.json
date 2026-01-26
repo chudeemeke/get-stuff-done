@@ -1,14 +1,14 @@
 {
-  "name": "get-shit-done-cc",
+  "name": "get-stuff-done",
   "version": "1.9.13",
   "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code by TÂCHES.",
   "bin": {
-    "get-shit-done-cc": "bin/install.js"
+    "get-stuff-done": "bin/install.js"
   },
   "files": [
     "bin",
     "commands",
-    "get-shit-done",
+    "get-stuff-done",
     "agents",
     "hooks/dist",
     "scripts"

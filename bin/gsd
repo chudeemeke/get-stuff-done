@@ -1,0 +1,120 @@
+#!/bin/bash
+#
+# Get Stuff Done (GSD) Launcher
+# Sets up environment and launches Claude Code with GSD configuration
+#
+
+set -euo pipefail
+
+# Configuration paths
+GSD_HOME="${GSD_HOME:-${HOME}/.gsd}"
+GSD_CONFIG="${GSD_CONFIG:-${GSD_HOME}/config.json}"
+GSD_PROJECT_CONFIG=".gsd/config.json"
+
+# Colors (if terminal supports)
+if [[ -t 1 ]]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    BLUE='\033[0;34m'
+    NC='\033[0m' # No Color
+else
+    RED='' GREEN='' YELLOW='' BLUE='' NC=''
+fi
+
+# Log functions
+log_info() { echo -e "${BLUE}[GSD]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[GSD]${NC} $1"; }
+log_error() { echo -e "${RED}[GSD]${NC} $1" >&2; }
+
+# Read config value with fallback
+read_config() {
+    local key="$1"
+    local default="$2"
+    local value=""
+
+    # Try project-level config first
+    if [[ -f "$GSD_PROJECT_CONFIG" ]]; then
+        value=$(jq -r "$key // empty" "$GSD_PROJECT_CONFIG" 2>/dev/null || true)
+    fi
+
+    # Fall back to user-level config
+    if [[ -z "$value" && -f "$GSD_CONFIG" ]]; then
+        value=$(jq -r "$key // empty" "$GSD_CONFIG" 2>/dev/null || true)
+    fi
+
+    # Return value or default
+    echo "${value:-$default}"
+}
+
+# Ensure config directory exists
+ensure_config() {
+    if [[ ! -d "$GSD_HOME" ]]; then
+        log_info "Creating GSD home directory: $GSD_HOME"
+        mkdir -p "$GSD_HOME"
+        mkdir -p "$GSD_HOME/hooks"
+    fi
+
+    if [[ ! -f "$GSD_CONFIG" ]]; then
+        log_info "Creating default configuration"
+        cat > "$GSD_CONFIG" << 'EOF'
+{
+  "context_management": {
+    "autocompact_threshold": 50,
+    "precompact_save_state": true
+  },
+  "workflow": {
+    "pause_between_tasks": false,
+    "pause_between_phases": true,
+    "auto_checkpoint_interval": 5
+  },
+  "subagents": {
+    "default_model": "sonnet",
+    "executor_model": "sonnet",
+    "verifier_model": "sonnet",
+    "researcher_model": "haiku"
+  },
+  "ui": {
+    "show_progress_bar": true,
+    "show_context_usage": true,
+    "theme": "aidev"
+  }
+}
+EOF
+    fi
+}
+
+# Main
+main() {
+    ensure_config
+
+    # Read configuration
+    local threshold=$(read_config '.context_management.autocompact_threshold' '50')
+    local show_context=$(read_config '.ui.show_context_usage' 'true')
+
+    # Display startup banner
+    echo ""
+    echo -e "${GREEN}Get Stuff Done${NC} v2.0"
+    echo "────────────────────────────────"
+    echo -e "Context auto-compact: ${YELLOW}${threshold}%${NC}"
+
+    # Check for existing project state
+    if [[ -f ".planning/STATE.md" ]]; then
+        echo -e "Project state: ${GREEN}Found${NC} (.planning/STATE.md)"
+    fi
+
+    if [[ -f ".planning/CONTINUE.md" ]]; then
+        echo -e "Continuation: ${YELLOW}Available${NC} (.planning/CONTINUE.md)"
+    fi
+
+    echo "────────────────────────────────"
+    echo ""
+
+    # Set environment and launch Claude Code
+    export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="$threshold"
+
+    # Pass through any arguments to claude
+    exec claude "$@"
+}
+
+main "$@"

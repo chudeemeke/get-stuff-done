@@ -1,4 +1,4 @@
-# Contributing to Get Shit Done
+# Contributing to Get Stuff Done
 
 No enterprise theater. Ship useful code.
 
@@ -32,7 +32,7 @@ main ═════════════════════════
 
 ### `main`
 
-Production. Always installable via `npx get-shit-done-cc`.
+Production. Always installable via `npx get-stuff-done`.
 
 | Rule | Why |
 |------|-----|
@@ -142,7 +142,7 @@ git tag -a v1.10.0-beta.1 -m "Beta: codebase intelligence stabilized"
 git tag -a v1.10.0 -m "Release: codebase intelligence"
 ```
 
-Users opt-in: `npm install get-shit-done-cc@1.10.0-alpha.1`
+Users opt-in: `npm install get-stuff-done@1.10.0-alpha.1`
 
 **If it doesn't work out:** Delete pre-release tags, no messy public revert on main.
 
@@ -303,14 +303,14 @@ Exception: CHANGELOG.md, MIGRATION.md, git commits
 ```bash
 # Clone
 git clone https://github.com/glittercowboy/get-shit-done.git
-cd get-shit-done
+cd get-stuff-done
 
 # Install
 npm install
 
 # Test locally
 npm link
-npx get-shit-done-cc
+npx get-stuff-done
 
 # Run tests
 npm test

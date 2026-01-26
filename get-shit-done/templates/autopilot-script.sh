@@ -202,14 +202,82 @@ queue_checkpoint() {
   notify "Checkpoint queued: Phase $phase, Plan $plan" "checkpoint"
 }
 
+process_approved_checkpoints() {
+  # Process any approved checkpoints by spawning continuation agents
+  mkdir -p "$CHECKPOINT_DIR/processed"
+
+  for approval in "$CHECKPOINT_DIR/approved/"*.json; do
+    [ -f "$approval" ] || continue
+
+    # Check if actually approved (not rejected)
+    if grep -q '"approved": false' "$approval" 2>/dev/null; then
+      log "INFO" "Checkpoint rejected, skipping: $approval"
+      mv "$approval" "$CHECKPOINT_DIR/processed/"
+      continue
+    fi
+
+    # Extract phase and plan from filename (e.g., phase-03-plan-02.json)
+    local basename=$(basename "$approval" .json)
+    local phase=$(echo "$basename" | sed -n 's/phase-\([0-9]*\)-.*/\1/p')
+    local plan=$(echo "$basename" | sed -n 's/.*plan-\([0-9]*\)/\1/p')
+
+    if [ -z "$phase" ] || [ -z "$plan" ]; then
+      log "WARN" "Could not parse phase/plan from: $approval"
+      mv "$approval" "$CHECKPOINT_DIR/processed/"
+      continue
+    fi
+
+    log "INFO" "Processing approved checkpoint: Phase $phase, Plan $plan"
+
+    # Extract user response from approval file
+    local user_response=$(grep -o '"response"[[:space:]]*:[[:space:]]*"[^"]*"' "$approval" | sed 's/.*: *"//' | sed 's/"$//' || echo "")
+
+    # Spawn continuation agent
+    local continuation_log="$LOG_DIR/continuation-phase${phase}-plan${plan}-$(date +%Y%m%d-%H%M%S).log"
+
+    echo ""
+    echo "◆ Continuing Phase $phase, Plan $plan (checkpoint approved)..."
+    echo ""
+
+    # Pass the checkpoint context and user response to continuation
+    echo "/gsd:execute-plan $phase $plan --continue --checkpoint-response \"$user_response\"" | claude -p \
+        --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite,AskUserQuestion" \
+        2>&1 | tee -a "$continuation_log"
+
+    if [ ${PIPESTATUS[1]} -ne 0 ]; then
+      log "ERROR" "Continuation failed for Phase $phase, Plan $plan"
+      # Don't move to processed - will retry on next run
+    else
+      log "SUCCESS" "Continuation complete for Phase $phase, Plan $plan"
+      mv "$approval" "$CHECKPOINT_DIR/processed/"
+      track_cost "$continuation_log" "$phase"
+    fi
+  done
+}
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Phase Execution
 # ─────────────────────────────────────────────────────────────────────────────
+
+is_phase_complete() {
+  local phase="$1"
+  # Check ROADMAP.md for [x] marker on this phase
+  if grep -qE "^- \[x\] \*\*Phase $phase" .planning/ROADMAP.md 2>/dev/null; then
+    return 0
+  fi
+  return 1
+}
 
 execute_phase() {
   local phase="$1"
   local attempt=1
   local phase_log="$LOG_DIR/phase-${phase}-$(date +%Y%m%d-%H%M%S).log"
+
+  # Skip already-completed phases (idempotency on resume)
+  if is_phase_complete "$phase"; then
+    log "INFO" "Phase $phase already complete in ROADMAP.md, skipping"
+    return 0
+  fi
 
   banner "PHASE $phase"
 
@@ -367,6 +435,9 @@ main() {
   local remaining_phases=("${PHASES[@]}")
 
   for phase in "${PHASES[@]}"; do
+    # Process any approved checkpoints before starting phase
+    process_approved_checkpoints
+
     # Update remaining list
     remaining_phases=("${remaining_phases[@]:1}")
     local remaining_str="${remaining_phases[*]:-none}"
@@ -385,6 +456,9 @@ main() {
     echo "✓ Phase $phase complete"
     echo ""
   done
+
+  # Process any final approved checkpoints
+  process_approved_checkpoints
 
   # All phases complete
   banner "MILESTONE COMPLETE"

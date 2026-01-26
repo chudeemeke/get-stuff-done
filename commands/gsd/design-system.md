@@ -26,9 +26,9 @@ Establish the visual foundation for the entire project through conversational di
 </objective>
 
 <execution_context>
-@~/.claude/gsd-extensions/workflows/design-system.md
-@~/.claude/gsd-extensions/references/ui-principles.md
-@~/.claude/gsd-extensions/templates/design-system-template.md
+@~/.claude/get-shit-done/workflows/design-system.md
+@~/.claude/get-shit-done/references/ui-principles.md
+@~/.claude/get-shit-done/templates/design-system.md
 </execution_context>
 
 <context>

@@ -31,10 +31,10 @@ Design phase-specific UI elements through conversation, then generate visual moc
 </objective>
 
 <execution_context>
-@~/.claude/gsd-extensions/workflows/discuss-design.md
-@~/.claude/gsd-extensions/references/ui-principles.md
-@~/.claude/gsd-extensions/references/framework-patterns.md
-@~/.claude/gsd-extensions/templates/phase-design-template.md
+@~/.claude/get-shit-done/workflows/discuss-design.md
+@~/.claude/get-shit-done/references/ui-principles.md
+@~/.claude/get-shit-done/references/framework-patterns.md
+@~/.claude/get-shit-done/templates/phase-design.md
 </execution_context>
 
 <context>

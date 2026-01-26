@@ -407,8 +407,8 @@ Output: [What artifacts will be created]
 </objective>
 
 <execution_context>
-@~/.claude/get-shit-done/workflows/execute-plan.md
-@~/.claude/get-shit-done/templates/summary.md
+@~/.claude/get-stuff-done/workflows/execute-plan.md
+@~/.claude/get-stuff-done/templates/summary.md
 </execution_context>
 
 <context>

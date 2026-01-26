@@ -96,7 +96,7 @@ ${cyan}   ██████╗ ███████╗██████╗
   ╚██████╔╝███████║██████╔╝
    ╚═════╝ ╚══════╝╚═════╝${reset}
 
-  Get Shit Done ${dim}v${pkg.version}${reset}
+  Get Stuff Done ${dim}v${pkg.version}${reset}
   A meta-prompting, context engineering and spec-driven
   development system for Claude Code (and opencode) by TÂCHES.
 `;
@@ -133,7 +133,7 @@ console.log(banner);
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx get-shit-done-cc [options]
+  console.log(`  ${yellow}Usage:${reset} npx get-stuff-done [options]
 
   ${yellow}Options:${reset}
     ${cyan}-g, --global${reset}              Install globally (to config directory)
@@ -148,28 +148,28 @@ if (hasHelp) {
 
   ${yellow}Examples:${reset}
     ${dim}# Interactive install (prompts for runtime and location)${reset}
-    npx get-shit-done-cc
+    npx get-stuff-done
 
     ${dim}# Install for Claude Code globally${reset}
-    npx get-shit-done-cc --claude --global
+    npx get-stuff-done --claude --global
 
     ${dim}# Install for OpenCode globally${reset}
-    npx get-shit-done-cc --opencode --global
+    npx get-stuff-done --opencode --global
 
     ${dim}# Install for both runtimes globally${reset}
-    npx get-shit-done-cc --both --global
+    npx get-stuff-done --both --global
 
     ${dim}# Install to custom config directory${reset}
-    npx get-shit-done-cc --claude --global --config-dir ~/.claude-bc
+    npx get-stuff-done --claude --global --config-dir ~/.claude-bc
 
     ${dim}# Install to current project only${reset}
-    npx get-shit-done-cc --claude --local
+    npx get-stuff-done --claude --local
 
     ${dim}# Uninstall GSD from Claude Code globally${reset}
-    npx get-shit-done-cc --claude --global --uninstall
+    npx get-stuff-done --claude --global --uninstall
 
     ${dim}# Uninstall GSD from current project${reset}
-    npx get-shit-done-cc --claude --local --uninstall
+    npx get-stuff-done --claude --local --uninstall
 
   ${yellow}Notes:${reset}
     The --config-dir option is useful when you have multiple Claude Code
@@ -588,12 +588,12 @@ function uninstall(isGlobal, runtime = 'claude') {
     }
   }
 
-  // 2. Remove get-shit-done directory
-  const gsdDir = path.join(targetDir, 'get-shit-done');
+  // 2. Remove get-stuff-done directory
+  const gsdDir = path.join(targetDir, 'get-stuff-done');
   if (fs.existsSync(gsdDir)) {
     fs.rmSync(gsdDir, { recursive: true });
     removedCount++;
-    console.log(`  ${green}✓${reset} Removed get-shit-done/`);
+    console.log(`  ${green}✓${reset} Removed get-stuff-done/`);
   }
 
   // 3. Remove GSD agents (gsd-*.md files only)
@@ -693,7 +693,7 @@ function uninstall(isGlobal, runtime = 'claude') {
             if (config.permission[permType]) {
               const keys = Object.keys(config.permission[permType]);
               for (const key of keys) {
-                if (key.includes('get-shit-done')) {
+                if (key.includes('get-stuff-done')) {
                   delete config.permission[permType][key];
                   modified = true;
                 }
@@ -732,7 +732,7 @@ function uninstall(isGlobal, runtime = 'claude') {
 
 /**
  * Configure OpenCode permissions to allow reading GSD reference docs
- * This prevents permission prompts when GSD accesses the get-shit-done directory
+ * This prevents permission prompts when GSD accesses the get-stuff-done directory
  */
 function configureOpencodePermissions() {
   // OpenCode config file is at ~/.config/opencode/opencode.json
@@ -762,8 +762,8 @@ function configureOpencodePermissions() {
   // Use ~ shorthand if it's in the default location, otherwise use full path
   const defaultConfigDir = path.join(os.homedir(), '.config', 'opencode');
   const gsdPath = opencodeConfigDir === defaultConfigDir
-    ? '~/.config/opencode/get-shit-done/*'
-    : `${opencodeConfigDir}/get-shit-done/*`;
+    ? '~/.config/opencode/get-stuff-done/*'
+    : `${opencodeConfigDir}/get-stuff-done/*`;
   
   let modified = false;
 
@@ -892,14 +892,14 @@ function install(isGlobal, runtime = 'claude') {
     }
   }
 
-  // Copy get-shit-done skill with path replacement
-  const skillSrc = path.join(src, 'get-shit-done');
-  const skillDest = path.join(targetDir, 'get-shit-done');
+  // Copy get-stuff-done skill with path replacement
+  const skillSrc = path.join(src, 'get-stuff-done');
+  const skillDest = path.join(targetDir, 'get-stuff-done');
   copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime);
-  if (verifyInstalled(skillDest, 'get-shit-done')) {
-    console.log(`  ${green}✓${reset} Installed get-shit-done`);
+  if (verifyInstalled(skillDest, 'get-stuff-done')) {
+    console.log(`  ${green}✓${reset} Installed get-stuff-done`);
   } else {
-    failures.push('get-shit-done');
+    failures.push('get-stuff-done');
   }
 
   // Copy agents to agents directory (subagents must be at root level)
@@ -941,7 +941,7 @@ function install(isGlobal, runtime = 'claude') {
 
   // Copy CHANGELOG.md
   const changelogSrc = path.join(src, 'CHANGELOG.md');
-  const changelogDest = path.join(targetDir, 'get-shit-done', 'CHANGELOG.md');
+  const changelogDest = path.join(targetDir, 'get-stuff-done', 'CHANGELOG.md');
   if (fs.existsSync(changelogSrc)) {
     fs.copyFileSync(changelogSrc, changelogDest);
     if (verifyFileInstalled(changelogDest, 'CHANGELOG.md')) {
@@ -952,7 +952,7 @@ function install(isGlobal, runtime = 'claude') {
   }
 
   // Write VERSION file for whats-new command
-  const versionDest = path.join(targetDir, 'get-shit-done', 'VERSION');
+  const versionDest = path.join(targetDir, 'get-stuff-done', 'VERSION');
   fs.writeFileSync(versionDest, pkg.version);
   if (verifyFileInstalled(versionDest, 'VERSION')) {
     console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version})`);
@@ -984,7 +984,7 @@ function install(isGlobal, runtime = 'claude') {
   // If critical components failed, exit with error
   if (failures.length > 0) {
     console.error(`\n  ${yellow}Installation incomplete!${reset} Failed: ${failures.join(', ')}`);
-    console.error(`  Try running directly: node ~/.npm/_npx/*/node_modules/get-shit-done-cc/bin/install.js --global\n`);
+    console.error(`  Try running directly: node ~/.npm/_npx/*/node_modules/get-stuff-done-cc/bin/install.js --global\n`);
     process.exit(1);
   }
 
@@ -1260,7 +1260,7 @@ if (hasGlobal && hasLocal) {
   // Uninstall mode
   if (!hasGlobal && !hasLocal) {
     console.error(`  ${yellow}--uninstall requires --global or --local${reset}`);
-    console.error(`  Example: npx get-shit-done-cc --claude --global --uninstall`);
+    console.error(`  Example: npx get-stuff-done --claude --global --uninstall`);
     process.exit(1);
   }
   const runtimes = selectedRuntimes.length > 0 ? selectedRuntimes : ['claude'];

@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GSD Configuration",
+  "description": "Configuration schema for Get Stuff Done",
+  "type": "object",
+  "properties": {
+    "context_management": {
+      "type": "object",
+      "description": "Context window management settings",
+      "properties": {
+        "autocompact_threshold": {
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 90,
+          "default": 50,
+          "description": "Percentage of context usage that triggers auto-compaction (20-90)"
+        },
+        "precompact_save_state": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to save state before compaction via PreCompact hook"
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "description": "Workflow control settings",
+      "properties": {
+        "pause_between_tasks": {
+          "type": "boolean",
+          "default": false,
+          "description": "Prompt user between each task"
+        },
+        "pause_between_phases": {
+          "type": "boolean",
+          "default": true,
+          "description": "Prompt user between phases"
+        },
+        "auto_checkpoint_interval": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 5,
+          "description": "Create checkpoint every N tasks"
+        }
+      }
+    },
+    "subagents": {
+      "type": "object",
+      "description": "Model selection for subagents",
+      "properties": {
+        "default_model": {
+          "type": "string",
+          "enum": ["opus", "sonnet", "haiku"],
+          "default": "sonnet"
+        },
+        "executor_model": {
+          "type": "string",
+          "enum": ["opus", "sonnet", "haiku"],
+          "default": "sonnet"
+        },
+        "verifier_model": {
+          "type": "string",
+          "enum": ["opus", "sonnet", "haiku"],
+          "default": "sonnet"
+        },
+        "researcher_model": {
+          "type": "string",
+          "enum": ["opus", "sonnet", "haiku"],
+          "default": "haiku"
+        }
+      }
+    },
+    "ui": {
+      "type": "object",
+      "description": "User interface settings",
+      "properties": {
+        "show_progress_bar": {
+          "type": "boolean",
+          "default": true
+        },
+        "show_context_usage": {
+          "type": "boolean",
+          "default": true
+        },
+        "theme": {
+          "type": "string",
+          "default": "aidev"
+        }
+      }
+    }
+  }
+}

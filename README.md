@@ -1,21 +1,17 @@
 <div align="center">
 
-# GET SHIT DONE
+# GET STUFF DONE
 
-**A light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code and OpenCode.**
+**A light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code.**
 
 **Solves context rot — the quality degradation that happens as Claude fills its context window.**
 
-[![npm version](https://img.shields.io/npm/v/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![npm downloads](https://img.shields.io/npm/dm/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/5JJgD5svVS)
-[![GitHub stars](https://img.shields.io/github/stars/glittercowboy/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/glittercowboy/get-shit-done)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
 
 ```bash
-npx get-shit-done-cc
+gsd
 ```
 
 **Works on Mac, Windows, and Linux.**
@@ -30,7 +26,7 @@ npx get-shit-done-cc
 
 *"I've done SpecKit, OpenSpec and Taskmaster — this has produced the best results for me."*
 
-*"By far the most powerful addition to my Claude Code. Nothing over-engineered. Literally just gets shit done."*
+*"By far the most powerful addition to my Claude Code. Nothing over-engineered. Literally just gets stuff done."*
 
 <br>
 
@@ -49,6 +45,8 @@ I'm a solo developer. I don't write code — Claude Code does.
 Other spec-driven development tools exist; BMAD, Speckit... But they all seem to make things way more complicated than they need to be (sprint ceremonies, story points, stakeholder syncs, retrospectives, Jira workflows) or lack real big picture understanding of what you're building. I'm not a 50-person software company. I don't want to play enterprise theater. I'm just a creative person trying to build great things that work.
 
 So I built GSD. The complexity is in the system, not in your workflow. Behind the scenes: context engineering, XML prompt formatting, subagent orchestration, state management. What you see: a few commands that just work.
+
+> **Note**: This is a fork of the original [Get Shit Done](https://github.com/glittercowboy/get-shit-done) by TACHES, rebranded and enhanced with aidev styling and long-running session support.
 
 The system gives Claude everything it needs to do the work *and* verify it. I trust the workflow. It just does a good job.
 
@@ -72,37 +70,54 @@ People who want to describe what they want and have it built correctly — witho
 
 ## Getting Started
 
+### Installation
+
+1. Clone the repository:
 ```bash
-npx get-shit-done-cc
+git clone https://github.com/YOUR_USERNAME/get-stuff-done.git ~/Projects/get-stuff-done
 ```
 
-The installer prompts you to choose:
-1. **Runtime** — Claude Code, OpenCode, or both
-2. **Location** — Global (all projects) or local (current project only)
-
-Verify with `/gsd:help` inside your Claude Code or OpenCode interface.
-
-### Staying Updated
-
-GSD evolves fast. Update periodically:
-
+2. Add the launcher to your PATH:
 ```bash
-npx get-shit-done-cc@latest
+# Add to ~/.bashrc or ~/.zshrc
+export PATH="$HOME/Projects/get-stuff-done/bin:$PATH"
 ```
+
+3. Create your config (optional - defaults work fine):
+```bash
+mkdir -p ~/.gsd
+cp ~/Projects/get-stuff-done/config/default-config.json ~/.gsd/config.json
+```
+
+4. Run GSD:
+```bash
+gsd
+```
+
+Verify with `/gsd:help` inside Claude Code.
+
+### Global Usage
+
+GSD is designed to be your default Claude Code framework across ALL projects. The `gsd` launcher:
+
+- Sets up context management automatically
+- Loads from `~/.gsd/config.json` (user-level)
+- Falls back to project-level `.gsd/config.json` if present
+- Works the same in any directory
 
 <details>
 <summary><strong>Non-interactive Install (Docker, CI, Scripts)</strong></summary>
 
 ```bash
 # Claude Code
-npx get-shit-done-cc --claude --global   # Install to ~/.claude/
-npx get-shit-done-cc --claude --local    # Install to ./.claude/
+npx get-stuff-done --claude --global   # Install to ~/.claude/
+npx get-stuff-done --claude --local    # Install to ./.claude/
 
 # OpenCode (open source, free models)
-npx get-shit-done-cc --opencode --global # Install to ~/.opencode/
+npx get-stuff-done --opencode --global # Install to ~/.opencode/
 
 # Both runtimes
-npx get-shit-done-cc --both --global     # Install to both directories
+npx get-stuff-done --both --global     # Install to both directories
 ```
 
 Use `--global` (`-g`) or `--local` (`-l`) to skip the location prompt.
@@ -117,7 +132,7 @@ Clone the repository and run the installer locally:
 
 ```bash
 git clone https://github.com/glittercowboy/get-shit-done.git
-cd get-shit-done
+cd get-stuff-done
 node bin/install.js --claude --local
 ```
 
@@ -525,6 +540,84 @@ Use `/gsd:settings` to toggle these, or override per-invocation:
 
 ---
 
+## Context Management
+
+GSD uses **early auto-compaction** to prevent context rot while maintaining long-running sessions. This hybrid approach combines the best of both worlds:
+
+- **GSD's philosophy**: State lives in files, not context
+- **Long-running benefit**: Fewer reloads, smoother workflow
+- **Rot prevention**: Auto-clear before degradation, not after
+
+### How It Works
+
+```
+User working in session
+        │
+        ▼
+Context reaches threshold (default 50%)
+        │
+        ▼
+PreCompact hook saves state to files
+        │
+        ▼
+Compaction clears context
+        │
+        ▼
+Claude reloads from STATE.md, continues seamlessly
+```
+
+### Configuration
+
+Configure via `~/.gsd/config.json`:
+
+```json
+{
+  "context_management": {
+    "autocompact_threshold": 50,
+    "precompact_save_state": true
+  }
+}
+```
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `autocompact_threshold` | `50` | Trigger compaction at this % (20-90) |
+| `precompact_save_state` | `true` | Save state before compaction |
+
+### Launcher
+
+The `gsd` launcher automatically sets `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` from your config:
+
+```bash
+# Instead of running claude directly
+gsd
+
+# Equivalent to:
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50 claude
+```
+
+### PreCompact Hook
+
+When compaction triggers, the hook:
+
+1. Saves current state snapshot to `STATE.md`
+2. Creates `CONTINUE.md` with resume instructions
+3. Logs event to `events.log`
+
+This ensures seamless resumption after context clears.
+
+### Subagent Architecture
+
+Heavy work runs in subagents with isolated 200k contexts:
+
+- **gsd-executor**: Task execution (fresh context per task)
+- **gsd-verifier**: Phase verification
+- **gsd-researcher**: Research operations
+
+The orchestrator stays lean (~30% context), dispatching work to subagents. Their results return as summaries, keeping the main context clean.
+
+---
+
 ## Troubleshooting
 
 **Commands not found after install?**
@@ -533,18 +626,18 @@ Use `/gsd:settings` to toggle these, or override per-invocation:
 
 **Commands not working as expected?**
 - Run `/gsd:help` to verify installation
-- Re-run `npx get-shit-done-cc` to reinstall
+- Re-run `npx get-stuff-done` to reinstall
 
 **Updating to the latest version?**
 ```bash
-npx get-shit-done-cc@latest
+npx get-stuff-done@latest
 ```
 
 **Using Docker or containerized environments?**
 
 If file reads fail with tilde paths (`~/.claude/...`), set `CLAUDE_CONFIG_DIR` before installing:
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
+CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-stuff-done --global
 ```
 This ensures absolute paths are used instead of `~` which may not expand correctly in containers.
 
@@ -554,12 +647,12 @@ To remove GSD completely:
 
 ```bash
 # Global installs
-npx get-shit-done-cc --claude --global --uninstall
-npx get-shit-done-cc --opencode --global --uninstall
+npx get-stuff-done --claude --global --uninstall
+npx get-stuff-done --opencode --global --uninstall
 
 # Local installs (current project)
-npx get-shit-done-cc --claude --local --uninstall
-npx get-shit-done-cc --opencode --local --uninstall
+npx get-stuff-done --claude --local --uninstall
+npx get-stuff-done --opencode --local --uninstall
 ```
 
 This removes all GSD commands, agents, hooks, and settings while preserving your other configurations.
@@ -596,5 +689,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 <div align="center">
 
 **Claude Code is powerful. GSD makes it reliable.**
+
+*Forked from [Get Shit Done](https://github.com/glittercowboy/get-shit-done) by TACHES. MIT Licensed.*
 
 </div>

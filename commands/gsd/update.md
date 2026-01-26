@@ -6,7 +6,7 @@ description: Update GSD to latest version with changelog display
 <objective>
 Check for GSD updates, install if available, and display what changed.
 
-Provides a better update experience than raw `npx get-shit-done-cc` by showing version diff and changelog entries.
+Provides a better update experience than raw `npx get-stuff-done` by showing version diff and changelog entries.
 </objective>
 
 <process>
@@ -15,7 +15,7 @@ Provides a better update experience than raw `npx get-shit-done-cc` by showing v
 Read installed version:
 
 ```bash
-cat ~/.claude/get-shit-done/VERSION 2>/dev/null
+cat ~/.claude/get-stuff-done/VERSION 2>/dev/null
 ```
 
 **If VERSION file missing:**
@@ -36,14 +36,14 @@ Proceed to install step (treat as version 0.0.0 for comparison).
 Check npm for latest version:
 
 ```bash
-npm view get-shit-done-cc version 2>/dev/null
+npm view get-stuff-done version 2>/dev/null
 ```
 
 **If npm check fails:**
 ```
 Couldn't check for updates (offline or npm unavailable).
 
-To update manually: `npx get-shit-done-cc --global`
+To update manually: `npx get-stuff-done --global`
 ```
 
 STOP here if npm unavailable.
@@ -107,7 +107,7 @@ STOP here if ahead.
 
 ⚠️  **Note:** The installer performs a clean install of GSD folders:
 - `~/.claude/commands/gsd/` will be wiped and replaced
-- `~/.claude/get-shit-done/` will be wiped and replaced
+- `~/.claude/get-stuff-done/` will be wiped and replaced
 - `~/.claude/agents/gsd-*` files will be replaced
 
 Your custom files in other locations are preserved:
@@ -132,7 +132,7 @@ Use AskUserQuestion:
 Run the update:
 
 ```bash
-npx get-shit-done-cc --global
+npx get-stuff-done --global
 ```
 
 Capture output. If install fails, show error and STOP.

@@ -6,6 +6,31 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.10.0-experimental.0] - 2026-01-26
+
+### Added
+- **`/gsd:autopilot`** — Fully automated milestone execution with beautiful React/Ink terminal UI, per-phase model routing, checkpoint queue, cost tracking, and webhook notifications
+- **`/gsd:checkpoints`** — Interactive guided flow to review and approve pending checkpoints from autopilot execution
+- **`/gsd:extend`** — Create custom GSD approaches (workflows, agents, references, templates) for specialized methodologies
+- **Design system** — Built-in `/gsd:discuss-design` for phase-specific UI decisions (moved from extension)
+- Real-time activity display during autopilot via PostToolUse hooks
+
+### Changed
+- Refactored execute-plan and checkpoints workflows for conditional loading (reduced context usage)
+- Improved create-approach workflow conversation flow
+- Better cross-platform compatibility for autopilot (macOS, Linux, Windows)
+
+### Fixed
+- Installer now prevents duplicate PostToolUse hooks
+- Installer migrates old-format hooks to new Claude Code spec format
+- Autopilot atomic lock handling and proper exit codes
+- Autopilot gitignore for transient files (logs, locks, checkpoints)
+- Idempotent phase execution and checkpoint continuation
+
+### Removed
+- GitHub Actions release workflow (now manual via this command)
+- GSD context optimization audit (superseded by built-in metrics)
+
 ## [1.9.12] - 2025-01-23
 
 ### Removed
@@ -1055,7 +1080,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.9.12...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.10.0-experimental.0...HEAD
+[1.10.0-experimental.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.10.0-experimental.0
 [1.9.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.12
 [1.9.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.11
 [1.9.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.10

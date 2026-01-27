@@ -68,6 +68,50 @@ People who want to describe what they want and have it built correctly — witho
 
 ---
 
+## Workflow Philosophy
+
+### State Lives in Files, Not Context
+
+Traditional Claude Code usage relies on conversation context to maintain state:
+
+```bash
+claude -c               # Continue previous session
+# Hope context hasn't degraded
+# Hope Claude remembers decisions
+# Watch quality decline as context fills
+```
+
+GSD takes a different approach. **Everything lives in files:**
+
+```bash
+gsd                     # Always start fresh
+# Say "resume" or run /gsd:progress
+# Claude reads STATE.md, PLAN.md, ROADMAP.md
+# Full context from files, zero rot
+```
+
+### Why This Works
+
+| Problem | GSD Solution |
+|---------|--------------|
+| Context rot degrades quality | Fresh 200k tokens every session |
+| Decisions get forgotten | STATE.md persists across sessions |
+| Long sessions confuse models | Heavy work runs in isolated subagents |
+| Manual handoffs waste tokens | "Resume" reads from files instantly |
+
+### The Practical Impact
+
+**You don't need `claude -c` anymore.** When you run `gsd` and say "resume":
+1. Claude reads `.planning/STATE.md` for decisions and blockers
+2. Claude reads `.planning/ROADMAP.md` for phase progress
+3. Claude reads `.planning/PLAN.md` for current tasks
+
+No context dependency. No quality degradation. No "where were we?"
+
+**For details, see [QUICKSTART.md](QUICKSTART.md).**
+
+---
+
 ## Getting Started
 
 ### Installation

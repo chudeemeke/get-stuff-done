@@ -29,8 +29,7 @@ build/
 *.temp
 .cache/
 
-# GSD runtime files (generated during use)
-.planning/
+# Backup files
 *.bak
 
 # Keep .upstream as reference but don't track changes to it

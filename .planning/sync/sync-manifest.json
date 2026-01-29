@@ -13,6 +13,15 @@
       "message": "feat(git): add unified branching strategy option",
       "status": "applied",
       "appliedAt": "2026-02-08T18:22:49.925Z"
+    },
+    {
+      "sha": "339e9112990e024fea746d244765ada8a044a848",
+      "shortSha": "339e911",
+      "message": "chore: remove GitHub Actions release workflow",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:26:57.519Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -53,12 +62,6 @@
     }
   ],
   "pending": [
-    {
-      "sha": "339e9112990e024fea746d244765ada8a044a848",
-      "shortSha": "339e911",
-      "message": "chore: remove GitHub Actions release workflow",
-      "status": "pending"
-    },
     {
       "sha": "87b2cd0e21de311c33fbedb5a24c97e256e78ef8",
       "shortSha": "87b2cd0",
@@ -494,7 +497,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 1,
+    "applied": 2,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

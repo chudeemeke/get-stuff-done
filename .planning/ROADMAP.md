@@ -30,10 +30,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Running `gsd` passes the correct autocompact flag to Claude based on config
   3. Statusline reads thresholds from the same config file
   4. Changing config value changes behavior without code edits
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 01-01: Config file schema and loader
+- [ ] 01-01-PLAN.md — Config schema, loader, launcher and statusline integration
 
 ### Phase 2: Statusline Redesign
 **Goal**: User sees redesigned statusline with GSD branding and dynamic thresholds
@@ -116,7 +116,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Configuration System | 0/1 | Not started | - |
+| 1. Configuration System | 0/1 | Planned | - |
 | 2. Statusline Redesign | 0/2 | Not started | - |
 | 3. Installation Enhancements | 0/1 | Not started | - |
 | 4. Branding and URLs | 0/1 | Not started | - |

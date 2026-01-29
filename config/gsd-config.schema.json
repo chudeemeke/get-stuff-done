@@ -4,90 +4,29 @@
   "description": "Configuration schema for Get Stuff Done",
   "type": "object",
   "properties": {
-    "context_management": {
-      "type": "object",
-      "description": "Context window management settings",
-      "properties": {
-        "autocompact_threshold": {
-          "type": "integer",
-          "minimum": 20,
-          "maximum": 90,
-          "default": 50,
-          "description": "Percentage of context usage that triggers auto-compaction (20-90)"
-        },
-        "precompact_save_state": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether to save state before compaction via PreCompact hook"
-        }
-      }
+    "version": {
+      "type": "number",
+      "const": 1,
+      "description": "Config version for future migrations"
     },
-    "workflow": {
-      "type": "object",
-      "description": "Workflow control settings",
-      "properties": {
-        "pause_between_tasks": {
-          "type": "boolean",
-          "default": false,
-          "description": "Prompt user between each task"
-        },
-        "pause_between_phases": {
-          "type": "boolean",
-          "default": true,
-          "description": "Prompt user between phases"
-        },
-        "auto_checkpoint_interval": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 20,
-          "default": 5,
-          "description": "Create checkpoint every N tasks"
-        }
-      }
+    "working_context": {
+      "type": "number",
+      "minimum": 10000,
+      "maximum": 180000,
+      "default": 100000,
+      "description": "Your usable context in tokens before auto-compaction triggers"
     },
-    "subagents": {
-      "type": "object",
-      "description": "Model selection for subagents",
-      "properties": {
-        "default_model": {
-          "type": "string",
-          "enum": ["opus", "sonnet", "haiku"],
-          "default": "sonnet"
-        },
-        "executor_model": {
-          "type": "string",
-          "enum": ["opus", "sonnet", "haiku"],
-          "default": "sonnet"
-        },
-        "verifier_model": {
-          "type": "string",
-          "enum": ["opus", "sonnet", "haiku"],
-          "default": "sonnet"
-        },
-        "researcher_model": {
-          "type": "string",
-          "enum": ["opus", "sonnet", "haiku"],
-          "default": "haiku"
-        }
-      }
+    "chrome": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable Chrome browser integration (--chrome flag)"
     },
-    "ui": {
-      "type": "object",
-      "description": "User interface settings",
-      "properties": {
-        "show_progress_bar": {
-          "type": "boolean",
-          "default": true
-        },
-        "show_context_usage": {
-          "type": "boolean",
-          "default": true
-        },
-        "theme": {
-          "type": "string",
-          "default": "aidev"
-        }
-      }
+    "dangerous_skip_permissions": {
+      "type": "boolean",
+      "default": false,
+      "description": "Skip all permission prompts (dangerous - use with caution)"
     }
-  }
+  },
+  "required": ["version"],
+  "additionalProperties": false
 }

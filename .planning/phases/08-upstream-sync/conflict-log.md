@@ -13,9 +13,10 @@
 | 3 | 5379832 | bin/install.js, package.json | Path conflict | Custom merge | Protected path or special handling |
 | 4 | 91aaa35 | .upstream/bin/install.js | Path conflict | Upstream wins | Default policy |
 | 5 | d58f2b5 | CHANGELOG.md, README.md | Path conflict | Upstream wins | Default policy |
+| 6 | beca9fa | .upstream/CHANGELOG.md, .upstream/package.json, package-lock.json | Path conflict | Upstream wins | Default policy |
 ## Summary
 
-Total conflicts: 5
-Upstream wins: 5
+Total conflicts: 6
+Upstream wins: 6
 Fork wins: 0
 Custom merge: 0

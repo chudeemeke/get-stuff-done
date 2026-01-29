@@ -9,9 +9,10 @@
 |---|--------|---------|---------------|------------|-----------|
 
 | 1 | 339e911 | .upstream/.github/workflows/release.yml | Path conflict | Upstream wins | Default policy |
+| 2 | 87b2cd0 | hooks/gsd-statusline.js | Path conflict | Upstream wins | Default policy |
 ## Summary
 
-Total conflicts: 1
-Upstream wins: 1
+Total conflicts: 2
+Upstream wins: 2
 Fork wins: 0
 Custom merge: 0

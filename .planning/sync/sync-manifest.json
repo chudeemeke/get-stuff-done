@@ -49,6 +49,15 @@
       "appliedAt": "2026-02-08T18:28:20.929Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "d58f2b54622205c6a4cb1057a5db94f8ae0f3735",
+      "shortSha": "d58f2b5",
+      "message": "docs: update README and changelog for v1.9.14",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:28:50.644Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -89,12 +98,6 @@
     }
   ],
   "pending": [
-    {
-      "sha": "d58f2b54622205c6a4cb1057a5db94f8ae0f3735",
-      "shortSha": "d58f2b5",
-      "message": "docs: update README and changelog for v1.9.14",
-      "status": "pending"
-    },
     {
       "sha": "beca9faeadb999978fdd0a7c4185f8450ccf3b4c",
       "shortSha": "beca9fa",
@@ -506,7 +509,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 5,
+    "applied": 6,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

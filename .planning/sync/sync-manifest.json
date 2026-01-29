@@ -40,6 +40,15 @@
       "appliedAt": "2026-02-08T18:27:55.924Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "91aaa3533c7d0d8ccd62389ff158df4702ddd484",
+      "shortSha": "91aaa35",
+      "message": "chore: remove dead code from Gemini PR",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:28:20.929Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -80,12 +89,6 @@
     }
   ],
   "pending": [
-    {
-      "sha": "91aaa3533c7d0d8ccd62389ff158df4702ddd484",
-      "shortSha": "91aaa35",
-      "message": "chore: remove dead code from Gemini PR",
-      "status": "pending"
-    },
     {
       "sha": "d58f2b54622205c6a4cb1057a5db94f8ae0f3735",
       "shortSha": "d58f2b5",
@@ -503,7 +506,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 4,
+    "applied": 5,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

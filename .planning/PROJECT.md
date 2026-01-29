@@ -20,7 +20,7 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 
 <!-- Current scope. Building toward these. -->
 
-- [ ] Symlink-based installation (edits sync between ~/.claude and project)
+- [ ] Hybrid installation (copies default, --link flag for dev workflow)
 - [ ] Rebranded identity (chudeemeke/get-stuff-done, aidev colors, Chude author)
 - [ ] Redesigned statusline (⧉ [GSD] branding, dynamic thresholds, new icons)
 - [ ] Split update workflow (/gsd:update for fork, /gsd:upstream for original)
@@ -44,7 +44,7 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 **Existing adaptations already made:**
 - Renamed to "get-stuff-done"
 - Basic terminal.svg updated with aidev branding
-- Installer runs but copies instead of symlinks
+- Installer runs and creates file copies (this is now the intended default behavior)
 
 **Key files for this milestone:**
 - `bin/install.js` — installer logic
@@ -56,7 +56,7 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 
 ## Constraints
 
-- **Platform**: Must work on Windows (Git Bash) — use junctions not symlinks for directories
+- **Platform**: Must work on Windows (Git Bash) — --link flag uses junctions (no admin required)
 - **Upstream compatibility**: Don't modify .upstream/ directory
 - **Private repo**: All URLs except upstream-check point to chudeemeke/get-stuff-done
 

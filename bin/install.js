@@ -18,11 +18,13 @@ const pkg = require('../package.json');
 // Parse args
 const args = process.argv.slice(2);
 const hasGlobal = args.includes('--global') || args.includes('-g');
-const hasLocal = args.includes('--local') || args.includes('-l');
+const hasLocal = args.includes('--local');
+const hasLink = args.includes('--link') || args.includes('-l');
 const hasOpencode = args.includes('--opencode');
 const hasClaude = args.includes('--claude');
 const hasBoth = args.includes('--both');
 const hasUninstall = args.includes('--uninstall') || args.includes('-u');
+const isWindows = process.platform === 'win32';
 
 // Runtime selection - can be set by flags or interactive prompt
 let selectedRuntimes = [];
@@ -137,12 +139,14 @@ if (hasHelp) {
 
   ${yellow}Options:${reset}
     ${cyan}-g, --global${reset}              Install globally (to config directory)
-    ${cyan}-l, --local${reset}               Install locally (to current directory)
+    ${cyan}--local${reset}                   Install locally (to current directory)
     ${cyan}--claude${reset}                  Install for Claude Code only
     ${cyan}--opencode${reset}                Install for OpenCode only
     ${cyan}--both${reset}                    Install for both Claude Code and OpenCode
     ${cyan}-u, --uninstall${reset}           Uninstall GSD (remove all GSD files)
     ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory
+    ${cyan}-l, --link${reset}                Install using symlinks (for development)
+                              Changes in source immediately reflect in install
     ${cyan}-h, --help${reset}                Show this help message
     ${cyan}--force-statusline${reset}        Replace existing statusline config
 
@@ -165,6 +169,9 @@ if (hasHelp) {
     ${dim}# Install to current project only${reset}
     npx get-stuff-done --claude --local
 
+    ${dim}# Development install (symlinks for edit-in-place)${reset}
+    npx get-stuff-done --claude --global --link
+
     ${dim}# Uninstall GSD from Claude Code globally${reset}
     npx get-stuff-done --claude --global --uninstall
 
@@ -175,6 +182,10 @@ if (hasHelp) {
     The --config-dir option is useful when you have multiple Claude Code
     configurations (e.g., for different subscriptions). It takes priority
     over the CLAUDE_CONFIG_DIR environment variable.
+
+    The --link option creates symlinks instead of copying files, useful for
+    development. Changes to the source files immediately reflect in the
+    installed location. On Windows, junctions are used for directories.
 `);
   process.exit(0);
 }
@@ -187,6 +198,56 @@ function expandTilde(filePath) {
     return path.join(os.homedir(), filePath.slice(2));
   }
   return filePath;
+}
+
+/**
+ * Check if a path looks like a development checkout (has package.json with get-stuff-done)
+ */
+function isDevCheckout(srcPath) {
+  const pkgPath = path.join(srcPath, 'package.json');
+  if (!fs.existsSync(pkgPath)) {
+    return false;
+  }
+  try {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    return pkg.name === 'get-stuff-done-cc' || pkg.name === 'get-stuff-done';
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Create a symlink, using junction on Windows for directories
+ * @param {string} target - The source path (what the link points to)
+ * @param {string} linkPath - The destination path (where to create the link)
+ * @param {boolean} isDirectory - Whether the target is a directory
+ */
+function createSymlink(target, linkPath, isDirectory) {
+  // Remove existing file/link/directory at linkPath
+  if (fs.existsSync(linkPath)) {
+    const stat = fs.lstatSync(linkPath);
+    if (stat.isSymbolicLink() || stat.isFile()) {
+      fs.unlinkSync(linkPath);
+    } else if (stat.isDirectory()) {
+      fs.rmSync(linkPath, { recursive: true });
+    }
+  }
+
+  // Ensure parent directory exists
+  const parentDir = path.dirname(linkPath);
+  if (!fs.existsSync(parentDir)) {
+    fs.mkdirSync(parentDir, { recursive: true });
+  }
+
+  if (isDirectory) {
+    // On Windows, use junction for directories (works without admin)
+    // On Unix, use 'dir' type
+    const type = isWindows ? 'junction' : 'dir';
+    fs.symlinkSync(target, linkPath, type);
+  } else {
+    // For files, use 'file' type on all platforms
+    fs.symlinkSync(target, linkPath, 'file');
+  }
 }
 
 /**
@@ -830,11 +891,27 @@ function verifyFileInstalled(filePath, description) {
  * Install to the specified directory for a specific runtime
  * @param {boolean} isGlobal - Whether to install globally or locally
  * @param {string} runtime - Target runtime ('claude' or 'opencode')
+ * @param {boolean} useLinks - Whether to use symlinks instead of copies
  */
-function install(isGlobal, runtime = 'claude') {
+function install(isGlobal, runtime = 'claude', useLinks = false) {
   const isOpencode = runtime === 'opencode';
   const dirName = getDirName(runtime);  // .opencode or .claude (for local installs)
   const src = path.join(__dirname, '..');
+
+  // Validate --link usage
+  if (useLinks) {
+    if (!isDevCheckout(src)) {
+      console.log(`  ${yellow}Warning:${reset} Source path doesn't look like a GSD development checkout.`);
+      console.log(`  ${dim}Path: ${src}${reset}`);
+      console.log(`  ${dim}--link is intended for development workflows where you edit source files.${reset}\n`);
+    }
+    // OpenCode with --link not supported (requires file transformations)
+    if (isOpencode) {
+      console.error(`  ${yellow}Error:${reset} --link is not supported for OpenCode installs.`);
+      console.error(`  ${dim}OpenCode requires file transformations that are incompatible with symlinks.${reset}`);
+      process.exit(1);
+    }
+  }
 
   // Get the target directory based on runtime and install type
   const targetDir = isGlobal
@@ -853,21 +930,24 @@ function install(isGlobal, runtime = 'claude') {
     : `./${dirName}/`;
 
   const runtimeLabel = isOpencode ? 'OpenCode' : 'Claude Code';
-  console.log(`  Installing for ${cyan}${runtimeLabel}${reset} to ${cyan}${locationLabel}${reset}\n`);
+  const modeLabel = useLinks ? ` ${dim}(symlinks)${reset}` : '';
+  console.log(`  Installing for ${cyan}${runtimeLabel}${reset} to ${cyan}${locationLabel}${reset}${modeLabel}\n`);
 
   // Track installation failures
   const failures = [];
 
-  // Clean up orphaned files from previous versions
-  cleanupOrphanedFiles(targetDir);
+  // Clean up orphaned files from previous versions (skip in link mode - source is authoritative)
+  if (!useLinks) {
+    cleanupOrphanedFiles(targetDir);
+  }
 
   // OpenCode uses 'command/' (singular) with flat structure: command/gsd-help.md
   // Claude Code uses 'commands/' (plural) with nested structure: commands/gsd/help.md
   if (isOpencode) {
-    // OpenCode: flat structure in command/ directory
+    // OpenCode: flat structure in command/ directory (--link not supported)
     const commandDir = path.join(targetDir, 'command');
     fs.mkdirSync(commandDir, { recursive: true });
-    
+
     // Copy commands/gsd/*.md as command/gsd-*.md (flatten structure)
     const gsdSrc = path.join(src, 'commands', 'gsd');
     copyFlattenedCommands(gsdSrc, commandDir, 'gsd', pathPrefix, runtime);
@@ -881,103 +961,144 @@ function install(isGlobal, runtime = 'claude') {
     // Claude Code: nested structure in commands/ directory
     const commandsDir = path.join(targetDir, 'commands');
     fs.mkdirSync(commandsDir, { recursive: true });
-    
+
     const gsdSrc = path.join(src, 'commands', 'gsd');
     const gsdDest = path.join(commandsDir, 'gsd');
-    copyWithPathReplacement(gsdSrc, gsdDest, pathPrefix, runtime);
-    if (verifyInstalled(gsdDest, 'commands/gsd')) {
-      console.log(`  ${green}✓${reset} Installed commands/gsd`);
+
+    if (useLinks) {
+      createSymlink(gsdSrc, gsdDest, true);
+      console.log(`  ${green}✓${reset} Linked commands/gsd`);
     } else {
-      failures.push('commands/gsd');
+      copyWithPathReplacement(gsdSrc, gsdDest, pathPrefix, runtime);
+      if (verifyInstalled(gsdDest, 'commands/gsd')) {
+        console.log(`  ${green}✓${reset} Installed commands/gsd`);
+      } else {
+        failures.push('commands/gsd');
+      }
     }
   }
 
-  // Copy get-stuff-done skill with path replacement
+  // Copy/link get-stuff-done skill
   const skillSrc = path.join(src, 'get-stuff-done');
   const skillDest = path.join(targetDir, 'get-stuff-done');
-  copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime);
-  if (verifyInstalled(skillDest, 'get-stuff-done')) {
-    console.log(`  ${green}✓${reset} Installed get-stuff-done`);
+
+  if (useLinks) {
+    createSymlink(skillSrc, skillDest, true);
+    console.log(`  ${green}✓${reset} Linked get-stuff-done`);
   } else {
-    failures.push('get-stuff-done');
+    copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime);
+    if (verifyInstalled(skillDest, 'get-stuff-done')) {
+      console.log(`  ${green}✓${reset} Installed get-stuff-done`);
+    } else {
+      failures.push('get-stuff-done');
+    }
   }
 
-  // Copy agents to agents directory (subagents must be at root level)
-  // Only delete gsd-*.md files to preserve user's custom agents
+  // Copy/link agents to agents directory (subagents must be at root level)
   const agentsSrc = path.join(src, 'agents');
   if (fs.existsSync(agentsSrc)) {
     const agentsDest = path.join(targetDir, 'agents');
-    fs.mkdirSync(agentsDest, { recursive: true });
 
-    // Remove old GSD agents (gsd-*.md) before copying new ones
-    if (fs.existsSync(agentsDest)) {
-      for (const file of fs.readdirSync(agentsDest)) {
-        if (file.startsWith('gsd-') && file.endsWith('.md')) {
-          fs.unlinkSync(path.join(agentsDest, file));
-        }
-      }
-    }
-
-    // Copy new agents (don't use copyWithPathReplacement which would wipe the folder)
-    const agentEntries = fs.readdirSync(agentsSrc, { withFileTypes: true });
-    for (const entry of agentEntries) {
-      if (entry.isFile() && entry.name.endsWith('.md')) {
-        let content = fs.readFileSync(path.join(agentsSrc, entry.name), 'utf8');
-        const dirRegex = new RegExp(`~/${dirName.replace('.', '\\.')}/`, 'g');
-        content = content.replace(dirRegex, pathPrefix);
-        // Convert frontmatter for opencode compatibility
-        if (isOpencode) {
-          content = convertClaudeToOpencodeFrontmatter(content);
-        }
-        fs.writeFileSync(path.join(agentsDest, entry.name), content);
-      }
-    }
-    if (verifyInstalled(agentsDest, 'agents')) {
-      console.log(`  ${green}✓${reset} Installed agents`);
+    if (useLinks) {
+      // In link mode, symlink the entire agents directory
+      // Note: This will replace any user agents - acceptable for dev workflow
+      createSymlink(agentsSrc, agentsDest, true);
+      console.log(`  ${green}✓${reset} Linked agents`);
     } else {
-      failures.push('agents');
+      // Only delete gsd-*.md files to preserve user's custom agents
+      fs.mkdirSync(agentsDest, { recursive: true });
+
+      // Remove old GSD agents (gsd-*.md) before copying new ones
+      if (fs.existsSync(agentsDest)) {
+        for (const file of fs.readdirSync(agentsDest)) {
+          if (file.startsWith('gsd-') && file.endsWith('.md')) {
+            fs.unlinkSync(path.join(agentsDest, file));
+          }
+        }
+      }
+
+      // Copy new agents (don't use copyWithPathReplacement which would wipe the folder)
+      const agentEntries = fs.readdirSync(agentsSrc, { withFileTypes: true });
+      for (const entry of agentEntries) {
+        if (entry.isFile() && entry.name.endsWith('.md')) {
+          let content = fs.readFileSync(path.join(agentsSrc, entry.name), 'utf8');
+          const dirRegex = new RegExp(`~/${dirName.replace('.', '\\.')}/`, 'g');
+          content = content.replace(dirRegex, pathPrefix);
+          // Convert frontmatter for opencode compatibility
+          if (isOpencode) {
+            content = convertClaudeToOpencodeFrontmatter(content);
+          }
+          fs.writeFileSync(path.join(agentsDest, entry.name), content);
+        }
+      }
+      if (verifyInstalled(agentsDest, 'agents')) {
+        console.log(`  ${green}✓${reset} Installed agents`);
+      } else {
+        failures.push('agents');
+      }
     }
   }
 
-  // Copy CHANGELOG.md
-  const changelogSrc = path.join(src, 'CHANGELOG.md');
-  const changelogDest = path.join(targetDir, 'get-stuff-done', 'CHANGELOG.md');
-  if (fs.existsSync(changelogSrc)) {
-    fs.copyFileSync(changelogSrc, changelogDest);
-    if (verifyFileInstalled(changelogDest, 'CHANGELOG.md')) {
-      console.log(`  ${green}✓${reset} Installed CHANGELOG.md`);
-    } else {
-      failures.push('CHANGELOG.md');
+  // Handle CHANGELOG.md - in link mode, it's already available via get-stuff-done link
+  // but we need to ensure the parent directory exists for VERSION file
+  if (!useLinks) {
+    const changelogSrc = path.join(src, 'CHANGELOG.md');
+    const changelogDest = path.join(targetDir, 'get-stuff-done', 'CHANGELOG.md');
+    if (fs.existsSync(changelogSrc)) {
+      fs.copyFileSync(changelogSrc, changelogDest);
+      if (verifyFileInstalled(changelogDest, 'CHANGELOG.md')) {
+        console.log(`  ${green}✓${reset} Installed CHANGELOG.md`);
+      } else {
+        failures.push('CHANGELOG.md');
+      }
     }
-  }
 
-  // Write VERSION file for whats-new command
-  const versionDest = path.join(targetDir, 'get-stuff-done', 'VERSION');
-  fs.writeFileSync(versionDest, pkg.version);
-  if (verifyFileInstalled(versionDest, 'VERSION')) {
-    console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version})`);
+    // Write VERSION file for whats-new command
+    const versionDest = path.join(targetDir, 'get-stuff-done', 'VERSION');
+    fs.writeFileSync(versionDest, pkg.version);
+    if (verifyFileInstalled(versionDest, 'VERSION')) {
+      console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version})`);
+    } else {
+      failures.push('VERSION');
+    }
   } else {
-    failures.push('VERSION');
+    // In link mode, create a VERSION file in the source get-stuff-done dir
+    // This file will be visible through the symlink
+    const versionSrc = path.join(skillSrc, 'VERSION');
+    fs.writeFileSync(versionSrc, pkg.version);
+    console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version}) to source`);
   }
 
-  // Copy hooks from dist/ (bundled with dependencies)
-  const hooksSrc = path.join(src, 'hooks', 'dist');
-  if (fs.existsSync(hooksSrc)) {
+  // Copy/link hooks from dist/ (bundled with dependencies)
+  // In dev mode with --link, fall back to hooks/ directory if dist/ doesn't exist
+  const hooksSrcDist = path.join(src, 'hooks', 'dist');
+  const hooksSrcDev = path.join(src, 'hooks');
+  const hooksSrc = fs.existsSync(hooksSrcDist) ? hooksSrcDist : (useLinks ? hooksSrcDev : null);
+
+  if (hooksSrc && fs.existsSync(hooksSrc)) {
     const hooksDest = path.join(targetDir, 'hooks');
-    fs.mkdirSync(hooksDest, { recursive: true });
-    const hookEntries = fs.readdirSync(hooksSrc);
-    for (const entry of hookEntries) {
-      const srcFile = path.join(hooksSrc, entry);
-      // Only copy files, not directories
-      if (fs.statSync(srcFile).isFile()) {
-        const destFile = path.join(hooksDest, entry);
-        fs.copyFileSync(srcFile, destFile);
-      }
-    }
-    if (verifyInstalled(hooksDest, 'hooks')) {
-      console.log(`  ${green}✓${reset} Installed hooks (bundled)`);
+
+    if (useLinks) {
+      // Link the hooks directory
+      createSymlink(hooksSrc, hooksDest, true);
+      const srcLabel = hooksSrc === hooksSrcDist ? 'hooks/dist' : 'hooks';
+      console.log(`  ${green}✓${reset} Linked ${srcLabel}`);
     } else {
-      failures.push('hooks');
+      fs.mkdirSync(hooksDest, { recursive: true });
+      const hookEntries = fs.readdirSync(hooksSrc);
+      for (const entry of hookEntries) {
+        const srcFile = path.join(hooksSrc, entry);
+        // Only copy files, not directories
+        if (fs.statSync(srcFile).isFile()) {
+          const destFile = path.join(hooksDest, entry);
+          fs.copyFileSync(srcFile, destFile);
+        }
+      }
+      if (verifyInstalled(hooksDest, 'hooks')) {
+        console.log(`  ${green}✓${reset} Installed hooks (bundled)`);
+      } else {
+        failures.push('hooks');
+      }
     }
   }
 
@@ -1170,7 +1291,7 @@ function promptLocation(runtimes) {
   // This handles npx execution in environments like WSL2 where stdin may not be properly connected
   if (!process.stdin.isTTY) {
     console.log(`  ${yellow}Non-interactive terminal detected, defaulting to global install${reset}\n`);
-    installAllRuntimes(runtimes, true, false);
+    installAllRuntimes(runtimes, true, false, hasLink);
     return;
   }
 
@@ -1211,7 +1332,7 @@ function promptLocation(runtimes) {
     rl.close();
     const choice = answer.trim() || '1';
     const isGlobal = choice !== '2';
-    installAllRuntimes(runtimes, isGlobal, true);
+    installAllRuntimes(runtimes, isGlobal, true, hasLink);
   });
 }
 
@@ -1220,12 +1341,13 @@ function promptLocation(runtimes) {
  * @param {string[]} runtimes - Array of runtimes to install for
  * @param {boolean} isGlobal - Whether to install globally
  * @param {boolean} isInteractive - Whether running interactively
+ * @param {boolean} useLinks - Whether to use symlinks instead of copies
  */
-function installAllRuntimes(runtimes, isGlobal, isInteractive) {
+function installAllRuntimes(runtimes, isGlobal, isInteractive, useLinks = false) {
   const results = [];
 
   for (const runtime of runtimes) {
-    const result = install(isGlobal, runtime);
+    const result = install(isGlobal, runtime, useLinks);
     results.push(result);
   }
 
@@ -1256,6 +1378,14 @@ if (hasGlobal && hasLocal) {
 } else if (explicitConfigDir && hasLocal) {
   console.error(`  ${yellow}Cannot use --config-dir with --local${reset}`);
   process.exit(1);
+} else if (hasLink && hasLocal) {
+  console.error(`  ${yellow}Cannot use --link with --local${reset}`);
+  console.error(`  ${dim}--link creates symlinks in the global config directory for development.${reset}`);
+  console.error(`  ${dim}For local development, just work directly in your project.${reset}`);
+  process.exit(1);
+} else if (hasLink && hasUninstall) {
+  console.error(`  ${yellow}Cannot use --link with --uninstall${reset}`);
+  process.exit(1);
 } else if (hasUninstall) {
   // Uninstall mode
   if (!hasGlobal && !hasLocal) {
@@ -1274,16 +1404,16 @@ if (hasGlobal && hasLocal) {
     promptLocation(selectedRuntimes);
   } else {
     // Both runtime and location specified via flags
-    installAllRuntimes(selectedRuntimes, hasGlobal, false);
+    installAllRuntimes(selectedRuntimes, hasGlobal, false, hasLink);
   }
 } else if (hasGlobal || hasLocal) {
   // Location specified but no runtime - default to Claude Code
-  installAllRuntimes(['claude'], hasGlobal, false);
+  installAllRuntimes(['claude'], hasGlobal, false, hasLink);
 } else {
   // Fully interactive: prompt for runtime, then location
   if (!process.stdin.isTTY) {
     console.log(`  ${yellow}Non-interactive terminal detected, defaulting to Claude Code global install${reset}\n`);
-    installAllRuntimes(['claude'], true, false);
+    installAllRuntimes(['claude'], true, false, hasLink);
   } else {
     promptRuntime((runtimes) => {
       promptLocation(runtimes);

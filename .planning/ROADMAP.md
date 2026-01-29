@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Configuration System** - Foundation for dynamic behavior
 - [ ] **Phase 2: Statusline Redesign** - New visual identity in terminal
-- [ ] **Phase 3: Installation Symlinks** - Edit-in-place workflow
+- [ ] **Phase 3: Installation Enhancements** - Hybrid install (copies default, --link for dev)
 - [ ] **Phase 4: Branding and URLs** - Fork identity establishment
 - [ ] **Phase 5: Update Commands** - Split update workflow (fork vs upstream)
 - [ ] **Phase 6: Logo Assets** - Visual identity assets
@@ -51,19 +51,19 @@ Plans:
 - [ ] 02-01: Statusline branding and layout
 - [ ] 02-02: Dynamic thresholds and visual states
 
-### Phase 3: Installation Symlinks
-**Goal**: Installer creates symlinks so edits in project sync to ~/.claude
+### Phase 3: Installation Enhancements
+**Goal**: Hybrid installation - copies by default (industry standard), symlinks/junctions with --link flag (dev workflow)
 **Depends on**: Nothing (independent)
 **Requirements**: INSTALL-01, INSTALL-02, INSTALL-03, INSTALL-04
 **Success Criteria** (what must be TRUE):
-  1. Running installer creates symlinks (not file copies)
-  2. On Windows, directories use junctions instead of symlinks
-  3. `--force` flag replaces existing copies with symlinks
-  4. Re-running installer skips files already correctly symlinked
+  1. Running installer creates file copies by default (standard behavior)
+  2. Running installer with --link creates symlinks/junctions instead
+  3. On Windows, --link uses junctions (no admin required)
+  4. Re-running installer detects existing install type and matches it
 **Plans**: TBD
 
 Plans:
-- [ ] 03-01: Symlink-based installation logic
+- [ ] 03-01: Hybrid installation logic (copies + --link flag)
 
 ### Phase 4: Branding and URLs
 **Goal**: All URLs and identity markers point to private fork
@@ -118,7 +118,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Configuration System | 0/1 | Not started | - |
 | 2. Statusline Redesign | 0/2 | Not started | - |
-| 3. Installation Symlinks | 0/1 | Not started | - |
+| 3. Installation Enhancements | 0/1 | Not started | - |
 | 4. Branding and URLs | 0/1 | Not started | - |
 | 5. Update Commands | 0/2 | Not started | - |
 | 6. Logo Assets | 0/1 | Not started | - |

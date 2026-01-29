@@ -9,10 +9,10 @@ Requirements for initial fork release. Each maps to roadmap phases.
 
 ### Installation
 
-- [ ] **INSTALL-01**: Installer creates symlinks/junctions instead of file copies
-- [ ] **INSTALL-02**: Windows uses junctions for directories (not symlinks)
-- [ ] **INSTALL-03**: `--force` flag replaces existing copies with symlinks
-- [ ] **INSTALL-04**: Skip creation if symlink already points to correct location
+- [ ] **INSTALL-01**: Installer creates file copies by default (industry standard)
+- [ ] **INSTALL-02**: `--link` flag creates symlinks/junctions instead of copies (dev workflow)
+- [ ] **INSTALL-03**: On Windows, `--link` uses junctions (no admin required)
+- [ ] **INSTALL-04**: Re-running installer detects existing install type and matches it
 
 ### Branding
 

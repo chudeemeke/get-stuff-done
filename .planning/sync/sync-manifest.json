@@ -31,6 +31,15 @@
       "appliedAt": "2026-02-08T18:27:13.222Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "5379832fc2bb73fc7bc63096929a09162fa6b54a",
+      "shortSha": "5379832",
+      "message": "feat: add Gemini support to installer (#301)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:27:55.924Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -71,12 +80,6 @@
     }
   ],
   "pending": [
-    {
-      "sha": "5379832fc2bb73fc7bc63096929a09162fa6b54a",
-      "shortSha": "5379832",
-      "message": "feat: add Gemini support to installer (#301)",
-      "status": "pending"
-    },
     {
       "sha": "91aaa3533c7d0d8ccd62389ff158df4702ddd484",
       "shortSha": "91aaa35",
@@ -500,7 +503,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 3,
+    "applied": 4,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

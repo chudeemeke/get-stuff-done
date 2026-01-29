@@ -12,9 +12,10 @@
 | 2 | 87b2cd0 | hooks/gsd-statusline.js | Path conflict | Upstream wins | Default policy |
 | 3 | 5379832 | bin/install.js, package.json | Path conflict | Custom merge | Protected path or special handling |
 | 4 | 91aaa35 | .upstream/bin/install.js | Path conflict | Upstream wins | Default policy |
+| 5 | d58f2b5 | CHANGELOG.md, README.md | Path conflict | Upstream wins | Default policy |
 ## Summary
 
-Total conflicts: 4
-Upstream wins: 4
+Total conflicts: 5
+Upstream wins: 5
 Fork wins: 0
 Custom merge: 0

@@ -36,18 +36,30 @@ Requirements for initial fork release. Each maps to roadmap phases.
 
 ### Update Commands
 
-- [ ] **UPDATE-01**: `/gsd:update` checks private repo (chudeemeke) releases
-- [ ] **UPDATE-02**: `/gsd:upstream` checks glittercowboy repo commits
-- [ ] **UPDATE-03**: Upstream shows commit-level summary with file drill-down
-- [ ] **UPDATE-04**: After upstream sync, prompt user to run `/gsd:update`
-- [ ] **UPDATE-05**: Track last upstream sync (SHA + date) in cache file
+**`/gsd:upstream`** (maintainer workflow — syncs from original GSD):
+- [ ] **UPSTREAM-01**: Pull commits from glittercowboy/get-shit-done since last sync
+- [ ] **UPSTREAM-02**: Present commit-level summary with file drill-down
+- [ ] **UPSTREAM-03**: Allow cherry-pick selection OR select ALL
+- [ ] **UPSTREAM-04**: Apply selected changes to local project folder
+- [ ] **UPSTREAM-05**: Commit and push to chudeemeke/get-stuff-done
+- [ ] **UPSTREAM-06**: Publish to npm registry
+- [ ] **UPSTREAM-07**: Show completion summary with "run `/gsd:update`" advice
+- [ ] **UPSTREAM-08**: Track last sync SHA + date in cache file
+- [ ] **UPSTREAM-09**: Skill file: `commands/gsd/upstream.md`
+- [ ] **UPSTREAM-10**: Workflow file: `workflows/upstream-sync.md` (orchestrates existing agents: executor, verifier)
+
+**`/gsd:update`** (consumer workflow — installs latest fork release):
+- [ ] **UPDATE-01**: Check GitHub/npm for new version of chudeemeke/get-stuff-done
+- [ ] **UPDATE-02**: Show changelog/release notes if available
+- [ ] **UPDATE-03**: Run standard CLI update (works from Claude Code or terminal)
+- [ ] **UPDATE-04**: Skill file: `commands/gsd/update.md`
 
 ### Configuration
 
-- [ ] **CONFIG-01**: Support token-based autocompact (e.g., 100000 tokens)
-- [ ] **CONFIG-02**: `bin/gsd` reads config and passes correct flag to claude
-- [ ] **CONFIG-03**: Statusline reads same config for threshold calculations
-- [ ] **CONFIG-04**: Single source of truth (`~/.gsd/config.json`)
+- [x] **CONFIG-01**: Support percentage-based autocompact threshold (10-90%)
+- [x] **CONFIG-02**: `bin/gsd` reads config and passes correct flag to claude
+- [x] **CONFIG-03**: Statusline reads same config for threshold calculations
+- [x] **CONFIG-04**: Single source of truth (`~/.gsd/config.json`)
 
 ### Logo/Assets
 
@@ -82,10 +94,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONFIG-01 | Phase 1 | Pending |
-| CONFIG-02 | Phase 1 | Pending |
-| CONFIG-03 | Phase 1 | Pending |
-| CONFIG-04 | Phase 1 | Pending |
+| CONFIG-01 | Phase 1 | Complete |
+| CONFIG-02 | Phase 1 | Complete |
+| CONFIG-03 | Phase 1 | Complete |
+| CONFIG-04 | Phase 1 | Complete |
 | STATUS-01 | Phase 2 | Pending |
 | STATUS-02 | Phase 2 | Pending |
 | STATUS-03 | Phase 2 | Pending |
@@ -104,11 +116,20 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAND-03 | Phase 4 | Pending |
 | BRAND-04 | Phase 4 | Pending |
 | BRAND-05 | Phase 4 | Pending |
+| UPSTREAM-01 | Phase 5 | Pending |
+| UPSTREAM-02 | Phase 5 | Pending |
+| UPSTREAM-03 | Phase 5 | Pending |
+| UPSTREAM-04 | Phase 5 | Pending |
+| UPSTREAM-05 | Phase 5 | Pending |
+| UPSTREAM-06 | Phase 5 | Pending |
+| UPSTREAM-07 | Phase 5 | Pending |
+| UPSTREAM-08 | Phase 5 | Pending |
+| UPSTREAM-09 | Phase 5 | Pending |
+| UPSTREAM-10 | Phase 5 | Pending |
 | UPDATE-01 | Phase 5 | Pending |
 | UPDATE-02 | Phase 5 | Pending |
 | UPDATE-03 | Phase 5 | Pending |
 | UPDATE-04 | Phase 5 | Pending |
-| UPDATE-05 | Phase 5 | Pending |
 | LOGO-01 | Phase 6 | Pending |
 | LOGO-02 | Phase 6 | Pending |
 | LOGO-03 | Phase 6 | Pending |
@@ -116,10 +137,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LOGO-05 | Phase 6 | Pending |
 
 **Coverage:**
-- v0.1.0 requirements: 28 total
-- Mapped to phases: 28
+- v0.1.0 requirements: 37 total
+- Mapped to phases: 37
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-28*
-*Last updated: 2026-01-28 after roadmap creation*
+*Last updated: 2026-01-30 — Phase 1 Configuration requirements complete*

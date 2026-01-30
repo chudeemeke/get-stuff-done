@@ -5,27 +5,48 @@ const configSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
   properties: {
-    version: {
-      type: 'number',
-      const: 1,
-      description: 'Config version for future migrations'
+    version: { type: 'number', const: 1 },
+    context_management: {
+      type: 'object',
+      properties: {
+        autocompact_threshold: {
+          type: 'number',
+          minimum: 10,
+          maximum: 90,
+          default: 50,
+          description: 'Percentage of context window that triggers auto-compaction'
+        },
+        precompact_save_state: { type: 'boolean', default: true }
+      },
+      additionalProperties: false
     },
-    working_context: {
-      type: 'number',
-      minimum: 10000,
-      maximum: 180000,
-      default: 100000,
-      description: 'Your usable context in tokens before auto-compaction triggers'
+    workflow: {
+      type: 'object',
+      properties: {
+        pause_between_tasks: { type: 'boolean', default: false },
+        pause_between_phases: { type: 'boolean', default: true },
+        auto_checkpoint_interval: { type: 'number', minimum: 1, maximum: 60, default: 5 }
+      },
+      additionalProperties: false
     },
-    chrome: {
-      type: 'boolean',
-      default: false,
-      description: 'Enable Chrome browser integration (--chrome flag)'
+    subagents: {
+      type: 'object',
+      properties: {
+        default_model: { type: 'string', default: 'sonnet' },
+        executor_model: { type: 'string', default: 'sonnet' },
+        verifier_model: { type: 'string', default: 'sonnet' },
+        researcher_model: { type: 'string', default: 'haiku' }
+      },
+      additionalProperties: false
     },
-    dangerous_skip_permissions: {
-      type: 'boolean',
-      default: false,
-      description: 'Skip all permission prompts (dangerous - use with caution)'
+    ui: {
+      type: 'object',
+      properties: {
+        show_progress_bar: { type: 'boolean', default: true },
+        show_context_usage: { type: 'boolean', default: true },
+        theme: { type: 'string', default: 'aidev' }
+      },
+      additionalProperties: false
     }
   },
   required: ['version'],

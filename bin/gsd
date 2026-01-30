@@ -22,6 +22,10 @@ else
     RED='' GREEN='' YELLOW='' BLUE='' NC=''
 fi
 
+# Detect GSD installation directory (where this script lives)
+# Works with symlinks by resolving the actual script location
+GSD_INSTALL_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")" && cd .. && pwd)"
+
 # Log functions
 log_info() { echo -e "${BLUE}[GSD]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[GSD]${NC} $1"; }

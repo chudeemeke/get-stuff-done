@@ -61,6 +61,7 @@ ensure_config() {
         log_info "Creating default configuration"
         cat > "$GSD_CONFIG" << 'EOF'
 {
+  "version": 1,
   "context_management": {
     "autocompact_threshold": 50,
     "precompact_save_state": true
@@ -83,6 +84,32 @@ ensure_config() {
   }
 }
 EOF
+    fi
+
+    # Migrate legacy configs: add version field if missing
+    if [[ -f "$GSD_CONFIG" ]]; then
+        local has_version
+        has_version=$(node -e "
+            const JSON5 = require('${GSD_INSTALL_DIR}/node_modules/json5');
+            const fs = require('fs');
+            try {
+                const config = JSON5.parse(fs.readFileSync('${GSD_CONFIG}', 'utf8'));
+                console.log(config.version ? 'yes' : 'no');
+            } catch (e) {
+                console.log('no');
+            }
+        " 2>/dev/null || echo "no")
+
+        if [[ "$has_version" == "no" ]]; then
+            log_info "Adding version field to config"
+            node -e "
+                const JSON5 = require('${GSD_INSTALL_DIR}/node_modules/json5');
+                const fs = require('fs');
+                const config = JSON5.parse(fs.readFileSync('${GSD_CONFIG}', 'utf8'));
+                config.version = 1;
+                fs.writeFileSync('${GSD_CONFIG}', JSON.stringify(config, null, 2));
+            " 2>/dev/null || log_warn "Could not migrate config - please add version: 1 manually"
+        fi
     fi
 }
 

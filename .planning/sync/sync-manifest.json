@@ -58,6 +58,15 @@
       "appliedAt": "2026-02-08T18:28:50.644Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "beca9faeadb999978fdd0a7c4185f8450ccf3b4c",
+      "shortSha": "beca9fa",
+      "message": "1.10.0",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:29:13.862Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -98,12 +107,6 @@
     }
   ],
   "pending": [
-    {
-      "sha": "beca9faeadb999978fdd0a7c4185f8450ccf3b4c",
-      "shortSha": "beca9fa",
-      "message": "1.10.0",
-      "status": "pending"
-    },
     {
       "sha": "5660b6fc0b890f8d6ffc1c3f0c407f1a702a5f72",
       "shortSha": "5660b6f",
@@ -509,7 +512,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 6,
+    "applied": 7,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

@@ -6,6 +6,24 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
+// Load config for dynamic thresholds
+let autocompactThreshold = 50;  // Default
+try {
+  const { loadConfig, getConfigValue } = require('../src/config/ConfigLoader');
+  const config = loadConfig();
+  autocompactThreshold = getConfigValue(config, 'context_management.autocompact_threshold', 50);
+} catch (e) {
+  // Silent fail - use default threshold
+}
+
+// Calculate color thresholds as fractions of autocompact threshold
+// Green -> Yellow at 50% of autocompact
+// Yellow -> Orange at 75% of autocompact
+// Orange -> Red at 87.5% of autocompact
+const greenMax = autocompactThreshold * 0.5;
+const yellowMax = autocompactThreshold * 0.75;
+const orangeMax = autocompactThreshold * 0.875;
+
 // Read JSON from stdin
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -28,15 +46,15 @@ process.stdin.on('end', () => {
       const filled = Math.floor(used / 10);
       const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
 
-      // Color based on usage
-      if (used < 50) {
-        ctx = ` \x1b[32m${bar} ${used}%\x1b[0m`;
-      } else if (used < 65) {
-        ctx = ` \x1b[33m${bar} ${used}%\x1b[0m`;
-      } else if (used < 80) {
-        ctx = ` \x1b[38;5;208m${bar} ${used}%\x1b[0m`;
+      // Color based on usage (dynamic thresholds)
+      if (used < greenMax) {
+        ctx = ` \x1b[32m${bar} ${used}%\x1b[0m`;  // Green
+      } else if (used < yellowMax) {
+        ctx = ` \x1b[33m${bar} ${used}%\x1b[0m`;  // Yellow
+      } else if (used < orangeMax) {
+        ctx = ` \x1b[38;5;208m${bar} ${used}%\x1b[0m`;  // Orange
       } else {
-        ctx = ` \x1b[5;31m💀 ${bar} ${used}%\x1b[0m`;
+        ctx = ` \x1b[5;31m${bar} ${used}%\x1b[0m`;  // Red blinking
       }
     }
 

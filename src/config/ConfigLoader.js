@@ -1,0 +1,167 @@
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const JSON5 = require('json5');
+const { validateConfig } = require('./ConfigSchema');
+
+/**
+ * Get the configuration file path
+ * @returns {string} Path to config file
+ */
+function getConfigPath() {
+  // Allow override via environment variable
+  if (process.env.GSD_CONFIG_PATH) {
+    return process.env.GSD_CONFIG_PATH;
+  }
+
+  // Default: ~/.gsd/config.json
+  return path.join(os.homedir(), '.gsd', 'config.json');
+}
+
+/**
+ * Get default configuration
+ * @returns {object} Default config object
+ */
+function getDefaults() {
+  return {
+    version: 1,
+    context_management: {
+      autocompact_threshold: 50,
+      precompact_save_state: true
+    },
+    workflow: {
+      pause_between_tasks: false,
+      pause_between_phases: true,
+      auto_checkpoint_interval: 5
+    },
+    subagents: {
+      default_model: 'sonnet',
+      executor_model: 'sonnet',
+      verifier_model: 'sonnet',
+      researcher_model: 'haiku'
+    },
+    ui: {
+      show_progress_bar: true,
+      show_context_usage: true,
+      theme: 'aidev'
+    }
+  };
+}
+
+/**
+ * Create default config file with JSON5 comments
+ * @param {string} configPath - Path to config file
+ */
+function createDefaultConfig(configPath) {
+  const configDir = path.dirname(configPath);
+
+  // Ensure directory exists
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
+
+  // Default config content with JSON5 comments
+  const defaultContent = `{
+  // Config version (for future migrations)
+  version: 1,
+
+  // Context window management
+  context_management: {
+    // Percentage of context window that triggers auto-compaction (10-90)
+    autocompact_threshold: 50,
+    // Save state before compaction
+    precompact_save_state: true,
+  },
+
+  // Workflow control
+  workflow: {
+    pause_between_tasks: false,
+    pause_between_phases: true,
+    auto_checkpoint_interval: 5,
+  },
+
+  // Subagent model selection
+  subagents: {
+    default_model: "sonnet",
+    executor_model: "sonnet",
+    verifier_model: "sonnet",
+    researcher_model: "haiku",
+  },
+
+  // UI preferences
+  ui: {
+    show_progress_bar: true,
+    show_context_usage: true,
+    theme: "aidev",
+  },
+}
+`;
+
+  fs.writeFileSync(configPath, defaultContent, 'utf8');
+}
+
+/**
+ * Load and validate configuration from file
+ * @returns {object} Validated config object (with defaults applied)
+ * @throws {Error} If config file has parse or validation errors
+ */
+function loadConfig() {
+  const configPath = getConfigPath();
+
+  // If config doesn't exist, create it with defaults
+  if (!fs.existsSync(configPath)) {
+    createDefaultConfig(configPath);
+    return getDefaults();
+  }
+
+  // Read and parse config file
+  let config;
+  try {
+    const content = fs.readFileSync(configPath, 'utf8');
+    config = JSON5.parse(content);
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      throw new Error(
+        `Failed to parse config file ${configPath}:\n  ${err.message}`
+      );
+    }
+    throw err;
+  }
+
+  // Validate config
+  try {
+    validateConfig(config);
+  } catch (err) {
+    throw new Error(
+      `Invalid config in ${configPath}:\n  ${err.message}`
+    );
+  }
+
+  return config;
+}
+
+/**
+ * Get a config value using dot-separated path
+ * @param {object} config - Config object
+ * @param {string} path - Dot-separated path (e.g., 'context_management.autocompact_threshold')
+ * @param {*} defaultValue - Value to return if path not found
+ * @returns {*} Value at path or defaultValue
+ */
+function getConfigValue(config, path, defaultValue) {
+  const parts = path.split('.');
+  let value = config;
+  for (const part of parts) {
+    if (value == null || typeof value !== 'object') {
+      return defaultValue;
+    }
+    value = value[part];
+  }
+  return value !== undefined ? value : defaultValue;
+}
+
+module.exports = {
+  loadConfig,
+  getConfigPath,
+  getDefaults,
+  getConfigValue
+};

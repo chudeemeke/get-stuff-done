@@ -12,7 +12,7 @@ This roadmap delivers a personalized GSD fork with distinct identity while maint
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Configuration System** - Foundation for dynamic behavior
+- [x] **Phase 1: Configuration System** - Foundation for dynamic behavior
 - [ ] **Phase 2: Statusline Redesign** - New visual identity in terminal
 - [ ] **Phase 3: Installation Enhancements** - Hybrid install (copies default, --link for dev)
 - [ ] **Phase 4: Branding and URLs** - Fork identity establishment
@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md — Config schema, loader, launcher and statusline integration
+- [x] 01-01-PLAN.md — Config schema, loader, launcher and statusline integration
 
 ### Phase 2: Statusline Redesign
 **Goal**: User sees redesigned statusline with GSD branding and dynamic thresholds
@@ -80,19 +80,35 @@ Plans:
 - [ ] 04-01: URL and identity updates
 
 ### Phase 5: Update Commands
-**Goal**: User can update fork and check upstream separately
+**Goal**: Maintainer can sync upstream changes; consumers can update to latest fork release
 **Depends on**: Phase 4 (URLs must be correct)
-**Requirements**: UPDATE-01, UPDATE-02, UPDATE-03, UPDATE-04, UPDATE-05
+**Requirements**: UPSTREAM-01 to UPSTREAM-10, UPDATE-01 to UPDATE-04
 **Success Criteria** (what must be TRUE):
-  1. `/gsd:update` checks chudeemeke/get-stuff-done for releases
-  2. `/gsd:upstream` checks glittercowboy/get-shit-done for commits
-  3. After upstream sync, user is prompted to run `/gsd:update`
+  1. `/gsd:upstream` pulls from glittercowboy, allows cherry-pick, commits, pushes, publishes to npm
+  2. `/gsd:update` checks chudeemeke/get-stuff-done on GitHub/npm and installs latest
+  3. Both commands are proper GSD skills with workflow integration
   4. Last sync SHA and date persisted in cache file
 **Plans**: TBD
 
+**Pre-seeded context:** `.planning/phases/05-update-commands/05-CONTEXT.md`
+
+**Workflow outline for /gsd:upstream:**
+1. FETCH — git fetch from glittercowboy, generate diff
+2. PRESENT — checkpoint: user cherry-picks or selects all
+3. PLAN — TBD: PLAN.md vs patches
+4. EXECUTE — gsd-executor applies changes
+5. VERIFY — gsd-verifier checks no breakage
+6. PUBLISH — checkpoint: commit, push, npm publish
+7. FINALIZE — update cache, show summary
+
+**Artifacts to create:**
+- `commands/gsd/upstream.md` — skill file for /gsd:upstream
+- `commands/gsd/update.md` — skill file for /gsd:update
+- `workflows/upstream-sync.md` — orchestrates stages 1-7 with existing agents
+
 Plans:
-- [ ] 05-01: Fork update command
-- [ ] 05-02: Upstream check and sync
+- [ ] 05-01: /gsd:update skill (consumer workflow)
+- [ ] 05-02: /gsd:upstream skill + workflow (maintainer workflow)
 
 ### Phase 6: Logo Assets
 **Goal**: Custom logo assets for fork identity
@@ -116,7 +132,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Configuration System | 0/1 | Planned | - |
+| 1. Configuration System | 1/1 | Complete | 2026-01-30 |
 | 2. Statusline Redesign | 0/2 | Not started | - |
 | 3. Installation Enhancements | 0/1 | Not started | - |
 | 4. Branding and URLs | 0/1 | Not started | - |

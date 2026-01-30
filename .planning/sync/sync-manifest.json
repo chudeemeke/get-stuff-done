@@ -67,6 +67,15 @@
       "appliedAt": "2026-02-08T18:29:13.862Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "5660b6fc0b890f8d6ffc1c3f0c407f1a702a5f72",
+      "shortSha": "5660b6f",
+      "message": "fix: Gemini CLI agent loading errors (#347)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:29:32.581Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -107,12 +116,6 @@
     }
   ],
   "pending": [
-    {
-      "sha": "5660b6fc0b890f8d6ffc1c3f0c407f1a702a5f72",
-      "shortSha": "5660b6f",
-      "message": "fix: Gemini CLI agent loading errors (#347)",
-      "status": "pending"
-    },
     {
       "sha": "3b70b10252f2384a459b430adba1d05b4d8b2607",
       "shortSha": "3b70b10",
@@ -512,7 +515,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 7,
+    "applied": 8,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

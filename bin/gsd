@@ -31,24 +31,22 @@ log_info() { echo -e "${BLUE}[GSD]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[GSD]${NC} $1"; }
 log_error() { echo -e "${RED}[GSD]${NC} $1" >&2; }
 
-# Read config value with fallback
+# Read config value using Node.js ConfigLoader (handles JSON5, validation, defaults)
 read_config() {
     local key="$1"
     local default="$2"
-    local value=""
 
-    # Try project-level config first
-    if [[ -f "$GSD_PROJECT_CONFIG" ]]; then
-        value=$(jq -r "$key // empty" "$GSD_PROJECT_CONFIG" 2>/dev/null || true)
-    fi
-
-    # Fall back to user-level config
-    if [[ -z "$value" && -f "$GSD_CONFIG" ]]; then
-        value=$(jq -r "$key // empty" "$GSD_CONFIG" 2>/dev/null || true)
-    fi
-
-    # Return value or default
-    echo "${value:-$default}"
+    node -e "
+        const {loadConfig, getConfigValue} = require('${GSD_INSTALL_DIR}/src/config/ConfigLoader');
+        try {
+            const config = loadConfig();
+            const val = getConfigValue(config, '${key}', '${default}');
+            console.log(val);
+        } catch (e) {
+            console.error('Config error:', e.message);
+            console.log('${default}');
+        }
+    " 2>/dev/null || echo "$default"
 }
 
 # Ensure config directory exists
@@ -93,8 +91,8 @@ main() {
     ensure_config
 
     # Read configuration
-    local threshold=$(read_config '.context_management.autocompact_threshold' '50')
-    local show_context=$(read_config '.ui.show_context_usage' 'true')
+    local threshold=$(read_config 'context_management.autocompact_threshold' '50')
+    local show_context=$(read_config 'ui.show_context_usage' 'true')
 
     # Display startup banner
     echo ""

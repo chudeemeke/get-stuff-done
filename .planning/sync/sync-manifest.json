@@ -93,6 +93,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:30:17.222Z",
       "hadEslintFix": true
+    },
+    {
+      "sha": "325713903b062e6ac48b51cf8b91be24d8b5b20f",
+      "shortSha": "3257139",
+      "message": "fix(plan-phase): pass CONTEXT.md to all downstream agents",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:30:28.356Z",
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -137,12 +145,6 @@
       "sha": "3b70b10252f2384a459b430adba1d05b4d8b2607",
       "shortSha": "3b70b10",
       "message": "docs: update changelog for v1.10.1",
-      "status": "pending"
-    },
-    {
-      "sha": "325713903b062e6ac48b51cf8b91be24d8b5b20f",
-      "shortSha": "3257139",
-      "message": "fix(plan-phase): pass CONTEXT.md to all downstream agents",
       "status": "pending"
     },
     {
@@ -520,7 +522,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 10,
+    "applied": 11,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

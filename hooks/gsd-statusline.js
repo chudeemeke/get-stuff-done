@@ -6,14 +6,16 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Load config for dynamic thresholds
+// Load config for dynamic thresholds and role
 let autocompactThreshold = 50;  // Default
+let gsdRole = 'consumer';  // Default
 try {
   const { loadConfig, getConfigValue } = require('../src/config/ConfigLoader');
   const config = loadConfig();
   autocompactThreshold = getConfigValue(config, 'context_management.autocompact_threshold', 50);
+  gsdRole = getConfigValue(config, 'gsd.role', 'consumer');
 } catch (e) {
-  // Silent fail - use default threshold
+  // Silent fail - use defaults
 }
 
 // ANSI color codes
@@ -137,14 +139,22 @@ process.stdin.on('end', () => {
       }
     }
 
-    // GSD update available?
-    let gsdUpdate = '';
+    // Build update notification for line 2
+    let line2 = '';
     const cacheFile = path.join(homeDir, '.claude', 'cache', 'gsd-update-check.json');
     if (fs.existsSync(cacheFile)) {
       try {
         const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
         if (cache.update_available) {
-          gsdUpdate = '\x1b[33m⬆ /gsd:update\x1b[0m │ ';
+          if (gsdRole === 'maintainer') {
+            // Maintainer sees upstream sync prompt
+            line2 = `${DIM}\uD83D\uDCE6 upstream updates | /gsd:upstream${RESET}`;  // 📦
+          } else {
+            // Consumer sees version update prompt
+            const current = cache.current_version || 'v0.1.0';
+            const latest = cache.latest_version || 'v0.2.0';
+            line2 = `${DIM}\uD83D\uDCE6 ${current} \u2192 ${latest} | /gsd:update${RESET}`;  // 📦, →
+          }
         }
       } catch (e) {}
     }
@@ -159,7 +169,12 @@ process.stdin.on('end', () => {
     // Note: ctx already includes its own color codes and spacing
     const line1 = `${branding}${SEP}${modelDisplay}${SEP}${ctx.trim()}${SEP}${cwdDisplay}`;
 
-    process.stdout.write(line1);
+    // Output: line1, or line1 + newline + line2 if update available
+    if (line2) {
+      process.stdout.write(`${line1}\n${line2}`);
+    } else {
+      process.stdout.write(line1);
+    }
   } catch (e) {
     // Silent fail - don't break statusline on parse errors
   }

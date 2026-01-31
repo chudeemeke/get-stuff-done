@@ -16,9 +16,10 @@
 | 6 | beca9fa | .upstream/CHANGELOG.md, .upstream/package.json, package-lock.json | Path conflict | Upstream wins | Default policy |
 | 7 | 5660b6f | bin/install.js | Path conflict | Upstream wins | Default policy |
 | 9 | 80d6799 | .upstream/package-lock.json, package.json | Path conflict | Custom merge | Protected path or special handling |
+| 10 | f3db981 | CHANGELOG.md | Path conflict | Upstream wins | Default policy |
 ## Summary
 
-Total conflicts: 9
-Upstream wins: 0
+Total conflicts: 10
+Upstream wins: 10
 Fork wins: 0
 Custom merge: 0

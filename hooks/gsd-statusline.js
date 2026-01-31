@@ -16,10 +16,25 @@ try {
   // Silent fail - use default threshold
 }
 
+// ANSI color codes
+const CYAN = '\x1b[36m';
+const DIM = '\x1b[2m';
+const BRIGHT = '\x1b[1m';
+const RESET = '\x1b[0m';
+const WHITE = '\x1b[37m';
+
+// Branding - icon brighter than text per CONTEXT.md
+function getBranding() {
+  return `${CYAN}${BRIGHT}⧉${RESET} ${CYAN}[GSD]${RESET}`;
+}
+
+// Separator
+const SEP = ` ${WHITE}|${RESET} `;
+
 // Calculate color thresholds as fractions of autocompact threshold
 // Green -> Yellow at 50% of autocompact
-// Yellow -> Orange at 75% of autocompact
-// Orange -> Red at 87.5% of autocompact
+// Yellow -> Red at 75% of autocompact
+// Red (no blink) -> Red (blink) at 87.5% of autocompact
 const greenMax = autocompactThreshold * 0.5;
 const yellowMax = autocompactThreshold * 0.75;
 const orangeMax = autocompactThreshold * 0.875;

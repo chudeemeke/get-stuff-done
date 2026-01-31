@@ -45,11 +45,11 @@ Plans:
   3. Red stage (bar, icon, percentage) blinks
   4. Update notification appears on second line only when upstream has changes
   5. Model and CWD visible in statusline (dim)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: Statusline branding and layout
-- [ ] 02-02: Dynamic thresholds and visual states
+- [ ] 02-01-PLAN.md — Branding, layout restructure, white separators
+- [ ] 02-02-PLAN.md — Stage icons, blink fallback, two-line notification, role config
 
 ### Phase 3: Installation Enhancements
 **Goal**: Hybrid installation - copies by default (industry standard), symlinks/junctions with --link flag (dev workflow)
@@ -133,7 +133,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Configuration System | 1/1 | Complete | 2026-01-30 |
-| 2. Statusline Redesign | 0/2 | Not started | - |
+| 2. Statusline Redesign | 0/2 | Planned | - |
 | 3. Installation Enhancements | 0/1 | Not started | - |
 | 4. Branding and URLs | 0/1 | Not started | - |
 | 5. Update Commands | 0/2 | Not started | - |

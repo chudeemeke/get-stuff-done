@@ -60,10 +60,10 @@ Plans:
   2. Running installer with --link creates symlinks/junctions instead
   3. On Windows, --link uses junctions (no admin required)
   4. Re-running installer detects existing install type and matches it
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 03-01: Hybrid installation logic (copies + --link flag)
+- [ ] 03-01-PLAN.md — Installation type detection and metadata persistence
 
 ### Phase 4: Branding and URLs
 **Goal**: All URLs and identity markers point to private fork
@@ -134,7 +134,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Configuration System | 1/1 | Complete | 2026-01-30 |
 | 2. Statusline Redesign | 2/2 | Complete | 2026-01-31 |
-| 3. Installation Enhancements | 0/1 | Not started | - |
+| 3. Installation Enhancements | 0/1 | Planned | - |
 | 4. Branding and URLs | 0/1 | Not started | - |
 | 5. Update Commands | 0/2 | Not started | - |
 | 6. Logo Assets | 0/1 | Not started | - |

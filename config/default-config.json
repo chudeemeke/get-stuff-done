@@ -1,6 +1,6 @@
 {
   "context_management": {
-    "autocompact_threshold": 50,
+    "autocompact_threshold": 75,
     "precompact_save_state": true
   },
   "workflow": {
@@ -18,5 +18,8 @@
     "show_progress_bar": true,
     "show_context_usage": true,
     "theme": "aidev"
+  },
+  "gsd": {
+    "role": "consumer"
   }
 }

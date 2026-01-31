@@ -104,13 +104,17 @@ process.stdin.on('end', () => {
       } catch (e) {}
     }
 
-    // Output
+    // Build statusline with new layout
     const dirname = path.basename(dir);
-    if (task) {
-      process.stdout.write(`${gsdUpdate}\x1b[2m${model}\x1b[0m │ \x1b[1m${task}\x1b[0m │ \x1b[2m${dirname}\x1b[0m${ctx}`);
-    } else {
-      process.stdout.write(`${gsdUpdate}\x1b[2m${model}\x1b[0m │ \x1b[2m${dirname}\x1b[0m${ctx}`);
-    }
+    const branding = getBranding();
+    const modelDisplay = `${DIM}${model}${RESET}`;
+    const cwdDisplay = `${DIM}${dirname}${RESET}`;
+
+    // Line 1: branding | model | context bar | cwd
+    // Note: ctx already includes its own color codes and spacing
+    const line1 = `${branding}${SEP}${modelDisplay}${SEP}${ctx.trim()}${SEP}${cwdDisplay}`;
+
+    process.stdout.write(line1);
   } catch (e) {
     // Silent fail - don't break statusline on parse errors
   }

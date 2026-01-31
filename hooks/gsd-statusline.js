@@ -61,15 +61,17 @@ process.stdin.on('end', () => {
       const filled = Math.floor(used / 10);
       const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
 
-      // Color based on usage (dynamic thresholds)
+      // Color based on usage (3-color system with blink threshold)
+      // Green: < 50% of autocompact threshold
+      // Yellow: < 75% of autocompact threshold
+      // Red (no blink): < 87.5% of autocompact threshold
+      // Red (blink): >= 87.5% of autocompact threshold (for Plan 02)
       if (used < greenMax) {
-        ctx = ` \x1b[32m${bar} ${used}%\x1b[0m`;  // Green
+        ctx = `\x1b[32m${bar} ${used}%\x1b[0m`;  // Green
       } else if (used < yellowMax) {
-        ctx = ` \x1b[33m${bar} ${used}%\x1b[0m`;  // Yellow
-      } else if (used < orangeMax) {
-        ctx = ` \x1b[38;5;208m${bar} ${used}%\x1b[0m`;  // Orange
+        ctx = `\x1b[33m${bar} ${used}%\x1b[0m`;  // Yellow
       } else {
-        ctx = ` \x1b[5;31m${bar} ${used}%\x1b[0m`;  // Red blinking
+        ctx = `\x1b[31m${bar} ${used}%\x1b[0m`;  // Red (no blink yet - Plan 02 adds)
       }
     }
 

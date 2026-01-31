@@ -31,6 +31,36 @@ function getBranding() {
 // Separator
 const SEP = ` ${WHITE}|${RESET} `;
 
+// Terminal blink support detection
+function supportsBlinking() {
+  const term = process.env.TERM || '';
+  const termProgram = process.env.TERM_PROGRAM || '';
+
+  // Known to support: xterm variants, iTerm, konsole
+  if (term.includes('xterm') || termProgram === 'iTerm.app') return true;
+
+  // Known NOT to support: VS Code, GNOME Terminal
+  if (termProgram === 'vscode') return false;
+
+  // Default: optimistically try blink
+  return true;
+}
+
+// Unicode support detection (Windows Console Host has limited Unicode)
+function supportsUnicode() {
+  if (process.platform === 'win32') {
+    return Boolean(process.env.WT_SESSION) ||  // Windows Terminal
+           Boolean(process.env.ConEmuTask) ||   // ConEmu
+           process.env.TERM_PROGRAM === 'vscode';
+  }
+  return process.env.TERM !== 'linux';
+}
+
+// Stage icons with fallback
+const ICONS = supportsUnicode()
+  ? { warning: '\u26A0\uFE0F', lightning: '\u26A1' }  // ⚠️, ⚡
+  : { warning: '!', lightning: '>' };
+
 // Calculate color thresholds as fractions of autocompact threshold
 // Green -> Yellow at 50% of autocompact
 // Yellow -> Red at 75% of autocompact
@@ -61,18 +91,31 @@ process.stdin.on('end', () => {
       const filled = Math.floor(used / 10);
       const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
 
-      // Color based on usage (3-color system with blink threshold)
-      // Green: < 50% of autocompact threshold
-      // Yellow: < 75% of autocompact threshold
-      // Red (no blink): < 87.5% of autocompact threshold
-      // Red (blink): >= 87.5% of autocompact threshold (for Plan 02)
+      // Stage icons and color logic (4-stage per CONTEXT.md)
+      let icon = '';
+      let color;
+      const BLINK = supportsBlinking() ? '\x1b[5m' : '\x1b[1m';  // Fallback to bright
+
+      // 4-stage logic per CONTEXT.md:
+      // Green (0-50%): no icon, green color, no blink
+      // Yellow (50-75%): warning icon, yellow color, no blink
+      // Red no-blink (75-87.5%): lightning icon, red color, NO blink
+      // Red with blink (87.5%+): lightning icon, red color, WITH blink
       if (used < greenMax) {
-        ctx = `\x1b[32m${bar} ${used}%\x1b[0m`;  // Green
+        icon = '';  // No icon for green stage
+        color = '\x1b[32m';  // Green
       } else if (used < yellowMax) {
-        ctx = `\x1b[33m${bar} ${used}%\x1b[0m`;  // Yellow
+        icon = `${ICONS.warning} `;  // Warning icon for yellow
+        color = '\x1b[33m';  // Yellow
+      } else if (used < orangeMax) {
+        icon = `${ICONS.lightning} `;  // Lightning for red (no blink yet)
+        color = '\x1b[31m';  // Red without blink
       } else {
-        ctx = `\x1b[31m${bar} ${used}%\x1b[0m`;  // Red (no blink yet - Plan 02 adds)
+        icon = `${ICONS.lightning} `;  // Lightning for critical red
+        color = `${BLINK}\x1b[31m`;  // Red WITH blink at 87.5%+ (or bright fallback)
       }
+
+      ctx = `${color}${icon}${bar} ${used}%${RESET}`;
     }
 
     // Current task from todos

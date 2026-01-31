@@ -995,7 +995,7 @@ function verifyFileInstalled(filePath, description) {
  * @param {string} runtime - Target runtime ('claude' or 'opencode')
  * @param {boolean} useLinks - Whether to use symlinks instead of copies
  */
-function install(isGlobal, runtime = 'claude', useLinks = false) {
+async function install(isGlobal, runtime = 'claude', useLinks = false) {
   const isOpencode = runtime === 'opencode';
   const dirName = getDirName(runtime);  // .opencode or .claude (for local installs)
   const src = path.join(__dirname, '..');
@@ -1019,6 +1019,10 @@ function install(isGlobal, runtime = 'claude', useLinks = false) {
   const targetDir = isGlobal
     ? getGlobalDir(runtime, explicitConfigDir)
     : path.join(process.cwd(), dirName);
+
+  // Determine installation mode (auto-detect or use explicit flag)
+  const detectedMode = await determineInstallMode(targetDir, hasLink, useLinks);
+  useLinks = detectedMode;
 
   const locationLabel = isGlobal
     ? targetDir.replace(os.homedir(), '~')
@@ -1170,6 +1174,11 @@ function install(isGlobal, runtime = 'claude', useLinks = false) {
     fs.writeFileSync(versionSrc, pkg.version);
     console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version}) to source`);
   }
+
+  // Write installation metadata
+  const installType = useLinks ? 'link' : 'copy';
+  writeInstallMetadata(targetDir, installType, pkg.version);
+  console.log(`  ${green}✓${reset} Wrote install metadata`);
 
   // Copy/link hooks from dist/ (bundled with dependencies)
   // In dev mode with --link, fall back to hooks/ directory if dist/ doesn't exist
@@ -1429,12 +1438,12 @@ function promptLocation(runtimes) {
   ${cyan}2${reset}) Local  ${dim}(${localExamples})${reset} - this project only
 `);
 
-  rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
+  rl.question(`  Choice ${dim}[1]${reset}: `, async (answer) => {
     answered = true;
     rl.close();
     const choice = answer.trim() || '1';
     const isGlobal = choice !== '2';
-    installAllRuntimes(runtimes, isGlobal, true, hasLink);
+    await installAllRuntimes(runtimes, isGlobal, true, hasLink);
   });
 }
 
@@ -1445,11 +1454,11 @@ function promptLocation(runtimes) {
  * @param {boolean} isInteractive - Whether running interactively
  * @param {boolean} useLinks - Whether to use symlinks instead of copies
  */
-function installAllRuntimes(runtimes, isGlobal, isInteractive, useLinks = false) {
+async function installAllRuntimes(runtimes, isGlobal, isInteractive, useLinks = false) {
   const results = [];
 
   for (const runtime of runtimes) {
-    const result = install(isGlobal, runtime, useLinks);
+    const result = await install(isGlobal, runtime, useLinks);
     results.push(result);
   }
 

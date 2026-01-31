@@ -85,6 +85,14 @@
       "appliedAt": "2026-02-08T18:30:05.378Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "5ee22e6256d726e93d07e8247f6ccfef7f499c16",
+      "shortSha": "5ee22e6",
+      "message": "feat(git): add squash merge option for branching strategies",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:30:17.222Z",
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -129,12 +137,6 @@
       "sha": "3b70b10252f2384a459b430adba1d05b4d8b2607",
       "shortSha": "3b70b10",
       "message": "docs: update changelog for v1.10.1",
-      "status": "pending"
-    },
-    {
-      "sha": "5ee22e6256d726e93d07e8247f6ccfef7f499c16",
-      "shortSha": "5ee22e6",
-      "message": "feat(git): add squash merge option for branching strategies",
       "status": "pending"
     },
     {
@@ -518,7 +520,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 9,
+    "applied": 10,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

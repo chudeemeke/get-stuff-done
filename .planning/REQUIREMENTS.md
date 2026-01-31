@@ -24,15 +24,15 @@ Requirements for initial fork release. Each maps to roadmap phases.
 
 ### Statusline
 
-- [ ] **STATUS-01**: Brand prefix `[GSD]` displayed in cyan
-- [ ] **STATUS-02**: Separators `|` displayed in white
-- [ ] **STATUS-03**: Model and CWD displayed (dim)
-- [ ] **STATUS-04**: Dynamic thresholds calculated from autocompact config (x0.5, x0.75, x0.875)
-- [ ] **STATUS-05**: Stage icons: none (green), warning (yellow), lightning (orange/red)
-- [ ] **STATUS-06**: Icons match progress bar color
-- [ ] **STATUS-07**: Red stage (icon + bar + %) blinks
-- [ ] **STATUS-08**: Update notification on second line only when upstream has changes
-- [ ] **STATUS-09**: Second line shows `updates available | /gsd:upstream`
+- [x] **STATUS-01**: Brand prefix `[GSD]` displayed in cyan
+- [x] **STATUS-02**: Separators `|` displayed in white
+- [x] **STATUS-03**: Model and CWD displayed (dim)
+- [x] **STATUS-04**: Dynamic thresholds calculated from autocompact config (x0.5, x0.75, x0.875)
+- [x] **STATUS-05**: Stage icons: none (green), warning (yellow), lightning (orange/red)
+- [x] **STATUS-06**: Icons match progress bar color
+- [x] **STATUS-07**: Red stage (icon + bar + %) blinks
+- [x] **STATUS-08**: Update notification on second line only when upstream has changes
+- [x] **STATUS-09**: Second line shows `updates available | /gsd:upstream`
 
 ### Update Commands
 
@@ -98,15 +98,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONFIG-02 | Phase 1 | Complete |
 | CONFIG-03 | Phase 1 | Complete |
 | CONFIG-04 | Phase 1 | Complete |
-| STATUS-01 | Phase 2 | Pending |
-| STATUS-02 | Phase 2 | Pending |
-| STATUS-03 | Phase 2 | Pending |
-| STATUS-04 | Phase 2 | Pending |
-| STATUS-05 | Phase 2 | Pending |
-| STATUS-06 | Phase 2 | Pending |
-| STATUS-07 | Phase 2 | Pending |
-| STATUS-08 | Phase 2 | Pending |
-| STATUS-09 | Phase 2 | Pending |
+| STATUS-01 | Phase 2 | Complete |
+| STATUS-02 | Phase 2 | Complete |
+| STATUS-03 | Phase 2 | Complete |
+| STATUS-04 | Phase 2 | Complete |
+| STATUS-05 | Phase 2 | Complete |
+| STATUS-06 | Phase 2 | Complete |
+| STATUS-07 | Phase 2 | Complete |
+| STATUS-08 | Phase 2 | Complete |
+| STATUS-09 | Phase 2 | Complete |
 | INSTALL-01 | Phase 3 | Pending |
 | INSTALL-02 | Phase 3 | Pending |
 | INSTALL-03 | Phase 3 | Pending |
@@ -143,4 +143,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-28*
-*Last updated: 2026-01-30 — Phase 1 Configuration requirements complete*
+*Last updated: 2026-01-31 — Phase 2 Statusline requirements complete*

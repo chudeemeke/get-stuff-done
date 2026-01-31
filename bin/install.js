@@ -251,6 +251,108 @@ function createSymlink(target, linkPath, isDirectory) {
 }
 
 /**
+ * Detect installation type by checking if key paths are symlinks
+ * @param {string} targetDir - The installation target directory
+ * @returns {Promise<'link'|'copy'|null>} - Installation type or null if no installation found
+ */
+async function detectInstallationType(targetDir) {
+  // Check key directories
+  const keyPaths = [
+    path.join(targetDir, 'commands', 'gsd'),
+    path.join(targetDir, 'get-stuff-done'),
+    path.join(targetDir, 'agents'),
+    path.join(targetDir, 'hooks')
+  ];
+
+  let foundAnyPath = false;
+
+  for (const checkPath of keyPaths) {
+    if (fs.existsSync(checkPath)) {
+      foundAnyPath = true;
+      try {
+        // Use lstat (NOT stat) - stat follows symlinks and won't detect them
+        const stats = await fs.promises.lstat(checkPath);
+        if (stats.isSymbolicLink()) {
+          return 'link';
+        }
+      } catch (err) {
+        // Path exists but lstat failed - assume copy
+        continue;
+      }
+    }
+  }
+
+  // If we found paths but none were symlinks, it's a copy installation
+  return foundAnyPath ? 'copy' : null;
+}
+
+/**
+ * Read installation metadata from .install-meta.json
+ * @param {string} targetDir - The installation target directory
+ * @returns {object|null} - Metadata object or null on error/missing
+ */
+function readInstallMetadata(targetDir) {
+  const metaPath = path.join(targetDir, 'get-stuff-done', '.install-meta.json');
+  try {
+    const content = fs.readFileSync(metaPath, 'utf8');
+    return JSON.parse(content);
+  } catch (err) {
+    return null; // No metadata file or parse error
+  }
+}
+
+/**
+ * Write installation metadata to .install-meta.json
+ * @param {string} targetDir - The installation target directory
+ * @param {string} installType - 'copy' or 'link'
+ * @param {string} version - Package version
+ * @returns {string} - Path to the metadata file
+ */
+function writeInstallMetadata(targetDir, installType, version) {
+  const metadata = {
+    version: version,
+    installType: installType,
+    installedAt: new Date().toISOString(),
+    platform: process.platform
+  };
+
+  const metaPath = path.join(targetDir, 'get-stuff-done', '.install-meta.json');
+  fs.writeFileSync(metaPath, JSON.stringify(metadata, null, 2) + '\n');
+  return metaPath;
+}
+
+/**
+ * Determine installation mode by checking existing installation or using defaults
+ * @param {string} targetDir - The installation target directory
+ * @param {boolean} hasLinkFlag - Whether user explicitly passed --link flag
+ * @param {boolean} useLinks - The value of the --link flag
+ * @returns {Promise<boolean>} - Whether to use links (true) or copies (false)
+ */
+async function determineInstallMode(targetDir, hasLinkFlag, useLinks) {
+  // Priority 1: Explicit --link flag from user
+  if (hasLinkFlag) {
+    return useLinks;
+  }
+
+  // Priority 2: Check metadata file (fast, reliable)
+  const metadata = readInstallMetadata(targetDir);
+  if (metadata && metadata.installType) {
+    console.log(`  Detected ${metadata.installType} installation, matching mode`);
+    return metadata.installType === 'link';
+  }
+
+  // Priority 3: Detect by checking filesystem
+  const detectedType = await detectInstallationType(targetDir);
+  if (detectedType) {
+    console.log(`  Detected ${detectedType} installation (filesystem check), matching mode`);
+    return detectedType === 'link';
+  }
+
+  // Priority 4: No existing installation - use default (copy)
+  return false;
+}
+
+/**
  * Build a hook command path using forward slashes for cross-platform compatibility.
  * On Windows, $HOME is not expanded by cmd.exe/PowerShell, so we use the actual path.
  */

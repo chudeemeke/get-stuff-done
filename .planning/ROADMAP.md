@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Configuration System** - Foundation for dynamic behavior
 - [x] **Phase 2: Statusline Redesign** - New visual identity in terminal
-- [ ] **Phase 3: Installation Enhancements** - Hybrid install (copies default, --link for dev)
+- [x] **Phase 3: Installation Enhancements** - Hybrid install (copies default, --link for dev)
 - [ ] **Phase 4: Branding and URLs** - Fork identity establishment
 - [ ] **Phase 5: Update Commands** - Split update workflow (fork vs upstream)
 - [ ] **Phase 6: Logo Assets** - Visual identity assets
@@ -63,7 +63,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 03-01-PLAN.md — Installation type detection and metadata persistence
+- [x] 03-01-PLAN.md — Installation type detection and metadata persistence
 
 ### Phase 4: Branding and URLs
 **Goal**: All URLs and identity markers point to private fork
@@ -134,7 +134,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Configuration System | 1/1 | Complete | 2026-01-30 |
 | 2. Statusline Redesign | 2/2 | Complete | 2026-01-31 |
-| 3. Installation Enhancements | 0/1 | Planned | - |
+| 3. Installation Enhancements | 1/1 | Complete | 2026-01-31 |
 | 4. Branding and URLs | 0/1 | Not started | - |
 | 5. Update Commands | 0/2 | Not started | - |
 | 6. Logo Assets | 0/1 | Not started | - |

@@ -9,10 +9,10 @@ Requirements for initial fork release. Each maps to roadmap phases.
 
 ### Installation
 
-- [ ] **INSTALL-01**: Installer creates file copies by default (industry standard)
-- [ ] **INSTALL-02**: `--link` flag creates symlinks/junctions instead of copies (dev workflow)
-- [ ] **INSTALL-03**: On Windows, `--link` uses junctions (no admin required)
-- [ ] **INSTALL-04**: Re-running installer detects existing install type and matches it
+- [x] **INSTALL-01**: Installer creates file copies by default (industry standard)
+- [x] **INSTALL-02**: `--link` flag creates symlinks/junctions instead of copies (dev workflow)
+- [x] **INSTALL-03**: On Windows, `--link` uses junctions (no admin required)
+- [x] **INSTALL-04**: Re-running installer detects existing install type and matches it
 
 ### Branding
 
@@ -107,10 +107,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STATUS-07 | Phase 2 | Complete |
 | STATUS-08 | Phase 2 | Complete |
 | STATUS-09 | Phase 2 | Complete |
-| INSTALL-01 | Phase 3 | Pending |
-| INSTALL-02 | Phase 3 | Pending |
-| INSTALL-03 | Phase 3 | Pending |
-| INSTALL-04 | Phase 3 | Pending |
+| INSTALL-01 | Phase 3 | Complete |
+| INSTALL-02 | Phase 3 | Complete |
+| INSTALL-03 | Phase 3 | Complete |
+| INSTALL-04 | Phase 3 | Complete |
 | BRAND-01 | Phase 4 | Pending |
 | BRAND-02 | Phase 4 | Pending |
 | BRAND-03 | Phase 4 | Pending |
@@ -143,4 +143,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-28*
-*Last updated: 2026-01-31 — Phase 2 Statusline requirements complete*
+*Last updated: 2026-01-31 — Phase 3 Installation requirements complete*

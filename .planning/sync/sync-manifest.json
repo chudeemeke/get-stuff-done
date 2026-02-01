@@ -101,6 +101,15 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:30:28.356Z",
       "hadEslintFix": true
+    },
+    {
+      "sha": "f3db981fa7c21bf2009f004528b1ae280c84c0d5",
+      "shortSha": "f3db981",
+      "message": "docs: update changelog and README for v1.11.0",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:30:44.429Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -145,12 +154,6 @@
       "sha": "3b70b10252f2384a459b430adba1d05b4d8b2607",
       "shortSha": "3b70b10",
       "message": "docs: update changelog for v1.10.1",
-      "status": "pending"
-    },
-    {
-      "sha": "f3db981fa7c21bf2009f004528b1ae280c84c0d5",
-      "shortSha": "f3db981",
-      "message": "docs: update changelog and README for v1.11.0",
       "status": "pending"
     },
     {
@@ -522,7 +525,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 11,
+    "applied": 12,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

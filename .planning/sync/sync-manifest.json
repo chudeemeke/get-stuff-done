@@ -110,6 +110,15 @@
       "appliedAt": "2026-02-08T18:30:44.429Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "8d2651d1280da18062b97bcb8e5babe058a4a7c7",
+      "shortSha": "8d2651d",
+      "message": "fix: remove broken gsd-gemini link (404)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:31:47.323Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -166,12 +175,6 @@
       "sha": "b5ca9a2b7632db6b2de7f747b9a17e351428b96e",
       "shortSha": "b5ca9a2",
       "message": "1.11.1",
-      "status": "pending"
-    },
-    {
-      "sha": "8d2651d1280da18062b97bcb8e5babe058a4a7c7",
-      "shortSha": "8d2651d",
-      "message": "fix: remove broken gsd-gemini link (404)",
       "status": "pending"
     },
     {
@@ -525,7 +528,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 12,
+    "applied": 13,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

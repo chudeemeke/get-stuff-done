@@ -16,11 +16,11 @@ Requirements for initial fork release. Each maps to roadmap phases.
 
 ### Branding
 
-- [ ] **BRAND-01**: package.json points to chudeemeke/get-stuff-done
-- [ ] **BRAND-02**: README references private repo (clone URL, footer, etc.)
-- [ ] **BRAND-03**: Install message shows "Chude" or "AI Dev Environment" author
-- [ ] **BRAND-04**: All URLs except upstream-check point to private repo
-- [ ] **BRAND-05**: .upstream/ directory preserved unchanged for diffing
+- [x] **BRAND-01**: package.json points to chudeemeke/get-stuff-done
+- [x] **BRAND-02**: README references private repo (clone URL, footer, etc.)
+- [x] **BRAND-03**: Install message shows "Chude" or "AI Dev Environment" author
+- [x] **BRAND-04**: All URLs except upstream-check point to private repo
+- [x] **BRAND-05**: .upstream/ directory preserved unchanged for diffing
 
 ### Statusline
 
@@ -111,11 +111,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INSTALL-02 | Phase 3 | Complete |
 | INSTALL-03 | Phase 3 | Complete |
 | INSTALL-04 | Phase 3 | Complete |
-| BRAND-01 | Phase 4 | Pending |
-| BRAND-02 | Phase 4 | Pending |
-| BRAND-03 | Phase 4 | Pending |
-| BRAND-04 | Phase 4 | Pending |
-| BRAND-05 | Phase 4 | Pending |
+| BRAND-01 | Phase 4 | Complete |
+| BRAND-02 | Phase 4 | Complete |
+| BRAND-03 | Phase 4 | Complete |
+| BRAND-04 | Phase 4 | Complete |
+| BRAND-05 | Phase 4 | Complete |
 | UPSTREAM-01 | Phase 5 | Pending |
 | UPSTREAM-02 | Phase 5 | Pending |
 | UPSTREAM-03 | Phase 5 | Pending |
@@ -143,4 +143,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-28*
-*Last updated: 2026-02-03 — Phase 2 gap closure verified*
+*Last updated: 2026-02-03 — Phase 4 complete*

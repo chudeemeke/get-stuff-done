@@ -7,12 +7,12 @@ const path = require('path');
 const os = require('os');
 
 // Load config for dynamic thresholds and role
-let autocompactThreshold = 50;  // Default
+let autocompactThreshold = 75;  // Default (matches default-config.json)
 let gsdRole = 'consumer';  // Default
 try {
   const { loadConfig, getConfigValue } = require('../src/config/ConfigLoader');
   const config = loadConfig();
-  autocompactThreshold = getConfigValue(config, 'context_management.autocompact_threshold', 50);
+  autocompactThreshold = getConfigValue(config, 'context_management.autocompact_threshold', 75);
   gsdRole = getConfigValue(config, 'gsd.role', 'consumer');
 } catch (e) {
   // Silent fail - use defaults

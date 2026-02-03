@@ -143,6 +143,15 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:33:05.063Z",
       "hadEslintFix": true
+    },
+    {
+      "sha": "9d7ea9c1888033ba205f9cb2f16e0b071c1fef26",
+      "shortSha": "9d7ea9c",
+      "message": "fix: statusline crash handling, color validation, git staging rules",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:33:41.101Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -211,12 +220,6 @@
       "sha": "074b2bcc202915f8d49540e74e4104fe632c55f3",
       "shortSha": "074b2bc",
       "message": "fix(#330): update statusline.js reference during install (#392)",
-      "status": "pending"
-    },
-    {
-      "sha": "9d7ea9c1888033ba205f9cb2f16e0b071c1fef26",
-      "shortSha": "9d7ea9c",
-      "message": "fix: statusline crash handling, color validation, git staging rules",
       "status": "pending"
     },
     {
@@ -534,7 +537,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 16,
+    "applied": 17,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

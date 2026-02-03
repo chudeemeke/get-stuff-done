@@ -26,7 +26,7 @@ function getDefaults() {
   return {
     version: 1,
     context_management: {
-      autocompact_threshold: 75,
+      // Note: autocompact_threshold removed - Claude Code controls this internally
       precompact_save_state: true
     },
     workflow: {
@@ -67,8 +67,7 @@ function createDefaultConfig(configPath) {
 
   // Context window management
   context_management: {
-    // Percentage of context window that triggers auto-compaction (10-90)
-    autocompact_threshold: 75,
+    // Note: autocompact is controlled by Claude Code internally
     // Save state before compaction
     precompact_save_state: true,
   },

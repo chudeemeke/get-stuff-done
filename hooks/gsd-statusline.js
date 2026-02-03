@@ -1,52 +1,44 @@
 #!/usr/bin/env node
 // Claude Code Statusline - GSD Edition
-// Shows: model | current task | directory | context usage
+// Shows: model | directory | autocompact proximity
+//
+// IMPORTANT: Claude Code's remaining_percentage is ALREADY threshold-relative.
+// It represents "% of context left until autocompact triggers", not raw free space.
+// When remaining_percentage hits 0%, autocompact fires.
+//
+// Therefore: proximity = 100 - remaining_percentage
+// This directly gives us "how close to autocompact" as a 0-100% value.
 
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Load config for dynamic thresholds and role
-let autocompactThreshold = 75;  // Default (matches default-config.json)
-let gsdRole = 'consumer';  // Default
+// Load config for role only
+let gsdRole = 'consumer';
 try {
   const { loadConfig, getConfigValue } = require('../src/config/ConfigLoader');
   const config = loadConfig();
-  autocompactThreshold = getConfigValue(config, 'context_management.autocompact_threshold', 75);
   gsdRole = getConfigValue(config, 'gsd.role', 'consumer');
 } catch (e) {
-  // Silent fail - use defaults
+  // Silent fail - use default
 }
 
-// ANSI color codes
-const CYAN = '\x1b[36m';
-const DIM = '\x1b[2m';
-const BRIGHT = '\x1b[1m';
-const RESET = '\x1b[0m';
-const WHITE = '\x1b[37m';
+// --- Theme System ---
+// Centralized colors and styles from src/theme
+const { getTheme } = require('../src/theme');
+const theme = getTheme();
+
+// Note: theme.reset available if needed for manual ANSI resets
 
 // Branding - icon brighter than text per CONTEXT.md
 function getBranding() {
-  return `${CYAN}${BRIGHT}⧉${RESET} ${CYAN}[GSD]${RESET}`;
+  return `${theme.brand.icon.render('\u29C9')} ${theme.brand.text.render('[GSD]')}`;
 }
 
 // Separator
-const SEP = ` ${WHITE}|${RESET} `;
+const SEP = ` ${theme.text.separator.render('|')} `;
 
-// Terminal blink support detection
-function supportsBlinking() {
-  const term = process.env.TERM || '';
-  const termProgram = process.env.TERM_PROGRAM || '';
-
-  // Known to support: xterm variants, iTerm, konsole
-  if (term.includes('xterm') || termProgram === 'iTerm.app') return true;
-
-  // Known NOT to support: VS Code, GNOME Terminal
-  if (termProgram === 'vscode') return false;
-
-  // Default: optimistically try blink
-  return true;
-}
+// NOTE: Blink support moved to theme system (uses reverse video fallback)
 
 // Unicode support detection (Windows Console Host has limited Unicode)
 function supportsUnicode() {
@@ -63,13 +55,14 @@ const ICONS = supportsUnicode()
   ? { warning: '\u26A0\uFE0F', lightning: '\u26A1' }  // ⚠️, ⚡
   : { warning: '!', lightning: '>' };
 
-// Calculate color thresholds as fractions of autocompact threshold
-// Green -> Yellow at 50% of autocompact
-// Yellow -> Red at 75% of autocompact
-// Red (no blink) -> Red (blink) at 87.5% of autocompact
-const greenMax = autocompactThreshold * 0.5;
-const yellowMax = autocompactThreshold * 0.75;
-const orangeMax = autocompactThreshold * 0.875;
+// Stage thresholds (fixed percentages of proximity to autocompact)
+// Green: 0-50% proximity (healthy)
+// Amber: 50-75% proximity (caution)
+// Red: 75-87.5% proximity (urgent)
+// Critical: 87.5%+ proximity (critical with reverse video)
+const STAGE_CAUTION = 50;
+const STAGE_URGENT = 75;
+const STAGE_CRITICAL = 87.5;
 
 // Read JSON from stdin
 let input = '';
@@ -83,41 +76,40 @@ process.stdin.on('end', () => {
     const session = data.session_id || '';
     const remaining = data.context_window?.remaining_percentage;
 
-    // Context window display (shows USED percentage)
+    // Context window display (shows proximity to autocompact)
     let ctx = '';
     if (remaining != null) {
-      const rem = Math.round(remaining);
-      const used = Math.max(0, Math.min(100, 100 - rem));
+      // remaining_percentage IS the "% left until autocompact triggers"
+      // So proximity to autocompact = 100 - remaining
+      const proximity = Math.max(0, Math.min(100, 100 - Math.round(remaining)));
 
-      // Build progress bar (10 segments)
-      const filled = Math.floor(used / 10);
+      // Build progress bar (10 segments) - shows proximity to autocompact
+      const filled = Math.floor(proximity / 10);
       const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
 
-      // Stage icons and color logic (4-stage per CONTEXT.md)
+      // 4-stage logic based on proximity to autocompact:
+      // Green (0-50%): healthy
+      // Amber (50-75%): caution (uses 256-color amber)
+      // Red (75-87.5%): urgent
+      // Critical (87.5%+): critical (red + reverse)
       let icon = '';
-      let color;
-      const BLINK = supportsBlinking() ? '\x1b[5m' : '\x1b[1m';  // Fallback to bright
+      let stageStyle;
 
-      // 4-stage logic per CONTEXT.md:
-      // Green (0-50%): no icon, green color, no blink
-      // Yellow (50-75%): warning icon, yellow color, no blink
-      // Red no-blink (75-87.5%): lightning icon, red color, NO blink
-      // Red with blink (87.5%+): lightning icon, red color, WITH blink
-      if (used < greenMax) {
-        icon = '';  // No icon for green stage
-        color = '\x1b[32m';  // Green
-      } else if (used < yellowMax) {
-        icon = `${ICONS.warning} `;  // Warning icon for yellow
-        color = '\x1b[33m';  // Yellow
-      } else if (used < orangeMax) {
-        icon = `${ICONS.lightning} `;  // Lightning for red (no blink yet)
-        color = '\x1b[31m';  // Red without blink
+      if (proximity < STAGE_CAUTION) {
+        icon = '';
+        stageStyle = theme.status.healthy;
+      } else if (proximity < STAGE_URGENT) {
+        icon = `${ICONS.warning} `;
+        stageStyle = theme.status.caution;
+      } else if (proximity < STAGE_CRITICAL) {
+        icon = `${ICONS.lightning} `;
+        stageStyle = theme.status.urgent;
       } else {
-        icon = `${ICONS.lightning} `;  // Lightning for critical red
-        color = `${BLINK}\x1b[31m`;  // Red WITH blink at 87.5%+ (or bright fallback)
+        icon = `${ICONS.lightning} `;
+        stageStyle = theme.status.critical;
       }
 
-      ctx = `${color}${icon}${bar} ${used}%${RESET}`;
+      ctx = stageStyle.render(`${icon}${bar} ${proximity}%`);
     }
 
     // Current task from todos
@@ -148,12 +140,12 @@ process.stdin.on('end', () => {
         if (cache.update_available) {
           if (gsdRole === 'maintainer') {
             // Maintainer sees upstream sync prompt
-            line2 = `${DIM}\uD83D\uDCE6 upstream updates | /gsd:upstream${RESET}`;  // 📦
+            line2 = theme.text.notice.render('\uD83D\uDCE6 upstream updates | /gsd:upstream');
           } else {
             // Consumer sees version update prompt
             const current = cache.current_version || 'v0.1.0';
             const latest = cache.latest_version || 'v0.2.0';
-            line2 = `${DIM}\uD83D\uDCE6 ${current} \u2192 ${latest} | /gsd:update${RESET}`;  // 📦, →
+            line2 = theme.text.notice.render(`\uD83D\uDCE6 ${current} \u2192 ${latest} | /gsd:update`);
           }
         }
       } catch (e) {}
@@ -162,8 +154,8 @@ process.stdin.on('end', () => {
     // Build statusline with new layout
     const dirname = path.basename(dir);
     const branding = getBranding();
-    const modelDisplay = `${DIM}${model}${RESET}`;
-    const cwdDisplay = `${DIM}${dirname}${RESET}`;
+    const modelDisplay = theme.text.muted.render(model);
+    const cwdDisplay = theme.text.muted.render(dirname);
 
     // Line 1: branding | model | context bar | cwd
     // Note: ctx already includes its own color codes and spacing

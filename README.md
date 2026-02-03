@@ -617,7 +617,6 @@ Configure via `~/.gsd/config.json`:
 ```json
 {
   "context_management": {
-    "autocompact_threshold": 50,
     "precompact_save_state": true
   }
 }
@@ -625,20 +624,13 @@ Configure via `~/.gsd/config.json`:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `autocompact_threshold` | `50` | Trigger compaction at this % (20-90) |
 | `precompact_save_state` | `true` | Save state before compaction |
 
-### Launcher
+### Autocompact Threshold
 
-The `gsd` launcher automatically sets `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` from your config:
+Autocompact is controlled by Claude Code internally. The GSD statusline shows your proximity to autocompact using Claude Code's own reporting.
 
-```bash
-# Instead of running claude directly
-gsd
-
-# Equivalent to:
-CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50 claude
-```
+Note: `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` env var exists but has a [known bug](https://github.com/anthropics/claude-code/issues/18843) where it's ignored.
 
 ### PreCompact Hook
 

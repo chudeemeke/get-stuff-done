@@ -322,6 +322,62 @@ function writeInstallMetadata(targetDir, installType, version) {
 }
 
 /**
+ * Prompt user to choose installation mode when existing installation detected
+ * @param {string} detectedType - 'link' or 'copy'
+ * @param {string} source - 'metadata' or 'filesystem'
+ * @returns {Promise<boolean>} - Whether to use links (true) or copies (false)
+ */
+function promptInstallMode(detectedType, source) {
+  return new Promise((resolve) => {
+    // Non-interactive: keep existing mode
+    if (!process.stdin.isTTY) {
+      console.log(`  ${yellow}Non-interactive terminal, keeping ${detectedType} mode${reset}\n`);
+      resolve(detectedType === 'link');
+      return;
+    }
+
+    const otherType = detectedType === 'link' ? 'copy' : 'link';
+    const detectedLabel = detectedType === 'link' ? 'Symlinks' : 'Copies';
+    const otherLabel = otherType === 'link' ? 'Symlinks' : 'Copies';
+    const detectedDesc = detectedType === 'link' ? 'for development' : 'standalone files';
+    const otherDesc = otherType === 'link' ? 'for development' : 'standalone files';
+
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    let answered = false;
+
+    rl.on('close', () => {
+      if (!answered) {
+        answered = true;
+        console.log(`\n  ${yellow}Installation cancelled${reset}\n`);
+        process.exit(0);
+      }
+    });
+
+    console.log(`
+  ${yellow}Existing installation detected${reset} ${dim}(${source})${reset}
+
+  ${cyan}1${reset}) Keep ${detectedLabel} ${dim}(${detectedDesc})${reset}
+  ${cyan}2${reset}) Switch to ${otherLabel} ${dim}(${otherDesc})${reset}
+`);
+
+    rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
+      answered = true;
+      rl.close();
+      const choice = answer.trim() || '1';
+      if (choice === '2') {
+        resolve(otherType === 'link');
+      } else {
+        resolve(detectedType === 'link');
+      }
+    });
+  });
+}
+
+/**
  * Determine installation mode by checking existing installation or using defaults
  * @param {string} targetDir - The installation target directory
  * @param {boolean} hasLinkFlag - Whether user explicitly passed --link flag
@@ -334,18 +390,16 @@ async function determineInstallMode(targetDir, hasLinkFlag, useLinks) {
     return useLinks;
   }
 
-  // Priority 2: Check metadata file (fast, reliable)
+  // Priority 2: Check metadata file (fast, reliable) - prompt user
   const metadata = readInstallMetadata(targetDir);
   if (metadata && metadata.installType) {
-    console.log(`  Detected ${metadata.installType} installation, matching mode`);
-    return metadata.installType === 'link';
+    return promptInstallMode(metadata.installType, 'metadata');
   }
 
-  // Priority 3: Detect by checking filesystem
+  // Priority 3: Detect by checking filesystem - prompt user
   const detectedType = await detectInstallationType(targetDir);
   if (detectedType) {
-    console.log(`  Detected ${detectedType} installation (filesystem check), matching mode`);
-    return detectedType === 'link';
+    return promptInstallMode(detectedType, 'filesystem');
   }
 
   // Priority 4: No existing installation - use default (copy)

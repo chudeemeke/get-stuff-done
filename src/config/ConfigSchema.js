@@ -9,13 +9,8 @@ const configSchema = {
     context_management: {
       type: 'object',
       properties: {
-        autocompact_threshold: {
-          type: 'number',
-          minimum: 10,
-          maximum: 90,
-          default: 50,
-          description: 'Percentage of context window that triggers auto-compaction'
-        },
+        // Note: autocompact_threshold removed - Claude Code controls this internally
+        // CLAUDE_AUTOCOMPACT_PCT_OVERRIDE env var has a known bug
         precompact_save_state: { type: 'boolean', default: true }
       },
       additionalProperties: false

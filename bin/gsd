@@ -6,8 +6,33 @@
 
 set -euo pipefail
 
-# Configuration paths
-GSD_HOME="${GSD_HOME:-${HOME}/.gsd}"
+# =============================================================================
+# Path Normalization
+# =============================================================================
+# Node.js on Windows requires Windows-style paths (C:/...) but POSIX-layer
+# shells (MSYS2, Cygwin, MinGW) use POSIX-style paths (/c/...).
+#
+# This function normalizes paths once at startup so downstream Node.js code
+# works correctly. The `cygpath` utility is the standard way to detect and
+# convert paths in these environments.
+#
+# Coverage:
+#   - Git Bash, MSYS2, Cygwin, MinGW: cygpath converts /c/... to C:/...
+#   - WSL, macOS, Linux: Native paths pass through unchanged
+#   - Any terminal emulator (Windows Terminal, ConEmu, iTerm2, etc.): Works
+#     automatically based on underlying shell
+# =============================================================================
+normalize_path() {
+    local path="$1"
+    if command -v cygpath &>/dev/null; then
+        cygpath -m "$path"
+    else
+        echo "$path"
+    fi
+}
+
+# Configuration paths (normalized for cross-platform Node.js compatibility)
+GSD_HOME="$(normalize_path "${GSD_HOME:-${HOME}/.gsd}")"
 GSD_CONFIG="${GSD_CONFIG:-${GSD_HOME}/config.json}"
 GSD_PROJECT_CONFIG=".gsd/config.json"
 
@@ -24,7 +49,7 @@ fi
 
 # Detect GSD installation directory (where this script lives)
 # Works with symlinks by resolving the actual script location
-GSD_INSTALL_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")" && cd .. && pwd)"
+GSD_INSTALL_DIR="$(normalize_path "$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")" && cd .. && pwd)")"
 
 # Log functions
 log_info() { echo -e "${BLUE}[GSD]${NC} $1"; }
@@ -63,7 +88,6 @@ ensure_config() {
 {
   "version": 1,
   "context_management": {
-    "autocompact_threshold": 50,
     "precompact_save_state": true
   },
   "workflow": {
@@ -87,6 +111,7 @@ EOF
     fi
 
     # Migrate legacy configs: add version field if missing
+    # Note: GSD_CONFIG is already normalized at startup via normalize_path()
     if [[ -f "$GSD_CONFIG" ]]; then
         local has_version
         has_version=$(node -e "
@@ -118,14 +143,17 @@ main() {
     ensure_config
 
     # Read configuration
-    local threshold=$(read_config 'context_management.autocompact_threshold' '50')
     local show_context=$(read_config 'ui.show_context_usage' 'true')
+
+    # Note: Autocompact threshold is controlled by Claude Code internally.
+    # CLAUDE_AUTOCOMPACT_PCT_OVERRIDE env var exists but has a known bug
+    # (https://github.com/anthropics/claude-code/issues/18843).
+    # GSD statusline shows proximity to autocompact using Claude's own reporting.
 
     # Display startup banner
     echo ""
     echo -e "${GREEN}Get Stuff Done${NC} v2.0"
     echo "────────────────────────────────"
-    echo -e "Context auto-compact: ${YELLOW}${threshold}%${NC}"
 
     # Check for existing project state
     if [[ -f ".planning/STATE.md" ]]; then
@@ -138,9 +166,6 @@ main() {
 
     echo "────────────────────────────────"
     echo ""
-
-    # Set environment and launch Claude Code
-    export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="$threshold"
 
     # Pass through any arguments to claude
     exec claude "$@"

@@ -127,6 +127,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:32:32.527Z",
       "hadEslintFix": true
+    },
+    {
+      "sha": "4267c6cf67d38292505129be8b4e4f24d2b8ebda",
+      "shortSha": "4267c6c",
+      "message": "fix: respect parallelization config setting (#379)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:32:49.386Z",
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -189,12 +197,6 @@
       "sha": "d1654960ab41d5664c30dc4b065ef64b960dbc1f",
       "shortSha": "d165496",
       "message": "feat(install): respect attribution.commit setting (compatible opencode) (#286)",
-      "status": "pending"
-    },
-    {
-      "sha": "4267c6cf67d38292505129be8b4e4f24d2b8ebda",
-      "shortSha": "4267c6c",
-      "message": "fix: respect parallelization config setting (#379)",
       "status": "pending"
     },
     {
@@ -530,7 +532,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 14,
+    "applied": 15,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

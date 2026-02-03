@@ -118,7 +118,7 @@ No context dependency. No quality degradation. No "where were we?"
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/get-stuff-done.git ~/Projects/get-stuff-done
+git clone https://github.com/chudeemeke/get-stuff-done.git ~/Projects/get-stuff-done
 ```
 
 2. Add the launcher to your PATH:
@@ -175,7 +175,7 @@ Use `--claude`, `--opencode`, or `--both` to skip the runtime prompt.
 Clone the repository and run the installer locally:
 
 ```bash
-git clone https://github.com/glittercowboy/get-shit-done.git
+git clone https://github.com/chudeemeke/get-stuff-done.git
 cd get-stuff-done
 node bin/install.js --claude --local
 ```
@@ -704,7 +704,9 @@ This removes all GSD commands, agents, hooks, and settings while preserving your
 
 ---
 
-## Star History
+## Star History (Upstream)
+
+*Star history from the original [Get Shit Done](https://github.com/glittercowboy/get-shit-done) repository.*
 
 <a href="https://star-history.com/#glittercowboy/get-shit-done&Date">
  <picture>

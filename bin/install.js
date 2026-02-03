@@ -1165,6 +1165,15 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
       createSymlink(agentsSrc, agentsDest, true);
       console.log(`  ${green}✓${reset} Linked agents`);
     } else {
+      // If agentsDest is a symlink (from previous link-mode install), remove it first
+      // Otherwise fs.unlinkSync would delete SOURCE files through the symlink
+      if (fs.existsSync(agentsDest)) {
+        const stat = fs.lstatSync(agentsDest);
+        if (stat.isSymbolicLink()) {
+          fs.unlinkSync(agentsDest);
+        }
+      }
+
       // Only delete gsd-*.md files to preserve user's custom agents
       fs.mkdirSync(agentsDest, { recursive: true });
 

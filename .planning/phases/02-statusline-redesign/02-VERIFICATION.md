@@ -1,172 +1,178 @@
 ---
 phase: 02-statusline-redesign
-verified: 2026-01-31T02:00:02Z
+verified: 2026-02-03T18:45:00Z
 status: passed
 score: 5/5 must-haves verified
+re_verification:
+  previous_status: passed
+  previous_score: 5/5
+  previous_verified: 2026-01-31T02:00:02Z
+  gap_closure_plan: 02-03-PLAN.md
+  gaps_closed:
+    - Progress bar displays green below 37.5 percent
+    - Progress bar displays yellow 37.5-56.25 percent
+    - Progress bar displays red above 56.25 percent
+    - Progress bar blinks above 65.625 percent
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 2: Statusline Redesign Verification Report
 
 **Phase Goal:** User sees redesigned statusline with GSD branding and dynamic thresholds
-**Verified:** 2026-01-31T02:00:02Z
+**Verified:** 2026-02-03T18:45:00Z
 **Status:** PASSED
-**Re-verification:** No — initial verification
+**Re-verification:** Yes — after gap closure (02-03-PLAN.md)
+
+## Re-Verification Summary
+
+**Previous verification:** 2026-01-31T02:00:02Z (PASSED 5/5)
+**Gap closure:** 02-03-PLAN.md executed on 2026-02-03
+**Issue:** UAT found progress bar showing yellow at 28 percent (should be green)
+**Root cause:** Hardcoded autocompact_threshold defaults were 50 instead of 75
+**Fix:** Changed all four defaults from 50 to 75
+
+**Result:** All gaps closed, no regressions. Phase goal fully achieved.
+
+## Gap Closure Verification
+
+### Must-Haves from 02-03-PLAN.md
+
+All 4 must-haves VERIFIED:
+- Progress bar displays green below 37.5 percent (greenMax = 75 * 0.5)
+- Progress bar displays yellow 37.5-56.25 percent (yellowMax = 75 * 0.75)
+- Progress bar displays red above 56.25 percent
+- Progress bar blinks above 65.625 percent (orangeMax = 75 * 0.875)
+
+## Code Changes Verification
+
+### hooks/gsd-statusline.js
+
+Line 10: autocompactThreshold = 50 → 75
+Line 15: getConfigValue fallback 50 → 75
+Commit: 13ac7cf
+
+###  src/config/ConfigLoader.js
+
+Line 29: autocompact_threshold: 50 → 75 (getDefaults)
+Line 71: autocompact_threshold: 50 → 75 (createDefaultConfig)
+Commit: 78629ff
+
+### Alignment Check
+
+All 5 locations now have threshold=75:
+- config/default-config.json: 75
+- hooks/gsd-statusline.js line 10: 75
+- hooks/gsd-statusline.js line 15: 75
+- src/config/ConfigLoader.js line 29: 75
+- src/config/ConfigLoader.js line 71: 75
+
+**All defaults aligned. No discrepancies found.**
+
+
+## Regression Check
+
+Previously verified artifacts (quick sanity check):
+- hooks/gsd-statusline.js: EXISTS (182 lines) - NO REGRESSION
+- config/default-config.json: EXISTS (26 lines) - NO REGRESSION
+- Cyan [GSD] branding: VERIFIED - NO REGRESSION
+- White pipe separators: VERIFIED - NO REGRESSION
+- Stage icons (warning/lightning): VERIFIED - NO REGRESSION
+- Blink support detection: VERIFIED - NO REGRESSION
+- Two-line output: VERIFIED - NO REGRESSION
+- Role-based update notification: VERIFIED - NO REGRESSION
+- Dim model and CWD: VERIFIED - NO REGRESSION
+
+**No regressions detected. All previously verified features remain intact.**
+
 
 ## Goal Achievement
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | Statusline displays `[GSD]` prefix in cyan | ✓ VERIFIED | Output shows `\x1b[36m[GSD]\x1b[0m` with cyan ANSI code |
-| 2 | Progress bar changes color at 50%, 75%, 87.5% of autocompact threshold | ✓ VERIFIED | Thresholds calculated as greenMax=0.5×threshold, yellowMax=0.75×threshold, orangeMax=0.875×threshold |
-| 3 | Red stage (bar, icon, percentage) blinks | ✓ VERIFIED | Code applies `\x1b[5m` (blink) when used >= orangeMax (87.5% threshold) |
-| 4 | Update notification appears on second line only when upstream has changes | ✓ VERIFIED | Two-line output confirmed with test cache file |
-| 5 | Model and CWD visible in statusline (dim) | ✓ VERIFIED | Both wrapped in `\x1b[2m` (dim) ANSI code |
+All 5 truths VERIFIED:
+1. Statusline displays [GSD] prefix in cyan - VERIFIED
+2. Progress bar changes color at 50, 75, 87.5 percent of threshold - VERIFIED
+3. Red stage (bar, icon, percentage) blinks - VERIFIED
+4. Update notification on second line only when available - VERIFIED
+5. Model and CWD visible in dim styling - VERIFIED
 
 **Score:** 5/5 truths verified
 
-### Required Artifacts
+### Threshold Calculation Verification
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| `hooks/gsd-statusline.js` | Redesigned statusline with branding, icons, colors, two-line output | ✓ VERIFIED | 181 lines, substantive implementation |
-| `config/default-config.json` | Role configuration (gsd.role) | ✓ VERIFIED | Contains `"gsd": {"role": "consumer"}` |
+With autocompact_threshold = 75:
+- Green stage: 0-37.5 percent (greenMax = 37.5)
+- Yellow stage: 37.5-56.25 percent (yellowMax = 56.25)
+- Red no-blink: 56.25-65.625 percent
+- Red with blink: 65.625+ percent (orangeMax = 65.625)
 
-**Artifact Verification Details:**
+**UAT scenario (28 percent usage):**
+- Previous behavior: Yellow (greenMax was 25)
+- Current behavior: Green (greenMax is 37.5)
+- Expected behavior: Green
+- **Status:** FIXED
 
-**hooks/gsd-statusline.js:**
-- EXISTS: ✓ (181 lines)
-- SUBSTANTIVE: ✓ (no TODOs, no placeholders, full implementation)
-- WIRED: ✓ (loaded by Claude Code as statusline hook)
-
-Contains all required elements:
-- ANSI color constants (CYAN, DIM, BRIGHT, RESET, WHITE)
-- getBranding() function returning cyan `⧉ [GSD]`
-- SEP constant with white pipe separators
-- supportsBlinking() terminal detection
-- supportsUnicode() Windows Console Host fallback
-- ICONS constant with Unicode and ASCII fallbacks
-- 4-stage progress logic (green, yellow, red-no-blink, red-with-blink)
-- Dynamic threshold calculation from config
-- Two-line output with role-based update notification
-- gsd.role loading from config
-
-**config/default-config.json:**
-- EXISTS: ✓ (25 lines)
-- SUBSTANTIVE: ✓ (valid JSON schema)
-- WIRED: ✓ (loaded by ConfigLoader)
-
-Contains required gsd section with role field.
-
-### Key Link Verification
-
-| From | To | Via | Status | Details |
-|------|-----|-----|--------|---------|
-| hooks/gsd-statusline.js | ConfigLoader | require('../src/config/ConfigLoader') | ✓ WIRED | Loads autocompact_threshold and gsd.role |
-| hooks/gsd-statusline.js | stdout | process.stdout.write | ✓ WIRED | Outputs formatted statusline |
-| ConfigLoader | config/default-config.json | loadConfig() | ✓ WIRED | Merges with user config at ~/.gsd/config.json |
-
-**Threshold Wiring Test:**
-
-User config has `autocompact_threshold: 50`. Statusline correctly calculates:
-- greenMax = 25 (50% of 50)
-- yellowMax = 37.5 (75% of 50)
-- orangeMax = 43.75 (87.5% of 50)
-
-Tested color transitions:
-- 20% used: GREEN, no icon ✓
-- 30% used: YELLOW, ⚠️ icon ✓
-- 40% used: RED no-blink, ⚡ icon ✓
-- 50% used: RED with-blink, ⚡ icon ✓
-
-**Two-Line Output Test:**
-
-Created test cache file `~/.claude/cache/gsd-update-check.json` with `{"update_available":true,"current_version":"v0.1.0","latest_version":"v0.2.0"}`.
-
-Output:
-```
-⧉ [GSD] | Test | ⚠️ ███░░░░░░░ 30% | get-stuff-done
-📦 v0.1.0 → v0.2.0 | /gsd:update
-```
-
-Verified:
-- Line 1: Branding, model, progress, CWD
-- Line 2: Dim update notification with version and command
-- Role-based text (consumer shows version, maintainer would show `/gsd:upstream`)
 
 ### Requirements Coverage
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| STATUS-01: Brand prefix `[GSD]` in cyan | ✓ SATISFIED | getBranding() outputs `\x1b[36m[GSD]\x1b[0m` |
-| STATUS-02: Separators `|` in white | ✓ SATISFIED | SEP constant = ` \x1b[37m|\x1b[0m ` |
-| STATUS-03: Model and CWD dim | ✓ SATISFIED | Wrapped in `\x1b[2m...\x1b[0m` |
-| STATUS-04: Dynamic thresholds from config | ✓ SATISFIED | greenMax/yellowMax/orangeMax calculated from autocompact_threshold |
-| STATUS-05: Stage icons (none/warning/lightning) | ✓ SATISFIED | 4-stage logic: no icon (green), ⚠️ (yellow), ⚡ (red) |
-| STATUS-06: Icons match bar color | ✓ SATISFIED | Icon and bar use same color variable |
-| STATUS-07: Red stage blinks | ✓ SATISFIED | BLINK code applied when used >= orangeMax |
-| STATUS-08: Update on second line only | ✓ SATISFIED | Conditional newline: `if (line2) { ...line1\n + line2 }` |
-| STATUS-09: Shows update command | ✓ SATISFIED | Displays `/gsd:update` (consumer) or `/gsd:upstream` (maintainer) |
+All 9 STATUS requirements SATISFIED:
+- STATUS-01: Brand prefix [GSD] in cyan - SATISFIED
+- STATUS-02: Separators | in white - SATISFIED
+- STATUS-03: Model and CWD dim - SATISFIED
+- STATUS-04: Dynamic thresholds from config - SATISFIED
+- STATUS-05: Stage icons (none/warning/lightning) - SATISFIED
+- STATUS-06: Icons match bar color - SATISFIED
+- STATUS-07: Red stage blinks - SATISFIED
+- STATUS-08: Update on second line only - SATISFIED
+- STATUS-09: Shows update command - SATISFIED
 
 **Score:** 9/9 requirements satisfied
+
 
 ### Anti-Patterns Found
 
 None detected.
 
-**Scanned for:**
-- TODO/FIXME/XXX/HACK comments: None found
-- Placeholder content: None found
-- Empty implementations: None found
-- Console.log only implementations: None found
-- Hardcoded values: Appropriate (ANSI codes, icon Unicode)
+**Scanned for:** TODO/FIXME/XXX/HACK/placeholders/empty implementations
+**Result:** None found
 
-**File Quality:**
-- hooks/gsd-statusline.js: 181 lines, well-structured, comprehensive error handling
-- config/default-config.json: 25 lines, valid JSON, clear schema
+**Gap closure quality:**
+- Surgical fix: Only 4 lines changed (exactly as specified)
+- Atomic commits: 2 commits, each for one file
+- No scope creep: No unrelated changes
+- Proper commit messages: Clear, factual, no emojis/AI attribution
 
-### Human Verification Required
-
-None needed for goal achievement. All automated checks passed.
-
-**Optional visual verification** (not blocking):
-1. **Visual appearance check**
-   - Test: Run `gsd` in actual Claude Code session
-   - Expected: See cyan ⧉ [GSD] branding at far left, white separators, colored progress bar
-   - Why human: Verify rendering in actual terminal vs simulated test
-   
-2. **Blink animation check**
-   - Test: Trigger context usage above 87.5% of threshold in iTerm2/xterm terminal
-   - Expected: Lightning icon and red bar/percentage blink alternately
-   - Why human: Blink is visual animation, can't be detected programmatically
-   
-3. **Unicode fallback check**
-   - Test: Run in Windows Console Host (not Windows Terminal)
-   - Expected: ASCII fallback characters (! and >) instead of ⚠️ and ⚡
-   - Why human: Requires specific terminal environment
-
----
 
 ## Verification Summary
 
-**Phase 2 goal ACHIEVED.** All success criteria verified:
+**Phase 2 goal ACHIEVED.** All success criteria verified after gap closure:
 
-1. ✓ Statusline displays cyan `[GSD]` branding at far left
-2. ✓ Progress bar changes color at dynamic thresholds (50%, 75%, 87.5% of config value)
-3. ✓ Red stage blinks at critical threshold (87.5%+)
-4. ✓ Update notification appears on second line only when updates available
-5. ✓ Model and CWD visible in dim styling
+1. Statusline displays cyan [GSD] branding at far left
+2. Progress bar changes color at dynamic thresholds (50, 75, 87.5 percent of config value)
+3. Red stage blinks at critical threshold (87.5 percent+)
+4. Update notification appears on second line only when updates available
+5. Model and CWD visible in dim styling
+
+
+**Gap closure verification:**
+- All 4 hardcoded defaults changed from 50 to 75
+- All defaults now align with config/default-config.json
+- Progress bar color stages now correct (green at 28 percent, not yellow)
+- No regressions in previously verified features
 
 **Implementation quality:**
 - All 9 STATUS requirements satisfied
-- Both plans (02-01, 02-02) executed successfully
+- All 3 plans (02-01, 02-02, 02-03) executed successfully
 - No anti-patterns or stub code detected
 - Proper terminal capability detection with fallbacks
 - Clean separation of concerns (branding, layout, icons, notifications)
+- Surgical gap closure with atomic commits
 
 **Phase complete and ready to proceed.**
 
+
 ---
-*Verified: 2026-01-31T02:00:02Z*
+*Verified: 2026-02-03T18:45:00Z*
 *Verifier: Claude (gsd-verifier)*
+*Re-verification: Yes (gap closure 02-03-PLAN.md)*

@@ -77,10 +77,10 @@ Plans:
   2. README shows private repo clone URL
   3. Install completion message shows Chude/AI Dev Environment author
   4. .upstream/ directory remains unchanged for diffing
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 04-01: URL and identity updates
+- [ ] 04-01-PLAN.md — Update all identity markers and URLs to private fork
 
 ### Phase 5: Update Commands
 **Goal**: Maintainer can sync upstream changes; consumers can update to latest fork release
@@ -138,7 +138,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Configuration System | 1/1 | Complete | 2026-01-30 |
 | 2. Statusline Redesign | 5/5 | Complete | 2026-02-03 |
 | 3. Installation Enhancements | 1/1 | Complete | 2026-01-31 |
-| 4. Branding and URLs | 0/1 | Not started | - |
+| 4. Branding and URLs | 0/1 | Planned | - |
 | 5. Update Commands | 0/2 | Not started | - |
 | 6. Logo Assets | 0/1 | Not started | - |
 

@@ -119,6 +119,14 @@
       "appliedAt": "2026-02-08T18:31:47.323Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "2347fca35ead5b4bf93b238afdf30a0f91947391",
+      "shortSha": "2347fca",
+      "message": "fix: clarify ASCII box-drawing vs text content with diacritics (#289)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:32:32.527Z",
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -181,12 +189,6 @@
       "sha": "d1654960ab41d5664c30dc4b065ef64b960dbc1f",
       "shortSha": "d165496",
       "message": "feat(install): respect attribution.commit setting (compatible opencode) (#286)",
-      "status": "pending"
-    },
-    {
-      "sha": "2347fca35ead5b4bf93b238afdf30a0f91947391",
-      "shortSha": "2347fca",
-      "message": "fix: clarify ASCII box-drawing vs text content with diacritics (#289)",
       "status": "pending"
     },
     {
@@ -528,7 +530,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 13,
+    "applied": 14,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

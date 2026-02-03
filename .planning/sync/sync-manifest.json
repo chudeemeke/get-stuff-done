@@ -152,6 +152,14 @@
       "appliedAt": "2026-02-08T18:33:41.101Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "161aa61137d2e3a003bbaca104e45a3508404e56",
+      "shortSha": "161aa61",
+      "message": "fix: researcher agent always writes RESEARCH.md regardless of commit_docs",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:33:54.143Z",
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -220,12 +228,6 @@
       "sha": "074b2bcc202915f8d49540e74e4104fe632c55f3",
       "shortSha": "074b2bc",
       "message": "fix(#330): update statusline.js reference during install (#392)",
-      "status": "pending"
-    },
-    {
-      "sha": "161aa61137d2e3a003bbaca104e45a3508404e56",
-      "shortSha": "161aa61",
-      "message": "fix: researcher agent always writes RESEARCH.md regardless of commit_docs",
       "status": "pending"
     },
     {
@@ -537,7 +539,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 17,
+    "applied": 18,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

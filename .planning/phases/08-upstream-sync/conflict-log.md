@@ -19,9 +19,10 @@
 | 10 | f3db981 | CHANGELOG.md | Path conflict | Upstream wins | Default policy |
 | 13 | 8d2651d | .upstream/README.md | Path conflict | Upstream wins | Default policy |
 | 16 | 9d7ea9c | bin/install.js | Path conflict | Upstream wins | Default policy |
+| 17 | 8384575 | commands/gsd/update.md | Path conflict | Upstream wins | Default policy |
 ## Summary
 
-Total conflicts: 16
-Upstream wins: 16
+Total conflicts: 17
+Upstream wins: 17
 Fork wins: 0
 Custom merge: 0

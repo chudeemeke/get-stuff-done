@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-01-28)
 
 ## Current Position
 
-Phase: 4 of 6 (Branding and URLs)
-Plan: Ready to plan
-Status: Phase 02 gap closure complete and verified
-Last activity: 2026-02-03 - Phase 02 verification passed
+Phase: 2 of 6 (Statusline Redesign - COMPLETE)
+Plan: All plans executed (02-01 through 02-05)
+Status: Phase complete - pending UAT reinstall verification
+Last activity: 2026-02-03 - Committed THRESHOLD removal fix
 
 Progress: [█████.....] 50%
 
@@ -32,8 +32,8 @@ Progress: [█████.....] 50%
 | 03 (Installation Enhancements) | 1/1 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (16m), 02-01 (8m), 02-02 (18m), 03-01 (8m), 02-03 (2m)
-- Trend: Excellent velocity - gap closure in just 2 minutes
+- Last 5 plans: 02-01 (8m), 02-02 (18m), 03-01 (8m), 02-03 (2m), 02-04/05 (combined session)
+- Trend: Excellent velocity - architectural fix completed
 
 *Updated after each plan completion*
 
@@ -44,7 +44,14 @@ Progress: [█████.....] 50%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- All hardcoded defaults must match default-config.json (75 not 50) (02-03)
+- BREAKING: Remove THRESHOLD system entirely - Claude Code's remaining_percentage is already threshold-relative (02-04/05)
+- CLAUDE_AUTOCOMPACT_PCT_OVERRIDE env var has known bug (Issue #18843) - don't use (02-04/05)
+- Proximity calculation = 100 - remaining_percentage (direct, no double-calc) (02-04/05)
+- Use reverse video (SGR 7) instead of blink for critical stage (02-05)
+- Centralized theme system in src/theme/ using Style Composer pattern (02-05)
+- Renamed install-gsd script back to install (user preference) (02-04/05)
+- Windows Terminal (WT_SESSION) doesn't support ANSI blink - check before xterm (02-04)
+- User test environment: Git Bash in Windows Terminal, not VS Code (02-04)
 - Use fs.lstat() not fs.stat() for symlink detection (stat follows symlinks) (03-01)
 - Check multiple key directories to confirm installation type (03-01)
 - Metadata file stored in get-stuff-done/.install-meta.json (03-01)
@@ -66,22 +73,29 @@ None yet.
 ### Blockers/Concerns
 
 - Resolved (01-01): Config schema mismatch — fixed Node.js code to match nested config format
-- Resolved: Autocompact uses CLAUDE_AUTOCOMPACT_PCT_OVERRIDE env var
+- Resolved (02-04/05): CLAUDE_AUTOCOMPACT_PCT_OVERRIDE env var has known bug — removed THRESHOLD system, use direct proximity instead
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 02-03-PLAN.md (Gap Closure)
+Stopped at: Phase 2 complete, pending reinstall verification
 Resume file: None
 
 **Key accomplishments this session:**
-- Executed Plan 02-03: Threshold default alignment (2 tasks, 2 commits, 2 minutes)
-- Fixed four hardcoded autocompact_threshold defaults from 50 to 75
-- Aligned code with default-config.json
-- Progress bar color stages now correct (green 0-37.5%, yellow 37.5-56.25%, red 56.25%+)
-- Phase 02 verification passed (5/5 must-haves, 9/9 requirements)
+- Discovered root cause: Claude Code's remaining_percentage is already threshold-relative
+- Removed THRESHOLD file system entirely (was double-calculating)
+- Discovered CLAUDE_AUTOCOMPACT_PCT_OVERRIDE has known bug (Issue #18843)
+- Updated statusline to use proximity = 100 - remaining_percentage directly
+- Added centralized theme system (src/theme/) with Style Composer pattern
+- Changed critical stage to use reverse video instead of blink
+- Renamed install script from install-gsd back to install
+- Removed autocompact_threshold from config schema and defaults
+- Committed all changes (280df42)
 
-**Ready for Phase 04:** Branding and URLs
+**Breaking changes:**
+- autocompact_threshold config option removed (users should delete from ~/.gsd/config.json)
+
+**Ready for:** Run `bun run install` to apply fixes, then verify UAT
 
 ---
 *Updated: 2026-02-03*

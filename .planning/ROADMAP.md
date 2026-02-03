@@ -51,6 +51,8 @@ Plans:
 - [x] 02-01-PLAN.md — Branding, layout restructure, white separators
 - [x] 02-02-PLAN.md — Stage icons, blink fallback, two-line notification, role config
 - [x] 02-03-PLAN.md — Fix threshold defaults (UAT gap closure)
+- [x] 02-04-PLAN.md — Fix blink detection (reverse video fallback)
+- [x] 02-05-PLAN.md — Centralized theme system (Style Composer pattern)
 
 ### Phase 3: Installation Enhancements
 **Goal**: Hybrid installation - copies by default (industry standard), symlinks/junctions with --link flag (dev workflow)
@@ -134,7 +136,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Configuration System | 1/1 | Complete | 2026-01-30 |
-| 2. Statusline Redesign | 3/3 | Complete | 2026-02-03 |
+| 2. Statusline Redesign | 5/5 | Complete | 2026-02-03 |
 | 3. Installation Enhancements | 1/1 | Complete | 2026-01-31 |
 | 4. Branding and URLs | 0/1 | Not started | - |
 | 5. Update Commands | 0/2 | Not started | - |

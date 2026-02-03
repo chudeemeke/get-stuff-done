@@ -26,7 +26,7 @@ function getDefaults() {
   return {
     version: 1,
     context_management: {
-      autocompact_threshold: 50,
+      autocompact_threshold: 75,
       precompact_save_state: true
     },
     workflow: {
@@ -68,7 +68,7 @@ function createDefaultConfig(configPath) {
   // Context window management
   context_management: {
     // Percentage of context window that triggers auto-compaction (10-90)
-    autocompact_threshold: 50,
+    autocompact_threshold: 75,
     // Save state before compaction
     precompact_save_state: true,
   },

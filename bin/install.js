@@ -100,7 +100,7 @@ ${cyan}   ██████╗ ███████╗██████╗
 
   Get Stuff Done ${dim}v${pkg.version}${reset}
   A meta-prompting, context engineering and spec-driven
-  development system for Claude Code (and opencode) by TÂCHES.
+  development system for Claude Code. Fork by Chude.
 `;
 
 // Parse --config-dir argument

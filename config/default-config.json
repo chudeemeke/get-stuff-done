@@ -1,6 +1,5 @@
 {
   "context_management": {
-    "autocompact_threshold": 75,
     "precompact_save_state": true
   },
   "workflow": {

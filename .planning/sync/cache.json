@@ -1,0 +1,16 @@
+{
+  "last_update": {
+    "version": null,
+    "date": null,
+    "source": "npm"
+  },
+  "last_sync": {
+    "sha": null,
+    "date": null,
+    "upstream_url": "https://github.com/glittercowboy/get-shit-done.git"
+  },
+  "registry": {
+    "last_used": "https://registry.npmjs.org",
+    "type": "npm"
+  }
+}

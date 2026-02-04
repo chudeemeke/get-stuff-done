@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs>
+    <!-- Darker gradient for light backgrounds -->
+    <linearGradient id="textGradLight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4BBDBD"/>
+      <stop offset="100%" stop-color="#6DBD6D"/>
+    </linearGradient>
+
+    <!-- Darker shades for icon depth -->
+    <style>
+      .cyan-front { fill: #4BBDBD; }
+      .cyan-back { fill: #267a7a; }
+      .green-front { fill: #6DBD6D; }
+      .green-back { fill: #3a5a3a; }
+      .pixel { fill: url(#textGradLight); }
+      .bullet { fill: #333333; }
+    </style>
+  </defs>
+
+  <!-- Icon on left (scaled down, baseline aligned) -->
+  <g transform="translate(120, 200) scale(0.35)">
+    <!-- Back square - green (behind at interlock) -->
+    <g transform="rotate(45) translate(-80, -80)">
+      <!-- Top face -->
+      <path class="green-front" d="M 0,0 L 160,0 L 160,20 L 0,20 Z"
+            stroke="#6DBD6D" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Right face -->
+      <path class="green-back" d="M 160,0 L 160,160 L 140,160 L 140,20 Z"
+            stroke="#6DBD6D" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Bottom face -->
+      <path class="green-back" d="M 0,160 L 160,160 L 160,140 L 0,140 Z"
+            stroke="#6DBD6D" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Left face -->
+      <path class="green-front" d="M 0,0 L 0,160 L 20,160 L 20,0 Z"
+            stroke="#6DBD6D" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+
+    <!-- Front square - cyan (in front at interlock) -->
+    <g transform="rotate(45) translate(20, 20)">
+      <!-- Top face -->
+      <path class="cyan-front" d="M 0,0 L 160,0 L 160,20 L 0,20 Z"
+            stroke="#4BBDBD" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Right face -->
+      <path class="cyan-back" d="M 160,0 L 160,160 L 140,160 L 140,20 Z"
+            stroke="#4BBDBD" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Bottom face -->
+      <path class="cyan-back" d="M 0,160 L 160,160 L 160,140 L 0,140 Z"
+            stroke="#4BBDBD" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Left face -->
+      <path class="cyan-front" d="M 0,0 L 0,160 L 20,160 L 20,0 Z"
+            stroke="#4BBDBD" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- Pixel-style text on right (chunky 8-bit aesthetic) -->
+  <!-- "Get" - 6x8 pixel grid per character -->
+  <g transform="translate(240, 140)">
+    <!-- G -->
+    <path class="pixel" d="M 0,0 h30 v10 h-30 z M 0,10 h10 v30 h-10 z M 0,40 h30 v10 h-30 z M 20,25 h10 v25 h-10 z M 20,25 h20 v10 h-20 z"/>
+    <!-- e -->
+    <path class="pixel" d="M 50,10 h30 v10 h-30 z M 50,10 h10 v40 h-10 z M 50,25 h25 v10 h-25 z M 50,40 h30 v10 h-30 z"/>
+    <!-- t -->
+    <path class="pixel" d="M 90,0 h10 v50 h-10 z M 80,10 h30 v10 h-30 z M 90,40 h20 v10 h-20 z"/>
+  </g>
+
+  <!-- Bullet 1 -->
+  <circle class="bullet" cx="370" cy="175" r="6"/>
+
+  <!-- "Stuff" -->
+  <g transform="translate(390, 140)">
+    <!-- S -->
+    <path class="pixel" d="M 0,0 h30 v10 h-30 z M 0,10 h10 v15 h-10 z M 0,25 h30 v10 h-30 z M 20,35 h10 v15 h-10 z M 0,40 h30 v10 h-30 z"/>
+    <!-- t -->
+    <path class="pixel" d="M 40,0 h10 v50 h-10 z M 30,10 h30 v10 h-30 z M 40,40 h20 v10 h-20 z"/>
+    <!-- u -->
+    <path class="pixel" d="M 70,10 h10 v30 h-10 z M 100,10 h10 v40 h-10 z M 70,40 h40 v10 h-40 z"/>
+    <!-- f -->
+    <path class="pixel" d="M 120,0 h30 v10 h-30 z M 120,10 h10 v40 h-10 z M 115,20 h25 v10 h-25 z"/>
+    <!-- f -->
+    <path class="pixel" d="M 160,0 h30 v10 h-30 z M 160,10 h10 v40 h-10 z M 155,20 h25 v10 h-25 z"/>
+  </g>
+
+  <!-- Bullet 2 -->
+  <circle class="bullet" cx="600" cy="175" r="6"/>
+
+  <!-- "Done" -->
+  <g transform="translate(620, 140)">
+    <!-- D -->
+    <path class="pixel" d="M 0,0 h25 v10 h-25 z M 0,10 h10 v30 h-10 z M 0,40 h25 v10 h-25 z M 25,10 h10 v30 h-10 z"/>
+    <!-- o -->
+    <path class="pixel" d="M 45,10 h30 v10 h-30 z M 45,20 h10 v20 h-10 z M 65,20 h10 v20 h-10 z M 45,40 h30 v10 h-30 z"/>
+    <!-- n -->
+    <path class="pixel" d="M 85,10 h10 v40 h-10 z M 85,10 h30 v10 h-30 z M 105,20 h10 v30 h-10 z"/>
+    <!-- e -->
+    <path class="pixel" d="M 125,10 h30 v10 h-30 z M 125,10 h10 v40 h-10 z M 125,25 h25 v10 h-25 z M 125,40 h30 v10 h-30 z"/>
+  </g>
+</svg>

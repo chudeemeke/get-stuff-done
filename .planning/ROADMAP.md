@@ -91,27 +91,11 @@ Plans:
   2. `/gsd:update` checks chudeemeke/get-stuff-done on GitHub/npm and installs latest
   3. Both commands are proper GSD skills with workflow integration
   4. Last sync SHA and date persisted in cache file
-**Plans**: TBD
-
-**Pre-seeded context:** `.planning/phases/05-update-commands/05-CONTEXT.md`
-
-**Workflow outline for /gsd:upstream:**
-1. FETCH — git fetch from glittercowboy, generate diff
-2. PRESENT — checkpoint: user cherry-picks or selects all
-3. PLAN — TBD: PLAN.md vs patches
-4. EXECUTE — gsd-executor applies changes
-5. VERIFY — gsd-verifier checks no breakage
-6. PUBLISH — checkpoint: commit, push, npm publish
-7. FINALIZE — update cache, show summary
-
-**Artifacts to create:**
-- `commands/gsd/upstream.md` — skill file for /gsd:upstream
-- `commands/gsd/update.md` — skill file for /gsd:update
-- `workflows/upstream-sync.md` — orchestrates stages 1-7 with existing agents
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: /gsd:update skill (consumer workflow)
-- [ ] 05-02: /gsd:upstream skill + workflow (maintainer workflow)
+- [ ] 05-01-PLAN.md — Consumer update skill (sync cache, fork URLs)
+- [ ] 05-02-PLAN.md — Maintainer upstream skill + workflow (7-stage cherry-pick sync)
 
 ### Phase 6: Logo Assets
 **Goal**: Custom logo assets for fork identity
@@ -139,7 +123,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Statusline Redesign | 5/5 | Complete | 2026-02-03 |
 | 3. Installation Enhancements | 1/1 | Complete | 2026-01-31 |
 | 4. Branding and URLs | 1/1 | Complete | 2026-02-03 |
-| 5. Update Commands | 0/2 | Not started | - |
+| 5. Update Commands | 0/2 | Planned | - |
 | 6. Logo Assets | 0/1 | Not started | - |
 
 ---

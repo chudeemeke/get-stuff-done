@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Darker shades for depth -->
+    <style>
+      .cyan-front { fill: #5FD7D7; }
+      .cyan-back { fill: #2a6b6b; }
+      .green-front { fill: #87D787; }
+      .green-back { fill: #436b43; }
+    </style>
+  </defs>
+
+  <!-- Isometric projection: 30-degree viewing angle -->
+  <!-- Green square (behind, upper-left start) -->
+  <g transform="translate(256, 256)">
+    <!-- Back square - green (behind at interlock) -->
+    <g transform="rotate(45) translate(-80, -80)">
+      <!-- Top face -->
+      <path class="green-front" d="M 0,0 L 160,0 L 160,20 L 0,20 Z"
+            stroke="#87D787" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Right face -->
+      <path class="green-back" d="M 160,0 L 160,160 L 140,160 L 140,20 Z"
+            stroke="#87D787" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Bottom face -->
+      <path class="green-back" d="M 0,160 L 160,160 L 160,140 L 0,140 Z"
+            stroke="#87D787" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Left face -->
+      <path class="green-front" d="M 0,0 L 0,160 L 20,160 L 20,0 Z"
+            stroke="#87D787" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+
+    <!-- Front square - cyan (in front at interlock) -->
+    <g transform="rotate(45) translate(20, 20)">
+      <!-- Top face -->
+      <path class="cyan-front" d="M 0,0 L 160,0 L 160,20 L 0,20 Z"
+            stroke="#5FD7D7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Right face -->
+      <path class="cyan-back" d="M 160,0 L 160,160 L 140,160 L 140,20 Z"
+            stroke="#5FD7D7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Bottom face -->
+      <path class="cyan-back" d="M 0,160 L 160,160 L 160,140 L 0,140 Z"
+            stroke="#5FD7D7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Left face -->
+      <path class="cyan-front" d="M 0,0 L 0,160 L 20,160 L 20,0 Z"
+            stroke="#5FD7D7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

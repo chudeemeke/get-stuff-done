@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <style>
+      .face { fill: #000000; }
+    </style>
+  </defs>
+
+  <!-- Isometric projection: 30-degree viewing angle -->
+  <!-- Monochrome black version -->
+  <g transform="translate(256, 256)">
+    <!-- Back square -->
+    <g transform="rotate(45) translate(-80, -80)">
+      <!-- Top face -->
+      <path class="face" d="M 0,0 L 160,0 L 160,20 L 0,20 Z"
+            stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Right face -->
+      <path class="face" d="M 160,0 L 160,160 L 140,160 L 140,20 Z"
+            stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Bottom face -->
+      <path class="face" d="M 0,160 L 160,160 L 160,140 L 0,140 Z"
+            stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Left face -->
+      <path class="face" d="M 0,0 L 0,160 L 20,160 L 20,0 Z"
+            stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+
+    <!-- Front square -->
+    <g transform="rotate(45) translate(20, 20)">
+      <!-- Top face -->
+      <path class="face" d="M 0,0 L 160,0 L 160,20 L 0,20 Z"
+            stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Right face -->
+      <path class="face" d="M 160,0 L 160,160 L 140,160 L 140,20 Z"
+            stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Bottom face -->
+      <path class="face" d="M 0,160 L 160,160 L 160,140 L 0,140 Z"
+            stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Left face -->
+      <path class="face" d="M 0,0 L 0,160 L 20,160 L 20,0 Z"
+            stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

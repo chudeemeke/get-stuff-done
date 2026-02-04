@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <!-- Dark background -->
+  <rect width="1200" height="630" fill="#1a1b26"/>
+
+  <!-- Icon (centered, scaled to fit) -->
+  <g transform="translate(300, 115)">
+    <!-- Front Square (Cyan) -->
+    <g transform="rotate(30 200 200)">
+      <rect x="120" y="120" width="160" height="160" fill="none" stroke="#5FD7D7" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Front faces (lighter) -->
+      <rect x="130" y="130" width="140" height="20" fill="#5FD7D7" opacity="0.3"/>
+      <rect x="130" y="130" width="20" height="140" fill="#5FD7D7" opacity="0.3"/>
+    </g>
+
+    <!-- Back Square (Green) -->
+    <g transform="rotate(30 200 200)">
+      <rect x="180" y="180" width="160" height="160" fill="none" stroke="#87D787" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Back faces (darker) -->
+      <rect x="310" y="190" width="20" height="140" fill="#87D787" opacity="0.2"/>
+      <rect x="190" y="310" width="140" height="20" fill="#87D787" opacity="0.2"/>
+    </g>
+  </g>
+
+  <!-- Text: Get•Stuff•Done (right side) -->
+  <g transform="translate(650, 235)">
+    <!-- Get -->
+    <path fill="url(#textGradient)" d="M0,0 h30 v10 h-20 v15 h15 v10 h-15 v15 h20 v10 h-30 z M40,0 h30 v10 h-20 v40 h20 v10 h-30 z M80,0 h10 v50 h20 v10 h-30 z"/>
+
+    <!-- Bullet 1 -->
+    <circle cx="130" cy="25" r="4" fill="#FFFFFF"/>
+
+    <!-- Stuff -->
+    <path fill="url(#textGradient)" d="M150,10 h20 v10 h-10 v10 h10 v10 h-10 v10 h10 v10 h-20 v-10 h10 v-10 h-10 v-10 h10 v-10 h-10 z M180,0 h10 v60 h-10 z M200,10 h20 v40 h10 v10 h-30 z M240,10 h30 v10 h-20 v10 h15 v10 h-15 v20 h-10 z M280,10 h30 v10 h-20 v10 h15 v10 h-15 v20 h-10 z"/>
+
+    <!-- Bullet 2 -->
+    <circle cx="330" cy="25" r="4" fill="#FFFFFF"/>
+
+    <!-- Done -->
+    <path fill="url(#textGradient)" d="M350,0 h20 v50 h10 v10 h-30 v-10 h10 v-40 h-10 z M390,0 h20 v50 h10 v10 h-30 v-10 h10 v-40 h-10 z M430,0 h30 v10 h-20 v15 h20 v10 h-20 v15 h20 v10 h-30 z"/>
+  </g>
+
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#5FD7D7;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#87D787;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+</svg>

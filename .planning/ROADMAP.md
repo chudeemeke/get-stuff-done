@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Installation Enhancements** - Hybrid install (copies default, --link for dev)
 - [x] **Phase 4: Branding and URLs** - Fork identity establishment
 - [x] **Phase 5: Update Commands** - Split update workflow (fork vs upstream)
-- [ ] **Phase 6: Logo Assets** - Visual identity assets
+- [x] **Phase 6: Logo Assets** - Visual identity assets
 
 ## Phase Details
 
@@ -109,8 +109,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — SVG source creation (icon + lockup + variants)
-- [ ] 06-02-PLAN.md — PNG exports and special assets (favicons, OG, badge, banner)
+- [x] 06-01-PLAN.md — SVG source creation (icon + lockup + variants)
+- [x] 06-02-PLAN.md — PNG exports and special assets (favicons, OG, badge, banner)
 
 ## Progress
 
@@ -125,7 +125,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. Installation Enhancements | 1/1 | Complete | 2026-01-31 |
 | 4. Branding and URLs | 1/1 | Complete | 2026-02-03 |
 | 5. Update Commands | 2/2 | Complete | 2026-02-04 |
-| 6. Logo Assets | 0/2 | Planned | - |
+| 6. Logo Assets | 2/2 | Complete | 2026-02-04 |
 
 ---
 *Roadmap created: 2026-01-28*

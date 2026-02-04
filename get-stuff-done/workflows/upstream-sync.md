@@ -506,10 +506,16 @@ Version bump, changelog, commit, push, publish.
    - **Rejection:** Return `## PUBLISH FAILED` - "Push rejected - remote has changes. Pull and retry."
    - **Network:** Retry up to 3 times with 2s delay
 
-7. Publish to npm with retry logic:
+7. Read registry from cache_json and publish with retry logic:
    ```bash
+   # Read registry preference from cache (honors user's registry config)
+   REGISTRY=$(cat .planning/sync/cache.json 2>/dev/null | grep -o '"last_used"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"')
+   REGISTRY=${REGISTRY:-https://registry.npmjs.org}
+
+   echo "Publishing to registry: $REGISTRY"
+
    # Attempt 1
-   bun publish --access public 2>&1 || npm publish --access public 2>&1
+   bun publish --access public --registry "$REGISTRY" 2>&1 || npm publish --access public --registry "$REGISTRY" 2>&1
    EXIT_CODE=$?
 
    if [ $EXIT_CODE -ne 0 ]; then
@@ -517,7 +523,7 @@ Version bump, changelog, commit, push, publish.
      sleep 1
 
      # Attempt 2
-     bun publish --access public 2>&1 || npm publish --access public 2>&1
+     bun publish --access public --registry "$REGISTRY" 2>&1 || npm publish --access public --registry "$REGISTRY" 2>&1
      EXIT_CODE=$?
 
      if [ $EXIT_CODE -ne 0 ]; then
@@ -525,7 +531,7 @@ Version bump, changelog, commit, push, publish.
        sleep 3
 
        # Attempt 3
-       bun publish --access public 2>&1 || npm publish --access public 2>&1
+       bun publish --access public --registry "$REGISTRY" 2>&1 || npm publish --access public --registry "$REGISTRY" 2>&1
        EXIT_CODE=$?
      fi
    fi

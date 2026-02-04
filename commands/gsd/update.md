@@ -33,20 +33,27 @@ Proceed to install step (treat as version 0.0.0 for comparison).
 </step>
 
 <step name="check_latest_version">
-Check npm for latest version:
+Read registry preference from cache (if available):
 
 ```bash
-npm view get-stuff-done version 2>/dev/null
+REGISTRY=$(cat .planning/sync/cache.json 2>/dev/null | grep -o '"last_used"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"')
+REGISTRY=${REGISTRY:-https://registry.npmjs.org}
+```
+
+Check registry for latest version:
+
+```bash
+npm view get-stuff-done version --registry "$REGISTRY" 2>/dev/null
 ```
 
 **If npm check fails:**
 ```
-Couldn't check for updates (offline or npm unavailable).
+Couldn't check for updates (offline or registry unavailable).
 
 To update manually: `npx get-stuff-done --global`
 ```
 
-STOP here if npm unavailable.
+STOP here if registry unavailable.
 </step>
 
 <step name="compare_versions">

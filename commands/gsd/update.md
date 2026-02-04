@@ -142,6 +142,17 @@ Clear the update cache so statusline indicator disappears:
 ```bash
 rm -f ~/.claude/cache/gsd-update-check.json
 ```
+
+Update sync cache with installed version (using jq for nested structure):
+
+```bash
+if [ -d ".planning/sync" ] && [ -f ".planning/sync/cache.json" ]; then
+  jq --arg v "${NEW_VERSION}" --arg d "$(date -Iseconds)" \
+    '.last_update.version = $v | .last_update.date = $d' \
+    .planning/sync/cache.json > /tmp/gsd-cache.tmp && \
+    mv /tmp/gsd-cache.tmp .planning/sync/cache.json
+fi
+```
 </step>
 
 <step name="display_result">

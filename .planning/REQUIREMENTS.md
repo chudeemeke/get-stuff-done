@@ -63,11 +63,11 @@ Requirements for initial fork release. Each maps to roadmap phases.
 
 ### Logo/Assets
 
-- [ ] **LOGO-01**: Isometric 3D rendering of interlocking squares icon
-- [ ] **LOGO-02**: FYNORA-style layout (icon left, [GSD] top-right, Get*Stuff*Done below)
-- [ ] **LOGO-03**: Colors: Cyan #5FD7D7, Green #87D787
-- [ ] **LOGO-04**: Retro boxy/square monospace font
-- [ ] **LOGO-05**: Bullet separators in text (Get*Stuff*Done)
+- [x] **LOGO-01**: Isometric 3D rendering of interlocking squares icon
+- [x] **LOGO-02**: FYNORA-style layout (icon left, [GSD] top-right, Get*Stuff*Done below)
+- [x] **LOGO-03**: Colors: Cyan #5FD7D7, Green #87D787
+- [x] **LOGO-04**: Retro boxy/square monospace font
+- [x] **LOGO-05**: Bullet separators in text (Get*Stuff*Done)
 
 ## Future Requirements
 
@@ -130,11 +130,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UPDATE-02 | Phase 5 | Complete |
 | UPDATE-03 | Phase 5 | Complete |
 | UPDATE-04 | Phase 5 | Complete |
-| LOGO-01 | Phase 6 | Pending |
-| LOGO-02 | Phase 6 | Pending |
-| LOGO-03 | Phase 6 | Pending |
-| LOGO-04 | Phase 6 | Pending |
-| LOGO-05 | Phase 6 | Pending |
+| LOGO-01 | Phase 6 | Complete |
+| LOGO-02 | Phase 6 | Complete |
+| LOGO-03 | Phase 6 | Complete |
+| LOGO-04 | Phase 6 | Complete |
+| LOGO-05 | Phase 6 | Complete |
 
 **Coverage:**
 - v0.1.0 requirements: 37 total
@@ -143,4 +143,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-28*
-*Last updated: 2026-02-04 — Phase 5 complete*
+*Last updated: 2026-02-04 — Phase 6 complete, milestone complete*

@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: complete
 phase: 05-update-commands
 source: 05-01-SUMMARY.md, 05-02-SUMMARY.md
 started: 2026-02-04T12:00:00Z
@@ -79,3 +79,13 @@ skipped: 0
   missing:
     - "Re-run installer OR manually copy upstream-sync.md to ~/.claude/get-stuff-done/workflows/"
   debug_session: "inline diagnosis"
+
+## Resolution
+
+**Fixed:** 2026-02-04T12:22:00Z
+
+Both files manually copied to installed location:
+- `cp commands/gsd/upstream.md ~/.claude/commands/gsd/`
+- `cp get-stuff-done/workflows/upstream-sync.md ~/.claude/get-stuff-done/workflows/`
+
+All issues resolved. Phase 5 verified complete.

@@ -106,10 +106,11 @@ Plans:
   2. Layout follows FYNORA style (icon left, text right)
   3. Colors are cyan (#5FD7D7) and green (#87D787)
   4. Text uses retro boxy font with bullet separators (Get*Stuff*Done)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: Logo design and assets
+- [ ] 06-01-PLAN.md — SVG source creation (icon + lockup + variants)
+- [ ] 06-02-PLAN.md — PNG exports and special assets (favicons, OG, badge, banner)
 
 ## Progress
 
@@ -124,7 +125,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. Installation Enhancements | 1/1 | Complete | 2026-01-31 |
 | 4. Branding and URLs | 1/1 | Complete | 2026-02-03 |
 | 5. Update Commands | 2/2 | Complete | 2026-02-04 |
-| 6. Logo Assets | 0/1 | Not started | - |
+| 6. Logo Assets | 0/2 | Planned | - |
 
 ---
 *Roadmap created: 2026-01-28*

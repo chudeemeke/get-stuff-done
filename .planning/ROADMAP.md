@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Statusline Redesign** - New visual identity in terminal
 - [x] **Phase 3: Installation Enhancements** - Hybrid install (copies default, --link for dev)
 - [x] **Phase 4: Branding and URLs** - Fork identity establishment
-- [ ] **Phase 5: Update Commands** - Split update workflow (fork vs upstream)
+- [x] **Phase 5: Update Commands** - Split update workflow (fork vs upstream)
 - [ ] **Phase 6: Logo Assets** - Visual identity assets
 
 ## Phase Details
@@ -94,8 +94,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Consumer update skill (sync cache, fork URLs)
-- [ ] 05-02-PLAN.md — Maintainer upstream skill + workflow (7-stage cherry-pick sync)
+- [x] 05-01-PLAN.md — Consumer update skill (sync cache, fork URLs)
+- [x] 05-02-PLAN.md — Maintainer upstream skill + workflow (7-stage cherry-pick sync)
 
 ### Phase 6: Logo Assets
 **Goal**: Custom logo assets for fork identity
@@ -123,7 +123,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Statusline Redesign | 5/5 | Complete | 2026-02-03 |
 | 3. Installation Enhancements | 1/1 | Complete | 2026-01-31 |
 | 4. Branding and URLs | 1/1 | Complete | 2026-02-03 |
-| 5. Update Commands | 0/2 | Planned | - |
+| 5. Update Commands | 2/2 | Complete | 2026-02-04 |
 | 6. Logo Assets | 0/1 | Not started | - |
 
 ---

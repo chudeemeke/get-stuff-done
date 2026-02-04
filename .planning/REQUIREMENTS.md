@@ -37,22 +37,22 @@ Requirements for initial fork release. Each maps to roadmap phases.
 ### Update Commands
 
 **`/gsd:upstream`** (maintainer workflow — syncs from original GSD):
-- [ ] **UPSTREAM-01**: Pull commits from glittercowboy/get-shit-done since last sync
-- [ ] **UPSTREAM-02**: Present commit-level summary with file drill-down
-- [ ] **UPSTREAM-03**: Allow cherry-pick selection OR select ALL
-- [ ] **UPSTREAM-04**: Apply selected changes to local project folder
-- [ ] **UPSTREAM-05**: Commit and push to chudeemeke/get-stuff-done
-- [ ] **UPSTREAM-06**: Publish to npm registry
-- [ ] **UPSTREAM-07**: Show completion summary with "run `/gsd:update`" advice
-- [ ] **UPSTREAM-08**: Track last sync SHA + date in cache file
-- [ ] **UPSTREAM-09**: Skill file: `commands/gsd/upstream.md`
-- [ ] **UPSTREAM-10**: Workflow file: `workflows/upstream-sync.md` (orchestrates existing agents: executor, verifier)
+- [x] **UPSTREAM-01**: Pull commits from glittercowboy/get-shit-done since last sync
+- [x] **UPSTREAM-02**: Present commit-level summary with file drill-down
+- [x] **UPSTREAM-03**: Allow cherry-pick selection OR select ALL
+- [x] **UPSTREAM-04**: Apply selected changes to local project folder
+- [x] **UPSTREAM-05**: Commit and push to chudeemeke/get-stuff-done
+- [x] **UPSTREAM-06**: Publish to npm registry
+- [x] **UPSTREAM-07**: Show completion summary with "run `/gsd:update`" advice
+- [x] **UPSTREAM-08**: Track last sync SHA + date in cache file
+- [x] **UPSTREAM-09**: Skill file: `commands/gsd/upstream.md`
+- [x] **UPSTREAM-10**: Workflow file: `workflows/upstream-sync.md` (orchestrates existing agents: executor, verifier)
 
 **`/gsd:update`** (consumer workflow — installs latest fork release):
-- [ ] **UPDATE-01**: Check GitHub/npm for new version of chudeemeke/get-stuff-done
-- [ ] **UPDATE-02**: Show changelog/release notes if available
-- [ ] **UPDATE-03**: Run standard CLI update (works from Claude Code or terminal)
-- [ ] **UPDATE-04**: Skill file: `commands/gsd/update.md`
+- [x] **UPDATE-01**: Check GitHub/npm for new version of chudeemeke/get-stuff-done
+- [x] **UPDATE-02**: Show changelog/release notes if available
+- [x] **UPDATE-03**: Run standard CLI update (works from Claude Code or terminal)
+- [x] **UPDATE-04**: Skill file: `commands/gsd/update.md`
 
 ### Configuration
 
@@ -116,20 +116,20 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAND-03 | Phase 4 | Complete |
 | BRAND-04 | Phase 4 | Complete |
 | BRAND-05 | Phase 4 | Complete |
-| UPSTREAM-01 | Phase 5 | Pending |
-| UPSTREAM-02 | Phase 5 | Pending |
-| UPSTREAM-03 | Phase 5 | Pending |
-| UPSTREAM-04 | Phase 5 | Pending |
-| UPSTREAM-05 | Phase 5 | Pending |
-| UPSTREAM-06 | Phase 5 | Pending |
-| UPSTREAM-07 | Phase 5 | Pending |
-| UPSTREAM-08 | Phase 5 | Pending |
-| UPSTREAM-09 | Phase 5 | Pending |
-| UPSTREAM-10 | Phase 5 | Pending |
-| UPDATE-01 | Phase 5 | Pending |
-| UPDATE-02 | Phase 5 | Pending |
-| UPDATE-03 | Phase 5 | Pending |
-| UPDATE-04 | Phase 5 | Pending |
+| UPSTREAM-01 | Phase 5 | Complete |
+| UPSTREAM-02 | Phase 5 | Complete |
+| UPSTREAM-03 | Phase 5 | Complete |
+| UPSTREAM-04 | Phase 5 | Complete |
+| UPSTREAM-05 | Phase 5 | Complete |
+| UPSTREAM-06 | Phase 5 | Complete |
+| UPSTREAM-07 | Phase 5 | Complete |
+| UPSTREAM-08 | Phase 5 | Complete |
+| UPSTREAM-09 | Phase 5 | Complete |
+| UPSTREAM-10 | Phase 5 | Complete |
+| UPDATE-01 | Phase 5 | Complete |
+| UPDATE-02 | Phase 5 | Complete |
+| UPDATE-03 | Phase 5 | Complete |
+| UPDATE-04 | Phase 5 | Complete |
 | LOGO-01 | Phase 6 | Pending |
 | LOGO-02 | Phase 6 | Pending |
 | LOGO-03 | Phase 6 | Pending |
@@ -143,4 +143,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-28*
-*Last updated: 2026-02-03 — Phase 4 complete*
+*Last updated: 2026-02-04 — Phase 5 complete*

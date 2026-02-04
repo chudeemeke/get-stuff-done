@@ -160,6 +160,15 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:33:54.143Z",
       "hadEslintFix": true
+    },
+    {
+      "sha": "83845755b318aeacaac7d24c380a0e8f273046ef",
+      "shortSha": "8384575",
+      "message": "fix: update command respects local vs global install",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:34:11.991Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -228,12 +237,6 @@
       "sha": "074b2bcc202915f8d49540e74e4104fe632c55f3",
       "shortSha": "074b2bc",
       "message": "fix(#330): update statusline.js reference during install (#392)",
-      "status": "pending"
-    },
-    {
-      "sha": "83845755b318aeacaac7d24c380a0e8f273046ef",
-      "shortSha": "8384575",
-      "message": "fix: update command respects local vs global install",
       "status": "pending"
     },
     {
@@ -539,7 +542,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 18,
+    "applied": 19,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

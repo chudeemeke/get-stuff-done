@@ -92,24 +92,26 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-05
-Status: Quick task 001 complete, ready to publish
+Status: Hooks bug discovered, needs fix before push
+Resume file: `.planning/sync/CONTINUE-HERE.md`
 
 **Completed:**
 - Milestone v0.1.0 audit (PASSED - 37/37 requirements)
 - Fixed 2 tech debt items (registry preference in update commands)
-- Pre-flight checks for upstream sync
-- Cherry-picked 24 commits from upstream (v1.9.13 to v1.11.1)
-- Version bumped to 2.1.0
-- Discovered npm package name conflict (get-stuff-done owned by Paritosh)
-- Renamed package to `@chude/get-stuff-done` (scoped package)
-- Updated all 30+ package references across 7 files
-- Committed package rename (bf70880)
-- Quick task 001: Scaled progress bar to autocompact threshold (1acd67f)
+- Upstream sync: 24 commits cherry-picked (v1.9.13 to v1.11.1)
+- Package renamed to `@chude/get-stuff-done` v2.1.0
+- Quick task 001: Scaled progress bar to threshold (WORKING - verified live)
 
-**Remaining (optional):**
-1. Run security review before publish
+**Bug discovered (blocking push):**
+- bin/install.js: hooks symlink-to-copy transition doesn't remove symlink first
+- Agents has this fix (lines 1170-1175), hooks doesn't (lines 1250-1276)
+- Fix with /gsd:quick before pushing
+
+**Remaining:**
+1. Fix hooks symlink bug (/gsd:quick)
 2. Push to GitHub
-3. Publish to npm (requires OTP)
+3. Security review
+4. Publish to npm (requires OTP)
 
 **Enhancement requested:** Add security review step to `/gsd:upstream` workflow
 

@@ -1,12 +1,12 @@
 {
   "last_update": {
-    "version": null,
-    "date": null,
+    "version": "2.1.0",
+    "date": "2026-02-05T11:00:00Z",
     "source": "npm"
   },
   "last_sync": {
-    "sha": null,
-    "date": null,
+    "sha": "8384575",
+    "date": "2026-02-05T11:00:00Z",
     "upstream_url": "https://github.com/glittercowboy/get-shit-done.git"
   },
   "registry": {

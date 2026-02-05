@@ -135,7 +135,7 @@ console.log(banner);
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx get-stuff-done [options]
+  console.log(`  ${yellow}Usage:${reset} npx @chude/get-stuff-done [options]
 
   ${yellow}Options:${reset}
     ${cyan}-g, --global${reset}              Install globally (to config directory)
@@ -152,31 +152,31 @@ if (hasHelp) {
 
   ${yellow}Examples:${reset}
     ${dim}# Interactive install (prompts for runtime and location)${reset}
-    npx get-stuff-done
+    npx @chude/get-stuff-done
 
     ${dim}# Install for Claude Code globally${reset}
-    npx get-stuff-done --claude --global
+    npx @chude/get-stuff-done --claude --global
 
     ${dim}# Install for OpenCode globally${reset}
-    npx get-stuff-done --opencode --global
+    npx @chude/get-stuff-done --opencode --global
 
     ${dim}# Install for both runtimes globally${reset}
-    npx get-stuff-done --both --global
+    npx @chude/get-stuff-done --both --global
 
     ${dim}# Install to custom config directory${reset}
-    npx get-stuff-done --claude --global --config-dir ~/.claude-bc
+    npx @chude/get-stuff-done --claude --global --config-dir ~/.claude-bc
 
     ${dim}# Install to current project only${reset}
-    npx get-stuff-done --claude --local
+    npx @chude/get-stuff-done --claude --local
 
     ${dim}# Development install (symlinks for edit-in-place)${reset}
-    npx get-stuff-done --claude --global --link
+    npx @chude/get-stuff-done --claude --global --link
 
     ${dim}# Uninstall GSD from Claude Code globally${reset}
-    npx get-stuff-done --claude --global --uninstall
+    npx @chude/get-stuff-done --claude --global --uninstall
 
     ${dim}# Uninstall GSD from current project${reset}
-    npx get-stuff-done --claude --local --uninstall
+    npx @chude/get-stuff-done --claude --local --uninstall
 
   ${yellow}Notes:${reset}
     The --config-dir option is useful when you have multiple Claude Code
@@ -210,7 +210,7 @@ function isDevCheckout(srcPath) {
   }
   try {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-    return pkg.name === 'get-stuff-done-cc' || pkg.name === 'get-stuff-done';
+    return pkg.name === 'get-stuff-done-cc' || pkg.name === 'get-stuff-done' || pkg.name === '@chude/get-stuff-done';
   } catch (e) {
     return false;
   }
@@ -1564,7 +1564,7 @@ if (hasGlobal && hasLocal) {
   // Uninstall mode
   if (!hasGlobal && !hasLocal) {
     console.error(`  ${yellow}--uninstall requires --global or --local${reset}`);
-    console.error(`  Example: npx get-stuff-done --claude --global --uninstall`);
+    console.error(`  Example: npx @chude/get-stuff-done --claude --global --uninstall`);
     process.exit(1);
   }
   const runtimes = selectedRuntimes.length > 0 ? selectedRuntimes : ['claude'];

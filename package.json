@@ -1,6 +1,9 @@
 {
-  "name": "get-stuff-done",
+  "name": "@chude/get-stuff-done",
   "version": "2.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code. Fork of GSD by TACHES.",
   "bin": {
     "get-stuff-done": "bin/install.js"

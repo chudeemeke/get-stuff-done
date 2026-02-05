@@ -30,7 +30,7 @@ Output ONLY the reference content below. Do NOT add:
 GSD evolves fast. Update periodically:
 
 ```bash
-npx get-stuff-done@latest
+npx @chude/get-stuff-done@latest
 ```
 
 ## Core Workflow
@@ -334,7 +334,7 @@ Update GSD to latest version with changelog preview.
 - Displays changelog entries for versions you've missed
 - Highlights breaking changes
 - Confirms before running install
-- Better than raw `npx get-stuff-done`
+- Better than raw `npx @chude/get-stuff-done`
 
 Usage: `/gsd:update`
 

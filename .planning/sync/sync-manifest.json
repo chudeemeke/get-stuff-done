@@ -185,6 +185,15 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:34:39.339Z",
       "hadEslintFix": true
+    },
+    {
+      "sha": "f53011c9e2d8f13cc580b04963d769d1a0304b51",
+      "shortSha": "f53011c",
+      "message": "fix(#429): prevent API keys from being committed via map-codebase",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:34:55.351Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -253,12 +262,6 @@
       "sha": "074b2bcc202915f8d49540e74e4104fe632c55f3",
       "shortSha": "074b2bc",
       "message": "fix(#330): update statusline.js reference during install (#392)",
-      "status": "pending"
-    },
-    {
-      "sha": "f53011c9e2d8f13cc580b04963d769d1a0304b51",
-      "shortSha": "f53011c",
-      "message": "fix(#429): prevent API keys from being committed via map-codebase",
       "status": "pending"
     },
     {
@@ -546,7 +549,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 21,
+    "applied": 22,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

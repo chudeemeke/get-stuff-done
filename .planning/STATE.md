@@ -61,9 +61,10 @@ Recent decisions affecting current work:
 - Checkpoint continuation via stdout return + fresh Task spawn (not agent resume) (05-02)
 - Use jq for nested JSON cache updates (not sed) - handles last_update.version correctly (05-01)
 - Keep Star History section but label as 'Upstream' to show historical context (04-01)
-- BREAKING: Remove THRESHOLD system entirely - Claude Code's remaining_percentage is already threshold-relative (02-04/05)
+- CORRECTED (quick-001): Progress bar must scale to threshold - remaining_percentage is RAW, not threshold-relative
+- Scale progress bar: proximity = (rawUsage / maxUsage) * 100 where maxUsage = 100 - threshold (quick-001)
+- Autocompact threshold configurable via context_management.autocompact_threshold (default: 16.5%) (quick-001)
 - CLAUDE_AUTOCOMPACT_PCT_OVERRIDE env var has known bug (Issue #18843) - don't use (02-04/05)
-- Proximity calculation = 100 - remaining_percentage (direct, no double-calc) (02-04/05)
 - Use reverse video (SGR 7) instead of blink for critical stage (02-05)
 - Centralized theme system in src/theme/ using Style Composer pattern (02-05)
 - Use fs.lstat() not fs.stat() for symlink detection (stat follows symlinks) (03-01)
@@ -85,7 +86,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-05
-Status: Upstream sync complete, ready to publish
+Status: Quick task 001 complete, ready to publish
 
 **Completed:**
 - Milestone v0.1.0 audit (PASSED - 37/37 requirements)
@@ -97,6 +98,7 @@ Status: Upstream sync complete, ready to publish
 - Renamed package to `@chude/get-stuff-done` (scoped package)
 - Updated all 30+ package references across 7 files
 - Committed package rename (bf70880)
+- Quick task 001: Scaled progress bar to autocompact threshold (1acd67f)
 
 **Remaining (optional):**
 1. Run security review before publish

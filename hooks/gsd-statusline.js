@@ -2,25 +2,27 @@
 // Claude Code Statusline - GSD Edition
 // Shows: model | directory | autocompact proximity
 //
-// IMPORTANT: Claude Code's remaining_percentage is ALREADY threshold-relative.
-// It represents "% of context left until autocompact triggers", not raw free space.
-// When remaining_percentage hits 0%, autocompact fires.
+// IMPORTANT: Claude Code's remaining_percentage is RAW remaining space, NOT threshold-relative.
+// Autocompact triggers when remaining hits ~16.5% (configurable).
+// We scale the bar so 0% = fresh context, 100% = autocompact fires.
 //
-// Therefore: proximity = 100 - remaining_percentage
-// This directly gives us "how close to autocompact" as a 0-100% value.
+// Formula: proximity = (rawUsage / maxUsage) * 100
+// Where: rawUsage = 100 - remaining, maxUsage = 100 - threshold
 
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Load config for role only
+// Load config for role and threshold
 let gsdRole = 'consumer';
+let autocompactThreshold = 16.5;  // Default: % remaining when autocompact fires
 try {
   const { loadConfig, getConfigValue } = require('../src/config/ConfigLoader');
   const config = loadConfig();
   gsdRole = getConfigValue(config, 'gsd.role', 'consumer');
+  autocompactThreshold = getConfigValue(config, 'context_management.autocompact_threshold', 16.5);
 } catch (e) {
-  // Silent fail - use default
+  // Silent fail - use defaults
 }
 
 // --- Theme System ---
@@ -79,9 +81,10 @@ process.stdin.on('end', () => {
     // Context window display (shows proximity to autocompact)
     let ctx = '';
     if (remaining != null) {
-      // remaining_percentage IS the "% left until autocompact triggers"
-      // So proximity to autocompact = 100 - remaining
-      const proximity = Math.max(0, Math.min(100, 100 - Math.round(remaining)));
+      // Scale raw usage to threshold: 0% raw = 0% bar, threshold = 100% bar
+      const maxUsage = 100 - autocompactThreshold;  // e.g., 83.5% when threshold=16.5
+      const rawUsage = 100 - remaining;
+      const proximity = Math.max(0, Math.min(100, Math.round((rawUsage / maxUsage) * 100)));
 
       // Build progress bar (10 segments) - shows proximity to autocompact
       const filled = Math.floor(proximity / 10);

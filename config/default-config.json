@@ -1,6 +1,7 @@
 {
   "context_management": {
-    "precompact_save_state": true
+    "precompact_save_state": true,
+    "autocompact_threshold": 16.5
   },
   "workflow": {
     "pause_between_tasks": false,

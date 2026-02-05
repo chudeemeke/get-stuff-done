@@ -6,7 +6,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [1.11.1] - 2026-02-04
+## [2.1.0] - 2026-02-04
 
 ### Added
 - Fork customizations: GSD branding, statusline redesign, hybrid installation

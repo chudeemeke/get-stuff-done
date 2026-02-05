@@ -6,6 +6,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.11.1] - 2026-02-04
+
+### Added
+- Fork customizations: GSD branding, statusline redesign, hybrid installation
+- Configuration system with dynamic thresholds
+- Logo assets (isometric icon, FYNORA-style lockup)
+- `/gsd:upstream` maintainer workflow for syncing from original GSD
+- `/gsd:update` consumer workflow with registry preference support
+- Gemini CLI support in installer (from upstream)
+- Git branching strategy options (from upstream)
+
+### Changed
+- Rebrand to "Get Stuff Done" with cyan/green color scheme
+- Statusline uses centralized theme system with 256-color support
+- Update commands honor registry preference from cache
+- Installation metadata tracks copy vs link mode
+
+### Fixed
+- Statusline crash handling and color validation (from upstream)
+- Context bar scaling to show 100% at actual 80% limit (from upstream)
+- Plan-phase passes CONTEXT.md to all downstream agents (from upstream)
+- Researcher agent writes RESEARCH.md regardless of commit_docs (from upstream)
+
+### Synced from Upstream
+- Commits from glittercowboy/get-shit-done v1.9.13 through v1.11.1
+
 ## [1.9.12] - 2025-01-23
 
 ### Removed

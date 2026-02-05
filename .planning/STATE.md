@@ -83,6 +83,12 @@ None yet.
 - Resolved (02-04/05): CLAUDE_AUTOCOMPACT_PCT_OVERRIDE env var has known bug — removed THRESHOLD system, use direct proximity instead
 - Resolved (03-01b): Switching from links to copies deleted source agents — added symlink check before copy (8faf1e1)
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 001 | Scale statusline progress bar to threshold | 2026-02-05 | 1acd67f | [001-scale-statusline-progress-bar-to-thresho](./quick/001-scale-statusline-progress-bar-to-thresho/) |
+
 ## Session Continuity
 
 Last session: 2026-02-05

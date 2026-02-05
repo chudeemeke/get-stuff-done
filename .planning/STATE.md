@@ -88,12 +88,13 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 001 | Scale statusline progress bar to threshold | 2026-02-05 | 1acd67f | [001-scale-statusline-progress-bar-to-thresho](./quick/001-scale-statusline-progress-bar-to-thresho/) |
+| 002 | Fix hooks symlink-to-copy transition bug | 2026-02-05 | f913e41 | [002-fix-hooks-symlink-to-copy-transition-bug](./quick/002-fix-hooks-symlink-to-copy-transition-bug/) |
 
 ## Session Continuity
 
 Last session: 2026-02-05
-Status: Hooks bug discovered, needs fix before push
-Resume file: `.planning/sync/CONTINUE-HERE.md`
+Status: Ready to push to GitHub
+Resume file: None
 
 **Completed:**
 - Milestone v0.1.0 audit (PASSED - 37/37 requirements)
@@ -101,17 +102,12 @@ Resume file: `.planning/sync/CONTINUE-HERE.md`
 - Upstream sync: 24 commits cherry-picked (v1.9.13 to v1.11.1)
 - Package renamed to `@chude/get-stuff-done` v2.1.0
 - Quick task 001: Scaled progress bar to threshold (WORKING - verified live)
-
-**Bug discovered (blocking push):**
-- bin/install.js: hooks symlink-to-copy transition doesn't remove symlink first
-- Agents has this fix (lines 1170-1175), hooks doesn't (lines 1250-1276)
-- Fix with /gsd:quick before pushing
+- Quick task 002: Fixed hooks symlink bug (f913e41)
 
 **Remaining:**
-1. Fix hooks symlink bug (/gsd:quick)
-2. Push to GitHub
-3. Security review
-4. Publish to npm (requires OTP)
+1. Push to GitHub
+2. Security review
+3. Publish to npm (requires OTP)
 
 **Enhancement requested:** Add security review step to `/gsd:upstream` workflow
 

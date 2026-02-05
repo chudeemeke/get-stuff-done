@@ -177,6 +177,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:34:24.639Z",
       "hadEslintFix": true
+    },
+    {
+      "sha": "4dff9899cc4f6b1e66949680fa2f772e472f9318",
+      "shortSha": "4dff989",
+      "message": "fix(settings): auto-create config.json when missing (#264)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:34:39.339Z",
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -245,12 +253,6 @@
       "sha": "074b2bcc202915f8d49540e74e4104fe632c55f3",
       "shortSha": "074b2bc",
       "message": "fix(#330): update statusline.js reference during install (#392)",
-      "status": "pending"
-    },
-    {
-      "sha": "4dff9899cc4f6b1e66949680fa2f772e472f9318",
-      "shortSha": "4dff989",
-      "message": "fix(settings): auto-create config.json when missing (#264)",
       "status": "pending"
     },
     {
@@ -544,7 +546,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 20,
+    "applied": 21,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

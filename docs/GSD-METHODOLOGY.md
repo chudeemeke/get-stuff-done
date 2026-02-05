@@ -4,7 +4,7 @@ Comprehensive documentation of TACHES/GlitterCowboy's "Get Stuff Done" framework
 
 **Source:** https://github.com/glittercowboy/get-shit-done
 **Version:** 1.9.11 (latest release as of January 23, 2026)
-**Installation:** `npx get-stuff-done --global` or `npx get-stuff-done --local`
+**Installation:** `npx @chude/get-stuff-done --global` or `npx @chude/get-stuff-done --local`
 
 ---
 

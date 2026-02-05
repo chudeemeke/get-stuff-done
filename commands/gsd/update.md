@@ -6,7 +6,7 @@ description: Update GSD to latest version with changelog display
 <objective>
 Check for GSD updates, install if available, and display what changed.
 
-Provides a better update experience than raw `npx get-stuff-done` by showing version diff and changelog entries.
+Provides a better update experience than raw `npx @chude/get-stuff-done` by showing version diff and changelog entries.
 </objective>
 
 <process>
@@ -43,14 +43,14 @@ REGISTRY=${REGISTRY:-https://registry.npmjs.org}
 Check registry for latest version:
 
 ```bash
-npm view get-stuff-done version --registry "$REGISTRY" 2>/dev/null
+npm view @chude/get-stuff-done version --registry "$REGISTRY" 2>/dev/null
 ```
 
 **If npm check fails:**
 ```
 Couldn't check for updates (offline or registry unavailable).
 
-To update manually: `npx get-stuff-done --global`
+To update manually: `npx @chude/get-stuff-done --global`
 ```
 
 STOP here if registry unavailable.
@@ -139,7 +139,7 @@ Use AskUserQuestion:
 Run the update:
 
 ```bash
-npx get-stuff-done --global
+npx @chude/get-stuff-done --global
 ```
 
 Capture output. If install fails, show error and STOP.

@@ -154,14 +154,14 @@ GSD is designed to be your default Claude Code framework across ALL projects. Th
 
 ```bash
 # Claude Code
-npx get-stuff-done --claude --global   # Install to ~/.claude/
-npx get-stuff-done --claude --local    # Install to ./.claude/
+npx @chude/get-stuff-done --claude --global   # Install to ~/.claude/
+npx @chude/get-stuff-done --claude --local    # Install to ./.claude/
 
 # OpenCode (open source, free models)
-npx get-stuff-done --opencode --global # Install to ~/.opencode/
+npx @chude/get-stuff-done --opencode --global # Install to ~/.opencode/
 
 # Both runtimes
-npx get-stuff-done --both --global     # Install to both directories
+npx @chude/get-stuff-done --both --global     # Install to both directories
 ```
 
 Use `--global` (`-g`) or `--local` (`-l`) to skip the location prompt.
@@ -662,18 +662,18 @@ The orchestrator stays lean (~30% context), dispatching work to subagents. Their
 
 **Commands not working as expected?**
 - Run `/gsd:help` to verify installation
-- Re-run `npx get-stuff-done` to reinstall
+- Re-run `npx @chude/get-stuff-done` to reinstall
 
 **Updating to the latest version?**
 ```bash
-npx get-stuff-done@latest
+npx @chude/get-stuff-done@latest
 ```
 
 **Using Docker or containerized environments?**
 
 If file reads fail with tilde paths (`~/.claude/...`), set `CLAUDE_CONFIG_DIR` before installing:
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-stuff-done --global
+CLAUDE_CONFIG_DIR=/home/youruser/.claude npx @chude/get-stuff-done --global
 ```
 This ensures absolute paths are used instead of `~` which may not expand correctly in containers.
 
@@ -683,12 +683,12 @@ To remove GSD completely:
 
 ```bash
 # Global installs
-npx get-stuff-done --claude --global --uninstall
-npx get-stuff-done --opencode --global --uninstall
+npx @chude/get-stuff-done --claude --global --uninstall
+npx @chude/get-stuff-done --opencode --global --uninstall
 
 # Local installs (current project)
-npx get-stuff-done --claude --local --uninstall
-npx get-stuff-done --opencode --local --uninstall
+npx @chude/get-stuff-done --claude --local --uninstall
+npx @chude/get-stuff-done --opencode --local --uninstall
 ```
 
 This removes all GSD commands, agents, hooks, and settings while preserving your other configurations.

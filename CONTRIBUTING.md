@@ -32,7 +32,7 @@ main ═════════════════════════
 
 ### `main`
 
-Production. Always installable via `npx get-stuff-done`.
+Production. Always installable via `npx @chude/get-stuff-done`.
 
 | Rule | Why |
 |------|-----|
@@ -142,7 +142,7 @@ git tag -a v1.10.0-beta.1 -m "Beta: codebase intelligence stabilized"
 git tag -a v1.10.0 -m "Release: codebase intelligence"
 ```
 
-Users opt-in: `npm install get-stuff-done@1.10.0-alpha.1`
+Users opt-in: `npm install @chude/get-stuff-done@1.10.0-alpha.1`
 
 **If it doesn't work out:** Delete pre-release tags, no messy public revert on main.
 
@@ -310,7 +310,7 @@ npm install
 
 # Test locally
 npm link
-npx get-stuff-done
+npx @chude/get-stuff-done
 
 # Run tests
 npm test

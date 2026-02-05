@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 2000" width="2000" height="2000">
+  <defs>
+    <style>
+      .bg { fill: #1a1b26; }
+      /* Cyan for icon, brackets, dots */
+      .cyan { fill: #5FD7D7; }
+      .cyan-shadow { fill: #2a6b6b; }
+      /* Green for GSD letters and words */
+      .green { fill: #87D787; }
+      .green-shadow { fill: #436b43; }
+      /* Retro boxy monospace font */
+      .retro { font-family: 'Consolas', 'Monaco', 'Lucida Console', 'Courier New', monospace; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" width="2000" height="2000"/>
+
+  <!-- Main content centered -->
+  <g transform="translate(1000, 1000)">
+
+    <!-- ===== LEFT SIDE: ⧉ ICON with 3D effect ===== -->
+    <g transform="translate(-520, -60)">
+      <!-- 3D shadow layers (offset down-right) -->
+      <text class="cyan-shadow retro" font-size="320" font-weight="bold" x="12" y="12">⧉</text>
+      <text class="cyan-shadow retro" font-size="320" font-weight="bold" x="8" y="8">⧉</text>
+      <text class="cyan-shadow retro" font-size="320" font-weight="bold" x="4" y="4">⧉</text>
+      <!-- Main icon -->
+      <text class="cyan retro" font-size="320" font-weight="bold" x="0" y="0">⧉</text>
+    </g>
+
+    <!-- ===== RIGHT SIDE: [GSD] on top, Get•Stuff•Done below ===== -->
+    <g transform="translate(220, 0)">
+
+      <!-- [GSD] - All together as one unit -->
+      <g transform="translate(0, -60)">
+        <!-- 3D shadow for entire [GSD] -->
+        <text class="cyan-shadow retro" font-size="200" font-weight="bold" text-anchor="middle" x="8" y="8">[</text>
+        <text class="cyan-shadow retro" font-size="200" font-weight="bold" text-anchor="middle" x="4" y="4">[</text>
+        <text class="cyan retro" font-size="200" font-weight="bold" text-anchor="middle" x="0" y="0">[</text>
+
+        <text class="green-shadow retro" font-size="200" font-weight="bold" text-anchor="middle" x="308" y="8">GSD</text>
+        <text class="green-shadow retro" font-size="200" font-weight="bold" text-anchor="middle" x="304" y="4">GSD</text>
+        <text class="green retro" font-size="200" font-weight="bold" text-anchor="middle" x="300" y="0">GSD</text>
+
+        <text class="cyan-shadow retro" font-size="200" font-weight="bold" text-anchor="middle" x="608" y="8">]</text>
+        <text class="cyan-shadow retro" font-size="200" font-weight="bold" text-anchor="middle" x="604" y="4">]</text>
+        <text class="cyan retro" font-size="200" font-weight="bold" text-anchor="middle" x="600" y="0">]</text>
+      </g>
+
+      <!-- Get•Stuff•Done - Compact, same width as [GSD] above -->
+      <g transform="translate(300, 100)">
+        <text class="green-shadow retro" font-size="38" text-anchor="middle" x="2" y="2">Get</text>
+        <text class="green retro" font-size="38" text-anchor="middle" x="0" y="0">Get</text>
+
+        <text class="cyan retro" font-size="38" text-anchor="middle" x="80" y="0">•</text>
+
+        <text class="green-shadow retro" font-size="38" text-anchor="middle" x="162" y="2">Stuff</text>
+        <text class="green retro" font-size="38" text-anchor="middle" x="160" y="0">Stuff</text>
+
+        <text class="cyan retro" font-size="38" text-anchor="middle" x="250" y="0">•</text>
+
+        <text class="green-shadow retro" font-size="38" text-anchor="middle" x="332" y="2">Done</text>
+        <text class="green retro" font-size="38" text-anchor="middle" x="330" y="0">Done</text>
+      </g>
+
+    </g>
+
+    <!-- Decorative dots below everything -->
+    <g transform="translate(0, 220)">
+      <circle class="cyan" cx="-48" cy="0" r="6"/>
+      <circle fill="#87D787" cx="-24" cy="0" r="6"/>
+      <circle class="cyan" cx="0" cy="0" r="6"/>
+      <circle fill="#87D787" cx="24" cy="0" r="6"/>
+      <circle class="cyan" cx="48" cy="0" r="6"/>
+    </g>
+
+  </g>
+</svg>

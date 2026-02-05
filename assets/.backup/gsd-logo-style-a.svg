@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 2000" width="2000" height="2000">
+  <defs>
+    <style>
+      .bg { fill: #1a1b26; }
+      /* Cyan for brackets, dots */
+      .cyan { fill: #5FD7D7; }
+      .cyan-shadow { fill: #2a6b6b; }
+      /* Green for GSD letters and words */
+      .green { fill: #87D787; }
+      .green-shadow { fill: #436b43; }
+      /* Retro boxy monospace font */
+      .retro { font-family: 'Consolas', 'Monaco', 'Lucida Console', 'Courier New', monospace; letter-spacing: 0.05em; }
+    </style>
+    <!-- Gradients for 3D ribbon effect -->
+    <linearGradient id="ribbonCyan1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7FFFFF"/>
+      <stop offset="50%" stop-color="#5FD7D7"/>
+      <stop offset="100%" stop-color="#2a6b6b"/>
+    </linearGradient>
+    <linearGradient id="ribbonCyan2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a6b6b"/>
+      <stop offset="50%" stop-color="#5FD7D7"/>
+      <stop offset="100%" stop-color="#7FFFFF"/>
+    </linearGradient>
+    <linearGradient id="ribbonGreen1" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#436b43"/>
+      <stop offset="50%" stop-color="#87D787"/>
+      <stop offset="100%" stop-color="#AFFFAF"/>
+    </linearGradient>
+    <linearGradient id="ribbonGreen2" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#AFFFAF"/>
+      <stop offset="50%" stop-color="#87D787"/>
+      <stop offset="100%" stop-color="#436b43"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" width="2000" height="2000"/>
+
+  <!-- Main content centered -->
+  <g transform="translate(1000, 1000)">
+
+    <!-- ===== LEFT SIDE: 3D INTERLOCKING ⧉ ICON (ribbon style like image #5) ===== -->
+    <g transform="translate(-580, -150)">
+      <g transform="scale(0.85)">
+        <!-- Back square (green) - 3D ribbon style -->
+        <g>
+          <!-- Top-left to top-right -->
+          <path d="M 60,30 L 280,30 Q 320,30 320,70 L 320,100 L 280,100 Q 260,100 260,80 L 260,70 Q 260,50 240,50 L 60,50 Q 40,50 40,70 L 40,240 Q 40,260 60,260 L 80,260 L 80,300 L 60,300 Q 20,300 20,260 L 20,70 Q 20,30 60,30 Z" fill="url(#ribbonGreen1)"/>
+          <!-- Top-right to bottom-right -->
+          <path d="M 320,70 L 320,280 Q 320,320 280,320 L 250,320 L 250,280 Q 250,260 270,260 L 280,260 Q 300,260 300,240 L 300,70 Q 300,50 280,50 L 260,50 L 260,80 Q 260,100 280,100 L 320,100 Z" fill="url(#ribbonGreen2)"/>
+          <!-- Bottom edge -->
+          <path d="M 280,320 L 60,320 Q 20,320 20,280 L 20,260 L 60,260 Q 80,260 80,280 L 80,300 L 250,300 L 250,320 Z" fill="url(#ribbonGreen1)" opacity="0.7"/>
+        </g>
+
+        <!-- Front square (cyan) - 3D ribbon style, offset -->
+        <g transform="translate(80, 80)">
+          <!-- Top edge -->
+          <path d="M 60,30 L 280,30 Q 320,30 320,70 L 320,100 L 280,100 Q 260,100 260,80 L 260,70 Q 260,50 240,50 L 60,50 Q 40,50 40,70 L 40,90 L 20,90 L 20,70 Q 20,30 60,30 Z" fill="url(#ribbonCyan1)"/>
+          <!-- Left edge -->
+          <path d="M 20,70 L 20,280 Q 20,320 60,320 L 90,320 L 90,280 Q 90,260 70,260 L 60,260 Q 40,260 40,240 L 40,70 Q 40,50 60,50 L 60,30 Q 20,30 20,70 Z" fill="url(#ribbonCyan2)"/>
+          <!-- Right edge -->
+          <path d="M 320,70 L 320,280 Q 320,320 280,320 L 260,320 L 260,280 Q 260,260 280,260 L 300,240 L 300,70 Q 300,50 280,50 L 260,50 L 260,80 Q 260,100 280,100 L 320,100 Z" fill="url(#ribbonCyan1)" opacity="0.85"/>
+          <!-- Bottom edge -->
+          <path d="M 280,320 L 60,320 Q 20,320 20,280 L 20,260 L 40,260 Q 40,280 60,300 L 280,300 Q 300,300 300,280 L 300,260 L 320,260 L 320,280 Q 320,320 280,320 Z" fill="url(#ribbonCyan2)" opacity="0.7"/>
+        </g>
+
+        <!-- Inner void -->
+        <rect x="120" y="120" width="140" height="140" rx="15" fill="#1a1b26"/>
+        <rect x="130" y="130" width="120" height="120" rx="10" fill="#5FD7D7" opacity="0.15"/>
+      </g>
+    </g>
+
+    <!-- ===== RIGHT SIDE: [GSD] on top, Get•Stuff•Done below ===== -->
+    <g transform="translate(180, 0)">
+
+      <!-- [GSD] - Large on top -->
+      <g transform="translate(0, -60)">
+        <!-- Opening bracket [ - cyan with 3D -->
+        <text class="cyan-shadow retro" font-size="200" font-weight="bold" x="-300" y="10">[</text>
+        <text class="cyan-shadow retro" font-size="200" font-weight="bold" x="-300" y="6">[</text>
+        <text class="cyan retro" font-size="200" font-weight="bold" x="-300" y="0">[</text>
+
+        <!-- GSD - green with 3D -->
+        <text class="green-shadow retro" font-size="200" font-weight="bold" x="-200" y="10">GSD</text>
+        <text class="green-shadow retro" font-size="200" font-weight="bold" x="-200" y="6">GSD</text>
+        <text class="green retro" font-size="200" font-weight="bold" x="-200" y="0">GSD</text>
+
+        <!-- Closing bracket ] - cyan with 3D -->
+        <text class="cyan-shadow retro" font-size="200" font-weight="bold" x="310" y="10">]</text>
+        <text class="cyan-shadow retro" font-size="200" font-weight="bold" x="310" y="6">]</text>
+        <text class="cyan retro" font-size="200" font-weight="bold" x="310" y="0">]</text>
+      </g>
+
+      <!-- Get•Stuff•Done - Small below, same width as [GSD] -->
+      <g transform="translate(0, 100)">
+        <text class="green-shadow retro" font-size="42" x="-298" y="3">Get</text>
+        <text class="green retro" font-size="42" x="-298" y="0">Get</text>
+
+        <text class="cyan retro" font-size="42" x="-168" y="0">•</text>
+
+        <text class="green-shadow retro" font-size="42" x="-128" y="3">Stuff</text>
+        <text class="green retro" font-size="42" x="-128" y="0">Stuff</text>
+
+        <text class="cyan retro" font-size="42" x="82" y="0">•</text>
+
+        <text class="green-shadow retro" font-size="42" x="122" y="3">Done</text>
+        <text class="green retro" font-size="42" x="122" y="0">Done</text>
+      </g>
+
+    </g>
+
+    <!-- Decorative dots below everything -->
+    <g transform="translate(-100, 220)">
+      <circle class="cyan" cx="0" cy="0" r="6"/>
+      <circle fill="#87D787" cx="24" cy="0" r="6"/>
+      <circle class="cyan" cx="48" cy="0" r="6"/>
+      <circle fill="#87D787" cx="72" cy="0" r="6"/>
+      <circle class="cyan" cx="96" cy="0" r="6"/>
+    </g>
+
+  </g>
+</svg>

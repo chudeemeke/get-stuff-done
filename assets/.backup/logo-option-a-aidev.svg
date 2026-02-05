@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 600" width="2000" height="600">
+  <defs>
+    <style>
+      .bg { fill: #1e1e2e; }
+      .cyan { fill: #5FD7D7; }
+      .green { fill: #87D787; }
+      .shadow-cyan { fill: #2a6b6b; }
+      .shadow-green { fill: #436b43; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" width="2000" height="600"/>
+
+  <!-- Main content centered -->
+  <g transform="translate(100, 300)">
+
+    <!-- ⧉ icon - shadow (bottom-left offset) -->
+    <text class="shadow-cyan" font-family="'SF Mono', 'Consolas', monospace" font-size="160" font-weight="bold" dominant-baseline="middle" x="6" y="6">⧉</text>
+    <!-- ⧉ icon - main -->
+    <text class="cyan" font-family="'SF Mono', 'Consolas', monospace" font-size="160" font-weight="bold" dominant-baseline="middle" x="0" y="0">⧉</text>
+
+    <!-- [GSD] - shadow -->
+    <text class="shadow-cyan" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="156" y="6">[GSD]</text>
+    <!-- [GSD] - main -->
+    <text class="cyan" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="150" y="0">[GSD]</text>
+
+    <!-- Get - shadow -->
+    <text class="shadow-green" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="506" y="6">Get</text>
+    <!-- Get - main -->
+    <text class="green" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="500" y="0">Get</text>
+
+    <!-- • separator -->
+    <text class="shadow-cyan" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="726" y="6">•</text>
+    <text class="cyan" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="720" y="0">•</text>
+
+    <!-- Stuff - shadow -->
+    <text class="shadow-green" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="806" y="6">Stuff</text>
+    <!-- Stuff - main -->
+    <text class="green" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="800" y="0">Stuff</text>
+
+    <!-- • separator -->
+    <text class="shadow-cyan" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="1166" y="6">•</text>
+    <text class="cyan" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="1160" y="0">•</text>
+
+    <!-- Done - shadow -->
+    <text class="shadow-green" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="1246" y="6">Done</text>
+    <!-- Done - main -->
+    <text class="green" font-family="'SF Mono', 'Consolas', monospace" font-size="120" font-weight="bold" dominant-baseline="middle" x="1240" y="0">Done</text>
+
+  </g>
+</svg>

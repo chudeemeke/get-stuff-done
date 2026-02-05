@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 2000" width="2000" height="2000">
+  <defs>
+    <style>
+      .bg { fill: #1a1b26; }
+      .cyan-face { fill: #5FD7D7; }
+      .cyan-dark { fill: #2a6b6b; }
+      .cyan-mid { fill: #48a5a5; }
+      .green-face { fill: #87D787; }
+      .green-dark { fill: #436b43; }
+      .green-mid { fill: #65a165; }
+      .text-main { fill: #5FD7D7; font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace; }
+      .text-sub { fill: #87D787; font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace; }
+    </style>
+    <!-- Glow filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="textGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" width="2000" height="2000"/>
+
+  <!-- Main Logo Group - Centered -->
+  <g transform="translate(1000, 1000)">
+
+    <!-- ===== 3D ISOMETRIC ICON: Interlocking cubes forming grid pattern ===== -->
+    <g transform="translate(-250, -450)" filter="url(#glow)">
+
+      <!-- Scale up cubes for prominence -->
+      <g transform="scale(1.4)">
+        <!-- CUBE 1: Top-left (Cyan) -->
+        <g transform="translate(0, 0)">
+          <polygon class="cyan-face" points="120,0 240,70 120,140 0,70"/>
+          <polygon class="cyan-dark" points="0,70 120,140 120,260 0,190"/>
+          <polygon class="cyan-mid" points="120,140 240,70 240,190 120,260"/>
+        </g>
+
+        <!-- CUBE 2: Top-right (Green) -->
+        <g transform="translate(200, 0)">
+          <polygon class="green-face" points="120,0 240,70 120,140 0,70"/>
+          <polygon class="green-dark" points="0,70 120,140 120,260 0,190"/>
+          <polygon class="green-mid" points="120,140 240,70 240,190 120,260"/>
+        </g>
+
+        <!-- CUBE 3: Bottom-left (Green) -->
+        <g transform="translate(0, 190)">
+          <polygon class="green-face" points="120,0 240,70 120,140 0,70"/>
+          <polygon class="green-dark" points="0,70 120,140 120,260 0,190"/>
+          <polygon class="green-mid" points="120,140 240,70 240,190 120,260"/>
+        </g>
+
+        <!-- CUBE 4: Bottom-right (Cyan) -->
+        <g transform="translate(200, 190)">
+          <polygon class="cyan-face" points="120,0 240,70 120,140 0,70"/>
+          <polygon class="cyan-dark" points="0,70 120,140 120,260 0,190"/>
+          <polygon class="cyan-mid" points="120,140 240,70 240,190 120,260"/>
+        </g>
+
+        <!-- Center connector (diamond void with glow border) -->
+        <polygon fill="#1a1b26" points="220,140 320,210 220,280 120,210"/>
+        <polygon fill="#5FD7D7" points="220,155 295,205 220,255 145,205" opacity="0.4"/>
+      </g>
+    </g>
+
+    <!-- ===== [GSD] TEXT - Large and prominent ===== -->
+    <g transform="translate(0, 250)" filter="url(#textGlow)">
+      <!-- Shadow layers for depth -->
+      <text class="text-main" font-size="220" font-weight="bold" text-anchor="middle" x="8" y="8" opacity="0.2">[GSD]</text>
+      <text class="text-main" font-size="220" font-weight="bold" text-anchor="middle" x="4" y="4" opacity="0.4">[GSD]</text>
+      <!-- Main text -->
+      <text class="text-main" font-size="220" font-weight="bold" text-anchor="middle" x="0" y="0">[GSD]</text>
+    </g>
+
+    <!-- ===== GetStuffDone subtitle ===== -->
+    <g transform="translate(0, 380)">
+      <text class="text-sub" font-size="80" font-weight="500" text-anchor="middle" x="4" y="4" opacity="0.3">GetStuffDone</text>
+      <text class="text-sub" font-size="80" font-weight="500" text-anchor="middle" x="0" y="0">GetStuffDone</text>
+    </g>
+
+    <!-- Decorative dots (aidev style) -->
+    <g transform="translate(0, 480)">
+      <circle fill="#5FD7D7" cx="-100" cy="0" r="12" opacity="0.9"/>
+      <circle fill="#87D787" cx="-50" cy="0" r="12" opacity="0.9"/>
+      <circle fill="#5FD7D7" cx="0" cy="0" r="12" opacity="0.9"/>
+      <circle fill="#87D787" cx="50" cy="0" r="12" opacity="0.9"/>
+      <circle fill="#5FD7D7" cx="100" cy="0" r="12" opacity="0.9"/>
+    </g>
+
+  </g>
+</svg>

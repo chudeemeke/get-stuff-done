@@ -1258,6 +1258,14 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
       const srcLabel = hooksSrc === hooksSrcDist ? 'hooks/dist' : 'hooks';
       console.log(`  ${green}✓${reset} Linked ${srcLabel}`);
     } else {
+      // If hooksDest is a symlink (from previous link-mode install), remove it first
+      // Otherwise mkdirSync may fail or behave unexpectedly with symlinks
+      if (fs.existsSync(hooksDest)) {
+        const stat = fs.lstatSync(hooksDest);
+        if (stat.isSymbolicLink()) {
+          fs.unlinkSync(hooksDest);
+        }
+      }
       fs.mkdirSync(hooksDest, { recursive: true });
       const hookEntries = fs.readdirSync(hooksSrc);
       for (const entry of hookEntries) {

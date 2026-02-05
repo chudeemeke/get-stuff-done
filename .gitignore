@@ -34,3 +34,4 @@ build/
 
 # Keep .upstream as reference but don't track changes to it
 # (It's the original upstream snapshot)
+.claude/

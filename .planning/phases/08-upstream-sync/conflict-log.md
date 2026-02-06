@@ -22,9 +22,10 @@
 | 17 | 8384575 | commands/gsd/update.md | Path conflict | Upstream wins | Default policy |
 | 18 | f53011c | README.md | Path conflict | Upstream wins | Default policy |
 | 19 | af7a057 | bin/install.js | Path conflict | Upstream wins | Default policy |
+| 22 | cc3c6ac | bin/install.js | Path conflict | Upstream wins | Default policy |
 ## Summary
 
-Total conflicts: 19
-Upstream wins: 19
+Total conflicts: 22
+Upstream wins: 22
 Fork wins: 0
 Custom merge: 0

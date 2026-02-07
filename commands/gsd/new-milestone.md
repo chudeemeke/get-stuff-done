@@ -9,27 +9,34 @@ allowed-tools:
   - Task
   - AskUserQuestion
 ---
-
 <objective>
-Start a new milestone through unified flow: questioning → research (optional) → requirements → roadmap.
+Start a new milestone: questioning → research (optional) → requirements → roadmap.
 
-This is the brownfield equivalent of new-project. The project exists, PROJECT.md has history. This command gathers "what's next", updates PROJECT.md, then continues through the full requirements → roadmap cycle.
+Brownfield equivalent of new-project. Project exists, PROJECT.md has history. Gathers "what's next", updates PROJECT.md, then runs requirements → roadmap cycle.
 
 **Creates/Updates:**
 - `.planning/PROJECT.md` — updated with new milestone goals
-- `.planning/research/` — domain research (optional, focuses on NEW features)
+- `.planning/research/` — domain research (optional, NEW features only)
 - `.planning/REQUIREMENTS.md` — scoped requirements for this milestone
 - `.planning/ROADMAP.md` — phase structure (continues numbering)
 - `.planning/STATE.md` — reset for new milestone
 
-**After this command:** Run `/gsd:plan-phase [N]` to start execution.
+**After:** `/gsd:plan-phase [N]` to start execution.
 </objective>
 
 <execution_context>
+<<<<<<< HEAD
 @~/.claude/get-stuff-done/references/questioning.md
 @~/.claude/get-stuff-done/references/ui-brand.md
 @~/.claude/get-stuff-done/templates/project.md
 @~/.claude/get-stuff-done/templates/requirements.md
+=======
+@~/.claude/get-shit-done/workflows/new-milestone.md
+@~/.claude/get-shit-done/references/questioning.md
+@~/.claude/get-shit-done/references/ui-brand.md
+@~/.claude/get-shit-done/templates/project.md
+@~/.claude/get-shit-done/templates/requirements.md
+>>>>>>> d44c7dc (refactor: update commands, workflows, agents for gsd-tools integration)
 </execution_context>
 
 <context>
@@ -46,6 +53,7 @@ Milestone name: $ARGUMENTS (optional - will prompt if not provided)
 </context>
 
 <process>
+<<<<<<< HEAD
 
 ## Phase 1: Load Context
 
@@ -700,22 +708,8 @@ Present completion with next steps:
 ───────────────────────────────────────────────────────────────
 ```
 
+=======
+Execute the new-milestone workflow from @~/.claude/get-shit-done/workflows/new-milestone.md end-to-end.
+Preserve all workflow gates (validation, questioning, research, requirements, roadmap approval, commits).
+>>>>>>> d44c7dc (refactor: update commands, workflows, agents for gsd-tools integration)
 </process>
-
-<success_criteria>
-- [ ] PROJECT.md updated with Current Milestone section
-- [ ] STATE.md reset for new milestone
-- [ ] MILESTONE-CONTEXT.md consumed and deleted (if existed)
-- [ ] Research completed (if selected) — 4 parallel agents spawned, milestone-aware
-- [ ] Requirements gathered (from research or conversation)
-- [ ] User scoped each category
-- [ ] REQUIREMENTS.md created with REQ-IDs
-- [ ] gsd-roadmapper spawned with phase numbering context
-- [ ] Roadmap files written immediately (not draft)
-- [ ] User feedback incorporated (if any)
-- [ ] ROADMAP.md created with phases continuing from previous milestone
-- [ ] All commits made (if planning docs committed)
-- [ ] User knows next step is `/gsd:discuss-phase [N]`
-
-**Atomic commits:** Each phase commits its artifacts immediately. If context is lost, artifacts persist.
-</success_criteria>

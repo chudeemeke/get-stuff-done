@@ -23,9 +23,10 @@
 | 18 | f53011c | README.md | Path conflict | Upstream wins | Default policy |
 | 19 | af7a057 | bin/install.js | Path conflict | Upstream wins | Default policy |
 | 22 | cc3c6ac | bin/install.js | Path conflict | Upstream wins | Default policy |
+| 24 | 8f26bfa | .upstream/commands/gsd/update.md, .upstream/get-shit-done/workflows/add-phase.md, .upstream/get-shit-done/workflows/check-todos.md, .upstream/get-shit-done/workflows/update.md | Path conflict | Upstream wins | Default policy |
 ## Summary
 
-Total conflicts: 22
-Upstream wins: 22
+Total conflicts: 24
+Upstream wins: 24
 Fork wins: 0
 Custom merge: 0

@@ -212,6 +212,14 @@
       "appliedAt": "2026-02-08T18:36:04.367Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "01ae939c01843e3b88cc0d1f85216d533ce177dc",
+      "shortSha": "01ae939",
+      "message": "feat(gsd-tools): add CLI utility for command extraction",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:36:35.470Z",
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -298,12 +306,6 @@
       "sha": "ddc736ecbb8174c0aea8c06cf1b138980508e8a4",
       "shortSha": "ddc736e",
       "message": "v1.11.3 - revert memory system",
-      "status": "pending"
-    },
-    {
-      "sha": "01ae939c01843e3b88cc0d1f85216d533ce177dc",
-      "shortSha": "01ae939",
-      "message": "feat(gsd-tools): add CLI utility for command extraction",
       "status": "pending"
     },
     {
@@ -555,7 +557,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 24,
+    "applied": 25,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

@@ -220,6 +220,15 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:36:35.470Z",
       "hadEslintFix": true
+    },
+    {
+      "sha": "8f26bfa478728c0f7286d6ac1114761a334276b0",
+      "shortSha": "8f26bfa",
+      "message": "refactor: extract check-todos, add-phase, update to thin orchestrators",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:37:34.304Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -306,12 +315,6 @@
       "sha": "ddc736ecbb8174c0aea8c06cf1b138980508e8a4",
       "shortSha": "ddc736e",
       "message": "v1.11.3 - revert memory system",
-      "status": "pending"
-    },
-    {
-      "sha": "8f26bfa478728c0f7286d6ac1114761a334276b0",
-      "shortSha": "8f26bfa",
-      "message": "refactor: extract check-todos, add-phase, update to thin orchestrators",
       "status": "pending"
     },
     {
@@ -557,7 +560,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 25,
+    "applied": 26,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

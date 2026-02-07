@@ -24,7 +24,14 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 
 <!-- Current scope. Building toward these. -->
 
-(None yet -- define with /gsd:new-milestone)
+- [ ] Platform capability audit (Claude Code + Opus 4.6 feature evaluation)
+- [ ] Security audit of upstream sync workflow (review + fixes + hardening)
+- [ ] Cross-platform verification (macOS + Linux install, config, statusline, hooks)
+- [ ] Upstream sync execution (pull latest changes + workflow improvements)
+- [ ] Auto-update check (upstream commit notification in statusline)
+- [ ] Diff preview (preview upstream changes before cherry-picking)
+- [ ] Rollback capability (undo failed upstream syncs)
+- [ ] CI matrix testing (stretch goal)
 
 ### Out of Scope
 
@@ -48,8 +55,15 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 - Isometric icon + pixel lockup visual identity (6 SVG, 24 PNG)
 
 **Enhancement requests captured:**
-- Security review step for /gsd:upstream workflow
-- Cross-platform testing (macOS, Linux)
+- Security review step for /gsd:upstream workflow (now in v0.2.0)
+- Cross-platform testing (macOS, Linux) (now in v0.2.0)
+
+**Current milestone: v0.2.0 Hardening & Upstream Sync**
+- Research-first approach: evaluate Claude Code / Opus 4.6 capabilities before building
+- Security audit + hardening of upstream sync workflow
+- Cross-platform verification (macOS, Linux)
+- Pull latest upstream + improve sync tooling
+- New features: auto-update check, diff preview, rollback
 
 ## Constraints
 
@@ -77,4 +91,4 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 | Package renamed to @chude/get-stuff-done | Scoped npm package for private fork | Good |
 
 ---
-*Last updated: 2026-02-07 after v0.1.0 milestone*
+*Last updated: 2026-02-07 after v0.2.0 milestone initialization*

@@ -229,6 +229,23 @@
       "appliedAt": "2026-02-08T18:37:34.304Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "d2623e0114115e94c62ef6bb693ac7c8183a541e",
+      "shortSha": "d2623e0",
+      "message": "refactor: extract settings, add-todo, pause-work, set-profile to thin orchestrators",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:38:33.052Z",
+      "hadConflict": true,
+      "hadEslintFix": true
+    },
+    {
+      "sha": "d44c7dcc9bacf9811378bdbaca1e46b2099a88fb",
+      "shortSha": "d44c7dc",
+      "message": "refactor: update commands, workflows, agents for gsd-tools integration",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:44:20.330Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -266,25 +283,41 @@
       "sha": "a4d2a8f",
       "message": "Merge pull request #483 from glittercowboy/claude/expand-gsd-automation-XVhXH",
       "reason": "merge commit"
-    }
-  ],
-  "pending": [
+    },
     {
       "sha": "3b70b10252f2384a459b430adba1d05b4d8b2607",
       "shortSha": "3b70b10",
       "message": "docs: update changelog for v1.10.1",
-      "status": "pending"
-    },
-    {
-      "sha": "d8840c45d0abad9d061b0203c875fe2fb7a0d49e",
-      "shortSha": "d8840c4",
-      "message": "1.11.0",
-      "status": "pending"
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
     },
     {
       "sha": "b5ca9a2b7632db6b2de7f747b9a17e351428b96e",
       "shortSha": "b5ca9a2",
       "message": "1.11.1",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "074b2bcc202915f8d49540e74e4104fe632c55f3",
+      "shortSha": "074b2bc",
+      "message": "fix(#330): update statusline.js reference during install (#392)",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "7c42763aae622c49cdc837c7bc2735c2be936ccf",
+      "shortSha": "7c42763",
+      "message": "1.11.2",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    }
+  ],
+  "pending": [
+    {
+      "sha": "d8840c45d0abad9d061b0203c875fe2fb7a0d49e",
+      "shortSha": "d8840c4",
+      "message": "1.11.0",
       "status": "pending"
     },
     {
@@ -294,39 +327,15 @@
       "status": "pending"
     },
     {
-      "sha": "074b2bcc202915f8d49540e74e4104fe632c55f3",
-      "shortSha": "074b2bc",
-      "message": "fix(#330): update statusline.js reference during install (#392)",
-      "status": "pending"
-    },
-    {
       "sha": "75fb063d91fd1e2453779bec899edf6b7230e49c",
       "shortSha": "75fb063",
       "message": "docs: update changelog for v1.11.2",
       "status": "pending"
     },
     {
-      "sha": "7c42763aae622c49cdc837c7bc2735c2be936ccf",
-      "shortSha": "7c42763",
-      "message": "1.11.2",
-      "status": "pending"
-    },
-    {
       "sha": "ddc736ecbb8174c0aea8c06cf1b138980508e8a4",
       "shortSha": "ddc736e",
       "message": "v1.11.3 - revert memory system",
-      "status": "pending"
-    },
-    {
-      "sha": "d2623e0114115e94c62ef6bb693ac7c8183a541e",
-      "shortSha": "d2623e0",
-      "message": "refactor: extract settings, add-todo, pause-work, set-profile to thin orchestrators",
-      "status": "pending"
-    },
-    {
-      "sha": "d44c7dcc9bacf9811378bdbaca1e46b2099a88fb",
-      "shortSha": "d44c7dc",
-      "message": "refactor: update commands, workflows, agents for gsd-tools integration",
       "status": "pending"
     },
     {
@@ -560,8 +569,8 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 26,
-    "conflicts": 0,
+    "applied": 28,
+    "conflicts": 1,
     "eslintFixes": 0,
     "brandingCorrections": 0
   }

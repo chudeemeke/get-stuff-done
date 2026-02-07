@@ -84,36 +84,36 @@ Deferred to future milestones. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | TBD | Pending |
-| SEC-02 | TBD | Pending |
-| SEC-03 | TBD | Pending |
-| SEC-04 | TBD | Pending |
-| SEC-05 | TBD | Pending |
-| SEC-06 | TBD | Pending |
-| PLAT-01 | TBD | Pending |
-| PLAT-02 | TBD | Pending |
-| PLAT-03 | TBD | Pending |
-| PLAT-04 | TBD | Pending |
-| PLAT-05 | TBD | Pending |
-| PLAT-06 | TBD | Pending |
-| SYNC-01 | TBD | Pending |
-| SYNC-02 | TBD | Pending |
-| SYNC-03 | TBD | Pending |
-| SYNC-04 | TBD | Pending |
-| SYNC-05 | TBD | Pending |
-| SYNC-06 | TBD | Pending |
-| CLAUDE-01 | TBD | Pending |
-| CLAUDE-02 | TBD | Pending |
-| CLAUDE-03 | TBD | Pending |
-| CLAUDE-04 | TBD | Pending |
-| CLAUDE-05 | TBD | Pending |
-| CI-01 | TBD | Pending |
+| SEC-01 | Phase 7 | Pending |
+| SEC-02 | Phase 7 | Pending |
+| SEC-03 | Phase 7 | Pending |
+| SEC-04 | Phase 7 | Pending |
+| SEC-05 | Phase 7 | Pending |
+| SEC-06 | Phase 7 | Pending |
+| PLAT-01 | Phase 8 | Pending |
+| PLAT-02 | Phase 8 | Pending |
+| PLAT-03 | Phase 8 | Pending |
+| PLAT-04 | Phase 8 | Pending |
+| PLAT-05 | Phase 8 | Pending |
+| PLAT-06 | Phase 8 | Pending |
+| SYNC-01 | Phase 9 | Pending |
+| SYNC-02 | Phase 9 | Pending |
+| SYNC-03 | Phase 9 | Pending |
+| SYNC-04 | Phase 9 | Pending |
+| SYNC-05 | Phase 10 | Pending |
+| SYNC-06 | Phase 10 | Pending |
+| CLAUDE-01 | Phase 11 | Pending |
+| CLAUDE-02 | Phase 11 | Pending |
+| CLAUDE-03 | Phase 11 | Pending |
+| CLAUDE-04 | Phase 11 | Pending |
+| CLAUDE-05 | Phase 11 | Pending |
+| CI-01 | Phase 12 | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total
-- Mapped to phases: 0 (awaiting roadmap)
-- Unmapped: 24
+- Mapped to phases: 24/24 (100%)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-07 after initial definition*
+*Last updated: 2026-02-07 after roadmap creation*

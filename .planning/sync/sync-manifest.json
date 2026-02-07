@@ -203,6 +203,15 @@
       "appliedAt": "2026-02-08T18:35:16.118Z",
       "hadConflict": true,
       "hadEslintFix": true
+    },
+    {
+      "sha": "cc3c6aca5619e8882ca07d0c22c63ecee9d232a6",
+      "shortSha": "cc3c6ac",
+      "message": "revert: remove GSD Memory system (not ready for release)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:36:04.367Z",
+      "hadConflict": true,
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -283,12 +292,6 @@
       "sha": "7c42763aae622c49cdc837c7bc2735c2be936ccf",
       "shortSha": "7c42763",
       "message": "1.11.2",
-      "status": "pending"
-    },
-    {
-      "sha": "cc3c6aca5619e8882ca07d0c22c63ecee9d232a6",
-      "shortSha": "cc3c6ac",
-      "message": "revert: remove GSD Memory system (not ready for release)",
       "status": "pending"
     },
     {
@@ -552,7 +555,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 23,
+    "applied": 24,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

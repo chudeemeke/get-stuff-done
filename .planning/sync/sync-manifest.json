@@ -339,6 +339,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:53:42.244Z",
       "hadConflict": true
+    },
+    {
+      "sha": "6c537373c61ff5c824ab3d5495ab4661e5a5aed2",
+      "shortSha": "6c53737",
+      "message": "feat: add context-optimizing parsing commands to gsd-tools (#473)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:54:06.227Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -553,12 +561,6 @@
       "status": "pending"
     },
     {
-      "sha": "6c537373c61ff5c824ab3d5495ab4661e5a5aed2",
-      "shortSha": "6c53737",
-      "message": "feat: add context-optimizing parsing commands to gsd-tools (#473)",
-      "status": "pending"
-    },
-    {
       "sha": "fa81821df4e435b2e945c43e7a3d749269c3f331",
       "shortSha": "fa81821",
       "message": "feat: add --include flag to init commands to eliminate redundant file reads",
@@ -609,8 +611,8 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 40,
-    "conflicts": 31,
+    "applied": 41,
+    "conflicts": 32,
     "eslintFixes": 11,
     "brandingCorrections": 0
   },

@@ -347,6 +347,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:54:06.227Z",
       "hadConflict": true
+    },
+    {
+      "sha": "36f5bb3d5f859406b7007f7ff54c9a95c267bbb9",
+      "shortSha": "36f5bb3",
+      "message": "feat: delegate deterministic workflow operations to gsd-tools CLI",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:54:29.686Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -545,6 +553,20 @@
       "message": "feat(install): respect attribution.commit setting (compatible opencode) (#286)",
       "status": "skipped",
       "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "5a2f5fa82205bc865f4b6a610b860a05523f57e0",
+      "shortSha": "5a2f5fa",
+      "message": "docs: update changelog for v1.17.0",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "9adb09fd2991b50e745c1b661da210062fd8ff0c",
+      "shortSha": "9adb09f",
+      "message": "1.18.0",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
     }
   ],
   "pending": [
@@ -567,33 +589,15 @@
       "status": "pending"
     },
     {
-      "sha": "36f5bb3d5f859406b7007f7ff54c9a95c267bbb9",
-      "shortSha": "36f5bb3",
-      "message": "feat: delegate deterministic workflow operations to gsd-tools CLI",
-      "status": "pending"
-    },
-    {
       "sha": "ea0204bfc79b802c962883b44b7d71bcd455ce4a",
       "shortSha": "ea0204b",
       "message": "1.16.0",
       "status": "pending"
     },
     {
-      "sha": "5a2f5fa82205bc865f4b6a610b860a05523f57e0",
-      "shortSha": "5a2f5fa",
-      "message": "docs: update changelog for v1.17.0",
-      "status": "pending"
-    },
-    {
       "sha": "1344bd8f1831604063517c84157bc7f4a1bbdf0d",
       "shortSha": "1344bd8",
       "message": "fix(#466): add detached: true to SessionStart hook spawn for Windows",
-      "status": "pending"
-    },
-    {
-      "sha": "9adb09fd2991b50e745c1b661da210062fd8ff0c",
-      "shortSha": "9adb09f",
-      "message": "1.18.0",
       "status": "pending"
     }
   ],
@@ -611,10 +615,10 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 41,
-    "conflicts": 32,
-    "eslintFixes": 11,
+    "applied": 42,
+    "conflicts": 33,
+    "eslintFixes": 12,
     "brandingCorrections": 0
   },
-  "completedAt": "2026-02-08T18:51:35.620Z"
+  "completedAt": "2026-02-08T18:54:46.413Z"
 }

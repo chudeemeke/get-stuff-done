@@ -145,7 +145,23 @@ Generate execution plan for selected commits.
    - "all" → Use full commit_list from Stage 1
    - Space-separated SHAs → Filter commit_list to selected commits only
 
-2. Validate selected commits exist in commit_list
+2. Validate all selected commit SHAs:
+   For each SHA provided by the user:
+   - Must match `/^[0-9a-f]{7,40}$/i` (7-40 hex chars, allowlist)
+   - If ANY SHA fails validation, return error:
+     ```
+     ## SYNC ABORTED
+
+     **Reason:** Invalid commit SHA format: {invalid_sha}
+     SHAs must be 7-40 hexadecimal characters only.
+     ```
+   - After format validation, verify each SHA exists in the commit_list from Stage 1
+   - If SHA not in commit_list: Return error with "SHA {sha} not found in available upstream commits"
+
+   Note: This validation follows the allowlist pattern from src/validation/index.js.
+   The executor should use the same regex pattern: /^[0-9a-f]{7,40}$/i
+
+3. Validate selected commits exist in commit_list
 
 3. Sort selected commits chronologically (oldest first for cherry-pick order)
 
@@ -192,16 +208,73 @@ Generate execution plan for selected commits.
    Created sync plan: .planning/sync/plans/{filename}
    {N} commits selected for cherry-pick
 
-   Proceeding to Stage 4: EXECUTE
+   Proceeding to Stage 3.5: SECURITY REVIEW
    ```
 
-**Output:** Continue to Stage 4 with selected_commits list
+**Output:** Continue to Stage 3.5 with selected_commits list
+
+## Stage 3.5: SECURITY REVIEW (Checkpoint)
+
+Review diffs of selected commits before executing cherry-picks.
+
+**Entry:** After Stage 3 generates the plan with validated commits
+
+**Process:**
+
+1. For each selected commit, generate a combined diff:
+   ```bash
+   git diff {first_selected_sha}^..{last_selected_sha} --stat
+   ```
+   This shows a summary of all file changes across selected commits.
+
+2. Generate the full diff for review:
+   ```bash
+   git diff {first_selected_sha}^..{last_selected_sha}
+   ```
+
+3. Analyze the diff for security concerns:
+   - New exec/execSync/spawn calls
+   - Changes to package.json dependencies
+   - New file operations (fs.write, fs.unlink, fs.rmSync)
+   - Changes to hooks or installer code
+   - New environment variable reads
+   - eval() or Function() usage
+
+4. Output security review checkpoint:
+   ```
+   ## CHECKPOINT: SECURITY_REVIEW
+
+   **Commits to apply:** {N}
+   **Files changed:** {count}
+
+   **Diff statistics:**
+   {git diff --stat output}
+
+   **Security analysis:**
+   {List any flagged patterns found, or "No security concerns detected"}
+
+   **Flagged patterns (if any):**
+   - {file}: {description of flagged pattern}
+
+   **Full diff available at:** Run `git diff {first_sha}^..{last_sha}` to view
+
+   **Options:**
+   1. Approve and proceed with cherry-pick ("approve")
+   2. View full diff details in terminal ("show-diff")
+   3. Abort sync ("abort")
+
+   Awaiting approval...
+   ```
+
+5. Workflow pauses. Orchestrator presents to user and spawns continuation at Stage 4.
+
+**Output:** Workflow pauses for user approval. Only proceeds to Stage 4 after explicit "approve" response.
 
 ## Stage 4: EXECUTE
 
 Apply cherry-picks sequentially.
 
-**Entry:** After Stage 3, or resume_stage = 4 (after conflict resolution)
+**Entry:** After Stage 3.5 approval, or resume_stage = 4 (after conflict resolution)
 
 **Process:**
 
@@ -311,7 +384,39 @@ Run verification on changed files.
    ```
    If found: Return `## VERIFICATION FAILED` with file list
 
-6. Create verification report at `.planning/sync/reports/{YYYY-MM-DD}-{first_sha_short}.md`:
+6. Re-validate configuration files if any were modified:
+   ```bash
+   # Check if any config files were in the changed files
+   git diff --name-only HEAD~${N_COMMITS}..HEAD | grep -E '\.json$|\.json5$|config'
+   ```
+
+   If config files were changed:
+   - For each JSON/JSON5 config file changed:
+     ```bash
+     node -e "
+       const fs = require('fs');
+       const JSON5 = require('json5');
+       const { validateConfig } = require('./src/config/ConfigSchema');
+       try {
+         const content = fs.readFileSync('{config_file}', 'utf8');
+         const parsed = JSON5.parse(content);
+         // Only validate GSD config files (those matching our schema)
+         if (parsed.version !== undefined) {
+           validateConfig(parsed);
+           console.log('PASS: {config_file}');
+         } else {
+           console.log('SKIP: {config_file} (not a GSD config)');
+         }
+       } catch (e) {
+         console.error('FAIL: {config_file}: ' + e.message);
+         process.exit(1);
+       }
+     "
+     ```
+   - If any GSD config validation fails: Include in verification report as a failure
+   - Add config validation results to the verification report table
+
+7. Create verification report at `.planning/sync/reports/{YYYY-MM-DD}-{first_sha_short}.md`:
    ```markdown
    # Sync Verification Report
 
@@ -327,6 +432,13 @@ Run verification on changed files.
    | src/file.ts | TypeScript | PASS | Syntax check passed |
    | README.md | Markdown | SKIP | No validation needed |
    ...
+
+   ## Config Re-validation
+
+   | File | Status | Notes |
+   |------|--------|-------|
+   | .planning/config.json | PASS | Valid GSD config schema |
+   | other-config.json | SKIP | Not a GSD config file |
 
    ## Test Results
 

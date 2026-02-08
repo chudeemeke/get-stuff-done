@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-disable security/detect-non-literal-fs-filename -- build script with computed paths from internal logic, no user input */
+
 /**
  * Copy GSD hooks to dist for installation.
  */

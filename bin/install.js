@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable security/detect-non-literal-fs-filename -- install script with computed paths from internal logic, no user input */
+/* eslint-disable security/detect-object-injection -- install script with safe bracket notation on config objects */
+/* eslint-disable security/detect-non-literal-regexp -- install script with safe dynamic patterns for template replacement */
 
 const fs = require('fs');
 const path = require('path');

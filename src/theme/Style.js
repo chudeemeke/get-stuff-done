@@ -58,7 +58,9 @@ class Style {
       // 256-color mode: \x1b[38;5;Nm
       return new Style([...this._codes, `38;5;${color}`]);
     }
+    // eslint-disable-next-line security/detect-object-injection -- color from theme config, trusted lookup table access
     if (FG_BASIC[color] !== undefined) {
+      // eslint-disable-next-line security/detect-object-injection -- color from theme config, trusted lookup table access
       return new Style([...this._codes, FG_BASIC[color]]);
     }
     return this;
@@ -71,7 +73,9 @@ class Style {
       // 256-color mode: \x1b[48;5;Nm
       return new Style([...this._codes, `48;5;${color}`]);
     }
+    // eslint-disable-next-line security/detect-object-injection -- color from theme config, trusted lookup table access
     if (BG_BASIC[color] !== undefined) {
+      // eslint-disable-next-line security/detect-object-injection -- color from theme config, trusted lookup table access
       return new Style([...this._codes, BG_BASIC[color]]);
     }
     return this;

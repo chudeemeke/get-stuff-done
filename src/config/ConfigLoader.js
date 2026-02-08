@@ -56,7 +56,9 @@ function createDefaultConfig(configPath) {
   const configDir = path.dirname(configPath);
 
   // Ensure directory exists
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- configDir from path.dirname(configPath), internal path construction
   if (!fs.existsSync(configDir)) {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- configDir from path.dirname(configPath), internal path construction
     fs.mkdirSync(configDir, { recursive: true });
   }
 
@@ -96,6 +98,7 @@ function createDefaultConfig(configPath) {
 }
 `;
 
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- configPath from getConfigPath(), internal path construction
   fs.writeFileSync(configPath, defaultContent, 'utf8');
 }
 
@@ -108,6 +111,7 @@ function loadConfig() {
   const configPath = getConfigPath();
 
   // If config doesn't exist, create it with defaults
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- configPath from getConfigPath(), internal path construction
   if (!fs.existsSync(configPath)) {
     createDefaultConfig(configPath);
     return getDefaults();
@@ -116,6 +120,7 @@ function loadConfig() {
   // Read and parse config file
   let config;
   try {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- configPath from getConfigPath(), internal path construction
     const content = fs.readFileSync(configPath, 'utf8');
     config = JSON5.parse(content);
   } catch (err) {
@@ -153,6 +158,7 @@ function getConfigValue(config, path, defaultValue) {
     if (value == null || typeof value !== 'object') {
       return defaultValue;
     }
+    // eslint-disable-next-line security/detect-object-injection -- part from split('.') on config path string, trusted internal key access
     value = value[part];
   }
   return value !== undefined ? value : defaultValue;

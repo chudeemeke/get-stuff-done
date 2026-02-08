@@ -60,7 +60,9 @@ function buildStyle(tokenDef, use256 = true) {
   // Apply modifiers
   if (tokenDef.modifiers) {
     for (const mod of tokenDef.modifiers) {
+      // eslint-disable-next-line security/detect-object-injection -- mod from tokenDef.modifiers array, trusted theme config
       if (typeof style[mod] === 'function') {
+        // eslint-disable-next-line security/detect-object-injection -- mod from tokenDef.modifiers array, trusted theme config
         style = style[mod]();
       }
     }

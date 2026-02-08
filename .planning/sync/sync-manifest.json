@@ -278,6 +278,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:48:00.900Z",
       "hadConflict": true
+    },
+    {
+      "sha": "ca03a061a80776238045b6a02e04b055ce9065fc",
+      "shortSha": "ca03a06",
+      "message": "feat: preserve local patches across GSD updates (#481)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:48:20.343Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -499,12 +507,6 @@
       "status": "pending"
     },
     {
-      "sha": "ca03a061a80776238045b6a02e04b055ce9065fc",
-      "shortSha": "ca03a06",
-      "message": "feat: preserve local patches across GSD updates (#481)",
-      "status": "pending"
-    },
-    {
       "sha": "4072fd2baf4e91b6b9efcac5fafc1724d38270fb",
       "shortSha": "4072fd2",
       "message": "fix: add workaround for Claude Code classifyHandoffIfNeeded bug (#480)",
@@ -585,9 +587,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 32,
-    "conflicts": 16,
-    "eslintFixes": 3,
+    "applied": 33,
+    "conflicts": 18,
+    "eslintFixes": 4,
     "brandingCorrections": 0
   }
 }

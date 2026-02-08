@@ -31,11 +31,11 @@ Brownfield equivalent of new-project. Project exists, PROJECT.md has history. Ga
 @~/.claude/get-stuff-done/templates/project.md
 @~/.claude/get-stuff-done/templates/requirements.md
 =======
-@~/.claude/get-shit-done/workflows/new-milestone.md
-@~/.claude/get-shit-done/references/questioning.md
-@~/.claude/get-shit-done/references/ui-brand.md
-@~/.claude/get-shit-done/templates/project.md
-@~/.claude/get-shit-done/templates/requirements.md
+@~/.claude/get-stuff-done/workflows/new-milestone.md
+@~/.claude/get-stuff-done/references/questioning.md
+@~/.claude/get-stuff-done/references/ui-brand.md
+@~/.claude/get-stuff-done/templates/project.md
+@~/.claude/get-stuff-done/templates/requirements.md
 >>>>>>> d44c7dc (refactor: update commands, workflows, agents for gsd-tools integration)
 </execution_context>
 
@@ -709,7 +709,7 @@ Present completion with next steps:
 ```
 
 =======
-Execute the new-milestone workflow from @~/.claude/get-shit-done/workflows/new-milestone.md end-to-end.
+Execute the new-milestone workflow from @~/.claude/get-stuff-done/workflows/new-milestone.md end-to-end.
 Preserve all workflow gates (validation, questioning, research, requirements, roadmap approval, commits).
 >>>>>>> d44c7dc (refactor: update commands, workflows, agents for gsd-tools integration)
 </process>

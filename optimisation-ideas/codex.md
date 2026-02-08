@@ -78,8 +78,8 @@ Query for meaning ("what patterns exist for auth?") instead of text ("grep for a
 <execution_flow>
   <step name="execute_tasks">
     For each task:
-    1. If `tdd="true"`: @~/.claude/get-shit-done/references/tdd-execution.md
-    2. If `type="checkpoint:*"`: @~/.claude/get-shit-done/references/checkpoint-protocol.md
+    1. If `tdd="true"`: @~/.claude/get-stuff-done/references/tdd-execution.md
+    2. If `type="checkpoint:*"`: @~/.claude/get-stuff-done/references/checkpoint-protocol.md
     3. Execute task...
   </step>
 </execution_flow>
@@ -191,7 +191,7 @@ done
 **Proposed state:** gsd-tools generates digest.
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js history-digest
+node ~/.claude/get-stuff-done/bin/gsd-tools.js history-digest
 ```
 
 **Output:**
@@ -267,8 +267,8 @@ case 'history-digest':
 ```markdown
 # 03-01-PLAN.md
 <execution_context>
-@~/.claude/get-shit-done/workflows/execute-plan.md
-@~/.claude/get-shit-done/templates/summary.md
+@~/.claude/get-stuff-done/workflows/execute-plan.md
+@~/.claude/get-stuff-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -282,7 +282,7 @@ case 'history-digest':
 **Proposed state:** Pre-compile plans before execution.
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js compile-plan .planning/phases/03-auth/03-01-PLAN.md
+node ~/.claude/get-stuff-done/bin/gsd-tools.js compile-plan .planning/phases/03-auth/03-01-PLAN.md
 # Produces .planning/phases/03-auth/03-01-PLAN.compiled.md
 ```
 
@@ -306,7 +306,7 @@ PLAN_CONTENT=$(cat "$PLAN_PATH")
 if [[ -f "${PLAN_PATH%.md}.compiled.md" ]]; then
   PLAN_CONTENT=$(cat "${PLAN_PATH%.md}.compiled.md")
 else
-  node ~/.claude/get-shit-done/bin/gsd-tools.js compile-plan "$PLAN_PATH"
+  node ~/.claude/get-stuff-done/bin/gsd-tools.js compile-plan "$PLAN_PATH"
   PLAN_CONTENT=$(cat "${PLAN_PATH%.md}.compiled.md")
 fi
 ```
@@ -345,11 +345,11 @@ STATE=$(cat .planning/STATE.md)  # ~50-100 lines in context
 
 ```bash
 # Read only what's needed
-POSITION=$(node ~/.claude/get-shit-done/bin/gsd-tools.js state get position)
-DECISIONS=$(node ~/.claude/get-shit-done/bin/gsd-tools.js state get decisions)
+POSITION=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js state get position)
+DECISIONS=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js state get decisions)
 
 # Atomic updates
-node ~/.claude/get-shit-done/bin/gsd-tools.js state patch \
+node ~/.claude/get-stuff-done/bin/gsd-tools.js state patch \
   --position "Phase: 03, Plan: 02, Status: Complete" \
   --add-decision "Used jose for JWT per Edge runtime constraints" \
   --set-session "Last: 2024-01-15, Stopped: 03-02, Resume: 03-03-PLAN.md"

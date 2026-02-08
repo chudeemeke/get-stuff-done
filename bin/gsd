@@ -61,17 +61,20 @@ read_config() {
     local key="$1"
     local default="$2"
 
-    node -e "
-        const {loadConfig, getConfigValue} = require('${GSD_INSTALL_DIR}/src/config/ConfigLoader');
+    GSD_INSTALL_DIR="$GSD_INSTALL_DIR" \
+    GSD_CONFIG_KEY="$key" \
+    GSD_CONFIG_DEFAULT="$default" \
+    node -e '
+        const {loadConfig, getConfigValue} = require(process.env.GSD_INSTALL_DIR + "/src/config/ConfigLoader");
         try {
             const config = loadConfig();
-            const val = getConfigValue(config, '${key}', '${default}');
+            const val = getConfigValue(config, process.env.GSD_CONFIG_KEY, process.env.GSD_CONFIG_DEFAULT);
             console.log(val);
         } catch (e) {
-            console.error('Config error:', e.message);
-            console.log('${default}');
+            console.error("Config error:", e.message);
+            console.log(process.env.GSD_CONFIG_DEFAULT);
         }
-    " 2>/dev/null || echo "$default"
+    ' 2>/dev/null || echo "$default"
 }
 
 # Ensure config directory exists
@@ -114,26 +117,28 @@ EOF
     # Note: GSD_CONFIG is already normalized at startup via normalize_path()
     if [[ -f "$GSD_CONFIG" ]]; then
         local has_version
-        has_version=$(node -e "
-            const JSON5 = require('${GSD_INSTALL_DIR}/node_modules/json5');
-            const fs = require('fs');
-            try {
-                const config = JSON5.parse(fs.readFileSync('${GSD_CONFIG}', 'utf8'));
-                console.log(config.version ? 'yes' : 'no');
-            } catch (e) {
-                console.log('no');
-            }
-        " 2>/dev/null || echo "no")
+        has_version=$(GSD_INSTALL_DIR="$GSD_INSTALL_DIR" GSD_CONFIG="$GSD_CONFIG" \
+            node -e '
+                const JSON5 = require(process.env.GSD_INSTALL_DIR + "/node_modules/json5");
+                const fs = require("fs");
+                try {
+                    const config = JSON5.parse(fs.readFileSync(process.env.GSD_CONFIG, "utf8"));
+                    console.log(config.version ? "yes" : "no");
+                } catch (e) {
+                    console.log("no");
+                }
+            ' 2>/dev/null || echo "no")
 
         if [[ "$has_version" == "no" ]]; then
             log_info "Adding version field to config"
-            node -e "
-                const JSON5 = require('${GSD_INSTALL_DIR}/node_modules/json5');
-                const fs = require('fs');
-                const config = JSON5.parse(fs.readFileSync('${GSD_CONFIG}', 'utf8'));
-                config.version = 1;
-                fs.writeFileSync('${GSD_CONFIG}', JSON.stringify(config, null, 2));
-            " 2>/dev/null || log_warn "Could not migrate config - please add version: 1 manually"
+            GSD_INSTALL_DIR="$GSD_INSTALL_DIR" GSD_CONFIG="$GSD_CONFIG" \
+                node -e '
+                    const JSON5 = require(process.env.GSD_INSTALL_DIR + "/node_modules/json5");
+                    const fs = require("fs");
+                    const config = JSON5.parse(fs.readFileSync(process.env.GSD_CONFIG, "utf8"));
+                    config.version = 1;
+                    fs.writeFileSync(process.env.GSD_CONFIG, JSON.stringify(config, null, 2));
+                ' 2>/dev/null || log_warn "Could not migrate config - please add version: 1 manually"
         fi
     fi
 }

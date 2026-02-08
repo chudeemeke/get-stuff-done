@@ -286,6 +286,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:48:20.343Z",
       "hadConflict": true
+    },
+    {
+      "sha": "6a2d1f1bfbf403013b74d3d4fdd8b7a8be83c42f",
+      "shortSha": "6a2d1f1",
+      "message": "feat(gsd-tools): frontmatter CRUD, verification suite, template fill, state progression (#485)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:48:34.673Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -407,6 +415,13 @@
       "message": "docs: update changelog for v1.15.1",
       "status": "skipped",
       "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "06399ec4a68ccc86b40647eaf05b280a438eb3f5",
+      "shortSha": "06399ec",
+      "message": "1.17.0",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
     }
   ],
   "pending": [
@@ -513,21 +528,9 @@
       "status": "pending"
     },
     {
-      "sha": "6a2d1f1bfbf403013b74d3d4fdd8b7a8be83c42f",
-      "shortSha": "6a2d1f1",
-      "message": "feat(gsd-tools): frontmatter CRUD, verification suite, template fill, state progression (#485)",
-      "status": "pending"
-    },
-    {
       "sha": "5a2f5fa82205bc865f4b6a610b860a05523f57e0",
       "shortSha": "5a2f5fa",
       "message": "docs: update changelog for v1.17.0",
-      "status": "pending"
-    },
-    {
-      "sha": "06399ec4a68ccc86b40647eaf05b280a438eb3f5",
-      "shortSha": "06399ec",
-      "message": "1.17.0",
       "status": "pending"
     },
     {
@@ -587,9 +590,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 33,
-    "conflicts": 18,
-    "eslintFixes": 4,
+    "applied": 34,
+    "conflicts": 19,
+    "eslintFixes": 5,
     "brandingCorrections": 0
   }
 }

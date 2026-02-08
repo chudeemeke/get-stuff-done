@@ -135,6 +135,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:32:49.386Z",
       "hadEslintFix": true
+    },
+    {
+      "sha": "ecbc692bc9dccda75a401ad2ed98100fbb020af6",
+      "shortSha": "ecbc692",
+      "message": "fix(#326): enforce context fidelity in planning pipeline (#391)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:33:05.063Z",
+      "hadEslintFix": true
     }
   ],
   "skipped": [
@@ -197,12 +205,6 @@
       "sha": "d1654960ab41d5664c30dc4b065ef64b960dbc1f",
       "shortSha": "d165496",
       "message": "feat(install): respect attribution.commit setting (compatible opencode) (#286)",
-      "status": "pending"
-    },
-    {
-      "sha": "ecbc692bc9dccda75a401ad2ed98100fbb020af6",
-      "shortSha": "ecbc692",
-      "message": "fix(#326): enforce context fidelity in planning pipeline (#391)",
       "status": "pending"
     },
     {
@@ -532,7 +534,7 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 15,
+    "applied": 16,
     "conflicts": 0,
     "eslintFixes": 0,
     "brandingCorrections": 0

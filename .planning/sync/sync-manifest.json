@@ -5,7 +5,7 @@
   "upstreamBranch": "upstream/main",
   "syncBranch": "upstream-sync",
   "startedAt": "2026-02-08T17:49:57.786Z",
-  "status": "in_progress",
+  "status": "complete",
   "applied": [
     {
       "sha": "197800e2d1a701ed0a537232567a089141175ab5",
@@ -301,6 +301,14 @@
       "message": "fix(#453): replace HEREDOC with literal newlines for Windows compatibility",
       "status": "applied",
       "appliedAt": "2026-02-08T18:48:51.488Z"
+    },
+    {
+      "sha": "7f4908302eaff3b717bcb4c7bda122a7f903331f",
+      "shortSha": "7f49083",
+      "message": "feat(new-project): add --auto flag for unattended initialization",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:49:04.944Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -429,6 +437,13 @@
       "message": "1.17.0",
       "status": "skipped",
       "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "fac12174b0a8d8747a995d407cc21c694029897a",
+      "shortSha": "fac1217",
+      "message": "docs: update changelog for v1.18.0",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
     }
   ],
   "pending": [
@@ -553,21 +568,9 @@
       "status": "pending"
     },
     {
-      "sha": "7f4908302eaff3b717bcb4c7bda122a7f903331f",
-      "shortSha": "7f49083",
-      "message": "feat(new-project): add --auto flag for unattended initialization",
-      "status": "pending"
-    },
-    {
       "sha": "cbb4aa105e89323b41a47bdfc0e9f501078a8cd0",
       "shortSha": "cbb4aa1",
       "message": "docs: add --auto flag to new-project command table",
-      "status": "pending"
-    },
-    {
-      "sha": "fac12174b0a8d8747a995d407cc21c694029897a",
-      "shortSha": "fac1217",
-      "message": "docs: update changelog for v1.18.0",
       "status": "pending"
     },
     {
@@ -591,9 +594,10 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 35,
-    "conflicts": 20,
-    "eslintFixes": 6,
+    "applied": 36,
+    "conflicts": 21,
+    "eslintFixes": 7,
     "brandingCorrections": 0
-  }
+  },
+  "completedAt": "2026-02-08T18:49:10.925Z"
 }

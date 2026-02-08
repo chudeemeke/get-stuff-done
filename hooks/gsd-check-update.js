@@ -24,7 +24,7 @@ if (!fs.existsSync(cacheDir)) {
 // Run check in background (spawn background process, windowsHide prevents console flash)
 const child = spawn(process.execPath, ['-e', `
   const fs = require('fs');
-  const { execSync } = require('child_process');
+  const { execFileSync } = require('child_process');
 
   const cacheFile = ${JSON.stringify(cacheFile)};
   const projectVersionFile = ${JSON.stringify(projectVersionFile)};
@@ -42,7 +42,8 @@ const child = spawn(process.execPath, ['-e', `
 
   let latest = null;
   try {
-    latest = execSync('npm view @chude/get-stuff-done version', { encoding: 'utf8', timeout: 10000, windowsHide: true }).trim();
+    const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+    latest = execFileSync(npmCmd, ['view', '@chude/get-stuff-done', 'version'], { encoding: 'utf8', timeout: 10000, windowsHide: true }).trim();
   } catch (e) {}
 
   const result = {

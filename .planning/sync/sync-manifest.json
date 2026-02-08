@@ -246,6 +246,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:44:20.330Z",
       "hadConflict": true
+    },
+    {
+      "sha": "56b487a5b02e772b5ae357fc38e0b46a6a28f928",
+      "shortSha": "56b487a",
+      "message": "chore: tidy up old files",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:46:59.761Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -311,6 +319,20 @@
       "message": "1.11.2",
       "status": "skipped",
       "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "e02b37d5e8e692791744231cf958ebf3dfec9b39",
+      "shortSha": "e02b37d",
+      "message": "1.12.0",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "3e3f81e6e495d6049a3e1f892097743ddd7e2090",
+      "shortSha": "3e3f81e",
+      "message": "docs: update changelog for v1.12.1",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
     }
   ],
   "pending": [
@@ -339,33 +361,15 @@
       "status": "pending"
     },
     {
-      "sha": "56b487a5b02e772b5ae357fc38e0b46a6a28f928",
-      "shortSha": "56b487a",
-      "message": "chore: tidy up old files",
-      "status": "pending"
-    },
-    {
       "sha": "c94f563eff74a0b2f23dc64b06ba00a10f369900",
       "shortSha": "c94f563",
       "message": "docs: update changelog for v1.12.0",
       "status": "pending"
     },
     {
-      "sha": "e02b37d5e8e692791744231cf958ebf3dfec9b39",
-      "shortSha": "e02b37d",
-      "message": "1.12.0",
-      "status": "pending"
-    },
-    {
       "sha": "246d542c65fa81091d7fc27d8925f1a756db54c3",
       "shortSha": "246d542",
       "message": "feat(gsd-tools): add compound init commands and update workflows (#468)",
-      "status": "pending"
-    },
-    {
-      "sha": "3e3f81e6e495d6049a3e1f892097743ddd7e2090",
-      "shortSha": "3e3f81e",
-      "message": "docs: update changelog for v1.12.1",
       "status": "pending"
     },
     {
@@ -569,9 +573,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 28,
-    "conflicts": 1,
-    "eslintFixes": 0,
+    "applied": 29,
+    "conflicts": 6,
+    "eslintFixes": 1,
     "brandingCorrections": 0
   }
 }

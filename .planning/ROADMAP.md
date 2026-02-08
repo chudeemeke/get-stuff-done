@@ -65,11 +65,12 @@ Plans:
   6. No unresolved conflicts remain and GSD fork identity (branding, naming) is preserved
   7. Workflow improvements documented based on real sync experience
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [ ] 08-01-PLAN.md -- Sync infrastructure setup, manifest initialization, dry-run commit analysis
+- [ ] 08-02-PLAN.md -- Cherry-pick execution of all 72 upstream commits with safety tooling
+- [ ] 08-03-PLAN.md -- Branding pass, integration testing, sync report, merge to main
 
 ---
 
@@ -145,7 +146,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 7. Security Hardening & Tooling | 3/3 | Complete | 2026-02-08 |
-| 8. Upstream Sync | 0/TBD | Not started | - |
+| 8. Upstream Sync | 0/3 | Not started | - |
 | 9. Cross-Platform Foundation | 0/TBD | Not started | - |
 | 10. Claude Code Capability Adoption | 0/TBD | Not started | - |
 | 11. CI/CD | 0/TBD | Not started | - |

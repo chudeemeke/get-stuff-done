@@ -9,12 +9,12 @@ Requirements for v0.2.0 Hardening & Upstream Sync milestone. Each maps to roadma
 
 ### Security Hardening
 
-- [ ] **SEC-01**: Security review checkpoint in upstream sync workflow blocks cherry-pick until user reviews diff and approves
-- [ ] **SEC-02**: Input validation rejects malformed git commit SHAs, branch names with shell metacharacters, and config paths with traversal patterns
-- [ ] **SEC-03**: All shell commands use parameterized arguments (no string concatenation), eval() is prohibited
-- [ ] **SEC-04**: ESLint with eslint-plugin-security configured and passes on all hooks and installer code
-- [ ] **SEC-05**: Publish is blocked if git diff --check detects conflict markers in tracked files
-- [ ] **SEC-06**: JSON5 config files are re-validated with AJV after upstream sync cherry-picks are applied
+- [x] **SEC-01**: Security review checkpoint in upstream sync workflow blocks cherry-pick until user reviews diff and approves
+- [x] **SEC-02**: Input validation rejects malformed git commit SHAs, branch names with shell metacharacters, and config paths with traversal patterns
+- [x] **SEC-03**: All shell commands use parameterized arguments (no string concatenation), eval() is prohibited
+- [x] **SEC-04**: ESLint with eslint-plugin-security configured and passes on all hooks and installer code
+- [x] **SEC-05**: Publish is blocked if git diff --check detects conflict markers in tracked files
+- [x] **SEC-06**: JSON5 config files are re-validated with AJV after upstream sync cherry-picks are applied
 
 ### Cross-Platform Support
 
@@ -84,12 +84,12 @@ Deferred to future milestones. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase 7 | Pending |
-| SEC-02 | Phase 7 | Pending |
-| SEC-03 | Phase 7 | Pending |
-| SEC-04 | Phase 7 | Pending |
-| SEC-05 | Phase 7 | Pending |
-| SEC-06 | Phase 7 | Pending |
+| SEC-01 | Phase 7 | Complete |
+| SEC-02 | Phase 7 | Complete |
+| SEC-03 | Phase 7 | Complete |
+| SEC-04 | Phase 7 | Complete |
+| SEC-05 | Phase 7 | Complete |
+| SEC-06 | Phase 7 | Complete |
 | PLAT-01 | Phase 8 | Pending |
 | PLAT-02 | Phase 8 | Pending |
 | PLAT-03 | Phase 8 | Pending |

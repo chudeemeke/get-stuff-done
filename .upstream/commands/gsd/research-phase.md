@@ -1,3 +1,4 @@
+<<<<<<< HEAD:.upstream/commands/gsd/research-phase.md
 ---
 name: gsd:research-phase
 description: Research how to implement a phase (standalone - usually use /gsd:plan-phase instead)
@@ -67,16 +68,50 @@ grep -A5 "Phase ${PHASE}:" .planning/ROADMAP.md 2>/dev/null
 **If not found:** Error and exit. **If found:** Extract phase number, name, description.
 
 ## 2. Check Existing Research
+=======
+<purpose>
+Research how to implement a phase. Spawns gsd-phase-researcher with phase context.
+
+Standalone research command. For most workflows, use `/gsd:plan-phase` which integrates research automatically.
+</purpose>
+
+<process>
+
+## Step 0: Resolve Model Profile
+
+@~/.claude/get-stuff-done/references/model-profile-resolution.md
+
+Resolve model for:
+- `gsd-phase-researcher`
+
+## Step 1: Normalize and Validate Phase
+
+@~/.claude/get-stuff-done/references/phase-argument-parsing.md
+
+```bash
+grep -A5 "Phase ${PHASE}:" .planning/ROADMAP.md 2>/dev/null
+```
+
+If not found: Error and exit.
+
+## Step 2: Check Existing Research
+>>>>>>> 56b487a (chore: tidy up old files):get-shit-done/workflows/research-phase.md
 
 ```bash
 ls .planning/phases/${PHASE}-*/RESEARCH.md 2>/dev/null
 ```
 
+<<<<<<< HEAD:.upstream/commands/gsd/research-phase.md
 **If exists:** Offer: 1) Update research, 2) View existing, 3) Skip. Wait for response.
 
 **If doesn't exist:** Continue.
 
 ## 3. Gather Phase Context
+=======
+If exists: Offer update/view/skip options.
+
+## Step 3: Gather Phase Context
+>>>>>>> 56b487a (chore: tidy up old files):get-shit-done/workflows/research-phase.md
 
 ```bash
 grep -A20 "Phase ${PHASE}:" .planning/ROADMAP.md
@@ -85,6 +120,7 @@ cat .planning/phases/${PHASE}-*/*-CONTEXT.md 2>/dev/null
 grep -A30 "### Decisions Made" .planning/STATE.md 2>/dev/null
 ```
 
+<<<<<<< HEAD:.upstream/commands/gsd/research-phase.md
 Present summary with phase description, requirements, prior decisions.
 
 ## 4. Spawn gsd-phase-researcher Agent
@@ -198,3 +234,35 @@ Task(
 - [ ] Checkpoints handled correctly
 - [ ] User knows next steps
 </success_criteria>
+=======
+## Step 4: Spawn Researcher
+
+```
+Task(
+  prompt="<objective>
+Research implementation approach for Phase {phase}: {name}
+</objective>
+
+<context>
+Phase description: {description}
+Requirements: {requirements}
+Prior decisions: {decisions}
+Phase context: {context_md}
+</context>
+
+<output>
+Write to: .planning/phases/${PHASE}-{slug}/${PHASE}-RESEARCH.md
+</output>",
+  subagent_type="gsd-phase-researcher",
+  model="{researcher_model}"
+)
+```
+
+## Step 5: Handle Return
+
+- `## RESEARCH COMPLETE` — Display summary, offer: Plan/Dig deeper/Review/Done
+- `## CHECKPOINT REACHED` — Present to user, spawn continuation
+- `## RESEARCH INCONCLUSIVE` — Show attempts, offer: Add context/Try different mode/Manual
+
+</process>
+>>>>>>> 56b487a (chore: tidy up old files):get-shit-done/workflows/research-phase.md

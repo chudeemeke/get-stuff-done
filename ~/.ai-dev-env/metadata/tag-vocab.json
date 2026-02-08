@@ -1,0 +1,21 @@
+{
+  "tags": {
+    "essential": {"count": 0, "aliases": ["esential", "essntial"]},
+    "core": {"count": 0, "aliases": []},
+    "mcp": {"count": 0, "aliases": ["mpc"]},
+    "temporary": {"count": 0, "aliases": ["temp", "tmp"]},
+    "project": {"count": 0, "aliases": ["proj"]},
+    "test": {"count": 0, "aliases": ["testing"]},
+    "utility": {"count": 0, "aliases": ["util", "utils"]}
+  },
+  "auto_patterns": {
+    "mcp": ["*nexus*", "*mcp*"],
+    "server": ["*server*", "*service*"],
+    "test": ["*test*", "*poc*", "*experiment*"],
+    "temp": ["*tmp*", "*temporary*"],
+    "core": ["*nexus*", "*claude*", "*jarvis*"],
+    "project": ["*project*", "*app*"],
+    "utility": ["*util*", "*tool*", "*helper*"]
+  },
+  "aliases": {}
+}

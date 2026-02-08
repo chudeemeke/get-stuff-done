@@ -2,8 +2,10 @@ const security = require('eslint-plugin-security');
 
 module.exports = [
   {
+    ignores: ['node_modules/**', '.upstream/**', 'hooks/dist/**', 'assets/.backup/**']
+  },
+  {
     files: ['**/*.js'],
-    ignores: ['node_modules/**', '.upstream/**', 'hooks/dist/**', 'assets/.backup/**'],
     plugins: {
       security
     },

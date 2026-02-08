@@ -1,35 +1,23 @@
----
-name: gsd:check-todos
-description: List pending todos and select one to work on
-argument-hint: [area filter]
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
----
-
-<objective>
+<purpose>
 List all pending todos, allow selection, load full context for the selected todo, and route to appropriate action.
+</purpose>
 
-Enables reviewing captured ideas and deciding what to work on next.
-</objective>
-
-<context>
-@.planning/STATE.md
-@.planning/ROADMAP.md
-</context>
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
 
-<step name="check_exist">
+<step name="init_context">
+Load todo context:
+
 ```bash
-TODO_COUNT=$(ls .planning/todos/pending/*.md 2>/dev/null | wc -l | tr -d ' ')
-echo "Pending todos: $TODO_COUNT"
+INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js init todos)
 ```
 
-If count is 0:
+Extract from init JSON: `todo_count`, `todos`, `pending_dir`.
+
+If `todo_count` is 0:
 ```
 No pending todos.
 
@@ -53,16 +41,9 @@ Check for area filter in arguments:
 </step>
 
 <step name="list_todos">
-```bash
-for file in .planning/todos/pending/*.md; do
-  created=$(grep "^created:" "$file" | cut -d' ' -f2)
-  title=$(grep "^title:" "$file" | cut -d':' -f2- | xargs)
-  area=$(grep "^area:" "$file" | cut -d' ' -f2)
-  echo "$created|$title|$area|$file"
-done | sort
-```
+Use the `todos` array from init context (already filtered by area if specified).
 
-Apply area filter if specified. Display as numbered list:
+Parse and display as numbered list:
 
 ```
 Pending Todos:
@@ -78,7 +59,7 @@ Reply with a number to view details, or:
 - `q` to exit
 ```
 
-Format age as relative time.
+Format age as relative time from created timestamp.
 </step>
 
 <step name="handle_selection">
@@ -109,11 +90,9 @@ If `files` field has entries, read and briefly summarize each.
 </step>
 
 <step name="check_roadmap">
-```bash
-ls .planning/ROADMAP.md 2>/dev/null && echo "Roadmap exists"
-```
+Check for roadmap (can use init progress or directly check file existence):
 
-If roadmap exists:
+If `.planning/ROADMAP.md` exists:
 1. Check if todo's area matches an upcoming phase
 2. Check if todo's files overlap with a phase's scope
 3. Note any match for action options
@@ -167,54 +146,23 @@ Return to list_todos step.
 <step name="update_state">
 After any action that changes todo count:
 
-```bash
-ls .planning/todos/pending/*.md 2>/dev/null | wc -l
-```
-
-Update STATE.md "### Pending Todos" section if exists.
+Re-run `init todos` to get updated count, then update STATE.md "### Pending Todos" section if exists.
 </step>
 
 <step name="git_commit">
 If todo was moved to done/, commit the change:
 
-**Check planning config:**
-
 ```bash
-COMMIT_PLANNING_DOCS=$(cat .planning/config.json 2>/dev/null | grep -o '"commit_docs"[[:space:]]*:[[:space:]]*[^,}]*' | grep -o 'true\|false' || echo "true")
-git check-ignore -q .planning 2>/dev/null && COMMIT_PLANNING_DOCS=false
-```
-
-**If `COMMIT_PLANNING_DOCS=false`:** Skip git operations, log "Todo moved (not committed - commit_docs: false)"
-
-**If `COMMIT_PLANNING_DOCS=true` (default):**
-
-```bash
-git add .planning/todos/done/[filename]
 git rm --cached .planning/todos/pending/[filename] 2>/dev/null || true
-[ -f .planning/STATE.md ] && git add .planning/STATE.md
-git commit -m "$(cat <<'EOF'
-docs: start work on todo - [title]
-
-Moved to done/, beginning implementation.
-EOF
-)"
+node ~/.claude/get-stuff-done/bin/gsd-tools.js commit "docs: start work on todo - [title]" --files .planning/todos/done/[filename] .planning/STATE.md
 ```
+
+Tool respects `commit_docs` config and gitignore automatically.
 
 Confirm: "Committed: docs: start work on todo - [title]"
 </step>
 
 </process>
-
-<output>
-- Moved todo to `.planning/todos/done/` (if "Work on it now")
-- Updated `.planning/STATE.md` (if todo count changed)
-</output>
-
-<anti_patterns>
-- Don't delete todos — move to done/ when work begins
-- Don't start work without moving to done/ first
-- Don't create plans from this command — route to /gsd:plan-phase or /gsd:add-phase
-</anti_patterns>
 
 <success_criteria>
 - [ ] All pending todos listed with title, area, age

@@ -1,30 +1,25 @@
----
-name: gsd:settings
-description: Configure GSD workflow toggles and model profile
-allowed-tools:
-  - Read
-  - Write
-  - AskUserQuestion
----
+<purpose>
+Interactive configuration of GSD workflow agents (research, plan_check, verifier) and model profile selection via multi-question prompt. Updates .planning/config.json with user preferences.
+</purpose>
 
-<objective>
-Allow users to toggle workflow agents on/off and select model profile via interactive settings.
-
-Updates `.planning/config.json` with workflow preferences and model profile selection.
-</objective>
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
 
-## 1. Validate Environment
+<step name="ensure_and_load_config">
+Ensure config exists and load current state:
 
 ```bash
-ls .planning/config.json 2>/dev/null
+node ~/.claude/get-stuff-done/bin/gsd-tools.js config-ensure-section
+INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js state load)
 ```
 
-**If not found:** Error - run `/gsd:new-project` first.
+Creates `.planning/config.json` with defaults if missing and loads current config values.
+</step>
 
-## 2. Read Current Config
-
+<step name="read_current">
 ```bash
 cat .planning/config.json
 ```
@@ -34,10 +29,11 @@ Parse current values (default to `true` if not present):
 - `workflow.plan_check` — spawn plan checker during plan-phase
 - `workflow.verifier` — spawn verifier during execute-phase
 - `model_profile` — which model each agent uses (default: `balanced`)
+- `git.branching_strategy` — branching approach (default: `"none"`)
+</step>
 
-## 3. Present Settings
-
-Use AskUserQuestion with current values shown:
+<step name="present_settings">
+Use AskUserQuestion with current values pre-selected:
 
 ```
 AskUserQuestion([
@@ -77,14 +73,22 @@ AskUserQuestion([
       { label: "Yes", description: "Verify must-haves after execution" },
       { label: "No", description: "Skip post-execution verification" }
     ]
+  },
+  {
+    question: "Git branching strategy?",
+    header: "Branching",
+    multiSelect: false,
+    options: [
+      { label: "None (Recommended)", description: "Commit directly to current branch" },
+      { label: "Per Phase", description: "Create branch for each phase (gsd/phase-{N}-{name})" },
+      { label: "Per Milestone", description: "Create branch for entire milestone (gsd/{version}-{name})" }
+    ]
   }
 ])
 ```
+</step>
 
-**Pre-select based on current config values.**
-
-## 4. Update Config
-
+<step name="update_config">
 Merge new settings into existing config.json:
 
 ```json
@@ -95,14 +99,17 @@ Merge new settings into existing config.json:
     "research": true/false,
     "plan_check": true/false,
     "verifier": true/false
+  },
+  "git": {
+    "branching_strategy": "none" | "phase" | "milestone"
   }
 }
 ```
 
 Write updated config to `.planning/config.json`.
+</step>
 
-## 5. Confirm Changes
-
+<step name="confirm">
 Display:
 
 ```
@@ -116,6 +123,7 @@ Display:
 | Plan Researcher      | {On/Off} |
 | Plan Checker         | {On/Off} |
 | Execution Verifier   | {On/Off} |
+| Git Branching        | {None/Per Phase/Per Milestone} |
 
 These settings apply to future /gsd:plan-phase and /gsd:execute-phase runs.
 
@@ -125,12 +133,13 @@ Quick commands:
 - /gsd:plan-phase --skip-research — skip research
 - /gsd:plan-phase --skip-verify — skip plan check
 ```
+</step>
 
 </process>
 
 <success_criteria>
 - [ ] Current config read
-- [ ] User presented with 4 settings (profile + 3 toggles)
-- [ ] Config updated with model_profile and workflow section
+- [ ] User presented with 5 settings (profile + 3 workflow toggles + git branching)
+- [ ] Config updated with model_profile, workflow, and git sections
 - [ ] Changes confirmed to user
 </success_criteria>

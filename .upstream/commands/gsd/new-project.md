@@ -1,78 +1,33 @@
----
-name: gsd:new-project
-description: Initialize a new project with deep context gathering and PROJECT.md
-allowed-tools:
-  - Read
-  - Bash
-  - Write
-  - Task
-  - AskUserQuestion
----
+<purpose>
+Initialize a new project through unified flow: questioning, research (optional), requirements, roadmap. This is the most leveraged moment in any project — deep questioning here means better plans, better execution, better outcomes. One workflow takes you from idea to ready-for-planning.
+</purpose>
 
-<objective>
-
-Initialize a new project through unified flow: questioning → research (optional) → requirements → roadmap.
-
-This is the most leveraged moment in any project. Deep questioning here means better plans, better execution, better outcomes. One command takes you from idea to ready-for-planning.
-
-**Creates:**
-- `.planning/PROJECT.md` — project context
-- `.planning/config.json` — workflow preferences
-- `.planning/research/` — domain research (optional)
-- `.planning/REQUIREMENTS.md` — scoped requirements
-- `.planning/ROADMAP.md` — phase structure
-- `.planning/STATE.md` — project memory
-
-**After this command:** Run `/gsd:plan-phase 1` to start execution.
-
-</objective>
-
-<execution_context>
-
-@~/.claude/get-shit-done/references/questioning.md
-@~/.claude/get-shit-done/references/ui-brand.md
-@~/.claude/get-shit-done/templates/project.md
-@~/.claude/get-shit-done/templates/requirements.md
-
-</execution_context>
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
 
-## Phase 1: Setup
+## 1. Setup
 
 **MANDATORY FIRST STEP — Execute these checks before ANY user interaction:**
 
-1. **Abort if project exists:**
-   ```bash
-   [ -f .planning/PROJECT.md ] && echo "ERROR: Project already initialized. Use /gsd:progress" && exit 1
-   ```
+```bash
+INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js init new-project)
+```
 
-2. **Initialize git repo in THIS directory** (required even if inside a parent repo):
-   ```bash
-   if [ -d .git ] || [ -f .git ]; then
-       echo "Git repo exists in current directory"
-   else
-       git init
-       echo "Initialized new git repo"
-   fi
-   ```
+Parse JSON for: `researcher_model`, `synthesizer_model`, `roadmapper_model`, `commit_docs`, `project_exists`, `has_codebase_map`, `planning_exists`, `has_existing_code`, `has_package_file`, `is_brownfield`, `needs_codebase_map`, `has_git`.
 
-3. **Detect existing code (brownfield detection):**
-   ```bash
-   CODE_FILES=$(find . -name "*.ts" -o -name "*.js" -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.swift" -o -name "*.java" 2>/dev/null | grep -v node_modules | grep -v .git | head -20)
-   HAS_PACKAGE=$([ -f package.json ] || [ -f requirements.txt ] || [ -f Cargo.toml ] || [ -f go.mod ] || [ -f Package.swift ] && echo "yes")
-   HAS_CODEBASE_MAP=$([ -d .planning/codebase ] && echo "yes")
-   ```
+**If `project_exists` is true:** Error — project already initialized. Use `/gsd:progress`.
 
-   **You MUST run all bash commands above using the Bash tool before proceeding.**
+**If `has_git` is false:** Initialize git:
+```bash
+git init
+```
 
-## Phase 2: Brownfield Offer
+## 2. Brownfield Offer
 
-**If existing code detected and .planning/codebase/ doesn't exist:**
-
-Check the results from setup step:
-- If `CODE_FILES` is non-empty OR `HAS_PACKAGE` is "yes"
-- AND `HAS_CODEBASE_MAP` is NOT "yes"
+**If `needs_codebase_map` is true** (from init — existing code detected but no codebase map):
 
 Use AskUserQuestion:
 - header: "Existing Code"
@@ -87,11 +42,9 @@ Run `/gsd:map-codebase` first, then return to `/gsd:new-project`
 ```
 Exit command.
 
-**If "Skip mapping":** Continue to Phase 3.
+**If "Skip mapping" OR `needs_codebase_map` is false:** Continue to Step 3.
 
-**If no existing code detected OR codebase already mapped:** Continue to Phase 3.
-
-## Phase 3: Deep Questioning
+## 3. Deep Questioning
 
 **Display stage banner:**
 
@@ -145,7 +98,7 @@ If "Keep exploring" — ask what they want to add, or identify gaps and probe na
 
 Loop until "Create PROJECT.md" selected.
 
-## Phase 4: Write PROJECT.md
+## 4. Write PROJECT.md
 
 Synthesize all context into `.planning/PROJECT.md` using the template from `templates/project.md`.
 
@@ -226,16 +179,10 @@ Do not compress. Capture everything gathered.
 
 ```bash
 mkdir -p .planning
-git add .planning/PROJECT.md
-git commit -m "$(cat <<'EOF'
-docs: initialize project
-
-[One-liner from PROJECT.md What This Is section]
-EOF
-)"
+node ~/.claude/get-stuff-done/bin/gsd-tools.js commit "docs: initialize project" --files .planning/PROJECT.md
 ```
 
-## Phase 5: Workflow Preferences
+## 5. Workflow Preferences
 
 **Round 1 — Core workflow settings (4 questions):**
 
@@ -362,41 +309,16 @@ Create `.planning/config.json` with all settings:
 **Commit config.json:**
 
 ```bash
-git add .planning/config.json
-git commit -m "$(cat <<'EOF'
-chore: add project config
-
-Mode: [chosen mode]
-Depth: [chosen depth]
-Parallelization: [enabled/disabled]
-Workflow agents: research=[on/off], plan_check=[on/off], verifier=[on/off]
-EOF
-)"
+node ~/.claude/get-stuff-done/bin/gsd-tools.js commit "chore: add project config" --files .planning/config.json
 ```
 
 **Note:** Run `/gsd:settings` anytime to update these preferences.
 
-## Phase 5.5: Resolve Model Profile
+## 5.5. Resolve Model Profile
 
-Read model profile for agent spawning:
+Use models from init: `researcher_model`, `synthesizer_model`, `roadmapper_model`.
 
-```bash
-MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
-```
-
-Default to "balanced" if not set.
-
-**Model lookup table:**
-
-| Agent | quality | balanced | budget |
-|-------|---------|----------|--------|
-| gsd-project-researcher | opus | sonnet | haiku |
-| gsd-research-synthesizer | sonnet | sonnet | haiku |
-| gsd-roadmapper | opus | sonnet | sonnet |
-
-Store resolved models for use in Task calls below.
-
-## Phase 6: Research Decision
+## 6. Research Decision
 
 Use AskUserQuestion:
 - header: "Research"
@@ -475,7 +397,7 @@ Your STACK.md feeds into roadmap creation. Be prescriptive:
 
 <output>
 Write to: .planning/research/STACK.md
-Use template: ~/.claude/get-shit-done/templates/research-project/STACK.md
+Use template: ~/.claude/get-stuff-done/templates/research-project/STACK.md
 </output>
 ", subagent_type="general-purpose", model="{researcher_model}", description="Stack research")
 
@@ -515,7 +437,7 @@ Your FEATURES.md feeds into requirements definition. Categorize clearly:
 
 <output>
 Write to: .planning/research/FEATURES.md
-Use template: ~/.claude/get-shit-done/templates/research-project/FEATURES.md
+Use template: ~/.claude/get-stuff-done/templates/research-project/FEATURES.md
 </output>
 ", subagent_type="general-purpose", model="{researcher_model}", description="Features research")
 
@@ -555,7 +477,7 @@ Your ARCHITECTURE.md informs phase structure in roadmap. Include:
 
 <output>
 Write to: .planning/research/ARCHITECTURE.md
-Use template: ~/.claude/get-shit-done/templates/research-project/ARCHITECTURE.md
+Use template: ~/.claude/get-stuff-done/templates/research-project/ARCHITECTURE.md
 </output>
 ", subagent_type="general-purpose", model="{researcher_model}", description="Architecture research")
 
@@ -595,7 +517,7 @@ Your PITFALLS.md prevents mistakes in roadmap/planning. For each pitfall:
 
 <output>
 Write to: .planning/research/PITFALLS.md
-Use template: ~/.claude/get-shit-done/templates/research-project/PITFALLS.md
+Use template: ~/.claude/get-stuff-done/templates/research-project/PITFALLS.md
 </output>
 ", subagent_type="general-purpose", model="{researcher_model}", description="Pitfalls research")
 ```
@@ -618,7 +540,7 @@ Read these files:
 
 <output>
 Write to: .planning/research/SUMMARY.md
-Use template: ~/.claude/get-shit-done/templates/research-project/SUMMARY.md
+Use template: ~/.claude/get-stuff-done/templates/research-project/SUMMARY.md
 Commit after writing.
 </output>
 ", subagent_type="gsd-research-synthesizer", model="{synthesizer_model}", description="Synthesize research")
@@ -639,9 +561,9 @@ Display research complete banner and key findings:
 Files: `.planning/research/`
 ```
 
-**If "Skip research":** Continue to Phase 7.
+**If "Skip research":** Continue to Step 7.
 
-## Phase 7: Define Requirements
+## 7. Define Requirements
 
 Display stage banner:
 ```
@@ -774,17 +696,10 @@ If "adjust": Return to scoping.
 **Commit requirements:**
 
 ```bash
-git add .planning/REQUIREMENTS.md
-git commit -m "$(cat <<'EOF'
-docs: define v1 requirements
-
-[X] requirements across [N] categories
-[Y] requirements deferred to v2
-EOF
-)"
+node ~/.claude/get-stuff-done/bin/gsd-tools.js commit "docs: define v1 requirements" --files .planning/REQUIREMENTS.md
 ```
 
-## Phase 8: Create Roadmap
+## 8. Create Roadmap
 
 Display stage banner:
 ```
@@ -912,21 +827,10 @@ Use AskUserQuestion:
 **Commit roadmap (after approval):**
 
 ```bash
-git add .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md
-git commit -m "$(cat <<'EOF'
-docs: create roadmap ([N] phases)
-
-Phases:
-1. [phase-name]: [requirements covered]
-2. [phase-name]: [requirements covered]
-...
-
-All v1 requirements mapped to phases.
-EOF
-)"
+node ~/.claude/get-stuff-done/bin/gsd-tools.js commit "docs: create roadmap ([N] phases)" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md
 ```
 
-## Phase 10: Done
+## 9. Done
 
 Present completion with next steps:
 

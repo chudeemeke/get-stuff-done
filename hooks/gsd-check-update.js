@@ -58,7 +58,8 @@ const child = spawn(process.execPath, ['-e', `
   fs.writeFileSync(cacheFile, JSON.stringify(result));
 `], {
   stdio: 'ignore',
-  windowsHide: true
+  windowsHide: true,
+  detached: true  // Required on Windows for proper process detachment
 });
 
 child.unref();

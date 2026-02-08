@@ -309,6 +309,13 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:49:04.944Z",
       "hadConflict": true
+    },
+    {
+      "sha": "42495068ca3a93adcff7be0aedf521de8bc76f02",
+      "shortSha": "4249506",
+      "message": "fix(execute-phase): explicitly specify subagent_type=\"gsd-executor\"",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:51:04.824Z"
     }
   ],
   "skipped": [
@@ -539,12 +546,6 @@
       "status": "pending"
     },
     {
-      "sha": "42495068ca3a93adcff7be0aedf521de8bc76f02",
-      "shortSha": "4249506",
-      "message": "fix(execute-phase): explicitly specify subagent_type=\"gsd-executor\"",
-      "status": "pending"
-    },
-    {
       "sha": "ea0204bfc79b802c962883b44b7d71bcd455ce4a",
       "shortSha": "ea0204b",
       "message": "1.16.0",
@@ -601,9 +602,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 36,
-    "conflicts": 21,
-    "eslintFixes": 7,
+    "applied": 37,
+    "conflicts": 28,
+    "eslintFixes": 8,
     "brandingCorrections": 0
   },
   "completedAt": "2026-02-08T18:49:10.925Z"

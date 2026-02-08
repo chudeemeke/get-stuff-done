@@ -1,37 +1,20 @@
-# Dependencies
 node_modules/
-
-# Logs
-*.log
-npm-debug.log*
-
-# OS files
 .DS_Store
-Thumbs.db
+TO-DOS.md
+CLAUDE.md
+/research.claude/
+commands.html
 
-# Editor directories
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# Build outputs
-dist/
-build/
-
-# Temporary files
-*.tmp
-*.temp
-.cache/
-
-# Backup files
-*.bak
-
-# Keep .upstream as reference but don't track changes to it
-# (It's the original upstream snapshot)
+# Local test installs
 .claude/
+
+# Build artifacts (committed to npm, not git)
+hooks/dist/
+
+# Animation assets
+animation/
+*.gif
+
+# Internal planning documents
+reports/
+RAILROAD_ARCHITECTURE.md

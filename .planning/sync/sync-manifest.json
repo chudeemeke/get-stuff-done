@@ -316,6 +316,13 @@
       "message": "fix(execute-phase): explicitly specify subagent_type=\"gsd-executor\"",
       "status": "applied",
       "appliedAt": "2026-02-08T18:51:04.824Z"
+    },
+    {
+      "sha": "4072fd2baf4e91b6b9efcac5fafc1724d38270fb",
+      "shortSha": "4072fd2",
+      "message": "fix: add workaround for Claude Code classifyHandoffIfNeeded bug (#480)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:51:13.989Z"
     }
   ],
   "skipped": [
@@ -552,12 +559,6 @@
       "status": "pending"
     },
     {
-      "sha": "4072fd2baf4e91b6b9efcac5fafc1724d38270fb",
-      "shortSha": "4072fd2",
-      "message": "fix: add workaround for Claude Code classifyHandoffIfNeeded bug (#480)",
-      "status": "pending"
-    },
-    {
       "sha": "5a2f5fa82205bc865f4b6a610b860a05523f57e0",
       "shortSha": "5a2f5fa",
       "message": "docs: update changelog for v1.17.0",
@@ -602,9 +603,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 37,
+    "applied": 38,
     "conflicts": 28,
-    "eslintFixes": 8,
+    "eslintFixes": 9,
     "brandingCorrections": 0
   },
   "completedAt": "2026-02-08T18:49:10.925Z"

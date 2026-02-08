@@ -355,6 +355,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:54:29.686Z",
       "hadConflict": true
+    },
+    {
+      "sha": "fa81821df4e435b2e945c43e7a3d749269c3f331",
+      "shortSha": "fa81821",
+      "message": "feat: add --include flag to init commands to eliminate redundant file reads",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:56:50.152Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -584,12 +592,6 @@
       "status": "pending"
     },
     {
-      "sha": "fa81821df4e435b2e945c43e7a3d749269c3f331",
-      "shortSha": "fa81821",
-      "message": "feat: add --include flag to init commands to eliminate redundant file reads",
-      "status": "pending"
-    },
-    {
       "sha": "ea0204bfc79b802c962883b44b7d71bcd455ce4a",
       "shortSha": "ea0204b",
       "message": "1.16.0",
@@ -616,9 +618,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 42,
-    "conflicts": 33,
-    "eslintFixes": 12,
+    "applied": 43,
+    "conflicts": 35,
+    "eslintFixes": 13,
     "brandingCorrections": 0
   },
   "completedAt": "2026-02-08T18:54:46.413Z"

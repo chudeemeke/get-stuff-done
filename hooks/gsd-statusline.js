@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-disable security/detect-non-literal-fs-filename -- statusline script with computed paths from internal logic, no user input */
+
 // Claude Code Statusline - GSD Edition
 // Shows: model | directory | autocompact proximity
 //

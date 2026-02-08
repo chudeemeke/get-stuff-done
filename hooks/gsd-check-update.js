@@ -17,7 +17,9 @@ const projectVersionFile = path.join(cwd, '.claude', 'get-stuff-done', 'VERSION'
 const globalVersionFile = path.join(homeDir, '.claude', 'get-stuff-done', 'VERSION');
 
 // Ensure cache directory exists
+// eslint-disable-next-line security/detect-non-literal-fs-filename -- cacheDir from path.join(homeDir, '.claude', 'cache'), no user input
 if (!fs.existsSync(cacheDir)) {
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- cacheDir from path.join(homeDir, '.claude', 'cache'), no user input
   fs.mkdirSync(cacheDir, { recursive: true });
 }
 

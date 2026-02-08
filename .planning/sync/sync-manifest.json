@@ -254,6 +254,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:46:59.761Z",
       "hadConflict": true
+    },
+    {
+      "sha": "3f5ab10713e714248d9a9a292733b67c88e5181d",
+      "shortSha": "3f5ab10",
+      "message": "chore: remove CONTRIBUTING.md and GSD-STYLE.md",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:47:17.028Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -376,12 +384,6 @@
       "sha": "e92e64ce48c1b34b59a020e89ff46b4df25d3287",
       "shortSha": "e92e64c",
       "message": "1.12.1",
-      "status": "pending"
-    },
-    {
-      "sha": "3f5ab10713e714248d9a9a292733b67c88e5181d",
-      "shortSha": "3f5ab10",
-      "message": "chore: remove CONTRIBUTING.md and GSD-STYLE.md",
       "status": "pending"
     },
     {
@@ -573,9 +575,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 29,
-    "conflicts": 6,
-    "eslintFixes": 1,
+    "applied": 30,
+    "conflicts": 9,
+    "eslintFixes": 2,
     "brandingCorrections": 0
   }
 }

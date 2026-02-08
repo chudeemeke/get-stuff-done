@@ -21,6 +21,16 @@ This is a multi-stage workflow designed for fork maintainers to stay synchronize
 
 <process>
 
+## Security Model
+
+The upstream sync workflow enforces a security-first approach:
+1. **SHA Validation:** All commit SHAs are validated against allowlist pattern before use
+2. **Security Review:** User must review diff and explicitly approve before any cherry-pick executes
+3. **Config Re-validation:** JSON/JSON5 config files are re-validated after cherry-picks are applied
+4. **Conflict Marker Check:** Publish is blocked if unresolved conflict markers exist
+
+No upstream code is applied to the working tree without explicit user approval.
+
 ## Pre-flight Checks
 
 Before initiating sync workflow, verify all prerequisites:
@@ -139,6 +149,38 @@ cache_json: ${CACHE_CONTENT}
   subagent_type="general-purpose",
   model="opus",
   description="Upstream sync workflow - Stage 3 (after commit selection)"
+)
+```
+
+### 2.5. CHECKPOINT: SECURITY_REVIEW
+```
+## CHECKPOINT: SECURITY_REVIEW
+
+**Commits to apply:** {N}
+**Files changed:** {count}
+**Diff statistics:** {stats}
+**Security analysis:** {findings}
+```
+
+**Action:**
+1. Present security review to user via AskUserQuestion
+2. If user responds "show-diff": Run `git diff {first_sha}^..{last_sha}` and display output, then re-present checkpoint
+3. If user responds "approve": Spawn continuation at Stage 4
+4. If user responds "abort": Display abort message, no continuation needed
+5. Spawn continuation:
+```
+Task(
+  prompt="First, read ~/.claude/get-stuff-done/workflows/upstream-sync.md.
+
+<sync_context>
+resume_stage: 4
+security_approved: true
+selected_commits: {commits_from_plan}
+cache_json: ${CACHE_CONTENT}
+</sync_context>",
+  subagent_type="general-purpose",
+  model="opus",
+  description="Upstream sync workflow - Stage 4 (after security review approval)"
 )
 ```
 

@@ -1,0 +1,58 @@
+{
+  "name": "@chude/get-stuff-done",
+  "version": "2.1.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code. Fork of GSD by TACHES.",
+  "bin": {
+    "get-stuff-done": "bin/install.js"
+  },
+  "files": [
+    "bin",
+    "commands",
+    "get-stuff-done",
+    "agents",
+    "hooks/dist",
+    "scripts"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai",
+    "meta-prompting",
+    "context-engineering",
+    "spec-driven-development"
+  ],
+  "author": "Chude (fork), TACHES (original)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chudeemeke/get-stuff-done.git"
+  },
+  "homepage": "https://github.com/chudeemeke/get-stuff-done",
+  "bugs": {
+    "url": "https://github.com/chudeemeke/get-stuff-done/issues"
+  },
+  "engines": {
+    "node": ">=16.7.0"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "json5": "^2.2.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-security": "^3.0.1",
+    "sharp": "^0.34.5",
+    "svgexport": "^0.4.2"
+  },
+  "scripts": {
+    "install": "node bin/install.js",
+    "build:hooks": "node scripts/build-hooks.js",
+    "prepublishOnly": "git diff --check HEAD && bun run build:hooks",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  }
+}

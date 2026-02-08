@@ -1,4 +1,4 @@
-# Phase 8: Cross-Platform Foundation - Context
+# Phase 9: Cross-Platform Foundation - Context
 
 **Gathered:** 2026-02-08
 **Status:** Ready for planning
@@ -82,5 +82,5 @@ Enable GSD to install, configure, and run identically on macOS, Linux, and Windo
 
 ---
 
-*Phase: 08-cross-platform-foundation*
+*Phase: 09-cross-platform-foundation*
 *Context gathered: 2026-02-08*

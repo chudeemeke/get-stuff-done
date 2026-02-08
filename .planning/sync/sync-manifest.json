@@ -294,6 +294,13 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:48:34.673Z",
       "hadConflict": true
+    },
+    {
+      "sha": "ced41d771b8d9ca538a7c7d12d7d529391c5c028",
+      "shortSha": "ced41d7",
+      "message": "fix(#453): replace HEREDOC with literal newlines for Windows compatibility",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:48:51.488Z"
     }
   ],
   "skipped": [
@@ -540,12 +547,6 @@
       "status": "pending"
     },
     {
-      "sha": "ced41d771b8d9ca538a7c7d12d7d529391c5c028",
-      "shortSha": "ced41d7",
-      "message": "fix(#453): replace HEREDOC with literal newlines for Windows compatibility",
-      "status": "pending"
-    },
-    {
       "sha": "1344bd8f1831604063517c84157bc7f4a1bbdf0d",
       "shortSha": "1344bd8",
       "message": "fix(#466): add detached: true to SessionStart hook spawn for Windows",
@@ -590,9 +591,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 34,
-    "conflicts": 19,
-    "eslintFixes": 5,
+    "applied": 35,
+    "conflicts": 20,
+    "eslintFixes": 6,
     "brandingCorrections": 0
   }
 }

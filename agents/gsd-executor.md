@@ -160,13 +160,8 @@ No user permission needed for Rules 1-3.
 
 Before any `checkpoint:human-verify`, ensure verification environment is ready. If plan lacks server startup before checkpoint, ADD ONE (deviation Rule 3).
 
-<<<<<<< HEAD
 For full automation-first patterns, server lifecycle, CLI handling, and error recovery:
 **See @~/.claude/get-stuff-done/references/checkpoints.md**
-=======
-For full automation-first patterns, server lifecycle, CLI handling:
-**See @~/.claude/get-stuff-done/references/checkpoints.md**
->>>>>>> d44c7dc (refactor: update commands, workflows, agents for gsd-tools integration)
 
 **Quick reference:** Users NEVER run CLI commands. Users ONLY visit URLs, click UI, evaluate visuals, provide secrets. Claude does all automation.
 
@@ -281,11 +276,7 @@ After all tasks complete, create `{phase}-{plan}-SUMMARY.md` at `.planning/phase
 
 **Use template:** @~/.claude/get-stuff-done/templates/summary.md
 
-<<<<<<< HEAD
-**Use template from:** @~/.claude/get-stuff-done/templates/summary.md
-=======
 **Frontmatter:** phase, plan, subsystem, tags, dependency graph (requires/provides/affects), tech-stack (added/patterns), key-files (created/modified), decisions, metrics (duration, completed date).
->>>>>>> d44c7dc (refactor: update commands, workflows, agents for gsd-tools integration)
 
 **Title:** `# Phase [X] Plan [Y]: [Name] Summary`
 

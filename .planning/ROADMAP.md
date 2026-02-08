@@ -41,11 +41,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Publish workflow aborts if git conflict markers are detected in tracked files
   6. Config files are automatically re-validated after upstream sync applies changes
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md -- Input validation module and ESLint security configuration
+- [ ] 07-02-PLAN.md -- Shell command hardening and pre-publish conflict marker check
+- [ ] 07-03-PLAN.md -- Upstream sync security review checkpoint and config re-validation
 
 ---
 
@@ -159,11 +160,11 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12
+Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 7. Security Hardening & Tooling | 0/TBD | Not started | - |
+| 7. Security Hardening & Tooling | 0/3 | Planned | - |
 | 8. Cross-Platform Foundation | 0/TBD | Not started | - |
 | 9. Sync Safety Features | 0/TBD | Not started | - |
 | 10. Upstream Sync Execution | 0/TBD | Not started | - |
@@ -172,4 +173,4 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-07*
+*Last updated: 2026-02-08*

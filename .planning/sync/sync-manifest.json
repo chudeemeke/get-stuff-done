@@ -331,6 +331,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:51:28.858Z",
       "hadConflict": true
+    },
+    {
+      "sha": "246d542c65fa81091d7fc27d8925f1a756db54c3",
+      "shortSha": "246d542",
+      "message": "feat(gsd-tools): add compound init commands and update workflows (#468)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:53:42.244Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -539,12 +547,6 @@
       "status": "pending"
     },
     {
-      "sha": "246d542c65fa81091d7fc27d8925f1a756db54c3",
-      "shortSha": "246d542",
-      "message": "feat(gsd-tools): add compound init commands and update workflows (#468)",
-      "status": "pending"
-    },
-    {
       "sha": "1b317dec45fb3bf4b7808806e9f4eb39f1428267",
       "shortSha": "1b317de",
       "message": "feat: extract repetitive bash patterns into gsd-tools commands (#472)",
@@ -607,9 +609,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 39,
-    "conflicts": 29,
-    "eslintFixes": 10,
+    "applied": 40,
+    "conflicts": 31,
+    "eslintFixes": 11,
     "brandingCorrections": 0
   },
   "completedAt": "2026-02-08T18:51:35.620Z"

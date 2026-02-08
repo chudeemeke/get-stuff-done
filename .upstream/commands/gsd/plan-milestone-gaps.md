@@ -94,7 +94,7 @@ Gap: Flow "View dashboard" broken at data fetch
 Find highest existing phase:
 ```bash
 # Get sorted phase list, extract last one
-PHASES=$(node ~/.claude/get-shit-done/bin/gsd-tools.js phases list)
+PHASES=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js phases list)
 HIGHEST=$(echo "$PHASES" | jq -r '.directories[-1]')
 ```
 

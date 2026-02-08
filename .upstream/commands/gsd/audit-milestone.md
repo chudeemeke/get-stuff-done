@@ -1,67 +1,31 @@
----
-name: gsd:audit-milestone
-description: Audit milestone completion against original intent before archiving
-argument-hint: "[version]"
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
-  - Task
-  - Write
----
+<purpose>
+Verify milestone achieved its definition of done by aggregating phase verifications, checking cross-phase integration, and assessing requirements coverage. Reads existing VERIFICATION.md files (phases already verified during execute-phase), aggregates tech debt and deferred gaps, then spawns integration checker for cross-phase wiring.
+</purpose>
 
-<objective>
-Verify milestone achieved its definition of done. Check requirements coverage, cross-phase integration, and end-to-end flows.
-
-**This command IS the orchestrator.** Reads existing VERIFICATION.md files (phases already verified during execute-phase), aggregates tech debt and deferred gaps, then spawns integration checker for cross-phase wiring.
-</objective>
-
-<execution_context>
-<!-- Spawns gsd-integration-checker agent which has all audit expertise baked in -->
-</execution_context>
-
-<context>
-Version: $ARGUMENTS (optional — defaults to current milestone)
-
-**Original Intent:**
-@.planning/PROJECT.md
-@.planning/REQUIREMENTS.md
-
-**Planned Work:**
-@.planning/ROADMAP.md
-@.planning/config.json (if exists)
-
-**Completed Work:**
-Glob: .planning/phases/*/*-SUMMARY.md
-Glob: .planning/phases/*/*-VERIFICATION.md
-</context>
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
 
-## 0. Resolve Model Profile
-
-Read model profile for agent spawning:
+## 0. Initialize Milestone Context
 
 ```bash
-MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
+INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js init milestone-op)
 ```
 
-Default to "balanced" if not set.
+Extract from init JSON: `milestone_version`, `milestone_name`, `phase_count`, `completed_phases`, `commit_docs`.
 
-**Model lookup table:**
-
-| Agent | quality | balanced | budget |
-|-------|---------|----------|--------|
-| gsd-integration-checker | sonnet | sonnet | haiku |
-
-Store resolved model for use in Task call below.
+Resolve integration checker model:
+```bash
+CHECKER_MODEL=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js resolve-model gsd-integration-checker --raw)
+```
 
 ## 1. Determine Milestone Scope
 
 ```bash
-# Get phases in milestone
-ls -d .planning/phases/*/ | sort -V
+# Get phases in milestone (sorted numerically, handles decimals)
+node ~/.claude/get-stuff-done/bin/gsd-tools.js phases list
 ```
 
 - Parse version from arguments or detect current from ROADMAP.md

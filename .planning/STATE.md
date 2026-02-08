@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Maintain upstream compatibility while establishing distinct identity
-**Current focus:** Phase 8 - Cross-Platform Foundation
+**Current focus:** Phase 8 - Upstream Sync
 
 ## Current Position
 
-Phase: 8 of 12 (Cross-Platform Foundation)
+Phase: 8 of 11 (Upstream Sync)
 Plan: Not yet planned
-Status: Phase 7 complete, ready to plan phase 8
-Last activity: 2026-02-08 -- Phase 7 verified (10/10 UAT tests passed)
+Status: Phase 7 complete, roadmap restructured, ready to plan phase 8
+Last activity: 2026-02-08 -- Roadmap restructured (sync before cross-platform)
 
-Progress: [##........] 17% (v0.2.0: 1/6 phases complete)
+Progress: [##........] 20% (v0.2.0: 1/5 phases complete)
 
 ## Performance Metrics
 
@@ -54,6 +54,11 @@ All v0.1.0 decisions logged in PROJECT.md Key Decisions table (14 decisions, all
 Recent decisions affecting current work:
 - v0.2.0: Research-first approach validates Claude Code capabilities before building
 - v0.2.0: Security-first phase ordering (audit before features)
+- v0.2.0: Roadmap restructured -- upstream sync moved before cross-platform (avoids building on stale architecture)
+- v0.2.0: Upstream features take priority over fork-specific implementations on conflict
+- v0.2.0: Sync to latest upstream at time of execution (not pinned to specific version)
+- v0.2.0: All upstream features accepted including Gemini CLI support
+- v0.2.0: Sync safety tooling built inline with sync execution (not separate phase)
 - 07-01 LINT-001: Use ESLint 9.x for eslint-plugin-security compatibility
 - 07-01 LINT-002: File-level disable comments for install/build scripts
 - 07-01 VAL-001: Support both short (7-40 chars) and full (40 chars) git SHAs
@@ -79,7 +84,7 @@ None active.
 ## Session Continuity
 
 Last session: 2026-02-08
-Status: Phase 7 complete and verified (10/10 UAT). Ready for phase 8.
+Status: Roadmap restructured. Phase 9 (Cross-Platform) has CONTEXT.md ready. Phase 8 (Upstream Sync) needs discussion or planning.
 Resume file: None
 
 **Next step:** Run /gsd:discuss-phase 8 or /gsd:plan-phase 8

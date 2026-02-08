@@ -3,26 +3,25 @@
 ## Milestones
 
 - [x] **v0.1.0 GetStuffDone Fork** -- Phases 1-6 (shipped 2026-02-05) [archived](milestones/v0.1.0-ROADMAP.md)
-- [ ] **v0.2.0 Hardening & Upstream Sync** -- Phases 7-12
+- [ ] **v0.2.0 Hardening & Upstream Sync** -- Phases 7-11
 
 ## Overview
 
-v0.2.0 establishes production-grade quality through security hardening, cross-platform support, and enhanced upstream sync capabilities. The roadmap follows a security-first dependency chain: audit and harden the codebase, enable cross-platform verification, build sync safety features (diff preview, rollback, dry-run), execute upstream sync with improved workflow, adopt Claude Code 2026 capabilities, and optionally add CI/CD automation. This milestone transforms GSD from a working fork into a reliable, maintainable tool that safely tracks upstream while preserving distinct identity.
+v0.2.0 establishes production-grade quality through security hardening, upstream sync, cross-platform support, and modern Claude Code integration. The roadmap follows a security-first dependency chain: audit and harden the codebase, sync upstream changes (using Phase 7 security tools for safe execution), enable cross-platform support on the synced codebase, adopt Claude Code 2026 capabilities, and optionally add CI/CD automation. This milestone transforms GSD from a working fork into a reliable, maintainable tool that safely tracks upstream while preserving distinct identity.
 
 ## Phases
 
 **Phase Numbering:**
-- Integer phases (7-12): Planned milestone work
+- Integer phases (7-11): Planned milestone work
 - Decimal phases (e.g., 7.1): Urgent insertions (marked with INSERTED)
 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 7: Security Hardening & Tooling** - Establish security baseline for upstream sync
-- [ ] **Phase 8: Cross-Platform Foundation** - Enable macOS and Linux support
-- [ ] **Phase 9: Sync Safety Features** - Add diff preview, rollback, dry-run
-- [ ] **Phase 10: Upstream Sync Execution** - Pull latest changes, improve workflow
-- [ ] **Phase 11: Claude Code Capability Adoption** - Leverage Opus 4.6 features
-- [ ] **Phase 12: CI/CD** - Automate cross-platform testing (stretch goal)
+- [ ] **Phase 8: Upstream Sync** - Pull latest upstream changes with integrated safety tooling
+- [ ] **Phase 9: Cross-Platform Foundation** - Enable macOS and Linux support
+- [ ] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features
+- [ ] **Phase 11: CI/CD** - Automate cross-platform testing (stretch goal)
 
 ## Phase Details
 
@@ -50,19 +49,21 @@ Plans:
 
 ---
 
-### Phase 8: Cross-Platform Foundation
-**Goal**: Enable GSD to install, configure, and run identically on macOS, Linux, and Windows with automatic platform adaptation
+### Phase 8: Upstream Sync
+**Goal**: Pull latest upstream changes from glittercowboy/get-shit-done (through latest release), integrate all features, and build sync safety tooling needed for confident execution
 
-**Depends on**: Phase 7 (security validation used in path traversal protection)
+**Depends on**: Phase 7 (security validation, SHA checks, diff review, conflict detection)
 
-**Requirements**: PLAT-01, PLAT-02, PLAT-03, PLAT-04, PLAT-05, PLAT-06
+**Requirements**: SYNC-01, SYNC-02, SYNC-03, SYNC-04, SYNC-05, SYNC-06
 
 **Success Criteria** (what must be TRUE):
-  1. All path operations work correctly on Windows (backslashes), macOS, and Linux without manual adjustments
-  2. Platform detection correctly identifies OS, shell (bash/zsh/PowerShell), and environment (WSL, MINGW) with appropriate fallbacks
-  3. Installer detects write permission failures and falls back gracefully (junction on Windows, symlink on Unix, copy on permission denial)
-  4. Hooks generate syntax appropriate for target shell (bash, zsh, PowerShell) without user configuration
-  5. Installation, config loading, statusline display, and hook execution are verified working on macOS and Linux (manual test matrix)
+  1. All upstream features through latest release are successfully integrated (gsd-tools.js, thin orchestrator, context optimization, Gemini CLI, git branching, test infrastructure, and all bug fixes)
+  2. Upstream features take priority over fork-specific implementations where conflicts exist
+  3. Phase 7 security tools (diff review, SHA validation, conflict detection, ESLint) used throughout sync process
+  4. Safety tooling built as needed: state snapshots before destructive operations, diff preview for cherry-picks
+  5. All cherry-picked changes pass ESLint security validation with zero violations
+  6. No unresolved conflicts remain and GSD fork identity (branding, naming) is preserved
+  7. Workflow improvements documented based on real sync experience
 
 **Plans**: TBD
 
@@ -72,53 +73,32 @@ Plans:
 
 ---
 
-### Phase 9: Sync Safety Features
-**Goal**: Provide confidence-building safety infrastructure for upstream sync through preview, rollback, and dry-run capabilities
+### Phase 9: Cross-Platform Foundation
+**Goal**: Enable GSD to install, configure, and run identically on macOS, Linux, and Windows with automatic platform adaptation
 
-**Depends on**: Phase 7 (security validation), Phase 8 (cross-platform utilities)
+**Depends on**: Phase 8 (upstream sync provides updated codebase including gsd-tools.js and architecture changes)
 
-**Requirements**: SYNC-01, SYNC-02, SYNC-03, SYNC-04
+**Requirements**: PLAT-01, PLAT-02, PLAT-03, PLAT-04, PLAT-05, PLAT-06
 
 **Success Criteria** (what must be TRUE):
-  1. User can preview colorized unified diff with file statistics before approving any cherry-pick operation
-  2. State snapshots are created automatically before destructive sync operations and user can rollback to any snapshot with single command
-  3. Statusline displays upstream update notifications with severity indicators (security/breaking/feature) fetched from package metadata
-  4. All sync operations support --dry-run flag that shows what would change without applying modifications
-  5. Rollback preserves local uncommitted changes (stash detection) and validates git state before restoring snapshot
+  1. All path operations work correctly on Windows (backslashes), macOS, and Linux without manual adjustments
+  2. Platform detection correctly identifies OS, shell (bash/zsh/PowerShell/cmd), and environment (native, MINGW, Git Bash) with appropriate fallbacks
+  3. Installer detects write permission failures and falls back gracefully (symlink -> junction -> copy) with user notification
+  4. Hooks use Node.js exclusively (no bash dependencies) and work on all platforms without shell-specific configuration
+  5. Installation, config loading, statusline display, and hook execution are verified working on macOS and Linux (manual test matrix)
 
 **Plans**: TBD
 
 Plans:
 - [ ] 09-01: TBD
 - [ ] 09-02: TBD
-- [ ] 09-03: TBD
 
 ---
 
-### Phase 10: Upstream Sync Execution
-**Goal**: Pull latest upstream changes and integrate workflow improvements discovered during actual sync execution
-
-**Depends on**: Phase 9 (sync safety features enable confident execution)
-
-**Requirements**: SYNC-05, SYNC-06
-
-**Success Criteria** (what must be TRUE):
-  1. Latest commits from upstream glittercowboy/get-shit-done are successfully cherry-picked using enhanced 7-stage workflow
-  2. All new upstream features work correctly in chudeemeke/get-stuff-done fork after integration
-  3. Workflow improvements are documented based on real sync experience (pain points, automation opportunities, edge cases)
-  4. No conflicts are left unresolved and all cherry-picked changes pass ESLint security validation
-
-**Plans**: TBD
-
-Plans:
-- [ ] 10-01: TBD
-
----
-
-### Phase 11: Claude Code Capability Adoption
+### Phase 10: Claude Code Capability Adoption
 **Goal**: Leverage Claude Opus 4.6 and Claude Code 2026 platform improvements for enhanced GSD orchestration
 
-**Depends on**: Phase 10 (stable codebase for testing AI features)
+**Depends on**: Phase 9 (cross-platform codebase provides stable foundation for AI features)
 
 **Requirements**: CLAUDE-01, CLAUDE-02, CLAUDE-03, CLAUDE-04, CLAUDE-05
 
@@ -132,15 +112,15 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 11-01: TBD
-- [ ] 11-02: TBD
+- [ ] 10-01: TBD
+- [ ] 10-02: TBD
 
 ---
 
-### Phase 12: CI/CD (Stretch Goal)
+### Phase 11: CI/CD (Stretch Goal)
 **Goal**: Automate cross-platform testing to catch compatibility regressions before they reach users
 
-**Depends on**: Phase 8 (cross-platform support must exist before automating tests)
+**Depends on**: Phase 9 (cross-platform support must exist before automating tests)
 
 **Requirements**: CI-01
 
@@ -153,23 +133,22 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 12-01: TBD
+- [ ] 11-01: TBD
 
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12
+Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 7. Security Hardening & Tooling | 3/3 | Complete | 2026-02-08 |
-| 8. Cross-Platform Foundation | 0/TBD | Not started | - |
-| 9. Sync Safety Features | 0/TBD | Not started | - |
-| 10. Upstream Sync Execution | 0/TBD | Not started | - |
-| 11. Claude Code Capability Adoption | 0/TBD | Not started | - |
-| 12. CI/CD | 0/TBD | Not started | - |
+| 8. Upstream Sync | 0/TBD | Not started | - |
+| 9. Cross-Platform Foundation | 0/TBD | Not started | - |
+| 10. Claude Code Capability Adoption | 0/TBD | Not started | - |
+| 11. CI/CD | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*

@@ -597,16 +597,16 @@
       "message": "v1.11.3 - revert memory system",
       "status": "skipped",
       "reason": "cherry-pick continue failed"
-    }
-  ],
-  "pending": [
+    },
     {
       "sha": "ea0204bfc79b802c962883b44b7d71bcd455ce4a",
       "shortSha": "ea0204b",
       "message": "1.16.0",
-      "status": "pending"
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
     }
   ],
+  "pending": [],
   "conflicted": null,
   "snapshots": [],
   "protectedPaths": [
@@ -626,5 +626,5 @@
     "eslintFixes": 14,
     "brandingCorrections": 0
   },
-  "completedAt": "2026-02-08T18:59:03.283Z"
+  "completedAt": "2026-02-08T19:00:02.884Z"
 }

@@ -1,33 +1,23 @@
----
-name: gsd:progress
-description: Check project progress, show context, and route to next action (execute or plan)
-allowed-tools:
-  - Read
-  - Bash
-  - Grep
-  - Glob
-  - SlashCommand
----
+<purpose>
+Check project progress, summarize recent work and what's ahead, then intelligently route to the next action — either executing an existing plan or creating the next one. Provides situational awareness before continuing work.
+</purpose>
 
-<objective>
-Check project progress, summarize recent work and what's ahead, then intelligently route to the next action - either executing an existing plan or creating the next one.
-
-Provides situational awareness before continuing work.
-</objective>
-
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
 
-<step name="verify">
-**Verify planning structure exists:**
-
-Use Bash (not Glob) to check—Glob respects .gitignore but .planning/ is often gitignored:
+<step name="init_context">
+**Load progress context:**
 
 ```bash
-test -d .planning && echo "exists" || echo "missing"
+INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init progress)
 ```
 
-If no `.planning/` directory:
+Extract from init JSON: `project_exists`, `roadmap_exists`, `state_exists`, `phases`, `current_phase`, `next_phase`, `milestone_version`, `completed_count`, `phase_count`, `paused_at`.
+
+If `project_exists` is false (no `.planning/` directory):
 
 ```
 No planning structure found.
@@ -64,13 +54,13 @@ If missing both ROADMAP.md and PROJECT.md: suggest `/gsd:new-project`.
   </step>
 
 <step name="position">
-**Parse current position:**
+**Parse current position from init context:**
 
-- From STATE.md: current phase, plan number, status
-- Calculate: total plans, completed plans, remaining plans
-- Note any blockers or concerns
+- Use `current_phase` and `next_phase` from init for position
+- Use `phases` array for plan counts per phase
+- Note `paused_at` if work was paused
 - Check for CONTEXT.md: For phases without PLAN.md files, check if `{phase}-CONTEXT.md` exists in phase directory
-- Count pending todos: `ls .planning/todos/pending/*.md 2>/dev/null | wc -l`
+- Count pending todos: use `init todos` or `list-todos`
 - Check for active debug sessions: `ls .planning/debug/*.md 2>/dev/null | grep -v resolved | wc -l`
   </step>
 

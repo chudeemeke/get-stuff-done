@@ -1,79 +1,13 @@
----
-name: gsd:quick
-description: Execute a quick task with GSD guarantees (atomic commits, state tracking) but skip optional agents
-argument-hint: ""
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
-  - Bash
-  - Task
-  - AskUserQuestion
----
+<purpose>
+Execute small, ad-hoc tasks with GSD guarantees (atomic commits, STATE.md tracking) while skipping optional agents (research, plan-checker, verifier). Quick mode spawns gsd-planner (quick mode) + gsd-executor(s), tracks tasks in `.planning/quick/`, and updates STATE.md's "Quick Tasks Completed" table.
+</purpose>
 
-<objective>
-Execute small, ad-hoc tasks with GSD guarantees (atomic commits, STATE.md tracking) while skipping optional agents (research, plan-checker, verifier).
-
-Quick mode is the same system with a shorter path:
-- Spawns gsd-planner (quick mode) + gsd-executor(s)
-- Skips gsd-phase-researcher, gsd-plan-checker, gsd-verifier
-- Quick tasks live in `.planning/quick/` separate from planned phases
-- Updates STATE.md "Quick Tasks Completed" table (NOT ROADMAP.md)
-
-Use when: You know exactly what to do and the task is small enough to not need research or verification.
-</objective>
-
-<execution_context>
-Orchestration is inline - no separate workflow file. Quick mode is deliberately simpler than full GSD.
-</execution_context>
-
-<context>
-@.planning/STATE.md
-</context>
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
-**Step 0: Resolve Model Profile**
-
-Read model profile for agent spawning:
-
-```bash
-MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
-```
-
-Default to "balanced" if not set.
-
-**Model lookup table:**
-
-| Agent | quality | balanced | budget |
-|-------|---------|----------|--------|
-| gsd-planner | opus | opus | sonnet |
-| gsd-executor | opus | sonnet | sonnet |
-
-Store resolved models for use in Task calls below.
-
----
-
-**Step 1: Pre-flight validation**
-
-Check that an active GSD project exists:
-
-```bash
-if [ ! -f .planning/ROADMAP.md ]; then
-  echo "Quick mode requires an active project with ROADMAP.md."
-  echo "Run /gsd:new-project first."
-  exit 1
-fi
-```
-
-If validation fails, stop immediately with the error message.
-
-Quick tasks can run mid-phase - validation only checks ROADMAP.md exists, not phase status.
-
----
-
-**Step 2: Get task description**
+**Step 1: Get task description**
 
 Prompt user interactively for the task description:
 
@@ -89,29 +23,26 @@ Store response as `$DESCRIPTION`.
 
 If empty, re-prompt: "Please provide a task description."
 
-Generate slug from description:
+---
+
+**Step 2: Initialize**
+
 ```bash
-slug=$(echo "$DESCRIPTION" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//' | cut -c1-40)
+INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init quick "$DESCRIPTION")
 ```
+
+Parse JSON for: `planner_model`, `executor_model`, `commit_docs`, `next_num`, `slug`, `date`, `timestamp`, `quick_dir`, `task_dir`, `roadmap_exists`, `planning_exists`.
+
+**If `roadmap_exists` is false:** Error — Quick mode requires an active project with ROADMAP.md. Run `/gsd:new-project` first.
+
+Quick tasks can run mid-phase - validation only checks ROADMAP.md exists, not phase status.
 
 ---
 
-**Step 3: Calculate next quick task number**
-
-Ensure `.planning/quick/` directory exists and find the next sequential number:
+**Step 3: Create task directory**
 
 ```bash
-# Ensure .planning/quick/ exists
-mkdir -p .planning/quick
-
-# Find highest existing number and increment
-last=$(ls -1d .planning/quick/[0-9][0-9][0-9]-* 2>/dev/null | sort -r | head -1 | xargs -I{} basename {} | grep -oE '^[0-9]+')
-
-if [ -z "$last" ]; then
-  next_num="001"
-else
-  next_num=$(printf "%03d" $((10#$last + 1)))
-fi
+mkdir -p "${task_dir}"
 ```
 
 ---
@@ -210,8 +141,6 @@ After executor returns:
 2. Extract commit hash from executor output
 3. Report completion status
 
-**Known Claude Code bug (classifyHandoffIfNeeded):** If executor reports "failed" with error `classifyHandoffIfNeeded is not defined`, this is a Claude Code runtime bug — not a real failure. Check if summary file exists and git log shows commits. If so, treat as successful.
-
 If summary not found, error: "Executor failed to create ${next_num}-SUMMARY.md"
 
 Note: For quick tasks producing multiple plans (rare), spawn executors in parallel waves per execute-phase patterns.
@@ -239,15 +168,16 @@ Insert after `### Blockers/Concerns` section:
 
 **7c. Append new row to table:**
 
+Use `date` from init:
 ```markdown
-| ${next_num} | ${DESCRIPTION} | $(date +%Y-%m-%d) | ${commit_hash} | [${next_num}-${slug}](./quick/${next_num}-${slug}/) |
+| ${next_num} | ${DESCRIPTION} | ${date} | ${commit_hash} | [${next_num}-${slug}](./quick/${next_num}-${slug}/) |
 ```
 
 **7d. Update "Last activity" line:**
 
-Find and update the line:
+Use `date` from init:
 ```
-Last activity: $(date +%Y-%m-%d) - Completed quick task ${next_num}: ${DESCRIPTION}
+Last activity: ${date} - Completed quick task ${next_num}: ${DESCRIPTION}
 ```
 
 Use Edit tool to make these changes atomically
@@ -259,20 +189,7 @@ Use Edit tool to make these changes atomically
 Stage and commit quick task artifacts:
 
 ```bash
-# Stage quick task artifacts
-git add ${QUICK_DIR}/${next_num}-PLAN.md
-git add ${QUICK_DIR}/${next_num}-SUMMARY.md
-git add .planning/STATE.md
-
-# Commit with quick task format
-git commit -m "$(cat <<'EOF'
-docs(quick-${next_num}): ${DESCRIPTION}
-
-Quick task completed.
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-EOF
-)"
+node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs(quick-${next_num}): ${DESCRIPTION}" --files ${QUICK_DIR}/${next_num}-PLAN.md ${QUICK_DIR}/${next_num}-SUMMARY.md .planning/STATE.md
 ```
 
 Get final commit hash:

@@ -1,25 +1,10 @@
----
-name: gsd:remove-phase
-description: Remove a future phase from roadmap and renumber subsequent phases
-argument-hint: <phase-number>
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
----
+<purpose>
+Remove an unstarted future phase from the project roadmap, delete its directory, renumber all subsequent phases to maintain a clean linear sequence, and commit the change. The git commit serves as the historical record of removal.
+</purpose>
 
-<objective>
-Remove an unstarted future phase from the roadmap and renumber all subsequent phases to maintain a clean, linear sequence.
-
-Purpose: Clean removal of work you've decided not to do, without polluting context with cancelled/deferred markers.
-Output: Phase deleted, all subsequent phases renumbered, git commit as historical record.
-</objective>
-
-<execution_context>
-@.planning/ROADMAP.md
-@.planning/STATE.md
-</execution_context>
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
 
@@ -40,15 +25,16 @@ Example: /gsd:remove-phase 17
 Exit.
 </step>
 
-<step name="load_state">
-Load project state:
+<step name="init_context">
+Load phase operation context:
 
 ```bash
-cat .planning/STATE.md 2>/dev/null
-cat .planning/ROADMAP.md 2>/dev/null
+INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init phase-op "${target}")
 ```
 
-Parse current phase number from STATE.md "Current Position" section.
+Extract: `phase_found`, `phase_dir`, `phase_number`, `commit_docs`, `roadmap_exists`.
+
+Also read STATE.md and ROADMAP.md content for parsing current position.
 </step>
 
 <step name="validate_phase_exists">
@@ -147,16 +133,19 @@ Wait for confirmation.
 </step>
 
 <step name="delete_phase_directory">
+Use the init context from earlier. The `phase_dir` from `init phase-op` provides the path.
+
 Delete the target phase directory if it exists:
 
 ```bash
-if [ -d ".planning/phases/{target}-{slug}" ]; then
-  rm -rf ".planning/phases/{target}-{slug}"
-  echo "Deleted: .planning/phases/{target}-{slug}/"
+# phase_dir from init phase-op contains the path if found
+if [ -n "$phase_dir" ]; then
+  rm -rf "$phase_dir"
+  echo "Deleted: $phase_dir/"
 fi
 ```
 
-If directory doesn't exist, note: "No directory to delete (phase not yet created)"
+If directory doesn't exist (`phase_found=false` from init), note: "No directory to delete (phase not yet created)"
 </step>
 
 <step name="renumber_directories">
@@ -252,20 +241,8 @@ Update any internal references to reflect new numbering.
 <step name="commit">
 Stage and commit the removal:
 
-**Check planning config:**
-
 ```bash
-COMMIT_PLANNING_DOCS=$(cat .planning/config.json 2>/dev/null | grep -o '"commit_docs"[[:space:]]*:[[:space:]]*[^,}]*' | grep -o 'true\|false' || echo "true")
-git check-ignore -q .planning 2>/dev/null && COMMIT_PLANNING_DOCS=false
-```
-
-**If `COMMIT_PLANNING_DOCS=false`:** Skip git operations
-
-**If `COMMIT_PLANNING_DOCS=true` (default):**
-
-```bash
-git add .planning/
-git commit -m "chore: remove phase {target} ({original-phase-name})"
+node ~/.claude/get-shit-done/bin/gsd-tools.js commit "chore: remove phase {target} ({original-phase-name})" --files .planning/
 ```
 
 The commit message preserves the historical record of what was removed.

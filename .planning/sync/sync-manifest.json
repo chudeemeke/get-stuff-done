@@ -270,6 +270,14 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:47:29.949Z",
       "hadConflict": true
+    },
+    {
+      "sha": "01c9115f3a72ac402c03882708a8c16d5b471980",
+      "shortSha": "01c9115",
+      "message": "fix(#478): respect commit_docs=false in all .planning commit paths (#482)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:48:00.900Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -384,6 +392,13 @@
       "message": "fix: normalize Windows backslashes in gsd-tools path prefix",
       "status": "skipped",
       "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "2a4e0b1cf3b74324b53054228e146c170757c402",
+      "shortSha": "2a4e0b1",
+      "message": "docs: update changelog for v1.15.1",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
     }
   ],
   "pending": [
@@ -472,21 +487,9 @@
       "status": "pending"
     },
     {
-      "sha": "01c9115f3a72ac402c03882708a8c16d5b471980",
-      "shortSha": "01c9115",
-      "message": "fix(#478): respect commit_docs=false in all .planning commit paths (#482)",
-      "status": "pending"
-    },
-    {
       "sha": "42495068ca3a93adcff7be0aedf521de8bc76f02",
       "shortSha": "4249506",
       "message": "fix(execute-phase): explicitly specify subagent_type=\"gsd-executor\"",
-      "status": "pending"
-    },
-    {
-      "sha": "2a4e0b1cf3b74324b53054228e146c170757c402",
-      "shortSha": "2a4e0b1",
-      "message": "docs: update changelog for v1.15.1",
       "status": "pending"
     },
     {
@@ -582,9 +585,9 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 31,
-    "conflicts": 10,
-    "eslintFixes": 2,
+    "applied": 32,
+    "conflicts": 16,
+    "eslintFixes": 3,
     "brandingCorrections": 0
   }
 }

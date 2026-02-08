@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 7 of 12 (Security Hardening & Tooling)
-Plan: 1 of 3 complete (07-02-PLAN.md)
+Plan: 1 of 3 complete
 Status: In progress
-Last activity: 2026-02-08 -- Completed 07-02-PLAN.md (Shell Execution Hardening)
+Last activity: 2026-02-08 -- Completed 07-01-PLAN.md (Security Foundation - Validation & Linting)
 
 Progress: [▓.........] 33% (v0.2.0 Phase 7: 1/3 plans complete)
 
@@ -36,14 +36,14 @@ Progress: [▓.........] 33% (v0.2.0 Phase 7: 1/3 plans complete)
 
 **v0.2.0 Velocity:**
 - Total plans completed: 1
-- Average duration: 12 minutes
-- Total execution time: 0.2 hours
+- Average duration: 34 minutes
+- Total execution time: 0.57 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 07 (Security Hardening & Tooling) | 1/3 | 12 min | 12 min |
+| 07 (Security Hardening & Tooling) | 1/3 | 34 min | 34 min |
 
 ## Accumulated Context
 
@@ -54,6 +54,9 @@ All v0.1.0 decisions logged in PROJECT.md Key Decisions table (14 decisions, all
 Recent decisions affecting current work:
 - v0.2.0: Research-first approach validates Claude Code capabilities before building
 - v0.2.0: Security-first phase ordering (audit before features)
+- 07-01 LINT-001: Use ESLint 9.x for eslint-plugin-security compatibility
+- 07-01 LINT-002: File-level disable comments for install/build scripts
+- 07-01 VAL-001: Support both short (7-40 chars) and full (40 chars) git SHAs
 
 ### Pending Todos
 
@@ -73,10 +76,10 @@ None active.
 ## Session Continuity
 
 Last session: 2026-02-08
-Status: Completed 07-02-PLAN.md. Phase 7 has 2 more plans (07-01 and 07-03).
+Status: Completed 07-01-PLAN.md. Phase 7 has 2 more plans (07-02 and 07-03).
 Resume file: None
 
-**Next step:** Continue executing Phase 7 plans
+**Next step:** Execute 07-02-PLAN.md (Shell Execution Hardening) or 07-03-PLAN.md (Hook Security Improvements)
 
 ---
 *Updated: 2026-02-08*

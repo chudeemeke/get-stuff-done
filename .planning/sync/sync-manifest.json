@@ -567,15 +567,16 @@
       "message": "1.18.0",
       "status": "skipped",
       "reason": "cherry-pick continue failed"
-    }
-  ],
-  "pending": [
+    },
     {
       "sha": "ddc736ecbb8174c0aea8c06cf1b138980508e8a4",
       "shortSha": "ddc736e",
       "message": "v1.11.3 - revert memory system",
-      "status": "pending"
-    },
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    }
+  ],
+  "pending": [
     {
       "sha": "1b317dec45fb3bf4b7808806e9f4eb39f1428267",
       "shortSha": "1b317de",

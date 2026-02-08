@@ -1,38 +1,28 @@
----
-name: gsd:add-todo
-description: Capture idea or task as todo from current conversation context
-argument-hint: [optional description]
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
----
+<purpose>
+Capture an idea, task, or issue that surfaces during a GSD session as a structured todo for later work. Enables "thought → capture → continue" flow without losing context.
+</purpose>
 
-<objective>
-Capture an idea, task, or issue that surfaces during a GSD session as a structured todo for later work.
-
-Enables "thought → capture → continue" flow without losing context or derailing current work.
-</objective>
-
-<context>
-@.planning/STATE.md
-</context>
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
 
-<step name="ensure_directory">
+<step name="init_context">
+Load todo context:
+
+```bash
+INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init todos)
+```
+
+Extract from init JSON: `commit_docs`, `date`, `timestamp`, `todo_count`, `todos`, `pending_dir`, `todos_dir_exists`.
+
+Ensure directories exist:
 ```bash
 mkdir -p .planning/todos/pending .planning/todos/done
 ```
-</step>
 
-<step name="check_existing_areas">
-```bash
-ls .planning/todos/pending/*.md 2>/dev/null | xargs -I {} grep "^area:" {} 2>/dev/null | cut -d' ' -f2 | sort -u
-```
-
-Note existing areas for consistency in infer_area step.
+Note existing areas from the todos array for consistency in infer_area step.
 </step>
 
 <step name="extract_content">
@@ -71,6 +61,7 @@ Use existing area from step 2 if similar match exists.
 
 <step name="check_duplicates">
 ```bash
+# Search for key words from title in existing todos
 grep -l -i "[key words from title]" .planning/todos/pending/*.md 2>/dev/null
 ```
 
@@ -88,14 +79,14 @@ If overlapping, use AskUserQuestion:
 </step>
 
 <step name="create_file">
+Use values from init context: `timestamp` and `date` are already available.
+
+Generate slug for the title:
 ```bash
-timestamp=$(date "+%Y-%m-%dT%H:%M")
-date_prefix=$(date "+%Y-%m-%d")
+slug=$(node ~/.claude/get-shit-done/bin/gsd-tools.js generate-slug "$title" --raw)
 ```
 
-Generate slug from title (lowercase, hyphens, no special chars).
-
-Write to `.planning/todos/pending/${date_prefix}-${slug}.md`:
+Write to `.planning/todos/pending/${date}-${slug}.md`:
 
 ```markdown
 ---
@@ -119,34 +110,18 @@ files:
 <step name="update_state">
 If `.planning/STATE.md` exists:
 
-1. Count todos: `ls .planning/todos/pending/*.md 2>/dev/null | wc -l`
+1. Use `todo_count` from init context (or re-run `init todos` if count changed)
 2. Update "### Pending Todos" under "## Accumulated Context"
 </step>
 
 <step name="git_commit">
 Commit the todo and any updated state:
 
-**Check planning config:**
-
 ```bash
-COMMIT_PLANNING_DOCS=$(cat .planning/config.json 2>/dev/null | grep -o '"commit_docs"[[:space:]]*:[[:space:]]*[^,}]*' | grep -o 'true\|false' || echo "true")
-git check-ignore -q .planning 2>/dev/null && COMMIT_PLANNING_DOCS=false
+node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs: capture todo - [title]" --files .planning/todos/pending/[filename] .planning/STATE.md
 ```
 
-**If `COMMIT_PLANNING_DOCS=false`:** Skip git operations, log "Todo saved (not committed - commit_docs: false)"
-
-**If `COMMIT_PLANNING_DOCS=true` (default):**
-
-```bash
-git add .planning/todos/pending/[filename]
-[ -f .planning/STATE.md ] && git add .planning/STATE.md
-git commit -m "$(cat <<'EOF'
-docs: capture todo - [title]
-
-Area: [area]
-EOF
-)"
-```
+Tool respects `commit_docs` config and gitignore automatically.
 
 Confirm: "Committed: docs: capture todo - [title]"
 </step>
@@ -170,17 +145,6 @@ Would you like to:
 </step>
 
 </process>
-
-<output>
-- `.planning/todos/pending/[date]-[slug].md`
-- Updated `.planning/STATE.md` (if exists)
-</output>
-
-<anti_patterns>
-- Don't create todos for work in current plan (that's deviation rule territory)
-- Don't create elaborate solution sections — captures ideas, not plans
-- Don't block on missing information — "TBD" is fine
-</anti_patterns>
 
 <success_criteria>
 - [ ] Directory structure exists

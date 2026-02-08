@@ -1,25 +1,10 @@
----
-name: gsd:insert-phase
-description: Insert urgent work as decimal phase (e.g., 72.1) between existing phases
-argument-hint: <after> <description>
-allowed-tools:
-  - Read
-  - Write
-  - Bash
----
+<purpose>
+Insert a decimal phase for urgent work discovered mid-milestone between existing integer phases. Uses decimal numbering (72.1, 72.2, etc.) to preserve the logical sequence of planned phases while accommodating urgent insertions without renumbering the entire roadmap.
+</purpose>
 
-<objective>
-Insert a decimal phase for urgent work discovered mid-milestone that must be completed between existing integer phases.
-
-Uses decimal numbering (72.1, 72.2, etc.) to preserve the logical sequence of planned phases while accommodating urgent insertions.
-
-Purpose: Handle urgent work discovered during execution without renumbering entire roadmap.
-</objective>
-
-<execution_context>
-@.planning/ROADMAP.md
-@.planning/STATE.md
-</execution_context>
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
 
@@ -29,8 +14,8 @@ Parse the command arguments:
 - Remaining arguments: phase description
 
 Example: `/gsd:insert-phase 72 Fix critical auth bug`
-→ after = 72
-→ description = "Fix critical auth bug"
+-> after = 72
+-> description = "Fix critical auth bug"
 
 Validation:
 
@@ -59,17 +44,18 @@ fi
 
 </step>
 
-<step name="load_roadmap">
-Load the roadmap file:
+<step name="init_context">
+Load phase operation context:
 
 ```bash
-if [ -f .planning/ROADMAP.md ]; then
-  ROADMAP=".planning/ROADMAP.md"
-else
-  echo "ERROR: No roadmap found (.planning/ROADMAP.md)"
-  exit 1
-fi
+INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init phase-op "${after_phase}")
 ```
+
+Check `roadmap_exists` from init JSON. If false:
+```
+ERROR: No roadmap found (.planning/ROADMAP.md)
+```
+Exit.
 
 Read roadmap content for parsing.
 </step>
@@ -88,7 +74,7 @@ Verify that the target phase exists in the roadmap:
    Exit.
 
 3. Verify phase is in current milestone (not completed/archived)
-   </step>
+</step>
 
 <step name="find_existing_decimals">
 Find existing decimal phases after the target phase:
@@ -100,18 +86,19 @@ Find existing decimal phases after the target phase:
 
 Examples:
 
-- Phase 72 with no decimals → next is 72.1
-- Phase 72 with 72.1 → next is 72.2
-- Phase 72 with 72.1, 72.2 → next is 72.3
+- Phase 72 with no decimals -> next is 72.1
+- Phase 72 with 72.1 -> next is 72.2
+- Phase 72 with 72.1, 72.2 -> next is 72.3
 
 Store as: `decimal_phase="$(printf "%02d" $after_phase).${next_decimal}"`
 </step>
 
 <step name="generate_slug">
-Convert the phase description to a kebab-case slug:
+Convert the phase description to a kebab-case slug.
 
+Use `generate-slug` command (init phase-op provides `phase_slug` for existing phase, but this is a new phase):
 ```bash
-slug=$(echo "$description" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
+slug=$(node ~/.claude/get-shit-done/bin/gsd-tools.js generate-slug "$description" --raw)
 ```
 
 Phase directory name: `{decimal-phase}-{slug}`
@@ -160,7 +147,7 @@ Preserve all other content exactly (formatting, spacing, other phases).
 Update STATE.md to reflect the inserted phase:
 
 1. Read `.planning/STATE.md`
-2. Under "## Accumulated Context" → "### Roadmap Evolution" add entry:
+2. Under "## Accumulated Context" -> "### Roadmap Evolution" add entry:
    ```
    - Phase {decimal_phase} inserted after Phase {after_phase}: {description} (URGENT)
    ```
@@ -185,13 +172,13 @@ Project state updated: .planning/STATE.md
 
 ---
 
-## ▶ Next Up
+## Next Up
 
-**Phase {decimal_phase}: {description}** — urgent insertion
+**Phase {decimal_phase}: {description}** -- urgent insertion
 
 `/gsd:plan-phase {decimal_phase}`
 
-<sub>`/clear` first → fresh context window</sub>
+<sub>`/clear` first -> fresh context window</sub>
 
 ---
 
@@ -213,7 +200,7 @@ Project state updated: .planning/STATE.md
 - Don't modify the target phase content
 - Don't create plans yet (that's /gsd:plan-phase)
 - Don't commit changes (user decides when to commit)
-  </anti_patterns>
+</anti_patterns>
 
 <success_criteria>
 Phase insertion is complete when:
@@ -224,4 +211,4 @@ Phase insertion is complete when:
 - [ ] STATE.md updated with roadmap evolution note
 - [ ] Decimal number calculated correctly (based on existing decimals)
 - [ ] User informed of next steps and dependency implications
-      </success_criteria>
+</success_criteria>

@@ -1,25 +1,10 @@
----
-name: gsd:add-phase
-description: Add phase to end of current milestone in roadmap
-argument-hint: <description>
-allowed-tools:
-  - Read
-  - Write
-  - Bash
----
+<purpose>
+Add a new integer phase to the end of the current milestone in the roadmap. Automatically calculates next phase number, creates phase directory, and updates roadmap structure.
+</purpose>
 
-<objective>
-Add a new integer phase to the end of the current milestone in the roadmap.
-
-This command appends sequential phases to the current milestone's phase list, automatically calculating the next phase number based on existing phases.
-
-Purpose: Add planned work discovered during execution that belongs at the end of current milestone.
-</objective>
-
-<execution_context>
-@.planning/ROADMAP.md
-@.planning/STATE.md
-</execution_context>
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
 
 <process>
 
@@ -40,17 +25,19 @@ Example: /gsd:add-phase Add authentication system
 Exit.
 </step>
 
-<step name="load_roadmap">
-Load the roadmap file:
+<step name="init_context">
+Load phase operation context:
 
 ```bash
-if [ -f .planning/ROADMAP.md ]; then
-  ROADMAP=".planning/ROADMAP.md"
-else
-  echo "ERROR: No roadmap found (.planning/ROADMAP.md)"
-  exit 1
-fi
+INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init phase-op "0")
 ```
+
+Check `roadmap_exists` from init JSON. If false:
+```
+ERROR: No roadmap found (.planning/ROADMAP.md)
+Run /gsd:new-project to initialize.
+```
+Exit.
 
 Read roadmap content for parsing.
 </step>
@@ -72,7 +59,6 @@ Example structure:
 ### Phase 5: Path Routing & Validation
 ### Phase 6: Documentation & Distribution
 ```
-
 </step>
 
 <step name="calculate_next_phase">
@@ -89,14 +75,11 @@ Format as two-digit: `printf "%02d" $next_phase`
 </step>
 
 <step name="generate_slug">
-Convert the phase description to a kebab-case slug:
+Convert the phase description to a kebab-case slug.
 
+Use `init phase-op` which provides `phase_slug` computed from phase name, or call:
 ```bash
-# Example transformation:
-# "Add authentication" → "add-authentication"
-# "Fix critical performance issues" → "fix-critical-performance-issues"
-
-slug=$(echo "$description" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
+slug=$(node ~/.claude/get-shit-done/bin/gsd-tools.js generate-slug "$description" --raw)
 ```
 
 Phase directory name: `{two-digit-phase}-{slug}`
@@ -161,7 +144,7 @@ Phase {N} added to current milestone:
 - Directory: .planning/phases/{phase-num}-{slug}/
 - Status: Not planned yet
 
-Roadmap updated: {roadmap-path}
+Roadmap updated: .planning/ROADMAP.md
 Project state updated: .planning/STATE.md
 
 ---
@@ -186,22 +169,11 @@ Project state updated: .planning/STATE.md
 
 </process>
 
-<anti_patterns>
-
-- Don't modify phases outside current milestone
-- Don't renumber existing phases
-- Don't use decimal numbering (that's /gsd:insert-phase)
-- Don't create plans yet (that's /gsd:plan-phase)
-- Don't commit changes (user decides when to commit)
-  </anti_patterns>
-
 <success_criteria>
-Phase addition is complete when:
-
 - [ ] Phase directory created: `.planning/phases/{NN}-{slug}/`
 - [ ] Roadmap updated with new phase entry
 - [ ] STATE.md updated with roadmap evolution note
 - [ ] New phase appears at end of current milestone
 - [ ] Next phase number calculated correctly (ignoring decimals)
 - [ ] User informed of next steps
-      </success_criteria>
+</success_criteria>

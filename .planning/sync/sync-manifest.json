@@ -370,6 +370,14 @@
       "message": "fix(#466): add detached: true to SessionStart hook spawn for Windows",
       "status": "applied",
       "appliedAt": "2026-02-08T18:57:03.032Z"
+    },
+    {
+      "sha": "1b317dec45fb3bf4b7808806e9f4eb39f1428267",
+      "shortSha": "1b317de",
+      "message": "feat: extract repetitive bash patterns into gsd-tools commands (#472)",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:59:03.273Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -593,12 +601,6 @@
   ],
   "pending": [
     {
-      "sha": "1b317dec45fb3bf4b7808806e9f4eb39f1428267",
-      "shortSha": "1b317de",
-      "message": "feat: extract repetitive bash patterns into gsd-tools commands (#472)",
-      "status": "pending"
-    },
-    {
       "sha": "ea0204bfc79b802c962883b44b7d71bcd455ce4a",
       "shortSha": "ea0204b",
       "message": "1.16.0",
@@ -619,10 +621,10 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 44,
-    "conflicts": 35,
+    "applied": 45,
+    "conflicts": 36,
     "eslintFixes": 14,
     "brandingCorrections": 0
   },
-  "completedAt": "2026-02-08T18:57:03.033Z"
+  "completedAt": "2026-02-08T18:59:03.283Z"
 }

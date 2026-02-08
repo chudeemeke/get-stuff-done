@@ -444,25 +444,62 @@
       "message": "docs: update changelog for v1.18.0",
       "status": "skipped",
       "reason": "cherry-pick continue failed"
-    }
-  ],
-  "pending": [
+    },
     {
       "sha": "d8840c45d0abad9d061b0203c875fe2fb7a0d49e",
       "shortSha": "d8840c4",
       "message": "1.11.0",
-      "status": "pending"
-    },
-    {
-      "sha": "d1654960ab41d5664c30dc4b065ef64b960dbc1f",
-      "shortSha": "d165496",
-      "message": "feat(install): respect attribution.commit setting (compatible opencode) (#286)",
-      "status": "pending"
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
     },
     {
       "sha": "75fb063d91fd1e2453779bec899edf6b7230e49c",
       "shortSha": "75fb063",
       "message": "docs: update changelog for v1.11.2",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "c94f563eff74a0b2f23dc64b06ba00a10f369900",
+      "shortSha": "c94f563",
+      "message": "docs: update changelog for v1.12.0",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "e92e64ce48c1b34b59a020e89ff46b4df25d3287",
+      "shortSha": "e92e64c",
+      "message": "1.12.1",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "c9aea445094652158b547e19c665e2c23ac6b3e5",
+      "shortSha": "c9aea44",
+      "message": "docs: update changelog for v1.13.0",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "1fbffcf742a59cdde7b52671d224940ee92c7862",
+      "shortSha": "1fbffcf",
+      "message": "docs: update changelog for v1.14.0",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "9ad79038952d7b21538bf5e19e61b4200ca7963d",
+      "shortSha": "9ad7903",
+      "message": "1.15.0",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
+    }
+  ],
+  "pending": [
+    {
+      "sha": "d1654960ab41d5664c30dc4b065ef64b960dbc1f",
+      "shortSha": "d165496",
+      "message": "feat(install): respect attribution.commit setting (compatible opencode) (#286)",
       "status": "pending"
     },
     {
@@ -472,21 +509,9 @@
       "status": "pending"
     },
     {
-      "sha": "c94f563eff74a0b2f23dc64b06ba00a10f369900",
-      "shortSha": "c94f563",
-      "message": "docs: update changelog for v1.12.0",
-      "status": "pending"
-    },
-    {
       "sha": "246d542c65fa81091d7fc27d8925f1a756db54c3",
       "shortSha": "246d542",
       "message": "feat(gsd-tools): add compound init commands and update workflows (#468)",
-      "status": "pending"
-    },
-    {
-      "sha": "e92e64ce48c1b34b59a020e89ff46b4df25d3287",
-      "shortSha": "e92e64c",
-      "message": "1.12.1",
       "status": "pending"
     },
     {
@@ -496,33 +521,15 @@
       "status": "pending"
     },
     {
-      "sha": "c9aea445094652158b547e19c665e2c23ac6b3e5",
-      "shortSha": "c9aea44",
-      "message": "docs: update changelog for v1.13.0",
-      "status": "pending"
-    },
-    {
       "sha": "6c537373c61ff5c824ab3d5495ab4661e5a5aed2",
       "shortSha": "6c53737",
       "message": "feat: add context-optimizing parsing commands to gsd-tools (#473)",
       "status": "pending"
     },
     {
-      "sha": "1fbffcf742a59cdde7b52671d224940ee92c7862",
-      "shortSha": "1fbffcf",
-      "message": "docs: update changelog for v1.14.0",
-      "status": "pending"
-    },
-    {
       "sha": "fa81821df4e435b2e945c43e7a3d749269c3f331",
       "shortSha": "fa81821",
       "message": "feat: add --include flag to init commands to eliminate redundant file reads",
-      "status": "pending"
-    },
-    {
-      "sha": "9ad79038952d7b21538bf5e19e61b4200ca7963d",
-      "shortSha": "9ad7903",
-      "message": "1.15.0",
       "status": "pending"
     },
     {

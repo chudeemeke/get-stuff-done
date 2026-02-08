@@ -323,6 +323,14 @@
       "message": "fix: add workaround for Claude Code classifyHandoffIfNeeded bug (#480)",
       "status": "applied",
       "appliedAt": "2026-02-08T18:51:13.989Z"
+    },
+    {
+      "sha": "767bef64ef11765e9d012308f81122add9d37610",
+      "shortSha": "767bef6",
+      "message": "fix(#484): persist research decision from new-milestone to config",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:51:28.858Z",
+      "hadConflict": true
     }
   ],
   "skipped": [
@@ -507,6 +515,13 @@
       "message": "1.15.0",
       "status": "skipped",
       "reason": "cherry-pick continue failed"
+    },
+    {
+      "sha": "cbb4aa105e89323b41a47bdfc0e9f501078a8cd0",
+      "shortSha": "cbb4aa1",
+      "message": "docs: add --auto flag to new-project command table",
+      "status": "skipped",
+      "reason": "cherry-pick continue failed"
     }
   ],
   "pending": [
@@ -565,21 +580,9 @@
       "status": "pending"
     },
     {
-      "sha": "767bef64ef11765e9d012308f81122add9d37610",
-      "shortSha": "767bef6",
-      "message": "fix(#484): persist research decision from new-milestone to config",
-      "status": "pending"
-    },
-    {
       "sha": "1344bd8f1831604063517c84157bc7f4a1bbdf0d",
       "shortSha": "1344bd8",
       "message": "fix(#466): add detached: true to SessionStart hook spawn for Windows",
-      "status": "pending"
-    },
-    {
-      "sha": "cbb4aa105e89323b41a47bdfc0e9f501078a8cd0",
-      "shortSha": "cbb4aa1",
-      "message": "docs: add --auto flag to new-project command table",
       "status": "pending"
     },
     {
@@ -603,10 +606,10 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 38,
-    "conflicts": 28,
-    "eslintFixes": 9,
+    "applied": 39,
+    "conflicts": 29,
+    "eslintFixes": 10,
     "brandingCorrections": 0
   },
-  "completedAt": "2026-02-08T18:49:10.925Z"
+  "completedAt": "2026-02-08T18:51:35.620Z"
 }

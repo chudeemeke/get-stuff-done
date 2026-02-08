@@ -363,6 +363,13 @@
       "status": "applied",
       "appliedAt": "2026-02-08T18:56:50.152Z",
       "hadConflict": true
+    },
+    {
+      "sha": "1344bd8f1831604063517c84157bc7f4a1bbdf0d",
+      "shortSha": "1344bd8",
+      "message": "fix(#466): add detached: true to SessionStart hook spawn for Windows",
+      "status": "applied",
+      "appliedAt": "2026-02-08T18:57:03.032Z"
     }
   ],
   "skipped": [
@@ -596,12 +603,6 @@
       "shortSha": "ea0204b",
       "message": "1.16.0",
       "status": "pending"
-    },
-    {
-      "sha": "1344bd8f1831604063517c84157bc7f4a1bbdf0d",
-      "shortSha": "1344bd8",
-      "message": "fix(#466): add detached: true to SessionStart hook spawn for Windows",
-      "status": "pending"
     }
   ],
   "conflicted": null,
@@ -618,10 +619,10 @@
   "stats": {
     "totalCommits": 72,
     "mergeCommitsSkipped": 7,
-    "applied": 43,
+    "applied": 44,
     "conflicts": 35,
-    "eslintFixes": 13,
+    "eslintFixes": 14,
     "brandingCorrections": 0
   },
-  "completedAt": "2026-02-08T18:54:46.413Z"
+  "completedAt": "2026-02-08T18:57:03.033Z"
 }

@@ -628,5 +628,10 @@
   },
   "completedAt": "2026-02-08T20:53:40.453Z",
   "brandingReconciled": true,
-  "reportPath": ".planning/phases/08-upstream-sync/sync-report.md"
+  "reportPath": ".planning/phases/08-upstream-sync/sync-report.md",
+  "mergedAt": "2026-02-08T21:52:24.411Z",
+  "mergeSha": "75ecc4c6bbf07cfd51c63141af9c33964b33c246",
+  "mergeShortSha": "75ecc4c",
+  "mergeMethod": "no-ff",
+  "mergedInto": "main"
 }

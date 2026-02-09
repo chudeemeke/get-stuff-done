@@ -37,7 +37,7 @@
     "url": "https://github.com/chudeemeke/get-stuff-done/issues"
   },
   "engines": {
-    "node": ">=16.7.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "ajv": "^8.17.1",

@@ -8,6 +8,13 @@ const path = require('path');
 const os = require('os');
 const readline = require('readline');
 
+// Check Node.js version (minimum 20 LTS)
+const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
+if (nodeVersion < 20) {
+  console.warn('\x1b[33m!\x1b[0m Warning: Node.js 20 or higher is recommended. Current version:', process.version);
+  console.warn('  Some features may not work correctly on older versions.');
+}
+
 // Colors
 const cyan = '\x1b[36m';
 const green = '\x1b[32m';
@@ -220,10 +227,51 @@ function isDevCheckout(srcPath) {
 }
 
 /**
- * Create a symlink, using junction on Windows for directories
+ * Test if we have write permissions in a directory
+ * @param {string} dir - Directory to test
+ * @returns {boolean} - True if writable
+ */
+function canWrite(dir) {
+  try {
+    const testFile = path.join(dir, '.gsd-write-test-' + Date.now());
+    fs.writeFileSync(testFile, '');
+    fs.unlinkSync(testFile);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Recursively copy a directory
+ * @param {string} src - Source directory
+ * @param {string} dest - Destination directory
+ */
+function copyDirectory(src, dest) {
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
+  }
+
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirectory(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+/**
+ * Create a symlink, using junction on Windows for directories, with fallback to copy on permission failure
  * @param {string} target - The source path (what the link points to)
  * @param {string} linkPath - The destination path (where to create the link)
  * @param {boolean} isDirectory - Whether the target is a directory
+ * @returns {object} - { method: 'symlink'|'junction'|'copy', reason: string }
  */
 function createSymlink(target, linkPath, isDirectory) {
   // Remove existing file/link/directory at linkPath
@@ -242,14 +290,42 @@ function createSymlink(target, linkPath, isDirectory) {
     fs.mkdirSync(parentDir, { recursive: true });
   }
 
+  // Check write permissions before attempting operations
+  if (!canWrite(parentDir)) {
+    const advice = isWindows
+      ? 'Run as administrator or check directory permissions'
+      : 'Check directory permissions with chmod';
+    throw new Error(`Cannot write to ${parentDir}. ${advice}`);
+  }
+
+  // Try symlink first, then junction (Windows), then copy as last resort
   if (isDirectory) {
-    // On Windows, use junction for directories (works without admin)
-    // On Unix, use 'dir' type
     const type = isWindows ? 'junction' : 'dir';
-    fs.symlinkSync(target, linkPath, type);
+
+    try {
+      fs.symlinkSync(target, linkPath, type);
+      return { method: isWindows ? 'junction' : 'symlink', reason: 'default' };
+    } catch (err) {
+      if (err.code === 'EPERM') {
+        if (isWindows && type === 'junction') {
+          // Junction failed (shouldn't happen, but handle it)
+          console.log(`  ${yellow}!${reset} Junction creation failed. Falling back to file copy.`);
+          console.log(`  ${dim}Note: Changes to source won't auto-propagate; reinstall after updates.${reset}`);
+          copyDirectory(target, linkPath);
+          return { method: 'copy', reason: 'eperm_fallback' };
+        } else {
+          // Symlink failed due to permissions (Developer Mode not enabled on Windows)
+          console.log(`  ${yellow}!${reset} Symlinks require Developer Mode on Windows. Using junction instead.`);
+          fs.symlinkSync(target, linkPath, 'junction');
+          return { method: 'junction', reason: 'eperm_fallback' };
+        }
+      }
+      throw err;
+    }
   } else {
     // For files, use 'file' type on all platforms
     fs.symlinkSync(target, linkPath, 'file');
+    return { method: 'symlink', reason: 'default' };
   }
 }
 
@@ -305,18 +381,55 @@ function readInstallMetadata(targetDir) {
 }
 
 /**
+ * Detect shell type for metadata
+ * @returns {string} - Shell name
+ */
+function detectShell() {
+  const shell = process.env.SHELL || process.env.ComSpec || '';
+  if (shell.includes('bash')) return 'bash';
+  if (shell.includes('zsh')) return 'zsh';
+  if (shell.includes('fish')) return 'fish';
+  if (shell.includes('pwsh') || shell.includes('powershell')) return 'pwsh';
+  if (shell.includes('cmd')) return 'cmd';
+  return 'unknown';
+}
+
+/**
+ * Detect if running in MinGW environment (Git Bash on Windows)
+ * @returns {boolean}
+ */
+function isMingw() {
+  return process.platform === 'win32' && (
+    process.env.MSYSTEM !== undefined ||
+    process.env.TERM_PROGRAM === 'mintty' ||
+    process.env.MINGW_PREFIX !== undefined
+  );
+}
+
+/**
  * Write installation metadata to .install-meta.json
  * @param {string} targetDir - The installation target directory
  * @param {string} installType - 'copy' or 'link'
  * @param {string} version - Package version
+ * @param {object} installMethodInfo - Install method details from createSymlink
  * @returns {string} - Path to the metadata file
  */
-function writeInstallMetadata(targetDir, installType, version) {
+function writeInstallMetadata(targetDir, installType, version, installMethodInfo = { method: 'unknown', reason: 'default' }) {
   const metadata = {
     version: version,
     installType: installType,
     installedAt: new Date().toISOString(),
-    platform: process.platform
+    platform: {
+      os: process.platform,
+      arch: process.arch,
+      shell: detectShell(),
+      isMingw: isMingw(),
+      nodeVersion: process.version
+    },
+    installMethod: {
+      method: installMethodInfo.method,
+      reason: installMethodInfo.reason
+    }
   };
 
   const metaPath = path.join(targetDir, 'get-stuff-done', '.install-meta.json');
@@ -1146,7 +1259,8 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
   const skillDest = path.join(targetDir, 'get-stuff-done');
 
   if (useLinks) {
-    createSymlink(skillSrc, skillDest, true);
+    const methodInfo = createSymlink(skillSrc, skillDest, true);
+    global.gsdInstallMethodInfo = methodInfo; // Save for metadata
     console.log(`  ${green}✓${reset} Linked get-stuff-done`);
   } else {
     copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime);
@@ -1241,9 +1355,11 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
     console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version}) to source`);
   }
 
-  // Write installation metadata
+  // Write installation metadata (track install method from get-stuff-done directory creation)
   const installType = useLinks ? 'link' : 'copy';
-  writeInstallMetadata(targetDir, installType, pkg.version);
+  // Use saved install method info if available, otherwise default
+  const installMethodInfo = global.gsdInstallMethodInfo || { method: installType === 'link' ? 'symlink' : 'copy', reason: 'default' };
+  writeInstallMetadata(targetDir, installType, pkg.version, installMethodInfo);
   console.log(`  ${green}✓${reset} Wrote install metadata`);
 
   // Copy/link hooks from dist/ (bundled with dependencies)
@@ -1304,11 +1420,13 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
     ? buildHookCommand(targetDir, 'gsd-check-update.js')
     : 'node ' + dirName + '/hooks/gsd-check-update.js';
 
-  // Configure SessionStart hook for update checking (skip for opencode - different hook system)
+  // Configure hooks (skip for opencode - different hook system)
   if (!isOpencode) {
     if (!settings.hooks) {
       settings.hooks = {};
     }
+
+    // Configure SessionStart hook for update checking
     if (!settings.hooks.SessionStart) {
       settings.hooks.SessionStart = [];
     }
@@ -1328,6 +1446,32 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
         ]
       });
       console.log(`  ${green}✓${reset} Configured update check hook`);
+    }
+
+    // Configure PreCompact hook for state preservation before compaction
+    if (!settings.hooks.PreCompact) {
+      settings.hooks.PreCompact = [];
+    }
+
+    const preCompactCommand = isGlobal
+      ? buildHookCommand(targetDir, 'pre-compact.js')
+      : 'node ' + dirName + '/hooks/pre-compact.js';
+
+    // Check if GSD pre-compact hook already exists
+    const hasGsdPreCompactHook = settings.hooks.PreCompact.some(entry =>
+      entry.hooks && entry.hooks.some(h => h.command && h.command.includes('pre-compact'))
+    );
+
+    if (!hasGsdPreCompactHook) {
+      settings.hooks.PreCompact.push({
+        hooks: [
+          {
+            type: 'command',
+            command: preCompactCommand
+          }
+        ]
+      });
+      console.log(`  ${green}✓${reset} Configured pre-compact hook`);
     }
   }
 

@@ -33,7 +33,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 // ─── Model Profile Table ─────────────────────────────────────────────────────
 
@@ -106,7 +106,8 @@ function loadConfig(cwd) {
 
 function isGitIgnored(cwd, targetPath) {
   try {
-    execSync('git check-ignore -q -- ' + targetPath.replace(/[^a-zA-Z0-9._\-/]/g, ''), {
+    // Cross-platform: use execFileSync with array args instead of shell string construction
+    execFileSync('git', ['check-ignore', '-q', '--', targetPath], {
       cwd,
       stdio: 'pipe',
     });
@@ -118,11 +119,8 @@ function isGitIgnored(cwd, targetPath) {
 
 function execGit(cwd, args) {
   try {
-    const escaped = args.map(a => {
-      if (/^[a-zA-Z0-9._\-/=:@]+$/.test(a)) return a;
-      return "'" + a.replace(/'/g, "'\\''") + "'";
-    });
-    const stdout = execSync('git ' + escaped.join(' '), {
+    // Cross-platform: use execFileSync with array args instead of shell string construction
+    const stdout = execFileSync('git', args, {
       cwd,
       stdio: 'pipe',
       encoding: 'utf-8',
@@ -135,6 +133,46 @@ function execGit(cwd, args) {
       stderr: (err.stderr ?? '').toString().trim(),
     };
   }
+}
+
+// Cross-platform: Node.js directory walker replacing Unix find command
+function findCodeFiles(cwd, maxDepth) {
+  const codeExtensions = ['.ts', '.js', '.py', '.go', '.rs', '.swift', '.java'];
+  const excludeDirs = ['node_modules', '.git'];
+  const results = [];
+
+  function walk(dir, depth) {
+    if (depth > maxDepth) return;
+    if (results.length >= 5) return; // Match "head -5" behavior
+
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+      for (const entry of entries) {
+        if (results.length >= 5) return;
+
+        const entryPath = path.join(dir, entry.name);
+        const relPath = path.relative(cwd, entryPath);
+
+        // Skip excluded directories
+        if (entry.isDirectory()) {
+          if (!excludeDirs.includes(entry.name)) {
+            walk(entryPath, depth + 1);
+          }
+        } else if (entry.isFile()) {
+          const ext = path.extname(entry.name);
+          if (codeExtensions.includes(ext)) {
+            results.push(relPath);
+          }
+        }
+      }
+    } catch {
+      // Ignore permission errors or other read failures
+    }
+  }
+
+  walk(cwd, 0);
+  return results;
 }
 
 function normalizePhaseName(phase) {
@@ -1234,15 +1272,12 @@ function cmdInitNewProject(cwd, raw) {
   const config = loadConfig(cwd);
 
   // Detect existing code
+  // Cross-platform: replaced Unix find with Node.js directory walk
   let hasCode = false;
   let hasPackageFile = false;
   try {
-    const files = execSync('find . -maxdepth 3 \\( -name "*.ts" -o -name "*.js" -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.swift" -o -name "*.java" \\) 2>/dev/null | grep -v node_modules | grep -v .git | head -5', {
-      cwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    hasCode = files.trim().length > 0;
+    const files = findCodeFiles(cwd, 3); // maxDepth=3 matches "find . -maxdepth 3"
+    hasCode = files.length > 0;
   } catch {}
 
   hasPackageFile = pathExistsInternal(cwd, 'package.json') ||

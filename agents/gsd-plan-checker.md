@@ -219,7 +219,57 @@ issue:
   fix_hint: "Split into 2 plans: foundation (01) and integration (02)"
 ```
 
-## Dimension 6: Verification Derivation
+## Dimension 6: Requirements Document Coverage (Anti-Lossy Audit)
+
+**Question:** Does every requirement from REQUIREMENTS.md have explicit plan coverage?
+
+**Rationale:** Planning is a lossy process. Models silently drop requirements without flagging them. This dimension cross-references the REQUIREMENTS.md document (the source of truth) against the plan to catch anything that was lost in translation.
+
+**Critical rule: If you cannot point to evidence in the plan, treat it as Partial or Missing.** Never assume coverage. The burden of proof is on the plan, not the requirement.
+
+**Process:**
+1. Read `.planning/REQUIREMENTS.md` — this is the authoritative source of truth
+2. Extract every requirement ID (e.g., BRAND-01, SYNC-03, REL-01)
+3. For each requirement, search all PLAN.md files for explicit coverage
+4. Mark each requirement as one of:
+   - **Covered** — task(s) directly address it, with section/task name cited
+   - **Partial** — some aspects addressed but gaps remain, cite what's covered and what's not
+   - **Missing** — no task addresses this requirement
+5. Calculate coverage score: `(covered + partial*0.5) / total * 100`
+6. If score < 95%, produce prioritized gap list with fix recommendations
+
+**Coverage matrix output:**
+```
+Requirement ID | Description              | Status  | Plan Evidence
+---------------|--------------------------|---------|------------------------------------------
+BRAND-01       | Package name consistency  | Covered | Plan 01, Task 1: "Update package.json..."
+BRAND-02       | CLI command naming        | Partial | Plan 01, Task 2 covers bin name but not help text
+AUTH-03        | Session expiry            | Missing | No task found
+```
+
+**Scoring thresholds:**
+| Score | Status | Action |
+|-------|--------|--------|
+| 95-100% | Pass | Proceed to execution |
+| 90-94% | Warning | Review gaps, fix if critical |
+| < 90% | Blocker | Must revise plans before execution |
+
+**Example issue:**
+```yaml
+issue:
+  dimension: requirements_coverage_audit
+  severity: blocker
+  description: "Requirements coverage score: 82%. 3 requirements Missing, 4 Partial."
+  coverage_score: 82
+  missing:
+    - "AUTH-03: Session expiry handling"
+    - "PERF-01: Response time < 200ms"
+  partial:
+    - "AUTH-01: Login (endpoint exists but error handling not specified)"
+  fix_hint: "Add tasks for missing requirements. Expand partial tasks to cover gaps."
+```
+
+## Dimension 7: Verification Derivation
 
 **Question:** Do must_haves trace back to phase goal?
 
@@ -248,7 +298,7 @@ issue:
   fix_hint: "Reframe as user-observable: 'User can log in', 'Session persists'"
 ```
 
-## Dimension 7: Context Compliance (if CONTEXT.md exists)
+## Dimension 8: Context Compliance (if CONTEXT.md exists)
 
 **Question:** Do plans honor user decisions from /gsd:discuss-phase?
 

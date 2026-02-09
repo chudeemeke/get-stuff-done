@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Maintain upstream compatibility while establishing distinct identity
-**Current focus:** Phase 8 complete, ready for Phase 9
+**Current focus:** Phase 8 post-sync cleanup complete, ready for Phase 9
 
 ## Current Position
 
-Phase: 8 of 11 (Upstream Sync) -- COMPLETE
+Phase: 8 of 11 (Upstream Sync) -- COMPLETE (post-sync cleanup done)
 Plan: 3/3 complete
-Status: Phase 8 verified and merged to main
-Last activity: 2026-02-08 -- Upstream sync v1.18.0 merged to main
+Status: Phase 8 verified, merged to main, post-sync fixes applied
+Last activity: 2026-02-09 -- Post-sync agent fixes, missing files copied, upstream Issue #491 filed
 
 Progress: [####......] 40% (v0.2.0: 2/5 phases complete)
 
@@ -82,6 +82,8 @@ None.
 ### Blockers/Concerns
 
 - ESLint warnings: 139 security warnings in get-stuff-done/bin/gsd-tools.js (upstream code, non-blocking)
+- 16 workflow files referenced by commands but missing in both upstream and fork (commands work via inline context, not blocking)
+- Upstream Issue #491 filed: gsd-verifier missing Write tool (root cause of settings corruption)
 
 ### Quick Tasks Completed
 
@@ -92,11 +94,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-08
-Status: Phase 8 (Upstream Sync) complete. All upstream features through v1.18.0 integrated. Merged to main.
+Last session: 2026-02-09
+Status: Phase 8 post-sync cleanup complete. Agent fixes applied (gsd-verifier Write tool, gsd-plan-checker anti-lossy audit). Missing reference/template files copied and installed. Upstream Issue #491 filed.
 Resume file: None
 
 **Next step:** Run /gsd:discuss-phase 9 or /gsd:plan-phase 9
 
 ---
-*Updated: 2026-02-08*
+*Updated: 2026-02-09*

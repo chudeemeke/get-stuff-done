@@ -1,114 +1,119 @@
-# Requirements: GSD Context Optimization
+# Requirements: GetStuffDone v0.2.0
 
-**Defined:** 2025-02-07
-**Core Value:** Agents execute at peak quality by starting at 8-12% context instead of 15-25%
+**Defined:** 2026-02-07
+**Core Value:** Maintain upstream compatibility while establishing distinct identity
 
 ## v1 Requirements
 
-### History Digest
+Requirements for v0.2.0 Hardening & Upstream Sync milestone. Each maps to roadmap phases.
 
-- [ ] **HIST-01**: `gsd-tools history-digest` generates structured JSON from SUMMARY.md frontmatter
-- [ ] **HIST-02**: Digest includes phases, provides, patterns, affects, decisions, and tech_stack
-- [ ] **HIST-03**: Planner uses digest instead of reading full SUMMARY.md files
-- [ ] **HIST-04**: Tests verify digest output matches expected schema
+### Security Hardening
 
-### Summary Variants
+- [x] **SEC-01**: Security review checkpoint in upstream sync workflow blocks cherry-pick until user reviews diff and approves
+- [x] **SEC-02**: Input validation rejects malformed git commit SHAs, branch names with shell metacharacters, and config paths with traversal patterns
+- [x] **SEC-03**: All shell commands use parameterized arguments (no string concatenation), eval() is prohibited
+- [x] **SEC-04**: ESLint with eslint-plugin-security configured and passes on all hooks and installer code
+- [x] **SEC-05**: Publish is blocked if git diff --check detects conflict markers in tracked files
+- [x] **SEC-06**: JSON5 config files are re-validated with AJV after upstream sync cherry-picks are applied
 
-- [ ] **SUMM-01**: Three summary templates exist: minimal (~30 lines), standard (~60 lines), complex (~100 lines)
-- [ ] **SUMM-02**: `gsd-tools select-template` returns appropriate template based on plan complexity
-- [ ] **SUMM-03**: Selection logic considers task count, decision tasks, and file count
-- [ ] **SUMM-04**: Executor uses selected template for summary creation
-- [ ] **SUMM-05**: Tests verify template selection logic
+### Cross-Platform Support
 
-### Atomic State Operations
+- [ ] **PLAT-01**: All path operations use cross-platform library (pathe) instead of string concatenation
+- [ ] **PLAT-02**: Platform detection identifies OS (win32/darwin/linux), shell (bash/zsh/PowerShell), and environment (WSL, MINGW) with appropriate fallbacks
+- [ ] **PLAT-03**: Filesystem operations validate write permissions before attempting modifications
+- [ ] **PLAT-04**: Hook generation produces shell-appropriate syntax for bash, zsh, and PowerShell
+- [ ] **PLAT-05**: Installer uses junctions on Windows (no admin) and symlinks on Unix, with automatic fallback to copy mode on permission failure
+- [ ] **PLAT-06**: Install, config loading, statusline display, and hook execution verified working on macOS and Linux
 
-- [ ] **STATE-01**: `gsd-tools state get <field>` returns specific STATE.md field value
-- [ ] **STATE-02**: `gsd-tools state patch --field value` updates specific fields atomically
-- [ ] **STATE-03**: Agents use atomic ops instead of full STATE.md read/write
-- [ ] **STATE-04**: Tests verify get/patch operations
+### Upstream Sync Improvements
 
-### Lazy-Load Executor
+- [ ] **SYNC-01**: User can preview colorized unified diff with file statistics before approving cherry-picks
+- [ ] **SYNC-02**: State snapshots are created before destructive sync operations and user can rollback to any snapshot
+- [ ] **SYNC-03**: Auto-update check fetches package metadata and displays severity indicators (security/breaking/feature) in statusline
+- [ ] **SYNC-04**: All sync operations support --dry-run mode that shows what would change without applying
+- [x] **SYNC-05**: Latest upstream changes are pulled and integrated using the sync workflow
+- [x] **SYNC-06**: Workflow improvements are implemented based on experience from actual sync execution
 
-- [ ] **EXEC-01**: `gsd-executor-core.md` contains base executor (~150 lines)
-- [ ] **EXEC-02**: `references/executor/` contains modular references (deviation-rules, tdd, checkpoint, continuation, summary-creation)
-- [ ] **EXEC-03**: Executor loads TDD reference only when task.tdd="true"
-- [ ] **EXEC-04**: Executor loads checkpoint reference only when task.type="checkpoint:*"
-- [ ] **EXEC-05**: Executor loads continuation reference only when <completed_tasks> present
-- [ ] **EXEC-06**: Executor loads summary-creation reference at plan completion
+### Claude Code Capability Adoption
 
-### Tiered Planner
+- [ ] **CLAUDE-01**: GSD agent definitions include memory frontmatter with appropriate scope (user/project/local)
+- [ ] **CLAUDE-02**: Agent instructions include extended thinking hints with effort parameter guidance for complex operations
+- [ ] **CLAUDE-03**: Agent teams patterns are explored and documented for parallel agent orchestration
+- [ ] **CLAUDE-04**: Fast mode integration is documented and applicable GSD operations are flagged for fast execution
+- [ ] **CLAUDE-05**: Bash file operations in commands and workflows are replaced with Claude tools (Glob, Grep, Edit) where appropriate
 
-- [ ] **PLAN-01**: `gsd-planner-core.md` contains base planner (~300 lines)
-- [ ] **PLAN-02**: `gsd-planner-ext/` contains extensions (gap-closure, revision, tdd, checkpoints)
-- [ ] **PLAN-03**: Orchestrator builds prompt dynamically based on flags and context
-- [ ] **PLAN-04**: Gap-closure extension loads only with --gaps flag
-- [ ] **PLAN-05**: Revision extension loads only when checker issues exist
-- [ ] **PLAN-06**: TDD extension loads only when TDD candidates detected
+### CI/CD
 
-### Compiled Plans
-
-- [ ] **COMP-01**: `gsd-tools compile-plan` inlines all @ references
-- [ ] **COMP-02**: Compilation strips irrelevant sections based on task types
-- [ ] **COMP-03**: Compiled plans saved as .compiled.md
-- [ ] **COMP-04**: Executor uses compiled version when available
-- [ ] **COMP-05**: Staleness detection via mtime comparison
-- [ ] **COMP-06**: Tests verify compilation output
+- [ ] **CI-01**: GitHub Actions workflow runs cross-platform matrix testing on macOS, Linux, and Windows (stretch goal)
 
 ## v2 Requirements
 
-### Enhanced Semantic Queries
+Deferred to future milestones. Tracked but not in current roadmap.
 
-- **SEM-01**: gsd-memory MCP supports structured queries (what_uses, pattern_for, decisions_affecting)
+### Advanced Sync
+
+- **SYNC-07**: Signed commit verification (GPG) before cherry-pick apply
+- **SYNC-08**: Upstream change auto-categorization (breaking/feature/fix/chore) using Claude analysis
+- **SYNC-09**: Selective sync by category (apply only security fixes, skip features)
+- **SYNC-10**: AI-powered conflict auto-resolution with user approval
+
+### Advanced Platform
+
+- **PLAT-07**: Interactive diff viewer (terminal or browser-based)
+- **PLAT-08**: Multi-upstream support (sync from multiple source repos)
+
+### Advanced Claude
+
+- **CLAUDE-06**: Full agent teams orchestration for parallel research/execution phases
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Compressing instructional content | Core methodology must remain intact |
-| Complex cache invalidation | Simple mtime checks are sufficient |
-| Railroad architecture | Loses adaptive intelligence |
+| Rewriting GSD core methodology | Fork adaptation, not a rewrite |
+| Removing .upstream/ directory | Needed for diffing/comparison |
+| TypeScript migration | Adds build complexity for marginal benefit in this codebase |
+| Heavy testing frameworks | bun:test sufficient; Jest/Mocha overkill |
+| Docker/containerization | GSD runs natively in Claude Code CLI |
+| Server/HTTP layer | GSD is CLI-based, not server-based |
+| Database/persistent storage | Filesystem (JSON config, git) is sufficient |
+| Auto-applying upstream updates | Destroys user control; always require confirmation |
+| Storing secrets in config | Security vulnerability for git-based config |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HIST-01 | Phase 1 | Pending |
-| HIST-02 | Phase 1 | Pending |
-| HIST-03 | Phase 1 | Pending |
-| HIST-04 | Phase 1 | Pending |
-| SUMM-01 | Phase 2 | Pending |
-| SUMM-02 | Phase 2 | Pending |
-| SUMM-03 | Phase 2 | Pending |
-| SUMM-04 | Phase 2 | Pending |
-| SUMM-05 | Phase 2 | Pending |
-| STATE-01 | Phase 3 | Pending |
-| STATE-02 | Phase 3 | Pending |
-| STATE-03 | Phase 3 | Pending |
-| STATE-04 | Phase 3 | Pending |
-| EXEC-01 | Phase 4 | Pending |
-| EXEC-02 | Phase 4 | Pending |
-| EXEC-03 | Phase 4 | Pending |
-| EXEC-04 | Phase 4 | Pending |
-| EXEC-05 | Phase 4 | Pending |
-| EXEC-06 | Phase 4 | Pending |
-| PLAN-01 | Phase 5 | Pending |
-| PLAN-02 | Phase 5 | Pending |
-| PLAN-03 | Phase 5 | Pending |
-| PLAN-04 | Phase 5 | Pending |
-| PLAN-05 | Phase 5 | Pending |
-| PLAN-06 | Phase 5 | Pending |
-| COMP-01 | Phase 6 | Pending |
-| COMP-02 | Phase 6 | Pending |
-| COMP-03 | Phase 6 | Pending |
-| COMP-04 | Phase 6 | Pending |
-| COMP-05 | Phase 6 | Pending |
-| COMP-06 | Phase 6 | Pending |
+| SEC-01 | Phase 7 | Complete |
+| SEC-02 | Phase 7 | Complete |
+| SEC-03 | Phase 7 | Complete |
+| SEC-04 | Phase 7 | Complete |
+| SEC-05 | Phase 7 | Complete |
+| SEC-06 | Phase 7 | Complete |
+| SYNC-01 | Phase 8 | Pending |
+| SYNC-02 | Phase 8 | Pending |
+| SYNC-03 | Phase 8 | Pending |
+| SYNC-04 | Phase 8 | Pending |
+| SYNC-05 | Phase 8 | Complete |
+| SYNC-06 | Phase 8 | Complete |
+| PLAT-01 | Phase 9 | Pending |
+| PLAT-02 | Phase 9 | Pending |
+| PLAT-03 | Phase 9 | Pending |
+| PLAT-04 | Phase 9 | Pending |
+| PLAT-05 | Phase 9 | Pending |
+| PLAT-06 | Phase 9 | Pending |
+| CLAUDE-01 | Phase 10 | Pending |
+| CLAUDE-02 | Phase 10 | Pending |
+| CLAUDE-03 | Phase 10 | Pending |
+| CLAUDE-04 | Phase 10 | Pending |
+| CLAUDE-05 | Phase 10 | Pending |
+| CI-01 | Phase 11 | Pending |
 
 **Coverage:**
-- v1 requirements: 28 total
-- Mapped to phases: 28
-- Unmapped: 0 ✓
+- v1 requirements: 24 total
+- Mapped to phases: 24/24 (100%)
+- Unmapped: 0
 
 ---
-*Requirements defined: 2025-02-07*
-*Last updated: 2025-02-07 after initial definition*
+*Requirements defined: 2026-02-07*
+*Last updated: 2026-02-09 after Phase 8 completion*

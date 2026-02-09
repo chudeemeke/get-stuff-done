@@ -1,183 +1,156 @@
-# Roadmap: GSD Context Optimization
+# Roadmap: GetStuffDone
 
-**Created:** 2025-02-07
-**Phases:** 6
-**Depth:** Standard
-**Core Value:** Agents execute at peak quality by starting at 8-12% context instead of 15-25%
+## Milestones
+
+- [x] **v0.1.0 GetStuffDone Fork** -- Phases 1-6 (shipped 2026-02-05) [archived](milestones/v0.1.0-ROADMAP.md)
+- [ ] **v0.2.0 Hardening & Upstream Sync** -- Phases 7-11
 
 ## Overview
 
-| # | Phase | Goal | Requirements | Status |
-|---|-------|------|--------------|--------|
-| 1 | History Digest | Planner loads structured digest instead of full SUMMARY.md | HIST-01, HIST-02, HIST-03, HIST-04 | Pending |
-| 2 | Summary Variants | Executor produces right-sized summaries | SUMM-01, SUMM-02, SUMM-03, SUMM-04, SUMM-05 | Pending |
-| 3 | Atomic State | Agents update STATE.md fields atomically | STATE-01, STATE-02, STATE-03, STATE-04 | Pending |
-| 4 | Lazy Executor | Executor loads references on-demand | EXEC-01, EXEC-02, EXEC-03, EXEC-04, EXEC-05, EXEC-06 | Pending |
-| 5 | Tiered Planner | Planner prompt built dynamically | PLAN-01, PLAN-02, PLAN-03, PLAN-04, PLAN-05, PLAN-06 | Pending |
-| 6 | Compiled Plans | Plans pre-compiled for minimal execution context | COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, COMP-06 | Pending |
+v0.2.0 establishes production-grade quality through security hardening, upstream sync, cross-platform support, and modern Claude Code integration. The roadmap follows a security-first dependency chain: audit and harden the codebase, sync upstream changes (using Phase 7 security tools for safe execution), enable cross-platform support on the synced codebase, adopt Claude Code 2026 capabilities, and optionally add CI/CD automation. This milestone transforms GSD from a working fork into a reliable, maintainable tool that safely tracks upstream while preserving distinct identity.
 
-## Dependencies
+## Phases
 
-```
-Phase 1 ─┐
-Phase 2 ─┼─► Phase 4 ─► Phase 5 ─► Phase 6
-Phase 3 ─┘
-```
+**Phase Numbering:**
+- Integer phases (7-11): Planned milestone work
+- Decimal phases (e.g., 7.1): Urgent insertions (marked with INSERTED)
 
-- Phases 1, 2, 3 can run in parallel (no dependencies)
-- Phase 4 depends on Phase 2 (summary templates) and Phase 3 (state ops)
-- Phase 5 depends on Phase 4 (executor patterns inform planner structure)
-- Phase 6 depends on Phase 4 and 5 (compilation targets both agents)
+Decimal phases appear between their surrounding integers in numeric order.
 
----
+- [x] **Phase 7: Security Hardening & Tooling** - Establish security baseline for upstream sync
+- [x] **Phase 8: Upstream Sync** - Pull latest upstream changes with integrated safety tooling
+- [ ] **Phase 9: Cross-Platform Foundation** - Enable macOS and Linux support
+- [ ] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features
+- [ ] **Phase 11: CI/CD** - Automate cross-platform testing (stretch goal)
 
-## Phase 1: History Digest
+## Phase Details
 
-**Goal:** Planner loads structured digest instead of full SUMMARY.md files
+### Phase 7: Security Hardening & Tooling
+**Goal**: Establish security baseline that prevents arbitrary code execution during upstream sync operations
 
-**Requirements:** HIST-01, HIST-02, HIST-03, HIST-04
+**Depends on**: Nothing (first phase of milestone)
 
-### Success Criteria
+**Requirements**: SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, SEC-06
 
-1. `gsd-tools history-digest` produces valid JSON with frontmatter fields
-2. Digest includes: phases, provides, patterns, affects, decisions, tech_stack
-3. Planner startup no longer reads full SUMMARY.md files
-4. Tests pass for digest schema validation
+**Success Criteria** (what must be TRUE):
+  1. User cannot cherry-pick upstream commits without reviewing diff and explicitly approving changes
+  2. Malformed git SHAs, branch names with shell metacharacters, and config paths with traversal patterns are rejected with clear error messages
+  3. All shell commands in hooks and installer use parameterized arguments (no string concatenation or eval)
+  4. ESLint with security plugin runs clean on all JavaScript files with zero violations
+  5. Publish workflow aborts if git conflict markers are detected in tracked files
+  6. Config files are automatically re-validated after upstream sync applies changes
 
-### Approach
+**Plans**: 3 plans
 
-- Add `history-digest` command to gsd-tools.js
-- Parse SUMMARY.md frontmatter (YAML between `---` markers)
-- Extract key fields into structured JSON
-- Update planner to consume digest instead of full files
-- TDD: Write tests first for digest output schema
+Plans:
+- [x] 07-01-PLAN.md -- Input validation module and ESLint security configuration
+- [x] 07-02-PLAN.md -- Shell command hardening and pre-publish conflict marker check
+- [x] 07-03-PLAN.md -- Upstream sync security review checkpoint and config re-validation
 
 ---
 
-## Phase 2: Summary Variants
+### Phase 8: Upstream Sync
+**Goal**: Pull latest upstream changes from glittercowboy/get-shit-done (through latest release), integrate all features, and build sync safety tooling needed for confident execution
 
-**Goal:** Executor produces right-sized summaries based on plan complexity
+**Depends on**: Phase 7 (security validation, SHA checks, diff review, conflict detection)
 
-**Requirements:** SUMM-01, SUMM-02, SUMM-03, SUMM-04, SUMM-05
+**Requirements**: SYNC-01, SYNC-02, SYNC-03, SYNC-04, SYNC-05, SYNC-06
 
-### Success Criteria
+**Success Criteria** (what must be TRUE):
+  1. All upstream features through latest release are successfully integrated (gsd-tools.js, thin orchestrator, context optimization, Gemini CLI, git branching, test infrastructure, and all bug fixes)
+  2. Upstream features take priority over fork-specific implementations where conflicts exist
+  3. Phase 7 security tools (diff review, SHA validation, conflict detection, ESLint) used throughout sync process
+  4. Safety tooling built as needed: state snapshots before destructive operations, diff preview for cherry-picks
+  5. All cherry-picked changes pass ESLint security validation with zero violations
+  6. No unresolved conflicts remain and GSD fork identity (branding, naming) is preserved
+  7. Workflow improvements documented based on real sync experience
 
-1. Three template files exist: summary-minimal.md (~30 lines), summary-standard.md (~60 lines), summary-complex.md (~100 lines)
-2. `gsd-tools select-template` returns appropriate template path
-3. Selection considers: task count, decision tasks, file count
-4. Executor uses selected template for summary creation
+**Plans**: 3 plans
 
-### Approach
-
-- Create three summary templates with increasing detail
-- Add `select-template` command with selection logic
-- Update executor workflow to call select-template
-- TDD: Write tests first for template selection logic
-
----
-
-## Phase 3: Atomic State Operations
-
-**Goal:** Agents update STATE.md fields atomically without full file read/write
-
-**Requirements:** STATE-01, STATE-02, STATE-03, STATE-04
-
-### Success Criteria
-
-1. `gsd-tools state get <field>` returns specific STATE.md field value
-2. `gsd-tools state patch --field value` updates specific fields atomically
-3. Agent workflows updated to use atomic ops
-4. Tests verify get/patch operations preserve file integrity
-
-### Approach
-
-- Add `state get` subcommand to read specific fields
-- Add `state patch` subcommand for atomic field updates
-- Parse STATE.md as markdown, update in place
-- Update executor/planner workflows to use atomic ops
-- TDD: Write tests first for get/patch operations
+Plans:
+- [x] 08-01-PLAN.md -- Sync infrastructure setup, manifest initialization, dry-run commit analysis
+- [x] 08-02-PLAN.md -- Cherry-pick execution of all 72 upstream commits with safety tooling
+- [x] 08-03-PLAN.md -- Branding pass, integration testing, sync report, merge to main
 
 ---
 
-## Phase 4: Lazy-Load Executor
+### Phase 9: Cross-Platform Foundation
+**Goal**: Enable GSD to install, configure, and run identically on macOS, Linux, and Windows with automatic platform adaptation
 
-**Goal:** Executor loads references on-demand based on task type
+**Depends on**: Phase 8 (upstream sync provides updated codebase including gsd-tools.js and architecture changes)
 
-**Requirements:** EXEC-01, EXEC-02, EXEC-03, EXEC-04, EXEC-05, EXEC-06
+**Requirements**: PLAT-01, PLAT-02, PLAT-03, PLAT-04, PLAT-05, PLAT-06
 
-### Success Criteria
+**Success Criteria** (what must be TRUE):
+  1. All path operations work correctly on Windows (backslashes), macOS, and Linux without manual adjustments
+  2. Platform detection correctly identifies OS, shell (bash/zsh/PowerShell/cmd), and environment (native, MINGW, Git Bash) with appropriate fallbacks
+  3. Installer detects write permission failures and falls back gracefully (symlink -> junction -> copy) with user notification
+  4. Hooks use Node.js exclusively (no bash dependencies) and work on all platforms without shell-specific configuration
+  5. Installation, config loading, statusline display, and hook execution are verified working on macOS and Linux (manual test matrix)
 
-1. `gsd-executor-core.md` contains base executor (~150 lines)
-2. `references/executor/` contains: deviation-rules.md, tdd-execution.md, checkpoint-protocol.md, continuation.md, summary-creation.md
-3. TDD reference loads only when task.tdd="true"
-4. Checkpoint reference loads only for task.type="checkpoint:*"
-5. Continuation reference loads only when <completed_tasks> present
+**Plans**: TBD
 
-### Approach
-
-- Extract current executor into core + modular references
-- Core contains: role, task execution loop, basic flow
-- References contain: specialized protocols for specific situations
-- Add conditional @ references based on task attributes
-- Measure context reduction vs current executor
+Plans:
+- [ ] 09-01: TBD
+- [ ] 09-02: TBD
 
 ---
 
-## Phase 5: Tiered Planner
+### Phase 10: Claude Code Capability Adoption
+**Goal**: Leverage Claude Opus 4.6 and Claude Code 2026 platform improvements for enhanced GSD orchestration
 
-**Goal:** Planner prompt built dynamically based on planning mode
+**Depends on**: Phase 9 (cross-platform codebase provides stable foundation for AI features)
 
-**Requirements:** PLAN-01, PLAN-02, PLAN-03, PLAN-04, PLAN-05, PLAN-06
+**Requirements**: CLAUDE-01, CLAUDE-02, CLAUDE-03, CLAUDE-04, CLAUDE-05
 
-### Success Criteria
+**Success Criteria** (what must be TRUE):
+  1. GSD agent definitions include memory frontmatter with appropriate scope (user/project/local) and agents persist context across invocations
+  2. Complex operations (upstream conflict resolution, breaking change detection) include extended thinking hints with effort parameter guidance
+  3. Agent teams patterns are documented with examples for parallel orchestration (research agents + synthesizer + roadmapper)
+  4. Fast mode integration is documented and GSD operations are flagged for fast execution where appropriate
+  5. Bash file operations (find, grep, cat, sed) are replaced with Claude tools (Glob, Grep, Read, Edit) in commands and workflows
 
-1. `gsd-planner-core.md` contains base planner (~300 lines)
-2. `gsd-planner-ext/` contains: gap-closure.md, revision.md, tdd.md, checkpoints.md
-3. Gap-closure loads only with --gaps flag
-4. Revision loads only when checker issues exist
-5. TDD loads only when TDD candidates detected
+**Plans**: TBD
 
-### Approach
-
-- Extract current planner into core + extensions
-- Core contains: role, philosophy, task breakdown, plan format
-- Extensions contain: specialized planning modes
-- Update orchestrator to build prompt dynamically
-- Measure context reduction vs current planner
+Plans:
+- [ ] 10-01: TBD
+- [ ] 10-02: TBD
 
 ---
 
-## Phase 6: Compiled Plans
+### Phase 11: CI/CD (Stretch Goal)
+**Goal**: Automate cross-platform testing to catch compatibility regressions before they reach users
 
-**Goal:** Plans pre-compiled for minimal execution context
+**Depends on**: Phase 9 (cross-platform support must exist before automating tests)
 
-**Requirements:** COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, COMP-06
+**Requirements**: CI-01
 
-### Success Criteria
+**Success Criteria** (what must be TRUE):
+  1. GitHub Actions workflow runs on every push with matrix testing across macOS, Linux, and Windows
+  2. Test suite validates installation, config loading, statusline rendering, and hook execution on all platforms
+  3. CI blocks merge if any platform fails tests or ESLint security violations are detected
+  4. Workflow completes in under 5 minutes for fast feedback
 
-1. `gsd-tools compile-plan` inlines all @ references
-2. Compilation strips irrelevant sections based on task types in plan
-3. Compiled plans saved as .compiled.md alongside original
-4. Executor uses compiled version when fresh (mtime check)
-5. Tests verify compilation output matches expected structure
+**Plans**: TBD
 
-### Approach
-
-- Add `compile-plan` command to gsd-tools.js
-- Resolve all @ references recursively
-- Strip sections not relevant to this plan's tasks
-- Save as PLAN.compiled.md
-- Update executor to prefer compiled version
-- TDD: Write tests first for compilation logic
+Plans:
+- [ ] 11-01: TBD
 
 ---
 
-## Coverage
+## Progress
 
-**v1 Requirements:** 28 total
-**Mapped to phases:** 28
-**Unmapped:** 0 ✓
+**Execution Order:**
+Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 7. Security Hardening & Tooling | 3/3 | Complete | 2026-02-08 |
+| 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
+| 9. Cross-Platform Foundation | 0/TBD | Not started | - |
+| 10. Claude Code Capability Adoption | 0/TBD | Not started | - |
+| 11. CI/CD | 0/TBD | Not started | - |
 
 ---
-*Roadmap created: 2025-02-07*
-*Last updated: 2025-02-07 after initial creation*
+*Roadmap created: 2026-02-07*
+*Last updated: 2026-02-08*

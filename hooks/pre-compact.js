@@ -120,56 +120,51 @@ async function saveMetricsSnapshot(planningDir) {
 }
 
 /**
- * Main entry point
- * Reads JSON from stdin, processes hook logic, exits with appropriate code
+ * Process stdin and execute hook logic
  */
-async function main() {
-  const planningDir = getPlanningDir();
+const planningDir = getPlanningDir();
 
-  // Ensure planning directory exists
-  try {
-    if (!fsSync.existsSync(planningDir)) {
-      await fs.mkdir(planningDir, { recursive: true });
-    }
-  } catch (err) {
-    console.error(`[pre-compact] Error: Could not create planning directory: ${err.message}`);
-    process.exit(2); // Block compaction on error
+// Ensure planning directory exists
+try {
+  if (!fsSync.existsSync(planningDir)) {
+    fsSync.mkdirSync(planningDir, { recursive: true });
   }
-
-  // Read input from stdin
-  let input = '';
-  process.stdin.setEncoding('utf8');
-
-  process.stdin.on('data', (chunk) => {
-    input += chunk;
-  });
-
-  process.stdin.on('end', async () => {
-    try {
-      // Parse JSON input
-      let data;
-      try {
-        data = JSON.parse(input);
-      } catch (err) {
-        console.error(`[pre-compact] Error: Invalid JSON input: ${err.message}`);
-        process.exit(2); // Block compaction on parse error
-      }
-
-      // Extract trigger type
-      const trigger = data.trigger || 'unknown';
-
-      // Execute hook tasks
-      await logEvent(planningDir, trigger);
-      await saveContinueContext(planningDir, trigger);
-      await saveMetricsSnapshot(planningDir);
-
-      // Success - allow compaction
-      process.exit(0);
-    } catch (err) {
-      console.error(`[pre-compact] Error: ${err.message}`);
-      process.exit(2); // Block compaction on error
-    }
-  });
+} catch (err) {
+  console.error(`[pre-compact] Error: Could not create planning directory: ${err.message}`);
+  process.exit(2); // Block compaction on error
 }
 
-main();
+// Read input from stdin
+let input = '';
+process.stdin.setEncoding('utf8');
+
+process.stdin.on('data', (chunk) => {
+  input += chunk;
+});
+
+process.stdin.on('end', async () => {
+  try {
+    // Parse JSON input
+    let data;
+    try {
+      data = JSON.parse(input);
+    } catch (err) {
+      console.error(`[pre-compact] Error: Invalid JSON input: ${err.message}`);
+      process.exit(2); // Block compaction on parse error
+    }
+
+    // Extract trigger type
+    const trigger = data.trigger || 'unknown';
+
+    // Execute hook tasks
+    await logEvent(planningDir, trigger);
+    await saveContinueContext(planningDir, trigger);
+    await saveMetricsSnapshot(planningDir);
+
+    // Success - allow compaction
+    process.exit(0);
+  } catch (err) {
+    console.error(`[pre-compact] Error: ${err.message}`);
+    process.exit(2); // Block compaction on error
+  }
+});

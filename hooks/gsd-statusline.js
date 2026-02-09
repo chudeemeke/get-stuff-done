@@ -44,18 +44,12 @@ const SEP = ` ${theme.text.separator.render('|')} `;
 
 // NOTE: Blink support moved to theme system (uses reverse video fallback)
 
-// Unicode support detection (Windows Console Host has limited Unicode)
-function supportsUnicode() {
-  if (process.platform === 'win32') {
-    return Boolean(process.env.WT_SESSION) ||  // Windows Terminal
-           Boolean(process.env.ConEmuTask) ||   // ConEmu
-           process.env.TERM_PROGRAM === 'vscode';
-  }
-  return process.env.TERM !== 'linux';
-}
+// Unicode support detection - use platform module for expanded terminal detection
+const { detectTerminal } = require('../src/platform/terminal');
+const terminalCaps = detectTerminal();
 
 // Stage icons with fallback
-const ICONS = supportsUnicode()
+const ICONS = terminalCaps.supportsUnicode
   ? { warning: '\u26A0\uFE0F', lightning: '\u26A1' }  // ⚠️, ⚡
   : { warning: '!', lightning: '>' };
 

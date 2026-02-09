@@ -88,11 +88,13 @@ Plans:
   4. Hooks use Node.js exclusively (no bash dependencies) and work on all platforms without shell-specific configuration
   5. Installation, config loading, statusline display, and hook execution are verified working on macOS and Linux (manual test matrix)
 
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md -- Platform detection module and pathe dependency
+- [ ] 09-02-PLAN.md -- Rewrite bash launcher and pre-compact hook in Node.js
+- [ ] 09-03-PLAN.md -- gsd-tools.js cross-platform audit and installer hardening
+- [ ] 09-04-PLAN.md -- Integration verification and manual test matrix
 
 ---
 
@@ -147,10 +149,10 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 |-------|----------------|--------|-----------|
 | 7. Security Hardening & Tooling | 3/3 | Complete | 2026-02-08 |
 | 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
-| 9. Cross-Platform Foundation | 0/TBD | Not started | - |
+| 9. Cross-Platform Foundation | 0/4 | Not started | - |
 | 10. Claude Code Capability Adoption | 0/TBD | Not started | - |
 | 11. CI/CD | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-08*
+*Last updated: 2026-02-09*

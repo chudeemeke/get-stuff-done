@@ -18,12 +18,12 @@ Requirements for v0.2.0 Hardening & Upstream Sync milestone. Each maps to roadma
 
 ### Cross-Platform Support
 
-- [ ] **PLAT-01**: All path operations use cross-platform library (pathe) instead of string concatenation
-- [ ] **PLAT-02**: Platform detection identifies OS (win32/darwin/linux), shell (bash/zsh/PowerShell), and environment (WSL, MINGW) with appropriate fallbacks
-- [ ] **PLAT-03**: Filesystem operations validate write permissions before attempting modifications
-- [ ] **PLAT-04**: Hook generation produces shell-appropriate syntax for bash, zsh, and PowerShell
-- [ ] **PLAT-05**: Installer uses junctions on Windows (no admin) and symlinks on Unix, with automatic fallback to copy mode on permission failure
-- [ ] **PLAT-06**: Install, config loading, statusline display, and hook execution verified working on macOS and Linux
+- [x] **PLAT-01**: All path operations use cross-platform library (pathe) instead of string concatenation
+- [x] **PLAT-02**: Platform detection identifies OS (win32/darwin/linux), shell (bash/zsh/PowerShell), and environment (WSL, MINGW) with appropriate fallbacks
+- [x] **PLAT-03**: Filesystem operations validate write permissions before attempting modifications
+- [x] **PLAT-04**: Hook generation produces shell-appropriate syntax for bash, zsh, and PowerShell
+- [x] **PLAT-05**: Installer uses junctions on Windows (no admin) and symlinks on Unix, with automatic fallback to copy mode on permission failure
+- [x] **PLAT-06**: Install, config loading, statusline display, and hook execution verified working on macOS and Linux
 
 ### Upstream Sync Improvements
 
@@ -96,12 +96,12 @@ Deferred to future milestones. Tracked but not in current roadmap.
 | SYNC-04 | Phase 8 | Pending |
 | SYNC-05 | Phase 8 | Complete |
 | SYNC-06 | Phase 8 | Complete |
-| PLAT-01 | Phase 9 | Pending |
-| PLAT-02 | Phase 9 | Pending |
-| PLAT-03 | Phase 9 | Pending |
-| PLAT-04 | Phase 9 | Pending |
-| PLAT-05 | Phase 9 | Pending |
-| PLAT-06 | Phase 9 | Pending |
+| PLAT-01 | Phase 9 | Complete |
+| PLAT-02 | Phase 9 | Complete |
+| PLAT-03 | Phase 9 | Complete |
+| PLAT-04 | Phase 9 | Complete |
+| PLAT-05 | Phase 9 | Complete |
+| PLAT-06 | Phase 9 | Complete |
 | CLAUDE-01 | Phase 10 | Pending |
 | CLAUDE-02 | Phase 10 | Pending |
 | CLAUDE-03 | Phase 10 | Pending |
@@ -116,4 +116,4 @@ Deferred to future milestones. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-09 after Phase 8 completion*
+*Last updated: 2026-02-09 after Phase 9 completion*

@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 7: Security Hardening & Tooling** - Establish security baseline for upstream sync
 - [x] **Phase 8: Upstream Sync** - Pull latest upstream changes with integrated safety tooling
-- [ ] **Phase 9: Cross-Platform Foundation** - Enable macOS and Linux support
+- [x] **Phase 9: Cross-Platform Foundation** - Enable macOS and Linux support (completed 2026-02-09)
 - [ ] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features
 - [ ] **Phase 11: CI/CD** - Automate cross-platform testing (stretch goal)
 
@@ -91,10 +91,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 09-01-PLAN.md -- Platform detection module and pathe dependency
-- [ ] 09-02-PLAN.md -- Rewrite bash launcher and pre-compact hook in Node.js
-- [ ] 09-03-PLAN.md -- gsd-tools.js cross-platform audit and installer hardening
-- [ ] 09-04-PLAN.md -- Integration verification and manual test matrix
+- [x] 09-01-PLAN.md -- Platform detection module and pathe dependency
+- [x] 09-02-PLAN.md -- Rewrite bash launcher and pre-compact hook in Node.js
+- [x] 09-03-PLAN.md -- gsd-tools.js cross-platform audit and installer hardening
+- [x] 09-04-PLAN.md -- Integration verification and manual test matrix
 
 ---
 

@@ -1,6 +1,6 @@
 # Phase 9: Cross-Platform Foundation - Context
 
-**Gathered:** 2026-02-08
+**Gathered:** 2026-02-08 (updated 2026-02-09)
 **Status:** Ready for planning
 
 <domain>
@@ -42,6 +42,11 @@ Enable GSD to install, configure, and run identically on macOS, Linux, and Windo
 - Expand Unicode/terminal detection: add checks for Windows Terminal, iTerm2, Alacritty, Kitty, Hyper, and others
 - Platform-aware error messages with platform-specific troubleshooting hints
 - Configurable hook timeout with sensible default (e.g., 10s). Kill hung hooks gracefully
+
+### gsd-tools.js Cross-Platform Audit
+- `gsd-tools.js` (integrated from upstream in Phase 8) MUST be audited for bash assumptions and platform-specific code
+- Any shell-dependent operations, hardcoded paths, or Unix-only patterns must be identified and made cross-platform
+- Apply the same Node.js-first approach: use the centralized platform utility for any subprocess spawning, path resolution, or command lookup
 
 ### Platform Detection Scope
 - Full detection: OS (win/mac/linux) + shell (bash/zsh/PowerShell/cmd) + environment (native, MINGW, Git Bash)

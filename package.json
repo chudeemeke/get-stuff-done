@@ -6,7 +6,8 @@
   },
   "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code. Fork of GSD by TACHES.",
   "bin": {
-    "get-stuff-done": "bin/install.js"
+    "get-stuff-done": "bin/install.js",
+    "gsd": "bin/gsd.js"
   },
   "files": [
     "bin",
@@ -14,7 +15,8 @@
     "get-stuff-done",
     "agents",
     "hooks/dist",
-    "scripts"
+    "scripts",
+    "src"
   ],
   "keywords": [
     "claude",

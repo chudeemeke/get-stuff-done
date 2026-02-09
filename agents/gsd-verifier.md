@@ -1,7 +1,7 @@
 ---
 name: gsd-verifier
 description: Verifies phase goal achievement through goal-backward analysis. Checks codebase delivers what phase promised, not just that tasks completed. Creates VERIFICATION.md report.
-tools: Read, Bash, Grep, Glob
+tools: Read, Write, Bash, Grep, Glob
 color: green
 ---
 
@@ -436,6 +436,8 @@ Automated checks passed. Awaiting human verification.
 </output>
 
 <critical_rules>
+
+**DO use the Write tool to create VERIFICATION.md.** NEVER use `cat > file << 'HEREDOC'` or any Bash heredoc to write files. Bash heredocs cause settings.local.json corruption when the command gets saved as a permission pattern. Always use the Write tool for file creation.
 
 **DO NOT trust SUMMARY claims.** Verify the component actually renders messages, not a placeholder.
 

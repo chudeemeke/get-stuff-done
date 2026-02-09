@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 9 of 11 (Cross-Platform Foundation)
-Plan: 2 of 4 complete
-Status: In progress - Launcher and hooks rewritten in Node.js
-Last activity: 2026-02-09 -- Completed 09-02: Cross-platform launcher and hooks
+Plan: 3 of 4 complete
+Status: In progress - Cross-platform gsd-tools and installer hardening complete
+Last activity: 2026-02-09 -- Completed 09-03: Cross-platform gsd-tools.js and installer improvements
 
-Progress: [#####.....] 45% (v0.2.0: 2/5 phases, 2/4 plans in phase 9)
+Progress: [#####.....] 48% (v0.2.0: 2/5 phases, 3/4 plans in phase 9)
 
 ## Performance Metrics
 
@@ -35,9 +35,9 @@ Progress: [#####.....] 45% (v0.2.0: 2/5 phases, 2/4 plans in phase 9)
 | 06 (Logo Assets) | 2/2 | 23 min | 11.5 min |
 
 **v0.2.0 Velocity:**
-- Total plans completed: 8
-- Average duration: 19 minutes
-- Total execution time: 2.49 hours
+- Total plans completed: 9
+- Average duration: 18 minutes
+- Total execution time: 2.71 hours
 
 **By Phase:**
 
@@ -45,7 +45,7 @@ Progress: [#####.....] 45% (v0.2.0: 2/5 phases, 2/4 plans in phase 9)
 |-------|-------|-------|----------|
 | 07 (Security Hardening & Tooling) | 3/3 | 57 min | 19 min |
 | 08 (Upstream Sync) | 3/3 | 80 min | 27 min |
-| 09 (Cross-Platform Foundation) | 2/4 | 12 min | 6 min |
+| 09 (Cross-Platform Foundation) | 3/4 | 25 min | 8 min |
 
 ## Accumulated Context
 
@@ -78,6 +78,12 @@ Recent decisions affecting current work:
 - 09-01 PATH-001: Use pathe library for cross-platform path normalization (forward slashes on all platforms)
 - 09-01 DETECT-001: Singleton pattern for platform/terminal detection (detect once, cache, reuse)
 - 09-01 DETECT-002: Windows Terminal detection before TERM variable check (correct truecolor detection)
+- 09-03 XPLAT-001: Replace Unix find with Node.js fs.readdirSync recursive walk
+- 09-03 XPLAT-002: Use execFileSync with array args instead of shell string construction for git commands
+- 09-03 INSTALL-001: Symlink fallback chain (symlink -> junction -> copy) with user messaging
+- 09-03 INSTALL-002: Track install method (symlink/junction/copy) and reason in metadata
+- 09-03 NODE-001: Node.js 20 LTS minimum requirement (up from 16.7)
+- 09-03 HOOK-001: PreCompact hook registration using universal node command format
 - 09-02 SPAWN-001: Use spawn with shell:true for cross-platform claude command resolution
 - 09-02 HOOK-INPUT-001: Follow gsd-statusline.js stdin pattern for pre-compact hook
 - 09-02 BUILD-001: Keep hooks/dist/ gitignored (generated on prepublishOnly)
@@ -102,11 +108,11 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-09
-Status: Phase 9 Plan 02 complete. Launcher and pre-compact hook rewritten in Node.js. All GSD entry points now cross-platform. Ready for 09-03 (Settings installation).
-Stopped at: Completed 09-02-PLAN.md
+Status: Phase 9 Plan 03 complete. Cross-platform gsd-tools.js (no Unix dependencies), installer hardening (permission validation, platform detection, PreCompact hook registration), Node.js 20 minimum requirement. Ready for 09-04 (Integration verification).
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None
 
-**Next step:** Execute 09-03 (Settings installation with hook deployment)
+**Next step:** Execute 09-04 (Integration verification on Windows/Git Bash, create manual test matrix for macOS/Linux)
 
 ---
 *Updated: 2026-02-09*

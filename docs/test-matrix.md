@@ -175,10 +175,24 @@ This document provides a manual testing checklist for verifying GSD functionalit
 ## Testing Instructions
 
 ### Prerequisites
-- Node.js 18+ installed
+- Node.js 20+ installed
 - Bun installed
 - Git installed
 - Terminal with ANSI color support (recommended)
+
+### Git Bash Note (Windows)
+
+Git Bash ships with a winpty alias (`alias node="winpty node.exe"`) that intercepts piped stdin. When manually testing hooks that read stdin, use one of these workarounds:
+
+```bash
+# Option 1: Bypass alias with 'command'
+echo '{"trigger":"test"}' | command node hooks/pre-compact.js
+
+# Option 2: Use node.exe directly
+echo '{"trigger":"test"}' | node.exe hooks/pre-compact.js
+```
+
+This does NOT affect production use -- Claude Code invokes hooks via `child_process.spawn()` which bypasses shell aliases entirely.
 
 ### Test Procedure
 
@@ -222,7 +236,7 @@ This document provides a manual testing checklist for verifying GSD functionalit
 
 ### Windows
 - Hook scripts run via `node <script>` instead of executable shebang
-- Git Bash may show "stdin is not a tty" warning (harmless)
+- Git Bash winpty alias intercepts `node` when piping stdin -- use `command node` or `node.exe` for manual hook testing (does not affect production; Claude Code bypasses shell aliases)
 - Unicode support depends on terminal (Git Bash > CMD)
 - Paths use backslashes in native APIs, forward slashes in Node.js
 

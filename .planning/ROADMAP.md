@@ -149,7 +149,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 |-------|----------------|--------|-----------|
 | 7. Security Hardening & Tooling | 3/3 | Complete | 2026-02-08 |
 | 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
-| 9. Cross-Platform Foundation | 0/4 | Not started | - |
+| 9. Cross-Platform Foundation | 4/4 | Complete (UAT: 10/11 pass, 1 minor env quirk) | 2026-02-09 |
 | 10. Claude Code Capability Adoption | 0/TBD | Not started | - |
 | 11. CI/CD | 0/TBD | Not started | - |
 

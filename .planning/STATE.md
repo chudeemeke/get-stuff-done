@@ -107,12 +107,12 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-09
-Status: Phase 9 Plan 03 complete. Cross-platform gsd-tools.js (no Unix dependencies), installer hardening (permission validation, platform detection, PreCompact hook registration), Node.js 20 minimum requirement. Ready for 09-04 (Integration verification).
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-02-10
+Status: Phase 9 UAT complete. 10/11 tests passed, 1 minor environment quirk (Git Bash winpty alias intercepts piped stdin to node -- does not affect production). Diagnosis confirmed hook code is correct, no code fix needed. Test matrix and known issues documentation updated.
+Stopped at: Phase 9 UAT complete, documentation updated
 Resume file: None
 
-**Next step:** Execute 09-04 (Integration verification on Windows/Git Bash, create manual test matrix for macOS/Linux)
+**Next step:** Plan Phase 10 (Claude Code Capability Adoption) -- `/gsd:plan-phase 10`
 
 ---
-*Updated: 2026-02-09*
+*Updated: 2026-02-10*

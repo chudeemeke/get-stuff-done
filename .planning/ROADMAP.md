@@ -103,20 +103,21 @@ Plans:
 
 **Depends on**: Phase 9 (cross-platform codebase provides stable foundation for AI features)
 
-**Requirements**: CLAUDE-01, CLAUDE-02, CLAUDE-03, CLAUDE-04, CLAUDE-05
+**Requirements**: CLAUDE-01, CLAUDE-02, CLAUDE-03
 
 **Success Criteria** (what must be TRUE):
-  1. GSD agent definitions include memory frontmatter with appropriate scope (user/project/local) and agents persist context across invocations
-  2. Complex operations (upstream conflict resolution, breaking change detection) include extended thinking hints with effort parameter guidance
-  3. Agent teams patterns are documented with examples for parallel orchestration (research agents + synthesizer + roadmapper)
-  4. Fast mode integration is documented and GSD operations are flagged for fast execution where appropriate
-  5. Bash file operations (find, grep, cat, sed) are replaced with Claude tools (Glob, Grep, Read, Edit) in commands and workflows
+  1. All 11 GSD agent definitions include memory protocol sections targeting `.planning/memory/` with shared-read/private-write access, and effort calibration with role-specific thinking depth hints
+  2. Agent teams patterns are implemented with 4 team templates (plan-phase, execute-phase, upstream-sync, verify-work), 4 specialized oversight agents, subagent fallback paths, and soft cap of 8
+  3. AskUserQuestion is integrated into 4 workflows (discuss-phase, verify-work, execute-phase, verify-phase) with structured options respecting tool constraints
+  4. config.json controls memory, effort, and teams configuration with all user decisions reflected
 
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
+- [ ] 10-01-PLAN.md -- Memory protocol scaffold and core agent enhancements (executor, verifier, planner, phase-researcher, plan-checker, debugger)
+- [ ] 10-02-PLAN.md -- Support agent enhancements (codebase-mapper, project-researcher, research-synthesizer, roadmapper, integration-checker)
+- [ ] 10-03-PLAN.md -- Team templates and specialized oversight agent definitions
+- [ ] 10-04-PLAN.md -- Workflow AskUserQuestion integration and config.json enhancement
 
 ---
 
@@ -150,9 +151,9 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 | 7. Security Hardening & Tooling | 3/3 | Complete | 2026-02-08 |
 | 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
 | 9. Cross-Platform Foundation | 4/4 | Complete (UAT: 10/11 pass, 1 minor env quirk) | 2026-02-09 |
-| 10. Claude Code Capability Adoption | 0/TBD | Not started | - |
+| 10. Claude Code Capability Adoption | 0/4 | Planned | - |
 | 11. CI/CD | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-09*
+*Last updated: 2026-02-14*

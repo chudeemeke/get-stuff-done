@@ -1271,6 +1271,15 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
     }
   }
 
+  // Verify teams directory was included
+  const teamsDest = path.join(skillDest, 'teams');
+  if (fs.existsSync(teamsDest)) {
+    const teamCount = fs.readdirSync(teamsDest).filter(f => f.endsWith('.md')).length;
+    if (teamCount > 0) {
+      console.log(`  ${green}✓${reset} Installed ${teamCount} team templates`);
+    }
+  }
+
   // Copy/link agents to agents directory (subagents must be at root level)
   const agentsSrc = path.join(src, 'agents');
   if (fs.existsSync(agentsSrc)) {

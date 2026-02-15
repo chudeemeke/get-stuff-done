@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Security Hardening & Tooling** - Establish security baseline for upstream sync
 - [x] **Phase 8: Upstream Sync** - Pull latest upstream changes with integrated safety tooling
 - [x] **Phase 9: Cross-Platform Foundation** - Enable macOS and Linux support (completed 2026-02-09)
-- [x] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features (completed 2026-02-14)
+- [ ] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features (gap closure in progress)
 - [ ] **Phase 11: CI/CD** - Automate cross-platform testing (stretch goal)
 
 ## Phase Details
@@ -110,14 +110,17 @@ Plans:
   2. Agent teams patterns are implemented with 4 team templates (plan-phase, execute-phase, upstream-sync, verify-work), 4 specialized oversight agents, subagent fallback paths, and soft cap of 8
   3. AskUserQuestion is integrated into 4 workflows (discuss-phase, verify-work, execute-phase, verify-phase) with structured options respecting tool constraints
   4. config.json controls memory, effort, and teams configuration with all user decisions reflected
+  5. All Phase 10 artifacts exist in project source (publishable via npm), not only in installed location
 
-**Plans**: 4 plans
+**Plans**: 6 plans
 
 Plans:
 - [x] 10-01-PLAN.md -- Memory protocol scaffold and core agent enhancements (executor, verifier, planner, phase-researcher, plan-checker, debugger)
 - [x] 10-02-PLAN.md -- Support agent enhancements (codebase-mapper, project-researcher, research-synthesizer, roadmapper, integration-checker)
 - [x] 10-03-PLAN.md -- Team templates and specialized oversight agent definitions
 - [x] 10-04-PLAN.md -- Workflow AskUserQuestion integration and config.json enhancement
+- [ ] 10-05-PLAN.md -- [GAP CLOSURE] Sync agent and team files from installed to project source
+- [ ] 10-06-PLAN.md -- [GAP CLOSURE] Installer teams/ handling and backup file cleanup
 
 ---
 
@@ -133,6 +136,7 @@ Plans:
   2. Test suite validates installation, config loading, statusline rendering, and hook execution on all platforms
   3. CI blocks merge if any platform fails tests or ESLint security violations are detected
   4. Workflow completes in under 5 minutes for fast feedback
+  5. Source-to-installed parity check ensures all distributable artifacts exist in project source
 
 **Plans**: TBD
 
@@ -151,9 +155,9 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 | 7. Security Hardening & Tooling | 3/3 | Complete | 2026-02-08 |
 | 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
 | 9. Cross-Platform Foundation | 4/4 | Complete (UAT: 10/11 pass, 1 minor env quirk) | 2026-02-09 |
-| 10. Claude Code Capability Adoption | 4/4 | Complete | 2026-02-14 |
+| 10. Claude Code Capability Adoption | 4/6 | Gap closure (UAT: 7/8 pass, 1 major gap) | - |
 | 11. CI/CD | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-14*
+*Last updated: 2026-02-15*

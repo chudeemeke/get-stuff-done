@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Security Hardening & Tooling** - Establish security baseline for upstream sync
 - [x] **Phase 8: Upstream Sync** - Pull latest upstream changes with integrated safety tooling
 - [x] **Phase 9: Cross-Platform Foundation** - Enable macOS and Linux support (completed 2026-02-09)
-- [ ] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features
+- [x] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features (completed 2026-02-14)
 - [ ] **Phase 11: CI/CD** - Automate cross-platform testing (stretch goal)
 
 ## Phase Details
@@ -114,10 +114,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 10-01-PLAN.md -- Memory protocol scaffold and core agent enhancements (executor, verifier, planner, phase-researcher, plan-checker, debugger)
-- [ ] 10-02-PLAN.md -- Support agent enhancements (codebase-mapper, project-researcher, research-synthesizer, roadmapper, integration-checker)
-- [ ] 10-03-PLAN.md -- Team templates and specialized oversight agent definitions
-- [ ] 10-04-PLAN.md -- Workflow AskUserQuestion integration and config.json enhancement
+- [x] 10-01-PLAN.md -- Memory protocol scaffold and core agent enhancements (executor, verifier, planner, phase-researcher, plan-checker, debugger)
+- [x] 10-02-PLAN.md -- Support agent enhancements (codebase-mapper, project-researcher, research-synthesizer, roadmapper, integration-checker)
+- [x] 10-03-PLAN.md -- Team templates and specialized oversight agent definitions
+- [x] 10-04-PLAN.md -- Workflow AskUserQuestion integration and config.json enhancement
 
 ---
 
@@ -151,7 +151,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 | 7. Security Hardening & Tooling | 3/3 | Complete | 2026-02-08 |
 | 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
 | 9. Cross-Platform Foundation | 4/4 | Complete (UAT: 10/11 pass, 1 minor env quirk) | 2026-02-09 |
-| 10. Claude Code Capability Adoption | 0/4 | Planned | - |
+| 10. Claude Code Capability Adoption | 4/4 | Complete | 2026-02-14 |
 | 11. CI/CD | 0/TBD | Not started | - |
 
 ---

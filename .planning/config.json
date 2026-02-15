@@ -1,4 +1,44 @@
 {
   "model_profile": "balanced",
-  "commit_docs": true
+  "commit_docs": true,
+  "memory": {
+    "enabled": true,
+    "location": ".planning/memory/",
+    "curation": "auto",
+    "staleness_check": true
+  },
+  "effort": {
+    "default": "quality",
+    "agents": {
+      "gsd-executor": "medium",
+      "gsd-verifier": "high",
+      "gsd-planner": "high",
+      "gsd-phase-researcher": "high",
+      "gsd-plan-checker": "high",
+      "gsd-codebase-mapper": "medium",
+      "gsd-debugger": "high",
+      "gsd-project-researcher": "high",
+      "gsd-research-synthesizer": "medium",
+      "gsd-roadmapper": "medium",
+      "gsd-integration-checker": "high",
+      "gsd-oversight-planning": "high",
+      "gsd-oversight-execution": "high",
+      "gsd-oversight-sync": "high",
+      "gsd-oversight-verification": "high"
+    }
+  },
+  "teams": {
+    "enabled": false,
+    "experimental_flag": "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS",
+    "oversight": {
+      "default": true,
+      "per_workflow": {
+        "execute-phase": true,
+        "plan-phase": true,
+        "upstream-sync": true,
+        "verify-work": true
+      }
+    },
+    "soft_cap": 8
+  }
 }

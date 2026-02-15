@@ -46,7 +46,7 @@ Progress: [########..] 80% (v0.2.0: 4/5 phases complete)
 | 07 (Security Hardening & Tooling) | 3/3 | 57 min | 19 min |
 | 08 (Upstream Sync) | 3/3 | 80 min | 27 min |
 | 09 (Cross-Platform Foundation) | 4/4 | 55 min | 14 min |
-| 10 (Claude Code Capability Adoption) | 4/4 (+1 gap) | 19 min | 3.8 min |
+| 10 (Claude Code Capability Adoption) | 4/4 (+2 gap) | 27 min | 4.5 min |
 
 ## Accumulated Context
 
@@ -100,6 +100,9 @@ Recent decisions affecting current work:
 - 10-04 CONFIG-MEMORY-001: Memory location .planning/memory/ matches user-locked decision from 10-CONTEXT.md
 - 10-04 CONFIG-EFFORT-001: Quality-first effort default, per-agent levels from Plans 01-02
 - 10-04 CONFIG-TEAMS-001: Teams disabled by default (experimental), oversight always on
+- 10-05 GAP-001: Gap closure copies from installed (authoritative content) to source (publishable distribution)
+- 10-05 PATH-001: Project source uses ~/.claude/ paths, installer's copyWithPathReplacement handles conversion during install
+- 10-05 SYNC-001: Plans 10-05 and 10-06 executed out of order; 10-06 completed teams/ work, 10-05 verified and documented
 
 ### Pending Todos
 
@@ -121,8 +124,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-15
-Status: Gap closure plan 10-06 executed. Installer now verifies teams/ directory installation. 3 stale backup files removed. Teams/ directory synced from installed to source (effectively completing core work of plan 10-05 inline).
-Stopped at: Completed 10-06-PLAN.md (gap closure for installer teams support)
+Status: Gap closure plans 10-05 and 10-06 executed. Source-to-installed parity achieved: 15 agent files with Phase 10 enhancements, 4 oversight agents, 4 team templates all in project source. Installer verified for teams/ directory support.
+Stopped at: Completed 10-05-PLAN.md (source-to-installed parity for Phase 10 artifacts)
 Resume file: None
 
 **Next step:** Plan Phase 11 -- `/gsd:plan-phase 11`

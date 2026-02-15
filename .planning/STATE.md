@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 10 of 11 (Claude Code Capability Adoption)
-Plan: 2 of 4 (Wave 1 complete)
-Status: In progress -- Wave 1 complete (Plans 01-02), Wave 2 pending
-Last activity: 2026-02-14 -- Completed Plan 10-02
+Plan: 3 of 4 (Wave 2 in progress)
+Status: In progress -- Wave 1 complete (Plans 01-02), Wave 2 in progress (Plan 03 complete)
+Last activity: 2026-02-15 -- Completed Plan 10-03
 
-Progress: [######....] 60% (v0.2.0: 3/5 phases complete)
+Progress: [#######...] 70% (v0.2.0: 3.75/5 phases complete)
 
 ## Performance Metrics
 
@@ -35,9 +35,9 @@ Progress: [######....] 60% (v0.2.0: 3/5 phases complete)
 | 06 (Logo Assets) | 2/2 | 23 min | 11.5 min |
 
 **v0.2.0 Velocity:**
-- Total plans completed: 11
-- Average duration: 16 minutes
-- Total execution time: 2.76 hours
+- Total plans completed: 12
+- Average duration: 15 minutes
+- Total execution time: 2.85 hours
 
 **By Phase:**
 
@@ -46,7 +46,7 @@ Progress: [######....] 60% (v0.2.0: 3/5 phases complete)
 | 07 (Security Hardening & Tooling) | 3/3 | 57 min | 19 min |
 | 08 (Upstream Sync) | 3/3 | 80 min | 27 min |
 | 09 (Cross-Platform Foundation) | 4/4 | 55 min | 14 min |
-| 10 (Claude Code Capability Adoption) | 2/4 | 5 min | 2.5 min |
+| 10 (Claude Code Capability Adoption) | 3/4 | 10 min | 3.3 min |
 
 ## Accumulated Context
 
@@ -88,6 +88,12 @@ Recent decisions affecting current work:
 - 09-02 SPAWN-001: Use spawn with shell:true for cross-platform claude command resolution
 - 09-02 HOOK-INPUT-001: Follow gsd-statusline.js stdin pattern for pre-compact hook
 - 09-02 BUILD-001: Keep hooks/dist/ gitignored (generated on prepublishOnly)
+- 10-03 TEAM-SIZE-001: Soft cap of 8 agents per team (execute-phase can split waves if needed)
+- 10-03 TEAM-FALLBACK-001: All team workflows MUST have sequential subagent fallback (teams are experimental)
+- 10-03 OVERSIGHT-AUTH-001: Oversight agents flag and advise only, never block execution
+- 10-03 OVERSIGHT-TOOLS-001: Oversight agents have Read/Write/Grep/Glob/Bash, no Edit (Write only for memory files)
+- 10-03 FLAG-ROUTING-001: High-stakes workflows (upstream-sync) route ALL flags through lead; routine workflows route CRITICAL through lead, WARNING/INFO direct
+- 10-03 OVERSIGHT-MEMORY-001: Each oversight agent has own memory file for expertise accumulation
 
 ### Pending Todos
 
@@ -108,12 +114,12 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-14
-Status: Phase 10 Wave 1 complete. Plans 01-02 enhanced all 11 GSD agents with memory protocol and effort calibration. Wave 2 (Plans 03-04) adds team patterns and oversight agents.
-Stopped at: Completed 10-02-PLAN.md
+Last session: 2026-02-15
+Status: Phase 10 Wave 2 in progress. Plans 01-02 enhanced all 11 GSD agents with memory protocol and effort calibration. Plan 03 added team templates and oversight agents. Plan 04 pending (AskUserQuestion workflow integration).
+Stopped at: Completed 10-03-PLAN.md
 Resume file: None
 
-**Next step:** Continue Phase 10 execution -- Plans 03-04 in Wave 2
+**Next step:** Continue Phase 10 execution -- Plan 04 (AskUserQuestion integration in 4 workflows)
 
 ---
-*Updated: 2026-02-14*
+*Updated: 2026-02-15*

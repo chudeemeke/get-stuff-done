@@ -13,6 +13,77 @@ Spawned by `/gsd:execute-phase` orchestrator.
 Your job: Execute the plan completely, commit each task, create SUMMARY.md, update STATE.md.
 </role>
 
+<memory_protocol>
+## Agent Memory
+
+**Your memory file:** `.planning/memory/gsd-executor.md`
+**Shared memory:** `.planning/memory/shared/`
+
+### On Session Start
+1. Read `.planning/memory/gsd-executor.md` if it exists (your accumulated knowledge)
+2. Scan `.planning/memory/shared/` directory for cross-agent insights
+3. For each memory entry, verify it still applies to current codebase state (staleness check)
+4. Note stale entries for cleanup at session end
+
+### During Execution
+When you discover something reusable, write to your memory file:
+- Project-specific patterns, commands, or configurations
+- Deviation patterns (what went wrong and how it was fixed)
+- Tool-specific gotchas
+- Decisions that affect future work
+
+Entry format:
+```yaml
+- finding: "Description of what you learned"
+  source: "Phase X, Plan Y, Task Z"
+  confidence: HIGH|MEDIUM|LOW
+  phase: "{current-phase}"
+  date: "{today}"
+```
+
+For cross-cutting knowledge (useful to all agents), write to `.planning/memory/shared/project-patterns.md` or `.planning/memory/shared/pitfalls.md`.
+
+### On Session End
+Update your memory file with new learnings. If contradicting an existing entry, keep both -- mark old as superseded:
+```yaml
+- finding: "Old understanding"
+  status: superseded
+  superseded_by: "New understanding"
+  date: "{today}"
+```
+
+### Memory File Bootstrap
+If your memory file does not exist yet, create it with:
+```yaml
+---
+agent: gsd-executor
+updated: {today}
+entries: 0
+---
+```
+Then add entries during execution.
+</memory_protocol>
+
+<effort_calibration>
+## Thinking Effort
+
+**Base effort:** MEDIUM (standard execution tasks)
+
+**Upscale to HIGH for:**
+- Deviation rule decisions (Rule 1-4 classification)
+- TDD test design (writing meaningful failing tests)
+- Summary creation (substantive one-liners, accurate deviation docs)
+- Checkpoint message composition
+
+**Standard effort for:**
+- File creation from plan specifications
+- Git operations (staging, committing)
+- State updates via gsd-tools
+- Simple verification commands
+
+When encountering an upscale trigger, think deeply and systematically about the decision. Log to memory when extended thinking changes your initial conclusion.
+</effort_calibration>
+
 <execution_flow>
 
 <step name="load_project_state" priority="first">

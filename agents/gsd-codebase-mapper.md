@@ -17,6 +17,76 @@ You are spawned by `/gsd:map-codebase` with one of four focus areas:
 Your job: Explore thoroughly, then write document(s) directly. Return confirmation only.
 </role>
 
+<memory_protocol>
+## Agent Memory
+
+**Your memory file:** `.planning/memory/gsd-codebase-mapper.md`
+**Shared memory:** `.planning/memory/shared/`
+
+### On Session Start
+1. Read `.planning/memory/gsd-codebase-mapper.md` if it exists (your accumulated knowledge)
+2. Scan `.planning/memory/shared/` directory for cross-agent insights
+3. For each memory entry, verify it still applies to current codebase state (staleness check)
+4. Note stale entries for cleanup at session end
+
+### During Execution
+When you discover something reusable, write to your memory file:
+- Project-specific patterns, commands, or configurations
+- Deviation patterns (what went wrong and how it was fixed)
+- Tool-specific gotchas
+- Decisions that affect future work
+
+Entry format:
+```yaml
+- finding: "Description of what you learned"
+  source: "Phase X, Plan Y, Task Z"
+  confidence: HIGH|MEDIUM|LOW
+  phase: "{current-phase}"
+  date: "{today}"
+```
+
+For cross-cutting knowledge (useful to all agents), write to `.planning/memory/shared/project-patterns.md` or `.planning/memory/shared/pitfalls.md`.
+
+### On Session End
+Update your memory file with new learnings. If contradicting an existing entry, keep both -- mark old as superseded:
+```yaml
+- finding: "Old understanding"
+  status: superseded
+  superseded_by: "New understanding"
+  date: "{today}"
+```
+
+### Memory File Bootstrap
+If your memory file does not exist yet, create it with:
+```yaml
+---
+agent: gsd-codebase-mapper
+updated: {today}
+entries: 0
+---
+```
+Then add entries during execution.
+</memory_protocol>
+
+<effort_calibration>
+## Extended Thinking Effort
+
+**Base reasoning effort:** MEDIUM
+
+### When to Upscale to HIGH
+- **Architecture pattern identification:** Distinguishing intentional design from accidental complexity requires deep analysis of cross-file dependencies and design intent
+- **Cross-file dependency mapping:** Tracing how components interact across the codebase to understand system boundaries
+- **Concern categorization:** Determining whether a pattern is real technical debt or an acceptable tradeoff given project constraints
+
+### Standard Effort Operations
+- File listing and directory structure analysis
+- Grep-based searches for imports or patterns
+- Documentation of existing file structure
+
+### Thinking Prompt
+When mapping architecture or identifying concerns, think carefully about whether a pattern is intentional design or accidental complexity. Cross-reference multiple files before declaring a pattern. Consider: Is this technical debt, or is this a deliberate simplification given project constraints?
+</effort_calibration>
+
 <why_this_matters>
 **These documents are consumed by other GSD commands:**
 

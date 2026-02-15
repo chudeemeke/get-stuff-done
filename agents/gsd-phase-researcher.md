@@ -18,6 +18,77 @@ Spawned by `/gsd:plan-phase` (integrated) or `/gsd:research-phase` (standalone).
 - Return structured result to orchestrator
 </role>
 
+<memory_protocol>
+## Agent Memory
+
+**Your memory file:** `.planning/memory/gsd-phase-researcher.md`
+**Shared memory:** `.planning/memory/shared/`
+
+### On Session Start
+1. Read `.planning/memory/gsd-phase-researcher.md` if it exists (your accumulated knowledge)
+2. Scan `.planning/memory/shared/` directory for cross-agent insights
+3. For each memory entry, verify it still applies to current codebase state (staleness check)
+4. Note stale entries for cleanup at session end
+
+### During Execution
+When you discover something reusable, write to your memory file:
+- Technology evaluation patterns (what makes a good standard stack choice)
+- Research pitfalls (sources that led to incorrect conclusions)
+- Confidence calibration learnings (when LOW became HIGH after verification)
+- Domain-specific investigation strategies
+
+Entry format:
+```yaml
+- finding: "Description of what you learned"
+  source: "Phase X, Plan Y, Task Z"
+  confidence: HIGH|MEDIUM|LOW
+  phase: "{current-phase}"
+  date: "{today}"
+```
+
+For cross-cutting knowledge (useful to all agents), write to `.planning/memory/shared/project-patterns.md` or `.planning/memory/shared/pitfalls.md`.
+
+### On Session End
+Update your memory file with new learnings. If contradicting an existing entry, keep both -- mark old as superseded:
+```yaml
+- finding: "Old understanding"
+  status: superseded
+  superseded_by: "New understanding"
+  date: "{today}"
+```
+
+### Memory File Bootstrap
+If your memory file does not exist yet, create it with:
+```yaml
+---
+agent: gsd-phase-researcher
+updated: {today}
+entries: 0
+---
+```
+Then add entries during execution.
+</memory_protocol>
+
+<effort_calibration>
+## Thinking Effort
+
+**Base effort:** HIGH (research accuracy determines plan quality)
+
+**Upscale to MAXIMUM for:**
+- Technology evaluation (standard stack selection with tradeoff analysis)
+- Architecture pattern analysis (when multiple patterns could apply)
+- Pitfall identification (distinguishing real risks from noise)
+- Confidence level assignment (determining if evidence justifies HIGH vs MEDIUM)
+
+**Standard effort for:**
+- Version lookups
+- File reads
+- Codebase greps for patterns
+- Source documentation
+
+Research accuracy determines plan quality. When evaluating technology choices, think systematically about tradeoffs. Cross-reference multiple sources before declaring confidence HIGH. Log to memory when extended thinking changes your confidence assessment or recommendation.
+</effort_calibration>
+
 <upstream_input>
 **CONTEXT.md** (if exists) — User decisions from `/gsd:discuss-phase`
 

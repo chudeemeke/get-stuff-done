@@ -18,14 +18,28 @@ Then verify each level against the actual codebase.
 </core_principle>
 
 <required_reading>
-@~/.claude/get-stuff-done/references/verification-patterns.md
-@~/.claude/get-stuff-done/templates/verification-report.md
+@C:\Users\Destiny\.claude/get-stuff-done/references/verification-patterns.md
+@C:\Users\Destiny\.claude/get-stuff-done/templates/verification-report.md
 </required_reading>
 
 <process>
 
 <step name="load_context" priority="first">
 **Gather all verification context:**
+
+**First, use AskUserQuestion for verification scope:**
+- header: "Scope"
+- question: "What verification scope for this phase?"
+- multiSelect: false
+- options:
+  - label: "Full verification (Recommended)"
+    description: "Goal-backward analysis of all phase truths"
+  - label: "Quick check"
+    description: "Existence verification only, skip wiring"
+  - label: "Re-verify gaps"
+    description: "Only re-check previously failed items"
+
+Store scope choice for use in verification steps.
 
 ```bash
 # Phase directory (match both zero-padded and unpadded)
@@ -48,6 +62,10 @@ ls "$PHASE_DIR"/*-PLAN.md 2>/dev/null
 **Extract phase goal:** Parse ROADMAP.md for this phase's goal/description. This is the outcome to verify, not the tasks.
 
 **Extract requirements:** If REQUIREMENTS.md exists, find requirements mapped to this phase. These become additional verification targets.
+
+**Tool limitation note:**
+AskUserQuestion is only available in foreground (orchestrator) context.
+This workflow is executed by a verification subagent, so the orchestrator must ask scope question before spawning the verifier.
 </step>
 
 <step name="establish_must_haves">
@@ -564,7 +582,7 @@ Fill template sections:
 9. **Recommended Fix Plans:** If gaps_found
 10. **Verification Metadata:** Approach, timing, counts
 
-See ~/.claude/get-stuff-done/templates/verification-report.md for complete template.
+See C:\Users\Destiny\.claude/get-stuff-done/templates/verification-report.md for complete template.
 </step>
 
 <step name="return_to_orchestrator">

@@ -211,10 +211,10 @@ Execute each wave in sequence. Autonomous plans within a wave run in parallel.
    </objective>
 
    <execution_context>
-   @~/.claude/get-stuff-done/workflows/execute-plan.md
-   @~/.claude/get-stuff-done/templates/summary.md
-   @~/.claude/get-stuff-done/references/checkpoints.md
-   @~/.claude/get-stuff-done/references/tdd.md
+   @C:\Users\Destiny\.claude/get-stuff-done/workflows/execute-plan.md
+   @C:\Users\Destiny\.claude/get-stuff-done/templates/summary.md
+   @C:\Users\Destiny\.claude/get-stuff-done/references/checkpoints.md
+   @C:\Users\Destiny\.claude/get-stuff-done/references/tdd.md
    </execution_context>
 
    <context>
@@ -281,7 +281,25 @@ Execute each wave in sequence. Autonomous plans within a wave run in parallel.
 
    See `<checkpoint_handling>` for details.
 
-6. **Proceed to next wave**
+6. **After wave completes, use AskUserQuestion for next wave:**
+
+   If more waves remain:
+   - header: "Next Wave"
+   - question: "Wave {N} complete. Proceed to wave {N+1}?"
+   - multiSelect: false
+   - options:
+     - label: "Continue (Recommended)"
+       description: "Proceed to next wave"
+     - label: "Review first"
+       description: "Review wave {N} outputs before continuing"
+     - label: "Stop here"
+       description: "Pause execution, resume later with /gsd:execute-phase"
+
+   If "Continue" → proceed to next wave
+   If "Review first" → display wave summary, then offer continue/stop
+   If "Stop here" → exit with partial completion report
+
+7. **Proceed to next wave if continuing**
 
 </step>
 
@@ -299,7 +317,7 @@ Plans with `autonomous: false` require user interaction.
 
 2. **Agent runs until checkpoint:**
    - Executes auto tasks normally
-   - Reaches checkpoint task (e.g., `type="checkpoint:human-verify"`) or auth gate
+   - Reaches checkpoint task (e.g., `type="checkpoint:human-verify"` or `type="checkpoint:decision"`) or auth gate
    - Agent returns with structured checkpoint (see checkpoint-return.md template)
 
 3. **Agent return includes (structured format):**
@@ -310,22 +328,32 @@ Plans with `autonomous: false` require user interaction.
 
 4. **Orchestrator presents checkpoint to user:**
 
-   Extract and display the "Checkpoint Details" and "Awaiting" sections from agent return:
-   ```
-   ## Checkpoint: [Type]
+   Extract and display the "Checkpoint Details" and "Awaiting" sections from agent return.
 
-   **Plan:** 03-03 Dashboard Layout
-   **Progress:** 2/3 tasks complete
+   **For checkpoint:decision tasks:**
+   Use AskUserQuestion:
+   - header: "Decision"
+   - question: [from checkpoint's decision element]
+   - multiSelect: false
+   - options: Build from checkpoint's options element (max 4):
+     - label: "[Option name]"
+       description: "[What this choice means]"
 
-   [Checkpoint Details section from agent return]
+   **For checkpoint:human-verify tasks:**
+   Present verification steps, then use AskUserQuestion:
+   - header: "Verify"
+   - question: "Does the verification pass?"
+   - multiSelect: false
+   - options:
+     - label: "Approved"
+       description: "Everything works as expected, continue execution"
+     - label: "Issues found"
+       description: "Describe issues, executor will address them"
 
-   [Awaiting section from agent return]
-   ```
+   **For checkpoint:human-action tasks:**
+   Present manual action needed, wait for confirmation (plain text, not AskUserQuestion)
 
-5. **User responds:**
-   - "approved" / "done" → spawn continuation agent
-   - Description of issues → spawn continuation agent with feedback
-   - Decision selection → spawn continuation agent with choice
+5. **User responds via AskUserQuestion or plain text**
 
 6. **Spawn continuation agent (NOT resume):**
 
@@ -342,7 +370,7 @@ Plans with `autonomous: false` require user interaction.
    - `{completed_tasks_table}`: From agent's checkpoint return
    - `{resume_task_number}`: Current task from checkpoint
    - `{resume_task_name}`: Current task name from checkpoint
-   - `{user_response}`: What user provided
+   - `{user_response}`: What user provided (from AskUserQuestion or plain text)
    - `{resume_instructions}`: Based on checkpoint type (see continuation-prompt.md)
 
 7. **Continuation agent executes:**
@@ -362,9 +390,14 @@ If a plan in a parallel wave has a checkpoint:
 - Spawn as normal
 - Agent pauses at checkpoint and returns with structured state
 - Other parallel agents may complete while waiting
-- Present checkpoint to user
+- Present checkpoint to user using AskUserQuestion
 - Spawn continuation agent with user response
 - Wait for all agents to finish before next wave
+
+**Tool limitation note:**
+AskUserQuestion is only available in foreground (orchestrator) context.
+Subagents (gsd-executor) CANNOT use AskUserQuestion.
+All checkpoint interactions must be handled by the orchestrator.
 </step>
 
 <step name="aggregate_results">

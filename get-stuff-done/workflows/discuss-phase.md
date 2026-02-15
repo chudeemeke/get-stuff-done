@@ -137,12 +137,16 @@ ls .planning/phases/${PADDED_PHASE}-*/*-CONTEXT.md .planning/phases/${PHASE}-*/*
 
 **If exists:**
 Use AskUserQuestion:
-- header: "Existing context"
+- header: "Context"
 - question: "Phase [X] already has context. What do you want to do?"
+- multiSelect: false
 - options:
-  - "Update it" — Review and revise existing context
-  - "View it" — Show me what's there
-  - "Skip" — Use existing context as-is
+  - label: "Update it"
+    description: "Review and revise existing context"
+  - label: "View it"
+    description: "Show me what's there"
+  - label: "Skip"
+    description: "Use existing context as-is"
 
 If "Update": Load existing, continue to analyze_phase
 If "View": Display CONTEXT.md, then offer update/skip
@@ -188,12 +192,24 @@ We'll clarify HOW to implement this.
 (New capabilities belong in other phases.)
 ```
 
-**Then use AskUserQuestion (multiSelect: true):**
+**Then use AskUserQuestion:**
+- header: "Scope"
+- question: "Which areas need discussion before planning?"
+- multiSelect: true
+- options:
+  - label: "All gray areas"
+    description: "Discuss every area where approach is unclear"
+  - label: "High-risk only"
+    description: "Focus on decisions that could cause rework if wrong"
+  - label: "Quick defaults"
+    description: "Accept recommendations, only discuss blockers"
+
+**After selection, present specific gray areas using AskUserQuestion (multiSelect: true):**
 - header: "Discuss"
-- question: "Which areas do you want to discuss for [phase name]?"
+- question: "Which specific areas do you want to discuss for [phase name]?"
 - options: Generate 3-4 phase-specific gray areas, each formatted as:
-  - "[Specific area]" (label) — concrete, not generic
-  - [1-2 questions this covers] (description)
+  - label: "[Specific area]" — concrete, not generic (1-5 words)
+  - description: [1-2 questions this covers]
 
 **Do NOT include a "skip" or "you decide" option.** User ran this command to discuss — give them real choices.
 
@@ -201,33 +217,45 @@ We'll clarify HOW to implement this.
 
 For "Post Feed" (visual feature):
 ```
-☐ Layout style — Cards vs list vs timeline? Information density?
-☐ Loading behavior — Infinite scroll or pagination? Pull to refresh?
-☐ Content ordering — Chronological, algorithmic, or user choice?
-☐ Post metadata — What info per post? Timestamps, reactions, author?
+- label: "Layout style"
+  description: "Cards vs list vs timeline? Information density?"
+- label: "Loading behavior"
+  description: "Infinite scroll or pagination? Pull to refresh?"
+- label: "Content ordering"
+  description: "Chronological, algorithmic, or user choice?"
+- label: "Post metadata"
+  description: "What info per post? Timestamps, reactions, author?"
 ```
 
 For "Database backup CLI" (command-line tool):
 ```
-☐ Output format — JSON, table, or plain text? Verbosity levels?
-☐ Flag design — Short flags, long flags, or both? Required vs optional?
-☐ Progress reporting — Silent, progress bar, or verbose logging?
-☐ Error recovery — Fail fast, retry, or prompt for action?
+- label: "Output format"
+  description: "JSON, table, or plain text? Verbosity levels?"
+- label: "Flag design"
+  description: "Short flags, long flags, or both? Required vs optional?"
+- label: "Progress reporting"
+  description: "Silent, progress bar, or verbose logging?"
+- label: "Error recovery"
+  description: "Fail fast, retry, or prompt for action?"
 ```
 
 For "Organize photo library" (organization task):
 ```
-☐ Grouping criteria — By date, location, faces, or events?
-☐ Duplicate handling — Keep best, keep all, or prompt each time?
-☐ Naming convention — Original names, dates, or descriptive?
-☐ Folder structure — Flat, nested by year, or by category?
+- label: "Grouping criteria"
+  description: "By date, location, faces, or events?"
+- label: "Duplicate handling"
+  description: "Keep best, keep all, or prompt each time?"
+- label: "Naming convention"
+  description: "Original names, dates, or descriptive?"
+- label: "Folder structure"
+  description: "Flat, nested by year, or by category?"
 ```
 
 Continue to discuss_areas with selected areas.
 </step>
 
 <step name="discuss_areas">
-For each selected area, conduct a focused discussion loop.
+For each selected area, conduct a focused discussion loop using AskUserQuestion.
 
 **Philosophy: 4 questions, then check.**
 
@@ -240,24 +268,40 @@ Ask 4 questions per area before offering to continue or move on. Each answer oft
    Let's talk about [Area].
    ```
 
-2. **Ask 4 questions using AskUserQuestion:**
-   - header: "[Area]"
+2. **Ask up to 4 questions using AskUserQuestion (batch related questions):**
+   - header: "[Abbreviated area name]" (max 12 chars)
    - question: Specific decision for this area
-   - options: 2-3 concrete choices (AskUserQuestion adds "Other" automatically)
+   - multiSelect: false
+   - options: 2-4 concrete choices with descriptions
+     - label: "[Choice]" (1-5 words)
+     - description: "[What this means]"
    - Include "You decide" as an option when reasonable — captures Claude discretion
+   - AskUserQuestion automatically adds "Other" option
 
-3. **After 4 questions, check:**
-   - header: "[Area]"
+3. **After 4 questions, check using AskUserQuestion:**
+   - header: "[Area]" (abbreviated, max 12 chars)
    - question: "More questions about [area], or move to next?"
-   - options: "More questions" / "Next area"
+   - multiSelect: false
+   - options:
+     - label: "More questions"
+       description: "Continue exploring this area"
+     - label: "Next area"
+       description: "Move to next discussion topic"
 
    If "More questions" → ask 4 more, then check again
    If "Next area" → proceed to next selected area
 
-4. **After all areas complete:**
-   - header: "Done"
-   - question: "That covers [list areas]. Ready to create context?"
-   - options: "Create context" / "Revisit an area"
+4. **After all areas complete, use AskUserQuestion:**
+   - header: "Finalize"
+   - question: "Ready to finalize these decisions for planning?"
+   - multiSelect: false
+   - options:
+     - label: "Finalize (Recommended)"
+       description: "Lock decisions, proceed to research and planning"
+     - label: "Revise decisions"
+       description: "Go back and change specific decisions"
+     - label: "Add more areas"
+       description: "Discuss additional gray areas not yet covered"
 
 **Question design:**
 - Options should be concrete, not abstract ("Cards" not "Option A")
@@ -274,6 +318,10 @@ Back to [current area]: [return to current question]"
 ```
 
 Track deferred ideas internally.
+
+**Tool limitation note:**
+AskUserQuestion is only available in foreground (orchestrator) context.
+All structured questions must be asked by the orchestrator before/after spawning subagents.
 </step>
 
 <step name="write_context">

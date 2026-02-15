@@ -15,7 +15,7 @@ No Pass/Fail buttons. No severity questions. Just: "Here's what should happen. D
 </philosophy>
 
 <template>
-@~/.claude/get-stuff-done/templates/UAT.md
+@C:\Users\Destiny\.claude/get-stuff-done/templates/UAT.md
 </template>
 
 <process>
@@ -59,18 +59,33 @@ Display inline:
 |---|-------|--------|--------------|----------|
 | 1 | 04-comments | testing | 3. Reply to Comment | 2/6 |
 | 2 | 05-auth | testing | 1. Login Form | 0/4 |
-
-Reply with a number to resume, or provide a phase number to start new.
 ```
 
-Wait for user response.
+Use AskUserQuestion (if more than one active session):
+- header: "Session"
+- question: "Which UAT session to work on?"
+- multiSelect: false
+- options: Dynamically build from active sessions (max 4):
+  - label: "Phase [X]: [Name]"
+    description: "[Status] - [Current Test] ([Progress])"
 
-- If user replies with number (1, 2) → Load that file, go to `resume_from_file`
-- If user replies with phase number → Treat as new session, go to `create_uat_file`
+If single active session, auto-load it.
+
+- If user selects session → Load that file, go to `resume_from_file`
+- If user provides phase number in chat → Treat as new session, go to `create_uat_file`
 
 **If active sessions exist AND $ARGUMENTS provided:**
 
-Check if session exists for that phase. If yes, offer to resume or restart.
+Check if session exists for that phase. If yes, offer to resume or restart using AskUserQuestion:
+- header: "Session"
+- question: "Phase [X] has an active session. Resume or restart?"
+- multiSelect: false
+- options:
+  - label: "Resume"
+    description: "Continue from current test"
+  - label: "Restart"
+    description: "Start over from test 1"
+
 If no, continue to `create_uat_file`.
 
 **If no active sessions AND no $ARGUMENTS:**
@@ -234,12 +249,17 @@ reason: [user's reason if provided]
 **If response is anything else:**
 - Treat as issue description
 
-Infer severity from description:
-- Contains: crash, error, exception, fails, broken, unusable → blocker
-- Contains: doesn't work, wrong, missing, can't → major
-- Contains: slow, weird, off, minor, small → minor
-- Contains: color, font, spacing, alignment, visual → cosmetic
-- Default if unclear: major
+Use AskUserQuestion to clarify severity:
+- header: "Severity"
+- question: "How severe is this issue?"
+- multiSelect: false
+- options:
+  - label: "Blocker"
+    description: "Cannot proceed, core functionality broken"
+  - label: "Major"
+    description: "Works but wrong behavior, needs fix before ship"
+  - label: "Minor"
+    description: "Cosmetic or edge case, can ship with known issue"
 
 Update Tests section:
 ```
@@ -247,7 +267,7 @@ Update Tests section:
 expected: {expected}
 result: issue
 reported: "{verbatim user response}"
-severity: {inferred}
+severity: {from AskUserQuestion}
 ```
 
 Append to Gaps section (structured YAML for plan-phase --gaps):
@@ -255,7 +275,7 @@ Append to Gaps section (structured YAML for plan-phase --gaps):
 - truth: "{expected behavior from test}"
   status: failed
   reason: "User reported: {verbatim user response}"
-  severity: {inferred}
+  severity: {from AskUserQuestion}
   test: {N}
   artifacts: []  # Filled by diagnosis
   missing: []    # Filled by diagnosis
@@ -268,6 +288,11 @@ Update frontmatter.updated timestamp.
 
 If more tests remain → Update Current Test, go to `present_test`
 If no more tests → Go to `complete_session`
+
+**Tool limitation note:**
+AskUserQuestion is only available in foreground (orchestrator) context.
+Subagents (gsd-verifier) CANNOT use AskUserQuestion.
+All structured questions must be asked by the orchestrator.
 </step>
 
 <step name="resume_from_file">
@@ -337,7 +362,19 @@ Present summary:
 [List from Issues section]
 ```
 
-**If issues > 0:** Proceed to `diagnose_issues`
+**If issues > 0:** Use AskUserQuestion for next steps:
+- header: "Next Steps"
+- question: "How to proceed with UAT results?"
+- multiSelect: false
+- options:
+  - label: "Accept results"
+    description: "Close session, create gap plans if failures exist"
+  - label: "Retest failures"
+    description: "Re-run failed tests after fixes"
+  - label: "Add tests"
+    description: "Add more test scenarios before closing"
+
+Then proceed to `diagnose_issues` if "Accept results"
 
 **If issues == 0:**
 ```
@@ -360,7 +397,7 @@ Spawning parallel debug agents to investigate each issue.
 ```
 
 - Load diagnose-issues workflow
-- Follow @~/.claude/get-stuff-done/workflows/diagnose-issues.md
+- Follow @C:\Users\Destiny\.claude/get-stuff-done/workflows/diagnose-issues.md
 - Spawn parallel debug agents for each issue
 - Collect root causes
 - Update UAT.md with root causes

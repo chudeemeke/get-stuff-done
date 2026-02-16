@@ -40,6 +40,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@anthropic-ai/claude-code": "^2.1.42",
     "ajv": "^8.17.1",
     "json5": "^2.2.3",
     "pathe": "^2.0.3"
@@ -56,6 +57,8 @@
     "build:hooks": "node scripts/build-hooks.js",
     "prepublishOnly": "git diff --check HEAD && bun run build:hooks",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage"
   }
 }

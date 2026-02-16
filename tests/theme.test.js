@@ -443,3 +443,127 @@ describe('tokens', () => {
     });
   });
 });
+
+describe('Style - coverage gap closure', () => {
+  test('blink() applies SGR blink code', () => {
+    const style = new Style().blink();
+    const output = style.build();
+    expect(output).toBe('\x1b[5m');
+  });
+
+  test('blink() can be chained with other styles', () => {
+    const style = new Style().bold().blink().fg('red');
+    const output = style.render('text');
+    expect(output).toContain('\x1b[1;5;31m');
+    expect(output).toContain('text');
+  });
+
+  test('hidden() applies SGR hidden code', () => {
+    const style = new Style().hidden();
+    const output = style.build();
+    expect(output).toBe('\x1b[8m');
+  });
+
+  test('hidden() can be chained with other styles', () => {
+    const style = new Style().hidden().fg('cyan');
+    const output = style.render('secret');
+    expect(output).toContain('\x1b[8;36m');
+    expect(output).toContain('secret');
+  });
+});
+
+describe('themes - coverage gap closure', () => {
+  /**
+   * Helper to clean color-related env vars for theme tests
+   */
+  function cleanColorEnv() {
+    const saved = {};
+    const clearVars = ['COLORTERM', 'TERM', 'WT_SESSION', 'TERM_PROGRAM', 'ConEmuTask'];
+    clearVars.forEach(v => {
+      saved[v] = process.env[v];
+      delete process.env[v];
+    });
+
+    return () => {
+      clearVars.forEach(v => {
+        if (saved[v] !== undefined) {
+          process.env[v] = saved[v];
+        } else {
+          delete process.env[v];
+        }
+      });
+    };
+  }
+
+  describe('supports256Color() detection', () => {
+    test('returns true when COLORTERM=truecolor', () => {
+      const restore = cleanColorEnv();
+      process.env.COLORTERM = 'truecolor';
+
+      const result = supports256Color();
+      expect(result).toBe(true);
+
+      restore();
+    });
+
+    test('returns true when COLORTERM=256color', () => {
+      const restore = cleanColorEnv();
+      process.env.COLORTERM = '256color';
+
+      const result = supports256Color();
+      expect(result).toBe(true);
+
+      restore();
+    });
+
+    test('returns true when TERM includes 256color', () => {
+      const restore = cleanColorEnv();
+      process.env.TERM = 'xterm-256color';
+
+      const result = supports256Color();
+      expect(result).toBe(true);
+
+      restore();
+    });
+
+    test('returns true when WT_SESSION is set', () => {
+      const restore = cleanColorEnv();
+      process.env.WT_SESSION = 'some-session-id';
+
+      const result = supports256Color();
+      expect(result).toBe(true);
+
+      restore();
+    });
+
+    test('returns true when TERM_PROGRAM=vscode', () => {
+      const restore = cleanColorEnv();
+      process.env.TERM_PROGRAM = 'vscode';
+
+      const result = supports256Color();
+      expect(result).toBe(true);
+
+      restore();
+    });
+
+    test('returns true when ConEmuTask is set', () => {
+      const restore = cleanColorEnv();
+      process.env.ConEmuTask = '{cmd::Cmd}';
+
+      const result = supports256Color();
+      expect(result).toBe(true);
+
+      restore();
+    });
+
+    test('returns false when no 256-color indicators present', () => {
+      const restore = cleanColorEnv();
+      process.env.TERM = 'xterm';
+
+      const result = supports256Color();
+      expect(result).toBe(false);
+
+      restore();
+    });
+  });
+});

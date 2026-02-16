@@ -134,16 +134,21 @@ Plans:
 **Requirements**: CI-01
 
 **Success Criteria** (what must be TRUE):
-  1. GitHub Actions workflow runs on every push with matrix testing across macOS, Linux, and Windows
+  1. GitHub Actions workflow runs on every push and PR with matrix testing across macOS, Linux, and Windows
   2. Test suite validates installation, config loading, statusline rendering, and hook execution on all platforms
-  3. CI blocks merge if any platform fails tests or ESLint security violations are detected
-  4. Workflow completes in under 5 minutes for fast feedback
-  5. Source-to-installed parity check ensures all distributable artifacts exist in project source
+  3. CI reports pass/fail as signal (no branch protection or merge blocking)
+  4. ESLint runs alongside tests with violations reported in CI output
+  5. Workflow completes in under 5 minutes with bun dependency caching
+  6. Source-to-installed parity check ensures all distributable artifacts exist in project source
 
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 11-01: TBD
+- [ ] 11-01-PLAN.md -- Test infrastructure setup (bun test config, helpers, fixtures, migrate gsd-tools tests)
+- [ ] 11-02-PLAN.md -- Unit tests for src/ modules (config, platform, validation, theme)
+- [ ] 11-03-PLAN.md -- Tests for hooks and launcher (gsd-check-update, gsd-statusline, pre-compact, gsd.js)
+- [ ] 11-04-PLAN.md -- Tests for installer (bin/install.js)
+- [ ] 11-05-PLAN.md -- GitHub Actions CI workflow, parity check script, and integration verification
 
 ---
 
@@ -158,7 +163,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 | 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
 | 9. Cross-Platform Foundation | 4/4 | Complete (UAT: 10/11 pass, 1 minor env quirk) | 2026-02-09 |
 | 10. Claude Code Capability Adoption | 8/8 | Complete (re-verified 5/5, all gaps closed) | 2026-02-16 |
-| 11. CI/CD | 0/TBD | Not started | - |
+| 11. CI/CD | 0/5 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-07*

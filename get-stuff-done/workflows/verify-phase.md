@@ -18,8 +18,8 @@ Then verify each level against the actual codebase.
 </core_principle>
 
 <required_reading>
-@C:\Users\Destiny\.claude/get-stuff-done/references/verification-patterns.md
-@C:\Users\Destiny\.claude/get-stuff-done/templates/verification-report.md
+@~/.claude/get-stuff-done/references/verification-patterns.md
+@~/.claude/get-stuff-done/templates/verification-report.md
 </required_reading>
 
 <process>
@@ -582,7 +582,7 @@ Fill template sections:
 9. **Recommended Fix Plans:** If gaps_found
 10. **Verification Metadata:** Approach, timing, counts
 
-See C:\Users\Destiny\.claude/get-stuff-done/templates/verification-report.md for complete template.
+See ~/.claude/get-stuff-done/templates/verification-report.md for complete template.
 </step>
 
 <step name="return_to_orchestrator">

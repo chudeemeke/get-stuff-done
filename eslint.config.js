@@ -41,5 +41,28 @@ module.exports = [
       'security/detect-object-injection': 'warn',
       'security/detect-unsafe-regex': 'warn'
     }
+  },
+  {
+    files: ['tests/**/*.js'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeAll: 'readonly',
+        beforeEach: 'readonly',
+        afterAll: 'readonly',
+        afterEach: 'readonly',
+        jest: 'readonly',
+        mock: 'readonly'
+      }
+    },
+    rules: {
+      'security/detect-non-literal-fs-filename': 'off',
+      'security/detect-non-literal-require': 'off',
+      'security/detect-child-process': 'off',
+      'security/detect-object-injection': 'off'
+    }
   }
 ];

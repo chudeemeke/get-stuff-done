@@ -15,7 +15,7 @@ No Pass/Fail buttons. No severity questions. Just: "Here's what should happen. D
 </philosophy>
 
 <template>
-@C:\Users\Destiny\.claude/get-stuff-done/templates/UAT.md
+@~/.claude/get-stuff-done/templates/UAT.md
 </template>
 
 <process>
@@ -397,7 +397,7 @@ Spawning parallel debug agents to investigate each issue.
 ```
 
 - Load diagnose-issues workflow
-- Follow @C:\Users\Destiny\.claude/get-stuff-done/workflows/diagnose-issues.md
+- Follow @~/.claude/get-stuff-done/workflows/diagnose-issues.md
 - Spawn parallel debug agents for each issue
 - Collect root causes
 - Update UAT.md with root causes

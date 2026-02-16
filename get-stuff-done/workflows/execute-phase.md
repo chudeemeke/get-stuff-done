@@ -211,10 +211,10 @@ Execute each wave in sequence. Autonomous plans within a wave run in parallel.
    </objective>
 
    <execution_context>
-   @C:\Users\Destiny\.claude/get-stuff-done/workflows/execute-plan.md
-   @C:\Users\Destiny\.claude/get-stuff-done/templates/summary.md
-   @C:\Users\Destiny\.claude/get-stuff-done/references/checkpoints.md
-   @C:\Users\Destiny\.claude/get-stuff-done/references/tdd.md
+   @~/.claude/get-stuff-done/workflows/execute-plan.md
+   @~/.claude/get-stuff-done/templates/summary.md
+   @~/.claude/get-stuff-done/references/checkpoints.md
+   @~/.claude/get-stuff-done/references/tdd.md
    </execution_context>
 
    <context>

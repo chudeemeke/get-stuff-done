@@ -112,7 +112,7 @@ Plans:
   4. config.json controls memory, effort, and teams configuration with all user decisions reflected
   5. All Phase 10 artifacts exist in project source (publishable via npm), not only in installed location
 
-**Plans**: 7 plans
+**Plans**: 8 plans
 
 Plans:
 - [x] 10-01-PLAN.md -- Memory protocol scaffold and core agent enhancements (executor, verifier, planner, phase-researcher, plan-checker, debugger)
@@ -122,6 +122,7 @@ Plans:
 - [x] 10-05-PLAN.md -- [GAP CLOSURE] Sync agent and team files from installed to project source
 - [x] 10-06-PLAN.md -- [GAP CLOSURE] Installer teams/ handling and backup file cleanup
 - [x] 10-07-PLAN.md -- [GAP CLOSURE] Sync workflow files from installed to project source
+- [x] 10-08-PLAN.md -- [GAP CLOSURE] Replace hardcoded paths with portable paths in workflow source
 
 ---
 
@@ -156,9 +157,9 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 | 7. Security Hardening & Tooling | 3/3 | Complete | 2026-02-08 |
 | 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
 | 9. Cross-Platform Foundation | 4/4 | Complete (UAT: 10/11 pass, 1 minor env quirk) | 2026-02-09 |
-| 10. Claude Code Capability Adoption | 7/7 | Complete (verified 5/5) | 2026-02-15 |
+| 10. Claude Code Capability Adoption | 8/8 | Complete (re-verified 5/5, all gaps closed) | 2026-02-16 |
 | 11. CI/CD | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-15*
+*Last updated: 2026-02-16*

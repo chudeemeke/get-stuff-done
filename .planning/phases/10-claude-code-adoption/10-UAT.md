@@ -1,9 +1,9 @@
 ---
 status: complete
 phase: 10-claude-code-adoption
-source: 10-01-SUMMARY.md, 10-02-SUMMARY.md, 10-03-SUMMARY.md, 10-04-SUMMARY.md, 10-05-SUMMARY.md, 10-06-SUMMARY.md, 10-07-SUMMARY.md
+source: 10-01-SUMMARY.md, 10-02-SUMMARY.md, 10-03-SUMMARY.md, 10-04-SUMMARY.md, 10-05-SUMMARY.md, 10-06-SUMMARY.md, 10-07-SUMMARY.md, 10-08-SUMMARY.md
 started: 2026-02-15T12:00:00Z
-updated: 2026-02-15T18:30:00Z
+updated: 2026-02-16T22:00:00Z
 ---
 
 ## Current Test
@@ -49,11 +49,11 @@ result: pass
 expected: Check project source agents/ directory -- agent files (e.g., gsd-executor.md, gsd-planner.md) contain `<memory_protocol>` and `<effort_calibration>` sections. All 11 standard agents plus 4 oversight agents = 15 files total.
 result: pass
 
-### 10. Portable Paths in Source
+### 10. Portable Paths in Source (Retest)
 expected: No hardcoded `C:\Users\Destiny` references in any project source agent, team, or workflow files. All paths use portable `~/.claude/` format.
-result: issue
-reported: "Hardcoded paths from the installed copy in 3 workflow source files: verify-work.md (2 refs), execute-phase.md (4 refs), verify-phase.md (3 refs). All are @template directives with C:\Users\Destiny\.claude/ instead of ~/.claude/. Agents and teams are clean."
-severity: major
+result: pass
+previous: issue (diagnosed, gap closure 10-08 executed)
+verification: 0 hardcoded path matches in get-stuff-done/, agents/, commands/. All 9 @template directives use ~/.claude/ format. 41 matches in .planning/ docs (expected, non-distributable).
 
 ### 11. Workflow AskUserQuestion in Source
 expected: Project source get-stuff-done/workflows/ files (discuss-phase.md, verify-work.md, execute-phase.md, verify-phase.md) contain AskUserQuestion calls matching installed versions. Expected counts: discuss-phase 9, verify-work 9, execute-phase 9, verify-phase 2.
@@ -70,8 +70,8 @@ result: pass
 ## Summary
 
 total: 13
-passed: 12
-issues: 1
+passed: 13
+issues: 0
 pending: 0
 skipped: 0
 
@@ -82,7 +82,7 @@ skipped: 0
   reason: "User reported: hardcoded paths from installed copy in 3 workflow source files -- verify-work.md (2 refs), execute-phase.md (4 refs), verify-phase.md (3 refs). All @template directives use C:\\Users\\Destiny\\.claude/ instead of ~/.claude/"
   severity: major
   test: 10
-  root_cause: ""
+  root_cause: "Plan 10-07 copied workflow files from installed location (where installer's copyWithPathReplacement had already converted ~/.claude/ to C:\\Users\\Destiny\\.claude/) directly to project source without reversing the path conversion. The 10-07 SUMMARY incorrectly claimed 0 hardcoded path matches."
   artifacts:
     - path: "get-stuff-done/workflows/verify-work.md"
       issue: "2 @template directives with hardcoded C:\\Users\\Destiny\\.claude/ path"
@@ -91,5 +91,5 @@ skipped: 0
     - path: "get-stuff-done/workflows/verify-phase.md"
       issue: "3 @template directives with hardcoded C:\\Users\\Destiny\\.claude/ path"
   missing:
-    - "Replace C:\\Users\\Destiny\\.claude/ with ~/.claude/ in all 9 @template directives"
-  debug_session: ""
+    - "Replace C:\\Users\\Destiny\\.claude/ with ~/.claude/ in all 9 @template directives across 3 workflow source files"
+  debug_session: "Root cause identified during UAT testing -- no separate debug session needed"

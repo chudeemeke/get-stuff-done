@@ -2,13 +2,12 @@
  * GSD Tools Tests — Schema validation for history-digest command
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-const assert = require('node:assert');
+const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const TOOLS_PATH = path.join(__dirname, 'gsd-tools.js');
+const TOOLS_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.js');
 
 // Helper to run gsd-tools command
 function runGsdTools(args, cwd = process.cwd()) {
@@ -52,13 +51,13 @@ describe('history-digest command', () => {
 
   test('empty phases directory returns valid schema', () => {
     const result = runGsdTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const digest = JSON.parse(result.output);
 
-    assert.deepStrictEqual(digest.phases, {}, 'phases should be empty object');
-    assert.deepStrictEqual(digest.decisions, [], 'decisions should be empty array');
-    assert.deepStrictEqual(digest.tech_stack, [], 'tech_stack should be empty array');
+    expect(digest.phases).toEqual({});
+    expect(digest.decisions).toEqual([]);
+    expect(digest.tech_stack).toEqual([]);
   });
 
   test('nested frontmatter fields extracted correctly', () => {
@@ -93,45 +92,28 @@ key-decisions:
     fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), summaryContent);
 
     const result = runGsdTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const digest = JSON.parse(result.output);
 
     // Check nested dependency-graph.provides
-    assert.ok(digest.phases['01'], 'Phase 01 should exist');
-    assert.deepStrictEqual(
-      digest.phases['01'].provides.sort(),
-      ['Auth system', 'Database schema'],
-      'provides should contain nested values'
-    );
+    expect(digest.phases['01']).toBeTruthy();
+    expect(digest.phases['01'].provides.sort()).toEqual(['Auth system', 'Database schema']);
 
     // Check nested dependency-graph.affects
-    assert.deepStrictEqual(
-      digest.phases['01'].affects,
-      ['API layer'],
-      'affects should contain nested values'
-    );
+    expect(digest.phases['01'].affects).toEqual(['API layer']);
 
     // Check nested tech-stack.added
-    assert.deepStrictEqual(
-      digest.tech_stack.sort(),
-      ['jose', 'prisma'],
-      'tech_stack should contain nested values'
-    );
+    expect(digest.tech_stack.sort()).toEqual(['jose', 'prisma']);
 
     // Check patterns-established (flat array)
-    assert.deepStrictEqual(
-      digest.phases['01'].patterns.sort(),
-      ['JWT auth flow', 'Repository pattern'],
-      'patterns should be extracted'
-    );
+    expect(digest.phases['01'].patterns.sort()).toEqual(['JWT auth flow', 'Repository pattern']);
 
     // Check key-decisions
-    assert.strictEqual(digest.decisions.length, 2, 'Should have 2 decisions');
-    assert.ok(
-      digest.decisions.some(d => d.decision === 'Use Prisma over Drizzle'),
-      'Should contain first decision'
-    );
+    expect(digest.decisions.length).toBe(2);
+    expect(
+      digest.decisions.some(d => d.decision === 'Use Prisma over Drizzle')
+    ).toBe(true);
   });
 
   test('multiple phases merged into single digest', () => {
@@ -175,19 +157,19 @@ tech-stack:
     );
 
     const result = runGsdTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const digest = JSON.parse(result.output);
 
     // Both phases present
-    assert.ok(digest.phases['01'], 'Phase 01 should exist');
-    assert.ok(digest.phases['02'], 'Phase 02 should exist');
+    expect(digest.phases['01']).toBeTruthy();
+    expect(digest.phases['02']).toBeTruthy();
 
     // Decisions merged
-    assert.strictEqual(digest.decisions.length, 2, 'Should have 2 decisions total');
+    expect(digest.decisions.length).toBe(2);
 
     // Tech stack merged
-    assert.deepStrictEqual(digest.tech_stack, ['zod'], 'tech_stack should have zod');
+    expect(digest.tech_stack).toEqual(['zod']);
   });
 
   test('malformed SUMMARY.md skipped gracefully', () => {
@@ -223,14 +205,13 @@ broken: [unclosed
     );
 
     const result = runGsdTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command should succeed despite malformed files: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const digest = JSON.parse(result.output);
-    assert.ok(digest.phases['01'], 'Phase 01 should exist');
-    assert.ok(
-      digest.phases['01'].provides.includes('Valid feature'),
-      'Valid feature should be extracted'
-    );
+    expect(digest.phases['01']).toBeTruthy();
+    expect(
+      digest.phases['01'].provides.includes('Valid feature')
+    ).toBe(true);
   });
 
   test('flat provides field still works (backward compatibility)', () => {
@@ -248,14 +229,10 @@ provides:
     );
 
     const result = runGsdTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const digest = JSON.parse(result.output);
-    assert.deepStrictEqual(
-      digest.phases['01'].provides,
-      ['Direct provides'],
-      'Direct provides should work'
-    );
+    expect(digest.phases['01'].provides).toEqual(['Direct provides']);
   });
 
   test('inline array syntax supported', () => {
@@ -273,19 +250,11 @@ patterns-established: ["Pattern X", "Pattern Y"]
     );
 
     const result = runGsdTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const digest = JSON.parse(result.output);
-    assert.deepStrictEqual(
-      digest.phases['01'].provides.sort(),
-      ['Feature A', 'Feature B'],
-      'Inline array should work'
-    );
-    assert.deepStrictEqual(
-      digest.phases['01'].patterns.sort(),
-      ['Pattern X', 'Pattern Y'],
-      'Inline quoted array should work'
-    );
+    expect(digest.phases['01'].provides.sort()).toEqual(['Feature A', 'Feature B']);
+    expect(digest.phases['01'].patterns.sort()).toEqual(['Pattern X', 'Pattern Y']);
   });
 });
 
@@ -306,11 +275,11 @@ describe('phases list command', () => {
 
   test('empty phases directory returns empty array', () => {
     const result = runGsdTools('phases list', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.deepStrictEqual(output.directories, [], 'directories should be empty');
-    assert.strictEqual(output.count, 0, 'count should be 0');
+    expect(output.directories).toEqual([]);
+    expect(output.count).toBe(0);
   });
 
   test('lists phase directories sorted numerically', () => {
@@ -320,15 +289,11 @@ describe('phases list command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-foundation'), { recursive: true });
 
     const result = runGsdTools('phases list', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.count, 3, 'should have 3 directories');
-    assert.deepStrictEqual(
-      output.directories,
-      ['01-foundation', '02-api', '10-final'],
-      'should be sorted numerically'
-    );
+    expect(output.count).toBe(3);
+    expect(output.directories).toEqual(['01-foundation', '02-api', '10-final']);
   });
 
   test('handles decimal phases in sort order', () => {
@@ -338,14 +303,10 @@ describe('phases list command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-ui'), { recursive: true });
 
     const result = runGsdTools('phases list', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.deepStrictEqual(
-      output.directories,
-      ['02-api', '02.1-hotfix', '02.2-patch', '03-ui'],
-      'decimal phases should sort correctly between whole numbers'
-    );
+    expect(output.directories).toEqual(['02-api', '02.1-hotfix', '02.2-patch', '03-ui']);
   });
 
   test('--type plans lists only PLAN.md files', () => {
@@ -357,14 +318,10 @@ describe('phases list command', () => {
     fs.writeFileSync(path.join(phaseDir, 'RESEARCH.md'), '# Research');
 
     const result = runGsdTools('phases list --type plans', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.deepStrictEqual(
-      output.files.sort(),
-      ['01-01-PLAN.md', '01-02-PLAN.md'],
-      'should list only PLAN files'
-    );
+    expect(output.files.sort()).toEqual(['01-01-PLAN.md', '01-02-PLAN.md']);
   });
 
   test('--type summaries lists only SUMMARY.md files', () => {
@@ -375,14 +332,10 @@ describe('phases list command', () => {
     fs.writeFileSync(path.join(phaseDir, '01-02-SUMMARY.md'), '# Summary 2');
 
     const result = runGsdTools('phases list --type summaries', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.deepStrictEqual(
-      output.files.sort(),
-      ['01-01-SUMMARY.md', '01-02-SUMMARY.md'],
-      'should list only SUMMARY files'
-    );
+    expect(output.files.sort()).toEqual(['01-01-SUMMARY.md', '01-02-SUMMARY.md']);
   });
 
   test('--phase filters to specific phase directory', () => {
@@ -394,11 +347,11 @@ describe('phases list command', () => {
     fs.writeFileSync(path.join(phase02, '02-01-PLAN.md'), '# Plan');
 
     const result = runGsdTools('phases list --type plans --phase 01', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.deepStrictEqual(output.files, ['01-01-PLAN.md'], 'should only list phase 01 plans');
-    assert.strictEqual(output.phase_dir, 'foundation', 'should report phase name without number prefix');
+    expect(output.files).toEqual(['01-01-PLAN.md']);
+    expect(output.phase_dir).toBe('foundation');
   });
 });
 
@@ -437,13 +390,13 @@ Some description here.
     );
 
     const result = runGsdTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, true, 'phase should be found');
-    assert.strictEqual(output.phase_number, '1', 'phase number correct');
-    assert.strictEqual(output.phase_name, 'Foundation', 'phase name extracted');
-    assert.strictEqual(output.goal, 'Set up project infrastructure', 'goal extracted');
+    expect(output.found).toBe(true);
+    expect(output.phase_number).toBe('1');
+    expect(output.phase_name).toBe('Foundation');
+    expect(output.goal).toBe('Set up project infrastructure');
   });
 
   test('returns not found for missing phase', () => {
@@ -457,10 +410,10 @@ Some description here.
     );
 
     const result = runGsdTools('roadmap get-phase 5', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, false, 'phase should not be found');
+    expect(output.found).toBe(false);
   });
 
   test('handles decimal phase numbers', () => {
@@ -477,12 +430,12 @@ Some description here.
     );
 
     const result = runGsdTools('roadmap get-phase 2.1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, true, 'decimal phase should be found');
-    assert.strictEqual(output.phase_name, 'Hotfix', 'phase name correct');
-    assert.strictEqual(output.goal, 'Emergency fix', 'goal extracted');
+    expect(output.found).toBe(true);
+    expect(output.phase_name).toBe('Hotfix');
+    expect(output.goal).toBe('Emergency fix');
   });
 
   test('extracts full section content', () => {
@@ -504,21 +457,21 @@ This phase covers:
     );
 
     const result = runGsdTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.ok(output.section.includes('Database setup'), 'section includes description');
-    assert.ok(output.section.includes('CI/CD pipeline'), 'section includes all bullets');
-    assert.ok(!output.section.includes('Phase 2'), 'section does not include next phase');
+    expect(output.section.includes('Database setup')).toBe(true);
+    expect(output.section.includes('CI/CD pipeline')).toBe(true);
+    expect(output.section.includes('Phase 2')).toBe(false);
   });
 
   test('handles missing ROADMAP.md gracefully', () => {
     const result = runGsdTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, false, 'should return not found');
-    assert.strictEqual(output.error, 'ROADMAP.md not found', 'should explain why');
+    expect(output.found).toBe(false);
+    expect(output.error).toBe('ROADMAP.md not found');
   });
 });
 
@@ -542,11 +495,11 @@ describe('phase next-decimal command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '07-next'), { recursive: true });
 
     const result = runGsdTools('phase next-decimal 06', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.next, '06.1', 'should return 06.1');
-    assert.deepStrictEqual(output.existing, [], 'no existing decimals');
+    expect(output.next).toBe('06.1');
+    expect(output.existing).toEqual([]);
   });
 
   test('increments from existing decimal phases', () => {
@@ -555,11 +508,11 @@ describe('phase next-decimal command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06.2-patch'), { recursive: true });
 
     const result = runGsdTools('phase next-decimal 06', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.next, '06.3', 'should return 06.3');
-    assert.deepStrictEqual(output.existing, ['06.1', '06.2'], 'lists existing decimals');
+    expect(output.next).toBe('06.3');
+    expect(output.existing).toEqual(['06.1', '06.2']);
   });
 
   test('handles gaps in decimal sequence', () => {
@@ -568,32 +521,32 @@ describe('phase next-decimal command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06.3-third'), { recursive: true });
 
     const result = runGsdTools('phase next-decimal 06', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
     // Should take next after highest, not fill gap
-    assert.strictEqual(output.next, '06.4', 'should return 06.4, not fill gap at 06.2');
+    expect(output.next).toBe('06.4');
   });
 
   test('handles single-digit phase input', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06-feature'), { recursive: true });
 
     const result = runGsdTools('phase next-decimal 6', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.next, '06.1', 'should normalize to 06.1');
-    assert.strictEqual(output.base_phase, '06', 'base phase should be padded');
+    expect(output.next).toBe('06.1');
+    expect(output.base_phase).toBe('06');
   });
 
   test('returns error if base phase does not exist', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-start'), { recursive: true });
 
     const result = runGsdTools('phase next-decimal 06', tmpDir);
-    assert.ok(result.success, `Command should succeed: ${result.error}`);
+    expect(result.success).toBe(true);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, false, 'base phase not found');
-    assert.strictEqual(output.next, '06.1', 'should still suggest 06.1');
+    expect(output.found).toBe(false);
+    expect(output.next).toBe('06.1');
   });
 });

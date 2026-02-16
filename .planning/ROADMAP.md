@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: Upstream Sync** - Pull latest upstream changes with integrated safety tooling
 - [x] **Phase 9: Cross-Platform Foundation** - Enable macOS and Linux support (completed 2026-02-09)
 - [x] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features (completed 2026-02-15)
-- [ ] **Phase 11: CI/CD** - Automate cross-platform testing (stretch goal)
+- [x] **Phase 11: CI/CD** - Automate cross-platform testing (completed 2026-02-16)
 
 ## Phase Details
 
@@ -141,14 +141,15 @@ Plans:
   5. Workflow completes in under 5 minutes with bun dependency caching
   6. Source-to-installed parity check ensures all distributable artifacts exist in project source
 
-**Plans**: 5 plans
+**Plans**: 6 plans (5 original + 1 gap closure)
 
 Plans:
-- [ ] 11-01-PLAN.md -- Test infrastructure setup (bun test config, helpers, fixtures, migrate gsd-tools tests)
-- [ ] 11-02-PLAN.md -- Unit tests for src/ modules (config, platform, validation, theme)
-- [ ] 11-03-PLAN.md -- Tests for hooks and launcher (gsd-check-update, gsd-statusline, pre-compact, gsd.js)
-- [ ] 11-04-PLAN.md -- Tests for installer (bin/install.js)
-- [ ] 11-05-PLAN.md -- GitHub Actions CI workflow, parity check script, and integration verification
+- [x] 11-01-PLAN.md -- Test infrastructure setup (bun test config, helpers, fixtures, migrate gsd-tools tests)
+- [x] 11-02-PLAN.md -- Unit tests for src/ modules (config, platform, validation, theme)
+- [x] 11-03-PLAN.md -- Tests for hooks and launcher (gsd-check-update, gsd-statusline, pre-compact, gsd.js)
+- [x] 11-04-PLAN.md -- Tests for installer (bin/install.js)
+- [x] 11-05-PLAN.md -- GitHub Actions CI workflow, parity check script, and integration verification
+- [x] 11-06-PLAN.md -- [GAP CLOSURE] Coverage gap closure for platform and theme modules
 
 ---
 
@@ -163,7 +164,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 | 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
 | 9. Cross-Platform Foundation | 4/4 | Complete (UAT: 10/11 pass, 1 minor env quirk) | 2026-02-09 |
 | 10. Claude Code Capability Adoption | 8/8 | Complete (re-verified 5/5, all gaps closed) | 2026-02-16 |
-| 11. CI/CD | 0/5 | Planned | - |
+| 11. CI/CD | 6/6 | Complete (UAT: 6/7 pass, 1 coverage gap accepted — platform lines limited by tooling, CI matrix covers natively) | 2026-02-16 |
 
 ---
 *Roadmap created: 2026-02-07*

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "context_management": {
+    "precompact_save_state": true
+  },
+  "workflow": {
+    "pause_between_tasks": false,
+    "pause_between_phases": true,
+    "auto_checkpoint_interval": 5
+  },
+  "subagents": {
+    "default_model": "sonnet",
+    "executor_model": "sonnet",
+    "verifier_model": "sonnet",
+    "researcher_model": "haiku"
+  },
+  "ui": {
+    "show_progress_bar": true,
+    "show_context_usage": true,
+    "theme": "aidev"
+  }
+}

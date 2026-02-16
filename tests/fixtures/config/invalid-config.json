@@ -1,0 +1,5 @@
+{
+  "version": 99,
+  "unknown_field": "should trigger validation error",
+  "another_unknown": true
+}

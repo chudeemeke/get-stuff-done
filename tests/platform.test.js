@@ -422,6 +422,339 @@ describe('gsdPaths', () => {
   });
 });
 
+describe('detectPlatform - coverage gap closure', () => {
+  let restoreEnv;
+  let restorePlatform;
+  const fs = require('fs');
+  const childProcess = require('child_process');
+  const { mockPlatform } = require('./helpers');
+
+  afterEach(() => {
+    clearPlatformCache();
+    if (restoreEnv) {
+      restoreEnv();
+      restoreEnv = null;
+    }
+    if (restorePlatform) {
+      restorePlatform();
+      restorePlatform = null;
+    }
+    // Clear module cache to allow re-require
+    delete require.cache[require.resolve('../src/platform/detect')];
+  });
+
+  describe('PowerShell detection', () => {
+    test('detects PowerShell via PSModulePath on Windows', () => {
+      // Set env BEFORE mocking platform and requiring module
+      const saved = {};
+      const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL'];
+      clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
+      process.env.PSModulePath = 'C:\\Program Files\\PowerShell\\Modules';
+
+      restorePlatform = mockPlatform('win32');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.shell).toBe('pwsh');
+      expect(platform.isPowerShell).toBe(true);
+
+      // Restore
+      clearVars.forEach(v => { if (saved[v] !== undefined) process.env[v] = saved[v]; else delete process.env[v]; });
+    });
+
+    test('detects PowerShell via POWERSHELL_DISTRIBUTION_CHANNEL on Windows', () => {
+      // Set env BEFORE mocking platform and requiring module
+      const saved = {};
+      const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL'];
+      clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
+      process.env.POWERSHELL_DISTRIBUTION_CHANNEL = 'MSI:Windows 10';
+
+      restorePlatform = mockPlatform('win32');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.shell).toBe('pwsh');
+      expect(platform.isPowerShell).toBe(true);
+
+      // Restore
+      clearVars.forEach(v => { if (saved[v] !== undefined) process.env[v] = saved[v]; else delete process.env[v]; });
+    });
+  });
+
+  describe('cmd default on Windows', () => {
+    test('defaults to cmd when no shell indicators present on Windows', () => {
+      // Set env BEFORE mocking platform
+      const saved = {};
+      const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL'];
+      clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
+
+      restorePlatform = mockPlatform('win32');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.shell).toBe('cmd');
+      expect(platform.isCmd).toBe(true);
+
+      // Restore
+      clearVars.forEach(v => { if (saved[v] !== undefined) process.env[v] = saved[v]; else delete process.env[v]; });
+    });
+  });
+
+  describe('zsh detection on Unix', () => {
+    test('detects zsh via SHELL env var on Linux', () => {
+      // Set env BEFORE mocking platform
+      const saved = process.env.SHELL;
+      process.env.SHELL = '/bin/zsh';
+
+      restorePlatform = mockPlatform('linux');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.shell).toBe('zsh');
+      expect(platform.isZsh).toBe(true);
+
+      // Restore
+      if (saved !== undefined) process.env.SHELL = saved;
+      else delete process.env.SHELL;
+    });
+
+    test('detects zsh with full path on Linux', () => {
+      // Set env BEFORE mocking platform
+      const saved = process.env.SHELL;
+      process.env.SHELL = '/usr/local/bin/zsh';
+
+      restorePlatform = mockPlatform('linux');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.shell).toBe('zsh');
+      expect(platform.isZsh).toBe(true);
+
+      // Restore
+      if (saved !== undefined) process.env.SHELL = saved;
+      else delete process.env.SHELL;
+    });
+  });
+
+  describe('bash detection on Unix', () => {
+    test('detects bash via SHELL env var on Linux', () => {
+      // Set env BEFORE mocking platform
+      const saved = process.env.SHELL;
+      process.env.SHELL = '/bin/bash';
+
+      restorePlatform = mockPlatform('linux');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.shell).toBe('bash');
+      expect(platform.isBash).toBe(true);
+
+      // Restore
+      if (saved !== undefined) process.env.SHELL = saved;
+      else delete process.env.SHELL;
+    });
+
+    test('detects bash with full path on Linux', () => {
+      // Set env BEFORE mocking platform
+      const saved = process.env.SHELL;
+      process.env.SHELL = '/usr/bin/bash';
+
+      restorePlatform = mockPlatform('linux');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.shell).toBe('bash');
+      expect(platform.isBash).toBe(true);
+
+      // Restore
+      if (saved !== undefined) process.env.SHELL = saved;
+      else delete process.env.SHELL;
+    });
+  });
+
+  describe('unknown shell fallback', () => {
+    test('defaults to bash for unknown shell on Unix', () => {
+      // Set env BEFORE mocking platform
+      const saved = process.env.SHELL;
+      process.env.SHELL = '/bin/fish';
+
+      restorePlatform = mockPlatform('linux');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.shell).toBe('bash');
+      expect(platform.isBash).toBe(true);
+      expect(platform.shellVariant).toBe('unknown');
+
+      // Restore
+      if (saved !== undefined) process.env.SHELL = saved;
+      else delete process.env.SHELL;
+    });
+
+    test('defaults to bash for empty SHELL on Unix', () => {
+      // Set env BEFORE mocking platform
+      const saved = process.env.SHELL;
+      process.env.SHELL = '';
+
+      restorePlatform = mockPlatform('linux');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.shell).toBe('bash');
+      expect(platform.isBash).toBe(true);
+
+      // Restore
+      if (saved !== undefined) process.env.SHELL = saved;
+      else delete process.env.SHELL;
+    });
+  });
+
+  describe('WSL detection', () => {
+    test('detects WSL via /proc/version', () => {
+      restorePlatform = mockPlatform('linux');
+
+      // Mock fs.readFileSync for this test
+      const origReadFile = fs.readFileSync;
+      fs.readFileSync = (path, enc) => {
+        if (path === '/proc/version') {
+          return 'Linux version 5.10.0-microsoft-standard-WSL2 (oe-user@oe-host)';
+        }
+        return origReadFile(path, enc);
+      };
+
+      clearPlatformCache();
+      // Clear module cache and re-require to get fresh import with mocked fs
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: detectPlatformMocked, clearCache } = require('../src/platform/detect');
+      clearCache();
+
+      const platform = detectPlatformMocked();
+      expect(platform.isWSL).toBe(true);
+
+      // Restore
+      fs.readFileSync = origReadFile;
+      delete require.cache[require.resolve('../src/platform/detect')];
+    });
+
+    test('detects WSL fallback via WSL_DISTRO_NAME when /proc/version throws', () => {
+      restorePlatform = mockPlatform('linux');
+
+      // Mock fs.readFileSync to throw
+      const origReadFile = fs.readFileSync;
+      fs.readFileSync = (path, enc) => {
+        if (path === '/proc/version') {
+          const error = new Error('ENOENT: no such file or directory');
+          error.code = 'ENOENT';
+          throw error;
+        }
+        return origReadFile(path, enc);
+      };
+
+      clearPlatformCache();
+      const saved = process.env.WSL_DISTRO_NAME;
+      process.env.WSL_DISTRO_NAME = 'Ubuntu';
+
+      // Clear module cache and re-require
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: detectPlatformMocked, clearCache } = require('../src/platform/detect');
+      clearCache();
+
+      const platform = detectPlatformMocked();
+      expect(platform.isWSL).toBe(true);
+
+      // Restore
+      fs.readFileSync = origReadFile;
+      if (saved !== undefined) {
+        process.env.WSL_DISTRO_NAME = saved;
+      } else {
+        delete process.env.WSL_DISTRO_NAME;
+      }
+      delete require.cache[require.resolve('../src/platform/detect')];
+    });
+  });
+
+  describe('isGitBash detection', () => {
+    test('detects Git Bash via MSYSTEM and EXEPATH', () => {
+      // Set env BEFORE mocking platform
+      const saved = {};
+      const clearVars = ['MSYSTEM', 'EXEPATH', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL'];
+      clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
+      process.env.MSYSTEM = 'MINGW64';
+      process.env.EXEPATH = 'C:\\Program Files\\Git\\usr\\bin';
+
+      restorePlatform = mockPlatform('win32');
+      clearPlatformCache();
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
+      cc();
+
+      const platform = dp();
+      expect(platform.isGitBash).toBe(true);
+      expect(platform.isMingw).toBe(true);
+
+      // Restore
+      clearVars.forEach(v => { if (saved[v] !== undefined) process.env[v] = saved[v]; else delete process.env[v]; });
+    });
+  });
+
+  describe('git error handler', () => {
+    test('handles git unavailable gracefully', () => {
+      // Mock execSync to throw for git commands
+      const origExec = childProcess.execSync;
+      childProcess.execSync = (cmd, opts) => {
+        if (cmd.includes('git')) {
+          const error = new Error('git not found');
+          error.code = 127;
+          throw error;
+        }
+        return origExec(cmd, opts);
+      };
+
+      clearPlatformCache();
+      // Clear module cache and re-require
+      delete require.cache[require.resolve('../src/platform/detect')];
+      const { detectPlatform: detectPlatformMocked, clearCache } = require('../src/platform/detect');
+      clearCache();
+
+      const platform = detectPlatformMocked();
+      expect(platform.gitAvailable).toBe(false);
+      expect(platform.gitPath).toBe(null);
+      expect(platform.gitVersion).toBe(null);
+
+      // Restore
+      childProcess.execSync = origExec;
+      delete require.cache[require.resolve('../src/platform/detect')];
+    });
+  });
+});
+
 describe('detectTerminal', () => {
   let restoreEnv;
 
@@ -595,6 +928,464 @@ describe('detectTerminal', () => {
     test('isTTY is a boolean', () => {
       const terminal = detectTerminal();
       expect(typeof terminal.isTTY).toBe('boolean');
+    });
+  });
+});
+
+describe('detectTerminal - coverage gap closure', () => {
+  afterEach(() => {
+    clearTerminalCache();
+  });
+
+  /**
+   * Helper to clean terminal-related env vars
+   */
+  function cleanTerminalEnv() {
+    const saved = {};
+    const clearVars = [
+      'FORCE_COLOR', 'NO_COLOR', 'NODE_DISABLE_COLORS',
+      'WT_SESSION', 'COLORTERM', 'TERM', 'TERM_PROGRAM',
+      'ConEmuTask', 'MSYSTEM'
+    ];
+    clearVars.forEach(v => {
+      saved[v] = process.env[v];
+      delete process.env[v];
+    });
+
+    return () => {
+      clearVars.forEach(v => {
+        if (saved[v] !== undefined) {
+          process.env[v] = saved[v];
+        } else {
+          delete process.env[v];
+        }
+      });
+    };
+  }
+
+  describe('FORCE_COLOR levels', () => {
+    test('FORCE_COLOR=0 disables color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.FORCE_COLOR = '0';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(0);
+      expect(terminal.supportsColor).toBe(false);
+
+      restore();
+    });
+
+    test('FORCE_COLOR=1 enables basic color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.FORCE_COLOR = '1';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(1);
+      expect(terminal.supportsColor).toBe(true);
+      expect(terminal.supports256Color).toBe(false);
+
+      restore();
+    });
+
+    test('FORCE_COLOR=2 enables 256 color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.FORCE_COLOR = '2';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(2);
+      expect(terminal.supports256Color).toBe(true);
+      expect(terminal.supportsTruecolor).toBe(false);
+
+      restore();
+    });
+
+    test('FORCE_COLOR=3 enables truecolor', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.FORCE_COLOR = '3';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(3);
+      expect(terminal.supportsTruecolor).toBe(true);
+
+      restore();
+    });
+  });
+
+  describe('COLORTERM detection', () => {
+    test('COLORTERM=truecolor enables truecolor', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.COLORTERM = 'truecolor';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(3);
+      expect(terminal.supportsTruecolor).toBe(true);
+
+      restore();
+    });
+
+    test('COLORTERM=24bit enables truecolor', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.COLORTERM = '24bit';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(3);
+      expect(terminal.supportsTruecolor).toBe(true);
+
+      restore();
+    });
+  });
+
+  describe('TERM detection', () => {
+    test('TERM=dumb disables color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'dumb';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(0);
+      expect(terminal.supportsColor).toBe(false);
+
+      restore();
+    });
+
+    test('TERM with 256color enables 256 color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'xterm-256color';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(2);
+      expect(terminal.supports256Color).toBe(true);
+
+      restore();
+    });
+
+    test('TERM=xterm enables basic color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'xterm';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(1);
+      expect(terminal.supportsColor).toBe(true);
+
+      restore();
+    });
+
+    test('TERM=screen enables basic color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'screen';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(1);
+      expect(terminal.supportsColor).toBe(true);
+
+      restore();
+    });
+
+    test('TERM with color enables basic color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'xterm-color';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(1);
+      expect(terminal.supportsColor).toBe(true);
+
+      restore();
+    });
+
+    test('TERM with ansi enables basic color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'ansi';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(1);
+      expect(terminal.supportsColor).toBe(true);
+
+      restore();
+    });
+  });
+
+  describe('ConEmuTask detection', () => {
+    test('ConEmuTask set enables 256 color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.ConEmuTask = '{cmd::Cmd}';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(2);
+      expect(terminal.supports256Color).toBe(true);
+      expect(terminal.emulator).toBe('ConEmu');
+
+      restore();
+    });
+  });
+
+  describe('TERM_PROGRAM detection', () => {
+    test('TERM_PROGRAM=iTerm.app enables truecolor', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM_PROGRAM = 'iTerm.app';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(3);
+      expect(terminal.supportsTruecolor).toBe(true);
+      expect(terminal.emulator).toBe('iTerm2');
+
+      restore();
+    });
+
+    test('TERM_PROGRAM=vscode enables truecolor', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM_PROGRAM = 'vscode';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(3);
+      expect(terminal.supportsTruecolor).toBe(true);
+      expect(terminal.emulator).toBe('VS Code');
+
+      restore();
+    });
+
+    test('TERM_PROGRAM=Apple_Terminal enables 256 color', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM_PROGRAM = 'Apple_Terminal';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(2);
+      expect(terminal.supports256Color).toBe(true);
+      expect(terminal.emulator).toBe('Apple Terminal');
+
+      restore();
+    });
+
+    test('TERM_PROGRAM=Hyper enables truecolor', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM_PROGRAM = 'Hyper';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(3);
+      expect(terminal.supportsTruecolor).toBe(true);
+      expect(terminal.emulator).toBe('Hyper');
+
+      restore();
+    });
+  });
+
+  describe('TERM kitty/alacritty detection', () => {
+    test('TERM=kitty enables truecolor', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      // Use 'kitty' not 'xterm-kitty' to hit line 94-95
+      process.env.TERM = 'kitty';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(3);
+      expect(terminal.supportsTruecolor).toBe(true);
+      expect(terminal.emulator).toBe('Kitty');
+
+      restore();
+    });
+
+    test('TERM=alacritty enables truecolor', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'alacritty';
+
+      const terminal = detectTerminal();
+      expect(terminal.colorLevel).toBe(3);
+      expect(terminal.supportsTruecolor).toBe(true);
+      expect(terminal.emulator).toBe('Alacritty');
+
+      restore();
+    });
+  });
+
+  describe('terminal emulator detection', () => {
+    test('detects xterm emulator', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'xterm';
+
+      const terminal = detectTerminal();
+      expect(terminal.emulator).toBe('xterm');
+
+      restore();
+    });
+
+    test('detects GNU Screen emulator', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'screen';
+
+      const terminal = detectTerminal();
+      expect(terminal.emulator).toBe('GNU Screen');
+
+      restore();
+    });
+
+    test('detects tmux emulator', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'tmux-256color';
+
+      const terminal = detectTerminal();
+      expect(terminal.emulator).toBe('tmux');
+
+      restore();
+    });
+
+    test('detects Windows Console Host on Windows without WT_SESSION or MSYSTEM', () => {
+      if (process.platform !== 'win32') {
+        return; // Skip on non-Windows
+      }
+
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+
+      const terminal = detectTerminal();
+      expect(terminal.emulator).toBe('Windows Console Host');
+
+      restore();
+    });
+  });
+
+  describe('Unicode support detection', () => {
+    test('Windows Terminal supports Unicode', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.WT_SESSION = 'some-session';
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(true);
+
+      restore();
+    });
+
+    test('iTerm2 supports Unicode', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM_PROGRAM = 'iTerm.app';
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(true);
+
+      restore();
+    });
+
+    test('VS Code supports Unicode', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM_PROGRAM = 'vscode';
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(true);
+
+      restore();
+    });
+
+    test('Hyper supports Unicode', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM_PROGRAM = 'Hyper';
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(true);
+
+      restore();
+    });
+
+    test('Kitty supports Unicode', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'xterm-kitty';
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(true);
+
+      restore();
+    });
+
+    test('Alacritty supports Unicode', () => {
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'alacritty';
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(true);
+
+      restore();
+    });
+
+    test('Windows Console Host does not support Unicode well', () => {
+      if (process.platform !== 'win32') {
+        return; // Skip on non-Windows
+      }
+
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(false);
+
+      restore();
+    });
+
+    test('Linux framebuffer (TERM=linux) does not support Unicode', () => {
+      if (process.platform === 'win32') {
+        return; // Skip on Windows
+      }
+
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'linux';
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(false);
+
+      restore();
+    });
+
+    test('Unix defaults to Unicode support', () => {
+      if (process.platform === 'win32') {
+        return; // Skip on Windows
+      }
+
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'xterm';
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(true);
+
+      restore();
+    });
+
+    test('Windows defaults to no Unicode for unknown terminals', () => {
+      if (process.platform !== 'win32') {
+        return; // Skip on non-Windows
+      }
+
+      clearTerminalCache();
+      const restore = cleanTerminalEnv();
+      process.env.TERM = 'unknown-term';
+
+      const terminal = detectTerminal();
+      expect(terminal.supportsUnicode).toBe(false);
+
+      restore();
     });
   });
 });

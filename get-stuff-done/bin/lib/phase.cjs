@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { normalizePhaseName, findPhaseInternal, getArchivedPhaseDirs, generateSlugInternal, output, error } = require('./core.cjs');
+const { normalizePhaseName, comparePhaseNum, findPhaseInternal, getArchivedPhaseDirs, generateSlugInternal, output, error } = require('./core.cjs');
 const { extractFrontmatter } = require('./frontmatter.cjs');
 
 function cmdPhasesList(cwd, options, raw) {
@@ -34,12 +34,8 @@ function cmdPhasesList(cwd, options, raw) {
       }
     }
 
-    // Sort numerically (handles decimals: 01, 02, 02.1, 02.2, 03)
-    dirs.sort((a, b) => {
-      const aNum = parseFloat(a.match(/^(\d+(?:\.\d+)?)/)?.[1] || '0');
-      const bNum = parseFloat(b.match(/^(\d+(?:\.\d+)?)/)?.[1] || '0');
-      return aNum - bNum;
-    });
+    // Sort numerically (handles integers, decimals, letter-suffix, hybrids)
+    dirs.sort((a, b) => comparePhaseNum(a, b));
 
     // If filtering by phase number
     if (phase) {

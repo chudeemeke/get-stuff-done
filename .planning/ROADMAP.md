@@ -190,7 +190,10 @@ Plans:
   4. Dev-mode (`--link`) continues to work as before (no regression)
   5. `build-hooks.js` produces self-contained hook files
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 13-01-PLAN.md -- esbuild hook bundling and dist regression tests
 
 ---
 
@@ -223,9 +226,9 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
 | 8. Upstream Sync | 3/3 | Complete | 2026-02-08 |
 | 9. Cross-Platform Foundation | 4/4 | Complete (UAT: 10/11 pass, 1 minor env quirk) | 2026-02-09 |
 | 10. Claude Code Capability Adoption | 8/8 | Complete (re-verified 5/5, all gaps closed) | 2026-02-16 |
-| 11. CI/CD | 6/6 | Complete (UAT: 6/7 pass, 1 coverage gap accepted — platform lines limited by tooling, CI matrix covers natively) | 2026-02-16 |
+| 11. CI/CD | 6/6 | Complete (UAT: 6/7 pass, 1 coverage gap accepted -- platform lines limited by tooling, CI matrix covers natively) | 2026-02-16 |
 | 12. Missing Workflows | 1/1 | Complete (16/16 workflows created, 355 tests pass, v2.1.3 released) | 2026-02-18 |
-| 13. Hook Bundling [GAP] | 0/? | Not started | - |
+| 13. Hook Bundling [GAP] | 0/1 | Planned | - |
 | 14. Security Wiring [GAP] | 0/? | Not started | - |
 
 ---

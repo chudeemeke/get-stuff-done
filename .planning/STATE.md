@@ -114,7 +114,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-1. **GAP-4: Run formal verification on Phase 11** -- Phase 11 (CI/CD) was never verified by gsd-verifier. Functionality confirmed by summaries, test results (355 tests), and UAT (6/7 pass), but formal VERIFICATION.md is missing. Quick task after gap closure phases complete.
+1. ~~**GAP-4: Run formal verification on Phase 11**~~ RESOLVED -- 11-VERIFICATION.md created (6/6 pass, commit f5587fa)
 2. **AskUserQuestion missing from allowed-tools in 12 command files** -- The following command files reference AskUserQuestion but don't include it in their `allowed-tools` list: add-todo, check-todos, debug, discuss-phase, execute-phase, new-milestone, new-project, plan-milestone-gaps, quick, resume-work, settings, upstream. Fix during Phase 14 (included in success criteria).
 
 ### Blockers/Concerns

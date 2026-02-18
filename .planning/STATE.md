@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Maintain upstream compatibility while establishing distinct identity
-**Current focus:** v0.2.0 milestone complete — all 5 phases done
+**Current focus:** v0.2.0 gap closure -- 2 phases added from milestone audit
 
 ## Current Position
 
-Phase: 11 of 11 (CI/CD and Testing)
-Plan: 6 of 6 (Coverage gap closure complete)
-Status: Complete -- 355 tests passing, 93.54% function coverage, 90.50% line coverage. Platform-specific coverage limited by tooling (CI matrix covers natively).
-Last activity: 2026-02-16 -- Phase 11 complete (6/6 plans, UAT 6/7 pass, 1 accepted limitation)
+Phase: 13 of 14 (Hook Bundling - GAP CLOSURE)
+Plan: 0 of ? (Not yet planned)
+Status: Awaiting planning -- milestone audit identified 4 gaps, 2 gap closure phases created.
+Last activity: 2026-02-18 -- Milestone audit complete, gap closure phases added to roadmap
 
-Progress: [##########] 100% (v0.2.0: Phase 11 complete - all testing and CI/CD infrastructure operational)
+Progress: [##########--] 86% (v0.2.0: 12/14 phases complete, 2 gap closure phases remaining)
 
 ## Performance Metrics
 
@@ -114,12 +114,13 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None.
+1. **GAP-4: Run formal verification on Phase 11** -- Phase 11 (CI/CD) was never verified by gsd-verifier. Functionality confirmed by summaries, test results (355 tests), and UAT (6/7 pass), but formal VERIFICATION.md is missing. Quick task after gap closure phases complete.
+2. **AskUserQuestion missing from allowed-tools in 12 command files** -- The following command files reference AskUserQuestion but don't include it in their `allowed-tools` list: add-todo, check-todos, debug, discuss-phase, execute-phase, new-milestone, new-project, plan-milestone-gaps, quick, resume-work, settings, upstream. Fix during Phase 14 (included in success criteria).
 
 ### Blockers/Concerns
 
 - ESLint warnings: 95 security warnings (91 in gsd-tools.js upstream code, 4 in check-parity.js file operations - all non-blocking)
-- 16 workflow files referenced by commands but missing in both upstream and fork (commands work via inline context, not blocking)
+- ~~16 workflow files referenced by commands but missing~~ RESOLVED in Phase 12 (v2.1.3)
 - Upstream Issue #491 filed: gsd-verifier missing Write tool (root cause of settings corruption)
 
 ### Quick Tasks Completed
@@ -131,12 +132,12 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-16
-Status: Phase 11 Plan 06 COMPLETE. Coverage gap closure for 4 src/ files: Style.js and themes.js reached 100% functions/lines, terminal.js improved from 50% to 93.50% lines, detect.js limited by platform-specific code. Added 915 lines of comprehensive mock-based tests across platform.test.js and theme.test.js. Project-wide coverage: 93.54% functions, 90.50% lines. All 418 tests passing. Phase 11 complete.
-Stopped at: Completed 11-06-PLAN.md (coverage gap closure)
+Last session: 2026-02-18
+Status: Milestone audit complete. 4 gaps found (1 critical, 3 non-critical). 2 gap closure phases added to roadmap.
+Stopped at: Gap closure phases created, ready for planning
 Resume file: None
 
-**Next step:** v0.2.0 milestone complete. All 5 phases (7-11) done. Ready for milestone audit and v0.2.0 release.
+**Next step:** Plan Phase 13 (Hook Bundling) with `/gsd:plan-phase 13`
 
 ---
-*Updated: 2026-02-16*
+*Updated: 2026-02-18*

@@ -36,15 +36,15 @@ Requirements for v0.2.0 Hardening & Upstream Sync milestone. Each maps to roadma
 
 ### Claude Code Capability Adoption
 
-- [ ] **CLAUDE-01**: GSD agent definitions include memory frontmatter with appropriate scope (user/project/local)
-- [ ] **CLAUDE-02**: Agent instructions include extended thinking hints with effort parameter guidance for complex operations
-- [ ] **CLAUDE-03**: Agent teams patterns are explored and documented for parallel agent orchestration
-- [ ] **CLAUDE-04**: Fast mode integration is documented and applicable GSD operations are flagged for fast execution
-- [ ] **CLAUDE-05**: Bash file operations in commands and workflows are replaced with Claude tools (Glob, Grep, Edit) where appropriate
+- [x] **CLAUDE-01**: GSD agent definitions include memory frontmatter with appropriate scope (user/project/local)
+- [x] **CLAUDE-02**: Agent instructions include extended thinking hints with effort parameter guidance for complex operations
+- [x] **CLAUDE-03**: Agent teams patterns are explored and documented for parallel agent orchestration
+- [x] **CLAUDE-04**: Fast mode integration is documented and applicable GSD operations are flagged for fast execution -- excluded per CONTEXT.md (marginal benefit)
+- [x] **CLAUDE-05**: Bash file operations in commands and workflows are replaced with Claude tools (Glob, Grep, Edit) where appropriate -- excluded per CONTEXT.md (bash has valid advantages)
 
 ### CI/CD
 
-- [ ] **CI-01**: GitHub Actions workflow runs cross-platform matrix testing on macOS, Linux, and Windows (stretch goal)
+- [x] **CI-01**: GitHub Actions workflow runs cross-platform matrix testing on macOS, Linux, and Windows (stretch goal)
 
 ## v2 Requirements
 
@@ -90,10 +90,10 @@ Deferred to future milestones. Tracked but not in current roadmap.
 | SEC-04 | Phase 7 | Complete |
 | SEC-05 | Phase 7 | Complete |
 | SEC-06 | Phase 7 | Complete |
-| SYNC-01 | Phase 8 | Pending |
-| SYNC-02 | Phase 8 | Pending |
-| SYNC-03 | Phase 8 | Pending |
-| SYNC-04 | Phase 8 | Pending |
+| SYNC-01 | Phase 8 | Deferred (v2 scope) |
+| SYNC-02 | Phase 8 | Deferred (v2 scope) |
+| SYNC-03 | Phase 8 | Deferred (v2 scope) |
+| SYNC-04 | Phase 8 | Deferred (v2 scope) |
 | SYNC-05 | Phase 8 | Complete |
 | SYNC-06 | Phase 8 | Complete |
 | PLAT-01 | Phase 9 | Complete |
@@ -102,18 +102,21 @@ Deferred to future milestones. Tracked but not in current roadmap.
 | PLAT-04 | Phase 9 | Complete |
 | PLAT-05 | Phase 9 | Complete |
 | PLAT-06 | Phase 9 | Complete |
-| CLAUDE-01 | Phase 10 | Pending |
-| CLAUDE-02 | Phase 10 | Pending |
-| CLAUDE-03 | Phase 10 | Pending |
-| CLAUDE-04 | Phase 10 | Pending |
-| CLAUDE-05 | Phase 10 | Pending |
-| CI-01 | Phase 11 | Pending |
+| CLAUDE-01 | Phase 10 | Complete |
+| CLAUDE-02 | Phase 10 | Complete |
+| CLAUDE-03 | Phase 10 | Complete |
+| CLAUDE-04 | Phase 10 | Excluded (CONTEXT.md) |
+| CLAUDE-05 | Phase 10 | Excluded (CONTEXT.md) |
+| CI-01 | Phase 11 | Complete |
 
 **Coverage:**
 - v1 requirements: 24 total
 - Mapped to phases: 24/24 (100%)
+- Complete: 18/24
+- Deferred: 4/24 (SYNC-01 through SYNC-04)
+- Excluded: 2/24 (CLAUDE-04, CLAUDE-05 per CONTEXT.md decisions)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-09 after Phase 9 completion*
+*Last updated: 2026-02-18 after Phase 12 completion*

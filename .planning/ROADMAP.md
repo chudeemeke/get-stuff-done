@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **v0.1.0 GetStuffDone Fork** -- Phases 1-6 (shipped 2026-02-05) [archived](milestones/v0.1.0-ROADMAP.md)
-- [ ] **v0.2.0 Hardening & Upstream Sync** -- Phases 7-11
+- [ ] **v0.2.0 Hardening & Upstream Sync** -- Phases 7-14 (12 original + 2 gap closure)
 
 ## Overview
 
@@ -22,6 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 9: Cross-Platform Foundation** - Enable macOS and Linux support (completed 2026-02-09)
 - [x] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features (completed 2026-02-15)
 - [x] **Phase 11: CI/CD** - Automate cross-platform testing (completed 2026-02-16)
+- [x] **Phase 12: Missing Workflows** - Create 16 missing workflow files for GSD commands (completed 2026-02-18)
 
 ## Phase Details
 
@@ -153,10 +154,68 @@ Plans:
 
 ---
 
+### Phase 12: Missing Workflows
+**Goal**: Create all 16 missing workflow files referenced by GSD commands, resolving silent `@` reference failures
+
+**Depends on**: Nothing (standalone infrastructure work)
+
+**Requirements**: None (gap closure)
+
+**Success Criteria** (what must be TRUE):
+  1. All 16 missing workflow files exist in get-stuff-done/workflows/
+  2. Each workflow matches its corresponding command's @ reference path
+  3. Full test suite passes with no regressions
+  4. Released and published to npm
+
+**Plans**: 1 plan
+
+Plans:
+- [x] 12-01-PLAN.md -- Create all 16 missing workflow files (7 simple, 4 medium, 5 complex)
+
+---
+
+### Phase 13: Hook Bundling [GAP CLOSURE]
+**Goal**: Fix hook imports so copy-mode installation works (GAP-1 from milestone audit)
+
+**Depends on**: Nothing (standalone fix)
+
+**Requirements**: None (gap closure from v0.2.0 audit)
+
+**Audit Reference**: GAP-1 in v0.2.0-MILESTONE-AUDIT.md
+
+**Success Criteria** (what must be TRUE):
+  1. Hooks installed via copy-mode (`~/.claude/hooks/`) resolve all dependencies without MODULE_NOT_FOUND errors
+  2. `pre-compact.js` functions correctly without `require('../src/platform/paths')`
+  3. `gsd-statusline.js` functions correctly without `require('../src/theme')`, `require('../src/platform/terminal')`, `require('../src/config/ConfigLoader')`
+  4. Dev-mode (`--link`) continues to work as before (no regression)
+  5. `build-hooks.js` produces self-contained hook files
+
+**Plans**: TBD
+
+---
+
+### Phase 14: Security Wiring [GAP CLOSURE]
+**Goal**: Wire orphaned validation module into production code and add config re-validation (GAP-2, GAP-3 from milestone audit)
+
+**Depends on**: Nothing (standalone fix)
+
+**Requirements**: SEC-01 (partial), SEC-02 (partial), SEC-06 (missing)
+
+**Audit Reference**: GAP-2, GAP-3 in v0.2.0-MILESTONE-AUDIT.md
+
+**Success Criteria** (what must be TRUE):
+  1. `src/validation/index.js` functions are called by production code (gsd-tools.js) for git SHA, branch name, and config path validation
+  2. Config files are re-validated after upstream sync cherry-picks (prepublishOnly or dedicated script)
+  3. All 12 command files that reference AskUserQuestion include it in their `allowed-tools` list
+
+**Plans**: TBD
+
+---
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
+Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -165,7 +224,10 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11
 | 9. Cross-Platform Foundation | 4/4 | Complete (UAT: 10/11 pass, 1 minor env quirk) | 2026-02-09 |
 | 10. Claude Code Capability Adoption | 8/8 | Complete (re-verified 5/5, all gaps closed) | 2026-02-16 |
 | 11. CI/CD | 6/6 | Complete (UAT: 6/7 pass, 1 coverage gap accepted — platform lines limited by tooling, CI matrix covers natively) | 2026-02-16 |
+| 12. Missing Workflows | 1/1 | Complete (16/16 workflows created, 355 tests pass, v2.1.3 released) | 2026-02-18 |
+| 13. Hook Bundling [GAP] | 0/? | Not started | - |
+| 14. Security Wiring [GAP] | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-16*
+*Last updated: 2026-02-18*

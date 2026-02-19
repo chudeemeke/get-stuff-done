@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 ## Current Position
 
-Phase: 13 of 14 (Hook Bundling - GAP CLOSURE)
-Plan: 1 of 1 (COMPLETE)
-Status: Phase 13 complete -- GAP-1 closed. esbuild bundling in place, dist regression tests added.
-Last activity: 2026-02-18 -- Phase 13 executed, 2 tasks complete, 366/366 tests passing
+Phase: 14 of 14 (Security Wiring - GAP CLOSURE)
+Plan: 1 of 3 in current phase
+Status: In progress -- Plan 01 complete. Validation module migrated to Result type API.
+Last activity: 2026-02-19 -- Phase 14 Plan 01 executed, 2 tasks complete, 411/411 tests passing
 
-Progress: [###########-] 93% (v0.2.0: 13/14 phases complete, 1 gap closure phase remaining)
+Progress: [############] 97% (v0.2.0: 14/14 phases in progress, 1/3 plans in Phase 14 complete)
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [###########-] 93% (v0.2.0: 13/14 phases complete, 1 gap closure phase
 | 10 (Claude Code Capability Adoption) | 8/8 (4 main + 4 gap) | 34 min | 4.3 min |
 | 11 (CI/CD and Testing) | 6/6 | 64 min | 10.7 min |
 | 13 (Hook Bundling - GAP CLOSURE) | 1/1 | 6 min | 6 min |
+| 14 (Security Wiring - GAP CLOSURE) | 1/3 | 6 min (plan 01 only) | 6 min |
 
 ## Accumulated Context
 
@@ -116,6 +117,10 @@ Recent decisions affecting current work:
 - 13-01 BUNDLE-002: No minification -- readable dist files aid debugging; 304KB acceptable for one-time install
 - 13-01 TEST-DIST-001: Dist tests added to hooks.test.js (not separate file) -- co-located with source tests
 - 13-01 BUILD-VERIFY-001: beforeAll auto-builds dist if missing -- CI support after fresh checkout
+- 14-01 VAL-API-001: Result type pattern for all validators: {ok: true, value} / {ok: false, error} -- no exceptions thrown
+- 14-01 VAL-NORM-001: validateGitSHA lowercases, validateBranchName trims, validateConfigPath resolves to absolute path (sanitize in validation step, Robustness Principle)
+- 14-01 VAL-URL-001: validateRemoteURL allowlist: https://, ssh://, git@host:path -- rejects git://, file://, http://, and all others
+- 14-01 VAL-PURE-001: Validation module stays pure -- no process.exit or error() -- requireValid() bridge lives in application layer (gsd-tools.js)
 
 ### Pending Todos
 
@@ -137,12 +142,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Status: Phase 13 complete. GAP-1 closed (hook bundling). 1 gap closure phase remaining (Phase 14).
-Stopped at: Completed 13-01-PLAN.md -- esbuild bundling + dist regression tests
+Last session: 2026-02-19
+Status: Phase 14 in progress. Plan 01 complete. Validation module migrated to Result type, 2 new validators added.
+Stopped at: Completed 14-01-PLAN.md -- validation Result type migration + new validators
 Resume file: None
 
-**Next step:** Plan and execute Phase 14 (Final Polish)
+**Next step:** Execute Phase 14 Plan 02 (gsd-tools.js wiring with requireValid())
 
 ---
 *Updated: 2026-02-18*

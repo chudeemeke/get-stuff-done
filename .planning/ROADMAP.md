@@ -211,7 +211,12 @@ Plans:
   2. Config files are re-validated after upstream sync cherry-picks (prepublishOnly or dedicated script)
   3. All 12 command files that reference AskUserQuestion include it in their `allowed-tools` list
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 14-01-PLAN.md -- Validation module Result type migration and new validators
+- [ ] 14-02-PLAN.md -- Production validation wiring in gsd-tools.js and ConfigLoader.js
+- [ ] 14-03-PLAN.md -- Config re-validation script, prepublishOnly, AskUserQuestion audit
 
 ---
 
@@ -229,7 +234,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
 | 11. CI/CD | 6/6 | Complete (UAT: 6/7 pass, 1 coverage gap accepted -- platform lines limited by tooling, CI matrix covers natively) | 2026-02-16 |
 | 12. Missing Workflows | 1/1 | Complete (16/16 workflows created, 355 tests pass, v2.1.3 released) | 2026-02-18 |
 | 13. Hook Bundling [GAP] | 1/1 | Complete (6/6 verified, 366 tests pass) | 2026-02-18 |
-| 14. Security Wiring [GAP] | 0/? | Not started | - |
+| 14. Security Wiring [GAP] | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*

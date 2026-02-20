@@ -284,6 +284,11 @@ Plans:
   4. Team templates are referenced by at least one workflow each
   5. All existing tests pass with no regressions
 
+**Plans**: 1 plan
+
+Plans:
+- [ ] 17-01-PLAN.md -- Wire teams_integration sections into 4 workflows with config-driven routing
+
 ---
 
 ## Progress
@@ -303,7 +308,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 14. Security Wiring [GAP] | 3/3 | Complete (UAT: 7/7 pass, 441 tests) | 2026-02-20 |
 | 15. gsd-tools.js Bundling [GAP] | 1/1 | Complete (5/5 verified, 445 tests pass) | 2026-02-20 |
 | 16. Platform Quality & Cleanup [GAP] | 1/1 | Complete (6/6 verified, 563 tests pass) | 2026-02-22 |
-| 17. Agent Teams Wiring [GAP] | 0/? | Not started | - |
+| 17. Agent Teams Wiring [GAP] | 0/1 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-07*

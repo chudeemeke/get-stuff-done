@@ -44,7 +44,7 @@ beforeAll(() => {
   const distDir = path.join(PROJECT_ROOT, 'hooks', 'dist');
   const distFilesExist = Object.values(DIST_HOOKS).every(f => fs.existsSync(f));
   if (!distFilesExist) {
-    execSync('node scripts/build-hooks.js', {
+    execSync('node scripts/build.js', {
       cwd: PROJECT_ROOT,
       stdio: 'inherit'
     });

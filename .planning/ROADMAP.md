@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **v0.1.0 GetStuffDone Fork** -- Phases 1-6 (shipped 2026-02-05) [archived](milestones/v0.1.0-ROADMAP.md)
-- [ ] **v0.2.0 Hardening & Upstream Sync** -- Phases 7-17 (12 original + 5 gap closure)
+- [x] **v0.2.0 Hardening & Upstream Sync** -- Phases 7-17 (12 original + 5 gap closure) (shipped 2026-02-25)
 
 ## Overview
 
@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 12: Missing Workflows** - Create 16 missing workflow files for GSD commands (completed 2026-02-18)
 - [x] **Phase 15: gsd-tools.js Bundling [GAP CLOSURE]** - Fix post-install MODULE_NOT_FOUND for validation require (completed 2026-02-20)
 - [x] **Phase 16: Platform Quality & Cleanup [GAP CLOSURE]** - Coverage to 95%, cross-platform testing, dead code removal (completed 2026-02-22)
-- [ ] **Phase 17: Agent Teams Wiring [GAP CLOSURE]** - Wire team templates into workflows with config-driven routing
+- [x] **Phase 17: Agent Teams Wiring [GAP CLOSURE]** - Wire team templates into workflows with config-driven routing (completed 2026-02-25)
 
 ## Phase Details
 
@@ -287,7 +287,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 17-01-PLAN.md -- Wire teams_integration sections into 4 workflows with config-driven routing
+- [x] 17-01-PLAN.md -- Wire teams_integration sections into 4 workflows with config-driven routing
 
 ---
 
@@ -308,8 +308,8 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 14. Security Wiring [GAP] | 3/3 | Complete (UAT: 7/7 pass, 441 tests) | 2026-02-20 |
 | 15. gsd-tools.js Bundling [GAP] | 1/1 | Complete (5/5 verified, 445 tests pass) | 2026-02-20 |
 | 16. Platform Quality & Cleanup [GAP] | 1/1 | Complete (6/6 verified, 563 tests pass) | 2026-02-22 |
-| 17. Agent Teams Wiring [GAP] | 0/1 | Planned | - |
+| 17. Agent Teams Wiring [GAP] | 1/1 | Complete (6/6 verified, 563 tests pass) | 2026-02-25 |
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-22*
+*Last updated: 2026-02-25*

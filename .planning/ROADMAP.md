@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features (completed 2026-02-15)
 - [x] **Phase 11: CI/CD** - Automate cross-platform testing (completed 2026-02-16)
 - [x] **Phase 12: Missing Workflows** - Create 16 missing workflow files for GSD commands (completed 2026-02-18)
-- [ ] **Phase 15: gsd-tools.js Bundling [GAP CLOSURE]** - Fix post-install MODULE_NOT_FOUND for validation require
+- [x] **Phase 15: gsd-tools.js Bundling [GAP CLOSURE]** - Fix post-install MODULE_NOT_FOUND for validation require (completed 2026-02-20)
 - [ ] **Phase 16: Platform Quality & Cleanup [GAP CLOSURE]** - Coverage to 95%, cross-platform testing, dead code removal
 - [ ] **Phase 17: Agent Teams Wiring [GAP CLOSURE]** - Wire team templates into workflows with config-driven routing
 
@@ -241,7 +241,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 15-01-PLAN.md -- Unified build script consolidation, gsd-tools bundling, installer wiring, dist tests
+- [x] 15-01-PLAN.md -- Unified build script consolidation, gsd-tools bundling, installer wiring, dist tests
 
 ---
 
@@ -296,10 +296,10 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 12. Missing Workflows | 1/1 | Complete (16/16 workflows created, 355 tests pass, v2.1.3 released) | 2026-02-18 |
 | 13. Hook Bundling [GAP] | 1/1 | Complete (6/6 verified, 366 tests pass) | 2026-02-18 |
 | 14. Security Wiring [GAP] | 3/3 | Complete (UAT: 7/7 pass, 441 tests) | 2026-02-20 |
-| 15. gsd-tools.js Bundling [GAP] | 0/1 | Planned | - |
+| 15. gsd-tools.js Bundling [GAP] | 1/1 | Complete (5/5 verified, 445 tests pass) | 2026-02-20 |
 | 16. Platform Quality & Cleanup [GAP] | 0/? | Not started | - |
 | 17. Agent Teams Wiring [GAP] | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-20*
+*Last updated: 2026-02-21*

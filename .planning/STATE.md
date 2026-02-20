@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 14 of 14 (Security Wiring - GAP CLOSURE)
-Plan: 1 of 3 in current phase
-Status: In progress -- Plan 01 complete. Validation module migrated to Result type API.
-Last activity: 2026-02-19 -- Phase 14 Plan 01 executed, 2 tasks complete, 411/411 tests passing
+Plan: 2 of 3 in current phase
+Status: In progress -- Plans 01 and 02 complete. Validation wired into production code.
+Last activity: 2026-02-20 -- Phase 14 Plan 02 executed, 2 tasks complete, 441/441 tests passing
 
-Progress: [############] 97% (v0.2.0: 14/14 phases in progress, 1/3 plans in Phase 14 complete)
+Progress: [############] 98% (v0.2.0: 14/14 phases in progress, 2/3 plans in Phase 14 complete)
 
 ## Performance Metrics
 
@@ -49,7 +49,7 @@ Progress: [############] 97% (v0.2.0: 14/14 phases in progress, 1/3 plans in Pha
 | 10 (Claude Code Capability Adoption) | 8/8 (4 main + 4 gap) | 34 min | 4.3 min |
 | 11 (CI/CD and Testing) | 6/6 | 64 min | 10.7 min |
 | 13 (Hook Bundling - GAP CLOSURE) | 1/1 | 6 min | 6 min |
-| 14 (Security Wiring - GAP CLOSURE) | 1/3 | 6 min (plan 01 only) | 6 min |
+| 14 (Security Wiring - GAP CLOSURE) | 2/3 | 13 min (plans 01-02) | 6.5 min |
 
 ## Accumulated Context
 
@@ -121,6 +121,9 @@ Recent decisions affecting current work:
 - 14-01 VAL-NORM-001: validateGitSHA lowercases, validateBranchName trims, validateConfigPath resolves to absolute path (sanitize in validation step, Robustness Principle)
 - 14-01 VAL-URL-001: validateRemoteURL allowlist: https://, ssh://, git@host:path -- rejects git://, file://, http://, and all others
 - 14-01 VAL-PURE-001: Validation module stays pure -- no process.exit or error() -- requireValid() bridge lives in application layer (gsd-tools.js)
+- 14-02 WIRE-001: requireValid() has explicit process.exit(1) in addition to error() -- self-contained even if error() is refactored
+- 14-02 WIRE-002: Dual-base allowedBases=[homedir, tmpdir] for GSD_CONFIG_PATH -- prod uses homedir, test harness uses tmpdir
+- 14-02 WIRE-003: Integration tests as orphan-prevention -- structural tests verify import and call sites exist
 
 ### Pending Todos
 
@@ -142,12 +145,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-19
-Status: Phase 14 in progress. Plan 01 complete. Validation module migrated to Result type, 2 new validators added.
-Stopped at: Completed 14-01-PLAN.md -- validation Result type migration + new validators
+Last session: 2026-02-20
+Status: Phase 14 in progress. Plans 01-02 complete. Validation module wired into production code.
+Stopped at: Completed 14-02-PLAN.md -- validation wiring into gsd-tools.js and ConfigLoader.js
 Resume file: None
 
-**Next step:** Execute Phase 14 Plan 02 (gsd-tools.js wiring with requireValid())
+**Next step:** Execute Phase 14 Plan 03 (config validation script + prepublishOnly wiring)
 
 ---
-*Updated: 2026-02-18*
+*Updated: 2026-02-20*

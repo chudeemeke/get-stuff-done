@@ -550,3 +550,69 @@ describe('phase next-decimal command', () => {
     expect(output.next).toBe('06.1');
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// validation wiring
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('validation wiring', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('gsd-tools.js imports all validators from src/validation', () => {
+    const source = fs.readFileSync(TOOLS_PATH, 'utf-8');
+    expect(source).toMatch(/require\(['"].*src\/validation['"]\)/);
+    expect(source).toMatch(/validateGitSHA/);
+    expect(source).toMatch(/validateBranchName/);
+    expect(source).toMatch(/validateConfigPath/);
+    expect(source).toMatch(/validateTagName/);
+    expect(source).toMatch(/validateRemoteURL/);
+  });
+
+  test('gsd-tools.js has requireValid bridge with explicit process.exit(1)', () => {
+    const source = fs.readFileSync(TOOLS_PATH, 'utf-8');
+    expect(source).toMatch(/function requireValid\(result\)/);
+    // requireValid must contain both error() call and explicit process.exit(1)
+    const requireValidMatch = source.match(/function requireValid\(result\)\s*\{[^}]+\}/s);
+    expect(requireValidMatch).not.toBeNull();
+    const requireValidBody = requireValidMatch[0];
+    expect(requireValidBody).toMatch(/error\(/);
+    expect(requireValidBody).toMatch(/process\.exit\(1\)/);
+  });
+
+  test('verify-summary command wires validateGitSHA through requireValid', () => {
+    const source = fs.readFileSync(TOOLS_PATH, 'utf-8');
+    expect(source).toMatch(/requireValid\(validateGitSHA\(/);
+  });
+
+  test('commit command rejects file paths outside project root (path traversal)', () => {
+    // Initialize a real git repo so cmdCommit can function
+    execSync('git init', { cwd: tmpDir, stdio: 'pipe' });
+    execSync('git config user.email "test@test.com"', { cwd: tmpDir, stdio: 'pipe' });
+    execSync('git config user.name "Test"', { cwd: tmpDir, stdio: 'pipe' });
+
+    // Attempt to stage a file path that traverses outside the project root
+    const result = runGsdTools('commit "test msg" --files ../../etc/passwd', tmpDir);
+
+    // Should fail with an error about invalid file path or path traversal
+    expect(result.success).toBe(false);
+    const combinedOutput = (result.output + ' ' + result.error).toLowerCase();
+    expect(
+      combinedOutput.includes('invalid file path') || combinedOutput.includes('path traversal')
+    ).toBe(true);
+  });
+
+  test('ConfigLoader.js imports validateConfigPath from validation module', () => {
+    const configLoaderPath = path.join(__dirname, '..', 'src', 'config', 'ConfigLoader.js');
+    const source = fs.readFileSync(configLoaderPath, 'utf-8');
+    expect(source).toMatch(/require\(['"].*validation['"]\)/);
+    expect(source).toMatch(/validateConfigPath/);
+  });
+});

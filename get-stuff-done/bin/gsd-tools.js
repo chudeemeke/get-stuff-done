@@ -34,6 +34,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync, execFileSync } = require('child_process');
+const { validateGitSHA, validateBranchName, validateConfigPath, validateTagName, validateRemoteURL } = require('../../src/validation');
 
 // ─── Model Profile Table ─────────────────────────────────────────────────────
 
@@ -50,6 +51,25 @@ const MODEL_PROFILES = {
   'gsd-plan-checker':         { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
   'gsd-integration-checker':  { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
 };
+
+// ─── Validation Bridge ────────────────────────────────────────────────────────
+
+/**
+ * Unwrap a Result type value or exit with error.
+ * Bridges the pure validation module (Result type) to gsd-tools error handling.
+ * Both error() and process.exit(1) are explicit: if error() is ever refactored
+ * to log without exiting, requireValid still halts unconditionally.
+ *
+ * @param {{ok: boolean, value?: *, error?: string}} result
+ * @returns {*} result.value on success
+ */
+function requireValid(result) {
+  if (!result.ok) {
+    error(result.error);
+    process.exit(1);
+  }
+  return result.value;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -911,7 +931,13 @@ function cmdCommit(cwd, message, files, raw) {
   // Stage files
   const filesToStage = files && files.length > 0 ? files : ['.planning/'];
   for (const file of filesToStage) {
-    execGit(cwd, ['add', file]);
+    // Validate file paths are within project directory (defense-in-depth)
+    const validationResult = validateConfigPath(file, cwd);
+    if (!validationResult.ok) {
+      error(`Invalid file path: ${validationResult.error}`);
+      process.exit(1);
+    }
+    execGit(cwd, ['add', validationResult.value]);
   }
 
   // Commit
@@ -987,12 +1013,14 @@ function cmdVerifySummary(cwd, summaryPath, checkFileCount, raw) {
   }
 
   // Check 3: Commits exist
+  // Extract candidate hashes from text (validation via validateGitSHA in loop below)
   const commitHashPattern = /\b[0-9a-f]{7,40}\b/g;
   const hashes = content.match(commitHashPattern) || [];
   let commitsExist = false;
   if (hashes.length > 0) {
     for (const hash of hashes.slice(0, 3)) {
-      const result = execGit(cwd, ['cat-file', '-t', hash]);
+      const validHash = requireValid(validateGitSHA(hash));
+      const result = execGit(cwd, ['cat-file', '-t', validHash]);
       if (result.exitCode === 0 && result.stdout === 'commit') {
         commitsExist = true;
         break;
@@ -1202,16 +1230,22 @@ function cmdInitExecutePhase(cwd, phase, raw) {
     plan_count: phaseInfo?.plans?.length || 0,
     incomplete_count: phaseInfo?.incomplete_plans?.length || 0,
 
-    // Branch name (pre-computed)
-    branch_name: config.branching_strategy === 'phase' && phaseInfo
-      ? config.phase_branch_template
+    // Branch name (pre-computed, validated as defense-in-depth)
+    branch_name: (() => {
+      if (config.branching_strategy === 'phase' && phaseInfo) {
+        const name = config.phase_branch_template
           .replace('{phase}', phaseInfo.phase_number)
-          .replace('{slug}', phaseInfo.phase_slug || 'phase')
-      : config.branching_strategy === 'milestone'
-        ? config.milestone_branch_template
-            .replace('{milestone}', milestone.version)
-            .replace('{slug}', generateSlugInternal(milestone.name) || 'milestone')
-        : null,
+          .replace('{slug}', phaseInfo.phase_slug || 'phase');
+        return requireValid(validateBranchName(name));
+      }
+      if (config.branching_strategy === 'milestone') {
+        const name = config.milestone_branch_template
+          .replace('{milestone}', milestone.version)
+          .replace('{slug}', generateSlugInternal(milestone.name) || 'milestone');
+        return requireValid(validateBranchName(name));
+      }
+      return null;
+    })(),
 
     // Milestone info
     milestone_version: milestone.version,

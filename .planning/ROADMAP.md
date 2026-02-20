@@ -238,6 +238,11 @@ Plans:
   3. Dev-mode (`--link`) continues to work as before (no regression)
   4. All existing tests pass with no regressions
 
+**Plans**: 1 plan
+
+Plans:
+- [ ] 15-01-PLAN.md -- esbuild gsd-tools.js bundling, installer wiring, and dist regression tests
+
 ---
 
 ### Phase 16: Platform Quality & Cleanup [GAP CLOSURE]
@@ -291,7 +296,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 12. Missing Workflows | 1/1 | Complete (16/16 workflows created, 355 tests pass, v2.1.3 released) | 2026-02-18 |
 | 13. Hook Bundling [GAP] | 1/1 | Complete (6/6 verified, 366 tests pass) | 2026-02-18 |
 | 14. Security Wiring [GAP] | 3/3 | Complete (UAT: 7/7 pass, 441 tests) | 2026-02-20 |
-| 15. gsd-tools.js Bundling [GAP] | 0/? | Not started | - |
+| 15. gsd-tools.js Bundling [GAP] | 0/1 | Planned | - |
 | 16. Platform Quality & Cleanup [GAP] | 0/? | Not started | - |
 | 17. Agent Teams Wiring [GAP] | 0/? | Not started | - |
 

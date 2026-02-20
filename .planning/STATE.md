@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 ## Current Position
 
-Phase: 15 of 17 (gsd-tools.js Bundling - GAP CLOSURE)
+Phase: 16 of 17 (Platform Quality - GAP CLOSURE)
 Plan: 1 of 1 in current phase -- COMPLETE
-Status: Phase 15 complete. Unified build script bundles hooks and gsd-tools.js. 445 tests pass.
-Last activity: 2026-02-20 -- Phase 15 executed: gsd-tools.js bundling gap closure
+Status: Phase 16 complete. Platform module coverage gaps closed (detect.js 96.99%, terminal.js 99.21%, paths.js 100%). Dead code index.js deleted. 563 tests pass.
+Last activity: 2026-02-20 -- Phase 16 executed: platform quality coverage gap closure
 
-Progress: [############-] 88% (v0.2.0: 15/17 phases complete)
+Progress: [#############] 94% (v0.2.0: 16/17 phases complete)
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Progress: [############-] 88% (v0.2.0: 15/17 phases complete)
 | 13 (Hook Bundling - GAP CLOSURE) | 1/1 | 6 min | 6 min |
 | 14 (Security Wiring - GAP CLOSURE) | 3/3 | ~20 min | ~7 min |
 | 15 (gsd-tools.js Bundling - GAP CLOSURE) | 1/1 | ~5 min | ~5 min |
+| 16 (Platform Quality - GAP CLOSURE) | 1/1 | 17 min | 17 min |
 
 ## Accumulated Context
 
@@ -132,6 +133,9 @@ Recent decisions affecting current work:
 - 15-01 BUNDLE-SHARED-001: ESBUILD_BASE shared config with bundle:true, platform:node, target:node20, no external/minify
 - 15-01 TEST-DIST-TOOLS-001: Dist tests added to gsd-tools.test.js (not separate file) matching hooks.test.js pattern
 - 15-01 INSTALL-OVERWRITE-001: Installer post-copy overwrites source gsd-tools.js with bundled version, warns but does not fail if dist missing
+- 16-01 COV-001: Separate test file for direct-call coverage (platform-internal.test.js) because existing cache-clear tests in platform.test.js interfere with bun 1.3.5 coverage tracking
+- 16-01 COV-002: Underscore prefix convention for internal exports (_detectShell) signals test-only API to consumers
+- 16-01 COV-003: Git-unavailable branch remains covered only by re-require pattern in platform.test.js since execSync destructuring prevents direct mock
 
 ### Pending Todos
 
@@ -153,16 +157,17 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-21
-Status: Phase 15 complete. gsd-tools.js bundled via esbuild, unified build script, installer wired. 445 tests pass. Verification 5/5 passed.
-Stopped at: Completed phase 15 execution and verification
+Last session: 2026-02-20
+Status: Phase 16 complete. Platform module coverage gaps closed (detect.js 96.99%, terminal.js 99.21%, paths.js 100%). Dead code index.js deleted. 563 tests pass.
+Stopped at: Completed 16-01-PLAN.md execution
 Resume file: None
 
-**Next step:** Plan Phase 16: `/gsd:plan-phase 16`
+**Next step:** Execute Phase 17: `/gsd:execute-phase 17`
 
 ### Roadmap Evolution
 - Added 3 gap closure phases (15-17) on 2026-02-20 from second milestone audit
 - Phase 15 completed on 2026-02-21
+- Phase 16 completed on 2026-02-20
 
 ---
-*Updated: 2026-02-21*
+*Updated: 2026-02-20*

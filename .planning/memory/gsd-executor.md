@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
 updated: 2026-02-20
-entries: 9
+entries: 12
 ---
 
 - finding: "hooks/dist/ is gitignored (decision 09-02 BUILD-001). When committing esbuild output, only commit scripts/build-hooks.js -- never try to git add hooks/dist/. The dist files are generated artifacts."
@@ -56,4 +56,34 @@ entries: 9
   source: "Phase 14, Plan 03, Task 2 audit"
   confidence: HIGH
   phase: "14-security-wiring"
+  date: "2026-02-20"
+
+- finding: "When adding dist regression tests for a bundled CLI tool that may not have a 'frontmatter validate' subcommand, test MODULE_NOT_FOUND absence rather than asserting a specific command output. Pattern: catch the error, assert errOutput does NOT match /MODULE_NOT_FOUND/ -- this proves the module WAS loaded even if the command is unknown."
+  source: "Phase 15, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "15-gsd-tools-bundling"
+  date: "2026-02-20"
+
+- finding: "gsd-tools.js state advance-plan returns full config JSON (falls through to cmdStateLoad) when called against the installed version that lacks the advance-plan subcommand. The installed gsd-tools at ~/.claude/get-stuff-done/bin/ may be older than the source. Update STATE.md directly via Edit tool for current phase."
+  source: "Phase 15, Plan 01, state update"
+  confidence: HIGH
+  phase: "15-gsd-tools-bundling"
+  date: "2026-02-20"
+
+- finding: "bun 1.3.5 coverage tracking bug: when a test file does 'delete require.cache' and re-requires a module, bun tracks coverage for the NEW instance. The LAST loaded instance's coverage overrides earlier instances in the report for the same file path. Direct-call tests added to the SAME file as cache-clearing tests do NOT fix coverage -- the re-require pattern resets the tracked instance."
+  source: "Phase 16, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "16-platform-quality"
+  date: "2026-02-20"
+
+- finding: "Fix for bun 1.3.5 coverage tracking bug: create a SEPARATE test file with NO cache-clearing/require.cache operations. The separate file gets a clean module-load context, so direct function calls are tracked in the original (and only) module instance. Pattern: create 'foo-internal.test.js' alongside 'foo.test.js' when 'foo.test.js' uses require.cache deletion."
+  source: "Phase 16, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "16-platform-quality"
+  date: "2026-02-20"
+
+- finding: "When a module uses 'const { execSync } = require('child_process')' (destructuring at load time), you CANNOT mock execSync by mutating childProcess.execSync after the module loads. The destructured reference is a local copy captured at import time. To test error paths in such modules, you MUST use the require.cache deletion + re-require approach (which then triggers a fresh destructuring that picks up the mutated value)."
+  source: "Phase 16, Plan 01, Task 2 (_detectGit mock)"
+  confidence: HIGH
+  phase: "16-platform-quality"
   date: "2026-02-20"

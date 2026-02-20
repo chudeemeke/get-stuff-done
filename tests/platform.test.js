@@ -8,10 +8,24 @@
  */
 
 const { describe, test, expect, beforeEach, afterEach } = require('bun:test');
-const { detectPlatform, clearCache: clearPlatformCache } = require('../src/platform/detect');
+const {
+  detectPlatform,
+  clearCache: clearPlatformCache,
+  _detectShell,
+  _detectEnvironment,
+  _detectNodeVersion,
+  _detectGit,
+} = require('../src/platform/detect');
 const { gsdPaths } = require('../src/platform/paths');
-const { detectTerminal, clearCache: clearTerminalCache } = require('../src/platform/terminal');
-const { mockEnv } = require('./helpers');
+const {
+  detectTerminal,
+  clearCache: clearTerminalCache,
+  _detectColorLevel,
+  _detectTerminalEmulator,
+  _detectUnicodeSupport,
+  _getTerminalDimensions,
+} = require('../src/platform/terminal');
+const { mockEnv, mockPlatform } = require('./helpers');
 
 describe('detectPlatform', () => {
   let restoreEnv;
@@ -418,6 +432,18 @@ describe('gsdPaths', () => {
     test('dirname produces forward slashes', () => {
       const result = gsdPaths.dirname('/home/user/file.txt');
       expect(result).toBe('/home/user');
+    });
+  });
+
+  describe('relative()', () => {
+    test('returns relative path from base to target', () => {
+      const result = gsdPaths.relative('/home/user', '/home/user/projects');
+      expect(result).toBe('projects');
+    });
+
+    test('returns relative path across directories', () => {
+      const result = gsdPaths.relative('/home/user/a', '/home/user/b/c');
+      expect(result).toBe('../b/c');
     });
   });
 });
@@ -1387,5 +1413,453 @@ describe('detectTerminal - coverage gap closure', () => {
 
       restore();
     });
+  });
+});
+
+// =============================================================================
+// Direct-call tests for internal helper functions (coverage gap closure)
+// These tests call internal helpers directly without cache-clear + re-require,
+// which fixes bun 1.3.5 coverage tracking limitation.
+// =============================================================================
+
+describe('_detectShell direct tests', () => {
+  function saveAndClearShellVars() {
+    const saved = {};
+    const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL', 'EXEPATH', 'MINGW_PREFIX'];
+    clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
+    return () => {
+      clearVars.forEach(v => {
+        if (saved[v] !== undefined) process.env[v] = saved[v];
+        else delete process.env[v];
+      });
+    };
+  }
+
+  test('Windows + MSYSTEM set detects mingw bash', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = saveAndClearShellVars();
+    process.env.MSYSTEM = 'MINGW64';
+
+    const result = _detectShell();
+    expect(result.shell).toBe('bash');
+    expect(result.variant).toBe('mingw');
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Windows + PSModulePath detects pwsh', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = saveAndClearShellVars();
+    process.env.PSModulePath = 'C:\\Program Files\\PowerShell\\Modules';
+
+    const result = _detectShell();
+    expect(result.shell).toBe('pwsh');
+    expect(result.isPowerShell).toBe(true);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Windows + POWERSHELL_DISTRIBUTION_CHANNEL detects pwsh', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = saveAndClearShellVars();
+    process.env.POWERSHELL_DISTRIBUTION_CHANNEL = 'MSI:Windows 10';
+
+    const result = _detectShell();
+    expect(result.shell).toBe('pwsh');
+    expect(result.isPowerShell).toBe(true);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Windows + no shell indicators defaults to cmd', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = saveAndClearShellVars();
+
+    const result = _detectShell();
+    expect(result.shell).toBe('cmd');
+    expect(result.isCmd).toBe(true);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Unix + SHELL=/bin/zsh detects zsh', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = saveAndClearShellVars();
+    process.env.SHELL = '/bin/zsh';
+
+    const result = _detectShell();
+    expect(result.shell).toBe('zsh');
+    expect(result.isZsh).toBe(true);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Unix + SHELL=/bin/bash detects bash', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = saveAndClearShellVars();
+    process.env.SHELL = '/bin/bash';
+
+    const result = _detectShell();
+    expect(result.shell).toBe('bash');
+    expect(result.isBash).toBe(true);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Unix + unknown SHELL=/bin/fish defaults to bash with unknown variant', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = saveAndClearShellVars();
+    process.env.SHELL = '/bin/fish';
+
+    const result = _detectShell();
+    expect(result.shell).toBe('bash');
+    expect(result.variant).toBe('unknown');
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Unix + empty SHELL defaults to bash with unknown variant', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = saveAndClearShellVars();
+    process.env.SHELL = '';
+
+    const result = _detectShell();
+    expect(result.shell).toBe('bash');
+    expect(result.variant).toBe('unknown');
+
+    restoreV();
+    restoreP();
+  });
+});
+
+describe('_detectEnvironment direct tests', () => {
+  const fs = require('fs');
+
+  function saveAndClearEnvVars() {
+    const saved = {};
+    const clearVars = ['MSYSTEM', 'MINGW_PREFIX', 'EXEPATH', 'WSL_DISTRO_NAME'];
+    clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
+    return () => {
+      clearVars.forEach(v => {
+        if (saved[v] !== undefined) process.env[v] = saved[v];
+        else delete process.env[v];
+      });
+    };
+  }
+
+  test('Linux + /proc/version with Microsoft detects WSL', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = saveAndClearEnvVars();
+    const origReadFile = fs.readFileSync;
+    fs.readFileSync = (path, enc) => {
+      if (path === '/proc/version') {
+        return 'Linux version 5.10.0-microsoft-standard-WSL2 (oe-user@oe-host)';
+      }
+      return origReadFile(path, enc);
+    };
+
+    const result = _detectEnvironment();
+    expect(result.isWSL).toBe(true);
+
+    fs.readFileSync = origReadFile;
+    restoreV();
+    restoreP();
+  });
+
+  test('Linux + /proc/version throws + WSL_DISTRO_NAME set detects WSL', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = saveAndClearEnvVars();
+    process.env.WSL_DISTRO_NAME = 'Ubuntu';
+    const origReadFile = fs.readFileSync;
+    fs.readFileSync = (path, enc) => {
+      if (path === '/proc/version') {
+        const error = new Error('ENOENT: no such file or directory');
+        error.code = 'ENOENT';
+        throw error;
+      }
+      return origReadFile(path, enc);
+    };
+
+    const result = _detectEnvironment();
+    expect(result.isWSL).toBe(true);
+
+    fs.readFileSync = origReadFile;
+    restoreV();
+    restoreP();
+  });
+
+  test('Linux + /proc/version throws + no WSL_DISTRO_NAME is not WSL', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = saveAndClearEnvVars();
+    const origReadFile = fs.readFileSync;
+    fs.readFileSync = (path, enc) => {
+      if (path === '/proc/version') {
+        const error = new Error('ENOENT: no such file or directory');
+        error.code = 'ENOENT';
+        throw error;
+      }
+      return origReadFile(path, enc);
+    };
+
+    const result = _detectEnvironment();
+    expect(result.isWSL).toBe(false);
+
+    fs.readFileSync = origReadFile;
+    restoreV();
+    restoreP();
+  });
+
+  test('Windows + MSYSTEM + EXEPATH with git detects isGitBash', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = saveAndClearEnvVars();
+    process.env.MSYSTEM = 'MINGW64';
+    process.env.EXEPATH = 'C:\\Program Files\\Git\\usr\\bin';
+
+    const result = _detectEnvironment();
+    expect(result.isGitBash).toBe(true);
+    expect(result.isMingw).toBe(true);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Windows + MINGW_PREFIX set detects isMingw', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = saveAndClearEnvVars();
+    process.env.MINGW_PREFIX = '/mingw64';
+
+    const result = _detectEnvironment();
+    expect(result.isMingw).toBe(true);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Windows + EXEPATH with git but no MSYSTEM detects isMingw', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = saveAndClearEnvVars();
+    process.env.EXEPATH = 'C:\\Program Files\\Git\\usr\\bin';
+
+    const result = _detectEnvironment();
+    expect(result.isMingw).toBe(true);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Darwin + no mingw or WSL vars detects isNative', () => {
+    const restoreP = mockPlatform('darwin');
+    const restoreV = saveAndClearEnvVars();
+
+    const result = _detectEnvironment();
+    expect(result.isNative).toBe(true);
+    expect(result.isMingw).toBe(false);
+    expect(result.isWSL).toBe(false);
+
+    restoreV();
+    restoreP();
+  });
+});
+
+describe('_detectNodeVersion direct tests', () => {
+  test('returns version info for current Node.js', () => {
+    const result = _detectNodeVersion();
+    expect(typeof result.version).toBe('string');
+    expect(typeof result.major).toBe('number');
+    expect(typeof result.isLTS).toBe('boolean');
+    if (result.major >= 20) {
+      expect(result.isLTS).toBe(true);
+      expect(result.warning).toBe(null);
+    }
+  });
+});
+
+describe('_detectGit direct tests', () => {
+  // Note: detect.js uses `const { execSync } = require('child_process')` (destructuring at load time).
+  // Mutating childProcess.execSync after import does not affect the already-destructured reference.
+  // The "git unavailable" branch is covered by the existing cache-clear + re-require test above.
+  // This describe block covers the "git available" path directly.
+
+  test('git available: returns available=true with path and version strings', () => {
+    const result = _detectGit();
+    expect(result.available).toBe(true);
+    expect(typeof result.path).toBe('string');
+    expect(typeof result.version).toBe('string');
+    expect(result.path.length).toBeGreaterThan(0);
+    expect(result.version.length).toBeGreaterThan(0);
+  });
+
+  test('_detectGit returns object with expected shape', () => {
+    const result = _detectGit();
+    expect(result).toHaveProperty('available');
+    expect(result).toHaveProperty('path');
+    expect(result).toHaveProperty('version');
+    expect(typeof result.available).toBe('boolean');
+  });
+});
+
+describe('_detectTerminalEmulator direct tests', () => {
+  function cleanTerminalEnvDirect() {
+    const saved = {};
+    const clearVars = [
+      'WT_SESSION', 'ConEmuTask', 'TERM_PROGRAM', 'TERM', 'MSYSTEM',
+      'FORCE_COLOR', 'NO_COLOR', 'NODE_DISABLE_COLORS', 'COLORTERM'
+    ];
+    clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
+    return () => {
+      clearVars.forEach(v => {
+        if (saved[v] !== undefined) process.env[v] = saved[v];
+        else delete process.env[v];
+      });
+    };
+  }
+
+  test('Windows Console Host: win32 without WT_SESSION or MSYSTEM', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = cleanTerminalEnvDirect();
+
+    const result = _detectTerminalEmulator();
+    expect(result).toBe('Windows Console Host');
+
+    restoreV();
+    restoreP();
+  });
+
+  test('unknown emulator on non-Windows with no terminal vars', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = cleanTerminalEnvDirect();
+
+    const result = _detectTerminalEmulator();
+    expect(result).toBe('unknown');
+
+    restoreV();
+    restoreP();
+  });
+});
+
+describe('_detectUnicodeSupport direct tests', () => {
+  function cleanTerminalEnvDirect() {
+    const saved = {};
+    const clearVars = [
+      'GSD_UNICODE', 'WT_SESSION', 'TERM_PROGRAM', 'TERM', 'MSYSTEM',
+      'FORCE_COLOR', 'NO_COLOR', 'NODE_DISABLE_COLORS', 'COLORTERM'
+    ];
+    clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
+    return () => {
+      clearVars.forEach(v => {
+        if (saved[v] !== undefined) process.env[v] = saved[v];
+        else delete process.env[v];
+      });
+    };
+  }
+
+  test('Windows Console Host (win32 no MSYSTEM/WT_SESSION) returns false', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = cleanTerminalEnvDirect();
+
+    const result = _detectUnicodeSupport();
+    expect(result).toBe(false);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Linux framebuffer (TERM=linux) returns false', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = cleanTerminalEnvDirect();
+    process.env.TERM = 'linux';
+
+    const result = _detectUnicodeSupport();
+    expect(result).toBe(false);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Unix with xterm TERM returns true', () => {
+    const restoreP = mockPlatform('linux');
+    const restoreV = cleanTerminalEnvDirect();
+    process.env.TERM = 'xterm';
+
+    const result = _detectUnicodeSupport();
+    expect(result).toBe(true);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('Windows unknown terminal (TERM=unknown-terminal) returns false', () => {
+    const restoreP = mockPlatform('win32');
+    const restoreV = cleanTerminalEnvDirect();
+    process.env.TERM = 'unknown-terminal';
+
+    const result = _detectUnicodeSupport();
+    expect(result).toBe(false);
+
+    restoreV();
+    restoreP();
+  });
+
+  test('GSD_UNICODE=true override returns true', () => {
+    const restoreV = cleanTerminalEnvDirect();
+    process.env.GSD_UNICODE = 'true';
+
+    const result = _detectUnicodeSupport();
+    expect(result).toBe(true);
+
+    restoreV();
+  });
+
+  test('GSD_UNICODE=false override returns false', () => {
+    const restoreV = cleanTerminalEnvDirect();
+    process.env.GSD_UNICODE = 'false';
+
+    const result = _detectUnicodeSupport();
+    expect(result).toBe(false);
+
+    restoreV();
+  });
+});
+
+describe('_detectColorLevel direct tests', () => {
+  function cleanTerminalEnvDirect() {
+    const saved = {};
+    const clearVars = [
+      'FORCE_COLOR', 'NO_COLOR', 'NODE_DISABLE_COLORS',
+      'WT_SESSION', 'COLORTERM', 'TERM', 'TERM_PROGRAM', 'ConEmuTask'
+    ];
+    clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
+    return () => {
+      clearVars.forEach(v => {
+        if (saved[v] !== undefined) process.env[v] = saved[v];
+        else delete process.env[v];
+      });
+    };
+  }
+
+  test('NODE_DISABLE_COLORS=1 disables color (returns 0)', () => {
+    const restoreV = cleanTerminalEnvDirect();
+    process.env.NODE_DISABLE_COLORS = '1';
+
+    const result = _detectColorLevel();
+    expect(result).toBe(0);
+
+    restoreV();
+  });
+
+  test('Default basic color for unknown env (returns 1)', () => {
+    const restoreV = cleanTerminalEnvDirect();
+
+    const result = _detectColorLevel();
+    expect(result).toBe(1);
+
+    restoreV();
   });
 });

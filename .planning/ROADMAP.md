@@ -261,6 +261,11 @@ Plans:
   4. `src/platform/index.js` either deleted (if dead code) or consumers refactored to use it
   5. All existing tests pass with no regressions
 
+**Plans**: 1 plan
+
+Plans:
+- [ ] 16-01-PLAN.md -- Export internal helpers, direct-call coverage tests, dead code removal
+
 ---
 
 ### Phase 17: Agent Teams Wiring [GAP CLOSURE]
@@ -297,7 +302,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 13. Hook Bundling [GAP] | 1/1 | Complete (6/6 verified, 366 tests pass) | 2026-02-18 |
 | 14. Security Wiring [GAP] | 3/3 | Complete (UAT: 7/7 pass, 441 tests) | 2026-02-20 |
 | 15. gsd-tools.js Bundling [GAP] | 1/1 | Complete (5/5 verified, 445 tests pass) | 2026-02-20 |
-| 16. Platform Quality & Cleanup [GAP] | 0/? | Not started | - |
+| 16. Platform Quality & Cleanup [GAP] | 0/1 | Planned | - |
 | 17. Agent Teams Wiring [GAP] | 0/? | Not started | - |
 
 ---

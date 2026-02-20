@@ -9,6 +9,8 @@
  */
 
 const { describe, test, expect, beforeEach, afterEach } = require('bun:test');
+const os = require('os');
+const path = require('path');
 const { loadConfig, getConfigPath, getDefaults, getConfigValue } = require('../src/config/ConfigLoader');
 const { validateConfig, configSchema } = require('../src/config/ConfigSchema');
 const { createTempDir, createTempFile, mockEnv } = require('./helpers');
@@ -34,9 +36,22 @@ describe('ConfigLoader', () => {
 
   describe('getConfigPath()', () => {
     test('uses GSD_CONFIG_PATH env var when set', () => {
-      restoreEnv = mockEnv({ GSD_CONFIG_PATH: '/custom/path/config.json' });
-      const path = getConfigPath();
-      expect(path).toBe('/custom/path/config.json');
+      const homePath = path.join(os.homedir(), '.gsd-test', 'config.json');
+      restoreEnv = mockEnv({ GSD_CONFIG_PATH: homePath });
+      const result = getConfigPath();
+      expect(result).toBe(homePath);
+    });
+
+    test('rejects GSD_CONFIG_PATH with path traversal', () => {
+      restoreEnv = mockEnv({ GSD_CONFIG_PATH: '/etc/shadow' });
+      expect(() => getConfigPath()).toThrow('GSD_CONFIG_PATH validation failed');
+    });
+
+    test('accepts GSD_CONFIG_PATH within tmpdir', () => {
+      const tmpPath = path.join(os.tmpdir(), 'gsd-test', 'config.json');
+      restoreEnv = mockEnv({ GSD_CONFIG_PATH: tmpPath });
+      const result = getConfigPath();
+      expect(result).toBe(tmpPath);
     });
 
     test('defaults to ~/.gsd/config.json when env var not set', () => {

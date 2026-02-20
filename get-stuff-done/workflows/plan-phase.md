@@ -134,6 +134,45 @@ Display:
 Researching Phase [N]: [Name]...
 ```
 
+<teams_integration workflow="plan-phase">
+**Config-driven team routing (check before spawning research and planning agents):**
+
+```bash
+TEAMS_ENABLED=$(python3 -c "import json; c=json.load(open('.planning/config.json')); print(str(c.get('teams',{}).get('enabled',False)).lower())" 2>/dev/null || echo "false")
+```
+
+**If `TEAMS_ENABLED=false` (default):** Continue to existing sequential research and planning below. No behavior change.
+
+**If `TEAMS_ENABLED=true`:**
+
+Check for the experimental env flag:
+```bash
+echo "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-missing}"
+```
+
+If flag is missing or not set to `1`: Warn and fall through to sequential mode:
+```
+Warning: teams.enabled=true but CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS is not set.
+Falling back to sequential research and planning mode.
+```
+
+If flag is present (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`):
+
+Check oversight setting for this workflow:
+```bash
+OVERSIGHT_ENABLED=$(python3 -c "import json; c=json.load(open('.planning/config.json')); print(str(c.get('teams',{}).get('oversight',{}).get('per_workflow',{}).get('plan-phase',True)).lower())" 2>/dev/null || echo "true")
+```
+
+Spawn the plan-phase-research-team using the template at `get-stuff-done/teams/plan-phase-team.md`:
+- **Lead role:** plan-phase orchestrator (delegate mode)
+- **Teammate 1:** `gsd-phase-researcher` (domain research)
+- **Teammate 2:** `gsd-codebase-mapper` (codebase analysis)
+- **Observer:** `gsd-oversight-planning` (research quality watcher, if `OVERSIGHT_ENABLED=true`)
+- **Flag routing:** direct to planner (not high-stakes)
+- **Task dependencies:** parallel research (Teammate 1 + Teammate 2) -> cross-reference -> quality review by oversight -> generate plans (planner spawned by lead after team completes)
+- When team is active, the team lead handles BOTH research and planning. **Skip to `verify_plans` step** after team produces plan files. The `spawn_planner` step is also skipped — the team lead spawns the planner internally.
+</teams_integration>
+
 Read files needed for context, then spawn researcher:
 
 ```bash
@@ -185,6 +224,8 @@ Display:
 ```
 Planning Phase [N]: [Name]...
 ```
+
+Note: If teams mode was activated in `run_research` step above, this step is skipped. The team lead spawns the planner internally.
 
 Read all context files:
 

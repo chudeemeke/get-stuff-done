@@ -41,6 +41,46 @@ Then verify each level against the actual codebase.
 
 Store scope choice for use in verification steps.
 
+<teams_integration workflow="verify-work">
+**Config-driven team routing (check before single-verifier workflow):**
+
+```bash
+TEAMS_ENABLED=$(python3 -c "import json; c=json.load(open('.planning/config.json')); print(str(c.get('teams',{}).get('enabled',False)).lower())" 2>/dev/null || echo "false")
+```
+
+**If `TEAMS_ENABLED=false` (default):** Continue to existing single-verifier workflow below. No behavior change.
+
+**If `TEAMS_ENABLED=true`:**
+
+Check for the experimental env flag:
+```bash
+echo "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-missing}"
+```
+
+If flag is missing or not set to `1`: Warn and fall through to single-verifier mode:
+```
+Warning: teams.enabled=true but CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS is not set.
+Falling back to single-verifier mode.
+```
+
+If flag is present (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`):
+
+Check oversight setting for this workflow (use config key `verify-work`, not `verify-phase`):
+```bash
+OVERSIGHT_ENABLED=$(python3 -c "import json; c=json.load(open('.planning/config.json')); print(str(c.get('teams',{}).get('oversight',{}).get('per_workflow',{}).get('verify-work',True)).lower())" 2>/dev/null || echo "true")
+```
+
+Spawn the verify-work-team using the template at `get-stuff-done/teams/verify-work-team.md`:
+- **Lead role:** verify-work orchestrator (delegate mode)
+- **Teammate 1:** `gsd-verifier` (functional verification via goal-backward analysis)
+- **Teammate 2:** `platform-verifier` (cross-platform checks for Windows, macOS, Linux)
+- **Teammate 3:** `security-verifier` (security-focused review of phase outputs)
+- **Observer:** `gsd-oversight-verification` (completeness watcher, if `OVERSIGHT_ENABLED=true`)
+- **Flag routing:** direct to verifier (not high-stakes)
+- **Task flow:** all 3 verifiers run in parallel -> completeness review by oversight -> lead synthesizes combined VERIFICATION.md
+- When teams mode is active, the existing verification steps (`establish_must_haves` through `create_report`) are handled by the team. The lead produces the final VERIFICATION.md. **Skip to `return_to_orchestrator` step** with the team-produced VERIFICATION.md.
+</teams_integration>
+
 ```bash
 # Phase directory (match both zero-padded and unpadded)
 PADDED_PHASE=$(printf "%02d" ${PHASE_ARG} 2>/dev/null || echo "${PHASE_ARG}")

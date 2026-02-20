@@ -213,6 +213,46 @@ Generate execution plan for selected commits.
 
 **Output:** Continue to Stage 3.5 with selected_commits list
 
+<teams_integration workflow="upstream-sync">
+**Config-driven team routing (check before Stage 3.5 inline analysis):**
+
+```bash
+TEAMS_ENABLED=$(python3 -c "import json; c=json.load(open('.planning/config.json')); print(str(c.get('teams',{}).get('enabled',False)).lower())" 2>/dev/null || echo "false")
+```
+
+**If `TEAMS_ENABLED=false` (default):** Continue to Stage 3.5 inline analysis below. No behavior change.
+
+**If `TEAMS_ENABLED=true`:**
+
+Check for the experimental env flag:
+```bash
+echo "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-missing}"
+```
+
+If flag is missing or not set to `1`: Warn and fall through to inline analysis:
+```
+Warning: teams.enabled=true but CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS is not set.
+Falling back to inline sequential analysis mode.
+```
+
+If flag is present (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`):
+
+Check oversight setting for this workflow:
+```bash
+OVERSIGHT_ENABLED=$(python3 -c "import json; c=json.load(open('.planning/config.json')); print(str(c.get('teams',{}).get('oversight',{}).get('per_workflow',{}).get('upstream-sync',True)).lower())" 2>/dev/null || echo "true")
+```
+
+Spawn the upstream-sync-team using the template at `get-stuff-done/teams/upstream-sync-team.md`:
+- **Lead role:** upstream-sync orchestrator (delegate mode)
+- **Teammate 1:** `commit-analyzer` (analyzes upstream commits for integration feasibility)
+- **Teammate 2:** `conflict-detector` (identifies fork-specific conflicts and protected path violations)
+- **Teammate 3:** `identity-checker` (checks branding and naming preservation in cherry-picks)
+- **Observer:** `gsd-oversight-sync` (security watcher, if `OVERSIGHT_ENABLED=true`)
+- **Flag routing:** ALL flags through lead (HIGH-STAKES workflow per decision FLAG-ROUTING-001)
+- **Task flow:** parallel analysis by 3 teammates -> security review by oversight -> lead decides proceed/skip/stop -> continue to Stage 3.5 with team findings as richer input
+- In team mode, the parallel analysis replaces what the orchestrator does inline. Stage 3.5 still runs as the formal checkpoint but receives the team's combined analysis rather than performing it inline.
+</teams_integration>
+
 ## Stage 3.5: SECURITY REVIEW (Checkpoint)
 
 Review diffs of selected commits before executing cherry-picks.

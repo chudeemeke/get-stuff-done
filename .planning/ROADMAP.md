@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **v0.1.0 GetStuffDone Fork** -- Phases 1-6 (shipped 2026-02-05) [archived](milestones/v0.1.0-ROADMAP.md)
-- [ ] **v0.2.0 Hardening & Upstream Sync** -- Phases 7-14 (12 original + 2 gap closure)
+- [ ] **v0.2.0 Hardening & Upstream Sync** -- Phases 7-17 (12 original + 5 gap closure)
 
 ## Overview
 
@@ -23,6 +23,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: Claude Code Capability Adoption** - Leverage Opus 4.6 features (completed 2026-02-15)
 - [x] **Phase 11: CI/CD** - Automate cross-platform testing (completed 2026-02-16)
 - [x] **Phase 12: Missing Workflows** - Create 16 missing workflow files for GSD commands (completed 2026-02-18)
+- [ ] **Phase 15: gsd-tools.js Bundling [GAP CLOSURE]** - Fix post-install MODULE_NOT_FOUND for validation require
+- [ ] **Phase 16: Platform Quality & Cleanup [GAP CLOSURE]** - Coverage to 95%, cross-platform testing, dead code removal
+- [ ] **Phase 17: Agent Teams Wiring [GAP CLOSURE]** - Wire team templates into workflows with config-driven routing
 
 ## Phase Details
 
@@ -220,10 +223,63 @@ Plans:
 
 ---
 
+### Phase 15: gsd-tools.js Bundling [GAP CLOSURE]
+**Goal**: Fix gsd-tools.js validation require path that breaks after installer copies to ~/.claude/
+
+**Depends on**: Nothing (standalone fix)
+
+**Requirements**: None (gap closure from v0.2.0 audit)
+
+**Audit Reference**: GAP-1 in milestones/v0.2.0-MILESTONE-AUDIT.md
+
+**Success Criteria** (what must be TRUE):
+  1. `gsd-tools.js` resolves all `require()` calls correctly when installed to `~/.claude/get-stuff-done/bin/`
+  2. `require('../../src/validation')` no longer produces MODULE_NOT_FOUND post-install
+  3. Dev-mode (`--link`) continues to work as before (no regression)
+  4. All existing tests pass with no regressions
+
+---
+
+### Phase 16: Platform Quality & Cleanup [GAP CLOSURE]
+**Goal**: Bring platform module coverage to 95%+ WoW threshold, verify cross-platform functionality, and remove dead code
+
+**Depends on**: Nothing (standalone fix)
+
+**Requirements**: PLAT-06 (partial)
+
+**Audit Reference**: GAP-2, GAP-3, GAP-4 in milestones/v0.2.0-MILESTONE-AUDIT.md
+
+**Success Criteria** (what must be TRUE):
+  1. `src/platform/detect.js` achieves 95%+ line coverage with mocked shell/environment detection branches
+  2. `src/platform/terminal.js` achieves 95%+ line coverage including Windows Console Host edge case
+  3. Cross-platform functionality verified through automated integration tests or documented manual testing
+  4. `src/platform/index.js` either deleted (if dead code) or consumers refactored to use it
+  5. All existing tests pass with no regressions
+
+---
+
+### Phase 17: Agent Teams Wiring [GAP CLOSURE]
+**Goal**: Wire agent team templates into workflows with config-driven conditional routing (Phase 10 completion)
+
+**Depends on**: Nothing (standalone fix)
+
+**Requirements**: CLAUDE-03 (partial)
+
+**Audit Reference**: GAP-5 in milestones/v0.2.0-MILESTONE-AUDIT.md
+
+**Success Criteria** (what must be TRUE):
+  1. 4 workflows (execute-phase, plan-phase, upstream-sync, verify-work) read `teams.enabled` from config.json
+  2. When `teams.enabled=true`, workflows spawn team using matching template + oversight agent
+  3. When `teams.enabled=false`, workflows use existing sequential subagent fallback (no behavior change)
+  4. Team templates are referenced by at least one workflow each
+  5. All existing tests pass with no regressions
+
+---
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
+Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -235,6 +291,9 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
 | 12. Missing Workflows | 1/1 | Complete (16/16 workflows created, 355 tests pass, v2.1.3 released) | 2026-02-18 |
 | 13. Hook Bundling [GAP] | 1/1 | Complete (6/6 verified, 366 tests pass) | 2026-02-18 |
 | 14. Security Wiring [GAP] | 3/3 | Complete (UAT: 7/7 pass, 441 tests) | 2026-02-20 |
+| 15. gsd-tools.js Bundling [GAP] | 0/? | Not started | - |
+| 16. Platform Quality & Cleanup [GAP] | 0/? | Not started | - |
+| 17. Agent Teams Wiring [GAP] | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*

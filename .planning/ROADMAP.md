@@ -241,7 +241,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 15-01-PLAN.md -- esbuild gsd-tools.js bundling, installer wiring, and dist regression tests
+- [ ] 15-01-PLAN.md -- Unified build script consolidation, gsd-tools bundling, installer wiring, dist tests
 
 ---
 

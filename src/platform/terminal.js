@@ -234,4 +234,9 @@ function clearCache() {
 module.exports = {
   detectTerminal,
   clearCache,
+  // Internal exports for direct testing (coverage fix)
+  _detectColorLevel: detectColorLevel,
+  _detectTerminalEmulator: detectTerminalEmulator,
+  _detectUnicodeSupport: detectUnicodeSupport,
+  _getTerminalDimensions: getTerminalDimensions,
 };

@@ -256,4 +256,9 @@ function clearCache() {
 module.exports = {
   detectPlatform,
   clearCache,
+  // Internal exports for direct testing (coverage fix)
+  _detectShell: detectShell,
+  _detectEnvironment: detectEnvironment,
+  _detectNodeVersion: detectNodeVersion,
+  _detectGit: detectGit,
 };

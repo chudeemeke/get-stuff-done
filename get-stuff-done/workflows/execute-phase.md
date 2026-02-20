@@ -190,6 +190,46 @@ Execute each wave in sequence. Autonomous plans within a wave run in parallel.
    - Bad: "Executing terrain generation plan"
    - Good: "Procedural terrain generator using Perlin noise — creates height maps, biome zones, and collision meshes. Required before vehicle physics can interact with ground."
 
+<teams_integration workflow="execute-phase">
+**Config-driven team routing (check before spawning agents):**
+
+```bash
+TEAMS_ENABLED=$(python3 -c "import json; c=json.load(open('.planning/config.json')); print(str(c.get('teams',{}).get('enabled',False)).lower())" 2>/dev/null || echo "false")
+```
+
+**If `TEAMS_ENABLED=false` (default):** Continue to existing sequential subagent spawning below. No behavior change.
+
+**If `TEAMS_ENABLED=true`:**
+
+Check for the experimental env flag:
+```bash
+echo "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-missing}"
+```
+
+If flag is missing or not set to `1`: Warn and fall through to sequential mode:
+```
+Warning: teams.enabled=true but CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS is not set.
+Falling back to sequential subagent mode.
+```
+
+If flag is present (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`):
+
+Check oversight setting for this workflow:
+```bash
+OVERSIGHT_ENABLED=$(python3 -c "import json; c=json.load(open('.planning/config.json')); print(str(c.get('teams',{}).get('oversight',{}).get('per_workflow',{}).get('execute-phase',True)).lower())" 2>/dev/null || echo "true")
+```
+
+Spawn the execute-phase-team using the template at `get-stuff-done/teams/execute-phase-team.md`:
+- **Lead role:** execute-phase orchestrator (delegate mode)
+- **Teammates:** 1 `gsd-executor` per plan in current wave (max 6 — soft cap of 8 minus lead and oversight)
+- **Observer:** 1 `gsd-oversight-execution` (if `OVERSIGHT_ENABLED=true`)
+- **Flag routing:** CRITICAL flags through lead; WARNING/INFO flags direct to executor
+- **Wave-based execution:** all executors in wave run simultaneously, oversight monitors continuously, all must complete before next wave begins
+- When team is active, the team lead handles spawning, monitoring, and result aggregation for this wave; skip to step 3 (Wait for all agents) after team completes
+
+**If soft cap exceeded (more than 6 plans in wave):** Team lead splits wave into batches of 6 and executes sequentially within the team.
+</teams_integration>
+
 2. **Read files and spawn all autonomous agents in wave simultaneously:**
 
    Before spawning, read file contents. The `@` syntax does not work across Task() boundaries - content must be inlined.

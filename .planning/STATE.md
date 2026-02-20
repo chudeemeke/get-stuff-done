@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 15 of 17 (gsd-tools.js Bundling - GAP CLOSURE)
-Plan: 0 of ? in current phase -- NOT STARTED
-Status: Awaiting planning. 3 gap closure phases (15-17) created from second milestone audit.
-Last activity: 2026-02-20 -- Gap closure phases created from milestones/v0.2.0-MILESTONE-AUDIT.md
+Plan: 1 of 1 in current phase -- COMPLETE
+Status: Phase 15 complete. Unified build script bundles hooks and gsd-tools.js. 445 tests pass.
+Last activity: 2026-02-20 -- Phase 15 executed: gsd-tools.js bundling gap closure
 
-Progress: [###########-] 82% (v0.2.0: 14/17 phases complete)
+Progress: [############-] 88% (v0.2.0: 15/17 phases complete)
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Progress: [###########-] 82% (v0.2.0: 14/17 phases complete)
 | 11 (CI/CD and Testing) | 6/6 | 64 min | 10.7 min |
 | 13 (Hook Bundling - GAP CLOSURE) | 1/1 | 6 min | 6 min |
 | 14 (Security Wiring - GAP CLOSURE) | 3/3 | ~20 min | ~7 min |
+| 15 (gsd-tools.js Bundling - GAP CLOSURE) | 1/1 | ~5 min | ~5 min |
 
 ## Accumulated Context
 
@@ -127,6 +128,10 @@ Recent decisions affecting current work:
 - 14-03 CONFIG-VAL-001: Validator registry as ordered array {label, run}: deterministic execution, easy extension
 - 14-03 CONFIG-VAL-002: Markdown section checks use per-section regex against full content (not line scan)
 - 14-03 ASK-AUDIT-001: complete-milestone.md and remove-phase.md omit AskUserQuestion -- workflows use inline text confirmations not the tool
+- 15-01 BUNDLE-UNIFIED-001: Consolidate build-hooks.js into unified build.js via git mv (user-locked decision from 15-CONTEXT)
+- 15-01 BUNDLE-SHARED-001: ESBUILD_BASE shared config with bundle:true, platform:node, target:node20, no external/minify
+- 15-01 TEST-DIST-TOOLS-001: Dist tests added to gsd-tools.test.js (not separate file) matching hooks.test.js pattern
+- 15-01 INSTALL-OVERWRITE-001: Installer post-copy overwrites source gsd-tools.js with bundled version, warns but does not fail if dist missing
 
 ### Pending Todos
 
@@ -149,11 +154,11 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-20
-Status: 3 gap closure phases (15-17) created from second milestone audit. Phase 15 awaiting planning.
-Stopped at: /gsd:plan-milestone-gaps completed -- 3 phases created
+Status: Phase 15 complete. gsd-tools.js bundled via esbuild, unified build script, installer wired. 445 tests pass.
+Stopped at: Completed 15-gsd-tools-bundling/15-01-PLAN.md
 Resume file: None
 
-**Next step:** Plan first gap closure phase: `/gsd:plan-phase 15`
+**Next step:** Execute Phase 16 (next gap closure phase)
 
 ### Roadmap Evolution
 - Added 3 gap closure phases (15-17) on 2026-02-20 from second milestone audit

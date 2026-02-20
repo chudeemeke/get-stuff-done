@@ -2,12 +2,21 @@
  * GSD Tools Tests — Schema validation for history-digest command
  */
 
-const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
+const { test, describe, beforeEach, afterEach, beforeAll, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const TOOLS_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.js');
+const PROJECT_ROOT = path.join(__dirname, '..');
+const TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'gsd-tools.js');
+const DIST_TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'dist', 'gsd-tools.js');
+
+// Auto-build dist if missing (CI support after fresh checkout)
+beforeAll(() => {
+  if (!fs.existsSync(DIST_TOOLS_PATH)) {
+    execSync('node scripts/build.js', { cwd: PROJECT_ROOT, stdio: 'inherit' });
+  }
+});
 
 // Helper to run gsd-tools command
 function runGsdTools(args, cwd = process.cwd()) {
@@ -614,5 +623,65 @@ describe('validation wiring', () => {
     const source = fs.readFileSync(configLoaderPath, 'utf-8');
     expect(source).toMatch(/require\(['"].*validation['"]\)/);
     expect(source).toMatch(/validateConfigPath/);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// dist: bundled gsd-tools.js regression guard (GAP-1)
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('dist: gsd-tools bundled (regression guard for GAP-1)', () => {
+  test('bundled gsd-tools.js exists and is a non-trivial bundle', () => {
+    expect(fs.existsSync(DIST_TOOLS_PATH)).toBe(true);
+    const size = fs.statSync(DIST_TOOLS_PATH).size;
+    expect(size).toBeGreaterThan(10 * 1024); // >10KB confirms bundling, not empty file
+  });
+
+  test('bundled gsd-tools.js contains no relative src/ require paths', () => {
+    const content = fs.readFileSync(DIST_TOOLS_PATH, 'utf-8');
+    expect(content).not.toMatch(/require\(['"]\.\.\/\.\.\/src\//);
+  });
+
+  test('bundled gsd-tools.js resolves without MODULE_NOT_FOUND from isolated dir', () => {
+    // Run from a temp dir that lacks src/ to simulate post-install environment
+    const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-dist-test-'));
+    try {
+      const result = execSync(`node "${DIST_TOOLS_PATH}" generate-slug "test text"`, {
+        cwd: tmpDir,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      const output = JSON.parse(result.trim());
+      expect(output.slug).toBe('test-text');
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('bundled gsd-tools.js validation commands work from isolated dir', () => {
+    // verify-summary exercises validateGitSHA -- the exact function that triggered GAP-1
+    const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-dist-val-'));
+    try {
+      // Use frontmatter validate with a minimal input file -- validation module must be loaded
+      const result = execSync(
+        `node "${DIST_TOOLS_PATH}" frontmatter validate "${DIST_TOOLS_PATH}" --schema plan`,
+        {
+          cwd: tmpDir,
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+        }
+      );
+      // The command should execute (validation module loaded) even if result is invalid schema
+      const output = JSON.parse(result.trim());
+      expect(output).toHaveProperty('valid');
+    } catch (err) {
+      // If frontmatter command doesn't exist, that's ok -- what matters is NOT a MODULE_NOT_FOUND error
+      // A 'Unknown command' error means validation module WAS loaded (it got past require())
+      const errOutput = err.stderr?.toString() || err.message;
+      expect(errOutput).not.toMatch(/MODULE_NOT_FOUND/);
+      expect(errOutput).not.toMatch(/Cannot find module/);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
   });
 });

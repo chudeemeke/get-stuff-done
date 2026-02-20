@@ -55,7 +55,7 @@
   "scripts": {
     "install": "node bin/install.js",
     "build:hooks": "node scripts/build-hooks.js",
-    "prepublishOnly": "git diff --check HEAD && bun run build:hooks",
+    "prepublishOnly": "git diff --check HEAD && bun run build:hooks && node bin/validate-configs.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "bun test",

@@ -1,7 +1,7 @@
 ---
 agent: gsd-phase-researcher
 updated: 2026-02-20
-entries: 9
+entries: 11
 ---
 
 - finding: "esbuild is already a devDependency (v0.24.2) in get-stuff-done and is importable via require('esbuild') from project root. It bundles all three hooks successfully with zero errors."
@@ -58,4 +58,16 @@ entries: 9
   source: "Phase 15, gsd-tools Bundling Research"
   confidence: HIGH
   phase: "15-gsd-tools-bundling"
+  date: "2026-02-20"
+
+- finding: "bun 1.3.5 V8 coverage CONFIRMED: delete require.cache + re-require does NOT accumulate coverage into the original source file. bun registers each module load as a separate V8 Script. Coverage from re-loaded scripts is not merged. This means the cache-clear + re-require pattern (used in platform.test.js coverage gap tests) fails to produce coverage. FIX: export internal functions from the module and call them directly without re-requiring."
+  source: "Phase 16, Platform Quality Research"
+  confidence: HIGH
+  phase: "16-platform-quality"
+  date: "2026-02-20"
+
+- finding: "bun 1.3.5: clearCache() + repeated direct function calls (without re-requiring) DOES accumulate coverage within the same test run. process.platform mutation via Object.defineProperty takes effect immediately for subsequent function calls. So the correct pattern is: export internals, mock process.platform with mockPlatform(), call internal function directly, coverage tracks correctly."
+  source: "Phase 16, Platform Quality Research"
+  confidence: HIGH
+  phase: "16-platform-quality"
   date: "2026-02-20"

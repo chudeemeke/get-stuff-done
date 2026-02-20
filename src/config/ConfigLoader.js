@@ -3,6 +3,7 @@ const path = require('path');
 const os = require('os');
 const JSON5 = require('json5');
 const { validateConfig } = require('./ConfigSchema');
+const { validateConfigPath } = require('../validation');
 
 /**
  * Get the configuration file path
@@ -11,7 +12,17 @@ const { validateConfig } = require('./ConfigSchema');
 function getConfigPath() {
   // Allow override via environment variable
   if (process.env.GSD_CONFIG_PATH) {
-    return process.env.GSD_CONFIG_PATH;
+    // Validate path is within user-accessible directories
+    // homedir: production config paths (~/.gsd/config.json)
+    // tmpdir: test harness paths (createTempDir creates under os.tmpdir())
+    const allowedBases = [os.homedir(), os.tmpdir()];
+    for (const base of allowedBases) {
+      const result = validateConfigPath(process.env.GSD_CONFIG_PATH, base);
+      if (result.ok) {
+        return result.value;
+      }
+    }
+    throw new Error('GSD_CONFIG_PATH validation failed: path must be within home or temp directory');
   }
 
   // Default: ~/.gsd/config.json

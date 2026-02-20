@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 ## Current Position
 
-Phase: 16 of 17 (Platform Quality - GAP CLOSURE)
+Phase: 17 of 17 (Agent Teams Wiring)
 Plan: 1 of 1 in current phase -- COMPLETE
-Status: Phase 16 complete. Platform module coverage gaps closed (detect.js 96.99%, terminal.js 99.21%, paths.js 100%). Dead code index.js deleted. 563 tests pass.
-Last activity: 2026-02-22 -- Phase 16 executed: platform quality coverage gap closure
+Status: Phase 17 plan 01 complete. teams_integration sections added to all 4 GSD workflows. Config-driven conditional routing with env flag gating. 563 tests pass.
+Last activity: 2026-02-20 -- Phase 17 plan 01 executed: agent teams wiring into workflows
 
-Progress: [#############] 94% (v0.2.0: 16/17 phases complete)
+Progress: [##############] 100% (v0.2.0: 17/17 phases complete)
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [#############] 94% (v0.2.0: 16/17 phases complete)
 | 14 (Security Wiring - GAP CLOSURE) | 3/3 | ~20 min | ~7 min |
 | 15 (gsd-tools.js Bundling - GAP CLOSURE) | 1/1 | ~5 min | ~5 min |
 | 16 (Platform Quality - GAP CLOSURE) | 1/1 | 17 min | 17 min |
+| 17 (Agent Teams Wiring - GAP CLOSURE) | 1/1 | 5 min | 5 min |
 
 ## Accumulated Context
 
@@ -136,6 +137,10 @@ Recent decisions affecting current work:
 - 16-01 COV-001: Separate test file for direct-call coverage (platform-internal.test.js) because existing cache-clear tests in platform.test.js interfere with bun 1.3.5 coverage tracking
 - 16-01 COV-002: Underscore prefix convention for internal exports (_detectShell) signals test-only API to consumers
 - 16-01 COV-003: Git-unavailable branch remains covered only by re-require pattern in platform.test.js since execSync destructuring prevents direct mock
+- 17-01 TEAMS-WIRE-001: python3 JSON read used for teams.enabled (grep unreliable for nested keys)
+- 17-01 TEAMS-WIRE-002: Two-gate safety: both config teams.enabled AND CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS env flag required to activate teams
+- 17-01 TEAMS-WIRE-003: verify-phase workflow uses config key "verify-work" (not "verify-phase") matching team template naming convention
+- 17-01 TEAMS-WIRE-004: Fallback on missing env flag is a warning not an error (teams are experimental, non-blocking)
 
 ### Pending Todos
 
@@ -157,12 +162,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-22
-Status: Phase 16 complete. Platform module coverage gaps closed (detect.js 96.99%, terminal.js 99.21%, paths.js 100%). Dead code index.js deleted. 563 tests pass.
-Stopped at: Completed phase 16 execution and verification
+Last session: 2026-02-20
+Status: Phase 17 plan 01 complete. All 17 phases of v0.2.0 executed. teams_integration sections wired into all 4 GSD workflows. 563 tests pass.
+Stopped at: Completed 17-01-PLAN.md
 Resume file: None
 
-**Next step:** Plan Phase 17: `/gsd:plan-phase 17`
+**Next step:** Complete milestone: `/gsd:complete-milestone`
 
 ### Roadmap Evolution
 - Added 3 gap closure phases (15-17) on 2026-02-20 from second milestone audit

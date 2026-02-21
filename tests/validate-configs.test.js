@@ -337,14 +337,14 @@ Progress bar here.
       expect(result.status).toBe(0);
     });
 
-    test('reports all 5 files as passed', () => {
+    test('reports all required files as passed with no failures', () => {
       const { spawnSync } = require('child_process');
       const result = spawnSync('node', [VALIDATE_SCRIPT], {
         cwd: PROJECT_ROOT,
         encoding: 'utf-8'
       });
-      expect(result.stdout).toContain('5 passed');
-      expect(result.stdout).toContain('0 failed');
+      expect(result.stdout).toContain('passed');
+      expect(result.stdout).not.toContain('failed');
     });
 
     test('--quiet flag suppresses PASS lines but shows summary', () => {

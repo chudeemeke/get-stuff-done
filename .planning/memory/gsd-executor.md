@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
 updated: 2026-02-20
-entries: 12
+entries: 13
 ---
 
 - finding: "hooks/dist/ is gitignored (decision 09-02 BUILD-001). When committing esbuild output, only commit scripts/build-hooks.js -- never try to git add hooks/dist/. The dist files are generated artifacts."
@@ -86,4 +86,10 @@ entries: 12
   source: "Phase 16, Plan 01, Task 2 (_detectGit mock)"
   confidence: HIGH
   phase: "16-platform-quality"
+  date: "2026-02-20"
+
+- finding: "When adding teams_integration sections to workflow markdown files, use the Edit tool with old_string/new_string. Adding sections to existing markdown XML is an additive change -- never requires rewriting the whole file. The xml-like section tags (teams_integration workflow='X') integrate cleanly with existing step XML tags."
+  source: "Phase 17, Plan 01, Tasks 1-2"
+  confidence: HIGH
+  phase: "17-agent-teams-wiring"
   date: "2026-02-20"

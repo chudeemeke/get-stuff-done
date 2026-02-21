@@ -1,0 +1,134 @@
+{
+  "_comment": "Branding pattern map for upstream sync. Maps upstream strings to fork strings. Mechanical conflicts matching these patterns are auto-resolved.",
+  "_version": "1.0",
+  "_phase": "18-upstream-sync-execution",
+  "_created": "2026-02-27",
+  "_instructions": "Apply replacements in order. More specific patterns before general ones. Do NOT apply gsd-tools filename patterns during batches 1-11; apply after batch 12 only.",
+
+  "path_patterns": [
+    {
+      "upstream": "get-shit-done",
+      "fork": "get-stuff-done",
+      "scope": "directory paths, workflow references, agent references",
+      "note": "Replaces the installed skill directory name in all ~/.claude/get-shit-done/... references",
+      "example_upstream": "node ~/.claude/get-shit-done/bin/gsd-tools.cjs",
+      "example_fork": "node ~/.claude/get-stuff-done/bin/gsd-tools.cjs",
+      "applies_to": ["*.md", "*.js", "*.json"],
+      "excludes": ["PENDING-CHANGES.md", "docs/plans/upstream-sync-improvement.md", "get-stuff-done/workflows/upstream-sync.md"]
+    }
+  ],
+
+  "npm_patterns": [
+    {
+      "upstream": "get-shit-done-cc",
+      "fork": "@chude/get-stuff-done",
+      "scope": "npm package name in install commands, README badges, check-update.js",
+      "applies_to": ["*.md", "*.js", "*.json"],
+      "excludes": ["package-lock.json"]
+    },
+    {
+      "upstream": "npx get-shit-done-cc",
+      "fork": "npx @chude/get-stuff-done",
+      "scope": "install command in README and workflows",
+      "applies_to": ["*.md", "*.js"]
+    },
+    {
+      "upstream": "npm view get-shit-done-cc version",
+      "fork": "npm view @chude/get-stuff-done version",
+      "scope": "version check in gsd-check-update.js",
+      "applies_to": ["*.js"]
+    }
+  ],
+
+  "github_patterns": [
+    {
+      "upstream": "glittercowboy/get-shit-done",
+      "fork": "chudeemeke/get-stuff-done",
+      "scope": "GitHub repository path in URLs",
+      "applies_to": ["*.md", "*.js", "*.json"]
+    },
+    {
+      "upstream": "https://github.com/glittercowboy/get-shit-done",
+      "fork": "https://github.com/chudeemeke/get-stuff-done",
+      "scope": "Full GitHub URL",
+      "applies_to": ["*.md", "*.json"]
+    },
+    {
+      "upstream": "git+https://github.com/glittercowboy/get-shit-done.git",
+      "fork": "git+https://github.com/chudeemeke/get-stuff-done.git",
+      "scope": "package.json repository URL",
+      "applies_to": ["package.json"]
+    }
+  ],
+
+  "author_patterns": [
+    {
+      "upstream": "\"author\": \"TÂCHES\"",
+      "fork": "\"author\": \"Chude (fork), TACHES (original)\"",
+      "scope": "package.json author field only",
+      "applies_to": ["package.json"],
+      "note": "Only in package.json — do not replace author name in README testimonials or commit messages"
+    }
+  ],
+
+  "do_not_replace": [
+    {
+      "pattern": "GET SHIT DONE",
+      "reason": "This is an upstream heading — fork replaces with GET STUFF DONE in README, but only in the title line, not in testimonials"
+    },
+    {
+      "pattern": "gets shit done",
+      "reason": "Testimonial quote — fork can keep or replace with 'gets stuff done', discretionary"
+    },
+    {
+      "pattern": "TÂCHES",
+      "reason": "Author credit appears in README and commit messages — keep as attribution except in package.json author field"
+    },
+    {
+      "pattern": "gsd-tools.cjs",
+      "reason": "DO NOT replace with gsd-tools.js — the fork adopts the .cjs extension. This is NOT a branding change."
+    },
+    {
+      "pattern": "security@gsd.build",
+      "reason": "SECURITY.md contact — leave as upstream email, not fork responsibility"
+    }
+  ],
+
+  "post_module_split_only": [
+    {
+      "upstream": "gsd-tools.js",
+      "fork": "gsd-tools.cjs",
+      "scope": "ALL references in agents, commands, workflows after batch 12",
+      "note": "Only apply after Batch 12 (module split). During batches 1-11, fork file is still .js",
+      "count": "48 reference sites across agents/, commands/, get-stuff-done/"
+    }
+  ],
+
+  "package_json_protected_fields": {
+    "note": "package.json is a protected file. After any cherry-pick that modifies it, restore these fields:",
+    "always_preserve": {
+      "name": "@chude/get-stuff-done",
+      "version": "2.2.x (fork semver, not upstream 1.x)",
+      "publishConfig": {"access": "public"},
+      "bin": {
+        "get-stuff-done": "bin/install.js",
+        "gsd": "bin/gsd.js"
+      },
+      "files_includes": ["src"],
+      "author": "Chude (fork), TACHES (original)",
+      "repository.url": "git+https://github.com/chudeemeke/get-stuff-done.git",
+      "homepage": "https://github.com/chudeemeke/get-stuff-done",
+      "bugs.url": "https://github.com/chudeemeke/get-stuff-done/issues",
+      "dependencies": "keep fork's: @anthropic-ai/claude-code, ajv, json5, pathe",
+      "devDependencies": "keep fork's: esbuild, eslint, eslint-plugin-security, sharp, svgexport",
+      "scripts.test": "bun test",
+      "scripts.test_coverage": "bun test --coverage",
+      "scripts.build": "node scripts/build.js"
+    },
+    "safe_to_adopt_from_upstream": {
+      "keywords": "can add gemini, gemini-cli if desired",
+      "engines": "upstream lowered to node>=16.7.0; fork keeps >=20.0.0",
+      "new_script_entries": "upstream added build:hooks — safe to adopt as it references scripts/build-hooks.js"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 ---
 agent: gsd-phase-researcher
-updated: 2026-02-20
-entries: 14
+updated: 2026-02-27
+entries: 21
 ---
 
 - finding: "esbuild is already a devDependency (v0.24.2) in get-stuff-done and is importable via require('esbuild') from project root. It bundles all three hooks successfully with zero errors."
@@ -89,3 +89,45 @@ entries: 14
   confidence: HIGH
   phase: "17-agent-teams-wiring"
   date: "2026-02-20"
+
+- finding: "Phase 18 actual cherry-pick count: 174 commits in the range v1.9.13..v1.20.5. The roadmap says '185' which is the full main..upstream/main count (including 11 untagged post-v1.20.5 commits). The modular architecture (SYNC-II-02 requirement) is ONLY in the untagged commits (c67ab75, fa2e156, ebfc17a). Phase 18 must sync to upstream/main HEAD, not stop at v1.20.5."
+  source: "Phase 18, Upstream Sync Execution Research"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"
+
+- finding: "The upstream module split (commit c67ab75) creates 11 CJS modules under get-shit-done/bin/lib/: core(377), frontmatter(299), state(490), phase(877), roadmap(298), verify(772), config(162), template(222), milestone(215), commands(556), init(694) lines. Router gsd-tools.cjs is 553 lines. The split is a single commit that touches 13 files."
+  source: "Phase 18, Upstream Sync Execution Research"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"
+
+- finding: "Fork has 48 files that also exist in upstream (potential conflicts). 567 files total in fork vs 167 in upstream. Fork has 519 fork-only files (mostly .planning/, .upstream/, src/, tests/, docs/, assets/). Upstream has 119 files not in fork (mostly get-shit-done/ directory tree, tests/*.test.cjs, CHANGELOG, SECURITY, new commands)."
+  source: "Phase 18, Upstream Sync Execution Research"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"
+
+- finding: "The 'Revert 12 PRs merged without authorization' commit (9d815d3, in v1.19.0 batch) specifically reverts 'fix: add Write tool to gsd-verifier (#545)'. The fork already has this fix (it was a bug discovered during Phase 9). When cherry-picking 9d815d3, must manually preserve the Write tool in agents/gsd-verifier.md."
+  source: "Phase 18, Upstream Sync Execution Research"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"
+
+- finding: "Fork's gsd-statusline.js (172 lines) is significantly more complex than upstream's simplified version (108 lines). Upstream statusline writes a bridge file (/tmp/claude-ctx-{session_id}.json) for the new gsd-context-monitor.js PostToolUse hook. Fork statusline must add the bridge file write (~10 lines) to enable context-monitor functionality, without losing its 4-stage display."
+  source: "Phase 18, Upstream Sync Execution Research"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"
+
+- finding: "The rename commit (24b933e in v1.19.2 batch) renames get-shit-done/bin/gsd-tools.js to get-shit-done/bin/gsd-tools.cjs. When cherry-picked to fork, it will rename get-stuff-done/bin/gsd-tools.js to get-stuff-done/bin/gsd-tools.cjs. This is CORRECT — fork adopts .cjs extension. All 48 reference sites across agents/, commands/, get-stuff-done/ then need updating from gsd-tools.js to gsd-tools.cjs."
+  source: "Phase 18, Upstream Sync Execution Research"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"
+
+- finding: "Fork test suite current state: 562 pass, 1 fail (installer.test.js 'does not duplicate hooks on reinstall' times out at 5000ms). This pre-existing failure is unrelated to Phase 18 sync work. The 563+ tests count in success criteria counts this test as present; the timeout failure should be resolved separately before final merge."
+  source: "Phase 18, Upstream Sync Execution Research"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"

@@ -1,7 +1,7 @@
 ---
 agent: gsd-planner
-updated: 2026-02-16
-entries: 4
+updated: 2026-02-22
+entries: 11
 ---
 
 - finding: "GSD has ~15 JS files (~6,850 lines) as testable surface. The installer (bin/install.js) alone is 1,760 lines and deserves its own dedicated plan due to complexity (symlink fallback chains, runtime detection, settings.json manipulation)."
@@ -21,9 +21,53 @@ entries: 4
   confidence: HIGH
   phase: "11-ci-cd"
   date: "2026-02-16"
+  status: superseded
+  superseded_by: "gsd-tools.test.js now uses bun:test after Phase 11 migration"
 
 - finding: "For CI/CD phases, vertical slicing does not apply well. The natural dependency is horizontal: infrastructure (Wave 1) -> tests by module area (Wave 2, parallel) -> CI pipeline (Wave 3). Forcing vertical slices would create artificial coupling between unrelated test suites."
   source: "Phase 11, dependency analysis"
   confidence: HIGH
   phase: "11-ci-cd"
   date: "2026-02-16"
+
+- finding: "Gap closure phases with well-researched fixes (confirmed approach, verified code examples) compress to single-plan phases. Phase 13 hook bundling: 1 plan, 2 tasks (build script rewrite + dist tests), ~30% estimated context. Research-first approach paid off -- no discovery needed, no architectural decisions pending."
+  source: "Phase 13, planning"
+  confidence: HIGH
+  phase: "13-hook-bundling"
+  date: "2026-02-18"
+
+- finding: "Security wiring phases that involve API breaking changes (exception-to-Result migration) need the module change + test rewrite as Wave 1 before any production wiring in Wave 2. The wiring plan depends on the new API being stable and tested. Attempting to wire and migrate simultaneously risks integration test confusion (testing against old vs new API)."
+  source: "Phase 14, dependency analysis"
+  confidence: HIGH
+  phase: "14-security-wiring"
+  date: "2026-02-19"
+
+- finding: "GSD_CONFIG_PATH env var is in src/config/ConfigLoader.js (not gsd-tools.js). Research documents may reference injection points in one file that actually live in another. Always grep the full codebase to verify before planning -- do not trust research line numbers alone."
+  source: "Phase 14, codebase verification"
+  confidence: HIGH
+  phase: "14-security-wiring"
+  date: "2026-02-19"
+
+- finding: "Phase 15 planning confirmed the pattern from Phase 13: identical gap closure (esbuild bundle for copy-mode install) compresses to 1 plan, 2 tasks. The gsd-tools.js frontmatter validate and verify plan-structure commands are NOT in the source gsd-tools.js (they may only exist in the installed version or a newer upstream). Plan validation must be done manually or skipped when commands are unavailable."
+  source: "Phase 15, planning"
+  confidence: HIGH
+  phase: "15-gsd-tools-bundling"
+  date: "2026-02-20"
+
+- finding: "CONTEXT.md decisions override research recommendations. Phase 15 research suggested separate build-tools.js, but CONTEXT.md locked a build consolidation decision (git mv build-hooks.js to build.js, unified script). The first plan revision missed this entirely by following research instead of CONTEXT.md. When re-planning, always re-read CONTEXT.md decisions section FIRST, then check the existing plan against each locked decision. Cascade effects matter: renaming build-hooks.js also requires updating hooks.test.js beforeAll and package.json build:hooks script name."
+  source: "Phase 15, plan revision"
+  confidence: HIGH
+  phase: "15-gsd-tools-bundling"
+  date: "2026-02-20"
+
+- finding: "Coverage gap closure where the root cause is a test-runner limitation (bun 1.3.5 re-require coverage attribution) follows a different pattern than normal test writing. The fix is structural: export internal functions, rewrite tests to call them directly in same module-load context. This is a 1-plan phase because all source changes are small (adding exports) and all test changes target the same test file. The key risk is the test file growing large (1392 lines already + ~30 new tests), but since each test is formulaic (mockPlatform + set env + call internal + assert + restore), context usage stays moderate."
+  source: "Phase 16, planning"
+  confidence: HIGH
+  phase: "16-platform-quality"
+  date: "2026-02-21"
+
+- finding: "Documentation-only phases (workflow markdown modifications with no JS/test changes) are the simplest gap closure pattern. Phase 17: 4 workflow files get additive sections, zero test risk (no tests reference workflow .md files), zero code risk (only markdown changes). Can compress to 1 plan, 2 tasks grouped by workflow similarity (subagent-based workflows vs non-standard workflows). Key insight: verify no tests reference the files being modified before committing to the zero-regression assumption."
+  source: "Phase 17, planning"
+  confidence: HIGH
+  phase: "17-agent-teams-wiring"
+  date: "2026-02-22"

@@ -1,7 +1,7 @@
 ---
 agent: gsd-phase-researcher
 updated: 2026-02-20
-entries: 11
+entries: 14
 ---
 
 - finding: "esbuild is already a devDependency (v0.24.2) in get-stuff-done and is importable via require('esbuild') from project root. It bundles all three hooks successfully with zero errors."
@@ -70,4 +70,22 @@ entries: 11
   source: "Phase 16, Platform Quality Research"
   confidence: HIGH
   phase: "16-platform-quality"
+  date: "2026-02-20"
+
+- finding: "upstream-sync.md workflow does NOT use Task tool subagent spawning for its core analysis work. Stages 1-5 run inline in the orchestrator context using bash commands. The team template defines parallel analysis teammates (commit-analyzer, conflict-detector, identity-checker) for tasks currently done inline. The insertion point for team integration is Stage 3.5 (security review), not a subagent spawn point."
+  source: "Phase 17, Agent Teams Wiring Research"
+  confidence: HIGH
+  phase: "17-agent-teams-wiring"
+  date: "2026-02-20"
+
+- finding: "verify-phase.md workflow file is named 'verify-phase' but Phase 10 named all team/config artifacts 'verify-work'. The config.json oversight key is 'verify-work' (not 'verify-phase'). When verify-phase.md reads teams config, it must use key 'verify-work'. The workflow file should NOT be renamed -- it would break existing references."
+  source: "Phase 17, Agent Teams Wiring Research"
+  confidence: HIGH
+  phase: "17-agent-teams-wiring"
+  date: "2026-02-20"
+
+- finding: "Phase 17 is documentation-only (no JavaScript changes). All 4 team templates and 4 oversight agents exist and are correct from Phase 10. config.json teams section exists and is correct. The only work is adding a teams_integration conditional section to 4 workflow markdown files. For nested JSON key reads (teams.enabled), use python3 -c 'import json; c=json.load(open(...)); print(...)' rather than shell grep to avoid matching wrong keys."
+  source: "Phase 17, Agent Teams Wiring Research"
+  confidence: HIGH
+  phase: "17-agent-teams-wiring"
   date: "2026-02-20"

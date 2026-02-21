@@ -27,7 +27,24 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 
 ### Active
 
-(No active requirements -- next milestone not yet defined)
+**v0.3.0 Upstream Sync & Workflow Maturity:**
+
+- SYNC-II-01: Integrate 185 upstream commits (v1.10.0 through v1.20.5) via 7-stage cherry-pick workflow
+- SYNC-II-02: Adopt upstream's modular gsd-tools architecture (11 CJS domain modules in bin/lib/)
+- SYNC-II-03: Migrate esbuild bundling to target modular gsd-tools structure
+- SYNC-II-04: Preserve fork identity (branding, URLs, naming) through sync
+- SYNC-II-05: Maintain cross-platform support and test suite (563+ tests) through sync
+- SYNC-II-06: Document upstream approach comparison where solutions overlap with fork
+- SYNC-01: Colorized diff preview before cherry-picks
+- SYNC-02: State snapshots and rollback for sync operations
+- SYNC-03: Auto-update check with severity indicators
+- SYNC-04: --dry-run mode for sync operations
+- SYNC-07: GPG verification of upstream commits
+- SYNC-08: Auto-categorization of upstream changes (features, fixes, refactors)
+- SYNC-09: Selective sync (cherry-pick specific features/fixes by category)
+- SYNC-10: AI-assisted conflict resolution during cherry-picks
+- ASSESS-01: Post-sync evaluation of CLAUDE-06 (agent teams orchestration) against upstream auto-advance
+- ASSESS-02: Post-sync evaluation of PLAT-07/PLAT-08 (interactive diff viewer, multi-upstream support)
 
 ### Out of Scope
 
@@ -40,17 +57,13 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 
 ### Deferred
 
-- SYNC-01: Colorized diff preview before cherry-picks
-- SYNC-02: State snapshots and rollback
-- SYNC-03: Auto-update check with severity indicators
-- SYNC-04: --dry-run mode for sync operations
-- SYNC-07 through SYNC-10: Advanced sync features (GPG verification, auto-categorization, selective sync, AI conflict resolution)
-- PLAT-07, PLAT-08: Interactive diff viewer, multi-upstream support
-- CLAUDE-06: Full agent teams orchestration for parallel phases
+- CLAUDE-06: Full agent teams orchestration for parallel phases (pending ASSESS-01 post-sync evaluation)
+- PLAT-07: Interactive diff viewer (pending ASSESS-02 post-sync evaluation)
+- PLAT-08: Multi-upstream support (pending ASSESS-02 post-sync evaluation)
 
 ## Context
 
-**Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13
+**Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13 (upstream now at v1.20.5)
 **Private repo:** github.com/chudeemeke/get-stuff-done
 **Environment:** Windows with Git Bash, Claude Code CLI (cross-platform: macOS, Linux, Windows)
 **Current version:** 2.2.0 (published to npm as @chude/get-stuff-done)
@@ -106,5 +119,8 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 | bun:test over node:test | Better performance, native TypeScript support | Good |
 | Agent teams disabled by default | Experimental feature, two-gate safety (config + env flag) | Good |
 
+| Adopt upstream modular gsd-tools | 11 CJS modules better than monolith for extensibility and SOLID | -- Pending |
+| Upstream features win on architecture conflicts | Fork adapts to upstream patterns unless fork approach is clearly superior | -- Pending |
+
 ---
-*Last updated: 2026-02-21 after v0.2.0 milestone*
+*Last updated: 2026-02-27 after v0.3.0 milestone start*

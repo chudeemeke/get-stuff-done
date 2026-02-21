@@ -107,11 +107,15 @@ function validatePlanningConfigFile() {
  * Factory: creates a validator for a markdown file that checks required sections.
  * @param {string} name - Human-readable file name for error messages
  * @param {string[]} requiredSections - Section headers that must appear in the file
- * @returns {function(): { ok: boolean, errors?: string[] }}
+ * @param {{ optional?: boolean }} [opts] - If optional, skip validation when file is absent
+ * @returns {function(): { ok: boolean, errors?: string[], skipped?: boolean }}
  */
-function validateMarkdownSections(name, requiredSections) {
+function validateMarkdownSections(name, requiredSections, opts) {
   return function validateMarkdownFile(filePath) {
     if (!fs.existsSync(filePath)) {
+      if (opts && opts.optional) {
+        return { ok: true, skipped: true };
+      }
       return { ok: false, errors: [`File not found: ${name}`] };
     }
 
@@ -200,7 +204,7 @@ const validators = [
   },
   {
     label: '.planning/ROADMAP.md',
-    run: validateMarkdownSections('ROADMAP.md', ['## Milestones', '## Phases', '## Progress']).bind(
+    run: validateMarkdownSections('ROADMAP.md', ['## Milestones', '## Phases', '## Progress'], { optional: true }).bind(
       null,
       path.join(PROJECT_ROOT, '.planning', 'ROADMAP.md')
     )
@@ -229,13 +233,21 @@ const validators = [
 
 let passed = 0;
 let failed = 0;
+let skipped = 0;
 
 for (const { label, run } of validators) {
   const result = run();
   if (result.ok) {
-    passed++;
-    if (!QUIET) {
-      process.stdout.write(`PASS ${label}\n`);
+    if (result.skipped) {
+      skipped++;
+      if (!QUIET) {
+        process.stdout.write(`SKIP ${label} (optional, not present)\n`);
+      }
+    } else {
+      passed++;
+      if (!QUIET) {
+        process.stdout.write(`PASS ${label}\n`);
+      }
     }
   } else {
     failed++;
@@ -244,7 +256,10 @@ for (const { label, run } of validators) {
   }
 }
 
-const summary = `${passed} passed, ${failed} failed\n`;
+const parts = [`${passed} passed`];
+if (skipped > 0) parts.push(`${skipped} skipped`);
+if (failed > 0) parts.push(`${failed} failed`);
+const summary = parts.join(', ') + '\n';
 process.stdout.write(summary);
 
 process.exit(failed > 0 ? 1 : 0);

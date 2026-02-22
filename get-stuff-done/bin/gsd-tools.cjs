@@ -564,20 +564,36 @@ function cmdHistoryDigest(cwd, raw) {
   const phasesDir = path.join(cwd, '.planning', 'phases');
   const digest = { phases: {}, decisions: [], tech_stack: new Set() };
 
-  if (!fs.existsSync(phasesDir)) {
+  // Collect all phase directories: archived + current
+  const allPhaseDirs = [];
+
+  // Add archived phases first (oldest milestones first)
+  const archived = getArchivedPhaseDirs(cwd);
+  for (const a of archived) {
+    allPhaseDirs.push({ name: a.name, fullPath: a.fullPath, milestone: a.milestone });
+  }
+
+  // Add current phases
+  if (fs.existsSync(phasesDir)) {
+    try {
+      const currentDirs = fs.readdirSync(phasesDir, { withFileTypes: true })
+        .filter(e => e.isDirectory())
+        .map(e => e.name)
+        .sort();
+      for (const dir of currentDirs) {
+        allPhaseDirs.push({ name: dir, fullPath: path.join(phasesDir, dir), milestone: null });
+      }
+    } catch {}
+  }
+
+  if (allPhaseDirs.length === 0) {
     digest.tech_stack = [];
     output(digest, raw);
     return;
   }
 
   try {
-    const phaseDirs = fs.readdirSync(phasesDir, { withFileTypes: true })
-      .filter(e => e.isDirectory())
-      .map(e => e.name)
-      .sort();
-
-    for (const dir of phaseDirs) {
-      const dirPath = path.join(phasesDir, dir);
+    for (const { name: dir, fullPath: dirPath } of allPhaseDirs) {
       const summaries = fs.readdirSync(dirPath).filter(f => f.endsWith('-SUMMARY.md') || f === 'SUMMARY.md');
 
       for (const summary of summaries) {
@@ -647,7 +663,7 @@ function cmdHistoryDigest(cwd, raw) {
 
 function cmdPhasesList(cwd, options, raw) {
   const phasesDir = path.join(cwd, '.planning', 'phases');
-  const { type, phase } = options;
+  const { type, phase, includeArchived } = options;
 
   // If no phases directory, return empty
   if (!fs.existsSync(phasesDir)) {
@@ -663,6 +679,14 @@ function cmdPhasesList(cwd, options, raw) {
     // Get all phase directories
     const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
     let dirs = entries.filter(e => e.isDirectory()).map(e => e.name);
+
+    // Include archived phases if requested
+    if (includeArchived) {
+      const archived = getArchivedPhaseDirs(cwd);
+      for (const a of archived) {
+        dirs.push(`${a.name} [${a.milestone}]`);
+      }
+    }
 
     // Sort numerically (handles decimals: 01, 02, 02.1, 02.2, 03)
     dirs.sort((a, b) => {
@@ -1291,14 +1315,44 @@ function resolveModelInternal(cwd, agentType) {
   return resolved === 'opus' ? 'inherit' : resolved;
 }
 
-function findPhaseInternal(cwd, phase) {
-  if (!phase) return null;
+function getArchivedPhaseDirs(cwd) {
+  const milestonesDir = path.join(cwd, '.planning', 'milestones');
+  const results = [];
 
-  const phasesDir = path.join(cwd, '.planning', 'phases');
-  const normalized = normalizePhaseName(phase);
+  if (!fs.existsSync(milestonesDir)) return results;
 
   try {
-    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
+    const milestoneEntries = fs.readdirSync(milestonesDir, { withFileTypes: true });
+    // Find v*-phases directories, sort newest first
+    const phaseDirs = milestoneEntries
+      .filter(e => e.isDirectory() && /^v[\d.]+-phases$/.test(e.name))
+      .map(e => e.name)
+      .sort()
+      .reverse();
+
+    for (const archiveName of phaseDirs) {
+      const version = archiveName.match(/^(v[\d.]+)-phases$/)[1];
+      const archivePath = path.join(milestonesDir, archiveName);
+      const entries = fs.readdirSync(archivePath, { withFileTypes: true });
+      const dirs = entries.filter(e => e.isDirectory()).map(e => e.name).sort();
+
+      for (const dir of dirs) {
+        results.push({
+          name: dir,
+          milestone: version,
+          basePath: path.join('.planning', 'milestones', archiveName),
+          fullPath: path.join(archivePath, dir),
+        });
+      }
+    }
+  } catch {}
+
+  return results;
+}
+
+function searchPhaseInDir(baseDir, relBase, normalized) {
+  try {
+    const entries = fs.readdirSync(baseDir, { withFileTypes: true });
     const dirs = entries.filter(e => e.isDirectory()).map(e => e.name).sort();
     const match = dirs.find(d => d.startsWith(normalized));
     if (!match) return null;
@@ -1306,7 +1360,7 @@ function findPhaseInternal(cwd, phase) {
     const dirMatch = match.match(/^(\d+(?:\.\d+)?)-?(.*)/);
     const phaseNumber = dirMatch ? dirMatch[1] : normalized;
     const phaseName = dirMatch && dirMatch[2] ? dirMatch[2] : null;
-    const phaseDir = path.join(phasesDir, match);
+    const phaseDir = path.join(baseDir, match);
     const phaseFiles = fs.readdirSync(phaseDir);
 
     const plans = phaseFiles.filter(f => f.endsWith('-PLAN.md') || f === 'PLAN.md').sort();
@@ -1315,7 +1369,6 @@ function findPhaseInternal(cwd, phase) {
     const hasContext = phaseFiles.some(f => f.endsWith('-CONTEXT.md') || f === 'CONTEXT.md');
     const hasVerification = phaseFiles.some(f => f.endsWith('-VERIFICATION.md') || f === 'VERIFICATION.md');
 
-    // Determine incomplete plans (plans without matching summaries)
     const completedPlanIds = new Set(
       summaries.map(s => s.replace('-SUMMARY.md', '').replace('SUMMARY.md', ''))
     );
@@ -1326,7 +1379,7 @@ function findPhaseInternal(cwd, phase) {
 
     return {
       found: true,
-      directory: path.join('.planning', 'phases', match),
+      directory: path.join(relBase, match),
       phase_number: phaseNumber,
       phase_name: phaseName,
       phase_slug: phaseName ? phaseName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : null,
@@ -1340,6 +1393,43 @@ function findPhaseInternal(cwd, phase) {
   } catch {
     return null;
   }
+}
+
+function findPhaseInternal(cwd, phase) {
+  if (!phase) return null;
+
+  const phasesDir = path.join(cwd, '.planning', 'phases');
+  const normalized = normalizePhaseName(phase);
+
+  // Search current phases first
+  const current = searchPhaseInDir(phasesDir, path.join('.planning', 'phases'), normalized);
+  if (current) return current;
+
+  // Search archived milestone phases (newest first)
+  const milestonesDir = path.join(cwd, '.planning', 'milestones');
+  if (!fs.existsSync(milestonesDir)) return null;
+
+  try {
+    const milestoneEntries = fs.readdirSync(milestonesDir, { withFileTypes: true });
+    const archiveDirs = milestoneEntries
+      .filter(e => e.isDirectory() && /^v[\d.]+-phases$/.test(e.name))
+      .map(e => e.name)
+      .sort()
+      .reverse();
+
+    for (const archiveName of archiveDirs) {
+      const version = archiveName.match(/^(v[\d.]+)-phases$/)[1];
+      const archivePath = path.join(milestonesDir, archiveName);
+      const relBase = path.join('.planning', 'milestones', archiveName);
+      const result = searchPhaseInDir(archivePath, relBase, normalized);
+      if (result) {
+        result.archived = version;
+        return result;
+      }
+    }
+  } catch {}
+
+  return null;
 }
 
 function getRoadmapPhaseInternal(cwd, phaseNum) {
@@ -2469,6 +2559,7 @@ async function main() {
         const options = {
           type: typeIndex !== -1 ? args[typeIndex + 1] : null,
           phase: phaseIndex !== -1 ? args[phaseIndex + 1] : null,
+          includeArchived: args.includes('--include-archived'),
         };
         cmdPhasesList(cwd, options, raw);
       } else {

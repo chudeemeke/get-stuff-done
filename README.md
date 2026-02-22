@@ -11,7 +11,7 @@
 <br>
 
 ```bash
-gsd
+npx @chude/get-stuff-done@latest
 ```
 
 **Works on Mac, Windows, and Linux.**

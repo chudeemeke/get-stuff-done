@@ -904,7 +904,15 @@ node ~/.claude/get-stuff-done/bin/gsd-tools.cjs commit "fix($PHASE): revise plan
 Load planning context:
 
 ```bash
-INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init plan-phase "${PHASE}")
+INIT_RAW=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init plan-phase "${PHASE}")
+# Large payloads are written to a tmpfile — output starts with @file:/path
+if [[ "$INIT_RAW" == @file:* ]]; then
+  INIT_FILE="${INIT_RAW#@file:}"
+  INIT=$(cat "$INIT_FILE")
+  rm -f "$INIT_FILE"
+else
+  INIT="$INIT_RAW"
+fi
 ```
 
 Extract from init JSON: `planner_model`, `researcher_model`, `checker_model`, `commit_docs`, `research_enabled`, `phase_dir`, `phase_number`, `has_research`, `has_context`.

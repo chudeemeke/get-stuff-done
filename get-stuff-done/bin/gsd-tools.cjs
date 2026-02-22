@@ -508,8 +508,19 @@ function cmdConfigEnsureSection(cwd, raw) {
   const braveKeyFile = path.join(homedir, '.gsd', 'brave_api_key');
   const hasBraveSearch = !!(process.env.BRAVE_API_KEY || fs.existsSync(braveKeyFile));
 
-  // Create default config
-  const defaults = {
+  // Load user-level defaults from ~/.gsd/defaults.json if available
+  const globalDefaultsPath = path.join(homedir, '.gsd', 'defaults.json');
+  let userDefaults = {};
+  try {
+    if (fs.existsSync(globalDefaultsPath)) {
+      userDefaults = JSON.parse(fs.readFileSync(globalDefaultsPath, 'utf-8'));
+    }
+  } catch (err) {
+    // Ignore malformed global defaults, fall back to hardcoded
+  }
+
+  // Create default config (user-level defaults override hardcoded defaults)
+  const hardcoded = {
     model_profile: 'balanced',
     commit_docs: true,
     search_gitignored: false,
@@ -524,6 +535,11 @@ function cmdConfigEnsureSection(cwd, raw) {
     },
     parallelization: true,
     brave_search: hasBraveSearch,
+  };
+  const defaults = {
+    ...hardcoded,
+    ...userDefaults,
+    workflow: { ...hardcoded.workflow, ...(userDefaults.workflow || {}) },
   };
 
   try {

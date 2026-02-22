@@ -983,6 +983,16 @@ function cmdResolveModel(cwd, agentType, raw) {
   const config = loadConfig(cwd);
   const profile = config.model_profile || 'balanced';
 
+  // Check per-agent override first
+  const override = config.model_overrides?.[agentType];
+  if (override) {
+    const model = override === 'opus' ? 'inherit' : override;
+    const result = { model, profile, override: true };
+    output(result, raw, model);
+    return;
+  }
+
+  // Fall back to profile lookup
   const agentModels = MODEL_PROFILES[agentType];
   if (!agentModels) {
     const result = { model: 'sonnet', profile, unknown_agent: true };
@@ -1242,6 +1252,14 @@ function cmdTemplateSelect(cwd, planPath, raw) {
 function resolveModelInternal(cwd, agentType) {
   const config = loadConfig(cwd);
   const profile = config.model_profile || 'balanced';
+
+  // Check per-agent override first
+  const override = config.model_overrides?.[agentType];
+  if (override) {
+    return override === 'opus' ? 'inherit' : override;
+  }
+
+  // Fall back to profile lookup
   const agentModels = MODEL_PROFILES[agentType];
   if (!agentModels) return 'sonnet';
   const resolved = agentModels[profile] || agentModels['balanced'] || 'sonnet';

@@ -134,10 +134,25 @@ must_haves:
       via: "fetch in useEffect"
 ```
 
-**Option B: Derive from phase goal**
+**Option B: Use Success Criteria from ROADMAP.md**
 
-If no must_haves in frontmatter, derive using goal-backward process:
+If no must_haves in frontmatter (MUST_HAVES returns error or empty), check for Success Criteria:
 
+```bash
+PHASE_DATA=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js roadmap get-phase "${phase_number}" --raw)
+```
+
+Parse the `success_criteria` array from the JSON output. If non-empty:
+1. Use each Success Criterion directly as a **truth** (they are already written as observable, testable behaviors)
+2. Derive **artifacts** (concrete file paths for each truth)
+3. Derive **key links** (critical wiring where stubs hide)
+4. Document the must-haves before proceeding
+
+Success Criteria from ROADMAP.md are the contract — they override PLAN-level must_haves when both exist.
+
+**Option C: Derive from phase goal (fallback)**
+
+If no must_haves in frontmatter AND no Success Criteria in ROADMAP:
 1. **State the goal:** Take phase goal from ROADMAP.md
 
 2. **Derive truths:** Ask "What must be TRUE for this goal to be achieved?"

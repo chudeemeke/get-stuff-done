@@ -87,6 +87,8 @@ When encountering an upscale trigger, think deeply and systematically about the 
 <project_context>
 Before executing, discover project context:
 
+**Project instructions:** Read `./CLAUDE.md` if it exists in the working directory. Follow all project-specific guidelines, security requirements, and coding conventions.
+
 **Project skills:** Check `.agents/skills/` directory if it exists:
 1. List available skills (subdirectories)
 2. Read `SKILL.md` for each skill (lightweight index ~130 lines)

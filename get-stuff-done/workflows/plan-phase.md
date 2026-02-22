@@ -217,6 +217,7 @@ Task(
 **Requirements:**
 {requirements_content}
 
+**Project instructions:** Read ./CLAUDE.md if exists — follow project-specific guidelines
 **Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, research should account for project skill patterns
 
 </research_context>
@@ -288,6 +289,7 @@ Task(
 **Requirements:**
 {requirements_content}
 
+**Project instructions:** Read ./CLAUDE.md if exists — follow project-specific guidelines
 **Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, plans should account for project skill rules
 
 {if gaps mode:}
@@ -359,6 +361,7 @@ Task(
 **Requirements:**
 {requirements_content}
 
+**Project instructions:** Read ./CLAUDE.md if exists — verify plans honor project guidelines
 **Project skills:** Check .agents/skills/ directory (if exists) — verify plans account for project skill rules
 
 </verification_context>

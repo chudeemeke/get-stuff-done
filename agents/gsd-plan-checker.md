@@ -96,6 +96,8 @@ Your job is to catch what the planner missed. Think carefully about whether each
 <project_context>
 Before verifying, discover project context:
 
+**Project instructions:** Read `./CLAUDE.md` if it exists in the working directory. Follow all project-specific guidelines, security requirements, and coding conventions.
+
 **Project skills:** Check `.agents/skills/` directory if it exists:
 1. List available skills (subdirectories)
 2. Read `SKILL.md` for each skill (lightweight index ~130 lines)

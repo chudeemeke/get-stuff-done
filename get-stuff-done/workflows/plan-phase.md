@@ -192,6 +192,7 @@ ROADMAP_CONTENT=$(cat .planning/ROADMAP.md)
 STATE_CONTENT=$(cat .planning/STATE.md)
 CONTEXT_CONTENT=$(cat "$PHASE_DIR"/*-CONTEXT.md 2>/dev/null || echo "No context file")
 REQUIREMENTS_CONTENT=$(cat .planning/REQUIREMENTS.md 2>/dev/null || echo "")
+PHASE_REQ_IDS=$(cat .planning/ROADMAP.md | grep -i "Requirements:" | head -1 | sed 's/.*Requirements:\*\*\s*//' | sed 's/[\[\]]//g' | tr ',' '\n' | sed 's/^ *//;s/ *$//' | grep -v '^$' | tr '\n' ',' | sed 's/,$//')
 ```
 
 ```
@@ -212,6 +213,7 @@ Task(
 **Phase Context (from /gsd:discuss-phase):**
 {context_content}
 
+**Phase requirement IDs (MUST address):** {phase_req_ids}
 **Requirements:**
 {requirements_content}
 
@@ -247,6 +249,7 @@ STATE_CONTENT=$(cat .planning/STATE.md)
 RESEARCH_CONTENT=$(cat "$PHASE_DIR"/*-RESEARCH.md 2>/dev/null || echo "No research")
 CONTEXT_CONTENT=$(cat "$PHASE_DIR"/*-CONTEXT.md 2>/dev/null || echo "No context file")
 REQUIREMENTS_CONTENT=$(cat .planning/REQUIREMENTS.md 2>/dev/null || echo "")
+PHASE_REQ_IDS=$(cat .planning/ROADMAP.md | grep -i "Requirements:" | head -1 | sed 's/.*Requirements:\*\*\s*//' | sed 's/[\[\]]//g' | tr ',' '\n' | sed 's/^ *//;s/ *$//' | grep -v '^$' | tr '\n' ',' | sed 's/,$//')
 VERIFICATION_CONTENT=""
 UAT_CONTENT=""
 ```
@@ -279,6 +282,7 @@ Task(
 **Phase Context:**
 {context_content}
 
+**Phase requirement IDs (every ID MUST appear in a plan's `requirements` field):** {phase_req_ids}
 **Requirements:**
 {requirements_content}
 
@@ -347,6 +351,7 @@ Task(
 **Plans to verify:**
 {plan_content}
 
+**Phase requirement IDs (MUST ALL be covered):** {phase_req_ids}
 **Requirements:**
 {requirements_content}
 

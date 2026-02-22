@@ -1352,7 +1352,7 @@ Before writing summary content, populate frontmatter fields from execution conte
    - key-decisions: Extract from "Decisions Made" section
 
 6. **Requirements:**
-   - requirements-completed: Copy from PLAN.md `requirements` frontmatter field
+   - requirements-completed: **MUST** copy `requirements` array from PLAN.md frontmatter verbatim
 
 7. **Metrics:**
    - duration: From $DURATION variable

@@ -484,6 +484,10 @@ After all waves complete, aggregate results:
 <step name="verify_phase_goal">
 Verify phase achieved its GOAL, not just completed its TASKS.
 
+```bash
+PHASE_REQ_IDS=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs roadmap get-phase "${PHASE_NUMBER}" | jq -r '.section' | grep -i "Requirements:" | sed 's/.*Requirements:\*\*\s*//' | sed 's/[\[\]]//g')
+```
+
 **Spawn verifier:**
 
 ```
@@ -492,9 +496,11 @@ Task(
 
 Phase directory: {phase_dir}
 Phase goal: {goal from ROADMAP.md}
+Phase requirement IDs: {phase_req_ids}
 
-Check must_haves against actual codebase. Create VERIFICATION.md.
-Verify what actually exists in the code.",
+Check must_haves against actual codebase.
+Cross-reference requirement IDs from PLAN frontmatter against REQUIREMENTS.md — every ID MUST be accounted for.
+Create VERIFICATION.md.",
   subagent_type="gsd-verifier",
   model="{verifier_model}"
 )

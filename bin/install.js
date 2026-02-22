@@ -1382,9 +1382,34 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
   console.log(`  ${green}✓${reset} Wrote install metadata`);
 
   // Copy/link hooks from dist/ (bundled with dependencies)
-  // In dev mode with --link, fall back to hooks/ directory if dist/ doesn't exist
+  // Dev installs from a git clone may not have hooks/dist yet.
+  // In that case, build it on the fly so hooks still install.
   const hooksSrcDist = path.join(src, 'hooks', 'dist');
   const hooksSrcDev = path.join(src, 'hooks');
+
+  // Build hooks/dist on the fly if missing (dev installs from git clone)
+  if (!fs.existsSync(hooksSrcDist) && fs.existsSync(hooksSrcDev)) {
+    try {
+      const buildScript = path.join(src, 'scripts', 'build-hooks.js');
+      if (fs.existsSync(buildScript)) {
+        require(buildScript);
+      }
+    } catch (e) {
+      // fall through, attempt direct copy fallback below
+    }
+
+    // Fallback: copy known hooks into dist if they exist
+    if (!fs.existsSync(hooksSrcDist)) {
+      fs.mkdirSync(hooksSrcDist, { recursive: true });
+      for (const hookName of ['gsd-check-update.js', 'gsd-statusline.js']) {
+        const inRepoHook = path.join(hooksSrcDev, hookName);
+        if (fs.existsSync(inRepoHook)) {
+          fs.copyFileSync(inRepoHook, path.join(hooksSrcDist, hookName));
+        }
+      }
+    }
+  }
+
   const hooksSrc = fs.existsSync(hooksSrcDist) ? hooksSrcDist : (useLinks ? hooksSrcDev : null);
 
   if (hooksSrc && fs.existsSync(hooksSrc)) {
@@ -1415,7 +1440,7 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
         }
       }
       if (verifyInstalled(hooksDest, 'hooks')) {
-        console.log(`  ${green}✓${reset} Installed hooks (bundled)`);
+        console.log(`  ${green}✓${reset} Installed hooks`);
       } else {
         failures.push('hooks');
       }

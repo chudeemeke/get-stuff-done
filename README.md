@@ -686,13 +686,18 @@ To remove GSD completely:
 
 ```bash
 # Global installs
-npx @chude/get-stuff-done --claude --global --uninstall
-npx @chude/get-stuff-done --opencode --global --uninstall
+npx @chude/get-stuff-done@latest --claude --global --uninstall
+npx @chude/get-stuff-done@latest --opencode --global --uninstall
+npx @chude/get-stuff-done@latest --gemini --global --uninstall
 
 # Local installs (current project)
-npx @chude/get-stuff-done --claude --local --uninstall
-npx @chude/get-stuff-done --opencode --local --uninstall
+npx @chude/get-stuff-done@latest --claude --local --uninstall
+npx @chude/get-stuff-done@latest --opencode --local --uninstall
+npx @chude/get-stuff-done@latest --gemini --local --uninstall
 ```
+
+> [!IMPORTANT]
+> Always use `@latest` when uninstalling. If you installed an older version, npx may have cached it, and that version might not support the `--uninstall` flag.
 
 This removes all GSD commands, agents, hooks, and settings while preserving your other configurations.
 

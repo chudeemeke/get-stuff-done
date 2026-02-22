@@ -724,7 +724,7 @@ function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
 
     // Match "## Phase X:" or "### Phase X:" with optional name
     const phasePattern = new RegExp(
-      `#{2,3}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`,
+      `#{2,4}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`,
       'i'
     );
     const headerMatch = content.match(phasePattern);
@@ -758,7 +758,7 @@ function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
 
     // Find the end of this section (next ## or ### phase header, or end of file)
     const restOfContent = content.slice(headerIndex);
-    const nextHeaderMatch = restOfContent.match(/\n#{2,3}\s+Phase\s+\d/i);
+    const nextHeaderMatch = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
     const sectionEnd = nextHeaderMatch
       ? headerIndex + nextHeaderMatch.index
       : content.length;
@@ -1341,14 +1341,14 @@ function getRoadmapPhaseInternal(cwd, phaseNum) {
   try {
     const content = fs.readFileSync(roadmapPath, 'utf-8');
     const escapedPhase = phaseNum.toString().replace(/\./g, '\\.');
-    const phasePattern = new RegExp(`#{2,3}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`, 'i');
+    const phasePattern = new RegExp(`#{2,4}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`, 'i');
     const headerMatch = content.match(phasePattern);
     if (!headerMatch) return null;
 
     const phaseName = headerMatch[1].trim();
     const headerIndex = headerMatch.index;
     const restOfContent = content.slice(headerIndex);
-    const nextHeaderMatch = restOfContent.match(/\n#{2,3}\s+Phase\s+\d/i);
+    const nextHeaderMatch = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
     const sectionEnd = nextHeaderMatch ? headerIndex + nextHeaderMatch.index : content.length;
     const section = content.slice(headerIndex, sectionEnd).trim();
 
@@ -2138,7 +2138,7 @@ function cmdRoadmapUpdatePlanProgress(cwd, phaseNum, raw) {
 
   // Update plan count in phase detail section
   const planCountPattern = new RegExp(
-    `(#{2,3}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
+    `(#{2,4}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
     'i'
   );
   const planCountText = isComplete
@@ -2212,7 +2212,7 @@ function cmdPhaseComplete(cwd, phaseNum, raw) {
 
     // Update plan count in phase section
     const planCountPattern = new RegExp(
-      `(#{2,3}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
+      `(#{2,4}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
       'i'
     );
     roadmapContent = roadmapContent.replace(

@@ -5,7 +5,7 @@
   "upstreamBranch": "upstream/main",
   "syncBranch": "sync/v1.20.5",
   "startedAt": "2026-02-22T00:32:46Z",
-  "status": "in-progress",
+  "status": "complete",
   "applied": [
     {
       "upstreamHash": "60ccba9",
@@ -310,6 +310,145 @@
       "appliedAt": "2026-02-22T05:35:00Z",
       "conflictType": "mechanical",
       "status": "applied"
+    },
+    {
+      "upstreamHash": "7de17fc",
+      "forkHash": "518af6b",
+      "subject": "docs: add User Guide with workflow diagrams and troubleshooting",
+      "appliedAt": "2026-02-22T08:00:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "7ed1ec8",
+      "forkHash": "62e4688",
+      "subject": "fix: remove 'execution' from plan-phase description to fix autocomplete",
+      "appliedAt": "2026-02-22T08:05:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "c4ea358",
+      "forkHash": "10e3831",
+      "subject": "fix(agents): use Write tool for file creation to prevent settings.local.json corruption",
+      "appliedAt": "2026-02-22T08:10:00Z",
+      "conflictType": "content",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "a5caf91",
+      "forkHash": "6d956c5",
+      "subject": "feat(config): add per-agent model overrides via model_overrides config key",
+      "appliedAt": "2026-02-22T08:15:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "c5fbd05",
+      "forkHash": "21c45f8",
+      "subject": "fix(installer): quote config dir in hook templates for local installs",
+      "appliedAt": "2026-02-22T08:20:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "24b933e",
+      "forkHash": "14f9e00",
+      "subject": "fix: rename gsd-tools.js to .cjs to prevent ESM conflicts",
+      "notes": "35+ conflict files. Renamed get-stuff-done/bin/gsd-tools.js to gsd-tools.cjs. Updated all references.",
+      "appliedAt": "2026-02-22T08:30:00Z",
+      "conflictType": "upstream-path-mass",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "afb93a3",
+      "forkHash": "4f4cde5",
+      "subject": "fix(tools): normalize phase padding in insert command",
+      "appliedAt": "2026-02-22T08:35:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "37bb14e",
+      "forkHash": "e06399d",
+      "subject": "feat(config): add user-level default settings via ~/.gsd/defaults.json",
+      "appliedAt": "2026-02-22T08:40:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "9aeafc0",
+      "forkHash": "fd6eacd",
+      "subject": "fix(tools): support #### heading depth in phase matching",
+      "appliedAt": "2026-02-22T08:45:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "8b75531",
+      "forkHash": "be3404f",
+      "subject": "fix(agents): add scope boundary and fix attempt limit to executor",
+      "appliedAt": "2026-02-22T08:50:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "bc13b49",
+      "forkHash": null,
+      "subject": "Merge pull request #505 from pablo-alonso-arista/docs/user-guide",
+      "notes": "Merge commit - skipped",
+      "appliedAt": "2026-02-22T08:55:00Z",
+      "conflictType": null,
+      "status": "skipped"
+    },
+    {
+      "upstreamHash": "8d97732",
+      "forkHash": "1cc9b97",
+      "subject": "fix(tools): write large JSON payloads to tmpfile to prevent truncation",
+      "appliedAt": "2026-02-22T09:00:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "41cb745",
+      "forkHash": "a88ace4",
+      "subject": "feat(phases): archive completed milestone phase directories",
+      "appliedAt": "2026-02-22T09:05:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "04380c8",
+      "forkHash": "4683a8f",
+      "subject": "docs: add wave execution diagram to clarify parallelization",
+      "appliedAt": "2026-02-22T09:10:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "0dde979",
+      "forkHash": "d13b6f3",
+      "subject": "fix(installer): use correct config path for local OpenCode installs",
+      "appliedAt": "2026-02-22T09:15:00Z",
+      "conflictType": "content",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "00a13f5",
+      "forkHash": "07b0116",
+      "subject": "docs: update changelog for v1.19.2",
+      "appliedAt": "2026-02-22T09:20:00Z",
+      "conflictType": "content",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "1e3194a",
+      "forkHash": "165b6ce",
+      "subject": "1.19.2",
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1.",
+      "appliedAt": "2026-02-22T09:25:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
     }
   ],
   "pending": [],
@@ -333,7 +472,7 @@
     "eslint.config.js",
     "scripts/build.js",
     "get-stuff-done/VERSION",
-    "get-stuff-done/bin/gsd-tools.js",
+    "get-stuff-done/bin/gsd-tools.cjs",
     "get-stuff-done/bin/dist/",
     "get-stuff-done/teams/",
     "get-stuff-done/workflows/upstream-sync.md",
@@ -345,11 +484,11 @@
     ".github/workflows/ci.yml"
   ],
   "stats": {
-    "totalCommits": 41,
+    "totalCommits": 53,
     "mergeCommitsSkipped": 0,
-    "applied": 35,
-    "skipped": 1,
-    "conflicts": 12,
+    "applied": 51,
+    "skipped": 2,
+    "conflicts": 30,
     "brandingCorrections": 1
   }
 }

@@ -482,6 +482,50 @@ This phase covers:
     expect(output.found).toBe(false);
     expect(output.error).toBe('ROADMAP.md not found');
   });
+
+  test('accepts ## phase headers (two hashes)', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap v1.0
+
+## Phase 1: Foundation
+**Goal:** Set up project infrastructure
+**Plans:** 2 plans
+
+## Phase 2: API
+**Goal:** Build REST API
+`
+    );
+
+    const result = runGsdTools('roadmap get-phase 1', tmpDir);
+    expect(result.success).toBe(true);
+
+    const output = JSON.parse(result.output);
+    expect(output.found).toBe(true);
+    expect(output.phase_name).toBe('Foundation');
+    expect(output.goal).toBe('Set up project infrastructure');
+  });
+
+  test('detects malformed ROADMAP with summary list but no detail sections', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap v1.0
+
+## Phases
+
+- [ ] **Phase 1: Foundation** - Set up project
+- [ ] **Phase 2: API** - Build REST API
+`
+    );
+
+    const result = runGsdTools('roadmap get-phase 1', tmpDir);
+    expect(result.success).toBe(true);
+
+    const output = JSON.parse(result.output);
+    expect(output.found).toBe(false);
+    expect(output.error).toBe('malformed_roadmap');
+    expect(output.message).toContain('missing');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

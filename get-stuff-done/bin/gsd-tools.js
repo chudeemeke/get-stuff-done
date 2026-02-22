@@ -706,14 +706,33 @@ function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
     // Escape special regex chars in phase number, handle decimal
     const escapedPhase = phaseNum.replace(/\./g, '\\.');
 
-    // Match "### Phase X:" or "### Phase X.Y:" with optional name
+    // Match "## Phase X:" or "### Phase X:" with optional name
     const phasePattern = new RegExp(
-      `###\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`,
+      `#{2,3}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`,
       'i'
     );
     const headerMatch = content.match(phasePattern);
 
     if (!headerMatch) {
+      // Fallback: check if phase exists in summary list but missing detail section
+      const checklistPattern = new RegExp(
+        `-\\s*\\[[ x]\\]\\s*\\*\\*Phase\\s+${escapedPhase}:\\s*([^*]+)\\*\\*`,
+        'i'
+      );
+      const checklistMatch = content.match(checklistPattern);
+
+      if (checklistMatch) {
+        // Phase exists in summary but missing detail section - malformed ROADMAP
+        output({
+          found: false,
+          phase_number: phaseNum,
+          phase_name: checklistMatch[1].trim(),
+          error: 'malformed_roadmap',
+          message: `Phase ${phaseNum} exists in summary list but missing "### Phase ${phaseNum}:" detail section. ROADMAP.md needs both formats.`
+        }, raw, '');
+        return;
+      }
+
       output({ found: false, phase_number: phaseNum }, raw, '');
       return;
     }
@@ -721,9 +740,9 @@ function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
     const phaseName = headerMatch[1].trim();
     const headerIndex = headerMatch.index;
 
-    // Find the end of this section (next ### or end of file)
+    // Find the end of this section (next ## or ### phase header, or end of file)
     const restOfContent = content.slice(headerIndex);
-    const nextHeaderMatch = restOfContent.match(/\n###\s+Phase\s+\d/i);
+    const nextHeaderMatch = restOfContent.match(/\n#{2,3}\s+Phase\s+\d/i);
     const sectionEnd = nextHeaderMatch
       ? headerIndex + nextHeaderMatch.index
       : content.length;

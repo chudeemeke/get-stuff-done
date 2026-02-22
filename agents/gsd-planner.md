@@ -1067,6 +1067,8 @@ Present breakdown with wave structure. Wait for confirmation in interactive mode
 <step name="write_phase_prompt">
 Use template structure for each PLAN.md.
 
+**ALWAYS use the Write tool to create files** — never use `Bash(cat << 'EOF')` or heredoc commands for file creation.
+
 Write to `.planning/phases/XX-name/{phase}-{NN}-PLAN.md`
 
 Include all frontmatter fields.

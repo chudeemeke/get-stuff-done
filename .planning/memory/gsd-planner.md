@@ -1,7 +1,7 @@
 ---
 agent: gsd-planner
 updated: 2026-02-22
-entries: 11
+entries: 13
 ---
 
 - finding: "GSD has ~15 JS files (~6,850 lines) as testable surface. The installer (bin/install.js) alone is 1,760 lines and deserves its own dedicated plan due to complexity (symlink fallback chains, runtime detection, settings.json manipulation)."
@@ -70,4 +70,16 @@ entries: 11
   source: "Phase 17, planning"
   confidence: HIGH
   phase: "17-agent-teams-wiring"
+  date: "2026-02-22"
+
+- finding: "Upstream sync phases are inherently sequential (each batch depends on the previous) -- parallelism is impossible. Plan structure should follow batch groupings sized by risk and context budget, not by wave optimization. Phase 18: 106 remaining commits split into 5 sequential plans by risk profile -- Batch 6 alone (30 commits, HIGH risk with the 12-PR revert) gets a dedicated plan, while the safer Batches 9-11 (49 commits, MED risk) are grouped into one plan. The module split (11 commits, VERY HIGH risk) always gets its own plan regardless of size."
+  source: "Phase 18, planning"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "When planning a large upstream sync, the commit count visible in git (185 main..upstream/main) may include commits already applied in a previous sync phase. Phase 8 applied v1.9.13..v1.18.0 (79 commits) via cherry-pick, but since cherry-picks don't move the merge-base, git still shows 185. The actual remaining work is v1.18.0..upstream/main (106 commits). Always verify the effective starting point by checking the previous sync's target tag, not the git merge-base."
+  source: "Phase 18, planning analysis"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
   date: "2026-02-22"

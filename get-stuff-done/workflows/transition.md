@@ -421,9 +421,17 @@ State: "Current phase is {X}. Milestone has {N} phases (highest: {Y})."
 
 Read ROADMAP.md to get the next phase's name and goal.
 
+**Check if next phase has CONTEXT.md:**
+
+```bash
+ls .planning/phases/*[X+1]*/*-CONTEXT.md 2>/dev/null
+```
+
 **If next phase exists:**
 
 <if mode="yolo">
+
+**If CONTEXT.md exists:**
 
 ```
 Phase [X] marked complete.
@@ -435,9 +443,23 @@ Next: Phase [X+1] — [Name]
 
 Exit skill and invoke SlashCommand("/gsd:plan-phase [X+1]")
 
+**If CONTEXT.md does NOT exist:**
+
+```
+Phase [X] marked complete.
+
+Next: Phase [X+1] — [Name]
+
+⚡ Auto-continuing: Discuss Phase [X+1] first
+```
+
+Exit skill and invoke SlashCommand("/gsd:discuss-phase [X+1]")
+
 </if>
 
 <if mode="interactive" OR="custom with gates.confirm_transition true">
+
+**If CONTEXT.md does NOT exist:**
 
 ```
 ## ✓ Phase [X] Complete
@@ -448,6 +470,31 @@ Exit skill and invoke SlashCommand("/gsd:plan-phase [X+1]")
 
 **Phase [X+1]: [Name]** — [Goal from ROADMAP.md]
 
+`/gsd:discuss-phase [X+1]` — gather context and clarify approach
+
+<sub>`/clear` first → fresh context window</sub>
+
+---
+
+**Also available:**
+- `/gsd:plan-phase [X+1]` — skip discussion, plan directly
+- `/gsd:research-phase [X+1]` — investigate unknowns
+
+---
+```
+
+**If CONTEXT.md exists:**
+
+```
+## ✓ Phase [X] Complete
+
+---
+
+## ▶ Next Up
+
+**Phase [X+1]: [Name]** — [Goal from ROADMAP.md]
+<sub>✓ Context gathered, ready to plan</sub>
+
 `/gsd:plan-phase [X+1]`
 
 <sub>`/clear` first → fresh context window</sub>
@@ -455,9 +502,8 @@ Exit skill and invoke SlashCommand("/gsd:plan-phase [X+1]")
 ---
 
 **Also available:**
-- `/gsd:discuss-phase [X+1]` — gather context first
+- `/gsd:discuss-phase [X+1]` — revisit context
 - `/gsd:research-phase [X+1]` — investigate unknowns
-- Review roadmap
 
 ---
 ```

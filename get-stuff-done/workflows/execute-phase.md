@@ -569,54 +569,30 @@ User stays in control at each decision point.
 </step>
 
 <step name="update_roadmap">
-Update ROADMAP.md to reflect phase completion:
+**Mark phase complete and update all tracking files:**
 
 ```bash
-node ~/.claude/get-stuff-done/bin/gsd-tools.js roadmap update-plan-progress "${PHASE_NUMBER}"
+COMPLETION=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js phase complete "${PHASE_NUMBER}")
 ```
-Counts PLAN vs SUMMARY files on disk. Updates progress table row with correct count and status.
 
-**Check planning config:**
+The CLI handles:
+- Marking phase checkbox `[x]` with completion date
+- Updating Progress table (Status → Complete, date)
+- Updating plan count to final
+- Advancing STATE.md to next phase
+- Updating REQUIREMENTS.md traceability
 
-If `COMMIT_PLANNING_DOCS=false` (set in load_project_state):
-- Skip all git operations for .planning/ files
-- Planning docs exist locally but are gitignored
-- Log: "Skipping planning docs commit (commit_docs: false)"
-- Proceed to offer_next step
+Extract from result: `next_phase`, `next_phase_name`, `is_last_phase`.
 
-If `COMMIT_PLANNING_DOCS=true` (default):
-- Continue with git operations below
-
-Commit phase completion (roadmap, state, verification):
 ```bash
-git add .planning/ROADMAP.md .planning/STATE.md .planning/phases/{phase_dir}/*-VERIFICATION.md
-git add .planning/REQUIREMENTS.md  # if updated
-git commit -m "docs(phase-{X}): complete phase execution"
+node ~/.claude/get-stuff-done/bin/gsd-tools.js commit "docs(phase-{X}): complete phase execution" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md .planning/phases/{phase_dir}/*-VERIFICATION.md
 ```
 </step>
 
 <step name="offer_next">
-Present next steps based on milestone status:
+**Routing is handled by `transition.md`** — do NOT emit a separate "Next Up" block here.
 
-**If more phases remain:**
-```
-## Next Up
-
-**Phase {X+1}: {Name}** — {Goal}
-
-`/gsd:plan-phase {X+1}`
-
-<sub>`/clear` first for fresh context</sub>
-```
-
-**If milestone complete:**
-```
-MILESTONE COMPLETE!
-
-All {N} phases executed.
-
-`/gsd:complete-milestone`
-```
+After `verify_phase_goal` passes (or human approves), the workflow ends. The user runs `/gsd:progress` or the transition workflow handles next-step routing.
 </step>
 
 </process>

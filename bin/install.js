@@ -58,6 +58,27 @@ function getDirName(runtime) {
 }
 
 /**
+ * Get the config directory path relative to home directory for a runtime
+ * Used for templating hooks that use path.join(homeDir, '<configDir>', ...)
+ * @param {string} runtime - 'claude', 'opencode', or 'gemini'
+ * @param {boolean} isGlobal - Whether this is a global install
+ */
+function getConfigDirFromHome(runtime, isGlobal) {
+  if (!isGlobal) {
+    // Local installs use the same dir name pattern
+    return getDirName(runtime);
+  }
+  // Global installs - OpenCode uses XDG path structure
+  if (runtime === 'opencode') {
+    // OpenCode: ~/.config/opencode -> '.config', 'opencode'
+    // Return as comma-separated for path.join() replacement
+    return "'.config', 'opencode'";
+  }
+  if (runtime === 'gemini') return "'.gemini'";
+  return "'.claude'";
+}
+
+/**
  * Get the global config directory for OpenCode
  * OpenCode follows XDG Base Directory spec and uses ~/.config/opencode/
  * Priority: OPENCODE_CONFIG_DIR > dirname(OPENCODE_CONFIG) > XDG_CONFIG_HOME/opencode > ~/.config/opencode
@@ -806,10 +827,11 @@ function copyFlattenedCommands(srcDir, destDir, prefix, pathPrefix, runtime) {
       
       // Read, transform, and write
       let content = fs.readFileSync(srcPath, 'utf8');
-      // Replace path references
-      const claudeDirRegex = /~\/\.claude\//g;
+      const globalClaudeRegex = /~\/\.claude\//g;
+      const localClaudeRegex = /\.\/\.claude\//g;
       const opencodeDirRegex = /~\/\.opencode\//g;
-      content = content.replace(claudeDirRegex, pathPrefix);
+      content = content.replace(globalClaudeRegex, pathPrefix);
+      content = content.replace(localClaudeRegex, `./${getDirName(runtime)}/`);
       content = content.replace(opencodeDirRegex, pathPrefix);
       // Convert frontmatter for opencode compatibility
       content = convertClaudeToOpencodeFrontmatter(content);
@@ -846,10 +868,12 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime) {
     if (entry.isDirectory()) {
       copyWithPathReplacement(srcPath, destPath, pathPrefix, runtime);
     } else if (entry.name.endsWith('.md')) {
-      // Replace ~/.claude/ with the appropriate prefix in Markdown files
+      // Replace ~/.claude/ and ./.claude/ with runtime-appropriate paths
       let content = fs.readFileSync(srcPath, 'utf8');
-      const claudeDirRegex = new RegExp(`~/${dirName.replace('.', '\\.')}/`, 'g');
-      content = content.replace(claudeDirRegex, pathPrefix);
+      const globalClaudeRegex = /~\/\.claude\//g;
+      const localClaudeRegex = /\.\/\.claude\//g;
+      content = content.replace(globalClaudeRegex, pathPrefix);
+      content = content.replace(localClaudeRegex, `./${dirName}/`);
       // Convert frontmatter for opencode compatibility
       if (isOpencode) {
         content = convertClaudeToOpencodeFrontmatter(content);
@@ -1503,6 +1527,9 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
     }
   }
 
+  // Template hook paths for the target runtime (replaces '.claude' with correct config dir)
+  const configDirReplacement = getConfigDirFromHome(runtime, isGlobal);
+
   const hooksSrc = fs.existsSync(hooksSrcDist) ? hooksSrcDist : (useLinks ? hooksSrcDev : null);
 
   if (hooksSrc && fs.existsSync(hooksSrc)) {
@@ -1529,7 +1556,14 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
         // Only copy files, not directories
         if (fs.statSync(srcFile).isFile()) {
           const destFile = path.join(hooksDest, entry);
-          fs.copyFileSync(srcFile, destFile);
+          // Template .js files to replace '.claude' with runtime-specific config dir
+          if (entry.endsWith('.js') && runtime !== 'claude') {
+            let hookContent = fs.readFileSync(srcFile, 'utf8');
+            hookContent = hookContent.replace(/'\.claude'/g, configDirReplacement);
+            fs.writeFileSync(destFile, hookContent);
+          } else {
+            fs.copyFileSync(srcFile, destFile);
+          }
         }
       }
       if (verifyInstalled(hooksDest, 'hooks')) {

@@ -348,7 +348,19 @@ Plans with `autonomous: false` require user interaction.
 
 **Detection:** Check `autonomous` field in frontmatter.
 
-**Execution flow for checkpoint plans:**
+**Auto-mode checkpoint handling:**
+
+Read auto-advance config:
+```bash
+AUTO_CFG=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+```
+
+When executor returns a checkpoint AND `AUTO_CFG` is `"true"`:
+- **human-verify** → Auto-spawn continuation agent with `{user_response}` = `"approved"`. Log `⚡ Auto-approved checkpoint`.
+- **decision** → Auto-spawn continuation agent with `{user_response}` = first option from checkpoint details. Log `⚡ Auto-selected: [option]`.
+- **human-action** → Present to user (existing behavior below). Auth gates cannot be automated.
+
+**Standard flow (not auto-mode, or human-action type):**
 
 1. **Spawn agent for checkpoint plan:**
    ```

@@ -256,6 +256,60 @@
       "appliedAt": "2026-02-22T04:12:00Z",
       "conflictType": "mechanical",
       "status": "applied"
+    },
+    {
+      "upstreamHash": "ed17684",
+      "forkHash": "a598c3a",
+      "subject": "feat(workflow): add auto-advance pipeline (--auto flag + workflow.auto_advance config)",
+      "notes": "Mechanical conflict: get-shit-done/workflows/plan-phase.md deleted by us (fork has get-stuff-done path). Applied changes manually to get-stuff-done/workflows/plan-phase.md.",
+      "appliedAt": "2026-02-22T05:00:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "c8827fe",
+      "forkHash": "8d27380",
+      "subject": "fix(tools): deterministic ROADMAP progress table updates from disk (#537)",
+      "notes": "Mechanical conflict: get-shit-done/bin/gsd-tools.js path. Added cmdRoadmapUpdatePlanProgress to get-stuff-done/bin/gsd-tools.js. Applied execute-phase/execute-plan workflow changes.",
+      "appliedAt": "2026-02-22T05:10:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "91e4ef7",
+      "forkHash": "e99d2b6",
+      "subject": "fix(workflow): consistent phase transition routing through discuss-phase (#530)",
+      "notes": "Applied to get-stuff-done/ paths. transition.md updated with CONTEXT.md check logic. execute-phase.md offer_next delegates to transition.md. discuss-phase.md adds Other free-text handling.",
+      "appliedAt": "2026-02-22T05:20:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "d8f3bac",
+      "forkHash": "2422e5a",
+      "subject": "docs: update README for v1.19.1 — auto-advance flag and config",
+      "notes": "Content conflict in README.md footer commands table. Adopted upstream's --auto flag additions.",
+      "appliedAt": "2026-02-22T05:25:00Z",
+      "conflictType": "cosmetic",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "a679bfc",
+      "forkHash": "2fa5b6d",
+      "subject": "docs: update changelog for v1.19.1",
+      "notes": "Content conflict in CHANGELOG.md footer URLs. Kept fork URLs (chudeemeke/get-stuff-done). Added [1.19.1] entry with fork URL. Adopted upstream changelog content section.",
+      "appliedAt": "2026-02-22T05:30:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "a4ad25d",
+      "forkHash": "542db84",
+      "subject": "1.19.1",
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1. package.json fork identity preserved. package-lock.json deleted (fork doesn't track it).",
+      "appliedAt": "2026-02-22T05:35:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
     }
   ],
   "pending": [],
@@ -279,7 +333,6 @@
     "eslint.config.js",
     "scripts/build.js",
     "get-stuff-done/VERSION",
-    "get-stuff-done/.install-meta.json",
     "get-stuff-done/bin/gsd-tools.js",
     "get-stuff-done/bin/dist/",
     "get-stuff-done/teams/",
@@ -292,11 +345,11 @@
     ".github/workflows/ci.yml"
   ],
   "stats": {
-    "totalCommits": 30,
+    "totalCommits": 41,
     "mergeCommitsSkipped": 0,
-    "applied": 29,
+    "applied": 35,
     "skipped": 1,
-    "conflicts": 8,
+    "conflicts": 12,
     "brandingCorrections": 1
   }
 }

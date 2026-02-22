@@ -6,7 +6,258 @@
   "syncBranch": "sync/v1.20.5",
   "startedAt": "2026-02-22T00:32:46Z",
   "status": "in-progress",
-  "applied": [],
+  "applied": [
+    {
+      "upstreamHash": "60ccba9",
+      "forkHash": "c1b5ab4",
+      "subject": "feat: add Brave Search integration for researchers",
+      "appliedAt": "2026-02-22T01:15:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "19568d6",
+      "forkHash": "25377de",
+      "subject": "docs: use @latest in primary install commands",
+      "appliedAt": "2026-02-22T01:18:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "d80e4ef",
+      "forkHash": "3181f53",
+      "subject": "docs: add badges to README",
+      "notes": "Excluded upstream Dexscreener/Discord/X/GSD-token badges. Kept npm version, downloads, GitHub stars with fork branding.",
+      "appliedAt": "2026-02-22T01:22:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "90f1f66",
+      "forkHash": null,
+      "subject": "docs: use static Discord badge to avoid widget dependency",
+      "notes": "Skipped — fork README does not include Discord badge (upstream-specific social link). No functional impact.",
+      "appliedAt": null,
+      "conflictType": null,
+      "status": "skipped"
+    },
+    {
+      "upstreamHash": "f7511db",
+      "forkHash": "dd1b395",
+      "subject": "Add CODEOWNERS",
+      "appliedAt": "2026-02-22T01:25:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "a4626b5",
+      "forkHash": "f25895c",
+      "subject": "Add bug report issue template",
+      "appliedAt": "2026-02-22T01:27:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "279f3bc",
+      "forkHash": "4f388d0",
+      "subject": "Add feature request issue template",
+      "appliedAt": "2026-02-22T01:29:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "392742e",
+      "forkHash": "900eade",
+      "subject": "Add security policy for responsible disclosure",
+      "appliedAt": "2026-02-22T01:31:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "b85247a",
+      "forkHash": "27c6638",
+      "subject": "Add workflow to auto-label new issues with needs-triage",
+      "appliedAt": "2026-02-22T01:33:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "173ff7a",
+      "forkHash": "0334f5a",
+      "subject": "fix: add Write tool to gsd-verifier and document verifier bug root cause",
+      "notes": "Fork already had this fix from Phase 8 independent repair. Applied upstream commit as convergence evidence.",
+      "appliedAt": "2026-02-22T01:36:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "c3c9d52",
+      "forkHash": "5033c98",
+      "subject": "fix: create feature branch before first commit in discuss/plan workflows",
+      "appliedAt": "2026-02-22T01:39:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "ba27912",
+      "forkHash": "f1a7741",
+      "subject": "fix: move resolved debug sessions to resolved/ folder",
+      "appliedAt": "2026-02-22T01:41:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "25aeb44",
+      "forkHash": "b930a78",
+      "subject": "fix: verify-work defers diagnosis/planning to plan-phase --gaps",
+      "appliedAt": "2026-02-22T01:43:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "f4d6b30",
+      "forkHash": "ffc7b2a",
+      "subject": "fix(install): auto-migrate renamed statusline.js reference",
+      "appliedAt": "2026-02-22T01:45:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "9d3d9d8",
+      "forkHash": "395643a",
+      "subject": "docs: use @latest for uninstall commands",
+      "appliedAt": "2026-02-22T01:47:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "fbd727e",
+      "forkHash": "9754331",
+      "subject": "feat: Add Mistral Vibe CLI Support",
+      "appliedAt": "2026-02-22T01:50:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "80246e9",
+      "forkHash": "b4604f4",
+      "subject": "Add OpenCode installer package",
+      "appliedAt": "2026-02-22T01:53:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "430a7e4",
+      "forkHash": "d2efd87",
+      "subject": "feat: add git_tag config option to disable tagging on milestone completion",
+      "appliedAt": "2026-02-22T01:56:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "6f98b4f",
+      "forkHash": "6dc934d",
+      "subject": "Add in-progress state for todos instead of marking done immediately",
+      "appliedAt": "2026-02-22T02:10:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "1bc6d00",
+      "forkHash": "0c162b6",
+      "subject": "refactor(statusline): display git branch in status line if inside repo",
+      "notes": "Semantic conflict: upstream uses raw ANSI codes; fork uses theme.text.muted.render(). Fork architecture wins. Upstream logic for git branch traversal (supports worktrees) was integrated.",
+      "appliedAt": "2026-02-22T02:30:00Z",
+      "conflictType": "semantic",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "e146b08",
+      "forkHash": "160174b",
+      "subject": "fix(install): build hooks/dist on the fly for dev installs",
+      "notes": "Structural conflict in bin/install.js — integrated build-on-the-fly before hooksSrc declaration to avoid duplicate const.",
+      "appliedAt": "2026-02-22T02:50:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "9d815d3",
+      "forkHash": "f9eaf38",
+      "subject": "Revert 12 PRs merged without authorization",
+      "notes": "CRITICAL: Mega-commit reverting 12 PRs. 26-file conflict. Fork preserved: Write tool in gsd-verifier.md, theme architecture in statusline.js, useLinks mode, install-vibe.js, bin/install-opencode.js, agents/general-purpose.md, opencode/ dir, gsd-verifier root cause doc. Fork adopted from revert: Gemini runtime support (hasGemini, convertClaudeToGeminiToml), regex fix in gsd-verifier.md (\\{} -> \\{\\}, \\[] -> \\[\\]).",
+      "appliedAt": "2026-02-22T03:30:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "5154446",
+      "forkHash": "e55bd2d",
+      "subject": "fix(install): add package.json to prevent ESM inheritance",
+      "notes": "Integrated after resolving duplicate const hooksSrc from build-on-the-fly commit.",
+      "appliedAt": "2026-02-22T03:45:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "d863858",
+      "forkHash": "81a97cf",
+      "subject": "fix(docs): use {phase_num} instead of ambiguous {phase} for filenames",
+      "appliedAt": "2026-02-22T03:50:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "7b140c2",
+      "forkHash": "d13589e",
+      "subject": "fix(roadmap): accept ## and ### phase headers, detect malformed ROADMAPs",
+      "appliedAt": "2026-02-22T03:55:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "9a7bb22",
+      "forkHash": "38410eb",
+      "subject": "fix(install): template hook paths for OpenCode/Gemini runtimes",
+      "notes": "Structural conflict: fork lacks processAttribution/getCommitAttribution functions. Adopted regex improvements, skipped processAttribution call. Added getConfigDirFromHome() function.",
+      "appliedAt": "2026-02-22T04:00:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "b9f9ee9",
+      "forkHash": "add1f82",
+      "subject": "fix(init): fall back to ROADMAP.md when phase directory missing",
+      "appliedAt": "2026-02-22T04:05:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "dcace25",
+      "forkHash": "277fa12",
+      "subject": "fix(workflow): close parent UAT and debug artifacts after gap-closure phase",
+      "appliedAt": "2026-02-22T04:08:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "4622aa7",
+      "forkHash": "bc1621d",
+      "subject": "docs: update changelog for v1.19.0",
+      "notes": "Merged upstream CHANGELOG section using Node.js script to remove upstream glittercowboy URL comparisons from conflict block.",
+      "appliedAt": "2026-02-22T04:10:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "ca18c24",
+      "forkHash": "3783d85",
+      "subject": "1.19.0 version sync",
+      "notes": "Updated upstream version marker only. Fork version stays at 2.2.1. package.json description updated to include OpenCode and Gemini.",
+      "appliedAt": "2026-02-22T04:12:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    }
+  ],
   "pending": [],
   "conflicted": null,
   "snapshots": [],
@@ -41,10 +292,11 @@
     ".github/workflows/ci.yml"
   ],
   "stats": {
-    "totalCommits": 0,
+    "totalCommits": 30,
     "mergeCommitsSkipped": 0,
-    "applied": 0,
-    "conflicts": 0,
-    "brandingCorrections": 0
+    "applied": 29,
+    "skipped": 1,
+    "conflicts": 8,
+    "brandingCorrections": 1
   }
 }

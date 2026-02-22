@@ -2436,6 +2436,44 @@ function cmdPhaseComplete(cwd, phaseNum, raw) {
   output(result, raw);
 }
 
+// ─── Config Get ───────────────────────────────────────────────────────────────
+
+function cmdConfigGet(cwd, keyPath, raw) {
+  const configPath = path.join(cwd, '.planning', 'config.json');
+
+  if (!keyPath) {
+    error('Usage: config-get <key.path>');
+  }
+
+  let config = {};
+  try {
+    if (fs.existsSync(configPath)) {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    } else {
+      error('No config.json found at ' + configPath);
+    }
+  } catch (err) {
+    if (err.message.startsWith('No config.json')) throw err;
+    error('Failed to read config.json: ' + err.message);
+  }
+
+  // Traverse dot-notation path (e.g., "workflow.auto_advance")
+  const keys = keyPath.split('.');
+  let current = config;
+  for (const key of keys) {
+    if (current === undefined || current === null || typeof current !== 'object') {
+      error(`Key not found: ${keyPath}`);
+    }
+    current = current[key];
+  }
+
+  if (current === undefined) {
+    error(`Key not found: ${keyPath}`);
+  }
+
+  output(current, raw, String(current));
+}
+
 // ─── Validate Health ──────────────────────────────────────────────────────────
 
 function cmdValidateHealth(cwd, options, raw) {
@@ -2875,6 +2913,11 @@ async function main() {
         default:
           error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress`);
       }
+      break;
+    }
+
+    case 'config-get': {
+      cmdConfigGet(cwd, args[1], raw);
       break;
     }
 

@@ -1,7 +1,7 @@
 ---
 agent: gsd-plan-checker
-updated: 2026-02-22
-entries: 11
+updated: 2026-02-27
+entries: 14
 ---
 
 - finding: "AskUserQuestion audit scope can be wider than plan claims -- workflows that are NOT directly referenced by command files (e.g., execute-plan.md, verify-phase.md, discovery-phase.md) can still invoke AskUserQuestion. The plan only fixes the single command file (plan-phase.md) but the audit must check all 28 command files against all their referenced workflows."
@@ -75,3 +75,21 @@ entries: 11
   confidence: HIGH
   phase: "17-agent-teams-wiring"
   date: "2026-02-22"
+
+- finding: "Cherry-pick sync plans use '(all files modified by cherry-picks)' in files_modified field. This is correct and expected for sync execution plans -- file counts are indeterminate before cherry-picks run. Do NOT flag this as missing files."
+  source: "Phase 18, Plans 01-04 verification"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"
+
+- finding: "Commit count cross-checking across plans: When multiple plans in a phase each state an explicit commit count, sum them and compare to the verification/checkpoint summary which also states a total. Phase 18 Plans 01-04 sum to 30+28+49+11=118 commits, but Plan 05 verification says '106 from Phase 18'. This 12-commit discrepancy is a minor internal inconsistency that should be flagged as a warning (not blocker) since the commit counts in individual plans should be treated as authoritative."
+  source: "Phase 18, Plan 05 verification section"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"
+
+- finding: "Locked decision 'Cross-platform CI at: after module-split batch, after final batch, before merge to main' means CI should trigger at the end of Plan 04 (after module split) AND in Plan 05 (final validation). When only Plan 05 triggers CI, the 'after module-split' checkpoint from the locked decision is missed. This is a warning-level context compliance deviation."
+  source: "Phase 18, Plans 04-05 verification"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-27"

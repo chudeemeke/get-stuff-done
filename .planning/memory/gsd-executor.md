@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
 updated: 2026-02-22
-entries: 23
+entries: 26
 ---
 
 - finding: "hooks/dist/ is gitignored (decision 09-02 BUILD-001). When committing esbuild output, only commit scripts/build-hooks.js -- never try to git add hooks/dist/. The dist files are generated artifacts."
@@ -132,6 +132,24 @@ entries: 23
 
 - finding: "CHANGELOG.md upstream cherry-picks often have non-standard conflict separators when the HEAD block is very long (100+ lines). The '=======' separator may have CRLF where script expects LF. Use regex detection: content.match(/^=======\\r?\\n/m) to find the separator reliably, then slice content at that position."
   source: "Phase 18, Plan 02, Task 2 (00a13f5 cherry-pick conflict)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "Codex add+revert cherry-picks can leave incomplete reverts when auto-merge doesn't fully restore the pre-Codex state. After applying revert commits, run bun test immediately. Look for installer test failures (processAttribution ReferenceError or ENOENT on agent files). Fix: remove dangling function calls and restore useLinks/mkdirSync pattern from pre-Codex state."
+  source: "Phase 18, Plan 03, Task 2 post-batch fix (ecdb951)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "Context-proxy refactor (3dcd3f0) required manual application to fork: (1) remove parseIncludeFlag() from gsd-tools.cjs, (2) add *_path fields to all cmdInit* functions, (3) add file discovery to cmdInitPlanPhase and cmdInitPhaseOp (context/research/verification/uat paths), (4) update workflow files to use <files_to_read> blocks instead of @-references. The fork's workflows that don't use --include don't need major changes."
+  source: "Phase 18, Plan 03, Task 2 (3dcd3f0 cherry-pick)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "When commands/gsd/ files are taken --theirs during UU conflict resolution, always check for upstream branding in the execution_context @-references. Files like add-phase.md, add-todo.md use @~/.claude/get-shit-done/workflows/ which need branding pass to get-stuff-done."
+  source: "Phase 18, Plan 03, Task 2 branding pass (ecdb951)"
   confidence: HIGH
   phase: "18-upstream-sync-execution"
   date: "2026-02-22"

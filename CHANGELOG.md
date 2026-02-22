@@ -6,6 +6,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.20.5] - 2026-02-19
+
+### Fixed
+- `/gsd:health --repair` now creates timestamped backup before regenerating STATE.md (#657)
+
+### Changed
+- Subagents now discover and load project CLAUDE.md and skills at spawn time for better project context (#671, #672)
+- Improved context loading reliability in spawned agents
+
+## [1.20.4] - 2026-02-17
+
+### Fixed
+- Executor agents now update ROADMAP.md and REQUIREMENTS.md after each plan completes — previously both documents stayed unchecked throughout milestone execution
+- New `requirements mark-complete` CLI command enables per-plan requirement tracking instead of waiting for phase completion
+- Executor final commit includes ROADMAP.md and REQUIREMENTS.md
+
 ## [1.20.3] - 2026-02-16
 
 ### Fixed
@@ -1303,7 +1319,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.20.3...HEAD
+[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.20.5...HEAD
+[1.20.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.5
+[1.20.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.4
 [1.20.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.3
 [1.20.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.2
 [1.20.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.1

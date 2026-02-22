@@ -1496,15 +1496,10 @@ Update the roadmap file:
 ROADMAP_FILE=".planning/ROADMAP.md"
 ```
 
-**If more plans remain in this phase:**
-
-- Update plan count: "2/3 plans complete"
-- Keep phase status as "In progress"
-
-**If this was the last plan in the phase:**
-
-- Mark phase complete: status → "Complete"
-- Add completion date
+```bash
+node ~/.claude/get-stuff-done/bin/gsd-tools.js roadmap update-plan-progress "${PHASE}"
+```
+Counts PLAN vs SUMMARY files on disk. Updates progress table row with correct count and status (`In Progress` or `Complete` with date).
 </step>
 
 <step name="git_commit_metadata">

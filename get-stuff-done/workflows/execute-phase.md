@@ -572,10 +572,9 @@ User stays in control at each decision point.
 Update ROADMAP.md to reflect phase completion:
 
 ```bash
-# Mark phase complete
-# Update completion date
-# Update status
+node ~/.claude/get-stuff-done/bin/gsd-tools.js roadmap update-plan-progress "${PHASE_NUMBER}"
 ```
+Counts PLAN vs SUMMARY files on disk. Updates progress table row with correct count and status.
 
 **Check planning config:**
 

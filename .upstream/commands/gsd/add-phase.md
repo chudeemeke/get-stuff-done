@@ -29,7 +29,6 @@ Exit.
 Load phase operation context:
 
 ```bash
-INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js init phase-op "0")
 ```
 
 Check `roadmap_exists` from init JSON. If false:
@@ -44,7 +43,6 @@ Exit.
 **Delegate the phase addition to gsd-tools:**
 
 ```bash
-RESULT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js phase add "${description}")
 ```
 
 The CLI handles:

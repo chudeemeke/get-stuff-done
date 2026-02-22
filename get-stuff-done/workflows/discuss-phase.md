@@ -472,7 +472,7 @@ Confirm: "Committed: docs(${PADDED_PHASE}): capture phase context"
 Update STATE.md with session info:
 
 ```bash
-node ~/.claude/get-stuff-done/bin/gsd-tools.js state record-session \
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs state record-session \
   --stopped-at "Phase ${PHASE} context gathered" \
   --resume-file "${phase_dir}/${PADDED_PHASE}-CONTEXT.md"
 ```
@@ -480,7 +480,7 @@ node ~/.claude/get-stuff-done/bin/gsd-tools.js state record-session \
 Commit STATE.md:
 
 ```bash
-node ~/.claude/get-stuff-done/bin/gsd-tools.js commit "docs(state): record phase ${PHASE} context session" --files .planning/STATE.md
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs commit "docs(state): record phase ${PHASE} context session" --files .planning/STATE.md
 ```
 </step>
 
@@ -490,7 +490,7 @@ Check for auto-advance trigger:
 1. Parse `--auto` flag from $ARGUMENTS
 2. Read `workflow.auto_advance` from config:
    ```bash
-   AUTO_CFG=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js config get workflow.auto_advance 2>/dev/null || echo "false")
+   AUTO_CFG=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs config get workflow.auto_advance 2>/dev/null || echo "false")
    ```
 
 **If `--auto` flag present OR `AUTO_CFG` is true:**

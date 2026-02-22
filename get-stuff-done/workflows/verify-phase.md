@@ -139,7 +139,7 @@ must_haves:
 If no must_haves in frontmatter (MUST_HAVES returns error or empty), check for Success Criteria:
 
 ```bash
-PHASE_DATA=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js roadmap get-phase "${phase_number}" --raw)
+PHASE_DATA=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs roadmap get-phase "${phase_number}" --raw)
 ```
 
 Parse the `success_criteria` array from the JSON output. If non-empty:

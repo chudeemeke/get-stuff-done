@@ -572,7 +572,7 @@ User stays in control at each decision point.
 **Mark phase complete and update all tracking files:**
 
 ```bash
-COMPLETION=$(node ~/.claude/get-stuff-done/bin/gsd-tools.js phase complete "${PHASE_NUMBER}")
+COMPLETION=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs phase complete "${PHASE_NUMBER}")
 ```
 
 The CLI handles:
@@ -585,7 +585,7 @@ The CLI handles:
 Extract from result: `next_phase`, `next_phase_name`, `is_last_phase`.
 
 ```bash
-node ~/.claude/get-stuff-done/bin/gsd-tools.js commit "docs(phase-{X}): complete phase execution" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md .planning/phases/{phase_dir}/*-VERIFICATION.md
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs commit "docs(phase-{X}): complete phase execution" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md .planning/phases/{phase_dir}/*-VERIFICATION.md
 ```
 </step>
 

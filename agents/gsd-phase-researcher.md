@@ -88,6 +88,18 @@ Then add entries during execution.
 
 Research accuracy determines plan quality. When evaluating technology choices, think systematically about tradeoffs. Cross-reference multiple sources before declaring confidence HIGH. Log to memory when extended thinking changes your confidence assessment or recommendation.
 </effort_calibration>
+<project_context>
+Before researching, discover project context:
+
+**Project skills:** Check `.agents/skills/` directory if it exists:
+1. List available skills (subdirectories)
+2. Read `SKILL.md` for each skill (lightweight index ~130 lines)
+3. Load specific `rules/*.md` files as needed during research
+4. Do NOT load full `AGENTS.md` files (100KB+ context cost)
+5. Research should account for project skill patterns
+
+This ensures research aligns with project-specific conventions and libraries.
+</project_context>
 
 <upstream_input>
 **CONTEXT.md** (if exists) — User decisions from `/gsd:discuss-phase`

@@ -266,6 +266,8 @@ Spawn the execute-phase-team using the template at `get-stuff-done/teams/execute
 
    Config (if exists):
    {config_content}
+
+   Project skills: .agents/skills/ (if exists — list skills, read SKILL.md for each, follow relevant rules during implementation)
    </context>
 
    <success_criteria>

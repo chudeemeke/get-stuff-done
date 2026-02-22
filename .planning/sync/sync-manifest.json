@@ -449,6 +449,102 @@
       "appliedAt": "2026-02-22T09:25:00Z",
       "conflictType": "mechanical",
       "status": "applied"
+    },
+    {
+      "upstreamHash": "0f2a3fa",
+      "forkHash": "bb86259",
+      "subject": "fix: add .gitkeep to phase directories for git tracking",
+      "notes": "DU conflict: upstream modified get-shit-done/bin path. Fork lacks cmdPhaseAdd/cmdPhaseInsert, no changes applied to fork gsd-tools.cjs. Empty commit.",
+      "conflictType": "upstream-path",
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:00:00Z"
+    },
+    {
+      "upstreamHash": "99c5c41",
+      "forkHash": "06e84a8",
+      "subject": "fix: respect commit_docs when merging branches in complete-milestone",
+      "notes": "Changes to upstream complete-milestone.md workflow (branching section). Fork complete-milestone.md lacks branching strategy section; tracked in .upstream/ only.",
+      "conflictType": "upstream-path",
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:02:00Z"
+    },
+    {
+      "upstreamHash": "474b75e",
+      "forkHash": "46cd00c",
+      "subject": "fix(installer): convert general-purpose subagent to OpenCode's \"general\"",
+      "conflictType": null,
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:04:00Z"
+    },
+    {
+      "upstreamHash": "9aca081",
+      "forkHash": "87fc9b0",
+      "subject": "docs: add workaround tip for modifying menu options",
+      "conflictType": null,
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:06:00Z"
+    },
+    {
+      "upstreamHash": "cb7d4db",
+      "forkHash": "7a3fcca",
+      "subject": "feat(health): add /gsd:health command for planning directory validation",
+      "notes": "DU conflict for gsd-tools.cjs and file-location conflict for health.md. Added cmdValidateHealth and validate dispatch to fork gsd-tools.cjs. Created commands/gsd/health.md and get-stuff-done/workflows/health.md with fork branding.",
+      "conflictType": "structural",
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:08:00Z"
+    },
+    {
+      "upstreamHash": "1dcedb6",
+      "forkHash": "b8a1acc",
+      "subject": "feat(auto-advance): chain phase execution across full milestone",
+      "notes": "DU conflicts for gsd-tools.cjs and plan-phase.md. Added cmdConfigGet and config-get dispatch. Fixed config get -> config-get in plan-phase.md, discuss-phase.md. Added auto-advance section to execute-phase.md. Propagated --auto flag in transition.md.",
+      "conflictType": "structural",
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:10:00Z"
+    },
+    {
+      "upstreamHash": "7510a8a",
+      "forkHash": "210976f",
+      "subject": "feat(quick): add --full flag for plan-checking and verification",
+      "notes": "DU conflict for gsd-tools.cjs. Content conflict in .upstream/commands/gsd/quick.md. Added checker_model/verifier_model to cmdInitQuick. Rewrote get-stuff-done/workflows/quick.md with full --full mode support.",
+      "conflictType": "structural",
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:12:00Z"
+    },
+    {
+      "upstreamHash": "fc347d5",
+      "forkHash": "5ad1e26",
+      "subject": "fix: warn when planning without user context or discussing after plans exist",
+      "notes": "DU conflict for plan-phase.md. Applied context warning to plan-phase.md load_context step and discuss-phase.md CONTEXT.md check.",
+      "conflictType": "upstream-path",
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:14:00Z"
+    },
+    {
+      "upstreamHash": "1104fc9",
+      "forkHash": "2d51fbc",
+      "subject": "docs: update README for v1.20.0",
+      "conflictType": null,
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:16:00Z"
+    },
+    {
+      "upstreamHash": "7b7e582",
+      "forkHash": "4994310",
+      "subject": "docs: update changelog for v1.20.0",
+      "notes": "Content conflict in CHANGELOG.md. Took upstream [1.20.0] entry. Fixed glittercowboy URLs in footer.",
+      "conflictType": "content",
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:18:00Z"
+    },
+    {
+      "upstreamHash": "e8eab14",
+      "forkHash": "05adff6",
+      "subject": "1.20.0",
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1. package-lock.json removed (fork does not track it). Empty commit.",
+      "conflictType": "mechanical",
+      "status": "applied",
+      "appliedAt": "2026-02-22T10:20:00Z"
     }
   ],
   "pending": [],
@@ -484,11 +580,11 @@
     ".github/workflows/ci.yml"
   ],
   "stats": {
-    "totalCommits": 53,
+    "totalCommits": 64,
     "mergeCommitsSkipped": 0,
-    "applied": 51,
+    "applied": 62,
     "skipped": 2,
-    "conflicts": 30,
+    "conflicts": 35,
     "brandingCorrections": 1
   }
 }

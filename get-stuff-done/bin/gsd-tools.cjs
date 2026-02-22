@@ -2438,6 +2438,46 @@ function cmdPhaseComplete(cwd, phaseNum, raw) {
   output(result, raw);
 }
 
+// ─── Config Set ───────────────────────────────────────────────────────────────
+
+function cmdConfigSet(cwd, keyPath, value, raw) {
+  const configPath = path.join(cwd, '.planning', 'config.json');
+
+  if (!keyPath) {
+    error('Usage: config-set <key.path> <value>');
+  }
+
+  let config = {};
+  try {
+    if (fs.existsSync(configPath)) {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    }
+  } catch (err) {
+    error('Failed to read config.json: ' + err.message);
+  }
+
+  // Parse value: "true"/"false" -> boolean, numbers -> numbers, rest is string
+  let parsedValue;
+  if (value === 'true') parsedValue = true;
+  else if (value === 'false') parsedValue = false;
+  else if (!isNaN(Number(value)) && value !== '') parsedValue = Number(value);
+  else parsedValue = value;
+
+  // Traverse dot-notation path and set value
+  const keys = keyPath.split('.');
+  let current = config;
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (current[keys[i]] === undefined || current[keys[i]] === null || typeof current[keys[i]] !== 'object') {
+      current[keys[i]] = {};
+    }
+    current = current[keys[i]];
+  }
+  current[keys[keys.length - 1]] = parsedValue;
+
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+  output({ key: keyPath, value: parsedValue }, raw, `Set ${keyPath} = ${parsedValue}`);
+}
+
 // ─── Config Get ───────────────────────────────────────────────────────────────
 
 function cmdConfigGet(cwd, keyPath, raw) {
@@ -2915,6 +2955,11 @@ async function main() {
         default:
           error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress`);
       }
+      break;
+    }
+
+    case 'config-set': {
+      cmdConfigSet(cwd, args[1], args[2], raw);
       break;
     }
 

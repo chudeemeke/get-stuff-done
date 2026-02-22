@@ -524,6 +524,11 @@ Phase {X} marked complete.
 ⚡ Auto-continuing: Complete milestone and archive
 ```
 
+**Clear auto-advance** — milestone boundary is the natural stopping point:
+```bash
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs config-set workflow.auto_advance false
+```
+
 Exit skill and invoke SlashCommand("/gsd:complete-milestone {version}")
 
 </if>

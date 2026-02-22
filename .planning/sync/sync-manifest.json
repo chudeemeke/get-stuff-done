@@ -545,6 +545,182 @@
       "conflictType": "mechanical",
       "status": "applied",
       "appliedAt": "2026-02-22T10:20:00Z"
+    },
+    {
+      "upstreamHash": "cbf8094",
+      "forkHash": "925a00e",
+      "subject": "requirements tracking chain — strip brackets, add requirements field",
+      "conflictType": "semantic",
+      "status": "applied",
+      "notes": "DU conflict in gsd-tools.cjs — applied manually to fork file"
+    },
+    {
+      "upstreamHash": "9ef582e",
+      "forkHash": "eb10dbd",
+      "subject": "close requirements verification loop and enforce MUST language",
+      "conflictType": "semantic",
+      "status": "applied",
+      "notes": "DU conflict in plan-phase.md — applied manually to fork workflows"
+    },
+    {
+      "upstreamHash": "fb50d3a",
+      "forkHash": "30ec342",
+      "subject": "docs: update changelog for v1.20.2",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Content conflict — took theirs with fork branding"
+    },
+    {
+      "upstreamHash": "710795c",
+      "forkHash": "55d69d7",
+      "subject": "1.20.2",
+      "conflictType": null,
+      "status": "applied",
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1"
+    },
+    {
+      "upstreamHash": "e449c5a",
+      "forkHash": "2f53b33",
+      "subject": "fix(gemini): escape shell variables in agent bodies",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "bin/install.js conflict — fork had convertGeminiToolName already"
+    },
+    {
+      "upstreamHash": "2f25895",
+      "forkHash": "3cccf2c",
+      "subject": "tighten milestone audit requirements verification with 3-source cross-reference",
+      "conflictType": "semantic",
+      "status": "applied",
+      "notes": "Applied to fork workflows: audit-milestone, complete-milestone, plan-milestone-gaps"
+    },
+    {
+      "upstreamHash": "95bc5a0",
+      "forkHash": "5283474",
+      "subject": "docs: update changelog for v1.20.3",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Content conflict — took theirs with fork branding"
+    },
+    {
+      "upstreamHash": "c609f3d",
+      "forkHash": "fed98b1",
+      "subject": "1.20.3",
+      "conflictType": null,
+      "status": "applied",
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1"
+    },
+    {
+      "upstreamHash": "1764abc",
+      "forkHash": "a91a0ef",
+      "subject": "feat: executor updates ROADMAP.md and REQUIREMENTS.md per-plan",
+      "conflictType": "semantic",
+      "status": "applied",
+      "notes": "DU conflict in gsd-tools.cjs — added cmdRequirementsMarkComplete to fork"
+    },
+    {
+      "upstreamHash": "8b181f2",
+      "forkHash": "08a6fec",
+      "subject": "docs: update changelog for v1.20.4",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Content conflict — took theirs with fork branding"
+    },
+    {
+      "upstreamHash": "b94a1ca",
+      "forkHash": "56b07e1",
+      "subject": "1.20.4",
+      "conflictType": null,
+      "status": "applied",
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1"
+    },
+    {
+      "upstreamHash": "f77252c",
+      "forkHash": "30d5b5d",
+      "subject": "refactor: use inline Task() syntax for map-codebase agent spawning",
+      "conflictType": null,
+      "status": "applied",
+      "notes": "Clean apply — converted 4 agents in map-codebase.md"
+    },
+    {
+      "upstreamHash": "87c3873",
+      "forkHash": "9dba202",
+      "subject": "feat(codex): convert Task() calls to codex exec during install",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Codex add — reverted by d55998b. Net zero change."
+    },
+    {
+      "upstreamHash": "db1d003",
+      "forkHash": "7e7bf1f",
+      "subject": "feat(codex): install GSD commands as prompts for / menu discoverability",
+      "conflictType": null,
+      "status": "applied",
+      "notes": "Codex add — reverted by e820263. Net zero change."
+    },
+    {
+      "upstreamHash": "270b6c4",
+      "forkHash": "04b087f",
+      "subject": "feat: add project skill discovery to subagent spawn points",
+      "conflictType": "semantic",
+      "status": "applied",
+      "notes": "DU conflicts in plan-phase.md, agents. Project skills added to all agents."
+    },
+    {
+      "upstreamHash": "8fd7d0b",
+      "forkHash": "6de2e12",
+      "subject": "feat: add project CLAUDE.md discovery to subagent spawn points",
+      "conflictType": "semantic",
+      "status": "applied",
+      "notes": "DU conflict in plan-phase.md. CLAUDE.md discovery added to agents."
+    },
+    {
+      "upstreamHash": "bf2f571",
+      "forkHash": "03ef81d",
+      "subject": "fix: create backup before STATE.md regeneration",
+      "conflictType": "semantic",
+      "status": "applied",
+      "notes": "DU conflict in gsd-tools.cjs — added backup code to fork"
+    },
+    {
+      "upstreamHash": "3dcd3f0",
+      "forkHash": "e49375d",
+      "subject": "refactor: complete context-proxy orchestration flow",
+      "conflictType": "semantic",
+      "status": "applied",
+      "notes": "Large 39-file refactor. Removed parseIncludeFlag, added file paths to cmdInit*. Updated workflows to use files_to_read blocks."
+    },
+    {
+      "upstreamHash": "e820263",
+      "forkHash": "b6d166e",
+      "subject": "Revert: codex prompts install",
+      "conflictType": null,
+      "status": "applied",
+      "notes": "Codex revert — cancels db1d003"
+    },
+    {
+      "upstreamHash": "d55998b",
+      "forkHash": "9786766",
+      "subject": "Revert: codex Task() conversion",
+      "conflictType": null,
+      "status": "applied",
+      "notes": "Codex revert — cancels 87c3873. processAttribution fixed post-revert."
+    },
+    {
+      "upstreamHash": "748901f",
+      "forkHash": "b969d3b",
+      "subject": "docs: update changelog for v1.20.5",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Content conflict in footer links — kept fork URLs, added v1.20.5 link"
+    },
+    {
+      "upstreamHash": "3cf26d6",
+      "forkHash": "ecdb951",
+      "subject": "1.20.5",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Upstream version marker. Fork identity preserved. Included in branding fix commit."
     }
   ],
   "pending": [],
@@ -586,5 +762,9 @@
     "skipped": 2,
     "conflicts": 35,
     "brandingCorrections": 1
+  },
+  "meta": {
+    "lastSync": "2026-02-22",
+    "syncedThrough": "v1.20.5"
   }
 }

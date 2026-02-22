@@ -382,7 +382,15 @@ Orchestrator provides: phase number/name, description/goal, requirements, constr
 
 Load phase context using init command:
 ```bash
-INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init phase-op "${PHASE}")
+INIT_RAW=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init phase-op "${PHASE}")
+# Large payloads are written to a tmpfile — output starts with @file:/path
+if [[ "$INIT_RAW" == @file:* ]]; then
+  INIT_FILE="${INIT_RAW#@file:}"
+  INIT=$(cat "$INIT_FILE")
+  rm -f "$INIT_FILE"
+else
+  INIT="$INIT_RAW"
+fi
 ```
 
 Extract from init JSON: `phase_dir`, `padded_phase`, `phase_number`, `commit_docs`.

@@ -420,7 +420,15 @@ issue:
 
 Load phase operation context:
 ```bash
-INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init phase-op "${PHASE_ARG}")
+INIT_RAW=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init phase-op "${PHASE_ARG}")
+# Large payloads are written to a tmpfile — output starts with @file:/path
+if [[ "$INIT_RAW" == @file:* ]]; then
+  INIT_FILE="${INIT_RAW#@file:}"
+  INIT=$(cat "$INIT_FILE")
+  rm -f "$INIT_FILE"
+else
+  INIT="$INIT_RAW"
+fi
 ```
 
 Extract from init JSON: `phase_dir`, `phase_number`, `has_plans`, `plan_count`.

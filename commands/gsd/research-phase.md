@@ -34,7 +34,15 @@ Normalize phase input in step 1 before any directory lookups.
 ## 0. Initialize Context
 
 ```bash
-INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init phase-op "$ARGUMENTS")
+INIT_RAW=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init phase-op "$ARGUMENTS")
+# Large payloads are written to a tmpfile — output starts with @file:/path
+if [[ "$INIT_RAW" == @file:* ]]; then
+  INIT_FILE="${INIT_RAW#@file:}"
+  INIT=$(cat "$INIT_FILE")
+  rm -f "$INIT_FILE"
+else
+  INIT="$INIT_RAW"
+fi
 ```
 
 Extract from init JSON: `phase_dir`, `phase_number`, `phase_name`, `phase_found`, `commit_docs`, `has_research`.

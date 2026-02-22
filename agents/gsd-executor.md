@@ -90,7 +90,15 @@ When encountering an upscale trigger, think deeply and systematically about the 
 Load execution context:
 
 ```bash
-INIT=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init execute-phase "${PHASE}")
+INIT_RAW=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs init execute-phase "${PHASE}")
+# Large payloads are written to a tmpfile — output starts with @file:/path
+if [[ "$INIT_RAW" == @file:* ]]; then
+  INIT_FILE="${INIT_RAW#@file:}"
+  INIT=$(cat "$INIT_FILE")
+  rm -f "$INIT_FILE"
+else
+  INIT="$INIT_RAW"
+fi
 ```
 
 Extract from init JSON: `executor_model`, `commit_docs`, `phase_dir`, `plans`, `incomplete_plans`.

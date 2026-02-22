@@ -467,6 +467,22 @@ EOF
 Confirm: "Committed: docs(${PADDED_PHASE}): capture phase context"
 </step>
 
+<step name="update_state">
+Update STATE.md with session info:
+
+```bash
+node ~/.claude/get-stuff-done/bin/gsd-tools.js state record-session \
+  --stopped-at "Phase ${PHASE} context gathered" \
+  --resume-file "${phase_dir}/${PADDED_PHASE}-CONTEXT.md"
+```
+
+Commit STATE.md:
+
+```bash
+node ~/.claude/get-stuff-done/bin/gsd-tools.js commit "docs(state): record phase ${PHASE} context session" --files .planning/STATE.md
+```
+</step>
+
 </process>
 
 <success_criteria>
@@ -477,5 +493,6 @@ Confirm: "Committed: docs(${PADDED_PHASE}): capture phase context"
 - Scope creep redirected to deferred ideas
 - CONTEXT.md captures actual decisions, not vague vision
 - Deferred ideas preserved for future phases
+- STATE.md updated with session info
 - User knows next steps
 </success_criteria>

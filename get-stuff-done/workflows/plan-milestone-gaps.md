@@ -109,6 +109,23 @@ Update ROADMAP.md with all new gap closure phases:
 Update Progress table.
 </step>
 
+<step name="update_requirements_traceability">
+Update REQUIREMENTS.md traceability table (REQUIRED):
+
+For each REQ-ID assigned to a gap closure phase:
+- Update the Phase column to reflect the new gap closure phase
+- Reset Status to `Pending`
+
+Reset checked-off requirements the audit found unsatisfied:
+- Change `[x]` → `[ ]` for any requirement marked unsatisfied in the audit
+- Update coverage count at top of REQUIREMENTS.md
+
+```bash
+# Verify traceability table reflects gap closure assignments
+grep -c "Pending" .planning/REQUIREMENTS.md
+```
+</step>
+
 <step name="update_state">
 Update STATE.md:
 - Position updated to first gap closure phase
@@ -128,8 +145,7 @@ git check-ignore -q .planning 2>/dev/null && COMMIT_PLANNING_DOCS=false
 
 If commit_docs is true:
 ```bash
-git add .planning/phases/ .planning/ROADMAP.md .planning/STATE.md
-git commit -m "docs: add [N] gap closure phases from milestone audit"
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs commit "docs(roadmap): add gap closure phases {N}-{M}" --files .planning/ROADMAP.md .planning/REQUIREMENTS.md
 ```
 </step>
 
@@ -161,9 +177,12 @@ Created [N] gap closure phases.
 - [ ] Gaps extracted and categorized
 - [ ] Gaps grouped into logical phases
 - [ ] User approved phase grouping
-- [ ] Phase directories created
 - [ ] ROADMAP.md updated with gap closure phases
+- [ ] REQUIREMENTS.md traceability table updated with gap closure phase assignments
+- [ ] Unsatisfied requirement checkboxes reset (`[x]` → `[ ]`)
+- [ ] Coverage count updated in REQUIREMENTS.md
+- [ ] Phase directories created
 - [ ] STATE.md updated
-- [ ] Git commit (if commit_docs enabled)
+- [ ] Changes committed (includes REQUIREMENTS.md)
 - [ ] Next step displayed (/gsd:plan-phase --gaps)
 </success_criteria>

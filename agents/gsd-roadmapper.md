@@ -397,7 +397,7 @@ Use template from `~/.claude/get-stuff-done/templates/roadmap.md`.
 | 2. Name | 0/2 | Not started | - |
 ```
 
-Reference full template: `~/.claude/get-shit-done/templates/roadmap.md`
+Reference full template: `~/.claude/get-stuff-done/templates/roadmap.md`
 
 ## STATE.md Structure
 

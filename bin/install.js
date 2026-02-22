@@ -32,23 +32,29 @@ const hasLocal = args.includes('--local');
 const hasLink = args.includes('--link') || args.includes('-l');
 const hasOpencode = args.includes('--opencode');
 const hasClaude = args.includes('--claude');
+const hasGemini = args.includes('--gemini');
 const hasBoth = args.includes('--both');
+const hasAll = args.includes('--all');
 const hasUninstall = args.includes('--uninstall') || args.includes('-u');
 const isWindows = process.platform === 'win32';
 
 // Runtime selection - can be set by flags or interactive prompt
 let selectedRuntimes = [];
-if (hasBoth) {
+if (hasAll) {
+  selectedRuntimes = ['claude', 'opencode', 'gemini'];
+} else if (hasBoth) {
   selectedRuntimes = ['claude', 'opencode'];
-} else if (hasOpencode) {
-  selectedRuntimes = ['opencode'];
-} else if (hasClaude) {
-  selectedRuntimes = ['claude'];
+} else {
+  if (hasOpencode) selectedRuntimes.push('opencode');
+  if (hasClaude) selectedRuntimes.push('claude');
+  if (hasGemini) selectedRuntimes.push('gemini');
 }
 
 // Helper to get directory name for a runtime (used for local/project installs)
 function getDirName(runtime) {
-  return runtime === 'opencode' ? '.opencode' : '.claude';
+  if (runtime === 'opencode') return '.opencode';
+  if (runtime === 'gemini') return '.gemini';
+  return '.claude';
 }
 
 /**
@@ -90,6 +96,17 @@ function getGlobalDir(runtime, explicitDir = null) {
     return getOpencodeGlobalDir();
   }
   
+  if (runtime === 'gemini') {
+    // Gemini: --config-dir > GEMINI_CONFIG_DIR > ~/.gemini
+    if (explicitDir) {
+      return expandTilde(explicitDir);
+    }
+    if (process.env.GEMINI_CONFIG_DIR) {
+      return expandTilde(process.env.GEMINI_CONFIG_DIR);
+    }
+    return path.join(os.homedir(), '.gemini');
+  }
+
   // Claude Code: --config-dir > CLAUDE_CONFIG_DIR > ~/.claude
   if (explicitDir) {
     return expandTilde(explicitDir);
@@ -705,6 +722,47 @@ function convertClaudeToOpencodeFrontmatter(content) {
 }
 
 /**
+ * Convert Claude Code markdown command to Gemini TOML format
+ * @param {string} content - Markdown file content with YAML frontmatter
+ * @returns {string} - TOML content
+ */
+function convertClaudeToGeminiToml(content) {
+  // Check if content has frontmatter
+  if (!content.startsWith('---')) {
+    return `prompt = ${JSON.stringify(content)}\n`;
+  }
+
+  const endIndex = content.indexOf('---', 3);
+  if (endIndex === -1) {
+    return `prompt = ${JSON.stringify(content)}\n`;
+  }
+
+  const frontmatter = content.substring(3, endIndex).trim();
+  const body = content.substring(endIndex + 3).trim();
+
+  // Extract description from frontmatter
+  let description = '';
+  const lines = frontmatter.split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('description:')) {
+      description = trimmed.substring(12).trim();
+      break;
+    }
+  }
+
+  // Construct TOML
+  let toml = '';
+  if (description) {
+    toml += `description = ${JSON.stringify(description)}\n`;
+  }
+
+  toml += `prompt = ${JSON.stringify(body)}\n`;
+
+  return toml;
+}
+
+/**
  * Copy commands to a flat structure for OpenCode
  * OpenCode expects: command/gsd-help.md (invoked as /gsd-help)
  * Source structure: commands/gsd/help.md
@@ -861,6 +919,18 @@ function cleanupOrphanedHooks(settings) {
 
   if (cleaned) {
     console.log(`  ${green}✓${reset} Removed orphaned hook registrations`);
+  }
+
+  // Fix #330: Update statusLine if it points to old statusline.js path
+  if (settings.statusLine && settings.statusLine.command &&
+      settings.statusLine.command.includes('statusline.js') &&
+      !settings.statusLine.command.includes('gsd-statusline.js')) {
+    // Replace old path with new path
+    settings.statusLine.command = settings.statusLine.command.replace(
+      /statusline\.js/,
+      'gsd-statusline.js'
+    );
+    console.log(`  ${green}✓${reset} Updated statusline path (statusline.js → gsd-statusline.js)`);
   }
 
   return settings;
@@ -1096,7 +1166,7 @@ function configureOpencodePermissions() {
   const defaultConfigDir = path.join(os.homedir(), '.config', 'opencode');
   const gsdPath = opencodeConfigDir === defaultConfigDir
     ? '~/.config/opencode/get-stuff-done/*'
-    : `${opencodeConfigDir}/get-stuff-done/*`;
+    : `${opencodeConfigDir.replace(/\\/g, '/')}/get-stuff-done/*`;
   
   let modified = false;
 
@@ -1223,7 +1293,7 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
     // OpenCode: flat structure in command/ directory (--link not supported)
     const commandDir = path.join(targetDir, 'command');
     fs.mkdirSync(commandDir, { recursive: true });
-
+    
     // Copy commands/gsd/*.md as command/gsd-*.md (flatten structure)
     const gsdSrc = path.join(src, 'commands', 'gsd');
     copyFlattenedCommands(gsdSrc, commandDir, 'gsd', pathPrefix, runtime);
@@ -1237,7 +1307,7 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
     // Claude Code: nested structure in commands/ directory
     const commandsDir = path.join(targetDir, 'commands');
     fs.mkdirSync(commandsDir, { recursive: true });
-
+    
     const gsdSrc = path.join(src, 'commands', 'gsd');
     const gsdDest = path.join(commandsDir, 'gsd');
 
@@ -1578,9 +1648,9 @@ function handleStatusline(settings, isInteractive, callback) {
 
   // Auto-migrate renamed GSD statusline (hooks/statusline.js -> hooks/gsd-statusline.js)
   // Only migrate if it looks like GSD's statusline (node command with hooks/statusline.js path)
-  const existingCmd = settings.statusLine.command || '';
-  const isOldGsdStatusline = existingCmd.includes('node') &&
-    (existingCmd.includes('hooks/statusline.js') || existingCmd.includes('hooks\\statusline.js'));
+  const migrateCmd = settings.statusLine.command || '';
+  const isOldGsdStatusline = migrateCmd.includes('node') &&
+    (migrateCmd.includes('hooks/statusline.js') || migrateCmd.includes('hooks\\statusline.js'));
   if (isOldGsdStatusline) {
     console.log(`  ${green}✓${reset} Migrating statusline.js → gsd-statusline.js`);
     callback(true);
@@ -1596,7 +1666,7 @@ function handleStatusline(settings, isInteractive, callback) {
   }
 
   // Has existing, interactive mode - prompt user
-  const displayCmd = settings.statusLine.command || settings.statusLine.url || '(custom)';
+  const existingCmd = settings.statusLine.command || settings.statusLine.url || '(custom)';
 
   const rl = readline.createInterface({
     input: process.stdin,
@@ -1607,7 +1677,7 @@ function handleStatusline(settings, isInteractive, callback) {
   ${yellow}⚠${reset} Existing statusline detected
 
   Your current statusline:
-    ${dim}command: ${displayCmd}${reset}
+    ${dim}command: ${existingCmd}${reset}
 
   GSD includes a statusline showing:
     • Model name
@@ -1649,15 +1719,18 @@ function promptRuntime(callback) {
 
   ${cyan}1${reset}) Claude Code ${dim}(~/.claude)${reset}
   ${cyan}2${reset}) OpenCode    ${dim}(~/.config/opencode)${reset} - open source, free models
-  ${cyan}3${reset}) Both
+  ${cyan}3${reset}) Gemini      ${dim}(~/.gemini)${reset}
+  ${cyan}4${reset}) All
 `);
 
   rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
     answered = true;
     rl.close();
     const choice = answer.trim() || '1';
-    if (choice === '3') {
-      callback(['claude', 'opencode']);
+    if (choice === '4') {
+      callback(['claude', 'opencode', 'gemini']);
+    } else if (choice === '3') {
+      callback(['gemini']);
     } else if (choice === '2') {
       callback(['opencode']);
     } else {
@@ -1735,14 +1808,22 @@ async function installAllRuntimes(runtimes, isGlobal, isInteractive, useLinks = 
     results.push(result);
   }
 
-  // Handle statusline for Claude Code only (OpenCode uses themes)
+  // Handle statusline for Claude Code and Gemini (OpenCode uses themes)
   const claudeResult = results.find(r => r.runtime === 'claude');
+  const geminiResult = results.find(r => r.runtime === 'gemini');
 
-  if (claudeResult) {
-    handleStatusline(claudeResult.settings, isInteractive, (shouldInstallStatusline) => {
-      finishInstall(claudeResult.settingsPath, claudeResult.settings, claudeResult.statuslineCommand, shouldInstallStatusline, 'claude');
+  if (claudeResult || geminiResult) {
+    // Use whichever settings exist to check for existing statusline
+    const primaryResult = claudeResult || geminiResult;
 
-      // Finish OpenCode install if present
+    handleStatusline(primaryResult.settings, isInteractive, (shouldInstallStatusline) => {
+      if (claudeResult) {
+        finishInstall(claudeResult.settingsPath, claudeResult.settings, claudeResult.statuslineCommand, shouldInstallStatusline, 'claude');
+      }
+      if (geminiResult) {
+        finishInstall(geminiResult.settingsPath, geminiResult.settings, geminiResult.statuslineCommand, shouldInstallStatusline, 'gemini');
+      }
+
       const opencodeResult = results.find(r => r.runtime === 'opencode');
       if (opencodeResult) {
         finishInstall(opencodeResult.settingsPath, opencodeResult.settings, opencodeResult.statuslineCommand, false, 'opencode');

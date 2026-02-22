@@ -696,9 +696,6 @@ npx @chude/get-stuff-done@latest --opencode --local --uninstall
 npx @chude/get-stuff-done@latest --gemini --local --uninstall
 ```
 
-> [!IMPORTANT]
-> Always use `@latest` when uninstalling. If you installed an older version, npx may have cached it, and that version might not support the `--uninstall` flag.
-
 This removes all GSD commands, agents, hooks, and settings while preserving your other configurations.
 
 ---

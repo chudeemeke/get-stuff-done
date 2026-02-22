@@ -1505,6 +1505,16 @@ node ~/.claude/get-stuff-done/bin/gsd-tools.cjs roadmap update-plan-progress "${
 Counts PLAN vs SUMMARY files on disk. Updates progress table row with correct count and status (`In Progress` or `Complete` with date).
 </step>
 
+<step name="update_requirements">
+Mark completed requirements from the PLAN.md frontmatter `requirements:` field:
+
+```bash
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs requirements mark-complete ${REQ_IDS}
+```
+
+Extract requirement IDs from the plan's frontmatter (e.g., `requirements: [AUTH-01, AUTH-02]`). If no requirements field, skip.
+</step>
+
 <step name="git_commit_metadata">
 Commit execution metadata (SUMMARY + STATE + ROADMAP):
 
@@ -1529,17 +1539,18 @@ git add .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md
 git add .planning/STATE.md
 ```
 
-**2. Stage roadmap:**
+**2. Stage roadmap and requirements:**
 
 ```bash
 git add .planning/ROADMAP.md
+git add .planning/REQUIREMENTS.md
 ```
 
 **3. Verify staging:**
 
 ```bash
 git status
-# Should show only execution artifacts (SUMMARY, STATE, ROADMAP), no code files
+# Should show only execution artifacts (SUMMARY, STATE, ROADMAP, REQUIREMENTS), no code files
 ```
 
 **4. Commit metadata:**

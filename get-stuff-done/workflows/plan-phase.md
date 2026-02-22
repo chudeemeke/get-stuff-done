@@ -99,6 +99,18 @@ Extract:
 - Phase scope from CONTEXT.md (if exists, from /gsd:discuss-phase)
 - Requirements relevant to this phase
 - Project constraints and decisions
+
+**If no CONTEXT.md found for this phase:**
+
+Use AskUserQuestion:
+- header: "No context"
+- question: "No CONTEXT.md found for Phase {X}. Plans will use research and requirements only — your design preferences won't be included. Continue or capture context first?"
+- options:
+  - "Continue without context" — Plan using research + requirements only
+  - "Run discuss-phase first" — Capture design decisions before planning
+
+If "Continue without context": Proceed to check_research.
+If "Run discuss-phase first": Display `/gsd:discuss-phase {X}` and exit workflow.
 </step>
 
 <step name="check_research">

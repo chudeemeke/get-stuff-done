@@ -126,9 +126,13 @@ Execute each wave in sequence. Within a wave: parallel if `PARALLELIZATION=true`
    @~/.claude/get-shit-done/references/tdd.md
    </execution_context>
 
-   <context>
-   Plan:
-   {plan_content}
+       <files_to_read>
+       Read these files at execution start using the Read tool:
+       - Plan: {phase_dir}/{plan_file}
+       - State: .planning/STATE.md
+       - Config: .planning/config.json (if exists)
+       - Project skills: .agents/skills/ (if exists — list skills, read SKILL.md for each, follow relevant rules during implementation)
+       </files_to_read>
 
        <success_criteria>
        - [ ] All tasks executed

@@ -217,6 +217,8 @@ Task(
 **Requirements:**
 {requirements_content}
 
+**Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, research should account for project skill patterns
+
 </research_context>
 
 Research the domain, existing codebase patterns, and technical approaches needed for this phase. Produce RESEARCH.md.
@@ -286,6 +288,8 @@ Task(
 **Requirements:**
 {requirements_content}
 
+**Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, plans should account for project skill rules
+
 {if gaps mode:}
 **Verification Gaps:**
 {verification_content}
@@ -354,6 +358,8 @@ Task(
 **Phase requirement IDs (MUST ALL be covered):** {phase_req_ids}
 **Requirements:**
 {requirements_content}
+
+**Project skills:** Check .agents/skills/ directory (if exists) — verify plans account for project skill rules
 
 </verification_context>
 

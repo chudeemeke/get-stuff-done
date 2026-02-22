@@ -729,3 +729,95 @@ describe('dist: gsd-tools bundled (regression guard for GAP-1)', () => {
     }
   });
 });
+
+describe('phase complete command', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('updates REQUIREMENTS.md traceability when phase completes', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap\n\n- [ ] Phase 1: Auth\n\n### Phase 1: Auth\n**Goal:** User authentication\n**Requirements:** AUTH-01, AUTH-02\n**Plans:** 1 plans\n\n### Phase 2: API\n**Goal:** Build API\n**Requirements:** API-01\n`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'REQUIREMENTS.md'),
+      `# Requirements\n\n## v1 Requirements\n\n### Authentication\n\n- [ ] **AUTH-01**: User can sign up with email\n- [ ] **AUTH-02**: User can log in\n- [ ] **AUTH-03**: User can reset password\n\n### API\n\n- [ ] **API-01**: REST endpoints\n\n## Traceability\n\n| Requirement | Phase | Status |\n|-------------|-------|--------|\n| AUTH-01 | Phase 1 | Pending |\n| AUTH-02 | Phase 1 | Pending |\n| AUTH-03 | Phase 2 | Pending |\n| API-01 | Phase 2 | Pending |\n`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# State\n\n**Current Phase:** 01\n**Current Phase Name:** Auth\n**Status:** In progress\n**Current Plan:** 01-01\n**Last Activity:** 2025-01-01\n**Last Activity Description:** Working\n`
+    );
+
+    const p1 = path.join(tmpDir, '.planning', 'phases', '01-auth');
+    fs.mkdirSync(p1, { recursive: true });
+    fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+    fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-api'), { recursive: true });
+
+    const result = runGsdTools('phase complete 1', tmpDir);
+    expect(result.success).toBe(true);
+
+    const req = fs.readFileSync(path.join(tmpDir, '.planning', 'REQUIREMENTS.md'), 'utf-8');
+    expect(req).toContain('- [x] **AUTH-01**');
+    expect(req).toContain('- [x] **AUTH-02**');
+    expect(req).toContain('- [ ] **AUTH-03**');
+    expect(req).toContain('- [ ] **API-01**');
+    expect(req).toContain('| AUTH-01 | Phase 1 | Complete |');
+    expect(req).toContain('| AUTH-02 | Phase 1 | Complete |');
+    expect(req).toContain('| AUTH-03 | Phase 2 | Pending |');
+    expect(req).toContain('| API-01 | Phase 2 | Pending |');
+  });
+
+  test('handles phase with no requirements mapping', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap\n\n- [ ] Phase 1: Setup\n\n### Phase 1: Setup\n**Goal:** Project setup (no requirements)\n**Plans:** 1 plans\n`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'REQUIREMENTS.md'),
+      `# Requirements\n\n## v1 Requirements\n\n- [ ] **REQ-01**: Some requirement\n\n## Traceability\n\n| Requirement | Phase | Status |\n|-------------|-------|--------|\n| REQ-01 | Phase 2 | Pending |\n`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# State\n\n**Current Phase:** 01\n**Status:** In progress\n**Current Plan:** 01-01\n**Last Activity:** 2025-01-01\n**Last Activity Description:** Working\n`
+    );
+
+    const p1 = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    fs.mkdirSync(p1, { recursive: true });
+    fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+
+    const result = runGsdTools('phase complete 1', tmpDir);
+    expect(result.success).toBe(true);
+
+    const req = fs.readFileSync(path.join(tmpDir, '.planning', 'REQUIREMENTS.md'), 'utf-8');
+    expect(req).toContain('- [ ] **REQ-01**');
+    expect(req).toContain('| REQ-01 | Phase 2 | Pending |');
+  });
+
+  test('handles missing REQUIREMENTS.md gracefully', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap\n\n- [ ] Phase 1: Foundation\n**Requirements:** REQ-01\n\n### Phase 1: Foundation\n**Goal:** Setup\n`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# State\n\n**Current Phase:** 01\n**Status:** In progress\n**Current Plan:** 01-01\n**Last Activity:** 2025-01-01\n**Last Activity Description:** Working\n`
+    );
+
+    const p1 = path.join(tmpDir, '.planning', 'phases', '01-foundation');
+    fs.mkdirSync(p1, { recursive: true });
+    fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+
+    const result = runGsdTools('phase complete 1', tmpDir);
+    expect(result.success).toBe(true);
+  });
+});

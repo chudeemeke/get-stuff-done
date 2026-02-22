@@ -8,7 +8,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
-const TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'gsd-tools.js');
+const TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'gsd-tools.cjs');
 const DIST_TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'dist', 'gsd-tools.js');
 
 // Auto-build dist if missing (CI support after fresh checkout)

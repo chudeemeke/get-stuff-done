@@ -60,6 +60,9 @@ Per-project default: Set in `.planning/config.json`:
 
 ## Design Rationale
 
+**Why `inherit` instead of passing `opus` directly?**
+Claude Code's `"opus"` alias maps to a specific model version. Organizations may block older opus versions while allowing newer ones. GSD returns `"inherit"` for opus-tier agents, causing them to use whatever opus version the user has configured in their session. This avoids version conflicts and silent fallbacks to Sonnet.
+
 **Why Opus for gsd-planner?**
 Planning involves architecture decisions, goal decomposition, and task design. This is where model quality has the highest impact.
 

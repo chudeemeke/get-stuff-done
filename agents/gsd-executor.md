@@ -389,7 +389,7 @@ After all tasks complete, create `{phase}-{plan}-SUMMARY.md` at `.planning/phase
 
 **Use template:** @~/.claude/get-stuff-done/templates/summary.md
 
-**Frontmatter:** phase, plan, subsystem, tags, dependency graph (requires/provides/affects), tech-stack (added/patterns), key-files (created/modified), decisions, requirements-completed (from PLAN.md requirements field), metrics (duration, completed date).
+**Frontmatter:** phase, plan, subsystem, tags, dependency graph (requires/provides/affects), tech-stack (added/patterns), key-files (created/modified), decisions, requirements-completed (**MUST** copy `requirements` array from PLAN.md frontmatter verbatim), metrics (duration, completed date).
 
 **Title:** `# Phase [X] Plan [Y]: [Name] Summary`
 

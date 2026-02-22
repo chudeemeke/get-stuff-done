@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 18 of 22 (Upstream Sync Execution)
-Plan: 2 of TBD in current phase (18-01, 18-02 complete)
+Plan: 3 of TBD in current phase (18-01, 18-02, 18-03 complete)
 Status: In progress
-Last activity: 2026-02-22 -- Batches 7-8 sync (v1.19.0..v1.19.2, 28 commits) complete
+Last activity: 2026-02-22 -- Batches 9-11 sync (v1.19.2..v1.20.5, 37 commits) complete — fork current through v1.20.5
 
-Progress: [###...........] 20% (v0.3.0: 1/5 phases partial — Phase 18 in progress)
+Progress: [####..........] 25% (v0.3.0: 1/5 phases partial — Phase 18 in progress)
 
 ## Performance Metrics
 
@@ -29,14 +29,14 @@ Progress: [###...........] 20% (v0.3.0: 1/5 phases partial — Phase 18 in progr
 - Total execution time: 4.45 hours
 
 **v0.3.0 Velocity (in progress):**
-- Plans completed: 2 (18-01, 18-02)
-- Average duration: ~147 minutes
-- Total execution time: ~4.57 hours
+- Plans completed: 3 (18-01, 18-02, 18-03)
+- Average duration: ~127 minutes
+- Total execution time: ~6.34 hours
 
 **Cumulative:**
 - 2 milestones shipped
-- 46 plans completed across 18 phases
-- ~10.40 hours total execution time
+- 47 plans completed across 18 phases
+- ~12.17 hours total execution time
 
 ## Accumulated Context
 
@@ -59,13 +59,20 @@ v0.3.0 decisions (Phase 18 Batches 7-8):
 - Test TOOLS_PATH fix treated as Rule 1 auto-fix: 31 failures from gsd-tools.js -> .cjs rename, unblocked by updating test path
 - Sync manifest protectedPaths updated: gsd-tools.js entry replaced with gsd-tools.cjs
 
+v0.3.0 decisions (Phase 18 Batches 9-11):
+- Context-proxy pattern adopted: init functions return file paths instead of file contents (gsd-tools.cjs cmdInit* functions)
+- Requirements tracking chain adopted: PHASE_REQ_IDS flow through researcher->planner->checker->executor->verifier
+- 3-source cross-reference for milestone requirements (VERIFICATION.md + SUMMARY + REQUIREMENTS.md traceability)
+- processAttribution call removed from install.js: incomplete Codex revert auto-fix (Rule 1)
+- Codex add+revert pair (4 commits) cancelled cleanly; net zero change to fork
+
 ### Pending Todos
 
 None.
 
 ### Blockers/Concerns
 
-- 185 upstream commits total, Batches 6-8 (58 commits) complete -- 127 remain across Batches 9-12
+- 185 upstream commits total, Batches 6-11 (95 commits) complete -- ~90 remain across Batch 12
 - Upstream split gsd-tools.js into 11 modules (Batch 12) -- fork's esbuild pipeline must be migrated
 - ESLint warnings: 95 security warnings in gsd-tools.cjs (upstream code, non-blocking)
 - Upstream Issue #491: gsd-verifier missing Write tool -- RESOLVED in Batch 6 (fork preserved fix)
@@ -73,11 +80,11 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Status: 18-02 complete, branch sync/v1.20.5 has Batches 6-8 applied (v1.19.2)
-Stopped at: Completed 18-02-PLAN.md (Batches 7-8 cherry-picks, gsd-tools rename, branding, tests, SUMMARY)
+Status: 18-03 complete, branch sync/v1.20.5 current through v1.20.5 (Batches 9-11 applied)
+Stopped at: Completed 18-03-PLAN.md (Batches 9-11 cherry-picks, requirements tracking, context-proxy, SUMMARY)
 Resume file: None
 
-**Next step:** Execute Plan 18-03 (Batch 9: v1.19.2..next upstream cherry-picks)
+**Next step:** Execute Plan 18-04 (Batch 12: gsd-tools module split migration)
 
 ---
-*Updated: 2026-02-22*
+*Updated: 2026-02-22 (Plan 18-03 complete)*

@@ -1709,6 +1709,8 @@ function cmdInitQuick(cwd, description, raw) {
     // Models
     planner_model: resolveModelInternal(cwd, 'gsd-planner'),
     executor_model: resolveModelInternal(cwd, 'gsd-executor'),
+    checker_model: resolveModelInternal(cwd, 'gsd-plan-checker'),
+    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
 
     // Config
     commit_docs: config.commit_docs,

@@ -110,10 +110,14 @@ Execute each wave in sequence. Within a wave: parallel if `PARALLELIZATION=true`
    Each agent prompt:
 
    ```
-   <objective>
-   Execute plan {plan_number} of phase {phase_number}-{phase_name}.
-   Commit each task atomically. Create SUMMARY.md. Update STATE.md.
-   </objective>
+   Task(
+     subagent_type="gsd-executor",
+     model="{executor_model}",
+     prompt="
+       <objective>
+       Execute plan {plan_number} of phase {phase_number}-{phase_name}.
+       Commit each task atomically. Create SUMMARY.md. Update STATE.md and ROADMAP.md.
+       </objective>
 
    <execution_context>
    @~/.claude/get-shit-done/workflows/execute-plan.md
@@ -126,19 +130,15 @@ Execute each wave in sequence. Within a wave: parallel if `PARALLELIZATION=true`
    Plan:
    {plan_content}
 
-   Project state:
-   {state_content}
-
-   Config (if exists):
-   {config_content}
-   </context>
-
-   <success_criteria>
-   - [ ] All tasks executed
-   - [ ] Each task committed individually
-   - [ ] SUMMARY.md created in plan directory
-   - [ ] STATE.md updated with position and decisions
-   </success_criteria>
+       <success_criteria>
+       - [ ] All tasks executed
+       - [ ] Each task committed individually
+       - [ ] SUMMARY.md created in plan directory
+       - [ ] STATE.md updated with position and decisions
+       - [ ] ROADMAP.md updated with plan progress (via `roadmap update-plan-progress`)
+       </success_criteria>
+     "
+   )
    ```
 
 3. **Wait for all agents in wave to complete.**

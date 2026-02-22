@@ -93,6 +93,16 @@ Question 4:
 **Round 2 (if needed):**
 
 Question 5:
+- header: "Auto"
+- question: "Auto-advance pipeline? (discuss → plan → execute automatically)"
+- multiSelect: false
+- options:
+  - label: "No (Recommended)"
+    description: "Manual /clear + paste between stages"
+  - label: "Yes"
+    description: "Chain stages via Task() subagents (same isolation)"
+
+Question 6:
 - header: "Branching"
 - question: "Create git branch per phase?"
 - multiSelect: false
@@ -111,6 +121,7 @@ Map answers to config keys:
 - Research "Enabled" -> skip_research: false, "Disabled" -> skip_research: true
 - Plan Check "Enabled" -> skip_plan_check: false, "Disabled" -> skip_plan_check: true
 - Verification "Enabled" -> skip_verification: false, "Disabled" -> skip_verification: true
+- Auto "Yes" -> workflow.auto_advance: true, "No" -> workflow.auto_advance: false
 - Branching "Yes" -> branch_per_phase: true, "No" -> branch_per_phase: false
 
 Write updated config.json preserving any extra keys not in this prompt.

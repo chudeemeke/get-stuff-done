@@ -15,9 +15,9 @@ allowed-tools:
 <objective>
 Validate built features through conversational testing with persistent state.
 
-Purpose: Confirm what Claude built actually works from user's perspective. One test at a time, plain text responses, no interrogation. When issues are found, record them in UAT.md and route user to /gsd:plan-phase --gaps in a fresh context.
+Purpose: Confirm what Claude built actually works from user's perspective. One test at a time, plain text responses, no interrogation. When issues are found, automatically diagnose, plan fixes, and prepare for execution.
 
-Output: {phase}-UAT.md tracking all test results. If issues found: structured gaps ready for /gsd:plan-phase --gaps
+Output: {phase}-UAT.md tracking all test results. If issues found: diagnosed gaps, verified fix plans ready for /gsd:execute-phase
 </objective>
 
 <execution_context>

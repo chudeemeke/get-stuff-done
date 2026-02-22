@@ -84,28 +84,46 @@ Collect all tech debt items.
 </step>
 
 <step name="check_requirements_coverage">
-Cross-reference REQUIREMENTS.md against completed work:
+MUST cross-reference three independent sources for each requirement:
 
+### 5a. Parse REQUIREMENTS.md Traceability Table
+
+Extract all REQ-IDs mapped to milestone phases from the traceability table:
+- Requirement ID, description, assigned phase, current status, checked-off state (`[x]` vs `[ ]`)
+
+### 5b. Parse Phase VERIFICATION.md Requirements Tables
+
+For each phase's VERIFICATION.md, extract the expanded requirements table:
+- Requirement | Source Plan | Description | Status | Evidence
+- Map each entry back to its REQ-ID
+
+### 5c. Extract SUMMARY.md Frontmatter Cross-Check
+
+For each phase's SUMMARY.md, extract `requirements-completed` from YAML frontmatter:
 ```bash
-cat .planning/REQUIREMENTS.md
+for summary in .planning/phases/*-*/*-SUMMARY.md; do
+  node ~/.claude/get-stuff-done/bin/gsd-tools.cjs summary-extract "$summary" --fields requirements_completed | jq -r '.requirements_completed'
+done
 ```
 
-For each requirement:
-- Find which phase(s) address it
-- Check if those phases passed verification
-- Mark: Covered / Partial / Missing
+### 5d. Status Determination Matrix
 
-```
-### Requirements Coverage
+For each REQ-ID, determine status using all three sources:
 
-| ID | Requirement | Phase(s) | Status |
-|----|-------------|----------|--------|
-| REQ-001 | [desc] | 1, 2 | Covered |
-| REQ-002 | [desc] | 3 | Partial |
-| REQ-003 | [desc] | - | Missing |
+| VERIFICATION.md Status | SUMMARY Frontmatter | REQUIREMENTS.md | → Final Status |
+|------------------------|---------------------|-----------------|----------------|
+| passed                 | listed              | `[x]`           | **satisfied**  |
+| passed                 | listed              | `[ ]`           | **satisfied** (update checkbox) |
+| passed                 | missing             | any             | **partial** (verify manually) |
+| gaps_found             | any                 | any             | **unsatisfied** |
+| missing                | listed              | any             | **partial** (verification gap) |
+| missing                | missing             | any             | **unsatisfied** |
 
-Coverage: [X]/[Y] requirements fully covered ([Z]%)
-```
+### 5e. FAIL Gate and Orphan Detection
+
+**REQUIRED:** Any `unsatisfied` requirement MUST force `gaps_found` status on the milestone audit.
+
+**Orphan detection:** Requirements present in REQUIREMENTS.md traceability table but absent from ALL phase VERIFICATION.md files MUST be flagged as orphaned. Orphaned requirements are treated as `unsatisfied` — they were assigned but never verified by any phase.
 </step>
 
 <step name="run_integration_check">
@@ -120,6 +138,8 @@ for dir in .planning/phases/*/; do
 done
 ```
 
+Extract `MILESTONE_REQ_IDS` from REQUIREMENTS.md traceability table — all REQ-IDs assigned to phases in this milestone.
+
 ```
 Task(
   prompt="""
@@ -130,6 +150,11 @@ Task(
 
 **Phase Summaries:**
 {summaries}
+
+**Milestone Requirements:**
+{MILESTONE_REQ_IDS — list each REQ-ID with description and assigned phase}
+
+MUST map each integration finding to affected requirement IDs where applicable.
 
 **Requirements:**
 {requirements_content}
@@ -247,10 +272,14 @@ Next: /gsd:plan-milestone-gaps
 <success_criteria>
 - [ ] Milestone scope determined (which phases)
 - [ ] All phase VERIFICATION.md files read
-- [ ] Phase results aggregated
-- [ ] Requirements coverage calculated
-- [ ] Integration checker spawned and results collected
-- [ ] MILESTONE-AUDIT.md written
+- [ ] SUMMARY.md `requirements-completed` frontmatter extracted for each phase
+- [ ] REQUIREMENTS.md traceability table parsed for all milestone REQ-IDs
+- [ ] 3-source cross-reference completed (VERIFICATION + SUMMARY + traceability)
+- [ ] Orphaned requirements detected (in traceability but absent from all VERIFICATIONs)
+- [ ] Tech debt and deferred gaps aggregated
+- [ ] Integration checker spawned with milestone requirement IDs
+- [ ] MILESTONE-AUDIT.md created with structured requirement gap objects
+- [ ] FAIL gate enforced — any unsatisfied requirement forces gaps_found status
 - [ ] Git commit (if commit_docs enabled)
 - [ ] Clear pass/fail status with next steps
 </success_criteria>

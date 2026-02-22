@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
-updated: 2026-02-20
-entries: 13
+updated: 2026-02-22
+entries: 23
 ---
 
 - finding: "hooks/dist/ is gitignored (decision 09-02 BUILD-001). When committing esbuild output, only commit scripts/build-hooks.js -- never try to git add hooks/dist/. The dist files are generated artifacts."
@@ -93,3 +93,45 @@ entries: 13
   confidence: HIGH
   phase: "17-agent-teams-wiring"
   date: "2026-02-20"
+
+- finding: "For upstream cherry-pick syncs, use 'git checkout HEAD -- <file>' to restore protected files that a revert/conflict wants to delete or modify. Do this BEFORE staging other changes for the commit. The checkout restores the working tree file and removes it from the conflict state."
+  source: "Phase 18, Plan 01, Task 2 (cherry-pick 9d815d3 mega-revert)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "When a mega-revert commit has 20+ files in conflict, triage each file: (1) protected files -> git checkout HEAD -- file, (2) files where upstream wins -> git checkout MERGE_HEAD -- file, (3) files needing selective merge -> resolve manually. For each category, process all files first, then review git diff --staged before committing."
+  source: "Phase 18, Plan 01, Task 2 (cherry-pick 9d815d3)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "When upstream and fork have different statusline/UI rendering architectures (upstream uses raw ANSI codes, fork uses theme system), adopt upstream's detection logic but replace rendering with the fork's theme API calls. This preserves fork architecture while gaining upstream's feature content."
+  source: "Phase 18, Plan 01, Task 2 (cherry-pick 1bc6d00)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "DU conflict pattern for upstream cherry-picks: when upstream deletes get-shit-done/bin/gsd-tools.cjs but fork has get-stuff-done/bin/gsd-tools.cjs, resolve via: git rm --cached get-shit-done/bin/gsd-tools.cjs && rm -f get-shit-done/bin/gsd-tools.cjs && rmdir get-shit-done/bin && rmdir get-shit-done. Then apply diff changes to fork's get-stuff-done/bin/gsd-tools.cjs manually."
+  source: "Phase 18, Plan 02, Task 2 (all Batch 8 DU conflicts)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "After a mass file rename (e.g., gsd-tools.js -> gsd-tools.cjs), ALWAYS update test files that reference the old path. Test helper TOOLS_PATH variables are easily missed. Run bun test immediately after the rename commit to catch failures early."
+  source: "Phase 18, Plan 02, Task 2 deviation (ccb85ff)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "When upstream adds a new command file (e.g., commands/gsd/cleanup.md) that references upstream workflow paths, always check the @-references in the file for upstream branding (get-shit-done). Also verify the target workflow file exists at the fork-branded path. If not, create it with fork-branded content."
+  source: "Phase 18, Plan 02, Task 2 deviation (a12f20b)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"
+
+- finding: "CHANGELOG.md upstream cherry-picks often have non-standard conflict separators when the HEAD block is very long (100+ lines). The '=======' separator may have CRLF where script expects LF. Use regex detection: content.match(/^=======\\r?\\n/m) to find the separator reliably, then slice content at that position."
+  source: "Phase 18, Plan 02, Task 2 (00a13f5 cherry-pick conflict)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-22"

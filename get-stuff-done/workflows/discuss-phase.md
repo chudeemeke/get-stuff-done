@@ -223,9 +223,10 @@ We'll clarify HOW to implement this.
 **After selection, present specific gray areas using AskUserQuestion (multiSelect: true):**
 - header: "Discuss"
 - question: "Which specific areas do you want to discuss for [phase name]?"
-- options: Generate 3-4 phase-specific gray areas, each formatted as:
-  - label: "[Specific area]" — concrete, not generic (1-5 words)
-  - description: [1-2 questions this covers]
+- options: Generate 3-4 phase-specific gray areas, each with:
+  - "[Specific area]" (label) — concrete, not generic
+  - [1-2 questions this covers] (description)
+  - **Highlight the recommended choice with brief explanation why**
 
 **Do NOT include a "skip" or "you decide" option.** User ran this command to discuss — give them real choices.
 
@@ -284,15 +285,11 @@ Ask 4 questions per area before offering to continue or move on. Each answer oft
    Let's talk about [Area].
    ```
 
-2. **Ask up to 4 questions using AskUserQuestion (batch related questions):**
-   - header: "[Abbreviated area name]" (max 12 chars)
+2. **Ask 4 questions using AskUserQuestion:**
+   - header: "[Area]" (max 12 chars — abbreviate if needed)
    - question: Specific decision for this area
-   - multiSelect: false
-   - options: 2-4 concrete choices with descriptions
-     - label: "[Choice]" (1-5 words)
-     - description: "[What this means]"
+   - options: 2-3 concrete choices (AskUserQuestion adds "Other" automatically), with the recommended choice highlighted and brief explanation why
    - Include "You decide" as an option when reasonable — captures Claude discretion
-   - AskUserQuestion automatically adds "Other" option
 
 3. **After 4 questions, check using AskUserQuestion:**
    - header: "[Area]" (abbreviated, max 12 chars)
@@ -308,17 +305,17 @@ Ask 4 questions per area before offering to continue or move on. Each answer oft
    If "Next area" → proceed to next selected area
    If "Other" (free text) → interpret intent: continuation phrases ("chat more", "keep going", "yes", "more") map to "More questions"; advancement phrases ("done", "move on", "next", "skip") map to "Next area". If ambiguous, ask: "Continue with more questions about [area], or move to the next area?"
 
-4. **After all areas complete, use AskUserQuestion:**
-   - header: "Finalize"
-   - question: "Ready to finalize these decisions for planning?"
-   - multiSelect: false
-   - options:
-     - label: "Finalize (Recommended)"
-       description: "Lock decisions, proceed to research and planning"
-     - label: "Revise decisions"
-       description: "Go back and change specific decisions"
-     - label: "Add more areas"
-       description: "Discuss additional gray areas not yet covered"
+4. **After all initially-selected areas complete:**
+   - Summarize what was captured from the discussion so far
+   - AskUserQuestion:
+     - header: "Done"
+     - question: "We've discussed [list areas]. Which gray areas remain unclear?"
+     - options: "Explore more gray areas" / "I'm ready for context"
+   - If "Explore more gray areas":
+     - Identify 2-4 additional gray areas based on what was learned
+     - Return to present_gray_areas logic with these new areas
+     - Loop: discuss new areas, then prompt again
+   - If "I'm ready for context": Proceed to write_context
 
 **Question design:**
 - Options should be concrete, not abstract ("Cards" not "Option A")

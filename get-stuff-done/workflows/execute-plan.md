@@ -1497,7 +1497,7 @@ ROADMAP_FILE=".planning/ROADMAP.md"
 ```
 
 ```bash
-node ~/.claude/get-stuff-done/bin/gsd-tools.js roadmap update-plan-progress "${PHASE}"
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs roadmap update-plan-progress "${PHASE}"
 ```
 Counts PLAN vs SUMMARY files on disk. Updates progress table row with correct count and status (`In Progress` or `Complete` with date).
 </step>

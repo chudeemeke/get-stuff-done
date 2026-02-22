@@ -1,5 +1,5 @@
 <purpose>
-Interactive configuration of GSD workflow toggles and model profile. Presents current settings, allows modification via structured questions, writes updated config.
+Interactive configuration of GSD workflow toggles and model profile. Presents current settings, allows modification via structured questions, writes updated config. Optionally saves settings as global defaults (~/.gsd/defaults.json) for future projects.
 </purpose>
 
 <process>
@@ -127,6 +127,46 @@ Map answers to config keys:
 Write updated config.json preserving any extra keys not in this prompt.
 </step>
 
+<step name="save_as_defaults">
+Ask whether to save these settings as global defaults for future projects:
+
+```
+AskUserQuestion([
+  {
+    question: "Save these as default settings for all new projects?",
+    header: "Defaults",
+    multiSelect: false,
+    options: [
+      { label: "Yes", description: "New projects start with these settings (saved to ~/.gsd/defaults.json)" },
+      { label: "No", description: "Only apply to this project" }
+    ]
+  }
+])
+```
+
+If "Yes": write the same config object (minus project-specific fields like `brave_search`) to `~/.gsd/defaults.json`:
+
+```bash
+mkdir -p ~/.gsd
+```
+
+Write `~/.gsd/defaults.json` with:
+```json
+{
+  "model_profile": "<current>",
+  "commit_docs": "<current>",
+  "parallelization": "<current>",
+  "branching_strategy": "<current>",
+  "workflow": {
+    "research": "<current>",
+    "plan_check": "<current>",
+    "verifier": "<current>",
+    "auto_advance": "<current>"
+  }
+}
+```
+</step>
+
 <step name="confirm">
 Display updated settings:
 
@@ -141,6 +181,7 @@ Settings updated.
 | Phase Verification | [enabled/disabled] |
 | Commit Planning Docs | [yes/no] |
 | Branch Per Phase | [yes/no] |
+| Saved as Defaults | [yes/no] |
 
 Quick commands:
   /gsd:set-profile [quality|balanced|budget]  -- change profile only

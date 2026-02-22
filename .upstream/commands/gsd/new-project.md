@@ -182,6 +182,26 @@ mkdir -p .planning
 
 ## 5. Workflow Preferences
 
+**Check for global defaults** at `~/.gsd/defaults.json`. If the file exists, offer to use saved defaults:
+
+```
+AskUserQuestion([
+  {
+    question: "Use your saved default settings? (from ~/.gsd/defaults.json)",
+    header: "Defaults",
+    multiSelect: false,
+    options: [
+      { label: "Yes (Recommended)", description: "Use saved defaults, skip settings questions" },
+      { label: "No", description: "Configure settings manually" }
+    ]
+  }
+])
+```
+
+If "Yes": read `~/.gsd/defaults.json`, use those values for config.json, and skip directly to **Commit config.json** below.
+
+If "No" or `~/.gsd/defaults.json` doesn't exist: proceed with the questions below.
+
 **Round 1 — Core workflow settings (4 questions):**
 
 ```

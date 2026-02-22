@@ -182,7 +182,7 @@ console.log(banner);
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx get-shit-done-cc [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}-u, --uninstall${reset}           Uninstall GSD (remove all GSD files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx get-shit-done-cc\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx get-shit-done-cc --claude --global\n\n    ${dim}# Install for Gemini globally${reset}\n    npx get-shit-done-cc --gemini --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx get-shit-done-cc --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx get-shit-done-cc --claude --global --config-dir ~/.claude-bc\n\n    ${dim}# Install to current project only${reset}\n    npx get-shit-done-cc --claude --local\n\n    ${dim}# Uninstall GSD from Claude Code globally${reset}\n    npx get-shit-done-cc --claude --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR environment variables.\n`);
+  console.log(`  ${yellow}Usage:${reset} npx @chude/get-stuff-done [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}-u, --uninstall${reset}           Uninstall GSD (remove all GSD files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx @chude/get-stuff-done\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx @chude/get-stuff-done --claude --global\n\n    ${dim}# Install for Gemini globally${reset}\n    npx @chude/get-stuff-done --gemini --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx @chude/get-stuff-done --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx @chude/get-stuff-done --claude --global --config-dir ~/.claude-bc\n\n    ${dim}# Install to current project only${reset}\n    npx @chude/get-stuff-done --claude --local\n\n    ${dim}# Uninstall GSD from Claude Code globally${reset}\n    npx @chude/get-stuff-done --claude --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR environment variables.\n`);
   process.exit(0);
 }
 
@@ -1503,35 +1503,11 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
   if (fs.existsSync(agentsSrc)) {
     const agentsDest = path.join(targetDir, 'agents');
 
-    // Remove old GSD agents (gsd-*.md) before copying new ones
-    if (fs.existsSync(agentsDest)) {
-      for (const file of fs.readdirSync(agentsDest)) {
-        if (file.startsWith('gsd-') && file.endsWith('.md')) {
-          fs.unlinkSync(path.join(agentsDest, file));
-        }
-      }
-    }
-
-    // Copy new agents
-    const agentEntries = fs.readdirSync(agentsSrc, { withFileTypes: true });
-    for (const entry of agentEntries) {
-      if (entry.isFile() && entry.name.endsWith('.md')) {
-        let content = fs.readFileSync(path.join(agentsSrc, entry.name), 'utf8');
-        // Always replace ~/.claude/ as it is the source of truth in the repo
-        const dirRegex = /~\/\.claude\//g;
-        content = content.replace(dirRegex, pathPrefix);
-        content = processAttribution(content, getCommitAttribution(runtime));
-        // Convert frontmatter for runtime compatibility
-        if (isOpencode) {
-          content = convertClaudeToOpencodeFrontmatter(content);
-        } else if (isGemini) {
-          content = convertClaudeToGeminiAgent(content);
-        }
-        fs.writeFileSync(path.join(agentsDest, entry.name), content);
-      }
-    }
-    if (verifyInstalled(agentsDest, 'agents')) {
-      console.log(`  ${green}✓${reset} Installed agents`);
+    if (useLinks) {
+      // In link mode, symlink the entire agents directory
+      // Note: This will replace any user agents - acceptable for dev workflow
+      createSymlink(agentsSrc, agentsDest, true);
+      console.log(`  ${green}✓${reset} Linked agents`);
     } else {
       // If agentsDest is a symlink (from previous link-mode install), remove it first
       // Otherwise fs.unlinkSync would delete SOURCE files through the symlink
@@ -1559,11 +1535,14 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
       for (const entry of agentEntries) {
         if (entry.isFile() && entry.name.endsWith('.md')) {
           let content = fs.readFileSync(path.join(agentsSrc, entry.name), 'utf8');
-          const dirRegex = new RegExp(`~/${dirName.replace('.', '\\.')}/`, 'g');
+          // Always replace ~/.claude/ as it is the source of truth in the repo
+          const dirRegex = /~\/\.claude\//g;
           content = content.replace(dirRegex, pathPrefix);
-          // Convert frontmatter for opencode compatibility
+          // Convert frontmatter for runtime compatibility
           if (isOpencode) {
             content = convertClaudeToOpencodeFrontmatter(content);
+          } else if (isGemini) {
+            content = convertClaudeToGeminiAgent(content);
           }
           fs.writeFileSync(path.join(agentsDest, entry.name), content);
         }

@@ -1557,6 +1557,10 @@ function cmdInitExecutePhase(cwd, phase, raw) {
     state_exists: pathExistsInternal(cwd, '.planning/STATE.md'),
     roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
     config_exists: pathExistsInternal(cwd, '.planning/config.json'),
+    // File paths
+    state_path: '.planning/STATE.md',
+    roadmap_path: '.planning/ROADMAP.md',
+    config_path: '.planning/config.json',
   };
 
   output(result, raw);
@@ -1610,13 +1614,47 @@ function cmdInitPlanPhase(cwd, phase, raw) {
     // Environment
     planning_exists: pathExistsInternal(cwd, '.planning'),
     roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
+
+    // File paths
+    state_path: '.planning/STATE.md',
+    roadmap_path: '.planning/ROADMAP.md',
+    requirements_path: '.planning/REQUIREMENTS.md',
   };
+
+  if (phaseInfo?.directory) {
+    // Find *-CONTEXT.md in phase directory
+    const phaseDirFull = path.join(cwd, phaseInfo.directory);
+    try {
+      const files = fs.readdirSync(phaseDirFull);
+      const contextFile = files.find(f => f.endsWith('-CONTEXT.md') || f === 'CONTEXT.md');
+      if (contextFile) {
+        result.context_path = path.join(phaseInfo.directory, contextFile);
+      }
+      const researchFile = files.find(f => f.endsWith('-RESEARCH.md') || f === 'RESEARCH.md');
+      if (researchFile) {
+        result.research_path = path.join(phaseInfo.directory, researchFile);
+      }
+      const verificationFile = files.find(f => f.endsWith('-VERIFICATION.md') || f === 'VERIFICATION.md');
+      if (verificationFile) {
+        result.verification_path = path.join(phaseInfo.directory, verificationFile);
+      }
+      const uatFile = files.find(f => f.endsWith('-UAT.md') || f === 'UAT.md');
+      if (uatFile) {
+        result.uat_path = path.join(phaseInfo.directory, uatFile);
+      }
+    } catch {}
+  }
 
   output(result, raw);
 }
 
 function cmdInitNewProject(cwd, raw) {
   const config = loadConfig(cwd);
+
+  // Detect Brave Search API key availability
+  const homedir = require('os').homedir();
+  const braveKeyFile = path.join(homedir, '.gsd', 'brave_api_key');
+  const hasBraveSearch = !!(process.env.BRAVE_API_KEY || fs.existsSync(braveKeyFile));
 
   // Detect existing code
   // Cross-platform: replaced Unix find with Node.js directory walk
@@ -1655,6 +1693,12 @@ function cmdInitNewProject(cwd, raw) {
 
     // Git state
     has_git: pathExistsInternal(cwd, '.git'),
+
+    // Enhanced search
+    brave_search_available: hasBraveSearch,
+
+    // File paths
+    project_path: '.planning/PROJECT.md',
   };
 
   output(result, raw);
@@ -1682,6 +1726,11 @@ function cmdInitNewMilestone(cwd, raw) {
     project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
     roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
     state_exists: pathExistsInternal(cwd, '.planning/STATE.md'),
+
+    // File paths
+    project_path: '.planning/PROJECT.md',
+    roadmap_path: '.planning/ROADMAP.md',
+    state_path: '.planning/STATE.md',
   };
 
   output(result, raw);
@@ -1751,6 +1800,11 @@ function cmdInitResume(cwd, raw) {
     roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
     project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
     planning_exists: pathExistsInternal(cwd, '.planning'),
+
+    // File paths
+    state_path: '.planning/STATE.md',
+    roadmap_path: '.planning/ROADMAP.md',
+    project_path: '.planning/PROJECT.md',
 
     // Agent state
     has_interrupted_agent: !!interruptedAgentId,
@@ -1854,7 +1908,35 @@ function cmdInitPhaseOp(cwd, phase, raw) {
     // File existence
     roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
     planning_exists: pathExistsInternal(cwd, '.planning'),
+
+    // File paths
+    state_path: '.planning/STATE.md',
+    roadmap_path: '.planning/ROADMAP.md',
+    requirements_path: '.planning/REQUIREMENTS.md',
   };
+
+  if (phaseInfo?.directory) {
+    const phaseDirFull = path.join(cwd, phaseInfo.directory);
+    try {
+      const files = fs.readdirSync(phaseDirFull);
+      const contextFile = files.find(f => f.endsWith('-CONTEXT.md') || f === 'CONTEXT.md');
+      if (contextFile) {
+        result.context_path = path.join(phaseInfo.directory, contextFile);
+      }
+      const researchFile = files.find(f => f.endsWith('-RESEARCH.md') || f === 'RESEARCH.md');
+      if (researchFile) {
+        result.research_path = path.join(phaseInfo.directory, researchFile);
+      }
+      const verificationFile = files.find(f => f.endsWith('-VERIFICATION.md') || f === 'VERIFICATION.md');
+      if (verificationFile) {
+        result.verification_path = path.join(phaseInfo.directory, verificationFile);
+      }
+      const uatFile = files.find(f => f.endsWith('-UAT.md') || f === 'UAT.md');
+      if (uatFile) {
+        result.uat_path = path.join(phaseInfo.directory, uatFile);
+      }
+    } catch {}
+  }
 
   output(result, raw);
 }
@@ -2136,6 +2218,11 @@ function cmdInitProgress(cwd, raw) {
     project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
     roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
     state_exists: pathExistsInternal(cwd, '.planning/STATE.md'),
+    // File paths
+    state_path: '.planning/STATE.md',
+    roadmap_path: '.planning/ROADMAP.md',
+    project_path: '.planning/PROJECT.md',
+    config_path: '.planning/config.json',
   };
 
   output(result, raw);

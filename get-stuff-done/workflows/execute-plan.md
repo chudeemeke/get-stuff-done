@@ -1351,7 +1351,10 @@ Before writing summary content, populate frontmatter fields from execution conte
 5. **Decisions:**
    - key-decisions: Extract from "Decisions Made" section
 
-6. **Metrics:**
+6. **Requirements:**
+   - requirements-completed: Copy from PLAN.md `requirements` frontmatter field
+
+7. **Metrics:**
    - duration: From $DURATION variable
    - completed: From $PLAN_END_TIME (date only, format YYYY-MM-DD)
 

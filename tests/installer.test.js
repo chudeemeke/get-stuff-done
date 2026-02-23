@@ -188,9 +188,11 @@ describe('Installer - Directory Creation', () => {
     const projectDir = path.join(tmpDir, 'project');
     fs.mkdirSync(projectDir, { recursive: true });
 
-    const result = execSync(
-      `cd "${projectDir}" && node "${INSTALL_SCRIPT}" --claude --local`,
+    // Use cwd option instead of 'cd && node' shell chaining (cross-platform compatible)
+    execSync(
+      `node "${INSTALL_SCRIPT}" --claude --local`,
       {
+        cwd: projectDir,
         encoding: 'utf-8',
         env: { ...process.env, HOME: mockHome, USERPROFILE: mockHome },
       }

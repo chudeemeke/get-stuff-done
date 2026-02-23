@@ -114,6 +114,6 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 18. Upstream Sync Execution | v0.3.0 | 6/6 | Complete | 2026-02-23 |
 | 19. Post-Sync Stabilization | 3/3 | Complete    | 2026-02-23 | - |
-| 20. Sync Safety & Transparency | 2/2 | Complete   | 2026-02-23 | - |
+| 20. Sync Safety & Transparency | 2/2 | Complete    | 2026-02-23 | - |
 | 21. Sync Intelligence | v0.3.0 | 0/TBD | Not started | - |
 | 22. Advanced Sync Automation | v0.3.0 | 0/TBD | Not started | - |

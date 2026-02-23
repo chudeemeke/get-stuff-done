@@ -48,7 +48,7 @@ See: .planning/milestones/v0.2.0-ROADMAP.md
   3. Fork identity is preserved: package name is @chude/get-stuff-done, all user-facing URLs point to chudeemeke/get-stuff-done, branding says "GetStuffDone"
   4. Test suite passes: 563+ tests at 95%+ coverage on all 3 CI platforms (macOS, Linux, Windows)
   5. Upstream approach comparison document exists covering every area where fork and upstream solved the same problem differently
-**Plans:** 5 plans
+**Plans:** 4/5 plans executed
 Plans:
 - [ ] 18-01-PLAN.md -- Setup sync branch and cherry-pick Batch 6 (v1.18.0..v1.19.0, 30 commits)
 - [ ] 18-02-PLAN.md -- Cherry-pick Batches 7-8 (v1.19.0..v1.19.2, 28 commits) including gsd-tools.cjs rename
@@ -104,7 +104,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Upstream Sync Execution | v0.3.0 | 0/5 | Planned | - |
+| 18. Upstream Sync Execution | 4/5 | In Progress|  | - |
 | 19. Post-Sync Stabilization | v0.3.0 | 0/TBD | Not started | - |
 | 20. Sync Safety & Transparency | v0.3.0 | 0/TBD | Not started | - |
 | 21. Sync Intelligence | v0.3.0 | 0/TBD | Not started | - |

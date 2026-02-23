@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 20 of 22 (Sync Safety & Transparency) — In progress
-Plan: 1 of 3 in Phase 20 (20-01 complete)
-Status: Phase 20 Plan 01 complete — sync plumbing module ready
-Last activity: 2026-02-23 -- Completed 20-01-PLAN.md (sync.cjs plumbing + tests)
+Plan: 2 of 3 in Phase 20 (20-02 complete)
+Status: Phase 20 Plan 02 complete — workflow porcelain with dry-run, sync-preview, checkpoint rollback
+Last activity: 2026-02-23 -- Completed 20-02-PLAN.md (upstream-sync.md + upstream.md porcelain layer)
 
 Progress: [######........] 37% (v0.3.0: 2/5 phases complete — Phase 18 and 19 done, Phase 20 in progress)
 
@@ -104,6 +104,12 @@ v0.3.0 decisions (Phase 20 Plan 01 — sync plumbing module):
 - diff-tree --root flag: initial commits have no parent; without --root, git diff-tree returns empty output for first commit in temp git repo
 - All 6 sync.cjs internal helpers exported: follows bun 1.3.5 coverage pitfall -- direct export + direct call is correct pattern for testability without re-require
 
+v0.3.0 decisions (Phase 20 Plan 02 — workflow porcelain):
+- Dry-run gate placed at end of Stage 3 (after plan file written): user sees commit selection and plan summary before workflow exits. More informative than gating at Stage 2.
+- sync-preview replaces inline git diff --stat in Stage 3.5 Step 1: adds sensitive path flags and conflict risk from plumbing layer; preserves all existing security analysis
+- Checkpoint step numbered "0" in Stage 4: pre-condition before cherry-pick loop begins; skip step if resuming after conflict resolution (checkpoint already created)
+- Crash recovery instruction added: user can run git reset --hard sync-checkpoint-${BATCH_ID} even if Claude Code session died mid-sync
+
 ### Pending Todos
 
 None.
@@ -118,11 +124,11 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Status: Phase 20 Plan 01 complete (sync.cjs plumbing + tests)
-Stopped at: Completed 20-01-PLAN.md (sync.cjs plumbing module with 4 commands, 6 helpers, 33 tests)
+Status: Phase 20 Plan 02 complete (workflow porcelain layer)
+Stopped at: Completed 20-02-PLAN.md (upstream-sync.md dry-run gate + sync-preview + checkpoint rollback; upstream.md --dry-run passthrough)
 Resume file: None
 
-**Next step:** Phase 20 Plan 02 (workflow porcelain for upstream-sync.md)
+**Next step:** Phase 20 Plan 03 (if applicable)
 
 ---
-*Updated: 2026-02-23 (Phase 20 Plan 01 complete)*
+*Updated: 2026-02-23 (Phase 20 Plan 02 complete)*

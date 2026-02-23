@@ -1,7 +1,7 @@
 ---
 agent: gsd-phase-researcher
 updated: 2026-02-23
-entries: 25
+entries: 30
 ---
 
 - finding: "esbuild is already a devDependency (v0.24.2) in get-stuff-done and is importable via require('esbuild') from project root. It bundles all three hooks successfully with zero errors."
@@ -154,4 +154,28 @@ entries: 25
   source: "Phase 19, Post-Sync Stabilization Research"
   confidence: HIGH
   phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "Phase 20 sync manifest stats: 97 total entries, 91 applied, 6 skipped. 58 had conflict types (13 mechanical, 9 structural — note: remaining 36 were conflictType set to non-null values other than these two). Historical conflict rate: 63.7%. This is the effort estimate training data for SYNC-04 dry-run mode."
+  source: "Phase 20, Sync Safety Research"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"
+
+- finding: "Phase 20 git command verification on Windows Git Bash (MINGW64_NT-10.0-26200): git diff --color=always produces ANSI escape codes in output (confirmed visually). git tag -a requires -m flag or editor opens. git diff-tree --no-commit-id --name-status -r works correctly. Annotated tag create/delete cycle confirmed working. All Phase 20 git commands are platform-safe."
+  source: "Phase 20, Sync Safety Research"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"
+
+- finding: "Phase 20 trial merge pattern: git cherry-pick -n (no-commit) + git cherry-pick --abort only works when there IS an in-progress cherry-pick (i.e., conflict occurred). If cherry-pick -n succeeds cleanly, there is no in-progress cherry-pick to abort. Correct cleanup after clean trial merge: git reset HEAD (unstage) + git checkout -- . (discard WD changes). Best practice: use git stash push/pop to save clean state before trial merge."
+  source: "Phase 20, Sync Safety Research"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"
+
+- finding: "Phase 20 codebase structure: bin/lib/ has 11 CJS modules (commands, config, core, frontmatter, init, milestone, phase, roadmap, state, template, verify). Phase 20 adds sync.cjs as the 12th. Router pattern: const sync = require('./lib/sync.cjs') at top, case 'sync-preview': and case 'sync-checkpoint': in switch(command). Template to follow: commands.cjs (simplest module, ~556 lines, pure function exports)."
+  source: "Phase 20, Sync Safety Research"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
   date: "2026-02-23"

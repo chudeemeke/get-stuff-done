@@ -8,7 +8,29 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const { execGit, output, error, safeReadFile } = require('./core.cjs');
+
+/**
+ * Execute a git command using spawnSync (array form, no shell escaping issues).
+ * Used for git commands that have format strings with %, |, or other special chars.
+ *
+ * @param {string} cwd - Working directory
+ * @param {string[]} args - Git arguments as array
+ * @returns {{exitCode: number, stdout: string, stderr: string}}
+ */
+function spawnGit(cwd, args) {
+  const result = spawnSync('git', args, {
+    cwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  return {
+    exitCode: result.status ?? 1,
+    stdout: (result.stdout || '').trim(),
+    stderr: (result.stderr || '').trim(),
+  };
+}
 
 // ─── Internal Helpers (all exported for direct testability) ───────────────────
 
@@ -23,9 +45,11 @@ const { execGit, output, error, safeReadFile } = require('./core.cjs');
  */
 function getCommitsInRange(cwd, baseRef, targetRef) {
   const SEP = '\x1f';
-  const result = execGit(cwd, [
+  // Use spawnGit (array form) to avoid shell escaping issues with % and | in format strings.
+  // execGit builds a shell command string and single-quotes args with %, which breaks on Windows MINGW64.
+  const result = spawnGit(cwd, [
     'log',
-    '--format=' + '%H' + SEP + '%h' + SEP + '%ad' + SEP + '%an' + SEP + '%s',
+    '--format=%H\x1f%h\x1f%ad\x1f%an\x1f%s',
     '--date=iso',
     baseRef + '..' + targetRef,
   ]);
@@ -60,9 +84,12 @@ function getCommitsInRange(cwd, baseRef, targetRef) {
  * @returns {Array<{status, path}>}
  */
 function getFilesForCommit(cwd, sha) {
-  const result = execGit(cwd, [
+  // Use --root to handle the initial commit (no parent) correctly.
+  // spawnGit avoids shell escaping issues.
+  const result = spawnGit(cwd, [
     'diff-tree',
     '--no-commit-id',
+    '--root',
     '-r',
     '--name-status',
     sha,
@@ -284,12 +311,13 @@ function cmdSyncPreview(cwd, range, options, raw) {
   }
 
   // Validate both refs exist
-  const baseCheck = execGit(cwd, ['cat-file', '-t', baseRef]);
+  // Use spawnGit: short SHAs may not match the safe-char regex in execGit
+  const baseCheck = spawnGit(cwd, ['cat-file', '-t', baseRef]);
   if (baseCheck.exitCode !== 0) {
     error('SHA not found -- run git fetch upstream main first');
   }
 
-  const targetCheck = execGit(cwd, ['cat-file', '-t', targetRef]);
+  const targetCheck = spawnGit(cwd, ['cat-file', '-t', targetRef]);
   if (targetCheck.exitCode !== 0) {
     error('SHA not found -- run git fetch upstream main first');
   }
@@ -392,9 +420,10 @@ function cmdSyncPreview(cwd, range, options, raw) {
     }
 
     // Get stat summary for this commit
-    const parentCheck = execGit(cwd, ['rev-parse', commit.hash + '^']);
+    // Use spawnGit for parent check and diff stat: caret ^ is not safe for shell escaping in execGit
+    const parentCheck = spawnGit(cwd, ['rev-parse', commit.hash + '^']);
     if (parentCheck.exitCode === 0) {
-      const statResult = execGit(cwd, [
+      const statResult = spawnGit(cwd, [
         'diff',
         '--color=always',
         '--stat',
@@ -457,8 +486,10 @@ function cmdSyncCheckpointCreate(cwd, batchId, raw) {
 
   const tagName = 'sync-checkpoint-' + batchId;
 
-  // MUST include -m flag: Windows Git Bash hangs waiting for editor without it
-  const tagResult = execGit(cwd, [
+  // MUST use spawnGit (array form): the -m message contains spaces which execGit
+  // single-quotes incorrectly on Windows MINGW64, causing "fatal: too many arguments".
+  // MUST include -m flag: Windows Git Bash hangs waiting for editor without it.
+  const tagResult = spawnGit(cwd, [
     'tag',
     '-a',
     tagName,
@@ -471,7 +502,7 @@ function cmdSyncCheckpointCreate(cwd, batchId, raw) {
     error('Failed to create checkpoint tag: ' + tagResult.stderr);
   }
 
-  const shaResult = execGit(cwd, ['rev-parse', 'HEAD']);
+  const shaResult = spawnGit(cwd, ['rev-parse', 'HEAD']);
   const sha = shaResult.exitCode === 0 ? shaResult.stdout : null;
 
   const result = {
@@ -489,14 +520,15 @@ function cmdSyncCheckpointCreate(cwd, batchId, raw) {
  * @param {boolean} raw - Raw output flag
  */
 function cmdSyncCheckpointList(cwd, raw) {
-  const listResult = execGit(cwd, ['tag', '-l', 'sync-checkpoint-*']);
+  // Use spawnGit: glob pattern 'sync-checkpoint-*' contains * which execGit would single-quote
+  const listResult = spawnGit(cwd, ['tag', '-l', 'sync-checkpoint-*']);
 
   const checkpoints = [];
 
   if (listResult.exitCode === 0 && listResult.stdout) {
     const tags = listResult.stdout.split('\n').filter(t => t.trim());
     for (const tag of tags) {
-      const shaResult = execGit(cwd, ['rev-list', '-1', tag]);
+      const shaResult = spawnGit(cwd, ['rev-list', '-1', tag]);
       const sha = shaResult.exitCode === 0 ? shaResult.stdout : null;
       checkpoints.push({ tag, sha });
     }
@@ -513,7 +545,8 @@ function cmdSyncCheckpointList(cwd, raw) {
  * @param {boolean} raw - Raw output flag
  */
 function cmdSyncCheckpointCleanup(cwd, raw) {
-  const listResult = execGit(cwd, ['tag', '-l', 'sync-checkpoint-*']);
+  // Use spawnGit: glob pattern 'sync-checkpoint-*' contains * which execGit would single-quote
+  const listResult = spawnGit(cwd, ['tag', '-l', 'sync-checkpoint-*']);
 
   const deleted = [];
   const failed = [];
@@ -521,7 +554,7 @@ function cmdSyncCheckpointCleanup(cwd, raw) {
   if (listResult.exitCode === 0 && listResult.stdout) {
     const tags = listResult.stdout.split('\n').filter(t => t.trim());
     for (const tag of tags) {
-      const deleteResult = execGit(cwd, ['tag', '-d', tag]);
+      const deleteResult = spawnGit(cwd, ['tag', '-d', tag]);
       if (deleteResult.exitCode === 0) {
         deleted.push(tag);
       } else {

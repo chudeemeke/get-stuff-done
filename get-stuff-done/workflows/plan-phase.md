@@ -99,6 +99,18 @@ Extract:
 - Phase scope from CONTEXT.md (if exists, from /gsd:discuss-phase)
 - Requirements relevant to this phase
 - Project constraints and decisions
+
+**If no CONTEXT.md found for this phase:**
+
+Use AskUserQuestion:
+- header: "No context"
+- question: "No CONTEXT.md found for Phase {X}. Plans will use research and requirements only — your design preferences won't be included. Continue or capture context first?"
+- options:
+  - "Continue without context" — Plan using research + requirements only
+  - "Run discuss-phase first" — Capture design decisions before planning
+
+If "Continue without context": Proceed to check_research.
+If "Run discuss-phase first": Display `/gsd:discuss-phase {X}` and exit workflow.
 </step>
 
 <step name="check_research">
@@ -180,6 +192,7 @@ ROADMAP_CONTENT=$(cat .planning/ROADMAP.md)
 STATE_CONTENT=$(cat .planning/STATE.md)
 CONTEXT_CONTENT=$(cat "$PHASE_DIR"/*-CONTEXT.md 2>/dev/null || echo "No context file")
 REQUIREMENTS_CONTENT=$(cat .planning/REQUIREMENTS.md 2>/dev/null || echo "")
+PHASE_REQ_IDS=$(cat .planning/ROADMAP.md | grep -i "Requirements:" | head -1 | sed 's/.*Requirements:\*\*\s*//' | sed 's/[\[\]]//g' | tr ',' '\n' | sed 's/^ *//;s/ *$//' | grep -v '^$' | tr '\n' ',' | sed 's/,$//')
 ```
 
 ```
@@ -200,8 +213,12 @@ Task(
 **Phase Context (from /gsd:discuss-phase):**
 {context_content}
 
+**Phase requirement IDs (MUST address):** {phase_req_ids}
 **Requirements:**
 {requirements_content}
+
+**Project instructions:** Read ./CLAUDE.md if exists — follow project-specific guidelines
+**Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, research should account for project skill patterns
 
 </research_context>
 
@@ -216,6 +233,36 @@ Research the domain, existing codebase patterns, and technical approaches needed
 Verify RESEARCH.md was created:
 ```bash
 ls "$PHASE_DIR"/*-RESEARCH.md
+```
+</step>
+
+<step name="create_validation_strategy">
+
+**Skip if:** `workflow.nyquist_validation` is false in `.planning/config.json`.
+
+```bash
+NYQUIST_ENABLED=$(cat .planning/config.json 2>/dev/null | python3 -c "import json,sys; c=json.load(sys.stdin); print(str(c.get('workflow',{}).get('nyquist_validation',True)).lower())" 2>/dev/null || echo "true")
+```
+
+After researcher completes, check if RESEARCH.md contains a Validation Architecture section:
+
+```bash
+grep -l "## Validation Architecture" "${PHASE_DIR}"/*-RESEARCH.md 2>/dev/null
+```
+
+**If found:**
+1. Read validation template from `~/.claude/get-stuff-done/templates/VALIDATION.md`
+2. Write to `${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md`
+3. Fill frontmatter: replace `{N}` with phase number, `{phase-slug}` with phase slug, `{date}` with current date
+4. If `commit_docs` is true:
+```bash
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs commit "docs(phase-${PHASE}): add validation strategy" --files "${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md"
+```
+
+**If not found (and nyquist enabled):** Display warning:
+```
+Warning: Nyquist validation enabled but researcher did not produce a Validation Architecture section.
+  Continuing without validation strategy. Plans may fail Dimension 8 check.
 ```
 </step>
 
@@ -235,6 +282,7 @@ STATE_CONTENT=$(cat .planning/STATE.md)
 RESEARCH_CONTENT=$(cat "$PHASE_DIR"/*-RESEARCH.md 2>/dev/null || echo "No research")
 CONTEXT_CONTENT=$(cat "$PHASE_DIR"/*-CONTEXT.md 2>/dev/null || echo "No context file")
 REQUIREMENTS_CONTENT=$(cat .planning/REQUIREMENTS.md 2>/dev/null || echo "")
+PHASE_REQ_IDS=$(cat .planning/ROADMAP.md | grep -i "Requirements:" | head -1 | sed 's/.*Requirements:\*\*\s*//' | sed 's/[\[\]]//g' | tr ',' '\n' | sed 's/^ *//;s/ *$//' | grep -v '^$' | tr '\n' ',' | sed 's/,$//')
 VERIFICATION_CONTENT=""
 UAT_CONTENT=""
 ```
@@ -267,8 +315,12 @@ Task(
 **Phase Context:**
 {context_content}
 
+**Phase requirement IDs (every ID MUST appear in a plan's `requirements` field):** {phase_req_ids}
 **Requirements:**
 {requirements_content}
+
+**Project instructions:** Read ./CLAUDE.md if exists — follow project-specific guidelines
+**Project skills:** Check .agents/skills/ directory (if exists) — read SKILL.md files, plans should account for project skill rules
 
 {if gaps mode:}
 **Verification Gaps:**
@@ -335,8 +387,15 @@ Task(
 **Plans to verify:**
 {plan_content}
 
+**Phase requirement IDs (MUST ALL be covered):** {phase_req_ids}
 **Requirements:**
 {requirements_content}
+
+**Technical Research (includes Validation Architecture):**
+{research_content}
+
+**Project instructions:** Read ./CLAUDE.md if exists — verify plans honor project guidelines
+**Project skills:** Check .agents/skills/ directory (if exists) — verify plans account for project skill rules
 
 </verification_context>
 
@@ -419,6 +478,86 @@ Also available:
 
 ---
 ```
+
+Route to `<offer_next>` OR `auto_advance` depending on flags/config.
+</step>
+
+<step name="auto_advance">
+Check for auto-advance trigger:
+
+1. Parse `--auto` flag from $ARGUMENTS
+2. Read `workflow.auto_advance` from config:
+   ```bash
+   AUTO_CFG=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+   ```
+
+**If `--auto` flag present OR `AUTO_CFG` is true:**
+
+Display banner:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GSD ► AUTO-ADVANCING TO EXECUTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Plans ready. Spawning execute-phase...
+```
+
+Spawn execute-phase as Task with direct workflow file reference (do NOT use Skill tool — Skills don't resolve inside Task subagents):
+```
+Task(
+  prompt="
+    <objective>
+    You are the execute-phase orchestrator. Execute all plans for Phase ${PHASE}: ${PHASE_NAME}.
+    </objective>
+
+    <execution_context>
+    @~/.claude/get-stuff-done/workflows/execute-phase.md
+    @~/.claude/get-stuff-done/references/checkpoints.md
+    @~/.claude/get-stuff-done/references/tdd.md
+    @~/.claude/get-stuff-done/references/model-profile-resolution.md
+    </execution_context>
+
+    <arguments>
+    PHASE=${PHASE}
+    ARGUMENTS='${PHASE} --auto --no-transition'
+    </arguments>
+
+    <instructions>
+    1. Read execute-phase.md from execution_context for your complete workflow
+    2. Follow ALL steps: initialize, handle_branching, validate_phase, discover_and_group_plans, execute_waves, aggregate_results, close_parent_artifacts, verify_phase_goal, update_roadmap
+    3. The --no-transition flag means: after verification + roadmap update, STOP and return status. Do NOT run transition.md.
+    4. When spawning executor agents, use subagent_type='gsd-executor' with the existing @file pattern from the workflow
+    5. When spawning verifier agents, use subagent_type='gsd-verifier'
+    6. Preserve the classifyHandoffIfNeeded workaround (spot-check on that specific error)
+    7. Do NOT use the Skill tool or /gsd: commands
+    </instructions>
+  ",
+  subagent_type="general-purpose",
+  description="Execute Phase ${PHASE}"
+)
+```
+
+**Handle execute-phase return:**
+- **PHASE COMPLETE** → Display final summary:
+  ```
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GSD ► PHASE ${PHASE} COMPLETE ✓
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Auto-advance pipeline finished.
+
+  Next: /gsd:discuss-phase ${NEXT_PHASE} --auto
+  ```
+- **GAPS FOUND / VERIFICATION FAILED** → Display result, stop chain:
+  ```
+  Auto-advance stopped: Execution needs review.
+
+  Review the output above and continue manually:
+  /gsd:execute-phase ${PHASE}
+  ```
+
+**If neither `--auto` nor config enabled:**
+Route to `<offer_next>` (existing behavior).
 </step>
 
 </process>

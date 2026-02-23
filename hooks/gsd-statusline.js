@@ -2,7 +2,7 @@
 /* eslint-disable security/detect-non-literal-fs-filename -- statusline script with computed paths from internal logic, no user input */
 
 // Claude Code Statusline - GSD Edition
-// Shows: model | directory | autocompact proximity
+// Shows: model | current task | git branch | context bar | directory
 //
 // IMPORTANT: Claude Code's remaining_percentage is RAW remaining space, NOT threshold-relative.
 // Autocompact triggers when remaining hits ~16.5% (configurable).
@@ -82,6 +82,23 @@ process.stdin.on('end', () => {
       const rawUsage = 100 - remaining;
       const proximity = Math.max(0, Math.min(100, Math.round((rawUsage / maxUsage) * 100)));
 
+      // Write context metrics to bridge file for the context-monitor PostToolUse hook.
+      // The monitor reads this file to inject agent-facing warnings when context is low.
+      if (session) {
+        try {
+          const bridgePath = path.join(os.tmpdir(), `claude-ctx-${session}.json`);
+          const bridgeData = JSON.stringify({
+            session_id: session,
+            remaining_percentage: remaining,
+            used_pct: used,
+            timestamp: Math.floor(Date.now() / 1000)
+          });
+          fs.writeFileSync(bridgePath, bridgeData);
+        } catch (e) {
+          // Silent fail -- bridge is best-effort, don't break statusline
+        }
+      }
+
       // Build progress bar (10 segments) - shows proximity to autocompact
       const filled = Math.floor(proximity / 10);
       const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
@@ -150,15 +167,58 @@ process.stdin.on('end', () => {
       } catch (e) {}
     }
 
+    // Git branch (traverse up to find .git, supports worktrees)
+    let branchDisplay = '';
+    let currentPath = dir;
+    while (currentPath) {
+      const gitPath = path.join(currentPath, '.git');
+      if (fs.existsSync(gitPath)) {
+        try {
+          let gitDir = gitPath;
+          const stats = fs.statSync(gitPath);
+
+          // If .git is a file (worktree), read the gitdir path
+          if (stats.isFile()) {
+            const gitFileContent = fs.readFileSync(gitPath, 'utf8');
+            const gitDirMatch = gitFileContent.match(/gitdir:\s*(.+)/);
+            if (gitDirMatch) {
+              gitDir = gitDirMatch[1].trim();
+              // Handle relative paths in worktree .git files
+              if (!path.isAbsolute(gitDir)) {
+                gitDir = path.resolve(currentPath, gitDir);
+              }
+            }
+          }
+
+          // Read HEAD from the actual git directory
+          const headFile = path.join(gitDir, 'HEAD');
+          if (fs.existsSync(headFile)) {
+            const headContent = fs.readFileSync(headFile, 'utf8');
+            const match = headContent.match(/ref: refs\/heads\/(.+)/);
+            if (match) {
+              branchDisplay = theme.text.muted.render(match[1].trim());
+            }
+          }
+        } catch (e) {
+          // Silently fail on git errors - don't break statusline
+        }
+        break;
+      }
+      const parentPath = path.dirname(currentPath);
+      if (parentPath === currentPath) break;
+      currentPath = parentPath;
+    }
+
     // Build statusline with new layout
     const dirname = path.basename(dir);
     const branding = getBranding();
     const modelDisplay = theme.text.muted.render(model);
     const cwdDisplay = theme.text.muted.render(dirname);
 
-    // Line 1: branding | model | context bar | cwd
+    // Line 1: branding | model | [branch |] context bar | cwd
     // Note: ctx already includes its own color codes and spacing
-    const line1 = `${branding}${SEP}${modelDisplay}${SEP}${ctx.trim()}${SEP}${cwdDisplay}`;
+    const branchSep = branchDisplay ? `${branchDisplay}${SEP}` : '';
+    const line1 = `${branding}${SEP}${modelDisplay}${SEP}${branchSep}${ctx.trim()}${SEP}${cwdDisplay}`;
 
     // Output: line1, or line1 + newline + line2 if update available
     if (line2) {

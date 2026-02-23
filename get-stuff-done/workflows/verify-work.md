@@ -428,14 +428,11 @@ Task(
 **Phase:** {phase_number}
 **Mode:** gap_closure
 
-**UAT with diagnoses:**
-@.planning/phases/{phase_dir}/{phase}-UAT.md
-
-**Project State:**
-@.planning/STATE.md
-
-**Roadmap:**
-@.planning/ROADMAP.md
+<files_to_read>
+- {phase_dir}/{phase}-UAT.md (UAT with diagnoses)
+- .planning/STATE.md (Project State)
+- .planning/ROADMAP.md (Roadmap)
+</files_to_read>
 
 </planning_context>
 
@@ -479,8 +476,9 @@ Task(
 **Phase:** {phase_number}
 **Phase Goal:** Close diagnosed gaps from UAT
 
-**Plans to verify:**
-@.planning/phases/{phase_dir}/*-PLAN.md
+<files_to_read>
+- {phase_dir}/*-PLAN.md (Plans to verify)
+</files_to_read>
 
 </verification_context>
 
@@ -518,8 +516,9 @@ Task(
 **Phase:** {phase_number}
 **Mode:** revision
 
-**Existing plans:**
-@.planning/phases/{phase_dir}/*-PLAN.md
+<files_to_read>
+- {phase_dir}/*-PLAN.md (Existing plans)
+</files_to_read>
 
 **Checker issues:**
 {structured_issues_from_checker}

@@ -1351,7 +1351,10 @@ Before writing summary content, populate frontmatter fields from execution conte
 5. **Decisions:**
    - key-decisions: Extract from "Decisions Made" section
 
-6. **Metrics:**
+6. **Requirements:**
+   - requirements-completed: **MUST** copy `requirements` array from PLAN.md frontmatter verbatim
+
+7. **Metrics:**
    - duration: From $DURATION variable
    - completed: From $PLAN_END_TIME (date only, format YYYY-MM-DD)
 
@@ -1496,15 +1499,20 @@ Update the roadmap file:
 ROADMAP_FILE=".planning/ROADMAP.md"
 ```
 
-**If more plans remain in this phase:**
+```bash
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs roadmap update-plan-progress "${PHASE}"
+```
+Counts PLAN vs SUMMARY files on disk. Updates progress table row with correct count and status (`In Progress` or `Complete` with date).
+</step>
 
-- Update plan count: "2/3 plans complete"
-- Keep phase status as "In progress"
+<step name="update_requirements">
+Mark completed requirements from the PLAN.md frontmatter `requirements:` field:
 
-**If this was the last plan in the phase:**
+```bash
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs requirements mark-complete ${REQ_IDS}
+```
 
-- Mark phase complete: status → "Complete"
-- Add completion date
+Extract requirement IDs from the plan's frontmatter (e.g., `requirements: [AUTH-01, AUTH-02]`). If no requirements field, skip.
 </step>
 
 <step name="git_commit_metadata">
@@ -1531,17 +1539,18 @@ git add .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md
 git add .planning/STATE.md
 ```
 
-**2. Stage roadmap:**
+**2. Stage roadmap and requirements:**
 
 ```bash
 git add .planning/ROADMAP.md
+git add .planning/REQUIREMENTS.md
 ```
 
 **3. Verify staging:**
 
 ```bash
 git status
-# Should show only execution artifacts (SUMMARY, STATE, ROADMAP), no code files
+# Should show only execution artifacts (SUMMARY, STATE, ROADMAP, REQUIREMENTS), no code files
 ```
 
 **4. Commit metadata:**

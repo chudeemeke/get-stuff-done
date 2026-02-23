@@ -33,6 +33,32 @@ Default to "balanced" if not set.
 Store resolved models for use in Task calls below.
 </step>
 
+<step name="parse_flags">
+Parse flags from $ARGUMENTS:
+
+- `--auto`: Auto-advance pipeline (chain to transition after verification)
+- `--no-transition`: Spawned by plan-phase auto-advance. After verification and roadmap update, return status to parent instead of running transition.md
+
+**No-transition check (spawned by auto-advance chain):**
+
+If `--no-transition` flag present: Execute-phase was spawned by plan-phase's auto-advance. Do NOT run transition.md.
+After verification passes and roadmap is updated, return completion status to parent:
+
+```
+## PHASE COMPLETE
+
+Phase: ${PHASE_NUMBER} - ${PHASE_NAME}
+Plans: ${completed_count}/${total_count}
+Verification: {Passed | Gaps Found}
+
+[Include aggregate_results output]
+```
+
+STOP. Do not proceed to auto-advance or transition.
+
+If `--no-transition` flag is NOT present: proceed with normal auto-advance / offer_next logic.
+</step>
+
 <step name="load_project_state">
 Before any operation, read project state:
 
@@ -247,7 +273,7 @@ Spawn the execute-phase-team using the template at `get-stuff-done/teams/execute
    <objective>
    Execute plan {plan_number} of phase {phase_number}-{phase_name}.
 
-   Commit each task atomically. Create SUMMARY.md. Update STATE.md.
+   Commit each task atomically. Create SUMMARY.md. Update STATE.md and ROADMAP.md.
    </objective>
 
    <execution_context>
@@ -266,6 +292,9 @@ Spawn the execute-phase-team using the template at `get-stuff-done/teams/execute
 
    Config (if exists):
    {config_content}
+
+   Project instructions: ./CLAUDE.md (if exists — follow project-specific guidelines and coding conventions)
+   Project skills: .agents/skills/ (if exists — list skills, read SKILL.md for each, follow relevant rules during implementation)
    </context>
 
    <success_criteria>
@@ -273,6 +302,7 @@ Spawn the execute-phase-team using the template at `get-stuff-done/teams/execute
    - [ ] Each task committed individually
    - [ ] SUMMARY.md created in plan directory
    - [ ] STATE.md updated with position and decisions
+   - [ ] ROADMAP.md updated with plan progress (via `roadmap update-plan-progress`)
    </success_criteria>
    ```
 
@@ -348,7 +378,19 @@ Plans with `autonomous: false` require user interaction.
 
 **Detection:** Check `autonomous` field in frontmatter.
 
-**Execution flow for checkpoint plans:**
+**Auto-mode checkpoint handling:**
+
+Read auto-advance config:
+```bash
+AUTO_CFG=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+```
+
+When executor returns a checkpoint AND `AUTO_CFG` is `"true"`:
+- **human-verify** → Auto-spawn continuation agent with `{user_response}` = `"approved"`. Log `⚡ Auto-approved checkpoint`.
+- **decision** → Auto-spawn continuation agent with `{user_response}` = first option from checkpoint details. Log `⚡ Auto-selected: [option]`.
+- **human-action** → Present to user (existing behavior below). Auth gates cannot be automated.
+
+**Standard flow (not auto-mode, or human-action type):**
 
 1. **Spawn agent for checkpoint plan:**
    ```
@@ -472,6 +514,10 @@ After all waves complete, aggregate results:
 <step name="verify_phase_goal">
 Verify phase achieved its GOAL, not just completed its TASKS.
 
+```bash
+PHASE_REQ_IDS=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs roadmap get-phase "${PHASE_NUMBER}" | jq -r '.section' | grep -i "Requirements:" | sed 's/.*Requirements:\*\*\s*//' | sed 's/[\[\]]//g')
+```
+
 **Spawn verifier:**
 
 ```
@@ -480,9 +526,11 @@ Task(
 
 Phase directory: {phase_dir}
 Phase goal: {goal from ROADMAP.md}
+Phase requirement IDs: {phase_req_ids}
 
-Check must_haves against actual codebase. Create VERIFICATION.md.
-Verify what actually exists in the code.",
+Check must_haves against actual codebase.
+Cross-reference requirement IDs from PLAN frontmatter against REQUIREMENTS.md — every ID MUST be accounted for.
+Create VERIFICATION.md.",
   subagent_type="gsd-verifier",
   model="{verifier_model}"
 )
@@ -569,55 +617,55 @@ User stays in control at each decision point.
 </step>
 
 <step name="update_roadmap">
-Update ROADMAP.md to reflect phase completion:
+**Mark phase complete and update all tracking files:**
 
 ```bash
-# Mark phase complete
-# Update completion date
-# Update status
+COMPLETION=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs phase complete "${PHASE_NUMBER}")
 ```
 
-**Check planning config:**
+The CLI handles:
+- Marking phase checkbox `[x]` with completion date
+- Updating Progress table (Status → Complete, date)
+- Updating plan count to final
+- Advancing STATE.md to next phase
+- Updating REQUIREMENTS.md traceability
 
-If `COMMIT_PLANNING_DOCS=false` (set in load_project_state):
-- Skip all git operations for .planning/ files
-- Planning docs exist locally but are gitignored
-- Log: "Skipping planning docs commit (commit_docs: false)"
-- Proceed to offer_next step
+Extract from result: `next_phase`, `next_phase_name`, `is_last_phase`.
 
-If `COMMIT_PLANNING_DOCS=true` (default):
-- Continue with git operations below
-
-Commit phase completion (roadmap, state, verification):
 ```bash
-git add .planning/ROADMAP.md .planning/STATE.md .planning/phases/{phase_dir}/*-VERIFICATION.md
-git add .planning/REQUIREMENTS.md  # if updated
-git commit -m "docs(phase-{X}): complete phase execution"
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs commit "docs(phase-{X}): complete phase execution" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md {phase_dir}/*-VERIFICATION.md
 ```
 </step>
 
 <step name="offer_next">
-Present next steps based on milestone status:
+**Exception:** If `gaps_found`, the `verify_phase_goal` step already presents the gap-closure path (`/gsd:plan-phase {X} --gaps`). No additional routing needed — skip auto-advance.
 
-**If more phases remain:**
+**If `--no-transition` flag was set:** Return phase completion status and STOP (per parse_flags step). Do NOT proceed.
+
+**Auto-advance detection:**
+
+1. Parse `--auto` flag from $ARGUMENTS (already parsed in parse_flags step)
+2. Read `workflow.auto_advance` from config:
+   ```bash
+   AUTO_CFG=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+   ```
+
+**If `--auto` flag present OR `AUTO_CFG` is true (AND verification passed with no gaps):**
+
 ```
-## Next Up
-
-**Phase {X+1}: {Name}** — {Goal}
-
-`/gsd:plan-phase {X+1}`
-
-<sub>`/clear` first for fresh context</sub>
+╔══════════════════════════════════════════╗
+║  AUTO-ADVANCING → TRANSITION             ║
+║  Phase {X} verified, continuing chain    ║
+╚══════════════════════════════════════════╝
 ```
 
-**If milestone complete:**
-```
-MILESTONE COMPLETE!
+Execute the transition workflow inline (do NOT use Task — orchestrator context is ~10-15%, transition needs phase completion data already in context):
 
-All {N} phases executed.
+Read and follow `~/.claude/get-stuff-done/workflows/transition.md`, passing through the `--auto` flag so it propagates to the next phase invocation.
 
-`/gsd:complete-milestone`
-```
+**If neither `--auto` nor `AUTO_CFG` is true:**
+
+The workflow ends. The user runs `/gsd:progress` or invokes the transition workflow manually.
 </step>
 
 </process>

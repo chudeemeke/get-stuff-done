@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
 updated: 2026-02-23
-entries: 33
+entries: 36
 ---
 
 - finding: "hooks/dist/ is gitignored (decision 09-02 BUILD-001). When committing esbuild output, only commit scripts/build-hooks.js -- never try to git add hooks/dist/. The dist files are generated artifacts."
@@ -192,6 +192,24 @@ entries: 33
 
 - finding: "The gsd-tools.cjs state advance-plan and state update-progress commands fail when STATE.md uses free-form text sections ('Plan: 3 of TBD') rather than machine-parseable key:value format. When gsd-tools can't parse STATE.md, update STATE.md manually via Edit tool."
   source: "Phase 18, Plan 04, state update"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "The plan verification criterion 'grep | wc -l returns 0' for upstream branding audit must exclude .planning/ entirely (not just .planning/sync/). Historical planning docs contain hundreds of legitimate references to upstream names. The actionable check is: no branding in bin/, get-stuff-done/, hooks/, src/, agents/, commands/ (excluding expected workflow references like commands/gsd/upstream.md)."
+  source: "Phase 18, Plan 05, Task 1 identity audit"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "GitHub CI only triggers on push to main or PR targeting main. 'gh pr create' will fail with 'No commits between main and branch' error if the repo defaults to a different remote. Use --repo flag explicitly: 'gh pr create --repo owner/repo' when gh CLI defaults to the upstream repo rather than the fork."
+  source: "Phase 18, Plan 05, Task 1 PR creation"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "Coverage at 94.05% lines (below 95%) is primarily caused by src/platform/detect.js at 67.47% lines -- many OS-specific branch paths (Windows-specific, macOS-specific, Linux-specific) that can't all execute in a single test environment. This is a known gap for Phase 19, not a blocker for Phase 18 merge."
+  source: "Phase 18, Plan 05, Task 1 coverage check"
   confidence: HIGH
   phase: "18-upstream-sync-execution"
   date: "2026-02-23"

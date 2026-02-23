@@ -6,15 +6,107 @@
  * Replaces repetitive inline bash patterns across ~50 GSD command/workflow/agent files.
  * Centralizes: config parsing, model resolution, phase lookup, git commits, summary verification.
  *
- * Usage: node gsd-tools.js <command> [args] [--raw]
+ * Usage: node gsd-tools.cjs <command> [args] [--raw]
  *
  * Atomic Commands:
  *   state load                         Load project config + state
  *   state update <field> <value>       Update a STATE.md field
+ *   state get [section]                Get STATE.md content or section
+ *   state patch --field val ...        Batch update STATE.md fields
  *   resolve-model <agent-type>         Get model for agent based on profile
  *   find-phase <phase>                 Find phase directory by number
  *   commit <message> [--files f1 f2]   Commit planning docs
  *   verify-summary <path>              Verify a SUMMARY.md file
+ *   generate-slug <text>               Convert text to URL-safe slug
+ *   current-timestamp [format]         Get timestamp (full|date|filename)
+ *   list-todos [area]                  Count and enumerate pending todos
+ *   verify-path-exists <path>          Check file/directory existence
+ *   config-ensure-section              Initialize .planning/config.json
+ *   history-digest                     Aggregate all SUMMARY.md data
+ *   summary-extract <path> [--fields]  Extract structured data from SUMMARY.md
+ *   state-snapshot                     Structured parse of STATE.md
+ *   phase-plan-index <phase>           Index plans with waves and status
+ *   websearch <query>                  Search web via Brave API (if configured)
+ *     [--limit N] [--freshness day|week|month]
+ *
+ * Phase Operations:
+ *   phase next-decimal <phase>         Calculate next decimal phase number
+ *   phase add <description>            Append new phase to roadmap + create dir
+ *   phase insert <after> <description> Insert decimal phase after existing
+ *   phase remove <phase> [--force]     Remove phase, renumber all subsequent
+ *   phase complete <phase>             Mark phase done, update state + roadmap
+ *
+ * Roadmap Operations:
+ *   roadmap get-phase <phase>          Extract phase section from ROADMAP.md
+ *   roadmap analyze                    Full roadmap parse with disk status
+ *   roadmap update-plan-progress <N>   Update progress table row from disk (PLAN vs SUMMARY counts)
+ *
+ * Requirements Operations:
+ *   requirements mark-complete <ids>   Mark requirement IDs as complete in REQUIREMENTS.md
+ *                                      Accepts: REQ-01,REQ-02 or REQ-01 REQ-02 or [REQ-01, REQ-02]
+ *
+ * Milestone Operations:
+ *   milestone complete <version>       Archive milestone, create MILESTONES.md
+ *     [--name <name>]
+ *     [--archive-phases]               Move phase dirs to milestones/vX.Y-phases/
+ *
+ * Validation:
+ *   validate consistency               Check phase numbering, disk/roadmap sync
+ *   validate health [--repair]         Check .planning/ integrity, optionally repair
+ *
+ * Progress:
+ *   progress [json|table|bar]          Render progress in various formats
+ *
+ * Todos:
+ *   todo complete <filename>           Move todo from pending to completed
+ *
+ * Scaffolding:
+ *   scaffold context --phase <N>       Create CONTEXT.md template
+ *   scaffold uat --phase <N>           Create UAT.md template
+ *   scaffold verification --phase <N>  Create VERIFICATION.md template
+ *   scaffold phase-dir --phase <N>     Create phase directory
+ *     --name <name>
+ *
+ * Frontmatter CRUD:
+ *   frontmatter get <file> [--field k] Extract frontmatter as JSON
+ *   frontmatter set <file> --field k   Update single frontmatter field
+ *     --value jsonVal
+ *   frontmatter merge <file>           Merge JSON into frontmatter
+ *     --data '{json}'
+ *   frontmatter validate <file>        Validate required fields
+ *     --schema plan|summary|verification
+ *
+ * Verification Suite:
+ *   verify plan-structure <file>       Check PLAN.md structure + tasks
+ *   verify phase-completeness <phase>  Check all plans have summaries
+ *   verify references <file>           Check @-refs + paths resolve
+ *   verify commits <h1> [h2] ...      Batch verify commit hashes
+ *   verify artifacts <plan-file>       Check must_haves.artifacts
+ *   verify key-links <plan-file>       Check must_haves.key_links
+ *
+ * Template Fill:
+ *   template fill summary --phase N    Create pre-filled SUMMARY.md
+ *     [--plan M] [--name "..."]
+ *     [--fields '{json}']
+ *   template fill plan --phase N       Create pre-filled PLAN.md
+ *     [--plan M] [--type execute|tdd]
+ *     [--wave N] [--fields '{json}']
+ *   template fill verification         Create pre-filled VERIFICATION.md
+ *     --phase N [--fields '{json}']
+ *
+ * State Progression:
+ *   state advance-plan                 Increment plan counter
+ *   state record-metric --phase N      Record execution metrics
+ *     --plan M --duration Xmin
+ *     [--tasks N] [--files N]
+ *   state update-progress              Recalculate progress bar
+ *   state add-decision --summary "..."  Add decision to STATE.md
+ *     [--phase N] [--rationale "..."]
+ *   state add-blocker --text "..."     Add blocker
+ *   state resolve-blocker --text "..." Remove blocker
+ *   state record-session               Update session continuity
+ *     --stopped-at "..."
+ *     [--resume-file path]
  *
  * Compound Commands (workflow-specific initialization):
  *   init execute-phase <phase>         All context for execute-phase workflow
@@ -29,2896 +121,19 @@
  *   init milestone-op                  All context for milestone operations
  *   init map-codebase                  All context for map-codebase workflow
  *   init progress                      All context for progress workflow
- *   websearch <query>                  Search web via Brave API (if configured)
- *     [--limit N] [--freshness day|week|month]
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync, execFileSync } = require('child_process');
-const { validateGitSHA, validateBranchName, validateConfigPath, validateTagName, validateRemoteURL } = require('../../src/validation');
-
-// ─── Model Profile Table ─────────────────────────────────────────────────────
-
-const MODEL_PROFILES = {
-  'gsd-planner':              { quality: 'opus', balanced: 'opus',   budget: 'sonnet' },
-  'gsd-roadmapper':           { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'gsd-executor':             { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'gsd-phase-researcher':     { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-project-researcher':   { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-research-synthesizer': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-debugger':             { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'gsd-codebase-mapper':      { quality: 'sonnet', balanced: 'haiku', budget: 'haiku' },
-  'gsd-verifier':             { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-plan-checker':         { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-integration-checker':  { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-};
-
-// ─── Validation Bridge ────────────────────────────────────────────────────────
-
-/**
- * Unwrap a Result type value or exit with error.
- * Bridges the pure validation module (Result type) to gsd-tools error handling.
- * Both error() and process.exit(1) are explicit: if error() is ever refactored
- * to log without exiting, requireValid still halts unconditionally.
- *
- * @param {{ok: boolean, value?: *, error?: string}} result
- * @returns {*} result.value on success
- */
-function requireValid(result) {
-  if (!result.ok) {
-    error(result.error);
-    process.exit(1);
-  }
-  return result.value;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function loadConfig(cwd) {
-  const configPath = path.join(cwd, '.planning', 'config.json');
-  const defaults = {
-    model_profile: 'balanced',
-    commit_docs: true,
-    search_gitignored: false,
-    git_tag: true,
-    branching_strategy: 'none',
-    phase_branch_template: 'gsd/phase-{phase}-{slug}',
-    milestone_branch_template: 'gsd/{milestone}-{slug}',
-    research: true,
-    plan_checker: true,
-    verifier: true,
-    parallelization: true,
-    brave_search: false,
-  };
-
-  try {
-    const raw = fs.readFileSync(configPath, 'utf-8');
-    const parsed = JSON.parse(raw);
-
-    const get = (key, nested) => {
-      if (parsed[key] !== undefined) return parsed[key];
-      if (nested && parsed[nested.section] && parsed[nested.section][nested.field] !== undefined) {
-        return parsed[nested.section][nested.field];
-      }
-      return undefined;
-    };
-
-    const parallelization = (() => {
-      const val = get('parallelization');
-      if (typeof val === 'boolean') return val;
-      if (typeof val === 'object' && val !== null && 'enabled' in val) return val.enabled;
-      return defaults.parallelization;
-    })();
-
-    return {
-      model_profile: get('model_profile') ?? defaults.model_profile,
-      commit_docs: get('commit_docs', { section: 'planning', field: 'commit_docs' }) ?? defaults.commit_docs,
-      search_gitignored: get('search_gitignored', { section: 'planning', field: 'search_gitignored' }) ?? defaults.search_gitignored,
-      git_tag: get('git_tag', { section: 'planning', field: 'git_tag' }) ?? defaults.git_tag,
-      branching_strategy: get('branching_strategy', { section: 'git', field: 'branching_strategy' }) ?? defaults.branching_strategy,
-      phase_branch_template: get('phase_branch_template', { section: 'git', field: 'phase_branch_template' }) ?? defaults.phase_branch_template,
-      milestone_branch_template: get('milestone_branch_template', { section: 'git', field: 'milestone_branch_template' }) ?? defaults.milestone_branch_template,
-      research: get('research', { section: 'workflow', field: 'research' }) ?? defaults.research,
-      plan_checker: get('plan_checker', { section: 'workflow', field: 'plan_check' }) ?? defaults.plan_checker,
-      verifier: get('verifier', { section: 'workflow', field: 'verifier' }) ?? defaults.verifier,
-      parallelization,
-      brave_search: get('brave_search') ?? defaults.brave_search,
-    };
-  } catch {
-    return defaults;
-  }
-}
-
-function isGitIgnored(cwd, targetPath) {
-  try {
-    // Cross-platform: use execFileSync with array args instead of shell string construction
-    execFileSync('git', ['check-ignore', '-q', '--', targetPath], {
-      cwd,
-      stdio: 'pipe',
-    });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function execGit(cwd, args) {
-  try {
-    // Cross-platform: use execFileSync with array args instead of shell string construction
-    const stdout = execFileSync('git', args, {
-      cwd,
-      stdio: 'pipe',
-      encoding: 'utf-8',
-    });
-    return { exitCode: 0, stdout: stdout.trim(), stderr: '' };
-  } catch (err) {
-    return {
-      exitCode: err.status ?? 1,
-      stdout: (err.stdout ?? '').toString().trim(),
-      stderr: (err.stderr ?? '').toString().trim(),
-    };
-  }
-}
-
-// Cross-platform: Node.js directory walker replacing Unix find command
-function findCodeFiles(cwd, maxDepth) {
-  const codeExtensions = ['.ts', '.js', '.py', '.go', '.rs', '.swift', '.java'];
-  const excludeDirs = ['node_modules', '.git'];
-  const results = [];
-
-  function walk(dir, depth) {
-    if (depth > maxDepth) return;
-    if (results.length >= 5) return; // Match "head -5" behavior
-
-    try {
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-
-      for (const entry of entries) {
-        if (results.length >= 5) return;
-
-        const entryPath = path.join(dir, entry.name);
-        const relPath = path.relative(cwd, entryPath);
-
-        // Skip excluded directories
-        if (entry.isDirectory()) {
-          if (!excludeDirs.includes(entry.name)) {
-            walk(entryPath, depth + 1);
-          }
-        } else if (entry.isFile()) {
-          const ext = path.extname(entry.name);
-          if (codeExtensions.includes(ext)) {
-            results.push(relPath);
-          }
-        }
-      }
-    } catch {
-      // Ignore permission errors or other read failures
-    }
-  }
-
-  walk(cwd, 0);
-  return results;
-}
-
-function normalizePhaseName(phase) {
-  const match = phase.match(/^(\d+(?:\.\d+)?)/);
-  if (!match) return phase;
-  const num = match[1];
-  const parts = num.split('.');
-  const padded = parts[0].padStart(2, '0');
-  return parts.length > 1 ? `${padded}.${parts[1]}` : padded;
-}
-
-function extractFrontmatter(content) {
-  const frontmatter = {};
-  const match = content.match(/^---\n([\s\S]+?)\n---/);
-  if (!match) return frontmatter;
-
-  const yaml = match[1];
-  const lines = yaml.split('\n');
-
-  // Stack to track nested objects: [{obj, key, indent}]
-  // obj = object to write to, key = current key collecting array items, indent = indentation level
-  let stack = [{ obj: frontmatter, key: null, indent: -1 }];
-
-  for (const line of lines) {
-    // Skip empty lines
-    if (line.trim() === '') continue;
-
-    // Calculate indentation (number of leading spaces)
-    const indentMatch = line.match(/^(\s*)/);
-    const indent = indentMatch ? indentMatch[1].length : 0;
-
-    // Pop stack back to appropriate level
-    while (stack.length > 1 && indent <= stack[stack.length - 1].indent) {
-      stack.pop();
-    }
-
-    const current = stack[stack.length - 1];
-
-    // Check for key: value pattern
-    const keyMatch = line.match(/^(\s*)([a-zA-Z0-9_-]+):\s*(.*)/);
-    if (keyMatch) {
-      const key = keyMatch[2];
-      const value = keyMatch[3].trim();
-
-      if (value === '' || value === '[') {
-        // Key with no value or opening bracket — could be nested object or array
-        // We'll determine based on next lines, for now create placeholder
-        current.obj[key] = value === '[' ? [] : {};
-        current.key = null;
-        // Push new context for potential nested content
-        stack.push({ obj: current.obj[key], key: null, indent });
-      } else if (value.startsWith('[') && value.endsWith(']')) {
-        // Inline array: key: [a, b, c]
-        current.obj[key] = value.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
-        current.key = null;
-      } else {
-        // Simple key: value
-        current.obj[key] = value.replace(/^["']|["']$/g, '');
-        current.key = null;
-      }
-    } else if (line.trim().startsWith('- ')) {
-      // Array item
-      const itemValue = line.trim().slice(2).replace(/^["']|["']$/g, '');
-
-      // If current context is an empty object, convert to array
-      if (typeof current.obj === 'object' && !Array.isArray(current.obj) && Object.keys(current.obj).length === 0) {
-        // Find the key in parent that points to this object and convert it
-        const parent = stack.length > 1 ? stack[stack.length - 2] : null;
-        if (parent) {
-          for (const k of Object.keys(parent.obj)) {
-            if (parent.obj[k] === current.obj) {
-              parent.obj[k] = [itemValue];
-              current.obj = parent.obj[k];
-              break;
-            }
-          }
-        }
-      } else if (Array.isArray(current.obj)) {
-        current.obj.push(itemValue);
-      }
-    }
-  }
-
-  return frontmatter;
-}
-
-function output(result, raw, rawValue) {
-  if (raw && rawValue !== undefined) {
-    process.stdout.write(String(rawValue));
-  } else {
-    const json = JSON.stringify(result, null, 2);
-    // Large payloads exceed Claude Code's Bash tool buffer (~50KB).
-    // Write to tmpfile and output the path prefixed with @file: so callers can detect it.
-    if (json.length > 50000) {
-      const tmpPath = path.join(require('os').tmpdir(), `gsd-${Date.now()}.json`);
-      fs.writeFileSync(tmpPath, json, 'utf-8');
-      process.stdout.write('@file:' + tmpPath);
-    } else {
-      process.stdout.write(json);
-    }
-  }
-  process.exit(0);
-}
-
-function error(message) {
-  process.stderr.write('Error: ' + message + '\n');
-  process.exit(1);
-}
-
-// ─── Commands ─────────────────────────────────────────────────────────────────
-
-function cmdGenerateSlug(text, raw) {
-  if (!text) {
-    error('text required for slug generation');
-  }
-
-  const slug = text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-  const result = { slug };
-  output(result, raw, slug);
-}
-
-function cmdCurrentTimestamp(format, raw) {
-  const now = new Date();
-  let result;
-
-  switch (format) {
-    case 'date':
-      result = now.toISOString().split('T')[0];
-      break;
-    case 'filename':
-      result = now.toISOString().replace(/:/g, '-').replace(/\..+/, '');
-      break;
-    case 'full':
-    default:
-      result = now.toISOString();
-      break;
-  }
-
-  output({ timestamp: result }, raw, result);
-}
-
-function cmdListTodos(cwd, area, raw) {
-  const pendingDir = path.join(cwd, '.planning', 'todos', 'pending');
-
-  let count = 0;
-  const todos = [];
-
-  try {
-    const files = fs.readdirSync(pendingDir).filter(f => f.endsWith('.md'));
-
-    for (const file of files) {
-      try {
-        const content = fs.readFileSync(path.join(pendingDir, file), 'utf-8');
-        const createdMatch = content.match(/^created:\s*(.+)$/m);
-        const titleMatch = content.match(/^title:\s*(.+)$/m);
-        const areaMatch = content.match(/^area:\s*(.+)$/m);
-
-        const todoArea = areaMatch ? areaMatch[1].trim() : 'general';
-
-        // Apply area filter if specified
-        if (area && todoArea !== area) continue;
-
-        count++;
-        todos.push({
-          file,
-          created: createdMatch ? createdMatch[1].trim() : 'unknown',
-          title: titleMatch ? titleMatch[1].trim() : 'Untitled',
-          area: todoArea,
-          path: path.join('.planning', 'todos', 'pending', file),
-        });
-      } catch {}
-    }
-  } catch {}
-
-  const inProgressDir = path.join(cwd, '.planning', 'todos', 'in-progress');
-  let inProgressCount = 0;
-  const inProgressTodos = [];
-
-  try {
-    const files = fs.readdirSync(inProgressDir).filter(f => f.endsWith('.md'));
-    for (const file of files) {
-      try {
-        const content = fs.readFileSync(path.join(inProgressDir, file), 'utf-8');
-        const createdMatch = content.match(/^created:\s*(.+)$/m);
-        const titleMatch = content.match(/^title:\s*(.+)$/m);
-        const areaMatch = content.match(/^area:\s*(.+)$/m);
-        const startedMatch = content.match(/^started:\s*(.+)$/m);
-        const todoArea = areaMatch ? areaMatch[1].trim() : 'general';
-
-        if (area && todoArea !== area) continue;
-
-        inProgressCount++;
-        inProgressTodos.push({
-          file,
-          created: createdMatch ? createdMatch[1].trim() : 'unknown',
-          started: startedMatch ? startedMatch[1].trim() : 'unknown',
-          title: titleMatch ? titleMatch[1].trim() : 'Untitled',
-          area: todoArea,
-          path: path.join('.planning', 'todos', 'in-progress', file),
-        });
-      } catch {}
-    }
-  } catch {}
-
-  const result = { count, todos, in_progress_count: inProgressCount, in_progress_todos: inProgressTodos };
-  output(result, raw, count.toString());
-}
-
-// ─── Todo Start ──────────────────────────────────────────────────────────────
-
-function cmdTodoStart(cwd, filename, raw) {
-  if (!filename) {
-    error('filename required for todo start');
-  }
-
-  const pendingDir = path.join(cwd, '.planning', 'todos', 'pending');
-  const inProgressDir = path.join(cwd, '.planning', 'todos', 'in-progress');
-  const sourcePath = path.join(pendingDir, filename);
-
-  if (!fs.existsSync(sourcePath)) {
-    error(`Todo not found: ${filename}`);
-  }
-
-  // Ensure in-progress directory exists
-  fs.mkdirSync(inProgressDir, { recursive: true });
-
-  // Read, add started timestamp, move
-  let content = fs.readFileSync(sourcePath, 'utf-8');
-  const today = new Date().toISOString().split('T')[0];
-  content = `started: ${today}\n` + content;
-
-  fs.writeFileSync(path.join(inProgressDir, filename), content, 'utf-8');
-  fs.unlinkSync(sourcePath);
-
-  output({ started: true, file: filename, date: today }, raw, 'started');
-}
-
-// ─── Todo Complete ────────────────────────────────────────────────────────────
-
-function cmdTodoComplete(cwd, filename, raw) {
-  if (!filename) {
-    error('filename required for todo complete');
-  }
-
-  const inProgressDir = path.join(cwd, '.planning', 'todos', 'in-progress');
-  const pendingDir = path.join(cwd, '.planning', 'todos', 'pending');
-  const doneDir = path.join(cwd, '.planning', 'todos', 'done');
-
-  // Check in-progress first, then fall back to pending
-  let sourcePath = path.join(inProgressDir, filename);
-  if (!fs.existsSync(sourcePath)) {
-    sourcePath = path.join(pendingDir, filename);
-    if (!fs.existsSync(sourcePath)) {
-      error(`Todo not found: ${filename}`);
-    }
-  }
-
-  // Ensure done directory exists
-  fs.mkdirSync(doneDir, { recursive: true });
-
-  // Read, add completion timestamp, move
-  let content = fs.readFileSync(sourcePath, 'utf-8');
-  const today = new Date().toISOString().split('T')[0];
-  content = `completed: ${today}\n` + content;
-
-  fs.writeFileSync(path.join(doneDir, filename), content, 'utf-8');
-  fs.unlinkSync(sourcePath);
-
-  output({ completed: true, file: filename, date: today }, raw, 'completed');
-}
-
-function cmdVerifyPathExists(cwd, targetPath, raw) {
-  if (!targetPath) {
-    error('path required for verification');
-  }
-
-  const fullPath = path.isAbsolute(targetPath) ? targetPath : path.join(cwd, targetPath);
-
-  try {
-    const stats = fs.statSync(fullPath);
-    const type = stats.isDirectory() ? 'directory' : stats.isFile() ? 'file' : 'other';
-    const result = { exists: true, type };
-    output(result, raw, 'true');
-  } catch {
-    const result = { exists: false, type: null };
-    output(result, raw, 'false');
-  }
-}
-
-function cmdConfigEnsureSection(cwd, raw) {
-  const configPath = path.join(cwd, '.planning', 'config.json');
-  const planningDir = path.join(cwd, '.planning');
-
-  // Ensure .planning directory exists
-  try {
-    if (!fs.existsSync(planningDir)) {
-      fs.mkdirSync(planningDir, { recursive: true });
-    }
-  } catch (err) {
-    error('Failed to create .planning directory: ' + err.message);
-  }
-
-  // Check if config already exists
-  if (fs.existsSync(configPath)) {
-    const result = { created: false, reason: 'already_exists' };
-    output(result, raw, 'exists');
-    return;
-  }
-
-  // Detect Brave Search API key availability
-  const homedir = require('os').homedir();
-  const braveKeyFile = path.join(homedir, '.gsd', 'brave_api_key');
-  const hasBraveSearch = !!(process.env.BRAVE_API_KEY || fs.existsSync(braveKeyFile));
-
-  // Load user-level defaults from ~/.gsd/defaults.json if available
-  const globalDefaultsPath = path.join(homedir, '.gsd', 'defaults.json');
-  let userDefaults = {};
-  try {
-    if (fs.existsSync(globalDefaultsPath)) {
-      userDefaults = JSON.parse(fs.readFileSync(globalDefaultsPath, 'utf-8'));
-    }
-  } catch (err) {
-    // Ignore malformed global defaults, fall back to hardcoded
-  }
-
-  // Create default config (user-level defaults override hardcoded defaults)
-  const hardcoded = {
-    model_profile: 'balanced',
-    commit_docs: true,
-    search_gitignored: false,
-    git_tag: true,
-    branching_strategy: 'none',
-    phase_branch_template: 'gsd/phase-{phase}-{slug}',
-    milestone_branch_template: 'gsd/{milestone}-{slug}',
-    workflow: {
-      research: true,
-      plan_check: true,
-      verifier: true,
-    },
-    parallelization: true,
-    brave_search: hasBraveSearch,
-  };
-  const defaults = {
-    ...hardcoded,
-    ...userDefaults,
-    workflow: { ...hardcoded.workflow, ...(userDefaults.workflow || {}) },
-  };
-
-  try {
-    fs.writeFileSync(configPath, JSON.stringify(defaults, null, 2), 'utf-8');
-    const result = { created: true, path: '.planning/config.json' };
-    output(result, raw, 'created');
-  } catch (err) {
-    error('Failed to create config.json: ' + err.message);
-  }
-}
-
-function cmdHistoryDigest(cwd, raw) {
-  const phasesDir = path.join(cwd, '.planning', 'phases');
-  const digest = { phases: {}, decisions: [], tech_stack: new Set() };
-
-  // Collect all phase directories: archived + current
-  const allPhaseDirs = [];
-
-  // Add archived phases first (oldest milestones first)
-  const archived = getArchivedPhaseDirs(cwd);
-  for (const a of archived) {
-    allPhaseDirs.push({ name: a.name, fullPath: a.fullPath, milestone: a.milestone });
-  }
-
-  // Add current phases
-  if (fs.existsSync(phasesDir)) {
-    try {
-      const currentDirs = fs.readdirSync(phasesDir, { withFileTypes: true })
-        .filter(e => e.isDirectory())
-        .map(e => e.name)
-        .sort();
-      for (const dir of currentDirs) {
-        allPhaseDirs.push({ name: dir, fullPath: path.join(phasesDir, dir), milestone: null });
-      }
-    } catch {}
-  }
-
-  if (allPhaseDirs.length === 0) {
-    digest.tech_stack = [];
-    output(digest, raw);
-    return;
-  }
-
-  try {
-    for (const { name: dir, fullPath: dirPath } of allPhaseDirs) {
-      const summaries = fs.readdirSync(dirPath).filter(f => f.endsWith('-SUMMARY.md') || f === 'SUMMARY.md');
-
-      for (const summary of summaries) {
-        try {
-          const content = fs.readFileSync(path.join(dirPath, summary), 'utf-8');
-          const fm = extractFrontmatter(content);
-          
-          const phaseNum = fm.phase || dir.split('-')[0];
-          
-          if (!digest.phases[phaseNum]) {
-            digest.phases[phaseNum] = {
-              name: fm.name || dir.split('-').slice(1).join(' ') || 'Unknown',
-              provides: new Set(),
-              affects: new Set(),
-              patterns: new Set(),
-            };
-          }
-
-          // Merge provides
-          if (fm['dependency-graph'] && fm['dependency-graph'].provides) {
-            fm['dependency-graph'].provides.forEach(p => digest.phases[phaseNum].provides.add(p));
-          } else if (fm.provides) {
-            fm.provides.forEach(p => digest.phases[phaseNum].provides.add(p));
-          }
-
-          // Merge affects
-          if (fm['dependency-graph'] && fm['dependency-graph'].affects) {
-            fm['dependency-graph'].affects.forEach(a => digest.phases[phaseNum].affects.add(a));
-          }
-
-          // Merge patterns
-          if (fm['patterns-established']) {
-            fm['patterns-established'].forEach(p => digest.phases[phaseNum].patterns.add(p));
-          }
-
-          // Merge decisions
-          if (fm['key-decisions']) {
-            fm['key-decisions'].forEach(d => {
-              digest.decisions.push({ phase: phaseNum, decision: d });
-            });
-          }
-
-          // Merge tech stack
-          if (fm['tech-stack'] && fm['tech-stack'].added) {
-            fm['tech-stack'].added.forEach(t => digest.tech_stack.add(typeof t === 'string' ? t : t.name));
-          }
-
-        } catch (e) {
-          // Skip malformed summaries
-        }
-      }
-    }
-
-    // Convert Sets to Arrays for JSON output
-    Object.keys(digest.phases).forEach(p => {
-      digest.phases[p].provides = [...digest.phases[p].provides];
-      digest.phases[p].affects = [...digest.phases[p].affects];
-      digest.phases[p].patterns = [...digest.phases[p].patterns];
-    });
-    digest.tech_stack = [...digest.tech_stack];
-
-    output(digest, raw);
-  } catch (e) {
-    error('Failed to generate history digest: ' + e.message);
-  }
-}
-
-function cmdPhasesList(cwd, options, raw) {
-  const phasesDir = path.join(cwd, '.planning', 'phases');
-  const { type, phase, includeArchived } = options;
-
-  // If no phases directory, return empty
-  if (!fs.existsSync(phasesDir)) {
-    if (type) {
-      output({ files: [], count: 0 }, raw, '');
-    } else {
-      output({ directories: [], count: 0 }, raw, '');
-    }
-    return;
-  }
-
-  try {
-    // Get all phase directories
-    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-    let dirs = entries.filter(e => e.isDirectory()).map(e => e.name);
-
-    // Include archived phases if requested
-    if (includeArchived) {
-      const archived = getArchivedPhaseDirs(cwd);
-      for (const a of archived) {
-        dirs.push(`${a.name} [${a.milestone}]`);
-      }
-    }
-
-    // Sort numerically (handles decimals: 01, 02, 02.1, 02.2, 03)
-    dirs.sort((a, b) => {
-      const aNum = parseFloat(a.match(/^(\d+(?:\.\d+)?)/)?.[1] || '0');
-      const bNum = parseFloat(b.match(/^(\d+(?:\.\d+)?)/)?.[1] || '0');
-      return aNum - bNum;
-    });
-
-    // If filtering by phase number
-    if (phase) {
-      const normalized = normalizePhaseName(phase);
-      const match = dirs.find(d => d.startsWith(normalized));
-      if (!match) {
-        output({ files: [], count: 0, phase_dir: null, error: 'Phase not found' }, raw, '');
-        return;
-      }
-      dirs = [match];
-    }
-
-    // If listing files of a specific type
-    if (type) {
-      const files = [];
-      for (const dir of dirs) {
-        const dirPath = path.join(phasesDir, dir);
-        const dirFiles = fs.readdirSync(dirPath);
-
-        let filtered;
-        if (type === 'plans') {
-          filtered = dirFiles.filter(f => f.endsWith('-PLAN.md') || f === 'PLAN.md');
-        } else if (type === 'summaries') {
-          filtered = dirFiles.filter(f => f.endsWith('-SUMMARY.md') || f === 'SUMMARY.md');
-        } else {
-          filtered = dirFiles;
-        }
-
-        files.push(...filtered.sort());
-      }
-
-      const result = {
-        files,
-        count: files.length,
-        phase_dir: phase ? dirs[0].replace(/^\d+(?:\.\d+)?-?/, '') : null,
-      };
-      output(result, raw, files.join('\n'));
-      return;
-    }
-
-    // Default: list directories
-    output({ directories: dirs, count: dirs.length }, raw, dirs.join('\n'));
-  } catch (e) {
-    error('Failed to list phases: ' + e.message);
-  }
-}
-
-function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
-  const roadmapPath = path.join(cwd, '.planning', 'ROADMAP.md');
-
-  if (!fs.existsSync(roadmapPath)) {
-    output({ found: false, error: 'ROADMAP.md not found' }, raw, '');
-    return;
-  }
-
-  try {
-    const content = fs.readFileSync(roadmapPath, 'utf-8');
-
-    // Escape special regex chars in phase number, handle decimal
-    const escapedPhase = phaseNum.replace(/\./g, '\\.');
-
-    // Match "## Phase X:" or "### Phase X:" with optional name
-    const phasePattern = new RegExp(
-      `#{2,4}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`,
-      'i'
-    );
-    const headerMatch = content.match(phasePattern);
-
-    if (!headerMatch) {
-      // Fallback: check if phase exists in summary list but missing detail section
-      const checklistPattern = new RegExp(
-        `-\\s*\\[[ x]\\]\\s*\\*\\*Phase\\s+${escapedPhase}:\\s*([^*]+)\\*\\*`,
-        'i'
-      );
-      const checklistMatch = content.match(checklistPattern);
-
-      if (checklistMatch) {
-        // Phase exists in summary but missing detail section - malformed ROADMAP
-        output({
-          found: false,
-          phase_number: phaseNum,
-          phase_name: checklistMatch[1].trim(),
-          error: 'malformed_roadmap',
-          message: `Phase ${phaseNum} exists in summary list but missing "### Phase ${phaseNum}:" detail section. ROADMAP.md needs both formats.`
-        }, raw, '');
-        return;
-      }
-
-      output({ found: false, phase_number: phaseNum }, raw, '');
-      return;
-    }
-
-    const phaseName = headerMatch[1].trim();
-    const headerIndex = headerMatch.index;
-
-    // Find the end of this section (next ## or ### phase header, or end of file)
-    const restOfContent = content.slice(headerIndex);
-    const nextHeaderMatch = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
-    const sectionEnd = nextHeaderMatch
-      ? headerIndex + nextHeaderMatch.index
-      : content.length;
-
-    const section = content.slice(headerIndex, sectionEnd).trim();
-
-    // Extract goal if present
-    const goalMatch = section.match(/\*\*Goal:\*\*\s*([^\n]+)/i);
-    const goal = goalMatch ? goalMatch[1].trim() : null;
-
-    // Extract success criteria as structured array
-    const criteriaMatch = section.match(/\*\*Success Criteria\*\*[^\n]*:\s*\n((?:\s*\d+\.\s*[^\n]+\n?)+)/i);
-    const success_criteria = criteriaMatch
-      ? criteriaMatch[1].trim().split('\n').map(line => line.replace(/^\s*\d+\.\s*/, '').trim()).filter(Boolean)
-      : [];
-
-    output(
-      {
-        found: true,
-        phase_number: phaseNum,
-        phase_name: phaseName,
-        goal,
-        success_criteria,
-        section,
-      },
-      raw,
-      section
-    );
-  } catch (e) {
-    error('Failed to read ROADMAP.md: ' + e.message);
-  }
-}
-
-function cmdPhaseNextDecimal(cwd, basePhase, raw) {
-  const phasesDir = path.join(cwd, '.planning', 'phases');
-  const normalized = normalizePhaseName(basePhase);
-
-  // Check if phases directory exists
-  if (!fs.existsSync(phasesDir)) {
-    output(
-      {
-        found: false,
-        base_phase: normalized,
-        next: `${normalized}.1`,
-        existing: [],
-      },
-      raw,
-      `${normalized}.1`
-    );
-    return;
-  }
-
-  try {
-    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-    const dirs = entries.filter(e => e.isDirectory()).map(e => e.name);
-
-    // Check if base phase exists
-    const baseExists = dirs.some(d => d.startsWith(normalized + '-') || d === normalized);
-
-    // Find existing decimal phases for this base
-    const decimalPattern = new RegExp(`^${normalized}\\.(\\d+)`);
-    const existingDecimals = [];
-
-    for (const dir of dirs) {
-      const match = dir.match(decimalPattern);
-      if (match) {
-        existingDecimals.push(`${normalized}.${match[1]}`);
-      }
-    }
-
-    // Sort numerically
-    existingDecimals.sort((a, b) => {
-      const aNum = parseFloat(a);
-      const bNum = parseFloat(b);
-      return aNum - bNum;
-    });
-
-    // Calculate next decimal
-    let nextDecimal;
-    if (existingDecimals.length === 0) {
-      nextDecimal = `${normalized}.1`;
-    } else {
-      const lastDecimal = existingDecimals[existingDecimals.length - 1];
-      const lastNum = parseInt(lastDecimal.split('.')[1], 10);
-      nextDecimal = `${normalized}.${lastNum + 1}`;
-    }
-
-    output(
-      {
-        found: baseExists,
-        base_phase: normalized,
-        next: nextDecimal,
-        existing: existingDecimals,
-      },
-      raw,
-      nextDecimal
-    );
-  } catch (e) {
-    error('Failed to calculate next decimal phase: ' + e.message);
-  }
-}
-
-function cmdStateLoad(cwd, raw) {
-  const config = loadConfig(cwd);
-  const planningDir = path.join(cwd, '.planning');
-
-  let stateRaw = '';
-  try {
-    stateRaw = fs.readFileSync(path.join(planningDir, 'STATE.md'), 'utf-8');
-  } catch {}
-
-  const configExists = fs.existsSync(path.join(planningDir, 'config.json'));
-  const roadmapExists = fs.existsSync(path.join(planningDir, 'ROADMAP.md'));
-  const stateExists = stateRaw.length > 0;
-
-  const result = {
-    config,
-    state_raw: stateRaw,
-    state_exists: stateExists,
-    roadmap_exists: roadmapExists,
-    config_exists: configExists,
-  };
-
-  // For --raw, output a condensed key=value format
-  if (raw) {
-    const c = config;
-    const lines = [
-      `model_profile=${c.model_profile}`,
-      `commit_docs=${c.commit_docs}`,
-      `branching_strategy=${c.branching_strategy}`,
-      `phase_branch_template=${c.phase_branch_template}`,
-      `milestone_branch_template=${c.milestone_branch_template}`,
-      `parallelization=${c.parallelization}`,
-      `research=${c.research}`,
-      `plan_checker=${c.plan_checker}`,
-      `verifier=${c.verifier}`,
-      `config_exists=${configExists}`,
-      `roadmap_exists=${roadmapExists}`,
-      `state_exists=${stateExists}`,
-    ];
-    process.stdout.write(lines.join('\n'));
-    process.exit(0);
-  }
-
-  output(result);
-}
-
-function cmdStateGet(cwd, section, raw) {
-  const statePath = path.join(cwd, '.planning', 'STATE.md');
-  try {
-    const content = fs.readFileSync(statePath, 'utf-8');
-    
-    if (!section) {
-      output({ content }, raw, content);
-      return;
-    }
-
-    // Try to find markdown section or field
-    const fieldEscaped = section.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    
-    // Check for **field:** value
-    const fieldPattern = new RegExp(`\\*\\*${fieldEscaped}:\\*\\*\\s*(.*)`, 'i');
-    const fieldMatch = content.match(fieldPattern);
-    if (fieldMatch) {
-      output({ [section]: fieldMatch[1].trim() }, raw, fieldMatch[1].trim());
-      return;
-    }
-
-    // Check for ## Section
-    const sectionPattern = new RegExp(`##\\s*${fieldEscaped}\\s*\n([\\s\\S]*?)(?=\\n##|$)`, 'i');
-    const sectionMatch = content.match(sectionPattern);
-    if (sectionMatch) {
-      output({ [section]: sectionMatch[1].trim() }, raw, sectionMatch[1].trim());
-      return;
-    }
-
-    output({ error: `Section or field "${section}" not found` }, raw, '');
-  } catch {
-    error('STATE.md not found');
-  }
-}
-
-function cmdStatePatch(cwd, patches, raw) {
-  const statePath = path.join(cwd, '.planning', 'STATE.md');
-  try {
-    let content = fs.readFileSync(statePath, 'utf-8');
-    const results = { updated: [], failed: [] };
-
-    for (const [field, value] of Object.entries(patches)) {
-      const fieldEscaped = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const pattern = new RegExp(`(\\*\\*${fieldEscaped}:\\*\\*\\s*)(.*)`, 'i');
-      
-      if (pattern.test(content)) {
-        content = content.replace(pattern, `$1${value}`);
-        results.updated.push(field);
-      } else {
-        results.failed.push(field);
-      }
-    }
-
-    if (results.updated.length > 0) {
-      fs.writeFileSync(statePath, content, 'utf-8');
-    }
-
-    output(results, raw, results.updated.length > 0 ? 'true' : 'false');
-  } catch {
-    error('STATE.md not found');
-  }
-}
-
-function cmdStateUpdate(cwd, field, value) {
-  if (!field || value === undefined) {
-    error('field and value required for state update');
-  }
-
-  const statePath = path.join(cwd, '.planning', 'STATE.md');
-  try {
-    let content = fs.readFileSync(statePath, 'utf-8');
-    const fieldEscaped = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pattern = new RegExp(`(\\*\\*${fieldEscaped}:\\*\\*\\s*)(.*)`, 'i');
-    if (pattern.test(content)) {
-      content = content.replace(pattern, `$1${value}`);
-      fs.writeFileSync(statePath, content, 'utf-8');
-      output({ updated: true });
-    } else {
-      output({ updated: false, reason: `Field "${field}" not found in STATE.md` });
-    }
-  } catch {
-    output({ updated: false, reason: 'STATE.md not found' });
-  }
-}
-
-function cmdResolveModel(cwd, agentType, raw) {
-  if (!agentType) {
-    error('agent-type required');
-  }
-
-  const config = loadConfig(cwd);
-  const profile = config.model_profile || 'balanced';
-
-  // Check per-agent override first
-  const override = config.model_overrides?.[agentType];
-  if (override) {
-    const model = override === 'opus' ? 'inherit' : override;
-    const result = { model, profile, override: true };
-    output(result, raw, model);
-    return;
-  }
-
-  // Fall back to profile lookup
-  const agentModels = MODEL_PROFILES[agentType];
-  if (!agentModels) {
-    const result = { model: 'sonnet', profile, unknown_agent: true };
-    output(result, raw, 'sonnet');
-    return;
-  }
-
-  const resolved = agentModels[profile] || agentModels['balanced'] || 'sonnet';
-  const model = resolved === 'opus' ? 'inherit' : resolved;
-  const result = { model, profile };
-  output(result, raw, model);
-}
-
-function cmdFindPhase(cwd, phase, raw) {
-  if (!phase) {
-    error('phase identifier required');
-  }
-
-  const phasesDir = path.join(cwd, '.planning', 'phases');
-  const normalized = normalizePhaseName(phase);
-
-  const notFound = { found: false, directory: null, phase_number: null, phase_name: null, plans: [], summaries: [] };
-
-  try {
-    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-    const dirs = entries.filter(e => e.isDirectory()).map(e => e.name).sort();
-
-    const match = dirs.find(d => d.startsWith(normalized));
-    if (!match) {
-      output(notFound, raw, '');
-      return;
-    }
-
-    const dirMatch = match.match(/^(\d+(?:\.\d+)?)-?(.*)/);
-    const phaseNumber = dirMatch ? dirMatch[1] : normalized;
-    const phaseName = dirMatch && dirMatch[2] ? dirMatch[2] : null;
-
-    const phaseDir = path.join(phasesDir, match);
-    const phaseFiles = fs.readdirSync(phaseDir);
-    const plans = phaseFiles.filter(f => f.endsWith('-PLAN.md') || f === 'PLAN.md').sort();
-    const summaries = phaseFiles.filter(f => f.endsWith('-SUMMARY.md') || f === 'SUMMARY.md').sort();
-
-    const result = {
-      found: true,
-      directory: path.join('.planning', 'phases', match),
-      phase_number: phaseNumber,
-      phase_name: phaseName,
-      plans,
-      summaries,
-    };
-
-    output(result, raw, result.directory);
-  } catch {
-    output(notFound, raw, '');
-  }
-}
-
-function cmdCommit(cwd, message, files, raw) {
-  if (!message) {
-    error('commit message required');
-  }
-
-  const config = loadConfig(cwd);
-
-  // Check commit_docs config
-  if (!config.commit_docs) {
-    const result = { committed: false, hash: null, reason: 'skipped_commit_docs_false' };
-    output(result, raw, 'skipped');
-    return;
-  }
-
-  // Check if .planning is gitignored
-  if (isGitIgnored(cwd, '.planning')) {
-    const result = { committed: false, hash: null, reason: 'skipped_gitignored' };
-    output(result, raw, 'skipped');
-    return;
-  }
-
-  // Stage files
-  const filesToStage = files && files.length > 0 ? files : ['.planning/'];
-  for (const file of filesToStage) {
-    // Validate file paths are within project directory (defense-in-depth)
-    const validationResult = validateConfigPath(file, cwd);
-    if (!validationResult.ok) {
-      error(`Invalid file path: ${validationResult.error}`);
-      process.exit(1);
-    }
-    execGit(cwd, ['add', validationResult.value]);
-  }
-
-  // Commit
-  const commitResult = execGit(cwd, ['commit', '-m', message]);
-  if (commitResult.exitCode !== 0) {
-    if (commitResult.stdout.includes('nothing to commit') || commitResult.stderr.includes('nothing to commit')) {
-      const result = { committed: false, hash: null, reason: 'nothing_to_commit' };
-      output(result, raw, 'nothing');
-      return;
-    }
-    const result = { committed: false, hash: null, reason: 'nothing_to_commit', error: commitResult.stderr };
-    output(result, raw, 'nothing');
-    return;
-  }
-
-  // Get short hash
-  const hashResult = execGit(cwd, ['rev-parse', '--short', 'HEAD']);
-  const hash = hashResult.exitCode === 0 ? hashResult.stdout : null;
-  const result = { committed: true, hash, reason: 'committed' };
-  output(result, raw, hash || 'committed');
-}
-
-function cmdVerifySummary(cwd, summaryPath, checkFileCount, raw) {
-  if (!summaryPath) {
-    error('summary-path required');
-  }
-
-  const fullPath = path.join(cwd, summaryPath);
-  const checkCount = checkFileCount || 2;
-
-  // Check 1: Summary exists
-  if (!fs.existsSync(fullPath)) {
-    const result = {
-      passed: false,
-      checks: {
-        summary_exists: false,
-        files_created: { checked: 0, found: 0, missing: [] },
-        commits_exist: false,
-        self_check: 'not_found',
-      },
-      errors: ['SUMMARY.md not found'],
-    };
-    output(result, raw, 'failed');
-    return;
-  }
-
-  const content = fs.readFileSync(fullPath, 'utf-8');
-  const errors = [];
-
-  // Check 2: Spot-check files mentioned in summary
-  const mentionedFiles = new Set();
-  const patterns = [
-    /`([^`]+\.[a-zA-Z]+)`/g,
-    /(?:Created|Modified|Added|Updated|Edited):\s*`?([^\s`]+\.[a-zA-Z]+)`?/gi,
-  ];
-
-  for (const pattern of patterns) {
-    let m;
-    while ((m = pattern.exec(content)) !== null) {
-      const filePath = m[1];
-      if (filePath && !filePath.startsWith('http') && filePath.includes('/')) {
-        mentionedFiles.add(filePath);
-      }
-    }
-  }
-
-  const filesToCheck = Array.from(mentionedFiles).slice(0, checkCount);
-  const missing = [];
-  for (const file of filesToCheck) {
-    if (!fs.existsSync(path.join(cwd, file))) {
-      missing.push(file);
-    }
-  }
-
-  // Check 3: Commits exist
-  // Extract candidate hashes from text (validation via validateGitSHA in loop below)
-  const commitHashPattern = /\b[0-9a-f]{7,40}\b/g;
-  const hashes = content.match(commitHashPattern) || [];
-  let commitsExist = false;
-  if (hashes.length > 0) {
-    for (const hash of hashes.slice(0, 3)) {
-      const validHash = requireValid(validateGitSHA(hash));
-      const result = execGit(cwd, ['cat-file', '-t', validHash]);
-      if (result.exitCode === 0 && result.stdout === 'commit') {
-        commitsExist = true;
-        break;
-      }
-    }
-  }
-
-  // Check 4: Self-check section
-  let selfCheck = 'not_found';
-  const selfCheckPattern = /##\s*(?:Self[- ]?Check|Verification|Quality Check)/i;
-  if (selfCheckPattern.test(content)) {
-    const passPattern = /(?:all\s+)?(?:pass|✓|✅|complete|succeeded)/i;
-    const failPattern = /(?:fail|✗|❌|incomplete|blocked)/i;
-    const checkSection = content.slice(content.search(selfCheckPattern));
-    if (failPattern.test(checkSection)) {
-      selfCheck = 'failed';
-    } else if (passPattern.test(checkSection)) {
-      selfCheck = 'passed';
-    }
-  }
-
-  if (missing.length > 0) errors.push('Missing files: ' + missing.join(', '));
-  if (!commitsExist && hashes.length > 0) errors.push('Referenced commit hashes not found in git history');
-  if (selfCheck === 'failed') errors.push('Self-check section indicates failure');
-
-  const checks = {
-    summary_exists: true,
-    files_created: { checked: filesToCheck.length, found: filesToCheck.length - missing.length, missing },
-    commits_exist: commitsExist,
-    self_check: selfCheck,
-  };
-
-  const passed = missing.length === 0 && selfCheck !== 'failed';
-  const result = { passed, checks, errors };
-  output(result, raw, passed ? 'passed' : 'failed');
-}
-
-function cmdTemplateSelect(cwd, planPath, raw) {
-  if (!planPath) {
-    error('plan-path required');
-  }
-
-  try {
-    const fullPath = path.join(cwd, planPath);
-    const content = fs.readFileSync(fullPath, 'utf-8');
-    
-    // Simple heuristics
-    const taskMatch = content.match(/###\s*Task\s*\d+/g) || [];
-    const taskCount = taskMatch.length;
-    
-    const decisionMatch = content.match(/decision/gi) || [];
-    const hasDecisions = decisionMatch.length > 0;
-    
-    // Count file mentions
-    const fileMentions = new Set();
-    const filePattern = /`([^`]+\.[a-zA-Z]+)`/g;
-    let m;
-    while ((m = filePattern.exec(content)) !== null) {
-      if (m[1].includes('/') && !m[1].startsWith('http')) {
-        fileMentions.add(m[1]);
-      }
-    }
-    const fileCount = fileMentions.size;
-
-    let template = 'templates/summary-standard.md';
-    let type = 'standard';
-
-    if (taskCount <= 2 && fileCount <= 3 && !hasDecisions) {
-      template = 'templates/summary-minimal.md';
-      type = 'minimal';
-    } else if (hasDecisions || fileCount > 6 || taskCount > 5) {
-      template = 'templates/summary-complex.md';
-      type = 'complex';
-    }
-
-    const result = { template, type, taskCount, fileCount, hasDecisions };
-    output(result, raw, template);
-  } catch (e) {
-    // Fallback to standard
-    output({ template: 'templates/summary-standard.md', type: 'standard', error: e.message }, raw, 'templates/summary-standard.md');
-  }
-}
-
-// ─── Compound Commands ────────────────────────────────────────────────────────
-
-function resolveModelInternal(cwd, agentType) {
-  const config = loadConfig(cwd);
-  const profile = config.model_profile || 'balanced';
-
-  // Check per-agent override first
-  const override = config.model_overrides?.[agentType];
-  if (override) {
-    return override === 'opus' ? 'inherit' : override;
-  }
-
-  // Fall back to profile lookup
-  const agentModels = MODEL_PROFILES[agentType];
-  if (!agentModels) return 'sonnet';
-  const resolved = agentModels[profile] || agentModels['balanced'] || 'sonnet';
-  return resolved === 'opus' ? 'inherit' : resolved;
-}
-
-function getArchivedPhaseDirs(cwd) {
-  const milestonesDir = path.join(cwd, '.planning', 'milestones');
-  const results = [];
-
-  if (!fs.existsSync(milestonesDir)) return results;
-
-  try {
-    const milestoneEntries = fs.readdirSync(milestonesDir, { withFileTypes: true });
-    // Find v*-phases directories, sort newest first
-    const phaseDirs = milestoneEntries
-      .filter(e => e.isDirectory() && /^v[\d.]+-phases$/.test(e.name))
-      .map(e => e.name)
-      .sort()
-      .reverse();
-
-    for (const archiveName of phaseDirs) {
-      const version = archiveName.match(/^(v[\d.]+)-phases$/)[1];
-      const archivePath = path.join(milestonesDir, archiveName);
-      const entries = fs.readdirSync(archivePath, { withFileTypes: true });
-      const dirs = entries.filter(e => e.isDirectory()).map(e => e.name).sort();
-
-      for (const dir of dirs) {
-        results.push({
-          name: dir,
-          milestone: version,
-          basePath: path.join('.planning', 'milestones', archiveName),
-          fullPath: path.join(archivePath, dir),
-        });
-      }
-    }
-  } catch {}
-
-  return results;
-}
-
-function searchPhaseInDir(baseDir, relBase, normalized) {
-  try {
-    const entries = fs.readdirSync(baseDir, { withFileTypes: true });
-    const dirs = entries.filter(e => e.isDirectory()).map(e => e.name).sort();
-    const match = dirs.find(d => d.startsWith(normalized));
-    if (!match) return null;
-
-    const dirMatch = match.match(/^(\d+(?:\.\d+)?)-?(.*)/);
-    const phaseNumber = dirMatch ? dirMatch[1] : normalized;
-    const phaseName = dirMatch && dirMatch[2] ? dirMatch[2] : null;
-    const phaseDir = path.join(baseDir, match);
-    const phaseFiles = fs.readdirSync(phaseDir);
-
-    const plans = phaseFiles.filter(f => f.endsWith('-PLAN.md') || f === 'PLAN.md').sort();
-    const summaries = phaseFiles.filter(f => f.endsWith('-SUMMARY.md') || f === 'SUMMARY.md').sort();
-    const hasResearch = phaseFiles.some(f => f.endsWith('-RESEARCH.md') || f === 'RESEARCH.md');
-    const hasContext = phaseFiles.some(f => f.endsWith('-CONTEXT.md') || f === 'CONTEXT.md');
-    const hasVerification = phaseFiles.some(f => f.endsWith('-VERIFICATION.md') || f === 'VERIFICATION.md');
-
-    const completedPlanIds = new Set(
-      summaries.map(s => s.replace('-SUMMARY.md', '').replace('SUMMARY.md', ''))
-    );
-    const incompletePlans = plans.filter(p => {
-      const planId = p.replace('-PLAN.md', '').replace('PLAN.md', '');
-      return !completedPlanIds.has(planId);
-    });
-
-    return {
-      found: true,
-      directory: path.join(relBase, match),
-      phase_number: phaseNumber,
-      phase_name: phaseName,
-      phase_slug: phaseName ? phaseName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : null,
-      plans,
-      summaries,
-      incomplete_plans: incompletePlans,
-      has_research: hasResearch,
-      has_context: hasContext,
-      has_verification: hasVerification,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function findPhaseInternal(cwd, phase) {
-  if (!phase) return null;
-
-  const phasesDir = path.join(cwd, '.planning', 'phases');
-  const normalized = normalizePhaseName(phase);
-
-  // Search current phases first
-  const current = searchPhaseInDir(phasesDir, path.join('.planning', 'phases'), normalized);
-  if (current) return current;
-
-  // Search archived milestone phases (newest first)
-  const milestonesDir = path.join(cwd, '.planning', 'milestones');
-  if (!fs.existsSync(milestonesDir)) return null;
-
-  try {
-    const milestoneEntries = fs.readdirSync(milestonesDir, { withFileTypes: true });
-    const archiveDirs = milestoneEntries
-      .filter(e => e.isDirectory() && /^v[\d.]+-phases$/.test(e.name))
-      .map(e => e.name)
-      .sort()
-      .reverse();
-
-    for (const archiveName of archiveDirs) {
-      const version = archiveName.match(/^(v[\d.]+)-phases$/)[1];
-      const archivePath = path.join(milestonesDir, archiveName);
-      const relBase = path.join('.planning', 'milestones', archiveName);
-      const result = searchPhaseInDir(archivePath, relBase, normalized);
-      if (result) {
-        result.archived = version;
-        return result;
-      }
-    }
-  } catch {}
-
-  return null;
-}
-
-function getRoadmapPhaseInternal(cwd, phaseNum) {
-  if (!phaseNum) return null;
-  const roadmapPath = path.join(cwd, '.planning', 'ROADMAP.md');
-  if (!fs.existsSync(roadmapPath)) return null;
-
-  try {
-    const content = fs.readFileSync(roadmapPath, 'utf-8');
-    const escapedPhase = phaseNum.toString().replace(/\./g, '\\.');
-    const phasePattern = new RegExp(`#{2,4}\\s*Phase\\s+${escapedPhase}:\\s*([^\\n]+)`, 'i');
-    const headerMatch = content.match(phasePattern);
-    if (!headerMatch) return null;
-
-    const phaseName = headerMatch[1].trim();
-    const headerIndex = headerMatch.index;
-    const restOfContent = content.slice(headerIndex);
-    const nextHeaderMatch = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
-    const sectionEnd = nextHeaderMatch ? headerIndex + nextHeaderMatch.index : content.length;
-    const section = content.slice(headerIndex, sectionEnd).trim();
-
-    const goalMatch = section.match(/\*\*Goal:\*\*\s*([^\n]+)/i);
-    const goal = goalMatch ? goalMatch[1].trim() : null;
-
-    return {
-      found: true,
-      phase_number: phaseNum.toString(),
-      phase_name: phaseName,
-      goal,
-      section,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function pathExistsInternal(cwd, targetPath) {
-  const fullPath = path.isAbsolute(targetPath) ? targetPath : path.join(cwd, targetPath);
-  try {
-    fs.statSync(fullPath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function generateSlugInternal(text) {
-  if (!text) return null;
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-}
-
-function getMilestoneInfo(cwd) {
-  try {
-    const roadmap = fs.readFileSync(path.join(cwd, '.planning', 'ROADMAP.md'), 'utf-8');
-    const versionMatch = roadmap.match(/v(\d+\.\d+)/);
-    const nameMatch = roadmap.match(/## .*v\d+\.\d+[:\s]+([^\n(]+)/);
-    return {
-      version: versionMatch ? versionMatch[0] : 'v1.0',
-      name: nameMatch ? nameMatch[1].trim() : 'milestone',
-    };
-  } catch {
-    return { version: 'v1.0', name: 'milestone' };
-  }
-}
-
-function cmdInitExecutePhase(cwd, phase, raw) {
-  if (!phase) {
-    error('phase required for init execute-phase');
-  }
-
-  const config = loadConfig(cwd);
-  const phaseInfo = findPhaseInternal(cwd, phase);
-  const milestone = getMilestoneInfo(cwd);
-
-  const result = {
-    // Models
-    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
-    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
-
-    // Config flags
-    commit_docs: config.commit_docs,
-    parallelization: config.parallelization,
-    branching_strategy: config.branching_strategy,
-    phase_branch_template: config.phase_branch_template,
-    milestone_branch_template: config.milestone_branch_template,
-    verifier_enabled: config.verifier,
-
-    // Phase info
-    phase_found: !!phaseInfo,
-    phase_dir: phaseInfo?.directory || null,
-    phase_number: phaseInfo?.phase_number || null,
-    phase_name: phaseInfo?.phase_name || null,
-    phase_slug: phaseInfo?.phase_slug || null,
-
-    // Plan inventory
-    plans: phaseInfo?.plans || [],
-    summaries: phaseInfo?.summaries || [],
-    incomplete_plans: phaseInfo?.incomplete_plans || [],
-    plan_count: phaseInfo?.plans?.length || 0,
-    incomplete_count: phaseInfo?.incomplete_plans?.length || 0,
-
-    // Branch name (pre-computed, validated as defense-in-depth)
-    branch_name: (() => {
-      if (config.branching_strategy === 'phase' && phaseInfo) {
-        const name = config.phase_branch_template
-          .replace('{phase}', phaseInfo.phase_number)
-          .replace('{slug}', phaseInfo.phase_slug || 'phase');
-        return requireValid(validateBranchName(name));
-      }
-      if (config.branching_strategy === 'milestone') {
-        const name = config.milestone_branch_template
-          .replace('{milestone}', milestone.version)
-          .replace('{slug}', generateSlugInternal(milestone.name) || 'milestone');
-        return requireValid(validateBranchName(name));
-      }
-      return null;
-    })(),
-
-    // Milestone info
-    milestone_version: milestone.version,
-    milestone_name: milestone.name,
-    milestone_slug: generateSlugInternal(milestone.name),
-
-    // File existence
-    state_exists: pathExistsInternal(cwd, '.planning/STATE.md'),
-    roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
-    config_exists: pathExistsInternal(cwd, '.planning/config.json'),
-    // File paths
-    state_path: '.planning/STATE.md',
-    roadmap_path: '.planning/ROADMAP.md',
-    config_path: '.planning/config.json',
-  };
-
-  output(result, raw);
-}
-
-function cmdInitPlanPhase(cwd, phase, raw) {
-  if (!phase) {
-    error('phase required for init plan-phase');
-  }
-
-  const config = loadConfig(cwd);
-  const phaseInfo = findPhaseInternal(cwd, phase);
-
-  const result = {
-    // Models
-    researcher_model: resolveModelInternal(cwd, 'gsd-phase-researcher'),
-    planner_model: resolveModelInternal(cwd, 'gsd-planner'),
-    checker_model: resolveModelInternal(cwd, 'gsd-plan-checker'),
-
-    // Workflow flags
-    research_enabled: config.research,
-    plan_checker_enabled: config.plan_checker,
-    commit_docs: config.commit_docs,
-    branching_strategy: config.branching_strategy,
-
-    // Phase info
-    phase_found: !!phaseInfo,
-    phase_dir: phaseInfo?.directory || null,
-    phase_number: phaseInfo?.phase_number || null,
-    phase_name: phaseInfo?.phase_name || null,
-    phase_slug: phaseInfo?.phase_slug || null,
-    padded_phase: phaseInfo?.phase_number?.padStart(2, '0') || null,
-
-    // Branch name (pre-computed) — ensures early branching before first commit
-    branch_name: config.branching_strategy === 'phase' && phaseInfo
-      ? config.phase_branch_template
-          .replace('{phase}', phaseInfo.phase_number)
-          .replace('{slug}', phaseInfo.phase_slug || 'phase')
-      : config.branching_strategy === 'milestone'
-        ? config.milestone_branch_template
-            .replace('{milestone}', getMilestoneInfo(cwd).version)
-            .replace('{slug}', generateSlugInternal(getMilestoneInfo(cwd).name) || 'milestone')
-        : null,
-
-    // Existing artifacts
-    has_research: phaseInfo?.has_research || false,
-    has_context: phaseInfo?.has_context || false,
-    has_plans: (phaseInfo?.plans?.length || 0) > 0,
-    plan_count: phaseInfo?.plans?.length || 0,
-
-    // Environment
-    planning_exists: pathExistsInternal(cwd, '.planning'),
-    roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
-
-    // File paths
-    state_path: '.planning/STATE.md',
-    roadmap_path: '.planning/ROADMAP.md',
-    requirements_path: '.planning/REQUIREMENTS.md',
-  };
-
-  if (phaseInfo?.directory) {
-    // Find *-CONTEXT.md in phase directory
-    const phaseDirFull = path.join(cwd, phaseInfo.directory);
-    try {
-      const files = fs.readdirSync(phaseDirFull);
-      const contextFile = files.find(f => f.endsWith('-CONTEXT.md') || f === 'CONTEXT.md');
-      if (contextFile) {
-        result.context_path = path.join(phaseInfo.directory, contextFile);
-      }
-      const researchFile = files.find(f => f.endsWith('-RESEARCH.md') || f === 'RESEARCH.md');
-      if (researchFile) {
-        result.research_path = path.join(phaseInfo.directory, researchFile);
-      }
-      const verificationFile = files.find(f => f.endsWith('-VERIFICATION.md') || f === 'VERIFICATION.md');
-      if (verificationFile) {
-        result.verification_path = path.join(phaseInfo.directory, verificationFile);
-      }
-      const uatFile = files.find(f => f.endsWith('-UAT.md') || f === 'UAT.md');
-      if (uatFile) {
-        result.uat_path = path.join(phaseInfo.directory, uatFile);
-      }
-    } catch {}
-  }
-
-  output(result, raw);
-}
-
-function cmdInitNewProject(cwd, raw) {
-  const config = loadConfig(cwd);
-
-  // Detect Brave Search API key availability
-  const homedir = require('os').homedir();
-  const braveKeyFile = path.join(homedir, '.gsd', 'brave_api_key');
-  const hasBraveSearch = !!(process.env.BRAVE_API_KEY || fs.existsSync(braveKeyFile));
-
-  // Detect existing code
-  // Cross-platform: replaced Unix find with Node.js directory walk
-  let hasCode = false;
-  let hasPackageFile = false;
-  try {
-    const files = findCodeFiles(cwd, 3); // maxDepth=3 matches "find . -maxdepth 3"
-    hasCode = files.length > 0;
-  } catch {}
-
-  hasPackageFile = pathExistsInternal(cwd, 'package.json') ||
-                   pathExistsInternal(cwd, 'requirements.txt') ||
-                   pathExistsInternal(cwd, 'Cargo.toml') ||
-                   pathExistsInternal(cwd, 'go.mod') ||
-                   pathExistsInternal(cwd, 'Package.swift');
-
-  const result = {
-    // Models
-    researcher_model: resolveModelInternal(cwd, 'gsd-project-researcher'),
-    synthesizer_model: resolveModelInternal(cwd, 'gsd-research-synthesizer'),
-    roadmapper_model: resolveModelInternal(cwd, 'gsd-roadmapper'),
-
-    // Config
-    commit_docs: config.commit_docs,
-
-    // Existing state
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    has_codebase_map: pathExistsInternal(cwd, '.planning/codebase'),
-    planning_exists: pathExistsInternal(cwd, '.planning'),
-
-    // Brownfield detection
-    has_existing_code: hasCode,
-    has_package_file: hasPackageFile,
-    is_brownfield: hasCode || hasPackageFile,
-    needs_codebase_map: (hasCode || hasPackageFile) && !pathExistsInternal(cwd, '.planning/codebase'),
-
-    // Git state
-    has_git: pathExistsInternal(cwd, '.git'),
-
-    // Enhanced search
-    brave_search_available: hasBraveSearch,
-
-    // File paths
-    project_path: '.planning/PROJECT.md',
-  };
-
-  output(result, raw);
-}
-
-function cmdInitNewMilestone(cwd, raw) {
-  const config = loadConfig(cwd);
-  const milestone = getMilestoneInfo(cwd);
-
-  const result = {
-    // Models
-    researcher_model: resolveModelInternal(cwd, 'gsd-project-researcher'),
-    synthesizer_model: resolveModelInternal(cwd, 'gsd-research-synthesizer'),
-    roadmapper_model: resolveModelInternal(cwd, 'gsd-roadmapper'),
-
-    // Config
-    commit_docs: config.commit_docs,
-    research_enabled: config.research,
-
-    // Current milestone
-    current_milestone: milestone.version,
-    current_milestone_name: milestone.name,
-
-    // File existence
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
-    state_exists: pathExistsInternal(cwd, '.planning/STATE.md'),
-
-    // File paths
-    project_path: '.planning/PROJECT.md',
-    roadmap_path: '.planning/ROADMAP.md',
-    state_path: '.planning/STATE.md',
-  };
-
-  output(result, raw);
-}
-
-function cmdInitQuick(cwd, description, raw) {
-  const config = loadConfig(cwd);
-  const now = new Date();
-  const slug = description ? generateSlugInternal(description)?.substring(0, 40) : null;
-
-  // Find next quick task number
-  const quickDir = path.join(cwd, '.planning', 'quick');
-  let nextNum = 1;
-  try {
-    const existing = fs.readdirSync(quickDir)
-      .filter(f => /^\d+-/.test(f))
-      .map(f => parseInt(f.split('-')[0], 10))
-      .filter(n => !isNaN(n));
-    if (existing.length > 0) {
-      nextNum = Math.max(...existing) + 1;
-    }
-  } catch {}
-
-  const result = {
-    // Models
-    planner_model: resolveModelInternal(cwd, 'gsd-planner'),
-    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
-    checker_model: resolveModelInternal(cwd, 'gsd-plan-checker'),
-    verifier_model: resolveModelInternal(cwd, 'gsd-verifier'),
-
-    // Config
-    commit_docs: config.commit_docs,
-
-    // Quick task info
-    next_num: nextNum,
-    slug: slug,
-    description: description || null,
-
-    // Timestamps
-    date: now.toISOString().split('T')[0],
-    timestamp: now.toISOString(),
-
-    // Paths
-    quick_dir: '.planning/quick',
-    task_dir: slug ? `.planning/quick/${nextNum}-${slug}` : null,
-
-    // File existence
-    roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
-    planning_exists: pathExistsInternal(cwd, '.planning'),
-  };
-
-  output(result, raw);
-}
-
-function cmdInitResume(cwd, raw) {
-  const config = loadConfig(cwd);
-
-  // Check for interrupted agent
-  let interruptedAgentId = null;
-  try {
-    interruptedAgentId = fs.readFileSync(path.join(cwd, '.planning', 'current-agent-id.txt'), 'utf-8').trim();
-  } catch {}
-
-  const result = {
-    // File existence
-    state_exists: pathExistsInternal(cwd, '.planning/STATE.md'),
-    roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    planning_exists: pathExistsInternal(cwd, '.planning'),
-
-    // File paths
-    state_path: '.planning/STATE.md',
-    roadmap_path: '.planning/ROADMAP.md',
-    project_path: '.planning/PROJECT.md',
-
-    // Agent state
-    has_interrupted_agent: !!interruptedAgentId,
-    interrupted_agent_id: interruptedAgentId,
-
-    // Config
-    commit_docs: config.commit_docs,
-  };
-
-  output(result, raw);
-}
-
-function cmdInitVerifyWork(cwd, phase, raw) {
-  if (!phase) {
-    error('phase required for init verify-work');
-  }
-
-  const config = loadConfig(cwd);
-  const phaseInfo = findPhaseInternal(cwd, phase);
-
-  const result = {
-    // Models
-    planner_model: resolveModelInternal(cwd, 'gsd-planner'),
-    checker_model: resolveModelInternal(cwd, 'gsd-plan-checker'),
-
-    // Config
-    commit_docs: config.commit_docs,
-
-    // Phase info
-    phase_found: !!phaseInfo,
-    phase_dir: phaseInfo?.directory || null,
-    phase_number: phaseInfo?.phase_number || null,
-    phase_name: phaseInfo?.phase_name || null,
-
-    // Existing artifacts
-    has_verification: phaseInfo?.has_verification || false,
-  };
-
-  output(result, raw);
-}
-
-function cmdInitPhaseOp(cwd, phase, raw) {
-  const config = loadConfig(cwd);
-  let phaseInfo = findPhaseInternal(cwd, phase);
-
-  // Fallback to ROADMAP.md if no directory exists (e.g., Plans: TBD)
-  if (!phaseInfo) {
-    const roadmapPhase = getRoadmapPhaseInternal(cwd, phase);
-    if (roadmapPhase?.found) {
-      const phaseName = roadmapPhase.phase_name;
-      phaseInfo = {
-        found: true,
-        directory: null,
-        phase_number: roadmapPhase.phase_number,
-        phase_name: phaseName,
-        phase_slug: phaseName ? phaseName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : null,
-        plans: [],
-        summaries: [],
-        incomplete_plans: [],
-        has_research: false,
-        has_context: false,
-        has_verification: false,
-      };
-    }
-  }
-
-  const milestone = getMilestoneInfo(cwd);
-
-  const result = {
-    // Config
-    commit_docs: config.commit_docs,
-    brave_search: config.brave_search,
-    branching_strategy: config.branching_strategy,
-
-    // Phase info
-    phase_found: !!phaseInfo,
-    phase_dir: phaseInfo?.directory || null,
-    phase_number: phaseInfo?.phase_number || null,
-    phase_name: phaseInfo?.phase_name || null,
-    phase_slug: phaseInfo?.phase_slug || null,
-    padded_phase: phaseInfo?.phase_number?.padStart(2, '0') || null,
-
-    // Branch name (pre-computed) — ensures early branching before first commit
-    branch_name: config.branching_strategy === 'phase' && phaseInfo
-      ? config.phase_branch_template
-          .replace('{phase}', phaseInfo.phase_number)
-          .replace('{slug}', phaseInfo.phase_slug || 'phase')
-      : config.branching_strategy === 'milestone'
-        ? config.milestone_branch_template
-            .replace('{milestone}', milestone.version)
-            .replace('{slug}', generateSlugInternal(milestone.name) || 'milestone')
-        : null,
-
-    // Existing artifacts
-    has_research: phaseInfo?.has_research || false,
-    has_context: phaseInfo?.has_context || false,
-    has_plans: (phaseInfo?.plans?.length || 0) > 0,
-    has_verification: phaseInfo?.has_verification || false,
-    plan_count: phaseInfo?.plans?.length || 0,
-
-    // File existence
-    roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
-    planning_exists: pathExistsInternal(cwd, '.planning'),
-
-    // File paths
-    state_path: '.planning/STATE.md',
-    roadmap_path: '.planning/ROADMAP.md',
-    requirements_path: '.planning/REQUIREMENTS.md',
-  };
-
-  if (phaseInfo?.directory) {
-    const phaseDirFull = path.join(cwd, phaseInfo.directory);
-    try {
-      const files = fs.readdirSync(phaseDirFull);
-      const contextFile = files.find(f => f.endsWith('-CONTEXT.md') || f === 'CONTEXT.md');
-      if (contextFile) {
-        result.context_path = path.join(phaseInfo.directory, contextFile);
-      }
-      const researchFile = files.find(f => f.endsWith('-RESEARCH.md') || f === 'RESEARCH.md');
-      if (researchFile) {
-        result.research_path = path.join(phaseInfo.directory, researchFile);
-      }
-      const verificationFile = files.find(f => f.endsWith('-VERIFICATION.md') || f === 'VERIFICATION.md');
-      if (verificationFile) {
-        result.verification_path = path.join(phaseInfo.directory, verificationFile);
-      }
-      const uatFile = files.find(f => f.endsWith('-UAT.md') || f === 'UAT.md');
-      if (uatFile) {
-        result.uat_path = path.join(phaseInfo.directory, uatFile);
-      }
-    } catch {}
-  }
-
-  output(result, raw);
-}
-
-function cmdInitTodos(cwd, area, raw) {
-  const config = loadConfig(cwd);
-  const now = new Date();
-
-  // List todos (reuse existing logic)
-  const pendingDir = path.join(cwd, '.planning', 'todos', 'pending');
-  let count = 0;
-  const todos = [];
-
-  try {
-    const files = fs.readdirSync(pendingDir).filter(f => f.endsWith('.md'));
-    for (const file of files) {
-      try {
-        const content = fs.readFileSync(path.join(pendingDir, file), 'utf-8');
-        const createdMatch = content.match(/^created:\s*(.+)$/m);
-        const titleMatch = content.match(/^title:\s*(.+)$/m);
-        const areaMatch = content.match(/^area:\s*(.+)$/m);
-        const todoArea = areaMatch ? areaMatch[1].trim() : 'general';
-
-        if (area && todoArea !== area) continue;
-
-        count++;
-        todos.push({
-          file,
-          created: createdMatch ? createdMatch[1].trim() : 'unknown',
-          title: titleMatch ? titleMatch[1].trim() : 'Untitled',
-          area: todoArea,
-          path: path.join('.planning', 'todos', 'pending', file),
-        });
-      } catch {}
-    }
-  } catch {}
-
-  // List in-progress todos
-  const inProgressDir = path.join(cwd, '.planning', 'todos', 'in-progress');
-  let inProgressCount = 0;
-  const inProgressTodos = [];
-
-  try {
-    const ipFiles = fs.readdirSync(inProgressDir).filter(f => f.endsWith('.md'));
-    for (const file of ipFiles) {
-      try {
-        const content = fs.readFileSync(path.join(inProgressDir, file), 'utf-8');
-        const createdMatch = content.match(/^created:\s*(.+)$/m);
-        const titleMatch = content.match(/^title:\s*(.+)$/m);
-        const areaMatch = content.match(/^area:\s*(.+)$/m);
-        const startedMatch = content.match(/^started:\s*(.+)$/m);
-        const todoArea = areaMatch ? areaMatch[1].trim() : 'general';
-
-        if (area && todoArea !== area) continue;
-
-        inProgressCount++;
-        inProgressTodos.push({
-          file,
-          created: createdMatch ? createdMatch[1].trim() : 'unknown',
-          started: startedMatch ? startedMatch[1].trim() : 'unknown',
-          title: titleMatch ? titleMatch[1].trim() : 'Untitled',
-          area: todoArea,
-          path: path.join('.planning', 'todos', 'in-progress', file),
-        });
-      } catch {}
-    }
-  } catch {}
-
-  const result = {
-    // Config
-    commit_docs: config.commit_docs,
-
-    // Timestamps
-    date: now.toISOString().split('T')[0],
-    timestamp: now.toISOString(),
-
-    // Todo inventory
-    todo_count: count,
-    todos,
-    in_progress_count: inProgressCount,
-    in_progress_todos: inProgressTodos,
-    area_filter: area || null,
-
-    // Paths
-    pending_dir: '.planning/todos/pending',
-    in_progress_dir: '.planning/todos/in-progress',
-    done_dir: '.planning/todos/done',
-
-    // File existence
-    planning_exists: pathExistsInternal(cwd, '.planning'),
-    todos_dir_exists: pathExistsInternal(cwd, '.planning/todos'),
-    pending_dir_exists: pathExistsInternal(cwd, '.planning/todos/pending'),
-    in_progress_dir_exists: pathExistsInternal(cwd, '.planning/todos/in-progress'),
-  };
-
-  output(result, raw);
-}
-
-function cmdInitMilestoneOp(cwd, raw) {
-  const config = loadConfig(cwd);
-  const milestone = getMilestoneInfo(cwd);
-
-  // Count phases
-  let phaseCount = 0;
-  let completedPhases = 0;
-  const phasesDir = path.join(cwd, '.planning', 'phases');
-  try {
-    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-    const dirs = entries.filter(e => e.isDirectory()).map(e => e.name);
-    phaseCount = dirs.length;
-
-    // Count phases with summaries (completed)
-    for (const dir of dirs) {
-      try {
-        const phaseFiles = fs.readdirSync(path.join(phasesDir, dir));
-        const hasSummary = phaseFiles.some(f => f.endsWith('-SUMMARY.md') || f === 'SUMMARY.md');
-        if (hasSummary) completedPhases++;
-      } catch {}
-    }
-  } catch {}
-
-  // Check archive
-  const archiveDir = path.join(cwd, '.planning', 'archive');
-  let archivedMilestones = [];
-  try {
-    archivedMilestones = fs.readdirSync(archiveDir, { withFileTypes: true })
-      .filter(e => e.isDirectory())
-      .map(e => e.name);
-  } catch {}
-
-  const result = {
-    // Config
-    commit_docs: config.commit_docs,
-
-    // Current milestone
-    milestone_version: milestone.version,
-    milestone_name: milestone.name,
-    milestone_slug: generateSlugInternal(milestone.name),
-
-    // Phase counts
-    phase_count: phaseCount,
-    completed_phases: completedPhases,
-    all_phases_complete: phaseCount > 0 && phaseCount === completedPhases,
-
-    // Archive
-    archived_milestones: archivedMilestones,
-    archive_count: archivedMilestones.length,
-
-    // File existence
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
-    state_exists: pathExistsInternal(cwd, '.planning/STATE.md'),
-    archive_exists: pathExistsInternal(cwd, '.planning/archive'),
-    phases_dir_exists: pathExistsInternal(cwd, '.planning/phases'),
-  };
-
-  output(result, raw);
-}
-
-function cmdInitMapCodebase(cwd, raw) {
-  const config = loadConfig(cwd);
-
-  // Check for existing codebase maps
-  const codebaseDir = path.join(cwd, '.planning', 'codebase');
-  let existingMaps = [];
-  try {
-    existingMaps = fs.readdirSync(codebaseDir).filter(f => f.endsWith('.md'));
-  } catch {}
-
-  const result = {
-    // Models
-    mapper_model: resolveModelInternal(cwd, 'gsd-codebase-mapper'),
-
-    // Config
-    commit_docs: config.commit_docs,
-    search_gitignored: config.search_gitignored,
-    parallelization: config.parallelization,
-
-    // Paths
-    codebase_dir: '.planning/codebase',
-
-    // Existing maps
-    existing_maps: existingMaps,
-    has_maps: existingMaps.length > 0,
-
-    // File existence
-    planning_exists: pathExistsInternal(cwd, '.planning'),
-    codebase_dir_exists: pathExistsInternal(cwd, '.planning/codebase'),
-  };
-
-  output(result, raw);
-}
-
-function cmdInitProgress(cwd, raw) {
-  const config = loadConfig(cwd);
-  const milestone = getMilestoneInfo(cwd);
-
-  // Analyze phases
-  const phasesDir = path.join(cwd, '.planning', 'phases');
-  const phases = [];
-  let currentPhase = null;
-  let nextPhase = null;
-
-  try {
-    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-    const dirs = entries.filter(e => e.isDirectory()).map(e => e.name).sort();
-
-    for (const dir of dirs) {
-      const match = dir.match(/^(\d+(?:\.\d+)?)-?(.*)/);
-      const phaseNumber = match ? match[1] : dir;
-      const phaseName = match && match[2] ? match[2] : null;
-
-      const phasePath = path.join(phasesDir, dir);
-      const phaseFiles = fs.readdirSync(phasePath);
-
-      const plans = phaseFiles.filter(f => f.endsWith('-PLAN.md') || f === 'PLAN.md');
-      const summaries = phaseFiles.filter(f => f.endsWith('-SUMMARY.md') || f === 'SUMMARY.md');
-      const hasResearch = phaseFiles.some(f => f.endsWith('-RESEARCH.md') || f === 'RESEARCH.md');
-
-      const status = summaries.length >= plans.length && plans.length > 0 ? 'complete' :
-                     plans.length > 0 ? 'in_progress' :
-                     hasResearch ? 'researched' : 'pending';
-
-      const phaseInfo = {
-        number: phaseNumber,
-        name: phaseName,
-        directory: path.join('.planning', 'phases', dir),
-        status,
-        plan_count: plans.length,
-        summary_count: summaries.length,
-        has_research: hasResearch,
-      };
-
-      phases.push(phaseInfo);
-
-      // Find current (first incomplete with plans) and next (first pending)
-      if (!currentPhase && (status === 'in_progress' || status === 'researched')) {
-        currentPhase = phaseInfo;
-      }
-      if (!nextPhase && status === 'pending') {
-        nextPhase = phaseInfo;
-      }
-    }
-  } catch {}
-
-  // Check for paused work
-  let pausedAt = null;
-  try {
-    const state = fs.readFileSync(path.join(cwd, '.planning', 'STATE.md'), 'utf-8');
-    const pauseMatch = state.match(/\*\*Paused At:\*\*\s*(.+)/);
-    if (pauseMatch) pausedAt = pauseMatch[1].trim();
-  } catch {}
-
-  const result = {
-    // Models
-    executor_model: resolveModelInternal(cwd, 'gsd-executor'),
-    planner_model: resolveModelInternal(cwd, 'gsd-planner'),
-
-    // Config
-    commit_docs: config.commit_docs,
-
-    // Milestone
-    milestone_version: milestone.version,
-    milestone_name: milestone.name,
-
-    // Phase overview
-    phases,
-    phase_count: phases.length,
-    completed_count: phases.filter(p => p.status === 'complete').length,
-    in_progress_count: phases.filter(p => p.status === 'in_progress').length,
-
-    // Current state
-    current_phase: currentPhase,
-    next_phase: nextPhase,
-    paused_at: pausedAt,
-    has_work_in_progress: !!currentPhase,
-
-    // File existence
-    project_exists: pathExistsInternal(cwd, '.planning/PROJECT.md'),
-    roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
-    state_exists: pathExistsInternal(cwd, '.planning/STATE.md'),
-    // File paths
-    state_path: '.planning/STATE.md',
-    roadmap_path: '.planning/ROADMAP.md',
-    project_path: '.planning/PROJECT.md',
-    config_path: '.planning/config.json',
-  };
-
-  output(result, raw);
-}
-
-// ─── Web Search (Brave API) ──────────────────────────────────────────────────
-
-async function cmdWebsearch(query, options, raw) {
-  const apiKey = process.env.BRAVE_API_KEY;
-
-  if (!apiKey) {
-    // No key = silent skip, agent falls back to built-in WebSearch
-    output({ available: false, reason: 'BRAVE_API_KEY not set' }, raw, '');
-    return;
-  }
-
-  const limit = options.limit || 10;
-  const freshness = options.freshness || null;
-
-  try {
-    const params = new URLSearchParams({ q: query, count: String(limit) });
-    if (freshness) params.set('freshness', freshness);
-
-    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?${params}`, {
-      headers: {
-        'Accept': 'application/json',
-        'Accept-Encoding': 'gzip',
-        'X-Subscription-Token': apiKey,
-      }
-    });
-
-    if (!response.ok) {
-      output({ available: false, error: `HTTP ${response.status}` }, raw, '');
-      return;
-    }
-
-    const data = await response.json();
-
-    const results = (data.web?.results || []).map(r => ({
-      title: r.title,
-      url: r.url,
-      description: r.description,
-      age: r.age || null
-    }));
-
-    output({
-      available: true,
-      query,
-      count: results.length,
-      results
-    }, raw, results.map(r => `${r.title}\n${r.url}\n${r.description}`).join('\n\n'));
-  } catch (err) {
-    output({ available: false, error: err.message }, raw, '');
-  }
-}
-
-// ─── Roadmap Update Plan Progress ────────────────────────────────────────────
-
-function cmdRoadmapUpdatePlanProgress(cwd, phaseNum, raw) {
-  if (!phaseNum) {
-    error('phase number required for roadmap update-plan-progress');
-  }
-
-  const roadmapPath = path.join(cwd, '.planning', 'ROADMAP.md');
-
-  const phaseInfo = findPhaseInternal(cwd, phaseNum);
-  if (!phaseInfo) {
-    error(`Phase ${phaseNum} not found`);
-  }
-
-  const planCount = phaseInfo.plans.length;
-  const summaryCount = phaseInfo.summaries.length;
-
-  if (planCount === 0) {
-    output({ updated: false, reason: 'No plans found', plan_count: 0, summary_count: 0 }, raw, 'no plans');
-    return;
-  }
-
-  const isComplete = summaryCount >= planCount;
-  const status = isComplete ? 'Complete' : summaryCount > 0 ? 'In Progress' : 'Planned';
-  const today = new Date().toISOString().split('T')[0];
-
-  if (!fs.existsSync(roadmapPath)) {
-    output({ updated: false, reason: 'ROADMAP.md not found', plan_count: planCount, summary_count: summaryCount }, raw, 'no roadmap');
-    return;
-  }
-
-  let roadmapContent = fs.readFileSync(roadmapPath, 'utf-8');
-  const phaseEscaped = phaseNum.replace('.', '\\.');
-
-  // Progress table row: update Plans column (summaries/plans) and Status column
-  const tablePattern = new RegExp(
-    `(\\|\\s*${phaseEscaped}\\.?\\s[^|]*\\|)[^|]*(\\|)\\s*[^|]*(\\|)\\s*[^|]*(\\|)`,
-    'i'
-  );
-  const dateField = isComplete ? ` ${today} ` : '  ';
-  roadmapContent = roadmapContent.replace(
-    tablePattern,
-    `$1 ${summaryCount}/${planCount} $2 ${status.padEnd(11)}$3${dateField}$4`
-  );
-
-  // Update plan count in phase detail section
-  const planCountPattern = new RegExp(
-    `(#{2,4}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
-    'i'
-  );
-  const planCountText = isComplete
-    ? `${summaryCount}/${planCount} plans complete`
-    : `${summaryCount}/${planCount} plans executed`;
-  roadmapContent = roadmapContent.replace(planCountPattern, `$1${planCountText}`);
-
-  // If complete: check checkbox
-  if (isComplete) {
-    const checkboxPattern = new RegExp(
-      `(-\\s*\\[)[ ](\\]\\s*.*Phase\\s+${phaseEscaped}[:\\s][^\\n]*)`,
-      'i'
-    );
-    roadmapContent = roadmapContent.replace(checkboxPattern, `$1x$2 (completed ${today})`);
-  }
-
-  fs.writeFileSync(roadmapPath, roadmapContent, 'utf-8');
-
-  output({
-    updated: true,
-    phase: phaseNum,
-    plan_count: planCount,
-    summary_count: summaryCount,
-    status,
-    complete: isComplete,
-  }, raw, `${summaryCount}/${planCount} ${status}`);
-}
-
-// ─── Requirements Mark Complete ───────────────────────────────────────────────
-
-function cmdRequirementsMarkComplete(cwd, reqIdsRaw, raw) {
-  if (!reqIdsRaw || reqIdsRaw.length === 0) {
-    error('requirement IDs required. Usage: requirements mark-complete REQ-01,REQ-02 or REQ-01 REQ-02');
-  }
-
-  // Accept comma-separated, space-separated, or bracket-wrapped: [REQ-01, REQ-02]
-  const reqIds = reqIdsRaw
-    .join(' ')
-    .replace(/[\[\]]/g, '')
-    .split(/[,\s]+/)
-    .map(r => r.trim())
-    .filter(Boolean);
-
-  if (reqIds.length === 0) {
-    error('no valid requirement IDs found');
-  }
-
-  const reqPath = path.join(cwd, '.planning', 'REQUIREMENTS.md');
-  if (!fs.existsSync(reqPath)) {
-    output({ updated: false, reason: 'REQUIREMENTS.md not found', ids: reqIds }, raw, 'no requirements file');
-    return;
-  }
-
-  let reqContent = fs.readFileSync(reqPath, 'utf-8');
-  const updated = [];
-  const notFound = [];
-
-  for (const reqId of reqIds) {
-    let found = false;
-
-    // Update checkbox: - [ ] **REQ-ID** → - [x] **REQ-ID**
-    const checkboxPattern = new RegExp(`(-\\s*\\[)[ ](\\]\\s*\\*\\*${reqId}\\*\\*)`, 'gi');
-    if (checkboxPattern.test(reqContent)) {
-      reqContent = reqContent.replace(checkboxPattern, '$1x$2');
-      found = true;
-    }
-
-    // Update traceability table: | REQ-ID | Phase N | Pending | → | REQ-ID | Phase N | Complete |
-    const tablePattern = new RegExp(`(\\|\\s*${reqId}\\s*\\|[^|]+\\|)\\s*Pending\\s*(\\|)`, 'gi');
-    if (tablePattern.test(reqContent)) {
-      // Re-read since test() advances lastIndex for global regex
-      reqContent = reqContent.replace(
-        new RegExp(`(\\|\\s*${reqId}\\s*\\|[^|]+\\|)\\s*Pending\\s*(\\|)`, 'gi'),
-        '$1 Complete $2'
-      );
-      found = true;
-    }
-
-    if (found) {
-      updated.push(reqId);
-    } else {
-      notFound.push(reqId);
-    }
-  }
-
-  if (updated.length > 0) {
-    fs.writeFileSync(reqPath, reqContent, 'utf-8');
-  }
-
-  output({
-    updated: updated.length > 0,
-    marked_complete: updated,
-    not_found: notFound,
-    total: reqIds.length,
-  }, raw, `${updated.length}/${reqIds.length} requirements marked complete`);
-}
-
-// ─── Phase Complete ───────────────────────────────────────────────────────────
-
-function cmdPhaseComplete(cwd, phaseNum, raw) {
-  if (!phaseNum) {
-    error('phase number required for phase complete');
-  }
-
-  const roadmapPath = path.join(cwd, '.planning', 'ROADMAP.md');
-  const statePath = path.join(cwd, '.planning', 'STATE.md');
-  const phasesDir = path.join(cwd, '.planning', 'phases');
-  const today = new Date().toISOString().split('T')[0];
-
-  // Verify phase info
-  const phaseInfo = findPhaseInternal(cwd, phaseNum);
-  if (!phaseInfo) {
-    error(`Phase ${phaseNum} not found`);
-  }
-
-  const planCount = phaseInfo.plans.length;
-  const summaryCount = phaseInfo.summaries.length;
-
-  // Update ROADMAP.md: mark phase complete
-  if (fs.existsSync(roadmapPath)) {
-    let roadmapContent = fs.readFileSync(roadmapPath, 'utf-8');
-
-    // Checkbox: - [ ] Phase N: → - [x] Phase N: (...completed DATE)
-    const checkboxPattern = new RegExp(
-      `(-\\s*\\[)[ ](\\]\\s*.*Phase\\s+${phaseNum.replace('.', '\\.')}[:\\s][^\\n]*)`,
-      'i'
-    );
-    roadmapContent = roadmapContent.replace(checkboxPattern, `$1x$2 (completed ${today})`);
-
-    // Progress table: update Status to Complete, add date
-    const phaseEscaped = phaseNum.replace('.', '\\.');
-    const tablePattern = new RegExp(
-      `(\\|\\s*${phaseEscaped}\\.?\\s[^|]*\\|[^|]*\\|)\\s*[^|]*(\\|)\\s*[^|]*(\\|)`,
-      'i'
-    );
-    roadmapContent = roadmapContent.replace(
-      tablePattern,
-      `$1 Complete    $2 ${today} $3`
-    );
-
-    // Update plan count in phase section
-    const planCountPattern = new RegExp(
-      `(#{2,4}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
-      'i'
-    );
-    roadmapContent = roadmapContent.replace(
-      planCountPattern,
-      `$1${summaryCount}/${planCount} plans complete`
-    );
-
-    fs.writeFileSync(roadmapPath, roadmapContent, 'utf-8');
-
-    // Update REQUIREMENTS.md traceability for this phase's requirements
-    const reqPath = path.join(cwd, '.planning', 'REQUIREMENTS.md');
-    if (fs.existsSync(reqPath)) {
-      // Extract Requirements line from roadmap for this phase
-      const reqMatch = roadmapContent.match(
-        new RegExp(`Phase\\s+${phaseNum.replace('.', '\\.')}[\\s\\S]*?\\*\\*Requirements:\\*\\*\\s*([^\\n]+)`, 'i')
-      );
-
-      if (reqMatch) {
-        const reqIds = reqMatch[1].replace(/[\[\]]/g, '').split(/[,\s]+/).map(r => r.trim()).filter(Boolean);
-        let reqContent = fs.readFileSync(reqPath, 'utf-8');
-
-        for (const reqId of reqIds) {
-          // Update checkbox: - [ ] **REQ-ID** → - [x] **REQ-ID**
-          reqContent = reqContent.replace(
-            new RegExp(`(-\\s*\\[)[ ](\\]\\s*\\*\\*${reqId}\\*\\*)`, 'gi'),
-            '$1x$2'
-          );
-          // Update traceability table: | REQ-ID | Phase N | Pending | → | REQ-ID | Phase N | Complete |
-          reqContent = reqContent.replace(
-            new RegExp(`(\\|\\s*${reqId}\\s*\\|[^|]+\\|)\\s*Pending\\s*(\\|)`, 'gi'),
-            '$1 Complete $2'
-          );
-        }
-
-        fs.writeFileSync(reqPath, reqContent, 'utf-8');
-      }
-    }
-  }
-
-  // Find next phase
-  let nextPhaseNum = null;
-  let nextPhaseName = null;
-  let isLastPhase = true;
-
-  try {
-    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-    const dirs = entries.filter(e => e.isDirectory()).map(e => e.name).sort();
-    const currentFloat = parseFloat(phaseNum);
-
-    // Find the next phase directory after current
-    for (const dir of dirs) {
-      const dm = dir.match(/^(\d+(?:\.\d+)?)-?(.*)/);
-      if (dm) {
-        const dirFloat = parseFloat(dm[1]);
-        if (dirFloat > currentFloat) {
-          nextPhaseNum = dm[1];
-          nextPhaseName = dm[2] || null;
-          isLastPhase = false;
-          break;
-        }
-      }
-    }
-  } catch {}
-
-  // Update STATE.md
-  if (fs.existsSync(statePath)) {
-    let stateContent = fs.readFileSync(statePath, 'utf-8');
-
-    // Update Current Phase
-    stateContent = stateContent.replace(
-      /(\*\*Current Phase:\*\*\s*).*/,
-      `$1${nextPhaseNum || phaseNum}`
-    );
-
-    // Update Current Phase Name
-    if (nextPhaseName) {
-      stateContent = stateContent.replace(
-        /(\*\*Current Phase Name:\*\*\s*).*/,
-        `$1${nextPhaseName.replace(/-/g, ' ')}`
-      );
-    }
-
-    // Update Status
-    stateContent = stateContent.replace(
-      /(\*\*Status:\*\*\s*).*/,
-      `$1${isLastPhase ? 'Milestone complete' : 'Ready to plan'}`
-    );
-
-    // Update Current Plan
-    stateContent = stateContent.replace(
-      /(\*\*Current Plan:\*\*\s*).*/,
-      `$1Not started`
-    );
-
-    // Update Last Activity
-    stateContent = stateContent.replace(
-      /(\*\*Last Activity:\*\*\s*).*/,
-      `$1${today}`
-    );
-
-    // Update Last Activity Description
-    stateContent = stateContent.replace(
-      /(\*\*Last Activity Description:\*\*\s*).*/,
-      `$1Phase ${phaseNum} complete${nextPhaseNum ? `, transitioned to Phase ${nextPhaseNum}` : ''}`
-    );
-
-    fs.writeFileSync(statePath, stateContent, 'utf-8');
-  }
-
-  const result = {
-    completed_phase: phaseNum,
-    phase_name: phaseInfo.phase_name,
-    plans_executed: `${summaryCount}/${planCount}`,
-    next_phase: nextPhaseNum,
-    next_phase_name: nextPhaseName,
-    is_last_phase: isLastPhase,
-    date: today,
-    roadmap_updated: fs.existsSync(roadmapPath),
-    state_updated: fs.existsSync(statePath),
-  };
-
-  output(result, raw);
-}
-
-// ─── Config Set ───────────────────────────────────────────────────────────────
-
-function cmdConfigSet(cwd, keyPath, value, raw) {
-  const configPath = path.join(cwd, '.planning', 'config.json');
-
-  if (!keyPath) {
-    error('Usage: config-set <key.path> <value>');
-  }
-
-  let config = {};
-  try {
-    if (fs.existsSync(configPath)) {
-      config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    }
-  } catch (err) {
-    error('Failed to read config.json: ' + err.message);
-  }
-
-  // Parse value: "true"/"false" -> boolean, numbers -> numbers, rest is string
-  let parsedValue;
-  if (value === 'true') parsedValue = true;
-  else if (value === 'false') parsedValue = false;
-  else if (!isNaN(Number(value)) && value !== '') parsedValue = Number(value);
-  else parsedValue = value;
-
-  // Traverse dot-notation path and set value
-  const keys = keyPath.split('.');
-  let current = config;
-  for (let i = 0; i < keys.length - 1; i++) {
-    if (current[keys[i]] === undefined || current[keys[i]] === null || typeof current[keys[i]] !== 'object') {
-      current[keys[i]] = {};
-    }
-    current = current[keys[i]];
-  }
-  current[keys[keys.length - 1]] = parsedValue;
-
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
-  output({ key: keyPath, value: parsedValue }, raw, `Set ${keyPath} = ${parsedValue}`);
-}
-
-// ─── Config Get ───────────────────────────────────────────────────────────────
-
-function cmdConfigGet(cwd, keyPath, raw) {
-  const configPath = path.join(cwd, '.planning', 'config.json');
-
-  if (!keyPath) {
-    error('Usage: config-get <key.path>');
-  }
-
-  let config = {};
-  try {
-    if (fs.existsSync(configPath)) {
-      config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    } else {
-      error('No config.json found at ' + configPath);
-    }
-  } catch (err) {
-    if (err.message.startsWith('No config.json')) throw err;
-    error('Failed to read config.json: ' + err.message);
-  }
-
-  // Traverse dot-notation path (e.g., "workflow.auto_advance")
-  const keys = keyPath.split('.');
-  let current = config;
-  for (const key of keys) {
-    if (current === undefined || current === null || typeof current !== 'object') {
-      error(`Key not found: ${keyPath}`);
-    }
-    current = current[key];
-  }
-
-  if (current === undefined) {
-    error(`Key not found: ${keyPath}`);
-  }
-
-  output(current, raw, String(current));
-}
-
-// ─── Validate Health ──────────────────────────────────────────────────────────
-
-function cmdValidateHealth(cwd, options, raw) {
-  const planningDir = path.join(cwd, '.planning');
-  const projectPath = path.join(planningDir, 'PROJECT.md');
-  const roadmapPath = path.join(planningDir, 'ROADMAP.md');
-  const statePath = path.join(planningDir, 'STATE.md');
-  const configPath = path.join(planningDir, 'config.json');
-  const phasesDir = path.join(planningDir, 'phases');
-
-  const errors = [];
-  const warnings = [];
-  const info = [];
-  const repairs = [];
-
-  // Helper to add issue
-  const addIssue = (severity, code, message, fix, repairable = false) => {
-    const issue = { code, message, fix, repairable };
-    if (severity === 'error') errors.push(issue);
-    else if (severity === 'warning') warnings.push(issue);
-    else info.push(issue);
-  };
-
-  // ─── Check 1: .planning/ exists ───────────────────────────────────────────
-  if (!fs.existsSync(planningDir)) {
-    addIssue('error', 'E001', '.planning/ directory not found', 'Run /gsd:new-project to initialize');
-    output({
-      status: 'broken',
-      errors,
-      warnings,
-      info,
-      repairable_count: 0,
-    }, raw);
-    return;
-  }
-
-  // ─── Check 2: PROJECT.md exists and has required sections ─────────────────
-  if (!fs.existsSync(projectPath)) {
-    addIssue('error', 'E002', 'PROJECT.md not found', 'Run /gsd:new-project to create');
-  } else {
-    const content = fs.readFileSync(projectPath, 'utf-8');
-    const requiredSections = ['## What This Is', '## Core Value', '## Requirements'];
-    for (const section of requiredSections) {
-      if (!content.includes(section)) {
-        addIssue('warning', 'W001', `PROJECT.md missing section: ${section}`, 'Add section manually');
-      }
-    }
-  }
-
-  // ─── Check 3: ROADMAP.md exists ───────────────────────────────────────────
-  if (!fs.existsSync(roadmapPath)) {
-    addIssue('error', 'E003', 'ROADMAP.md not found', 'Run /gsd:new-milestone to create roadmap');
-  }
-
-  // ─── Check 4: STATE.md exists and references valid phases ─────────────────
-  if (!fs.existsSync(statePath)) {
-    addIssue('error', 'E004', 'STATE.md not found', 'Run /gsd:health --repair to regenerate', true);
-    repairs.push('regenerateState');
-  } else {
-    const stateContent = fs.readFileSync(statePath, 'utf-8');
-    // Extract phase references from STATE.md
-    const phaseRefs = [...stateContent.matchAll(/[Pp]hase\s+(\d+(?:\.\d+)?)/g)].map(m => m[1]);
-    // Get disk phases
-    const diskPhases = new Set();
-    try {
-      const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-      for (const e of entries) {
-        if (e.isDirectory()) {
-          const m = e.name.match(/^(\d+(?:\.\d+)?)/);
-          if (m) diskPhases.add(m[1]);
-        }
-      }
-    } catch {}
-    // Check for invalid references
-    for (const ref of phaseRefs) {
-      const normalizedRef = String(parseInt(ref, 10)).padStart(2, '0');
-      if (!diskPhases.has(ref) && !diskPhases.has(normalizedRef) && !diskPhases.has(String(parseInt(ref, 10)))) {
-        // Only warn if phases dir has any content (not just an empty project)
-        if (diskPhases.size > 0) {
-          addIssue('warning', 'W002', `STATE.md references phase ${ref}, but only phases ${[...diskPhases].sort().join(', ')} exist`, 'Run /gsd:health --repair to regenerate STATE.md', true);
-          if (!repairs.includes('regenerateState')) repairs.push('regenerateState');
-        }
-      }
-    }
-  }
-
-  // ─── Check 5: config.json valid JSON + valid schema ───────────────────────
-  if (!fs.existsSync(configPath)) {
-    addIssue('warning', 'W003', 'config.json not found', 'Run /gsd:health --repair to create with defaults', true);
-    repairs.push('createConfig');
-  } else {
-    try {
-      const rawContent = fs.readFileSync(configPath, 'utf-8');
-      const parsed = JSON.parse(rawContent);
-      // Validate known fields
-      const validProfiles = ['quality', 'balanced', 'budget'];
-      if (parsed.model_profile && !validProfiles.includes(parsed.model_profile)) {
-        addIssue('warning', 'W004', `config.json: invalid model_profile "${parsed.model_profile}"`, `Valid values: ${validProfiles.join(', ')}`);
-      }
-    } catch (err) {
-      addIssue('error', 'E005', `config.json: JSON parse error - ${err.message}`, 'Run /gsd:health --repair to reset to defaults', true);
-      repairs.push('resetConfig');
-    }
-  }
-
-  // ─── Check 6: Phase directory naming (NN-name format) ─────────────────────
-  try {
-    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-    for (const e of entries) {
-      if (e.isDirectory() && !e.name.match(/^\d{2}(?:\.\d+)?-[\w-]+$/)) {
-        addIssue('warning', 'W005', `Phase directory "${e.name}" doesn't follow NN-name format`, 'Rename to match pattern (e.g., 01-setup)');
-      }
-    }
-  } catch {}
-
-  // ─── Check 7: Orphaned plans (PLAN without SUMMARY) ───────────────────────
-  try {
-    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-    for (const e of entries) {
-      if (!e.isDirectory()) continue;
-      const phaseFiles = fs.readdirSync(path.join(phasesDir, e.name));
-      const plans = phaseFiles.filter(f => f.endsWith('-PLAN.md') || f === 'PLAN.md');
-      const summaries = phaseFiles.filter(f => f.endsWith('-SUMMARY.md') || f === 'SUMMARY.md');
-      const summaryBases = new Set(summaries.map(s => s.replace('-SUMMARY.md', '').replace('SUMMARY.md', '')));
-
-      for (const plan of plans) {
-        const planBase = plan.replace('-PLAN.md', '').replace('PLAN.md', '');
-        if (!summaryBases.has(planBase)) {
-          addIssue('info', 'I001', `${e.name}/${plan} has no SUMMARY.md`, 'May be in progress');
-        }
-      }
-    }
-  } catch {}
-
-  // ─── Check 8: Run existing consistency checks ─────────────────────────────
-  // Inline subset of consistency checking
-  if (fs.existsSync(roadmapPath)) {
-    const roadmapContent = fs.readFileSync(roadmapPath, 'utf-8');
-    const roadmapPhases = new Set();
-    const phasePattern = /#{2,4}\s*Phase\s+(\d+(?:\.\d+)?)\s*:/gi;
-    let m;
-    while ((m = phasePattern.exec(roadmapContent)) !== null) {
-      roadmapPhases.add(m[1]);
-    }
-
-    const diskPhases = new Set();
-    try {
-      const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
-      for (const e of entries) {
-        if (e.isDirectory()) {
-          const dm = e.name.match(/^(\d+(?:\.\d+)?)/);
-          if (dm) diskPhases.add(dm[1]);
-        }
-      }
-    } catch {}
-
-    // Phases in ROADMAP but not on disk
-    for (const p of roadmapPhases) {
-      const padded = String(parseInt(p, 10)).padStart(2, '0');
-      if (!diskPhases.has(p) && !diskPhases.has(padded)) {
-        addIssue('warning', 'W006', `Phase ${p} in ROADMAP.md but no directory on disk`, 'Create phase directory or remove from roadmap');
-      }
-    }
-
-    // Phases on disk but not in ROADMAP
-    for (const p of diskPhases) {
-      const unpadded = String(parseInt(p, 10));
-      if (!roadmapPhases.has(p) && !roadmapPhases.has(unpadded)) {
-        addIssue('warning', 'W007', `Phase ${p} exists on disk but not in ROADMAP.md`, 'Add to roadmap or remove directory');
-      }
-    }
-  }
-
-  // ─── Perform repairs if requested ─────────────────────────────────────────
-  const repairActions = [];
-  if (options.repair && repairs.length > 0) {
-    for (const repair of repairs) {
-      try {
-        switch (repair) {
-          case 'createConfig':
-          case 'resetConfig': {
-            const defaults = {
-              model_profile: 'balanced',
-              commit_docs: true,
-              search_gitignored: false,
-              branching_strategy: 'none',
-              research: true,
-              plan_checker: true,
-              verifier: true,
-              parallelization: true,
-            };
-            fs.writeFileSync(configPath, JSON.stringify(defaults, null, 2), 'utf-8');
-            repairActions.push({ action: repair, success: true, path: 'config.json' });
-            break;
-          }
-          case 'regenerateState': {
-            // Create timestamped backup before overwriting
-            if (fs.existsSync(statePath)) {
-              const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-              const backupPath = `${statePath}.bak-${timestamp}`;
-              fs.copyFileSync(statePath, backupPath);
-              repairActions.push({ action: 'backupState', success: true, path: backupPath });
-            }
-            // Generate minimal STATE.md from ROADMAP.md structure
-            const milestone = getMilestoneInfo(cwd);
-            let stateContent = `# Session State\n\n`;
-            stateContent += `## Project Reference\n\n`;
-            stateContent += `See: .planning/PROJECT.md\n\n`;
-            stateContent += `## Position\n\n`;
-            stateContent += `**Milestone:** ${milestone.version} ${milestone.name}\n`;
-            stateContent += `**Current phase:** (determining...)\n`;
-            stateContent += `**Status:** Resuming\n\n`;
-            stateContent += `## Session Log\n\n`;
-            stateContent += `- ${new Date().toISOString().split('T')[0]}: STATE.md regenerated by /gsd:health --repair\n`;
-            fs.writeFileSync(statePath, stateContent, 'utf-8');
-            repairActions.push({ action: repair, success: true, path: 'STATE.md' });
-            break;
-          }
-        }
-      } catch (err) {
-        repairActions.push({ action: repair, success: false, error: err.message });
-      }
-    }
-  }
-
-  // ─── Determine overall status ─────────────────────────────────────────────
-  let status;
-  if (errors.length > 0) {
-    status = 'broken';
-  } else if (warnings.length > 0) {
-    status = 'degraded';
-  } else {
-    status = 'healthy';
-  }
-
-  const repairableCount = errors.filter(e => e.repairable).length +
-                         warnings.filter(w => w.repairable).length;
-
-  output({
-    status,
-    errors,
-    warnings,
-    info,
-    repairable_count: repairableCount,
-    repairs_performed: repairActions.length > 0 ? repairActions : undefined,
-  }, raw);
-}
+const { error } = require('./lib/core.cjs');
+const state = require('./lib/state.cjs');
+const phase = require('./lib/phase.cjs');
+const roadmap = require('./lib/roadmap.cjs');
+const verify = require('./lib/verify.cjs');
+const config = require('./lib/config.cjs');
+const template = require('./lib/template.cjs');
+const milestone = require('./lib/milestone.cjs');
+const commands = require('./lib/commands.cjs');
+const init = require('./lib/init.cjs');
+const frontmatter = require('./lib/frontmatter.cjs');
 
 // ─── CLI Router ───────────────────────────────────────────────────────────────
 
@@ -2932,16 +147,16 @@ async function main() {
   const cwd = process.cwd();
 
   if (!command) {
-    error('Usage: gsd-tools <command> [args] [--raw]\nCommands: state, resolve-model, find-phase, commit, verify-summary, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init');
+    error('Usage: gsd-tools <command> [args] [--raw]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init');
   }
 
   switch (command) {
     case 'state': {
       const subcommand = args[1];
       if (subcommand === 'update') {
-        cmdStateUpdate(cwd, args[2], args[3]);
+        state.cmdStateUpdate(cwd, args[2], args[3]);
       } else if (subcommand === 'get') {
-        cmdStateGet(cwd, args[2], raw);
+        state.cmdStateGet(cwd, args[2], raw);
       } else if (subcommand === 'patch') {
         const patches = {};
         for (let i = 2; i < args.length; i += 2) {
@@ -2951,29 +166,69 @@ async function main() {
             patches[key] = value;
           }
         }
-        cmdStatePatch(cwd, patches, raw);
+        state.cmdStatePatch(cwd, patches, raw);
+      } else if (subcommand === 'advance-plan') {
+        state.cmdStateAdvancePlan(cwd, raw);
+      } else if (subcommand === 'record-metric') {
+        const phaseIdx = args.indexOf('--phase');
+        const planIdx = args.indexOf('--plan');
+        const durationIdx = args.indexOf('--duration');
+        const tasksIdx = args.indexOf('--tasks');
+        const filesIdx = args.indexOf('--files');
+        state.cmdStateRecordMetric(cwd, {
+          phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
+          plan: planIdx !== -1 ? args[planIdx + 1] : null,
+          duration: durationIdx !== -1 ? args[durationIdx + 1] : null,
+          tasks: tasksIdx !== -1 ? args[tasksIdx + 1] : null,
+          files: filesIdx !== -1 ? args[filesIdx + 1] : null,
+        }, raw);
+      } else if (subcommand === 'update-progress') {
+        state.cmdStateUpdateProgress(cwd, raw);
+      } else if (subcommand === 'add-decision') {
+        const phaseIdx = args.indexOf('--phase');
+        const summaryIdx = args.indexOf('--summary');
+        const rationaleIdx = args.indexOf('--rationale');
+        state.cmdStateAddDecision(cwd, {
+          phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
+          summary: summaryIdx !== -1 ? args[summaryIdx + 1] : null,
+          rationale: rationaleIdx !== -1 ? args[rationaleIdx + 1] : '',
+        }, raw);
+      } else if (subcommand === 'add-blocker') {
+        const textIdx = args.indexOf('--text');
+        state.cmdStateAddBlocker(cwd, textIdx !== -1 ? args[textIdx + 1] : null, raw);
+      } else if (subcommand === 'resolve-blocker') {
+        const textIdx = args.indexOf('--text');
+        state.cmdStateResolveBlocker(cwd, textIdx !== -1 ? args[textIdx + 1] : null, raw);
+      } else if (subcommand === 'record-session') {
+        const stoppedIdx = args.indexOf('--stopped-at');
+        const resumeIdx = args.indexOf('--resume-file');
+        state.cmdStateRecordSession(cwd, {
+          stopped_at: stoppedIdx !== -1 ? args[stoppedIdx + 1] : null,
+          resume_file: resumeIdx !== -1 ? args[resumeIdx + 1] : 'None',
+        }, raw);
       } else {
-        cmdStateLoad(cwd, raw);
+        state.cmdStateLoad(cwd, raw);
       }
       break;
     }
 
     case 'resolve-model': {
-      cmdResolveModel(cwd, args[1], raw);
+      commands.cmdResolveModel(cwd, args[1], raw);
       break;
     }
 
     case 'find-phase': {
-      cmdFindPhase(cwd, args[1], raw);
+      phase.cmdFindPhase(cwd, args[1], raw);
       break;
     }
 
     case 'commit': {
+      const amend = args.includes('--amend');
       const message = args[1];
-      // Parse --files flag
+      // Parse --files flag (collect args after --files, stopping at other flags)
       const filesIndex = args.indexOf('--files');
-      const files = filesIndex !== -1 ? args.slice(filesIndex + 1) : [];
-      cmdCommit(cwd, message, files, raw);
+      const files = filesIndex !== -1 ? args.slice(filesIndex + 1).filter(a => !a.startsWith('--')) : [];
+      commands.cmdCommit(cwd, message, files, raw, amend);
       break;
     }
 
@@ -2981,57 +236,115 @@ async function main() {
       const summaryPath = args[1];
       const countIndex = args.indexOf('--check-count');
       const checkCount = countIndex !== -1 ? parseInt(args[countIndex + 1], 10) : 2;
-      cmdVerifySummary(cwd, summaryPath, checkCount, raw);
+      verify.cmdVerifySummary(cwd, summaryPath, checkCount, raw);
       break;
     }
 
     case 'template': {
       const subcommand = args[1];
       if (subcommand === 'select') {
-        cmdTemplateSelect(cwd, args[2], raw);
+        template.cmdTemplateSelect(cwd, args[2], raw);
+      } else if (subcommand === 'fill') {
+        const templateType = args[2];
+        const phaseIdx = args.indexOf('--phase');
+        const planIdx = args.indexOf('--plan');
+        const nameIdx = args.indexOf('--name');
+        const typeIdx = args.indexOf('--type');
+        const waveIdx = args.indexOf('--wave');
+        const fieldsIdx = args.indexOf('--fields');
+        template.cmdTemplateFill(cwd, templateType, {
+          phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
+          plan: planIdx !== -1 ? args[planIdx + 1] : null,
+          name: nameIdx !== -1 ? args[nameIdx + 1] : null,
+          type: typeIdx !== -1 ? args[typeIdx + 1] : 'execute',
+          wave: waveIdx !== -1 ? args[waveIdx + 1] : '1',
+          fields: fieldsIdx !== -1 ? JSON.parse(args[fieldsIdx + 1]) : {},
+        }, raw);
+      } else {
+        error('Unknown template subcommand. Available: select, fill');
+      }
+      break;
+    }
+
+    case 'frontmatter': {
+      const subcommand = args[1];
+      const file = args[2];
+      if (subcommand === 'get') {
+        const fieldIdx = args.indexOf('--field');
+        frontmatter.cmdFrontmatterGet(cwd, file, fieldIdx !== -1 ? args[fieldIdx + 1] : null, raw);
+      } else if (subcommand === 'set') {
+        const fieldIdx = args.indexOf('--field');
+        const valueIdx = args.indexOf('--value');
+        frontmatter.cmdFrontmatterSet(cwd, file, fieldIdx !== -1 ? args[fieldIdx + 1] : null, valueIdx !== -1 ? args[valueIdx + 1] : undefined, raw);
+      } else if (subcommand === 'merge') {
+        const dataIdx = args.indexOf('--data');
+        frontmatter.cmdFrontmatterMerge(cwd, file, dataIdx !== -1 ? args[dataIdx + 1] : null, raw);
+      } else if (subcommand === 'validate') {
+        const schemaIdx = args.indexOf('--schema');
+        frontmatter.cmdFrontmatterValidate(cwd, file, schemaIdx !== -1 ? args[schemaIdx + 1] : null, raw);
+      } else {
+        error('Unknown frontmatter subcommand. Available: get, set, merge, validate');
+      }
+      break;
+    }
+
+    case 'verify': {
+      const subcommand = args[1];
+      if (subcommand === 'plan-structure') {
+        verify.cmdVerifyPlanStructure(cwd, args[2], raw);
+      } else if (subcommand === 'phase-completeness') {
+        verify.cmdVerifyPhaseCompleteness(cwd, args[2], raw);
+      } else if (subcommand === 'references') {
+        verify.cmdVerifyReferences(cwd, args[2], raw);
+      } else if (subcommand === 'commits') {
+        verify.cmdVerifyCommits(cwd, args.slice(2), raw);
+      } else if (subcommand === 'artifacts') {
+        verify.cmdVerifyArtifacts(cwd, args[2], raw);
+      } else if (subcommand === 'key-links') {
+        verify.cmdVerifyKeyLinks(cwd, args[2], raw);
+      } else {
+        error('Unknown verify subcommand. Available: plan-structure, phase-completeness, references, commits, artifacts, key-links');
       }
       break;
     }
 
     case 'generate-slug': {
-      cmdGenerateSlug(args[1], raw);
+      commands.cmdGenerateSlug(args[1], raw);
       break;
     }
 
     case 'current-timestamp': {
-      cmdCurrentTimestamp(args[1] || 'full', raw);
+      commands.cmdCurrentTimestamp(args[1] || 'full', raw);
       break;
     }
 
     case 'list-todos': {
-      cmdListTodos(cwd, args[1], raw);
-      break;
-    }
-
-    case 'todo': {
-      const subcommand = args[1];
-      if (subcommand === 'start') {
-        cmdTodoStart(cwd, args[2], raw);
-      } else if (subcommand === 'complete') {
-        cmdTodoComplete(cwd, args[2], raw);
-      } else {
-        error('Unknown todo subcommand. Available: start, complete');
-      }
+      commands.cmdListTodos(cwd, args[1], raw);
       break;
     }
 
     case 'verify-path-exists': {
-      cmdVerifyPathExists(cwd, args[1], raw);
+      commands.cmdVerifyPathExists(cwd, args[1], raw);
       break;
     }
 
     case 'config-ensure-section': {
-      cmdConfigEnsureSection(cwd, raw);
+      config.cmdConfigEnsureSection(cwd, raw);
+      break;
+    }
+
+    case 'config-set': {
+      config.cmdConfigSet(cwd, args[1], args[2], raw);
+      break;
+    }
+
+    case 'config-get': {
+      config.cmdConfigGet(cwd, args[1], raw);
       break;
     }
 
     case 'history-digest': {
-      cmdHistoryDigest(cwd, raw);
+      commands.cmdHistoryDigest(cwd, raw);
       break;
     }
 
@@ -3045,7 +358,7 @@ async function main() {
           phase: phaseIndex !== -1 ? args[phaseIndex + 1] : null,
           includeArchived: args.includes('--include-archived'),
         };
-        cmdPhasesList(cwd, options, raw);
+        phase.cmdPhasesList(cwd, options, raw);
       } else {
         error('Unknown phases subcommand. Available: list');
       }
@@ -3055,11 +368,13 @@ async function main() {
     case 'roadmap': {
       const subcommand = args[1];
       if (subcommand === 'get-phase') {
-        cmdRoadmapGetPhase(cwd, args[2], raw);
+        roadmap.cmdRoadmapGetPhase(cwd, args[2], raw);
+      } else if (subcommand === 'analyze') {
+        roadmap.cmdRoadmapAnalyze(cwd, raw);
       } else if (subcommand === 'update-plan-progress') {
-        cmdRoadmapUpdatePlanProgress(cwd, args[2], raw);
+        roadmap.cmdRoadmapUpdatePlanProgress(cwd, args[2], raw);
       } else {
-        error('Unknown roadmap subcommand. Available: get-phase, update-plan-progress');
+        error('Unknown roadmap subcommand. Available: get-phase, analyze, update-plan-progress');
       }
       break;
     }
@@ -3067,7 +382,7 @@ async function main() {
     case 'requirements': {
       const subcommand = args[1];
       if (subcommand === 'mark-complete') {
-        cmdRequirementsMarkComplete(cwd, args.slice(2), raw);
+        milestone.cmdRequirementsMarkComplete(cwd, args.slice(2), raw);
       } else {
         error('Unknown requirements subcommand. Available: mark-complete');
       }
@@ -3077,12 +392,82 @@ async function main() {
     case 'phase': {
       const subcommand = args[1];
       if (subcommand === 'next-decimal') {
-        cmdPhaseNextDecimal(cwd, args[2], raw);
+        phase.cmdPhaseNextDecimal(cwd, args[2], raw);
+      } else if (subcommand === 'add') {
+        phase.cmdPhaseAdd(cwd, args.slice(2).join(' '), raw);
+      } else if (subcommand === 'insert') {
+        phase.cmdPhaseInsert(cwd, args[2], args.slice(3).join(' '), raw);
+      } else if (subcommand === 'remove') {
+        const forceFlag = args.includes('--force');
+        phase.cmdPhaseRemove(cwd, args[2], { force: forceFlag }, raw);
       } else if (subcommand === 'complete') {
-        cmdPhaseComplete(cwd, args[2], raw);
+        phase.cmdPhaseComplete(cwd, args[2], raw);
       } else {
-        error('Unknown phase subcommand. Available: next-decimal, complete');
+        error('Unknown phase subcommand. Available: next-decimal, add, insert, remove, complete');
       }
+      break;
+    }
+
+    case 'milestone': {
+      const subcommand = args[1];
+      if (subcommand === 'complete') {
+        const nameIndex = args.indexOf('--name');
+        const archivePhases = args.includes('--archive-phases');
+        // Collect --name value (everything after --name until next flag or end)
+        let milestoneName = null;
+        if (nameIndex !== -1) {
+          const nameArgs = [];
+          for (let i = nameIndex + 1; i < args.length; i++) {
+            if (args[i].startsWith('--')) break;
+            nameArgs.push(args[i]);
+          }
+          milestoneName = nameArgs.join(' ') || null;
+        }
+        milestone.cmdMilestoneComplete(cwd, args[2], { name: milestoneName, archivePhases }, raw);
+      } else {
+        error('Unknown milestone subcommand. Available: complete');
+      }
+      break;
+    }
+
+    case 'validate': {
+      const subcommand = args[1];
+      if (subcommand === 'consistency') {
+        verify.cmdValidateConsistency(cwd, raw);
+      } else if (subcommand === 'health') {
+        const repairFlag = args.includes('--repair');
+        verify.cmdValidateHealth(cwd, { repair: repairFlag }, raw);
+      } else {
+        error('Unknown validate subcommand. Available: consistency, health');
+      }
+      break;
+    }
+
+    case 'progress': {
+      const subcommand = args[1] || 'json';
+      commands.cmdProgressRender(cwd, subcommand, raw);
+      break;
+    }
+
+    case 'todo': {
+      const subcommand = args[1];
+      if (subcommand === 'complete') {
+        commands.cmdTodoComplete(cwd, args[2], raw);
+      } else {
+        error('Unknown todo subcommand. Available: complete');
+      }
+      break;
+    }
+
+    case 'scaffold': {
+      const scaffoldType = args[1];
+      const phaseIndex = args.indexOf('--phase');
+      const nameIndex = args.indexOf('--name');
+      const scaffoldOptions = {
+        phase: phaseIndex !== -1 ? args[phaseIndex + 1] : null,
+        name: nameIndex !== -1 ? args.slice(nameIndex + 1).join(' ') : null,
+      };
+      commands.cmdScaffold(cwd, scaffoldType, scaffoldOptions, raw);
       break;
     }
 
@@ -3090,40 +475,40 @@ async function main() {
       const workflow = args[1];
       switch (workflow) {
         case 'execute-phase':
-          cmdInitExecutePhase(cwd, args[2], raw);
+          init.cmdInitExecutePhase(cwd, args[2], raw);
           break;
         case 'plan-phase':
-          cmdInitPlanPhase(cwd, args[2], raw);
+          init.cmdInitPlanPhase(cwd, args[2], raw);
           break;
         case 'new-project':
-          cmdInitNewProject(cwd, raw);
+          init.cmdInitNewProject(cwd, raw);
           break;
         case 'new-milestone':
-          cmdInitNewMilestone(cwd, raw);
+          init.cmdInitNewMilestone(cwd, raw);
           break;
         case 'quick':
-          cmdInitQuick(cwd, args.slice(2).join(' '), raw);
+          init.cmdInitQuick(cwd, args.slice(2).join(' '), raw);
           break;
         case 'resume':
-          cmdInitResume(cwd, raw);
+          init.cmdInitResume(cwd, raw);
           break;
         case 'verify-work':
-          cmdInitVerifyWork(cwd, args[2], raw);
+          init.cmdInitVerifyWork(cwd, args[2], raw);
           break;
         case 'phase-op':
-          cmdInitPhaseOp(cwd, args[2], raw);
+          init.cmdInitPhaseOp(cwd, args[2], raw);
           break;
         case 'todos':
-          cmdInitTodos(cwd, args[2], raw);
+          init.cmdInitTodos(cwd, args[2], raw);
           break;
         case 'milestone-op':
-          cmdInitMilestoneOp(cwd, raw);
+          init.cmdInitMilestoneOp(cwd, raw);
           break;
         case 'map-codebase':
-          cmdInitMapCodebase(cwd, raw);
+          init.cmdInitMapCodebase(cwd, raw);
           break;
         case 'progress':
-          cmdInitProgress(cwd, raw);
+          init.cmdInitProgress(cwd, raw);
           break;
         default:
           error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress`);
@@ -3131,13 +516,21 @@ async function main() {
       break;
     }
 
-    case 'config-set': {
-      cmdConfigSet(cwd, args[1], args[2], raw);
+    case 'phase-plan-index': {
+      phase.cmdPhasePlanIndex(cwd, args[1], raw);
       break;
     }
 
-    case 'config-get': {
-      cmdConfigGet(cwd, args[1], raw);
+    case 'state-snapshot': {
+      state.cmdStateSnapshot(cwd, raw);
+      break;
+    }
+
+    case 'summary-extract': {
+      const summaryPath = args[1];
+      const fieldsIndex = args.indexOf('--fields');
+      const fields = fieldsIndex !== -1 ? args[fieldsIndex + 1].split(',') : null;
+      commands.cmdSummaryExtract(cwd, summaryPath, fields, raw);
       break;
     }
 
@@ -3145,21 +538,10 @@ async function main() {
       const query = args[1];
       const limitIdx = args.indexOf('--limit');
       const freshnessIdx = args.indexOf('--freshness');
-      await cmdWebsearch(query, {
+      await commands.cmdWebsearch(query, {
         limit: limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : 10,
         freshness: freshnessIdx !== -1 ? args[freshnessIdx + 1] : null,
       }, raw);
-      break;
-    }
-
-    case 'validate': {
-      const subcommand = args[1];
-      if (subcommand === 'health') {
-        const repairFlag = args.includes('--repair');
-        cmdValidateHealth(cwd, { repair: repairFlag }, raw);
-      } else {
-        error('Unknown validate subcommand. Available: health');
-      }
       break;
     }
 

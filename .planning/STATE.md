@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 18 of 22 (Upstream Sync Execution)
-Plan: 3 of TBD in current phase (18-01, 18-02, 18-03 complete)
+Plan: 4 of TBD in current phase (18-01, 18-02, 18-03, 18-04 complete)
 Status: In progress
-Last activity: 2026-02-22 -- Batches 9-11 sync (v1.19.2..v1.20.5, 37 commits) complete — fork current through v1.20.5
+Last activity: 2026-02-23 -- Batch 12 sync (v1.20.5..upstream/main HEAD, 7 commits) complete — fork current through upstream/main HEAD (131f24b)
 
 Progress: [####..........] 25% (v0.3.0: 1/5 phases partial — Phase 18 in progress)
 
@@ -29,14 +29,14 @@ Progress: [####..........] 25% (v0.3.0: 1/5 phases partial — Phase 18 in progr
 - Total execution time: 4.45 hours
 
 **v0.3.0 Velocity (in progress):**
-- Plans completed: 3 (18-01, 18-02, 18-03)
-- Average duration: ~127 minutes
-- Total execution time: ~6.34 hours
+- Plans completed: 4 (18-01, 18-02, 18-03, 18-04)
+- Average duration: ~142 minutes
+- Total execution time: ~9.44 hours
 
 **Cumulative:**
 - 2 milestones shipped
-- 47 plans completed across 18 phases
-- ~12.17 hours total execution time
+- 48 plans completed across 18 phases
+- ~15.27 hours total execution time
 
 ## Accumulated Context
 
@@ -66,25 +66,34 @@ v0.3.0 decisions (Phase 18 Batches 9-11):
 - processAttribution call removed from install.js: incomplete Codex revert auto-fix (Rule 1)
 - Codex add+revert pair (4 commits) cancelled cleanly; net zero change to fork
 
+v0.3.0 decisions (Phase 18 Batch 12):
+- gsd-tools modular split adopted: 11 domain modules under bin/lib/, thin 553-line router; fork's validation import preserved in core.cjs
+- helpers.cjs dual-export fix: bun resolves require('./helpers') to .cjs before /index.js; re-exporting from helpers/index.js unblocks both upstream and fork test files
+- bunfig.toml exclude .test.cjs: bun runs fork .test.js; upstream .test.cjs run via node --test separately
+- Path traversal security added to cmdCommit: path.resolve comparison rejects ../../../ paths (Rule 2)
+- Auto-advance chain fixed: Skills don't resolve inside Task subagents; @file refs used directly in Task() prompt
+- Nyquist Dimension 8 added to plan-checker: automated test coverage research during plan-phase
+- Bridge file pattern: statusline writes JSON to $TMPDIR; context-monitor reads it for WARNING/CRITICAL alerts
+- CI triggers on PR not branch push: full cross-platform CI validation deferred to Plan 18-05 PR creation
+
 ### Pending Todos
 
 None.
 
 ### Blockers/Concerns
 
-- 185 upstream commits total, Batches 6-11 (95 commits) complete -- ~90 remain across Batch 12
-- Upstream split gsd-tools.js into 11 modules (Batch 12) -- fork's esbuild pipeline must be migrated
-- ESLint warnings: 95 security warnings in gsd-tools.cjs (upstream code, non-blocking)
-- Upstream Issue #491: gsd-verifier missing Write tool -- RESOLVED in Batch 6 (fork preserved fix)
+- All upstream commits through upstream/main HEAD (131f24b) applied -- sync complete
+- ESLint warnings: security warnings across lib/*.cjs modules (upstream code, non-blocking)
+- CI validation pending PR creation (Plan 18-05): cross-platform CI triggers on PR not branch push
 
 ## Session Continuity
 
-Last session: 2026-02-22
-Status: 18-03 complete, branch sync/v1.20.5 current through v1.20.5 (Batches 9-11 applied)
-Stopped at: Completed 18-03-PLAN.md (Batches 9-11 cherry-picks, requirements tracking, context-proxy, SUMMARY)
+Last session: 2026-02-23
+Status: 18-04 complete, branch sync/v1.20.5 current through upstream/main HEAD (131f24b), pushed to origin
+Stopped at: Completed 18-04-PLAN.md (Batch 12: gsd-tools module split, Nyquist validation, context-monitor, auto-advance fix, SUMMARY)
 Resume file: None
 
-**Next step:** Execute Plan 18-04 (Batch 12: gsd-tools module split migration)
+**Next step:** Execute Plan 18-05 (merge sync branch to main, version bump, CI, npm publish)
 
 ---
-*Updated: 2026-02-22 (Plan 18-03 complete)*
+*Updated: 2026-02-23 (Plan 18-04 complete)*

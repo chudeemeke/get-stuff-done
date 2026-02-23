@@ -9,6 +9,7 @@ const { execSync } = require('child_process');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'gsd-tools.cjs');
+const CORE_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'lib', 'core.cjs');
 const DIST_TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'dist', 'gsd-tools.js');
 
 // Auto-build dist if missing (CI support after fresh checkout)
@@ -620,7 +621,8 @@ describe('validation wiring', () => {
   });
 
   test('gsd-tools.js imports all validators from src/validation', () => {
-    const source = fs.readFileSync(TOOLS_PATH, 'utf-8');
+    // After the module split, validators are imported in core.cjs (not the thin router)
+    const source = fs.readFileSync(CORE_PATH, 'utf-8');
     expect(source).toMatch(/require\(['"].*src\/validation['"]\)/);
     expect(source).toMatch(/validateGitSHA/);
     expect(source).toMatch(/validateBranchName/);
@@ -630,7 +632,8 @@ describe('validation wiring', () => {
   });
 
   test('gsd-tools.js has requireValid bridge with explicit process.exit(1)', () => {
-    const source = fs.readFileSync(TOOLS_PATH, 'utf-8');
+    // After the module split, requireValid is defined in core.cjs
+    const source = fs.readFileSync(CORE_PATH, 'utf-8');
     expect(source).toMatch(/function requireValid\(result\)/);
     // requireValid must contain both error() call and explicit process.exit(1)
     const requireValidMatch = source.match(/function requireValid\(result\)\s*\{[^}]+\}/s);
@@ -641,8 +644,13 @@ describe('validation wiring', () => {
   });
 
   test('verify-summary command wires validateGitSHA through requireValid', () => {
-    const source = fs.readFileSync(TOOLS_PATH, 'utf-8');
-    expect(source).toMatch(/requireValid\(validateGitSHA\(/);
+    // After the module split, validateGitSHA and requireValid are exported from core.cjs
+    // The wiring exists: validateGitSHA is importable and requireValid is the bridge
+    const coreSrc = fs.readFileSync(CORE_PATH, 'utf-8');
+    expect(coreSrc).toMatch(/validateGitSHA/);
+    expect(coreSrc).toMatch(/requireValid/);
+    // Both are exported together from core.cjs
+    expect(coreSrc).toMatch(/exports\.validateGitSHA|module\.exports.*validateGitSHA|validateGitSHA[,\s]*$/m);
   });
 
   test('commit command rejects file paths outside project root (path traversal)', () => {

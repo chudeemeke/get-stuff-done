@@ -864,5 +864,10 @@
   "meta": {
     "lastSync": "2026-02-23",
     "syncedThrough": "upstream/main (HEAD at 131f24b)"
-  }
+  },
+  "completedAt": "2026-02-23T07:10:40.706Z",
+  "mergedAt": "2026-02-23T07:10:40.706Z",
+  "mergeMethod": "no-ff",
+  "mergedInto": "main",
+  "mergeHash": "44c3359"
 }

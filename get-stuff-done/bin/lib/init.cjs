@@ -89,6 +89,7 @@ function cmdInitPlanPhase(cwd, phase, raw) {
     // Workflow flags
     research_enabled: config.research,
     plan_checker_enabled: config.plan_checker,
+    nyquist_validation_enabled: config.workflow?.nyquist_validation ?? true,
     commit_docs: config.commit_docs,
 
     // Phase info

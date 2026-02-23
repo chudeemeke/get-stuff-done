@@ -249,3 +249,27 @@ entries: 43
   confidence: HIGH
   phase: "19-post-sync-stabilization"
   date: "2026-02-23"
+
+- finding: "bun 1.3.5 coverage attribution: even a SINGLE delete require.cache in a test file causes bun to use the re-required module instance's coverage for the ENTIRE file report, overriding all coverage from direct calls in the same file. To fix: eliminate ALL re-require instances. If the test requires re-require (e.g., execSync destructured at load time), remove the test entirely -- moving it to a dedicated file doesn't help if that file also has re-require."
+  source: "Phase 19, Plan 03, Task 1"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "bun coverage migration pattern (re-require -> direct calls): (1) add _detect* exports to top-level destructure in test file, (2) replace each delete+re-require block with direct _detectShell/_detectEnvironment call, (3) update assertions from platform.x to result.x (e.g. platform.shellVariant -> result.variant for _detectShell()), (4) remove afterEach's delete require.cache line. Coverage goes from ~67% to ~97%."
+  source: "Phase 19, Plan 03, Task 1"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "For CLI --help flag: detect before command routing using args.includes('--help') || args.includes('-h'), write to process.stdout.write (NOT error() which writes to stderr and exits 1), then process.exit(0). Also add a 'help' case to the switch statement as a subcommand alias. This handles gsd-tools --help, -h, and help all correctly."
+  source: "Phase 18, Plan 06, Task 1"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "When deleting directories for branding cleanup, verify using git add with all sub-paths explicitly (git add dir/README.md dir/subdir/file1.js etc.), NOT git add dir/ -- git handles deletions as 'D' status items that need individual staging."
+  source: "Phase 18, Plan 06, Task 2"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"

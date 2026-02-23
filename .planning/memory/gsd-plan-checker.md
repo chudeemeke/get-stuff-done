@@ -93,3 +93,15 @@ entries: 14
   confidence: HIGH
   phase: "18-upstream-sync-execution"
   date: "2026-02-27"
+
+- finding: "When a plan's action says 'add _detect* exports to the destructuring', verify whether they are ALREADY imported in the current file before flagging as a gap. In Phase 19 Plan 03, platform.test.js already imports _detectShell, _detectEnvironment, _detectNodeVersion, _detectGit at lines 14-17. The plan's instruction is harmless (executor will find them already there) but the verification step should check the current import state."
+  source: "Phase 19, Plan 03, Task 1"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "For assessment/documentation-only plans (no code changes), empty key_links is correct and appropriate. Plan 19-02 produces two standalone markdown reports with no cross-artifact wiring needed. Do NOT flag empty key_links as a gap for document-creation plans."
+  source: "Phase 19, Plan 02"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"

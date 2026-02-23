@@ -1,7 +1,7 @@
 ---
 agent: gsd-verifier
-updated: 2026-02-20
-entries: 17
+updated: 2026-02-23
+entries: 20
 ---
 
 ## Agent Memory: GSD Verifier
@@ -108,3 +108,21 @@ entries:
     confidence: HIGH
     phase: "17-agent-teams-wiring"
     date: "2026-02-20"
+
+  - finding: "For bundling verification with a modular CJS structure (Phase 18/19 pattern): the definitive test is copy-mode isolation -- `cp dist/bundle.cjs /tmp/isolated/` then `node /tmp/isolated/bundle.cjs <command>`. If it executes without MODULE_NOT_FOUND, the bundle is truly self-contained. Also check `grep -c 'require.*\\./lib/'` on the bundle file (should be 0)."
+    source: "Phase 19 verification"
+    confidence: HIGH
+    phase: "19-post-sync-stabilization"
+    date: "2026-02-23"
+
+  - finding: "bun 1.3.5 coverage attribution fix: removing ALL `delete require.cache` instances for a module (even just 1 remaining) is required to fix coverage attribution. The last re-required instance overwrites the full module coverage in bun's V8 aggregation. Zero re-require instances is the only reliable fix -- even 1 remaining causes the whole module's coverage to be mis-attributed."
+    source: "Phase 19 verification (19-03-SUMMARY.md)"
+    confidence: HIGH
+    phase: "19-post-sync-stabilization"
+    date: "2026-02-23"
+
+  - finding: "Phase 19 pattern: assessment reports (ASSESS-01, ASSESS-02) are documentation artifacts in the phase directory, not code. Verification checks: (1) file exists and has min_lines, (2) all required sections present via grep, (3) concrete recommendation stated (not vague). The report content cannot be auto-tested but the structure can be verified structurally."
+    source: "Phase 19 verification"
+    confidence: HIGH
+    phase: "19-post-sync-stabilization"
+    date: "2026-02-23"

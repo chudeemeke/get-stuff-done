@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 
 ## Current Position
 
-Phase: 19 of 22 (Post-Sync Stabilization) — In progress
-Plan: 3 of 3 in Phase 19 (19-01, 19-02, and 19-03 complete; phase done)
-Status: Phase complete — ready for Phase 20
-Last activity: 2026-02-23 -- Completed 19-03-PLAN.md (detect.js coverage: 67.47% -> 96.99%)
+Phase: 18 of 22 (Upstream Sync Execution) — Gap closure complete
+Plan: 6 of 6 in Phase 18 (18-01 through 18-06 all complete)
+Status: Phase 18 complete — ready for Phase 20
+Last activity: 2026-02-23 -- Completed 18-06-PLAN.md (--help flag + opencode/ deletion)
 
 Progress: [######........] 35% (v0.3.0: 2/5 phases complete — Phase 18 and 19 done)
 
@@ -90,6 +90,11 @@ v0.3.0 decisions (Phase 19 Plan 02 — assessment reports):
 - PLAT-07 (interactive diff viewer): defer to v0.4.0 backlog -- text diffs functional, PLAT-07 is ergonomic improvement only
 - PLAT-08 (multi-upstream support): dropped from v0.3.0 -- no current use case; added to someday/maybe list
 
+v0.3.0 decisions (Phase 18 Plan 06 — UAT gap closure):
+- Deleted opencode/ entirely rather than rebranding: fork is Claude Code-only per REQUIREMENTS.md Out of Scope
+- gsd-tools --help uses process.stdout.write + exit(0), not error() helper (stderr/exit 1)
+- 'help' subcommand alias added alongside --help/-h flags for ergonomic discoverability
+
 v0.3.0 decisions (Phase 19 Plan 03 — platform coverage fix):
 - Remove git error handler re-require test: detect.js destructures execSync at load time; the re-require test caused bun to override entire detect.js coverage with the re-required instance. Removing it achieves 96.99% (lines 183-187 uncoverable without re-require)
 - Accept 94.93% overall lines (vs 95% target): gap is pre-existing low coverage in test helper utilities (mock-child-process.js, mock-fs.js) outside plan scope
@@ -110,8 +115,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Status: Phase 19 complete -- all 3 plans done (19-01, 19-02, 19-03)
-Stopped at: Completed 19-03-PLAN.md (platform.test.js re-require migration, detect.js coverage fix)
+Status: Phase 18 gap closure complete (18-06 done)
+Stopped at: Completed 18-06-PLAN.md (--help flag to gsd-tools, opencode/ deletion)
 Resume file: None
 
 **Next step:** Phase 20 (plan-phase 20 to begin next phase)

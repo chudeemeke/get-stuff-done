@@ -55,7 +55,7 @@ Plans:
 - [x] 18-03-PLAN.md -- Cherry-pick Batches 9-11 (v1.19.2..v1.20.5, 49 commits)
 - [x] 18-04-PLAN.md -- Cherry-pick Batch 12 (v1.20.5..upstream/main, 11 commits) module split
 - [x] 18-05-PLAN.md -- Final validation, approach comparison, and merge to main
-- [ ] 18-06-PLAN.md -- Gap closure: add --help to gsd-tools CLI, remove upstream OpenCode package
+- [x] 18-06-PLAN.md -- Gap closure: add --help to gsd-tools CLI, remove upstream OpenCode package
 
 ### Phase 19: Post-Sync Stabilization
 **Goal**: The esbuild bundling pipeline produces working dist files from the new modular structure, and assessment of upstream features informs scope of deferred requirements
@@ -109,7 +109,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Upstream Sync Execution | v0.3.0 | 5/6 | Gap closure | 2026-02-23 |
+| 18. Upstream Sync Execution | v0.3.0 | 6/6 | Complete | 2026-02-23 |
 | 19. Post-Sync Stabilization | 3/3 | Complete    | 2026-02-23 | - |
 | 20. Sync Safety & Transparency | v0.3.0 | 0/TBD | Not started | - |
 | 21. Sync Intelligence | v0.3.0 | 0/TBD | Not started | - |

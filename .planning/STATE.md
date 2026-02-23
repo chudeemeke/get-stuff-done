@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Maintain upstream compatibility while establishing distinct identity
-**Current focus:** Phase 19 - Post-Sync Stabilization
+**Current focus:** Phase 20 - Sync Safety & Transparency
 
 ## Current Position
 
-Phase: 18 of 22 (Upstream Sync Execution) — Gap closure complete
-Plan: 6 of 6 in Phase 18 (18-01 through 18-06 all complete)
-Status: Phase 18 complete — ready for Phase 20
-Last activity: 2026-02-23 -- Completed 18-06-PLAN.md (--help flag + opencode/ deletion)
+Phase: 20 of 22 (Sync Safety & Transparency) — In progress
+Plan: 1 of 3 in Phase 20 (20-01 complete)
+Status: Phase 20 Plan 01 complete — sync plumbing module ready
+Last activity: 2026-02-23 -- Completed 20-01-PLAN.md (sync.cjs plumbing + tests)
 
-Progress: [######........] 35% (v0.3.0: 2/5 phases complete — Phase 18 and 19 done)
+Progress: [######........] 37% (v0.3.0: 2/5 phases complete — Phase 18 and 19 done, Phase 20 in progress)
 
 ## Performance Metrics
 
@@ -99,6 +99,11 @@ v0.3.0 decisions (Phase 19 Plan 03 — platform coverage fix):
 - Remove git error handler re-require test: detect.js destructures execSync at load time; the re-require test caused bun to override entire detect.js coverage with the re-required instance. Removing it achieves 96.99% (lines 183-187 uncoverable without re-require)
 - Accept 94.93% overall lines (vs 95% target): gap is pre-existing low coverage in test helper utilities (mock-child-process.js, mock-fs.js) outside plan scope
 
+v0.3.0 decisions (Phase 20 Plan 01 — sync plumbing module):
+- spawnGit() pattern established: execGit() shell escaping breaks git commands with %, |, ^, *, spaces on Windows MINGW64. All sync commands use spawnSync array form (no shell) via spawnGit()
+- diff-tree --root flag: initial commits have no parent; without --root, git diff-tree returns empty output for first commit in temp git repo
+- All 6 sync.cjs internal helpers exported: follows bun 1.3.5 coverage pitfall -- direct export + direct call is correct pattern for testability without re-require
+
 ### Pending Todos
 
 None.
@@ -106,8 +111,6 @@ None.
 ### Blockers/Concerns
 
 - Phase 18 complete: all 185 upstream commits integrated into main (44c3359 merge commit)
-- ESLint warnings: security warnings across lib/*.cjs modules (upstream code, non-blocking for Phase 19)
-- Phase 19 complete: all 3 plans done (esbuild fix, assessments, coverage fix)
 - ESLint warnings: security warnings across lib/*.cjs modules (upstream code, non-blocking)
 - Lines coverage at 94.93%: detect.js now at 96.99%, remaining gap from test helpers (pre-existing)
 - SYNC-II-03 resolved: copy-mode install now produces correct gsd-tools.cjs bundle (24fd790)
@@ -115,11 +118,11 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Status: Phase 18 gap closure complete (18-06 done)
-Stopped at: Completed 18-06-PLAN.md (--help flag to gsd-tools, opencode/ deletion)
+Status: Phase 20 Plan 01 complete (sync.cjs plumbing + tests)
+Stopped at: Completed 20-01-PLAN.md (sync.cjs plumbing module with 4 commands, 6 helpers, 33 tests)
 Resume file: None
 
-**Next step:** Phase 20 (plan-phase 20 to begin next phase)
+**Next step:** Phase 20 Plan 02 (workflow porcelain for upstream-sync.md)
 
 ---
-*Updated: 2026-02-23 (Phase 19 Plan 03 complete)*
+*Updated: 2026-02-23 (Phase 20 Plan 01 complete)*

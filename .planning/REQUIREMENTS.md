@@ -18,10 +18,10 @@ Requirements for v0.3.0 Upstream Sync & Workflow Maturity. Phases continue from 
 
 ### Sync Workflow - Core UX
 
-- [ ] **SYNC-01**: Colorized diff preview before cherry-picks -- user can visually review what each commit changes with syntax-highlighted diffs before accepting
-- [ ] **SYNC-02**: State snapshots and rollback -- sync workflow creates restore points before each cherry-pick batch, enabling rollback to last known-good state on failure
+- [x] **SYNC-01**: Colorized diff preview before cherry-picks -- user can visually review what each commit changes with syntax-highlighted diffs before accepting
+- [x] **SYNC-02**: State snapshots and rollback -- sync workflow creates restore points before each cherry-pick batch, enabling rollback to last known-good state on failure
 - [ ] **SYNC-03**: Auto-update check with severity indicators -- periodic check for new upstream commits, categorized by severity (breaking, feature, fix, chore) with visual summary
-- [ ] **SYNC-04**: --dry-run mode for sync operations -- preview the full sync plan (commits to cherry-pick, predicted conflicts, estimated effort) without modifying the working tree
+- [x] **SYNC-04**: --dry-run mode for sync operations -- preview the full sync plan (commits to cherry-pick, predicted conflicts, estimated effort) without modifying the working tree
 
 ### Sync Workflow - Advanced Automation
 
@@ -70,10 +70,10 @@ These requirements activate based on ASSESS-01 and ASSESS-02 outcomes. Scope TBD
 | SYNC-II-04 | Phase 18 | Complete |
 | SYNC-II-05 | Phase 18 | Pending |
 | SYNC-II-06 | Phase 18 | Pending |
-| SYNC-01 | Phase 20 | Pending |
-| SYNC-02 | Phase 20 | Pending |
+| SYNC-01 | Phase 20 | Complete |
+| SYNC-02 | Phase 20 | Complete |
 | SYNC-03 | Phase 21 | Pending |
-| SYNC-04 | Phase 20 | Pending |
+| SYNC-04 | Phase 20 | Complete |
 | SYNC-07 | Phase 21 | Pending |
 | SYNC-08 | Phase 21 | Pending |
 | SYNC-09 | Phase 22 | Pending |

@@ -322,12 +322,6 @@ function cmdSyncPreview(cwd, range, options, raw) {
     error('SHA not found -- run git fetch upstream main first');
   }
 
-  // Check working tree is clean
-  const statusResult = execGit(cwd, ['status', '--short']);
-  if (statusResult.exitCode === 0 && statusResult.stdout.trim()) {
-    error('Working directory is dirty. Commit or stash changes before preview.');
-  }
-
   // Get commits in range
   const commits = getCommitsInRange(cwd, baseRef, targetRef);
 

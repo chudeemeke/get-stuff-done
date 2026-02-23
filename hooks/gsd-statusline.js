@@ -82,6 +82,23 @@ process.stdin.on('end', () => {
       const rawUsage = 100 - remaining;
       const proximity = Math.max(0, Math.min(100, Math.round((rawUsage / maxUsage) * 100)));
 
+      // Write context metrics to bridge file for the context-monitor PostToolUse hook.
+      // The monitor reads this file to inject agent-facing warnings when context is low.
+      if (session) {
+        try {
+          const bridgePath = path.join(os.tmpdir(), `claude-ctx-${session}.json`);
+          const bridgeData = JSON.stringify({
+            session_id: session,
+            remaining_percentage: remaining,
+            used_pct: used,
+            timestamp: Math.floor(Date.now() / 1000)
+          });
+          fs.writeFileSync(bridgePath, bridgeData);
+        } catch (e) {
+          // Silent fail -- bridge is best-effort, don't break statusline
+        }
+      }
+
       // Build progress bar (10 segments) - shows proximity to autocompact
       const filled = Math.floor(proximity / 10);
       const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);

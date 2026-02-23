@@ -99,6 +99,95 @@ Each entry documents a divergence or convergence:
 
 ---
 
+### 7. gsd-tools.cjs Architecture: Monolith vs Modular Split
+
+**Area:** get-stuff-done/bin/gsd-tools.cjs — overall code organization
+
+**Fork approach (pre-Batch 12):** Single 4953-line monolith containing all command implementations, state management, phase operations, roadmap handling, verification, config, templates, milestones, and utility functions.
+
+**Upstream approach (commit c67ab75):** Split the 5324-line monolith into a 553-line thin router + 11 domain modules under bin/lib/:
+- `core.cjs` — shared utilities, constants, git helpers (~400 lines)
+- `state.cjs` — STATE.md operations + progression engine (~500 lines)
+- `phase.cjs` — Phase CRUD, query, lifecycle (~900 lines)
+- `roadmap.cjs` — ROADMAP.md operations (~350 lines)
+- `verify.cjs` — verification suite + consistency validation (~800 lines)
+- `config.cjs` — configuration management (~200 lines)
+- `template.cjs` — template operations (~200 lines)
+- `milestone.cjs` — milestone tracking (~200 lines)
+- `commands.cjs` — standalone utility commands (~600 lines)
+- `init.cjs` — compound init commands (~700 lines)
+- `frontmatter.cjs` — YAML frontmatter parsing (~100 lines)
+
+**Resolution:** Upstream architecture adopted wholesale (Batch 12). Fork's validation import (`validateGitSHA`, `validateBranchName`, `validateConfigPath`, `validateTagName`, `validateRemoteURL`) was preserved in `core.cjs` (not the router) since git operation helpers live there. The router file was branded from `get-shit-done` to `get-stuff-done` paths throughout.
+
+**Batch:** Batch 12 (commit c67ab75)
+
+---
+
+### 8. Test Runner Strategy: bun vs node:test for Upstream CJS Tests
+
+**Area:** tests/ directory — test runner compatibility
+
+**Fork approach:** All fork tests are `.test.js` files using `bun:test` runner (describe/it/expect/test from 'bun:test'). Bun discovers and runs these automatically.
+
+**Upstream approach (commit fa2e156):** Upstream split `gsd-tools.test.cjs` into 7 domain `.test.cjs` files using `node:test` APIs (`import {describe, it} from 'node:test'` with `assert` from 'node:assert'). These are designed to run via `node --test tests/*.test.cjs`.
+
+**Conflict:** When the upstream `.test.cjs` files land in the fork's `tests/` directory, bun tries to run them (bun can execute CJS files) but `require('./helpers')` resolves to `tests/helpers.cjs` (upstream's helpers file) instead of `tests/helpers/index.js` (fork's helpers directory). This caused 171 test failures.
+
+**Resolution (Rule 1 - Bug fix):** Extended `tests/helpers.cjs` to re-export everything from `tests/helpers/index.js` while also exporting upstream's `runGsdTools`, `createTempProject`, `cleanup`, `TOOLS_PATH`. Now `require('./helpers')` works for both upstream `.test.cjs` files and any callers expecting the helpers directory exports. Added `bunfig.toml` with `exclude = ["**/*.test.cjs"]` so bun only runs fork's `.test.js` files, avoiding CJS-in-bun execution issues. Upstream `.test.cjs` files run separately via `node --test`.
+
+**Batch:** Batch 12 (commit fa2e156, fix in `6601879`)
+
+---
+
+### 9. Context Window Monitor Architecture: Hook vs External Command
+
+**Area:** Context window monitoring mechanism
+
+**Fork approach (pre-Batch 12):** No context window monitoring beyond the statusline visual indicator.
+
+**Upstream approach (commit 7542d36):** Two-part system:
+1. `hooks/gsd-statusline.js` (PreToolUse hook) writes a bridge file to `$TMPDIR/claude-ctx-${session}.json` with `remaining_percentage`, `used_pct`, and `timestamp`
+2. `hooks/gsd-context-monitor.js` (PostToolUse hook) reads the bridge file and emits `[GSD CONTEXT WARNING]` or `[GSD CONTEXT CRITICAL]` messages to the model when remaining drops below 35% or 25%
+
+**Conflict:** Fork's statusline uses `proximity` percentage (distance from autocompact threshold) for its 4-stage indicator, while upstream uses `used` percentage. The bridge file needed to capture `remaining` (= 100 - used) for the monitor to work.
+
+**Resolution:** Fork architecture wins for the visual indicator (proximity-based 4-stage bar preserved). Bridge file write added after the indicator computation, providing both `remaining_percentage` (for monitor threshold math) and `used_pct` (for reference). Monitor hook adopted as-is from upstream.
+
+**Batch:** Batch 12 (commit 7542d36)
+
+---
+
+### 10. Auto-Advance Chain: Skill Tool vs Direct File References
+
+**Area:** get-stuff-done/workflows/discuss-phase.md and plan-phase.md — spawning the next phase step
+
+**Fork approach (pre-Batch 12):** `Task(prompt="Run /gsd:execute-phase ${PHASE} --auto")` — uses Skill tool to invoke the execute-phase slash command.
+
+**Upstream approach (commit 131f24b):** `Task(prompt="...<execution_context>@~/.claude/get-stuff-done/workflows/execute-phase.md...</execution_context>...")` — directly embeds the workflow file contents via `@file` references in the Task prompt.
+
+**Root cause:** Skills don't resolve inside Task subagents. The `/gsd:execute-phase` slash command reference works in a main conversation but fails when spawned in a Task subagent context, breaking the auto-advance chain silently.
+
+**Resolution:** Upstream approach adopted. All three workflow files updated: `discuss-phase.md` (broader status return including PHASE COMPLETE / PLANNING COMPLETE / PLANNING INCONCLUSIVE / GAPS FOUND), `plan-phase.md` (create_validation_strategy step added, auto-advance updated), `execute-phase.md` (parse_flags step added with --no-transition handling).
+
+**Batch:** Batch 12 (commit 131f24b)
+
+---
+
+### 11. Nyquist Validation Layer: Automated Test Coverage Research
+
+**Area:** agents/gsd-plan-checker.md, agents/gsd-phase-researcher.md, agents/gsd-planner.md, get-stuff-done/workflows/plan-phase.md
+
+**Fork approach (pre-Batch 12):** Plan-checker had 7 check dimensions. Phase-researcher focused on implementation research. No automated test coverage research as part of planning.
+
+**Upstream approach (commit e0f9c73):** Added Nyquist sampling validation as Dimension 8 in plan-checker. Phase-researcher gains a Validation Architecture section documenting test coverage requirements. Planner gains structured `verify` and `done` format requirements. Plan-phase workflow adds a `create_validation_strategy` step between research and planner spawn. New `VALIDATION.md` template captures per-phase test coverage strategy.
+
+**Resolution:** Upstream approach adopted. Dimension 8 (8a-8d) added to plan-checker. RESEARCH.md cat command added before gsd-tools call in plan-checker (conflict resolved — fork branding preserved). Phase-researcher and planner agents augmented. `VALIDATION.md` template created. Plan-phase workflow updated.
+
+**Batch:** Batch 12 (commit e0f9c73)
+
+---
+
 ## Convergences
 
 ### 1. Write Tool in gsd-verifier.md
@@ -124,3 +213,17 @@ Each entry documents a divergence or convergence:
 **Outcome:** Upstream solution adopted. When `hooks/dist` doesn't exist, installer now runs `scripts/build.js` to generate it before proceeding.
 
 **Batch:** Batch 6 (commit e146b08)
+
+---
+
+### 3. Gemini TOML Template Conversion Scope
+
+**Area:** bin/install.js `convertClaudeToGeminiToml` — which files get converted to TOML format
+
+**Fork:** Gemini support adopted in Batch 6 (commit 9d815d3). `copyWithPathReplacement` called without `isCommand` flag, causing workflows and templates to also be converted to TOML (incorrect behavior — only commands should be TOML).
+
+**Upstream (commit 2c0db8e):** Bug fix adds `isCommand=true` parameter to `copyWithPathReplacement` for the commands-only copy path, so only `.md` files in the commands directory get TOML conversion. Workflows and templates remain as `.md` files.
+
+**Outcome:** Upstream bug fix adopted. Fork's `useLinks` branch preserved during conflict resolution; the fix applied only to the non-useLinks (copy) path where `isCommand=true` needed to be passed.
+
+**Batch:** Batch 12 (commit 2c0db8e)

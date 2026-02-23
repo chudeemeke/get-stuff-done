@@ -211,6 +211,30 @@ Generate execution plan for selected commits.
    Proceeding to Stage 3.5: SECURITY REVIEW
    ```
 
+8. **Dry-run gate:** If `DRY_RUN` is set to `true` in sync_context (passed from orchestrator when user provides `--dry-run` flag):
+
+   Run sync-preview for the full plan output:
+   ```bash
+   node ~/.claude/get-stuff-done/bin/gsd-tools.cjs sync-preview "${FIRST_SHA}..${LAST_SHA}"
+   ```
+
+   Then output dry-run completion notice:
+   ```
+   ## DRY RUN COMPLETE
+
+   **Mode:** Dry run (no changes applied)
+   **Commits planned:** {N}
+   **Conflict prediction:** Based on {dataPoints} historical data points, {historicalConflictRate}% conflict rate
+   **Estimated conflicts:** {estimatedConflicts} of {N} commits
+
+   No files were modified. No git state changed.
+   Re-run without --dry-run to execute the sync.
+   ```
+
+   Exit workflow (do NOT continue to Stage 3.5 or beyond).
+
+   If `DRY_RUN` is not set or is `false`, continue to Stage 3.5.
+
 **Output:** Continue to Stage 3.5 with selected_commits list
 
 <teams_integration workflow="upstream-sync">
@@ -261,11 +285,22 @@ Review diffs of selected commits before executing cherry-picks.
 
 **Process:**
 
-1. For each selected commit, generate a combined diff:
+1. Run sync-preview for enhanced diff analysis:
    ```bash
-   git diff {first_selected_sha}^..{last_selected_sha} --stat
+   node ~/.claude/get-stuff-done/bin/gsd-tools.cjs sync-preview "${FIRST_SHA}..${LAST_SHA}" --json
    ```
-   This shows a summary of all file changes across selected commits.
+
+   Parse the JSON output. This provides per-commit:
+   - File change stats with [!] markers on sensitive paths (matching branding-map.json protectedPaths)
+   - Conflict risk assessment per commit ('none', 'overlap', or 'confirmed')
+   - Historical effort estimate
+
+   Also generate the colorized human-readable preview:
+   ```bash
+   node ~/.claude/get-stuff-done/bin/gsd-tools.cjs sync-preview "${FIRST_SHA}..${LAST_SHA}"
+   ```
+
+   Include this output in the checkpoint display.
 
 2. Generate the full diff for review:
    ```bash
@@ -286,12 +321,17 @@ Review diffs of selected commits before executing cherry-picks.
 
    **Commits to apply:** {N}
    **Files changed:** {count}
+   **Sensitive paths flagged:** {sensitivePathCount} (matching branding-map.json protectedPaths)
+   **Conflict risk:** {overlapRiskCount} commits with file overlap, {highRiskCount} confirmed conflicts
 
-   **Diff statistics:**
-   {git diff --stat output}
+   **Effort estimate:** Based on {dataPoints} historical syncs, {historicalConflictRate}% conflict rate
+   Estimated {estimatedConflicts} conflicts out of {N} commits
+
+   **Diff statistics (with sensitive path markers):**
+   {colorized sync-preview output}
 
    **Security analysis:**
-   {List any flagged patterns found, or "No security concerns detected"}
+   {existing security analysis -- exec/spawn/eval/fs patterns}
 
    **Flagged patterns (if any):**
    - {file}: {description of flagged pattern}
@@ -300,13 +340,20 @@ Review diffs of selected commits before executing cherry-picks.
 
    **Options:**
    1. Approve and proceed with cherry-pick ("approve")
-   2. View full diff details in terminal ("show-diff")
-   3. Abort sync ("abort")
+   2. View full diff for a specific commit ("show-diff {sha}")
+   3. Drill down on a sensitive path commit ("detail {sha}")
+   4. Abort sync ("abort")
 
    Awaiting approval...
    ```
 
 5. Workflow pauses. Orchestrator presents to user and spawns continuation at Stage 4.
+
+   Handle interactive options while paused:
+   - "show-diff {sha}": Run `git diff --color=always {first_sha}^..{last_sha}` for the full range, display it, then re-present the checkpoint.
+   - "detail {sha}": Run `git diff --color=always {sha}^..{sha}` for the specific commit, display it, then re-present the checkpoint.
+   - "approve": Continue to Stage 4.
+   - "abort": Return `## SYNC ABORTED` with reason "User cancelled at security review".
 
 **Output:** Workflow pauses for user approval. Only proceeds to Stage 4 after explicit "approve" response.
 
@@ -317,6 +364,13 @@ Apply cherry-picks sequentially.
 **Entry:** After Stage 3.5 approval, or resume_stage = 4 (after conflict resolution)
 
 **Process:**
+
+0. Create rollback checkpoint before executing cherry-picks:
+   ```bash
+   BATCH_ID=$(date +%Y%m%d-%H%M%S)
+   node ~/.claude/get-stuff-done/bin/gsd-tools.cjs sync-checkpoint create "${BATCH_ID}"
+   ```
+   Store BATCH_ID for rollback reference. Skip this step if resume_stage = 4 with conflict_resolved = true (checkpoint already created for this batch).
 
 For each selected commit in chronological order:
 
@@ -368,7 +422,13 @@ When cherry-pick exits with status 1:
    4. Continue cherry-pick: `git cherry-pick --continue`
    5. Return to workflow and respond with "resolved"
 
-   Or respond with "abort" to cancel sync (will run `git cherry-pick --abort`)
+   **Options:**
+   1. Resolve conflicts manually (follow instructions above), then respond "resolved"
+   2. Rollback to checkpoint: `git reset --hard sync-checkpoint-${BATCH_ID}`
+   3. Abort cherry-pick only (leaves HEAD at last successful pick): `git cherry-pick --abort`
+
+   **Crash recovery:** If Claude Code session died, run:
+   `git reset --hard sync-checkpoint-${BATCH_ID}` to restore pre-sync state
 
    Awaiting resolution...
    ```
@@ -751,6 +811,12 @@ Update cache and show summary.
    ```
 
 3. Extract registry from cache for success message
+
+3.5. Clean up checkpoint tags (sync completed successfully):
+   ```bash
+   node ~/.claude/get-stuff-done/bin/gsd-tools.cjs sync-checkpoint cleanup
+   ```
+   This removes all sync-checkpoint-* tags since the sync succeeded.
 
 4. Build summary of changes:
    - Count commits by type (feat, fix, docs, etc.)

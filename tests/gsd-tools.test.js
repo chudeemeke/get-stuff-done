@@ -10,7 +10,7 @@ const { execSync } = require('child_process');
 const PROJECT_ROOT = path.join(__dirname, '..');
 const TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'gsd-tools.cjs');
 const CORE_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'lib', 'core.cjs');
-const DIST_TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'dist', 'gsd-tools.js');
+const DIST_TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'dist', 'gsd-tools.cjs');
 
 // Auto-build dist if missing (CI support after fresh checkout)
 beforeAll(() => {
@@ -620,7 +620,7 @@ describe('validation wiring', () => {
     cleanup(tmpDir);
   });
 
-  test('gsd-tools.js imports all validators from src/validation', () => {
+  test('gsd-tools.cjs imports all validators from src/validation', () => {
     // After the module split, validators are imported in core.cjs (not the thin router)
     const source = fs.readFileSync(CORE_PATH, 'utf-8');
     expect(source).toMatch(/require\(['"].*src\/validation['"]\)/);
@@ -631,7 +631,7 @@ describe('validation wiring', () => {
     expect(source).toMatch(/validateRemoteURL/);
   });
 
-  test('gsd-tools.js has requireValid bridge with explicit process.exit(1)', () => {
+  test('gsd-tools.cjs has requireValid bridge with explicit process.exit(1)', () => {
     // After the module split, requireValid is defined in core.cjs
     const source = fs.readFileSync(CORE_PATH, 'utf-8');
     expect(source).toMatch(/function requireValid\(result\)/);
@@ -679,22 +679,22 @@ describe('validation wiring', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// dist: bundled gsd-tools.js regression guard (GAP-1)
+// dist: bundled gsd-tools.cjs regression guard (GAP-1)
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('dist: gsd-tools bundled (regression guard for GAP-1)', () => {
-  test('bundled gsd-tools.js exists and is a non-trivial bundle', () => {
+  test('bundled gsd-tools.cjs exists and is a non-trivial bundle', () => {
     expect(fs.existsSync(DIST_TOOLS_PATH)).toBe(true);
     const size = fs.statSync(DIST_TOOLS_PATH).size;
     expect(size).toBeGreaterThan(10 * 1024); // >10KB confirms bundling, not empty file
   });
 
-  test('bundled gsd-tools.js contains no relative src/ require paths', () => {
+  test('bundled gsd-tools.cjs contains no relative src/ require paths', () => {
     const content = fs.readFileSync(DIST_TOOLS_PATH, 'utf-8');
     expect(content).not.toMatch(/require\(['"]\.\.\/\.\.\/src\//);
   });
 
-  test('bundled gsd-tools.js resolves without MODULE_NOT_FOUND from isolated dir', () => {
+  test('bundled gsd-tools.cjs resolves without MODULE_NOT_FOUND from isolated dir', () => {
     // Run from a temp dir that lacks src/ to simulate post-install environment
     const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-dist-test-'));
     try {
@@ -710,7 +710,7 @@ describe('dist: gsd-tools bundled (regression guard for GAP-1)', () => {
     }
   });
 
-  test('bundled gsd-tools.js validation commands work from isolated dir', () => {
+  test('bundled gsd-tools.cjs validation commands work from isolated dir', () => {
     // verify-summary exercises validateGitSHA -- the exact function that triggered GAP-1
     const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-dist-val-'));
     try {

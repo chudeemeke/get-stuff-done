@@ -615,6 +615,163 @@ describe('sync-preview command', () => {
 
 ---
 
+## Validation Architecture
+
+**Grounded in:** `tests/` directory audit (2026-02-23), `bunfig.toml`, `package.json` scripts, `tests/helpers.cjs`, `tests/helpers/mock-child-process.js`
+
+### Test Infrastructure
+
+The project runs two parallel test suites with different runners. Both must pass for any CI to be green.
+
+**Suite A: bun:test (fork tests, `*.test.js`)**
+
+| Item | Value |
+|------|-------|
+| Runner | `bun test` |
+| Config file | `bunfig.toml` — `include = ["**/*.test.js"]`, `exclude = ["**/*.test.cjs", ...]` |
+| Files included | `tests/*.test.js` (currently: gsd-tools, config, hooks, installer, launcher, platform, platform-internal, theme, validate-configs, validation) |
+| Coverage command | `bun test --coverage` |
+| Coverage threshold | 95%+ at each metric (statements, branches, functions, lines) individually |
+| Estimated runtime | ~30-60s for full suite (648 tests as of Phase 19) |
+| Helpers | `tests/helpers/index.js` re-exports `mock-fs.js`, `mock-process.js`, `mock-child-process.js` |
+
+**Suite B: node:test (upstream tests, `*.test.cjs`)**
+
+| Item | Value |
+|------|-------|
+| Runner | `node --test tests/*.test.cjs` (via `bun run test:upstream`) |
+| Config | No bunfig.toml entry — explicitly excluded from bun:test. Run directly via node --test. |
+| Files included | `tests/*.test.cjs` (currently: commands, init, milestone, phase, roadmap, state, verify) |
+| Coverage command | Not directly supported via node --test for CJS. Coverage for sync.cjs is tracked via bun:test in a parallel `sync.test.js` if needed (see note below). |
+| Estimated runtime | ~10-20s (smaller suite, each test spawns `node gsd-tools.cjs` via `runGsdTools()` in `tests/helpers.cjs`) |
+| Helpers | `tests/helpers.cjs` — provides `runGsdTools()`, `createTempProject()`, `cleanup()`, re-exports from `helpers/index.js` |
+
+**New test file for Phase 20:** `tests/sync.test.cjs` — must follow the `*.test.cjs` upstream format (node:test + node:assert).
+
+**Note on coverage for sync.cjs:** Because `sync.test.cjs` runs under node --test (not bun:test), its coverage will NOT appear in `bun test --coverage` output unless a parallel `sync.test.js` bun:test file also exists. For Phase 20, the strategy is: write `sync.test.cjs` for the integration/CLI tests (required by upstream format), and if coverage gaps emerge, add targeted unit tests in a `sync.test.js` bun:test file that imports `sync.cjs` directly and calls exported helpers.
+
+### Per-Requirement Test Mapping
+
+#### SYNC-01: Colorized diff preview before cherry-picks
+
+| Test | Type | What It Verifies | Command |
+|------|------|-----------------|---------|
+| `sync-preview returns JSON with commit list` | Unit (node:test) | `cmdSyncPreview` parses git log output into commit array; `--json` flag produces valid JSON matching schema | `node --test tests/sync.test.cjs` |
+| `sync-preview flags sensitive paths` | Unit (node:test) | Files matching branding-map.json protectedPaths get `sensitive: true` in JSON output | `node --test tests/sync.test.cjs` |
+| `sync-preview conflict risk: overlap` | Unit (node:test) | `assessConflictRiskByOverlap` returns `'overlap'` when commit files overlap dirty working tree | `node --test tests/sync.test.cjs` |
+| `sync-preview conflict risk: none on clean tree` | Unit (node:test) | `assessConflictRiskByOverlap` returns `'none'` when working tree is clean | `node --test tests/sync.test.cjs` |
+| `sync-preview effort estimate from manifest` | Unit (node:test) | `computeEffortEstimate` reads sync-manifest.json and returns correct historical rate | `node --test tests/sync.test.cjs` |
+| `sync-preview effort estimate with missing manifest` | Unit (node:test) | Returns `null` values gracefully when manifest is absent | `node --test tests/sync.test.cjs` |
+| `sync-preview: no ANSI in JSON output` | Unit (node:test) | When `--json` flag set, output contains no ANSI escape sequences | `node --test tests/sync.test.cjs` |
+| `gsd-tools routes sync-preview command` | Integration (node:test) | `runGsdTools('sync-preview --json')` exits 0 and produces JSON | `node --test tests/sync.test.cjs` |
+| `isSensitivePath helper` | Unit (exported helper) | Correctly matches/rejects paths against protectedPaths array | `node --test tests/sync.test.cjs` |
+| `getFilesForCommit helper` | Unit (exported helper) | Parses diff-tree name-status output into `[{status, path}]` array | `node --test tests/sync.test.cjs` |
+
+**Implementation note:** `isSensitivePath`, `assessConflictRiskByOverlap`, `getFilesForCommit`, `getCommitsInRange`, and `computeEffortEstimate` MUST be exported from `sync.cjs` to enable direct unit testing without re-requiring (bun coverage pitfall avoidance).
+
+#### SYNC-02: State snapshots and rollback
+
+| Test | Type | What It Verifies | Command |
+|------|------|-----------------|---------|
+| `sync-checkpoint create succeeds with valid batchId` | Integration (node:test) | `runGsdTools('sync-checkpoint create 001')` in a git repo creates a tag named `sync-checkpoint-001` | `node --test tests/sync.test.cjs` |
+| `sync-checkpoint create errors without batchId` | Unit (node:test) | Exits non-zero with "batchId required" when no argument given | `node --test tests/sync.test.cjs` |
+| `sync-checkpoint list shows created tags` | Integration (node:test) | After create, `runGsdTools('sync-checkpoint list')` returns JSON with the tag in the list | `node --test tests/sync.test.cjs` |
+| `sync-checkpoint list returns empty array when no tags` | Integration (node:test) | Returns `{"tags": []}` (or equivalent) when no checkpoint tags exist | `node --test tests/sync.test.cjs` |
+| `sync-checkpoint cleanup deletes all checkpoint tags` | Integration (node:test) | After create, cleanup removes all `sync-checkpoint-*` tags; subsequent list returns empty | `node --test tests/sync.test.cjs` |
+| `sync-checkpoint cleanup succeeds with zero tags` | Integration (node:test) | Returns `{"deleted": [], "count": 0}` cleanly when nothing to clean up | `node --test tests/sync.test.cjs` |
+| `cmdSyncCheckpointCreate: annotated tag uses -m flag` | Unit (mock) | execGit called with `['tag', '-a', ..., '-m', ...]` — ensures no editor is spawned | `node --test tests/sync.test.cjs` |
+
+**Note on git integration tests:** `createTempProject()` in `tests/helpers.cjs` creates a temp directory but does NOT run `git init`. Checkpoint tests that exercise `git tag` MUST extend the helper with a git init step. Recommended: create a `createTempGitProject()` helper in `tests/helpers.cjs` that runs `git init && git commit --allow-empty -m 'init'` to give the repo a HEAD commit before tagging.
+
+#### SYNC-04: --dry-run mode for sync operations
+
+| Test | Type | What It Verifies | Command |
+|------|------|-----------------|---------|
+| `sync-preview JSON schema completeness` | Unit (node:test) | Output includes `range`, `commits`, `summary`, `effortEstimate` top-level keys per locked schema | `node --test tests/sync.test.cjs` |
+| `sync-preview summary counts` | Unit (node:test) | `summary.totalCommits`, `sensitivePathCount`, `highRiskCount`, `overlapRiskCount` computed correctly | `node --test tests/sync.test.cjs` |
+| `sync-preview: missing range argument exits non-zero` | Unit (node:test) | Exits 1 with usage error when no range argument provided | `node --test tests/sync.test.cjs` |
+| `sync-preview: invalid SHA exits non-zero with message` | Integration (node:test) | When given a nonexistent SHA, emits "SHA not found" error and exits 1 | `node --test tests/sync.test.cjs` |
+
+**Note on dry-run workflow gate:** The `--dry-run` flag behavior (stopping after Stage 3 in `upstream-sync.md`) is a workflow change, not a CLI change. There is no automated test for workflow markdown logic. This is a manual-only verification (see below). The CLI plumbing (`sync-preview`) that `--dry-run` calls IS tested above.
+
+### Nyquist Sampling Rate
+
+**Principle:** Tests must run often enough to catch regressions within one commit, not accumulate across multiple commits.
+
+| Trigger | What to run | Rationale |
+|---------|-------------|-----------|
+| After every task commit (any `.cjs` or `.js` file changed) | `node --test tests/sync.test.cjs` | Fast (<20s), catches sync.cjs regressions immediately |
+| After every task commit (any file changed) | `bun test` | Full bun:test suite, catches regressions in existing modules |
+| After Wave 0 scaffold commit | `node --test tests/sync.test.cjs` | Verifies test file and helper extensions run without error before any implementation |
+| After final task in wave | `bun test --coverage` | Confirm 95%+ coverage targets still met across all metrics |
+| Before phase completion | `node --test tests/*.test.cjs && bun test --coverage` | Full green baseline before VERIFICATION.md is written |
+
+**Sampling interval:** After EVERY commit that modifies `sync.cjs`, `gsd-tools.cjs`, or `tests/sync.test.cjs`. Do not batch across multiple tasks before running tests.
+
+### Wave 0 Requirements
+
+Wave 0 must be committed BEFORE any implementation task begins. It establishes the test scaffold so the executor can run tests after each task.
+
+**Wave 0 deliverables (must all be in a single commit):**
+
+1. **`tests/sync.test.cjs` (scaffold)**
+   - File exists, imports `node:test` and `node:assert`
+   - Imports `{ runGsdTools, createTempProject, cleanup }` from `./helpers.cjs`
+   - Contains all `describe()` blocks with `test()` stubs (bodies call `assert.fail('not implemented')` or are skipped with `{ skip: true }`)
+   - Running `node --test tests/sync.test.cjs` exits with a known failure count — not a crash
+   - Purpose: verifies import paths, helper compatibility, and test structure before any implementation code exists
+
+2. **`tests/helpers.cjs` extension: `createTempGitProject()`**
+   - New helper function that calls `createTempProject()` then runs `git init` + `git commit --allow-empty -m 'init'`
+   - Required because `sync-checkpoint` tests need a real git repo with a HEAD commit to tag
+   - Exported alongside existing helpers so sync.test.cjs can import it
+   - Running existing `.test.cjs` files after this change must still pass (non-breaking addition)
+
+3. **`get-stuff-done/bin/lib/sync.cjs` (stub module)**
+   - File exists, exports all four command functions: `cmdSyncPreview`, `cmdSyncCheckpointCreate`, `cmdSyncCheckpointList`, `cmdSyncCheckpointCleanup`
+   - Each function body calls `error('not implemented')` (from core.cjs)
+   - Also exports all internal helpers: `getCommitsInRange`, `getFilesForCommit`, `isSensitivePath`, `assessConflictRiskByOverlap`, `computeEffortEstimate`, `loadProtectedPaths`
+   - Purpose: router can require it without crash; tests can import exported helpers before they have real implementations
+
+4. **`get-stuff-done/bin/gsd-tools.cjs` router registration**
+   - `const sync = require('./lib/sync.cjs');` added at top
+   - `case 'sync-preview':` and `case 'sync-checkpoint':` dispatch blocks added to switch
+   - Running `node gsd-tools.cjs sync-preview` exits 1 with "not implemented" — NOT "unknown command"
+   - Purpose: integration tests that call `runGsdTools('sync-preview ...')` can run without "command not found" errors
+
+**Wave 0 validation gate:** After committing Wave 0, run:
+```bash
+node --test tests/sync.test.cjs
+bun test
+```
+Expected: sync.test.cjs fails with expected stub failures. bun:test passes (no regressions). If bun:test fails, Wave 0 has a breaking change — fix before proceeding.
+
+### Manual-Only Verifications
+
+The following behaviors cannot be automated and require human verification during VERIFICATION.md sign-off:
+
+**MV-01: Dry-run gate in upstream-sync.md stops before Stage 4**
+- What: Running `/gsd:upstream --dry-run` must halt after Stage 3 (plan output) and print "DRY RUN COMPLETE" without executing any cherry-picks or git state changes
+- Why not automated: The upstream-sync.md workflow is a Claude Code prompt file, not executable code. Its conditional bash blocks are executed inline by the orchestrator. No unit test framework can exercise the workflow markdown directly.
+- How to verify: Run `/gsd:upstream --dry-run` against a test branch with pending upstream commits. Confirm: (1) no cherry-picks executed, (2) no files modified, (3) dry-run summary printed, (4) `git status` clean after run.
+
+**MV-02: Colorized terminal output on all 3 platforms**
+- What: `gsd-tools.cjs sync-preview <range>` produces ANSI-colorized output in a terminal (not piped) on macOS, Linux, and Windows Git Bash
+- Why not automated: ANSI color rendering requires a TTY. CI runs in non-interactive mode. Automated tests use `--json` flag which explicitly disables color.
+- How to verify: Run `node gsd-tools.cjs sync-preview HEAD~5..HEAD` in a real terminal on each platform. Confirm colored output (file status markers, sensitive path flags) is visible.
+
+**MV-03: Rollback offer appears inline during cherry-pick conflict**
+- What: When Stage 4 encounters a cherry-pick conflict, the workflow presents the rollback option ("Rollback to checkpoint: `git reset --hard sync-checkpoint-001`") alongside the manual resolution option
+- Why not automated: The rollback offer is a markdown change to `upstream-sync.md`. The conflict scenario requires a real cherry-pick conflict during a real sync run.
+- How to verify: Review the updated Stage 4 conflict-handling block in upstream-sync.md visually. Optionally trigger a known-conflict scenario in a test branch.
+
+**MV-04: Checkpoint cleanup runs on successful sync completion**
+- What: After a successful full sync (Stage 7 completion), all `sync-checkpoint-*` tags are deleted automatically
+- Why not automated: Requires a full sync run to reach Stage 7. The automated tests for `cmdSyncCheckpointCleanup` verify the function works; this verifies it is called at the right stage.
+- How to verify: After a test sync run, confirm `git tag -l sync-checkpoint-*` returns empty.
+
+---
+
 ## Sources
 
 ### Primary (HIGH confidence)
@@ -628,6 +785,9 @@ describe('sync-preview command', () => {
 - Live verification: `git diff --color=always HEAD~1..HEAD --stat` — ANSI output confirmed on Windows Git Bash
 - Live verification: `git diff-tree --no-commit-id --name-status -r HEAD` — confirmed working
 - Codebase: `tests/helpers/mock-child-process.js` — MockExecSync pattern for tests
+- Codebase: `tests/helpers.cjs` — `runGsdTools`, `createTempProject`, `cleanup` helpers
+- Codebase: `bunfig.toml` — bun:test includes `*.test.js`, excludes `*.test.cjs`
+- Codebase: `package.json` `scripts.test:upstream` — `node --test tests/*.test.cjs` runner
 - Shared memory: `.planning/memory/shared/pitfalls.md` — bun coverage re-require pitfall
 
 ### Secondary (MEDIUM confidence)
@@ -647,6 +807,7 @@ describe('sync-preview command', () => {
 - Pitfalls: HIGH — trial merge dirty state, ANSI in JSON, annotated tag `-m` requirement all verified; bun coverage pitfall from shared memory
 - Effort estimate formula: HIGH — sync-manifest.json data verified via Node.js (91 entries, 63.7%)
 - Workflow markdown changes: MEDIUM — Stage modifications are well-understood, but workflow complexity means a careful read is required before editing
+- Validation architecture: HIGH — test infrastructure verified by direct file reads; runner commands verified against bunfig.toml and package.json scripts
 
 **Research date:** 2026-02-23
 **Valid until:** 2026-03-23 (git APIs are stable; sync-manifest data grows with each sync but formula does not change)

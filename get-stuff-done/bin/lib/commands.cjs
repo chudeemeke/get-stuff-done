@@ -241,6 +241,16 @@ function cmdCommit(cwd, message, files, raw, amend) {
 
   // Stage files
   const filesToStage = files && files.length > 0 ? files : ['.planning/'];
+
+  // Validate file paths to prevent path traversal attacks
+  const normalizedCwd = require('path').resolve(cwd);
+  for (const file of filesToStage) {
+    const normalizedFile = require('path').resolve(cwd, file);
+    if (!normalizedFile.startsWith(normalizedCwd)) {
+      error('Invalid file path: path traversal detected in "' + file + '"');
+    }
+  }
+
   for (const file of filesToStage) {
     execGit(cwd, ['add', file]);
   }

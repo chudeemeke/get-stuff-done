@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
 updated: 2026-02-23
-entries: 36
+entries: 40
 ---
 
 - finding: "hooks/dist/ is gitignored (decision 09-02 BUILD-001). When committing esbuild output, only commit scripts/build-hooks.js -- never try to git add hooks/dist/. The dist files are generated artifacts."
@@ -210,6 +210,24 @@ entries: 36
 
 - finding: "Coverage at 94.05% lines (below 95%) is primarily caused by src/platform/detect.js at 67.47% lines -- many OS-specific branch paths (Windows-specific, macOS-specific, Linux-specific) that can't all execute in a single test environment. This is a known gap for Phase 19, not a blocker for Phase 18 merge."
   source: "Phase 18, Plan 05, Task 1 coverage check"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "git merge does not accept --author flag. To set author on a merge commit, use GIT_AUTHOR_NAME / GIT_AUTHOR_EMAIL / GIT_COMMITTER_NAME / GIT_COMMITTER_EMAIL environment variables: GIT_AUTHOR_NAME='X' GIT_AUTHOR_EMAIL='y' git merge --no-ff branch -m 'message'"
+  source: "Phase 18, Plan 05, Task 3 merge"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "Auto-updated planning files (.planning/CONTINUE.md, .planning/events.log, get-stuff-done/.install-meta.json) with timestamp-only changes can block git checkout between branches. Use git stash --include-untracked before checkout; the files do not need to be reapplied (they regenerate automatically on next run)."
+  source: "Phase 18, Plan 05, Task 3 checkout"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "For upstream sync merges, use --no-ff to preserve the sync branch as a distinct history lineage. This creates a clear 'sync complete' marker that makes the cherry-pick operation visible as an atomic unit, distinct from pre-sync main history."
+  source: "Phase 18, Plan 05, Task 3 merge strategy"
   confidence: HIGH
   phase: "18-upstream-sync-execution"
   date: "2026-02-23"

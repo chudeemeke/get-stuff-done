@@ -119,29 +119,22 @@ No context dependency. No quality degradation. No "where were we?"
 
 ### Installation
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/chudeemeke/get-stuff-done.git ~/Projects/get-stuff-done
+npx @chude/get-stuff-done@latest
 ```
 
-2. Add the launcher to your PATH:
-```bash
-# Add to ~/.bashrc or ~/.zshrc
-export PATH="$HOME/Projects/get-stuff-done/bin:$PATH"
-```
-
-3. Create your config (optional - defaults work fine):
-```bash
-mkdir -p ~/.gsd
-cp ~/Projects/get-stuff-done/config/default-config.json ~/.gsd/config.json
-```
-
-4. Run GSD:
-```bash
-gsd
-```
+The interactive installer will guide you through choosing a runtime (Claude Code, OpenCode, or Gemini) and install location (global or local).
 
 Verify with `/gsd:help` inside Claude Code.
+
+> [!CAUTION]
+> **Do NOT use `npm install @chude/get-stuff-done` as a project dependency.**
+> GSD is a CLI installer tool, not a library. Adding it to your project's `package.json` will pollute your dependency tree and cause peer dependency conflicts. Always use `npx` as shown above.
+
+### Requirements
+
+- **Node.js 20+** (LTS recommended — v22 or v24)
+- **Claude Code**, **OpenCode**, or **Gemini CLI** installed
 
 ### Global Usage
 
@@ -163,12 +156,15 @@ npx @chude/get-stuff-done --claude --local    # Install to ./.claude/
 # OpenCode (open source, free models)
 npx @chude/get-stuff-done --opencode --global # Install to ~/.opencode/
 
-# Both runtimes
-npx @chude/get-stuff-done --both --global     # Install to both directories
+# Gemini CLI
+npx @chude/get-stuff-done --gemini --global   # Install to ~/.gemini/
+
+# All runtimes
+npx @chude/get-stuff-done --all --global      # Install to all directories
 ```
 
 Use `--global` (`-g`) or `--local` (`-l`) to skip the location prompt.
-Use `--claude`, `--opencode`, or `--both` to skip the runtime prompt.
+Use `--claude`, `--opencode`, `--gemini`, or `--all` to skip the runtime prompt.
 
 </details>
 

@@ -8,6 +8,21 @@ const path = require('path');
 const os = require('os');
 const readline = require('readline');
 
+// Detect if running as an npm lifecycle script inside another project's npm install.
+// When someone runs `npm install @chude/get-stuff-done` as a dependency (wrong usage),
+// npm sets npm_lifecycle_event=install and the CWD is inside node_modules.
+// In this case, warn and exit gracefully to avoid confusing errors.
+if (process.env.npm_lifecycle_event === 'install' && __dirname.includes('node_modules')) {
+  const yellow = '\x1b[33m';
+  const cyan = '\x1b[36m';
+  const reset = '\x1b[0m';
+  console.warn(`\n  ${yellow}!${reset} GSD is a CLI installer, not a library dependency.`);
+  console.warn(`  Instead of ${yellow}npm install @chude/get-stuff-done${reset}, run:\n`);
+  console.warn(`    ${cyan}npx @chude/get-stuff-done@latest${reset}\n`);
+  console.warn(`  Then remove it from your package.json dependencies.\n`);
+  process.exit(0);
+}
+
 // Check Node.js version (minimum 20 LTS)
 const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
 if (nodeVersion < 20) {

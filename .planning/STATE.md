@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 19 of 22 (Post-Sync Stabilization) — In progress
-Plan: 2 of 3 in Phase 19
+Plan: 2 of 3 in Phase 19 (19-01 and 19-02 complete; 19-03 remaining)
 Status: In progress
-Last activity: 2026-02-23 -- Completed 19-02-PLAN.md (assessment reports for ASSESS-01 and ASSESS-02)
+Last activity: 2026-02-23 -- Completed 19-01-PLAN.md (esbuild dist naming fix, gsd-tools.cjs bundle)
 
 Progress: [######........] 33% (v0.3.0: 1/5 phases complete — Phase 18 done, Phase 19 in progress 2/3)
 
@@ -81,6 +81,10 @@ v0.3.0 decisions (Phase 18 Plan 05 — merge):
 - Lines coverage gap (94.00% vs 95% target): deferred to Phase 19, root cause is src/platform/detect.js OS-specific branches
 - PR #1 (https://github.com/chudeemeke/get-stuff-done/pull/1): CI green on all 3 platforms before merge approved
 
+v0.3.0 decisions (Phase 19 Plan 01 — esbuild dist naming fix):
+- Renamed dist output to gsd-tools.cjs to match workflow invocation (node gsd-tools.cjs); semantically correct as CommonJS module
+- Updated test descriptions alongside DIST_TOOLS_PATH constant to keep grep verification clean
+
 v0.3.0 decisions (Phase 19 Plan 02 — assessment reports):
 - CLAUDE-06 conditional requirement: SATISFIED by Phase 10 templates + Phase 17 routing + Task-based parallelism; no Phase 19 work needed
 - PLAT-07 (interactive diff viewer): defer to v0.4.0 backlog -- text diffs functional, PLAT-07 is ergonomic improvement only
@@ -94,16 +98,17 @@ None.
 
 - Phase 18 complete: all 185 upstream commits integrated into main (44c3359 merge commit)
 - ESLint warnings: security warnings across lib/*.cjs modules (upstream code, non-blocking for Phase 19)
-- Lines coverage at 94.00% (below 95%): src/platform/detect.js at 67.47% due to OS-specific branches — Phase 19 concern
+- Lines coverage at 94.00% (below 95%): src/platform/detect.js at 67.47% due to OS-specific branches — Plan 19-03 fixes this
+- SYNC-II-03 resolved: copy-mode install now produces correct gsd-tools.cjs bundle (24fd790)
 
 ## Session Continuity
 
 Last session: 2026-02-23
-Status: Phase 19 in progress -- Plan 19-02 complete (assessment reports ASSESS-01 and ASSESS-02 written)
-Stopped at: Completed 19-02-PLAN.md
+Status: Phase 19 in progress -- Plans 19-01 and 19-02 complete; 19-03 remaining
+Stopped at: Completed 19-01-PLAN.md (esbuild dist naming fix)
 Resume file: None
 
 **Next step:** Execute 19-03-PLAN.md (migrate platform.test.js re-require tests to fix coverage to 95%+)
 
 ---
-*Updated: 2026-02-23 (Phase 19 Plan 02 complete)*
+*Updated: 2026-02-23 (Phase 19 Plan 01 complete)*

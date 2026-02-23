@@ -1,7 +1,7 @@
 ---
 agent: gsd-phase-researcher
-updated: 2026-02-27
-entries: 21
+updated: 2026-02-23
+entries: 25
 ---
 
 - finding: "esbuild is already a devDependency (v0.24.2) in get-stuff-done and is importable via require('esbuild') from project root. It bundles all three hooks successfully with zero errors."
@@ -131,3 +131,27 @@ entries: 21
   confidence: HIGH
   phase: "18-upstream-sync-execution"
   date: "2026-02-27"
+
+- finding: "Phase 19 copy-mode install bug confirmed: install.js creates get-stuff-done/bin/gsd-tools.js (from dist bundle) but all workflows call 'node gsd-tools.cjs'. The bug: install.js lines ~1503-1504 set installedTools to 'bin/gsd-tools.js' not 'bin/gsd-tools.cjs'. Fix: update scripts/build.js outfile to 'gsd-tools.cjs', update install.js bundledToolsSrc and installedTools to 'gsd-tools.cjs', update DIST_TOOLS_PATH in gsd-tools.test.js."
+  source: "Phase 19, Post-Sync Stabilization Research"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "Phase 19 coverage fix scope: platform.test.js has 17 instances of 'delete require.cache + re-require' that suppress detect.js coverage to 67.47% in full test run. Running platform-internal.test.js alone gives 96.99% for detect.js. Fix: migrate the 17 re-require tests to use exported internal functions (_detectShell, _detectEnvironment, etc.) with mockPlatform(). Lines 183-187 (detectGit error catch) cannot be reached without re-require due to child_process destructuring at load time; accept that ~3% gap."
+  source: "Phase 19, Post-Sync Stabilization Research"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "ASSESS-01 key distinction: upstream auto-advance (Phase 18 Batch 12 cherry-pick, commit 131f24b) is sequential phase CHAINING -- one phase after another automatically. CLAUDE-06 (agent teams) is parallel TASK execution WITHIN a phase -- multiple plans running simultaneously. These are not competing features. Auto-advance does NOT make CLAUDE-06 redundant. Phase 10 + 17 completed the team routing wiring; the TeamCreate API integration (experimental) remains optional scope."
+  source: "Phase 19, Post-Sync Stabilization Research"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "ASSESS-02 finding: upstream (get-shit-done) has NO upstream-sync workflow -- it is entirely fork-specific. There is no upstream baseline to compare PLAT-07/08 against. The fork's Stage 3.5 (git diff in security review checkpoint) IS the current diff/review capability. PLAT-07 (interactive diff viewer) is a real gap but low priority. PLAT-08 (multi-upstream) has no current use case and should be deferred."
+  source: "Phase 19, Post-Sync Stabilization Research"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"

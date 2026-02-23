@@ -920,7 +920,7 @@ function copyFlattenedCommands(srcDir, destDir, prefix, pathPrefix, runtime) {
  * @param {string} pathPrefix - Path prefix for file references
  * @param {string} runtime - Target runtime ('claude' or 'opencode')
  */
-function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime) {
+function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand = false) {
   const isOpencode = runtime === 'opencode';
   const dirName = getDirName(runtime);
 
@@ -937,7 +937,7 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime) {
     const destPath = path.join(destDir, entry.name);
 
     if (entry.isDirectory()) {
-      copyWithPathReplacement(srcPath, destPath, pathPrefix, runtime);
+      copyWithPathReplacement(srcPath, destPath, pathPrefix, runtime, isCommand);
     } else if (entry.name.endsWith('.md')) {
       // Replace ~/.claude/ and ./.claude/ with runtime-appropriate paths
       let content = fs.readFileSync(srcPath, 'utf8');
@@ -950,12 +950,16 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime) {
         content = convertClaudeToOpencodeFrontmatter(content);
         fs.writeFileSync(destPath, content);
       } else if (runtime === 'gemini') {
-        // Convert to TOML for Gemini (strip <sub> tags — terminals can't render subscript)
-        content = stripSubTags(content);
-        const tomlContent = convertClaudeToGeminiToml(content);
-        // Replace extension with .toml
-        const tomlPath = destPath.replace(/\.md$/, '.toml');
-        fs.writeFileSync(tomlPath, tomlContent);
+        if (isCommand) {
+          // Convert to TOML for Gemini (strip <sub> tags — terminals can't render subscript)
+          content = stripSubTags(content);
+          const tomlContent = convertClaudeToGeminiToml(content);
+          // Replace extension with .toml
+          const tomlPath = destPath.replace(/\.md$/, '.toml');
+          fs.writeFileSync(tomlPath, tomlContent);
+        } else {
+          fs.writeFileSync(destPath, content);
+        }
       } else {
         fs.writeFileSync(destPath, content);
       }
@@ -1453,7 +1457,7 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
       createSymlink(gsdSrc, gsdDest, true);
       console.log(`  ${green}✓${reset} Linked commands/gsd`);
     } else {
-      copyWithPathReplacement(gsdSrc, gsdDest, pathPrefix, runtime);
+      copyWithPathReplacement(gsdSrc, gsdDest, pathPrefix, runtime, true);
       if (verifyInstalled(gsdDest, 'commands/gsd')) {
         console.log(`  ${green}✓${reset} Installed commands/gsd`);
       } else {

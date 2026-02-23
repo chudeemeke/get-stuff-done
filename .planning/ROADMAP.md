@@ -31,7 +31,7 @@ See: .planning/milestones/v0.2.0-ROADMAP.md
 **Milestone Goal:** Bring the fork current with upstream (185 commits), adopt modular architecture, and build production-grade sync workflow tooling with safety, intelligence, and AI assistance.
 
 - [x] **Phase 18: Upstream Sync Execution** - Integrate 185 upstream commits and adopt modular gsd-tools architecture
-- [x] **Phase 19: Post-Sync Stabilization** - Migrate esbuild bundling to modular structure and assess upstream feature overlap (completed 2026-02-23)
+- [x] **Phase 19: Post-Sync Stabilization** - Migrate esbuild bundling to modular structure and assess upstream feature overlap (completed 2026-02-23)
 - [ ] **Phase 20: Sync Safety & Transparency** - Diff preview, rollback snapshots, and dry-run mode for sync operations
 - [ ] **Phase 21: Sync Intelligence** - Auto-update monitoring, GPG verification, and commit categorization
 - [ ] **Phase 22: Advanced Sync Automation** - Selective sync by category and AI-assisted conflict resolution
@@ -48,13 +48,14 @@ See: .planning/milestones/v0.2.0-ROADMAP.md
   3. Fork identity is preserved: package name is @chude/get-stuff-done, all user-facing URLs point to chudeemeke/get-stuff-done, branding says "GetStuffDone"
   4. Test suite passes: 563+ tests at 95%+ coverage on all 3 CI platforms (macOS, Linux, Windows)
   5. Upstream approach comparison document exists covering every area where fork and upstream solved the same problem differently
-**Plans:** 5/5 plans executed
+**Plans:** 6 plans (5 executed + 1 gap closure)
 Plans:
 - [x] 18-01-PLAN.md -- Setup sync branch and cherry-pick Batch 6 (v1.18.0..v1.19.0, 30 commits)
 - [x] 18-02-PLAN.md -- Cherry-pick Batches 7-8 (v1.19.0..v1.19.2, 28 commits) including gsd-tools.cjs rename
 - [x] 18-03-PLAN.md -- Cherry-pick Batches 9-11 (v1.19.2..v1.20.5, 49 commits)
 - [x] 18-04-PLAN.md -- Cherry-pick Batch 12 (v1.20.5..upstream/main, 11 commits) module split
 - [x] 18-05-PLAN.md -- Final validation, approach comparison, and merge to main
+- [ ] 18-06-PLAN.md -- Gap closure: add --help to gsd-tools CLI, remove upstream OpenCode package
 
 ### Phase 19: Post-Sync Stabilization
 **Goal**: The esbuild bundling pipeline produces working dist files from the new modular structure, and assessment of upstream features informs scope of deferred requirements
@@ -108,7 +109,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Upstream Sync Execution | v0.3.0 | 5/5 | Complete | 2026-02-23 |
+| 18. Upstream Sync Execution | v0.3.0 | 5/6 | Gap closure | 2026-02-23 |
 | 19. Post-Sync Stabilization | 3/3 | Complete    | 2026-02-23 | - |
 | 20. Sync Safety & Transparency | v0.3.0 | 0/TBD | Not started | - |
 | 21. Sync Intelligence | v0.3.0 | 0/TBD | Not started | - |

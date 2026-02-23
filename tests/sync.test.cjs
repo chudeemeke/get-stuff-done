@@ -413,6 +413,29 @@ describe('sync-preview command', () => {
     );
   });
 
+  test('succeeds with dirty working tree (read-only operation)', () => {
+    // sync-preview is read-only; dirty state is surfaced as overlap risk, not a blocker
+    const repoDir = createTempGitProject();
+    try {
+      // Add a second commit for a valid range
+      fs.writeFileSync(path.join(repoDir, 'file2.txt'), 'content');
+      execSync('git add . && git commit -m "second"', { cwd: repoDir, stdio: 'pipe' });
+
+      // Dirty the working tree
+      fs.writeFileSync(path.join(repoDir, 'file2.txt'), 'modified');
+
+      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
+      assert.strictEqual(result.success, true, 'Should succeed despite dirty working tree');
+      const data = JSON.parse(result.output);
+      assert.ok(Array.isArray(data.commits), 'Should return commits');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
   test('--json flag returns valid JSON with correct schema keys', () => {
     // Use the actual repo with a valid range for integration testing
     // We'll use a range from the actual project repo, not tmpDir
@@ -436,27 +459,10 @@ describe('sync-preview command', () => {
       return;
     }
 
-    // Also need clean working tree - check first
-    const statusResult = execSync('git status --short', {
-      cwd: repoDir,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-
-    if (statusResult) {
-      // Working tree is dirty - test the dirty error path instead
-      const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
-      assert.strictEqual(result.success, false, 'Should fail with dirty working tree');
-      assert.ok(
-        result.error.includes('dirty') || result.error.includes('Error'),
-        'Should mention dirty working directory'
-      );
-      return;
-    }
-
+    // sync-preview is read-only; dirty working tree should not block it
     const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
     if (!result.success) {
-      // Acceptable failure: dirty tree or SHA issues in CI
+      // Acceptable failure: SHA issues in CI
       return;
     }
 

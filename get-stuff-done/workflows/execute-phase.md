@@ -33,6 +33,32 @@ Default to "balanced" if not set.
 Store resolved models for use in Task calls below.
 </step>
 
+<step name="parse_flags">
+Parse flags from $ARGUMENTS:
+
+- `--auto`: Auto-advance pipeline (chain to transition after verification)
+- `--no-transition`: Spawned by plan-phase auto-advance. After verification and roadmap update, return status to parent instead of running transition.md
+
+**No-transition check (spawned by auto-advance chain):**
+
+If `--no-transition` flag present: Execute-phase was spawned by plan-phase's auto-advance. Do NOT run transition.md.
+After verification passes and roadmap is updated, return completion status to parent:
+
+```
+## PHASE COMPLETE
+
+Phase: ${PHASE_NUMBER} - ${PHASE_NAME}
+Plans: ${completed_count}/${total_count}
+Verification: {Passed | Gaps Found}
+
+[Include aggregate_results output]
+```
+
+STOP. Do not proceed to auto-advance or transition.
+
+If `--no-transition` flag is NOT present: proceed with normal auto-advance / offer_next logic.
+</step>
+
 <step name="load_project_state">
 Before any operation, read project state:
 
@@ -614,9 +640,11 @@ node ~/.claude/get-stuff-done/bin/gsd-tools.cjs commit "docs(phase-{X}): complet
 <step name="offer_next">
 **Exception:** If `gaps_found`, the `verify_phase_goal` step already presents the gap-closure path (`/gsd:plan-phase {X} --gaps`). No additional routing needed — skip auto-advance.
 
+**If `--no-transition` flag was set:** Return phase completion status and STOP (per parse_flags step). Do NOT proceed.
+
 **Auto-advance detection:**
 
-1. Parse `--auto` flag from $ARGUMENTS
+1. Parse `--auto` flag from $ARGUMENTS (already parsed in parse_flags step)
 2. Read `workflow.auto_advance` from config:
    ```bash
    AUTO_CFG=$(node ~/.claude/get-stuff-done/bin/gsd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")

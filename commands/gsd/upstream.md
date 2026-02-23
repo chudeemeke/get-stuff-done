@@ -1,7 +1,7 @@
 ---
 name: gsd:upstream
 description: Sync changes from upstream GSD repository (maintainer workflow)
-argument-hint: "[--force-fetch]"
+argument-hint: "[--force-fetch] [--dry-run]"
 allowed-tools:
   - Read
   - Write
@@ -80,6 +80,13 @@ If missing, create with default structure:
 }
 ```
 
+## Dry-Run Detection
+
+Check if user provided `--dry-run` flag:
+- If `--dry-run` appears in user input or `$ARGUMENTS`:
+  Set `DRY_RUN=true` in sync_context
+- Otherwise: `DRY_RUN=false` (default)
+
 ## Spawn Workflow (Initial)
 
 After pre-flight checks pass, read cache file and spawn workflow:
@@ -96,6 +103,7 @@ Task(
 
 <sync_context>
 resume_stage: 1
+dry_run: ${DRY_RUN}
 cache_json: ${CACHE_CONTENT}
 </sync_context>",
   subagent_type="general-purpose",
@@ -284,6 +292,17 @@ cache_json: ${CACHE_CONTENT}
 
 **Action:** Display error and recovery instructions. User can retry after following recovery steps.
 
+### 8. DRY RUN COMPLETE
+```
+## DRY RUN COMPLETE
+
+**Mode:** Dry run (no changes applied)
+**Commits planned:** {N}
+**Estimated conflicts:** {M}
+```
+
+**Action:** Display dry-run results to user. No continuation needed.
+
 </process>
 
 <success_criteria>
@@ -293,4 +312,5 @@ cache_json: ${CACHE_CONTENT}
 - Checkpoints presented to user with clear options
 - Continuations spawned with correct resume_stage and user responses
 - Cache file updated on successful completion
+- Dry-run flag detected and passed through to workflow
 </success_criteria>

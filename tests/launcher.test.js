@@ -17,38 +17,32 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 describe('bin/gsd.js launcher', () => {
   let tempHome;
   let cleanup;
-  let originalHome;
-  let originalUserProfile;
+  let originalGsdHome;
 
   beforeEach(() => {
     const temp = createTempDir();
     tempHome = temp.path;
     cleanup = temp.cleanup;
 
-    // Save original env vars
-    originalHome = process.env.HOME;
-    originalUserProfile = process.env.USERPROFILE;
+    // Save original GSD_HOME env var
+    originalGsdHome = process.env.GSD_HOME;
 
-    // Set temp home for tests
-    process.env.HOME = tempHome;
-    process.env.USERPROFILE = tempHome;
+    // Use GSD_HOME to override gsd home directory (avoids os.homedir() caching issues)
+    process.env.GSD_HOME = path.join(tempHome, '.gsd').replace(/\\/g, '/');
   });
 
   afterEach(() => {
     if (cleanup) cleanup();
 
-    // Restore original env vars
-    if (originalHome !== undefined) {
-      process.env.HOME = originalHome;
-    }
-    if (originalUserProfile !== undefined) {
-      process.env.USERPROFILE = originalUserProfile;
+    // Restore original GSD_HOME
+    if (originalGsdHome !== undefined) {
+      process.env.GSD_HOME = originalGsdHome;
+    } else {
+      delete process.env.GSD_HOME;
     }
   });
 
   test('gsdPaths uses correct home directory', () => {
-    // Clear module cache to pick up new HOME env
-    delete require.cache[require.resolve('../src/platform/paths')];
     const { gsdPaths } = require('../src/platform/paths');
 
     const gsdHome = gsdPaths.gsdHome();

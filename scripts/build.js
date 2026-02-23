@@ -2,16 +2,16 @@
 /* eslint-disable security/detect-non-literal-fs-filename -- build script with computed paths from internal logic, no user input */
 
 /**
- * Unified build script for GSD hooks and gsd-tools.js.
+ * Unified build script for GSD hooks and gsd-tools.cjs.
  *
  * Uses esbuild to inline all src/ dependencies into self-contained bundles.
- * Both hooks (installed to ~/.claude/hooks/) and gsd-tools.js (installed to
+ * Both hooks (installed to ~/.claude/hooks/) and gsd-tools.cjs (installed to
  * ~/.claude/get-stuff-done/bin/) have no access to src/ at runtime, so all
  * dependencies must be bundled at build time.
  *
  * Targets:
  *   - hooks/*.js -> hooks/dist/ (3 hooks)
- *   - get-stuff-done/bin/gsd-tools.js -> get-stuff-done/bin/dist/ (1 tool)
+ *   - get-stuff-done/bin/gsd-tools.cjs -> get-stuff-done/bin/dist/ (1 tool)
  */
 
 const fs = require('fs');
@@ -83,15 +83,15 @@ function buildGsdTools() {
     fs.mkdirSync(GSD_DIST_DIR, { recursive: true });
   }
 
-  const src = path.join(GSD_BIN_DIR, 'gsd-tools.js');
+  const src = path.join(GSD_BIN_DIR, 'gsd-tools.cjs');
   const dest = path.join(GSD_DIST_DIR, 'gsd-tools.js');
 
   if (!fs.existsSync(src)) {
-    console.warn('Warning: get-stuff-done/bin/gsd-tools.js not found, skipping');
+    console.warn('Warning: get-stuff-done/bin/gsd-tools.cjs not found, skipping');
     return;
   }
 
-  process.stdout.write('Bundling get-stuff-done/bin/gsd-tools.js... ');
+  process.stdout.write('Bundling get-stuff-done/bin/gsd-tools.cjs... ');
 
   esbuild.buildSync({
     ...ESBUILD_BASE,

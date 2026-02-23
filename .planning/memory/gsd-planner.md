@@ -1,7 +1,7 @@
 ---
 agent: gsd-planner
 updated: 2026-02-23
-entries: 16
+entries: 17
 ---
 
 - finding: "GSD has ~15 JS files (~6,850 lines) as testable surface. The installer (bin/install.js) alone is 1,760 lines and deserves its own dedicated plan due to complexity (symlink fallback chains, runtime detection, settings.json manipulation)."
@@ -100,4 +100,10 @@ entries: 16
   source: "Phase 18, gap closure planning"
   confidence: HIGH
   phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "Plumbing/porcelain phases (new CLI module + workflow enhancements) decompose into 2 sequential plans: Wave 1 creates the plumbing module with CLI commands and tests, Wave 2 wires the porcelain (workflow markdown modifications that call the CLI commands). This is NOT horizontal layering -- it is a genuine dependency: the workflow must reference commands that exist. Phase 20: Plan 01 creates sync.cjs (12th domain module) with 4 CLI commands + router + tests; Plan 02 enhances upstream-sync.md workflow with 4 targeted stage modifications. The split keeps code+tests (Plan 01, ~40% context) separate from markdown workflow edits (Plan 02, ~25% context), staying well within budget."
+  source: "Phase 20, planning"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
   date: "2026-02-23"

@@ -3,8 +3,8 @@
 ---
 type: shared
 topic: pitfalls
-updated: 2026-02-20
-entries: 1
+updated: 2026-02-23
+entries: 2
 ---
 
 ## Known Pitfalls
@@ -31,3 +31,11 @@ This file contains known gotchas and their fixes, discovered by GSD agents durin
   confidence: HIGH
   phase: "16-platform-quality"
   date: "2026-02-20"
+
+- pitfall: "execGit() in core.cjs builds a shell command string and single-quotes args containing %, |, ^, *, or spaces. On Windows MINGW64, single-quoted arguments are treated as literals causing: git log '--format=%H' to fail with 'ambiguous argument', git tag -a with multi-word -m message to fail with 'too many arguments', and git tag -l 'glob*' to not match any tags."
+  fix: "Use spawnSync with array args form (no shell) for any git command with special characters. Create a spawnGit(cwd, args) helper using child_process.spawnSync. Use this for: git log --format=, git tag -a -m, git tag -l 'pattern*', git diff sha^..sha, git rev-parse sha^."
+  discovered_by: "gsd-executor"
+  source: "Phase 20, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"

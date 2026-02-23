@@ -1,7 +1,7 @@
 ---
 agent: gsd-verifier
 updated: 2026-02-23
-entries: 20
+entries: 22
 ---
 
 ## Agent Memory: GSD Verifier
@@ -125,4 +125,16 @@ entries:
     source: "Phase 19 verification"
     confidence: HIGH
     phase: "19-post-sync-stabilization"
+    date: "2026-02-23"
+
+  - finding: "For phases with a plumbing/porcelain split (Phase 20 pattern): verify both layers. Plumbing layer (lib/*.cjs): exports, substantive implementation, wired to router. Porcelain layer (workflow .md): grep for CLI command names in the correct stage positions. The porcelain layer's correctness is structural (grep-verifiable) but behavioral correctness requires human UAT."
+    source: "Phase 20 verification"
+    confidence: HIGH
+    phase: "20-sync-safety-transparency"
+    date: "2026-02-23"
+
+  - finding: "spawnGit() vs execGit() cross-platform pattern: when verifying git-based modules on Windows MINGW64, check whether special-char git args (%, |, ^, * glob, multi-word -m messages) use spawnSync array form (spawnGit) rather than execGit's shell-string form. The spawnGit pattern is the correct fix for Windows MINGW64 shell escaping failures. Absence of spawnGit for these operations is a cross-platform bug."
+    source: "Phase 20 verification"
+    confidence: HIGH
+    phase: "20-sync-safety-transparency"
     date: "2026-02-23"

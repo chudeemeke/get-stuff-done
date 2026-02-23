@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
 updated: 2026-02-23
-entries: 43
+entries: 45
 ---
 
 - finding: "For assessment-report-only plans (no code changes), git status will show pre-existing modified files from earlier sessions. Only stage the plan's own artifacts (SUMMARY.md, STATE.md, ROADMAP.md, REQUIREMENTS.md). Do NOT stage tests/ or get-stuff-done/ files that were modified before the plan started."
@@ -272,4 +272,28 @@ entries: 43
   source: "Phase 18, Plan 06, Task 2"
   confidence: HIGH
   phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "execGit() shell escaping breaks git commands on Windows MINGW64 when args contain %, |, ^, *, or spaces. The escaping wraps these in single quotes but MINGW64 treats single-quoted args literally (e.g., git log '--format=%H' fails with ambiguous argument). Fix: use spawnSync (array form, no shell) via a spawnGit() helper. Affects: git log --format=, git tag -l 'glob*', git tag -a name -m 'msg with spaces', git diff sha^..sha."
+  source: "Phase 20, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"
+
+- finding: "git diff-tree without --root returns empty output for the initial commit (no parent). To reliably list files for any commit (including the first), add --root flag: git diff-tree --no-commit-id --root -r --name-status <sha>. Relevant whenever tests create a fresh git repo and examine the initial commit."
+  source: "Phase 20, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"
+
+- finding: "When modifying workflow markdown files (.md) that contain numbered steps, use the strategy of inserting a step numbered '0' before the loop (for pre-conditions) and 'N+1' or decimal (3.5) for post-conditions. This avoids renumbering all subsequent steps and makes the plan delta clearer in git diff."
+  source: "Phase 20, Plan 02, Task 1"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"
+
+- finding: "When requirements mark-complete reports 'not_found' for IDs that should exist, check if they were already marked complete by a prior plan (same plan series). Look at REQUIREMENTS.md directly -- the IDs may already show [x]. This is correct state, not an error."
+  source: "Phase 20, Plan 02, state update"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
   date: "2026-02-23"

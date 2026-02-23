@@ -18,7 +18,7 @@ Load all context in one call (include file contents to avoid redundant reads):
 ```bash
 ```
 
-Parse JSON for: `executor_model`, `verifier_model`, `commit_docs`, `parallelization`, `branching_strategy`, `branch_name`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `plans`, `incomplete_plans`, `plan_count`, `incomplete_count`, `state_exists`, `roadmap_exists`.
+Parse JSON for: `executor_model`, `verifier_model`, `commit_docs`, `parallelization`, `branching_strategy`, `branch_name`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `plans`, `incomplete_plans`, `plan_count`, `incomplete_count`, `state_exists`, `roadmap_exists`, `phase_req_ids`.
 
 **File contents (from --include):** `state_content`, `config_content`. These are null if files don't exist.
 
@@ -299,10 +299,6 @@ node ~/.claude/get-shit-done/bin/gsd-tools.cjs commit "docs(phase-${PARENT_PHASE
 
 <step name="verify_phase_goal">
 Verify phase achieved its GOAL, not just completed tasks.
-
-```bash
-PHASE_REQ_IDS=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs roadmap get-phase "${PHASE_NUMBER}" | jq -r '.section' | grep -i "Requirements:" | sed 's/.*Requirements:\*\*\s*//' | sed 's/[\[\]]//g')
-```
 
 ```
 Task(

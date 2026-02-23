@@ -32,8 +32,8 @@ Requirements for v0.3.0 Upstream Sync & Workflow Maturity. Phases continue from 
 
 ### Post-Sync Assessment
 
-- [ ] **ASSESS-01**: Evaluate CLAUDE-06 (agent teams orchestration) against upstream's auto-advance pipeline -- determine if full parallel execution is still needed, what scope remains, or if auto-advance is sufficient
-- [ ] **ASSESS-02**: Evaluate PLAT-07 (interactive diff viewer) and PLAT-08 (multi-upstream support) against upstream's current diff/review workflow -- determine scope and priority
+- [x] **ASSESS-01**: Evaluate CLAUDE-06 (agent teams orchestration) against upstream's auto-advance pipeline -- determine if full parallel execution is still needed, what scope remains, or if auto-advance is sufficient
+- [x] **ASSESS-02**: Evaluate PLAT-07 (interactive diff viewer) and PLAT-08 (multi-upstream support) against upstream's current diff/review workflow -- determine scope and priority
 
 ## Conditional Requirements
 
@@ -78,8 +78,8 @@ These requirements activate based on ASSESS-01 and ASSESS-02 outcomes. Scope TBD
 | SYNC-08 | Phase 21 | Pending |
 | SYNC-09 | Phase 22 | Pending |
 | SYNC-10 | Phase 22 | Pending |
-| ASSESS-01 | Phase 19 | Pending |
-| ASSESS-02 | Phase 19 | Pending |
+| ASSESS-01 | Phase 19 | Complete |
+| ASSESS-02 | Phase 19 | Complete |
 
 **Coverage:**
 - v0.3.0 requirements: 16 total (+ 3 conditional)

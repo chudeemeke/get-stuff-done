@@ -1,7 +1,7 @@
 ---
 agent: gsd-planner
-updated: 2026-02-22
-entries: 13
+updated: 2026-02-23
+entries: 16
 ---
 
 - finding: "GSD has ~15 JS files (~6,850 lines) as testable surface. The installer (bin/install.js) alone is 1,760 lines and deserves its own dedicated plan due to complexity (symlink fallback chains, runtime detection, settings.json manipulation)."
@@ -83,3 +83,21 @@ entries: 13
   confidence: HIGH
   phase: "18-upstream-sync-execution"
   date: "2026-02-22"
+
+- finding: "Post-sync stabilization phases with well-researched fixes decompose naturally into fully parallel plans when the work streams are independent. Phase 19: 3 plans all in Wave 1 -- build pipeline fix (3 files, SYNC-II-03), assessment reports (2 new markdown files, ASSESS-01/02), and coverage migration (1 test file). Zero file overlap means full parallelism. The pattern: code fix + documentation + test quality each get their own plan."
+  source: "Phase 19, planning"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "gsd-tools frontmatter validator (frontmatter.cjs) uses regex /^---\\n/ which does not match CRLF line endings. On Windows, files written by the Write tool have CRLF, causing the validator to report all frontmatter fields as missing even when they are present and correct. The plan structure validator (task detection) works because it uses a different parsing approach. This is a pre-existing bug -- plans are valid, validator is broken on Windows."
+  source: "Phase 19, plan validation"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "UAT gap closures for minor issues (CLI flags, directory cleanup) compress to a single plan with 2 small tasks. Phase 18 UAT had 2 minor gaps: (1) gsd-tools --help flag missing from CLI router -- straightforward switch case + stdout write, (2) upstream branding in opencode/ directory -- delete entire dir since fork is Claude Code-only per REQUIREMENTS.md Out of Scope. Both tasks together are ~15% context. Key decision: deletion over rebranding when the feature is explicitly out of scope."
+  source: "Phase 18, gap closure planning"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"

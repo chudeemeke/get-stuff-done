@@ -502,10 +502,36 @@ Display banner:
 Plans ready. Spawning execute-phase...
 ```
 
-Spawn execute-phase as Task:
+Spawn execute-phase as Task with direct workflow file reference (do NOT use Skill tool — Skills don't resolve inside Task subagents):
 ```
 Task(
-  prompt="Run /gsd:execute-phase ${PHASE} --auto",
+  prompt="
+    <objective>
+    You are the execute-phase orchestrator. Execute all plans for Phase ${PHASE}: ${PHASE_NAME}.
+    </objective>
+
+    <execution_context>
+    @~/.claude/get-stuff-done/workflows/execute-phase.md
+    @~/.claude/get-stuff-done/references/checkpoints.md
+    @~/.claude/get-stuff-done/references/tdd.md
+    @~/.claude/get-stuff-done/references/model-profile-resolution.md
+    </execution_context>
+
+    <arguments>
+    PHASE=${PHASE}
+    ARGUMENTS='${PHASE} --auto --no-transition'
+    </arguments>
+
+    <instructions>
+    1. Read execute-phase.md from execution_context for your complete workflow
+    2. Follow ALL steps: initialize, handle_branching, validate_phase, discover_and_group_plans, execute_waves, aggregate_results, close_parent_artifacts, verify_phase_goal, update_roadmap
+    3. The --no-transition flag means: after verification + roadmap update, STOP and return status. Do NOT run transition.md.
+    4. When spawning executor agents, use subagent_type='gsd-executor' with the existing @file pattern from the workflow
+    5. When spawning verifier agents, use subagent_type='gsd-verifier'
+    6. Preserve the classifyHandoffIfNeeded workaround (spot-check on that specific error)
+    7. Do NOT use the Skill tool or /gsd: commands
+    </instructions>
+  ",
   subagent_type="general-purpose",
   description="Execute Phase ${PHASE}"
 )

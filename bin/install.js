@@ -1499,9 +1499,9 @@ async function install(isGlobal, runtime = 'claude', useLinks = false) {
   } else {
     copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime);
 
-    // Replace source gsd-tools.js with self-contained bundled version (fixes MODULE_NOT_FOUND for src/validation)
-    const bundledToolsSrc = path.join(src, 'get-stuff-done', 'bin', 'dist', 'gsd-tools.js');
-    const installedTools = path.join(skillDest, 'bin', 'gsd-tools.js');
+    // Replace source gsd-tools.cjs with self-contained bundled version (fixes MODULE_NOT_FOUND for src/validation)
+    const bundledToolsSrc = path.join(src, 'get-stuff-done', 'bin', 'dist', 'gsd-tools.cjs');
+    const installedTools = path.join(skillDest, 'bin', 'gsd-tools.cjs');
     if (fs.existsSync(bundledToolsSrc)) {
       fs.copyFileSync(bundledToolsSrc, installedTools);
     } else {

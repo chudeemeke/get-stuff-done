@@ -84,7 +84,7 @@ function buildGsdTools() {
   }
 
   const src = path.join(GSD_BIN_DIR, 'gsd-tools.cjs');
-  const dest = path.join(GSD_DIST_DIR, 'gsd-tools.js');
+  const dest = path.join(GSD_DIST_DIR, 'gsd-tools.cjs');
 
   if (!fs.existsSync(src)) {
     console.warn('Warning: get-stuff-done/bin/gsd-tools.cjs not found, skipping');

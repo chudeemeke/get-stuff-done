@@ -4,7 +4,7 @@
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via email to: **security@gsd.build** (or DM @glittercowboy on Discord/Twitter if email bounces)
+Instead, please report them via email to: **chude@emeke.org** (or file a private security advisory at https://github.com/chudeemeke/get-stuff-done/security/advisories/new)
 
 Include:
 - Description of the vulnerability

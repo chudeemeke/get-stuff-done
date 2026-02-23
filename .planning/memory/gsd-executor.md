@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
-updated: 2026-02-22
-entries: 26
+updated: 2026-02-23
+entries: 33
 ---
 
 - finding: "hooks/dist/ is gitignored (decision 09-02 BUILD-001). When committing esbuild output, only commit scripts/build-hooks.js -- never try to git add hooks/dist/. The dist files are generated artifacts."
@@ -153,3 +153,45 @@ entries: 26
   confidence: HIGH
   phase: "18-upstream-sync-execution"
   date: "2026-02-22"
+
+- finding: "When upstream's test split adds tests/helpers.cjs AND the fork already has a tests/helpers/ directory, bun resolves require('./helpers') to the .cjs file BEFORE the directory. The .cjs file must re-export from helpers/index.js: const dirHelpers = require('./helpers/index.js'); module.exports = { ...dirHelpers, ...ownExports }. This unblocks both fork tests (expecting createTempDir) and upstream tests (expecting runGsdTools etc)."
+  source: "Phase 18, Plan 04, Task 2 (6601879)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "When upstream splits a monolith into modules, structural tests that check the monolith file (e.g., 'does gsd-tools.cjs contain require(src/validation)') break because the import moved to a domain module. Fix: add a CORE_PATH constant and update the test to read the domain module file instead."
+  source: "Phase 18, Plan 04, Task 2 (6601879)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "path.join() on Windows returns backslashes. If tests assert forward slashes in paths (e.g., 'context_path': 'phases/foo/bar.md'), add .replace(/\\\\/g, '/') in the module output. This is required for cross-platform test compatibility."
+  source: "Phase 18, Plan 04, Task 2 (6601879 init.cjs fix)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "GitHub Actions CI (.github/workflows/ci.yml) only triggers on pushes to 'main' or PRs targeting 'main'. Pushing a feature/sync branch does NOT trigger cross-platform CI. Cross-platform validation requires opening a PR. Plan accordingly: schedule CI validation as a PR step, not immediately after branch push."
+  source: "Phase 18, Plan 04, Task 2 (ci.yml analysis)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "For module split cherry-picks (monolith -> N files), bun test failures typically have 4 root causes: (1) module resolution shadowing, (2) structural tests checking wrong file path, (3) missing security validation that tests assert, (4) cross-platform path separator differences. Check all 4 before assuming other causes."
+  source: "Phase 18, Plan 04, Task 2 (171 failure root cause analysis)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "Skills (slash commands) don't resolve inside Task subagents. When a workflow uses Task(prompt='Run /gsd:execute-phase') for auto-advance chaining, the subagent cannot resolve the /gsd: skill. Fix: embed the workflow file directly using @file references in the Task() prompt. This is the upstream's fix in commit 131f24b."
+  source: "Phase 18, Plan 04 (131f24b cherry-pick)"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "The gsd-tools.cjs state advance-plan and state update-progress commands fail when STATE.md uses free-form text sections ('Plan: 3 of TBD') rather than machine-parseable key:value format. When gsd-tools can't parse STATE.md, update STATE.md manually via Edit tool."
+  source: "Phase 18, Plan 04, state update"
+  confidence: HIGH
+  phase: "18-upstream-sync-execution"
+  date: "2026-02-23"

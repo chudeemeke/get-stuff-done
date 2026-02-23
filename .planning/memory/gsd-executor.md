@@ -1,8 +1,14 @@
 ---
 agent: gsd-executor
 updated: 2026-02-23
-entries: 40
+entries: 43
 ---
+
+- finding: "For assessment-report-only plans (no code changes), git status will show pre-existing modified files from earlier sessions. Only stage the plan's own artifacts (SUMMARY.md, STATE.md, ROADMAP.md, REQUIREMENTS.md). Do NOT stage tests/ or get-stuff-done/ files that were modified before the plan started."
+  source: "Phase 19, Plan 02, final commit"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
 
 - finding: "hooks/dist/ is gitignored (decision 09-02 BUILD-001). When committing esbuild output, only commit scripts/build-hooks.js -- never try to git add hooks/dist/. The dist files are generated artifacts."
   source: "Phase 13, Plan 01, Task 1"
@@ -230,4 +236,16 @@ entries: 40
   source: "Phase 18, Plan 05, Task 3 merge strategy"
   confidence: HIGH
   phase: "18-upstream-sync-execution"
+  date: "2026-02-23"
+
+- finding: "When a plan's verification criterion is 'grep returns no results', also update test description strings and comments (not just path constants) that contain the old value. grep does not distinguish between path references and string literals in test names -- both count as matches."
+  source: "Phase 19, Plan 01, Task 1 verification"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
+  date: "2026-02-23"
+
+- finding: "get-stuff-done/bin/dist/ is gitignored (esbuild output). When rebuilding in a task, never attempt git add on dist/ files. Stage only the source files that change the build pipeline (scripts/build.js, bin/install.js, tests/ path constants)."
+  source: "Phase 19, Plan 01, Task 1 commit"
+  confidence: HIGH
+  phase: "19-post-sync-stabilization"
   date: "2026-02-23"

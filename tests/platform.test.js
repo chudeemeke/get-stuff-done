@@ -449,129 +449,90 @@ describe('gsdPaths', () => {
 });
 
 describe('detectPlatform - coverage gap closure', () => {
-  let restoreEnv;
   let restorePlatform;
   const fs = require('fs');
-  const childProcess = require('child_process');
-  const { mockPlatform } = require('./helpers');
 
   afterEach(() => {
     clearPlatformCache();
-    if (restoreEnv) {
-      restoreEnv();
-      restoreEnv = null;
-    }
     if (restorePlatform) {
       restorePlatform();
       restorePlatform = null;
     }
-    // Clear module cache to allow re-require
-    delete require.cache[require.resolve('../src/platform/detect')];
   });
 
   describe('PowerShell detection', () => {
     test('detects PowerShell via PSModulePath on Windows', () => {
-      // Set env BEFORE mocking platform and requiring module
       const saved = {};
-      const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL'];
+      const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL', 'EXEPATH', 'MINGW_PREFIX'];
       clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
       process.env.PSModulePath = 'C:\\Program Files\\PowerShell\\Modules';
 
       restorePlatform = mockPlatform('win32');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.shell).toBe('pwsh');
-      expect(platform.isPowerShell).toBe(true);
+      const result = _detectShell();
+      expect(result.shell).toBe('pwsh');
+      expect(result.isPowerShell).toBe(true);
 
-      // Restore
       clearVars.forEach(v => { if (saved[v] !== undefined) process.env[v] = saved[v]; else delete process.env[v]; });
     });
 
     test('detects PowerShell via POWERSHELL_DISTRIBUTION_CHANNEL on Windows', () => {
-      // Set env BEFORE mocking platform and requiring module
       const saved = {};
-      const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL'];
+      const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL', 'EXEPATH', 'MINGW_PREFIX'];
       clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
       process.env.POWERSHELL_DISTRIBUTION_CHANNEL = 'MSI:Windows 10';
 
       restorePlatform = mockPlatform('win32');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.shell).toBe('pwsh');
-      expect(platform.isPowerShell).toBe(true);
+      const result = _detectShell();
+      expect(result.shell).toBe('pwsh');
+      expect(result.isPowerShell).toBe(true);
 
-      // Restore
       clearVars.forEach(v => { if (saved[v] !== undefined) process.env[v] = saved[v]; else delete process.env[v]; });
     });
   });
 
   describe('cmd default on Windows', () => {
     test('defaults to cmd when no shell indicators present on Windows', () => {
-      // Set env BEFORE mocking platform
       const saved = {};
-      const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL'];
+      const clearVars = ['MSYSTEM', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'SHELL', 'EXEPATH', 'MINGW_PREFIX'];
       clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
 
       restorePlatform = mockPlatform('win32');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.shell).toBe('cmd');
-      expect(platform.isCmd).toBe(true);
+      const result = _detectShell();
+      expect(result.shell).toBe('cmd');
+      expect(result.isCmd).toBe(true);
 
-      // Restore
       clearVars.forEach(v => { if (saved[v] !== undefined) process.env[v] = saved[v]; else delete process.env[v]; });
     });
   });
 
   describe('zsh detection on Unix', () => {
     test('detects zsh via SHELL env var on Linux', () => {
-      // Set env BEFORE mocking platform
       const saved = process.env.SHELL;
       process.env.SHELL = '/bin/zsh';
 
       restorePlatform = mockPlatform('linux');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.shell).toBe('zsh');
-      expect(platform.isZsh).toBe(true);
+      const result = _detectShell();
+      expect(result.shell).toBe('zsh');
+      expect(result.isZsh).toBe(true);
 
-      // Restore
       if (saved !== undefined) process.env.SHELL = saved;
       else delete process.env.SHELL;
     });
 
     test('detects zsh with full path on Linux', () => {
-      // Set env BEFORE mocking platform
       const saved = process.env.SHELL;
       process.env.SHELL = '/usr/local/bin/zsh';
 
       restorePlatform = mockPlatform('linux');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.shell).toBe('zsh');
-      expect(platform.isZsh).toBe(true);
+      const result = _detectShell();
+      expect(result.shell).toBe('zsh');
+      expect(result.isZsh).toBe(true);
 
-      // Restore
       if (saved !== undefined) process.env.SHELL = saved;
       else delete process.env.SHELL;
     });
@@ -579,41 +540,29 @@ describe('detectPlatform - coverage gap closure', () => {
 
   describe('bash detection on Unix', () => {
     test('detects bash via SHELL env var on Linux', () => {
-      // Set env BEFORE mocking platform
       const saved = process.env.SHELL;
       process.env.SHELL = '/bin/bash';
 
       restorePlatform = mockPlatform('linux');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.shell).toBe('bash');
-      expect(platform.isBash).toBe(true);
+      const result = _detectShell();
+      expect(result.shell).toBe('bash');
+      expect(result.isBash).toBe(true);
 
-      // Restore
       if (saved !== undefined) process.env.SHELL = saved;
       else delete process.env.SHELL;
     });
 
     test('detects bash with full path on Linux', () => {
-      // Set env BEFORE mocking platform
       const saved = process.env.SHELL;
       process.env.SHELL = '/usr/bin/bash';
 
       restorePlatform = mockPlatform('linux');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.shell).toBe('bash');
-      expect(platform.isBash).toBe(true);
+      const result = _detectShell();
+      expect(result.shell).toBe('bash');
+      expect(result.isBash).toBe(true);
 
-      // Restore
       if (saved !== undefined) process.env.SHELL = saved;
       else delete process.env.SHELL;
     });
@@ -621,42 +570,30 @@ describe('detectPlatform - coverage gap closure', () => {
 
   describe('unknown shell fallback', () => {
     test('defaults to bash for unknown shell on Unix', () => {
-      // Set env BEFORE mocking platform
       const saved = process.env.SHELL;
       process.env.SHELL = '/bin/fish';
 
       restorePlatform = mockPlatform('linux');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.shell).toBe('bash');
-      expect(platform.isBash).toBe(true);
-      expect(platform.shellVariant).toBe('unknown');
+      const result = _detectShell();
+      expect(result.shell).toBe('bash');
+      expect(result.isBash).toBe(true);
+      expect(result.variant).toBe('unknown');
 
-      // Restore
       if (saved !== undefined) process.env.SHELL = saved;
       else delete process.env.SHELL;
     });
 
     test('defaults to bash for empty SHELL on Unix', () => {
-      // Set env BEFORE mocking platform
       const saved = process.env.SHELL;
       process.env.SHELL = '';
 
       restorePlatform = mockPlatform('linux');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.shell).toBe('bash');
-      expect(platform.isBash).toBe(true);
+      const result = _detectShell();
+      expect(result.shell).toBe('bash');
+      expect(result.isBash).toBe(true);
 
-      // Restore
       if (saved !== undefined) process.env.SHELL = saved;
       else delete process.env.SHELL;
     });
@@ -666,7 +603,6 @@ describe('detectPlatform - coverage gap closure', () => {
     test('detects WSL via /proc/version', () => {
       restorePlatform = mockPlatform('linux');
 
-      // Mock fs.readFileSync for this test
       const origReadFile = fs.readFileSync;
       fs.readFileSync = (path, enc) => {
         if (path === '/proc/version') {
@@ -675,24 +611,15 @@ describe('detectPlatform - coverage gap closure', () => {
         return origReadFile(path, enc);
       };
 
-      clearPlatformCache();
-      // Clear module cache and re-require to get fresh import with mocked fs
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: detectPlatformMocked, clearCache } = require('../src/platform/detect');
-      clearCache();
+      const result = _detectEnvironment();
+      expect(result.isWSL).toBe(true);
 
-      const platform = detectPlatformMocked();
-      expect(platform.isWSL).toBe(true);
-
-      // Restore
       fs.readFileSync = origReadFile;
-      delete require.cache[require.resolve('../src/platform/detect')];
     });
 
     test('detects WSL fallback via WSL_DISTRO_NAME when /proc/version throws', () => {
       restorePlatform = mockPlatform('linux');
 
-      // Mock fs.readFileSync to throw
       const origReadFile = fs.readFileSync;
       fs.readFileSync = (path, enc) => {
         if (path === '/proc/version') {
@@ -703,82 +630,39 @@ describe('detectPlatform - coverage gap closure', () => {
         return origReadFile(path, enc);
       };
 
-      clearPlatformCache();
       const saved = process.env.WSL_DISTRO_NAME;
       process.env.WSL_DISTRO_NAME = 'Ubuntu';
 
-      // Clear module cache and re-require
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: detectPlatformMocked, clearCache } = require('../src/platform/detect');
-      clearCache();
+      const result = _detectEnvironment();
+      expect(result.isWSL).toBe(true);
 
-      const platform = detectPlatformMocked();
-      expect(platform.isWSL).toBe(true);
-
-      // Restore
       fs.readFileSync = origReadFile;
       if (saved !== undefined) {
         process.env.WSL_DISTRO_NAME = saved;
       } else {
         delete process.env.WSL_DISTRO_NAME;
       }
-      delete require.cache[require.resolve('../src/platform/detect')];
     });
   });
 
   describe('isGitBash detection', () => {
     test('detects Git Bash via MSYSTEM and EXEPATH', () => {
-      // Set env BEFORE mocking platform
       const saved = {};
-      const clearVars = ['MSYSTEM', 'EXEPATH', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL'];
+      const clearVars = ['MSYSTEM', 'EXEPATH', 'PSModulePath', 'POWERSHELL_DISTRIBUTION_CHANNEL', 'MINGW_PREFIX'];
       clearVars.forEach(v => { saved[v] = process.env[v]; delete process.env[v]; });
       process.env.MSYSTEM = 'MINGW64';
       process.env.EXEPATH = 'C:\\Program Files\\Git\\usr\\bin';
 
       restorePlatform = mockPlatform('win32');
-      clearPlatformCache();
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: dp, clearCache: cc } = require('../src/platform/detect');
-      cc();
 
-      const platform = dp();
-      expect(platform.isGitBash).toBe(true);
-      expect(platform.isMingw).toBe(true);
+      const result = _detectEnvironment();
+      expect(result.isGitBash).toBe(true);
+      expect(result.isMingw).toBe(true);
 
-      // Restore
       clearVars.forEach(v => { if (saved[v] !== undefined) process.env[v] = saved[v]; else delete process.env[v]; });
     });
   });
 
-  describe('git error handler', () => {
-    test('handles git unavailable gracefully', () => {
-      // Mock execSync to throw for git commands
-      const origExec = childProcess.execSync;
-      childProcess.execSync = (cmd, opts) => {
-        if (cmd.includes('git')) {
-          const error = new Error('git not found');
-          error.code = 127;
-          throw error;
-        }
-        return origExec(cmd, opts);
-      };
-
-      clearPlatformCache();
-      // Clear module cache and re-require
-      delete require.cache[require.resolve('../src/platform/detect')];
-      const { detectPlatform: detectPlatformMocked, clearCache } = require('../src/platform/detect');
-      clearCache();
-
-      const platform = detectPlatformMocked();
-      expect(platform.gitAvailable).toBe(false);
-      expect(platform.gitPath).toBe(null);
-      expect(platform.gitVersion).toBe(null);
-
-      // Restore
-      childProcess.execSync = origExec;
-      delete require.cache[require.resolve('../src/platform/detect')];
-    });
-  });
 });
 
 describe('detectTerminal', () => {

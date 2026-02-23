@@ -105,3 +105,21 @@ entries: 14
   confidence: HIGH
   phase: "19-post-sync-stabilization"
   date: "2026-02-23"
+
+- finding: "Phase 20 plans have complete task structures (files, action, verify, done elements all present). The TDD ordering issue (implementation Task 1 before test Task 2) is a warning-level CLAUDE.md compliance gap, not a goal-achievement blocker. VALIDATION.md Wave 0 spec can be honored by having executor create stubs in Task 1 before implementing, per the task's own description of following commands.cjs template."
+  source: "Phase 20, Plans 01-02 verification"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"
+
+- finding: "When VALIDATION.md shows nyquist_compliant: false and wave_0_complete: false, these are TODOs for the plan-checker to update after plan approval -- not pre-existing failures. The plan-checker should update these to true and set plan-checker approval after issuing VERIFICATION PASSED."
+  source: "Phase 20, VALIDATION.md review"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"
+
+- finding: "createTempGitProject() can be defined locally inline in the test file rather than being added to tests/helpers.cjs. When a plan's Task 2 action includes the full inline helper definition, tests/helpers.cjs does NOT need to be in files_modified. Both approaches are valid - the plan is self-consistent."
+  source: "Phase 20, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "20-sync-safety-transparency"
+  date: "2026-02-23"

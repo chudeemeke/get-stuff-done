@@ -93,6 +93,16 @@ Question 4:
 **Round 2 (if needed):**
 
 Question 5:
+- header: "Nyquist"
+- question: "Enable Nyquist Validation? (researches test coverage during planning)"
+- multiSelect: false
+- options:
+  - label: "Yes (Recommended)"
+    description: "Research automated test coverage during plan-phase. Adds validation requirements to plans. Blocks approval if tasks lack automated verify."
+  - label: "No"
+    description: "Skip validation research. Good for rapid prototyping or no-test phases."
+
+Question 6:
 - header: "Auto"
 - question: "Auto-advance pipeline? (discuss → plan → execute automatically)"
 - multiSelect: false
@@ -102,7 +112,7 @@ Question 5:
   - label: "Yes"
     description: "Chain stages via Task() subagents (same isolation)"
 
-Question 6:
+Question 7:
 - header: "Branching"
 - question: "Create git branch per phase?"
 - multiSelect: false
@@ -122,6 +132,7 @@ Map answers to config keys:
 - Plan Check "Enabled" -> skip_plan_check: false, "Disabled" -> skip_plan_check: true
 - Verification "Enabled" -> skip_verification: false, "Disabled" -> skip_verification: true
 - Auto "Yes" -> workflow.auto_advance: true, "No" -> workflow.auto_advance: false
+- Nyquist "Yes" -> workflow.nyquist_validation: true, "No" -> workflow.nyquist_validation: false
 - Branching "Yes" -> branch_per_phase: true, "No" -> branch_per_phase: false
 
 Write updated config.json preserving any extra keys not in this prompt.

@@ -236,6 +236,36 @@ ls "$PHASE_DIR"/*-RESEARCH.md
 ```
 </step>
 
+<step name="create_validation_strategy">
+
+**Skip if:** `workflow.nyquist_validation` is false in `.planning/config.json`.
+
+```bash
+NYQUIST_ENABLED=$(cat .planning/config.json 2>/dev/null | python3 -c "import json,sys; c=json.load(sys.stdin); print(str(c.get('workflow',{}).get('nyquist_validation',True)).lower())" 2>/dev/null || echo "true")
+```
+
+After researcher completes, check if RESEARCH.md contains a Validation Architecture section:
+
+```bash
+grep -l "## Validation Architecture" "${PHASE_DIR}"/*-RESEARCH.md 2>/dev/null
+```
+
+**If found:**
+1. Read validation template from `~/.claude/get-stuff-done/templates/VALIDATION.md`
+2. Write to `${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md`
+3. Fill frontmatter: replace `{N}` with phase number, `{phase-slug}` with phase slug, `{date}` with current date
+4. If `commit_docs` is true:
+```bash
+node ~/.claude/get-stuff-done/bin/gsd-tools.cjs commit "docs(phase-${PHASE}): add validation strategy" --files "${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md"
+```
+
+**If not found (and nyquist enabled):** Display warning:
+```
+Warning: Nyquist validation enabled but researcher did not produce a Validation Architecture section.
+  Continuing without validation strategy. Plans may fail Dimension 8 check.
+```
+</step>
+
 <step name="spawn_planner">
 Display:
 ```
@@ -360,6 +390,9 @@ Task(
 **Phase requirement IDs (MUST ALL be covered):** {phase_req_ids}
 **Requirements:**
 {requirements_content}
+
+**Technical Research (includes Validation Architecture):**
+{research_content}
 
 **Project instructions:** Read ./CLAUDE.md if exists — verify plans honor project guidelines
 **Project skills:** Check .agents/skills/ directory (if exists) — verify plans account for project skill rules

@@ -504,11 +504,7 @@ Orchestrator provides CONTEXT.md content in the verification prompt. If provided
 ls "$phase_dir"/*-PLAN.md 2>/dev/null
 # Read research for Nyquist validation data
 cat "$phase_dir"/*-RESEARCH.md 2>/dev/null
-<<<<<<< HEAD
 node ~/.claude/get-stuff-done/bin/gsd-tools.cjs roadmap get-phase "$phase_number"
-=======
-node ~/.claude/get-shit-done/bin/gsd-tools.cjs roadmap get-phase "$phase_number"
->>>>>>> e0f9c73 (feat: add Nyquist validation layer to plan-phase pipeline)
 ls "$phase_dir"/*-BRIEF.md 2>/dev/null
 ```
 

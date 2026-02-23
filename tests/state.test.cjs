@@ -191,7 +191,12 @@ describe('state mutation commands', () => {
     cleanup(tmpDir);
   });
 
+  // Direct dollar-sign CLI arguments are mangled by MINGW shell expansion on Windows
+  // ($0, $1, $2 expand as positional params). The file-input variants below cover
+  // dollar-sign preservation cross-platform.
   test('add-decision preserves dollar amounts without corrupting Decisions section', () => {
+    if (process.platform === 'win32') return; // MINGW shell expands $N; see file-input variant below
+
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'STATE.md'),
       `# Project State
@@ -221,6 +226,8 @@ None
   });
 
   test('add-blocker preserves dollar strings without corrupting Blockers section', () => {
+    if (process.platform === 'win32') return; // MINGW shell expands $N; see file-input variant below
+
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'STATE.md'),
       `# Project State

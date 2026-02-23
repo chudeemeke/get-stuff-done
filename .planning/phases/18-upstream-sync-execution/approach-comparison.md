@@ -29,15 +29,15 @@ Each entry documents a divergence or convergence:
 
 ---
 
-### 2. Statusline Git Branch Display Architecture
+### 2. Statusline Architecture: Full System vs Simplified Reader
 
-**Area:** hooks/gsd-statusline.js — displaying git branch in status line
+**Area:** hooks/gsd-statusline.js — overall statusline implementation and context window indicator
 
-**Fork approach:** Theme-based architecture using `theme.text.muted.render()`, `getBranding()`, `SEP` constant, and `theme.indicators` for the 4-stage progress indicator. All colors flow through the theme system for consistent rendering.
+**Fork approach:** 232-line implementation with a 4-stage context window progress indicator using `theme.indicators` (filled/partial/empty blocks from the theme system), `getBranding()` label, `SEP` separator constant, and `theme.text.muted.render()` for muted colors. Context health computed from `proximity` (distance from autocompact threshold), producing 4 stages: healthy / moderate / critical / urgent. All colors route through the theme system for consistent rendering. Statusline also writes a bridge file (`$TMPDIR/claude-ctx-${session}.json`) for the context monitor hook.
 
-**Upstream approach:** Upstream commit 1bc6d00 added git branch display using raw ANSI escape codes (`\x1b[2m...\x1b[0m`) and direct string concatenation. The branch detection logic itself (traverse parent dirs to find `.git`, read `HEAD` file, support git worktrees) was solid.
+**Upstream approach:** 88-line implementation (upstream HEAD) focusing on git branch display via raw ANSI escape codes (`\x1b[2m...\x1b[0m`) and direct string concatenation. Git branch detection (traverse parent dirs to find `.git`, read `HEAD`, support worktrees) was well-implemented but the visual rendering bypassed the theme system entirely.
 
-**Resolution:** Fork architecture wins. Upstream's ANSI codes replaced with `theme.text.muted.render()`. Upstream's git branch traversal logic (including worktree support) adopted wholesale. Revert commit 9d815d3 attempted to remove the branch display — fork kept it since it was independently valuable and correctly integrated.
+**Resolution:** Fork architecture wins for the visual indicator (proximity-based 4-stage bar preserved). Upstream's git branch traversal logic (including worktree support) adopted wholesale. Upstream's ANSI codes replaced with `theme.text.muted.render()`. Revert commit 9d815d3 attempted to remove the branch display — fork kept it since it was independently valuable.
 
 **Batch:** Batch 6 (commits 1bc6d00 and 9d815d3)
 
@@ -185,6 +185,34 @@ Each entry documents a divergence or convergence:
 **Resolution:** Upstream approach adopted. Dimension 8 (8a-8d) added to plan-checker. RESEARCH.md cat command added before gsd-tools call in plan-checker (conflict resolved — fork branding preserved). Phase-researcher and planner agents augmented. `VALIDATION.md` template created. Plan-phase workflow updated.
 
 **Batch:** Batch 12 (commit e0f9c73)
+
+---
+
+### 12. Update System: execFileSync vs execSync for npm version check
+
+**Area:** hooks/gsd-check-update.js — checking for newer package versions on npm
+
+**Fork approach:** `execFileSync(npmCmd, ['view', '@chude/get-stuff-done', 'version'], { encoding: 'utf8', timeout: 10000, windowsHide: true })` — uses `execFileSync` with an array of arguments and a dynamically resolved `npmCmd` (finds npm executable via `process.execPath` sibling lookup). This avoids shell interpolation and works reliably on Windows where `npm` resolves differently than on Unix.
+
+**Upstream approach:** `execSync('npm view get-shit-done-cc version', { encoding: 'utf8', timeout: 10000, windowsHide: true })` — uses `execSync` with a single shell string. On Windows, `npm` in a shell string can resolve to the wrong binary or fail if node_modules/.bin is not in PATH during hook execution.
+
+**Resolution:** Fork wins. `execFileSync` with array arguments is safer on Windows: no shell expansion, no PATH lookup ambiguity, `windowsHide: true` keeps the console window hidden. The package name is also correctly rebranded to `@chude/get-stuff-done`. Upstream's `execSync` approach works on macOS/Linux but is fragile on Windows.
+
+**Batch:** Fork customization (established in Phase 5/8 branding); upstream approach documented for comparison in Batch 12 review.
+
+---
+
+### 13. Build System: esbuild Bundling vs Simple File Copy
+
+**Area:** scripts/build.js (fork) vs scripts/build-hooks.js (upstream) — preparing hooks for installation
+
+**Fork approach:** `scripts/build.js` uses esbuild to bundle hooks and gsd-tools into self-contained artifacts. esbuild inlines all `src/` dependencies (theme system, platform detection, config, validation) into each hook. This is necessary because hooks are installed to `~/.claude/hooks/` which has no access to the package's `src/` directory at runtime. The build produces `hooks/dist/` (3 hooks) and historically a `get-stuff-done/bin/dist/` bundle.
+
+**Upstream approach:** `scripts/build-hooks.js` performs a simple file copy of hook `.js` files from `hooks/` to `hooks/dist/`. This works because upstream hooks are simpler — they use Node.js built-ins only, with no `src/` library dependencies. No bundling step required.
+
+**Resolution:** Fork requires esbuild bundling because its hooks import from `src/theme`, `src/platform`, and `src/config`. Upstream hooks are self-contained. After the Batch 12 module split, gsd-tools.cjs no longer needs bundling (it uses `require('./lib/...')` which resolves relative to its installed location). The esbuild build pipeline is a Phase 19 concern — the current `scripts/build.js` may need updating to reflect the modular architecture. This is documented as a known gap rather than a blocker for Phase 18 merge.
+
+**Batch:** Fork customization (established in Phase 13 hook bundling); comparison finalized in Batch 12 review.
 
 ---
 

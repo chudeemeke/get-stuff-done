@@ -721,6 +721,104 @@
       "conflictType": "content",
       "status": "applied",
       "notes": "Upstream version marker. Fork identity preserved. Included in branding fix commit."
+    },
+    {
+      "upstreamHash": "fa2e156",
+      "forkHash": "5a70198",
+      "subject": "refactor: split gsd-tools.test.cjs into domain test files",
+      "appliedAt": "2026-02-23T00:00:00Z",
+      "conflictType": null,
+      "status": "applied",
+      "notes": "Batch 12. 7 domain test files under tests/. helpers.cjs added for upstream CJS tests."
+    },
+    {
+      "upstreamHash": "c67ab75",
+      "forkHash": "c1ce8ed",
+      "subject": "refactor: split gsd-tools.cjs into 11 domain modules under bin/lib/",
+      "appliedAt": "2026-02-23T01:00:00Z",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Batch 12. Manual apply (git couldn't auto-detect split). 11 lib/*.cjs modules. Validation import in core.cjs."
+    },
+    {
+      "upstreamHash": "e3dda45",
+      "forkHash": "8b2c60f",
+      "subject": "feat(discuss-phase): add option highlighting and gray area looping",
+      "appliedAt": "2026-02-23T01:10:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "e0f9c73",
+      "forkHash": "0bc6741",
+      "subject": "feat: add Nyquist validation layer to plan-phase pipeline",
+      "appliedAt": "2026-02-23T02:00:00Z",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Batch 12. Multiple conflicts resolved: gsd-plan-checker, plan-phase, gsd-tools (module split). VALIDATION.md template added."
+    },
+    {
+      "upstreamHash": "2c0db8e",
+      "forkHash": "dba1fac",
+      "subject": "fix(gemini): prevent workflows and templates from being incorrectly converted to TOML",
+      "appliedAt": "2026-02-23T02:15:00Z",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Batch 12. install.js conflict resolved — fork useLinks branch preserved alongside isCommand fix."
+    },
+    {
+      "upstreamHash": "7542d36",
+      "forkHash": "ca6e5cc",
+      "subject": "feat: context window monitor hook with agent-side WARNING/CRITICAL alerts",
+      "appliedAt": "2026-02-23T02:30:00Z",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Batch 12. hooks/gsd-context-monitor.js added. Bridge file write added to statusline. Fork's 4-stage proximity bar preserved."
+    },
+    {
+      "upstreamHash": "131f24b",
+      "forkHash": "3417a29",
+      "subject": "fix: auto-advance chain broken — Skills don't resolve inside Task subagents (#669)",
+      "appliedAt": "2026-02-23T02:45:00Z",
+      "conflictType": "content",
+      "status": "applied",
+      "notes": "Batch 12. discuss-phase, plan-phase, execute-phase updated with direct @file refs in Task spawning."
+    },
+    {
+      "upstreamHash": "ebfc17a",
+      "forkHash": null,
+      "subject": "Merge pull request #691 from tylersatre/refactor/split-gsd-tools",
+      "appliedAt": "2026-02-23T01:00:00Z",
+      "conflictType": null,
+      "status": "skipped",
+      "notes": "Merge commit — skipped per protocol."
+    },
+    {
+      "upstreamHash": "e9dbb03",
+      "forkHash": null,
+      "subject": "Merge pull request #693 from cmosgh/fix/gemini-template-toml-bug",
+      "appliedAt": "2026-02-23T02:15:00Z",
+      "conflictType": null,
+      "status": "skipped",
+      "notes": "Merge commit — skipped per protocol."
+    },
+    {
+      "upstreamHash": "bfdd64f",
+      "forkHash": null,
+      "subject": "Merge branch 'feature/nyquist-validation-layer'",
+      "appliedAt": "2026-02-23T02:00:00Z",
+      "conflictType": null,
+      "status": "skipped",
+      "notes": "Merge commit — skipped per protocol."
+    },
+    {
+      "upstreamHash": "4d09f87",
+      "forkHash": null,
+      "subject": "Merge PR #687: feat: add Nyquist validation layer to plan-phase pipeline",
+      "appliedAt": "2026-02-23T02:00:00Z",
+      "conflictType": null,
+      "status": "skipped",
+      "notes": "Merge commit — skipped per protocol."
     }
   ],
   "pending": [],
@@ -756,15 +854,15 @@
     ".github/workflows/ci.yml"
   ],
   "stats": {
-    "totalCommits": 64,
-    "mergeCommitsSkipped": 0,
-    "applied": 62,
-    "skipped": 2,
-    "conflicts": 35,
-    "brandingCorrections": 1
+    "totalCommits": 75,
+    "mergeCommitsSkipped": 4,
+    "applied": 69,
+    "skipped": 6,
+    "conflicts": 40,
+    "brandingCorrections": 2
   },
   "meta": {
-    "lastSync": "2026-02-22",
-    "syncedThrough": "v1.20.5"
+    "lastSync": "2026-02-23",
+    "syncedThrough": "upstream/main (HEAD at 131f24b)"
   }
 }

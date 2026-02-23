@@ -125,7 +125,7 @@ function main() {
   const keyFiles = [
     'bin/gsd.js',
     'bin/install.js',
-    'get-stuff-done/bin/gsd-tools.js',
+    'get-stuff-done/bin/gsd-tools.cjs',
     'src/config/ConfigLoader.js',
     'src/platform/detect.js'
   ];

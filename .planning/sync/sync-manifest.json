@@ -1,637 +1,868 @@
 {
   "forkPoint": "3d2a960cd9432147597bd71bfc70b77f2ff8667c",
-  "targetTag": "v1.18.0",
+  "targetTag": "upstream/main",
   "upstreamRemote": "upstream",
   "upstreamBranch": "upstream/main",
-  "syncBranch": "upstream-sync",
-  "startedAt": "2026-02-08T17:49:57.786Z",
+  "syncBranch": "sync/v1.20.5",
+  "startedAt": "2026-02-22T00:32:46Z",
   "status": "complete",
   "applied": [
     {
-      "sha": "197800e2d1a701ed0a537232567a089141175ab5",
-      "shortSha": "197800e",
-      "message": "feat(git): add unified branching strategy option",
+      "upstreamHash": "60ccba9",
+      "forkHash": "c1b5ab4",
+      "subject": "feat: add Brave Search integration for researchers",
+      "appliedAt": "2026-02-22T01:15:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "19568d6",
+      "forkHash": "25377de",
+      "subject": "docs: use @latest in primary install commands",
+      "appliedAt": "2026-02-22T01:18:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "d80e4ef",
+      "forkHash": "3181f53",
+      "subject": "docs: add badges to README",
+      "notes": "Excluded upstream Dexscreener/Discord/X/GSD-token badges. Kept npm version, downloads, GitHub stars with fork branding.",
+      "appliedAt": "2026-02-22T01:22:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "90f1f66",
+      "forkHash": null,
+      "subject": "docs: use static Discord badge to avoid widget dependency",
+      "notes": "Skipped — fork README does not include Discord badge (upstream-specific social link). No functional impact.",
+      "appliedAt": null,
+      "conflictType": null,
+      "status": "skipped"
+    },
+    {
+      "upstreamHash": "f7511db",
+      "forkHash": "dd1b395",
+      "subject": "Add CODEOWNERS",
+      "appliedAt": "2026-02-22T01:25:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "a4626b5",
+      "forkHash": "f25895c",
+      "subject": "Add bug report issue template",
+      "appliedAt": "2026-02-22T01:27:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "279f3bc",
+      "forkHash": "4f388d0",
+      "subject": "Add feature request issue template",
+      "appliedAt": "2026-02-22T01:29:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "392742e",
+      "forkHash": "900eade",
+      "subject": "Add security policy for responsible disclosure",
+      "appliedAt": "2026-02-22T01:31:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "b85247a",
+      "forkHash": "27c6638",
+      "subject": "Add workflow to auto-label new issues with needs-triage",
+      "appliedAt": "2026-02-22T01:33:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "173ff7a",
+      "forkHash": "0334f5a",
+      "subject": "fix: add Write tool to gsd-verifier and document verifier bug root cause",
+      "notes": "Fork already had this fix from Phase 8 independent repair. Applied upstream commit as convergence evidence.",
+      "appliedAt": "2026-02-22T01:36:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "c3c9d52",
+      "forkHash": "5033c98",
+      "subject": "fix: create feature branch before first commit in discuss/plan workflows",
+      "appliedAt": "2026-02-22T01:39:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "ba27912",
+      "forkHash": "f1a7741",
+      "subject": "fix: move resolved debug sessions to resolved/ folder",
+      "appliedAt": "2026-02-22T01:41:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "25aeb44",
+      "forkHash": "b930a78",
+      "subject": "fix: verify-work defers diagnosis/planning to plan-phase --gaps",
+      "appliedAt": "2026-02-22T01:43:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "f4d6b30",
+      "forkHash": "ffc7b2a",
+      "subject": "fix(install): auto-migrate renamed statusline.js reference",
+      "appliedAt": "2026-02-22T01:45:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "9d3d9d8",
+      "forkHash": "395643a",
+      "subject": "docs: use @latest for uninstall commands",
+      "appliedAt": "2026-02-22T01:47:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "fbd727e",
+      "forkHash": "9754331",
+      "subject": "feat: Add Mistral Vibe CLI Support",
+      "appliedAt": "2026-02-22T01:50:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "80246e9",
+      "forkHash": "b4604f4",
+      "subject": "Add OpenCode installer package",
+      "appliedAt": "2026-02-22T01:53:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "430a7e4",
+      "forkHash": "d2efd87",
+      "subject": "feat: add git_tag config option to disable tagging on milestone completion",
+      "appliedAt": "2026-02-22T01:56:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "6f98b4f",
+      "forkHash": "6dc934d",
+      "subject": "Add in-progress state for todos instead of marking done immediately",
+      "appliedAt": "2026-02-22T02:10:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "1bc6d00",
+      "forkHash": "0c162b6",
+      "subject": "refactor(statusline): display git branch in status line if inside repo",
+      "notes": "Semantic conflict: upstream uses raw ANSI codes; fork uses theme.text.muted.render(). Fork architecture wins. Upstream logic for git branch traversal (supports worktrees) was integrated.",
+      "appliedAt": "2026-02-22T02:30:00Z",
+      "conflictType": "semantic",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "e146b08",
+      "forkHash": "160174b",
+      "subject": "fix(install): build hooks/dist on the fly for dev installs",
+      "notes": "Structural conflict in bin/install.js — integrated build-on-the-fly before hooksSrc declaration to avoid duplicate const.",
+      "appliedAt": "2026-02-22T02:50:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "9d815d3",
+      "forkHash": "f9eaf38",
+      "subject": "Revert 12 PRs merged without authorization",
+      "notes": "CRITICAL: Mega-commit reverting 12 PRs. 26-file conflict. Fork preserved: Write tool in gsd-verifier.md, theme architecture in statusline.js, useLinks mode, install-vibe.js, bin/install-opencode.js, agents/general-purpose.md, opencode/ dir, gsd-verifier root cause doc. Fork adopted from revert: Gemini runtime support (hasGemini, convertClaudeToGeminiToml), regex fix in gsd-verifier.md (\\{} -> \\{\\}, \\[] -> \\[\\]).",
+      "appliedAt": "2026-02-22T03:30:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "5154446",
+      "forkHash": "e55bd2d",
+      "subject": "fix(install): add package.json to prevent ESM inheritance",
+      "notes": "Integrated after resolving duplicate const hooksSrc from build-on-the-fly commit.",
+      "appliedAt": "2026-02-22T03:45:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "d863858",
+      "forkHash": "81a97cf",
+      "subject": "fix(docs): use {phase_num} instead of ambiguous {phase} for filenames",
+      "appliedAt": "2026-02-22T03:50:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "7b140c2",
+      "forkHash": "d13589e",
+      "subject": "fix(roadmap): accept ## and ### phase headers, detect malformed ROADMAPs",
+      "appliedAt": "2026-02-22T03:55:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "9a7bb22",
+      "forkHash": "38410eb",
+      "subject": "fix(install): template hook paths for OpenCode/Gemini runtimes",
+      "notes": "Structural conflict: fork lacks processAttribution/getCommitAttribution functions. Adopted regex improvements, skipped processAttribution call. Added getConfigDirFromHome() function.",
+      "appliedAt": "2026-02-22T04:00:00Z",
+      "conflictType": "structural",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "b9f9ee9",
+      "forkHash": "add1f82",
+      "subject": "fix(init): fall back to ROADMAP.md when phase directory missing",
+      "appliedAt": "2026-02-22T04:05:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "dcace25",
+      "forkHash": "277fa12",
+      "subject": "fix(workflow): close parent UAT and debug artifacts after gap-closure phase",
+      "appliedAt": "2026-02-22T04:08:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "4622aa7",
+      "forkHash": "bc1621d",
+      "subject": "docs: update changelog for v1.19.0",
+      "notes": "Merged upstream CHANGELOG section using Node.js script to remove upstream glittercowboy URL comparisons from conflict block.",
+      "appliedAt": "2026-02-22T04:10:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "ca18c24",
+      "forkHash": "3783d85",
+      "subject": "1.19.0 version sync",
+      "notes": "Updated upstream version marker only. Fork version stays at 2.2.1. package.json description updated to include OpenCode and Gemini.",
+      "appliedAt": "2026-02-22T04:12:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "ed17684",
+      "forkHash": "a598c3a",
+      "subject": "feat(workflow): add auto-advance pipeline (--auto flag + workflow.auto_advance config)",
+      "notes": "Mechanical conflict: get-shit-done/workflows/plan-phase.md deleted by us (fork has get-stuff-done path). Applied changes manually to get-stuff-done/workflows/plan-phase.md.",
+      "appliedAt": "2026-02-22T05:00:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "c8827fe",
+      "forkHash": "8d27380",
+      "subject": "fix(tools): deterministic ROADMAP progress table updates from disk (#537)",
+      "notes": "Mechanical conflict: get-shit-done/bin/gsd-tools.js path. Added cmdRoadmapUpdatePlanProgress to get-stuff-done/bin/gsd-tools.js. Applied execute-phase/execute-plan workflow changes.",
+      "appliedAt": "2026-02-22T05:10:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "91e4ef7",
+      "forkHash": "e99d2b6",
+      "subject": "fix(workflow): consistent phase transition routing through discuss-phase (#530)",
+      "notes": "Applied to get-stuff-done/ paths. transition.md updated with CONTEXT.md check logic. execute-phase.md offer_next delegates to transition.md. discuss-phase.md adds Other free-text handling.",
+      "appliedAt": "2026-02-22T05:20:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "d8f3bac",
+      "forkHash": "2422e5a",
+      "subject": "docs: update README for v1.19.1 — auto-advance flag and config",
+      "notes": "Content conflict in README.md footer commands table. Adopted upstream's --auto flag additions.",
+      "appliedAt": "2026-02-22T05:25:00Z",
+      "conflictType": "cosmetic",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "a679bfc",
+      "forkHash": "2fa5b6d",
+      "subject": "docs: update changelog for v1.19.1",
+      "notes": "Content conflict in CHANGELOG.md footer URLs. Kept fork URLs (chudeemeke/get-stuff-done). Added [1.19.1] entry with fork URL. Adopted upstream changelog content section.",
+      "appliedAt": "2026-02-22T05:30:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "a4ad25d",
+      "forkHash": "542db84",
+      "subject": "1.19.1",
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1. package.json fork identity preserved. package-lock.json deleted (fork doesn't track it).",
+      "appliedAt": "2026-02-22T05:35:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "7de17fc",
+      "forkHash": "518af6b",
+      "subject": "docs: add User Guide with workflow diagrams and troubleshooting",
+      "appliedAt": "2026-02-22T08:00:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "7ed1ec8",
+      "forkHash": "62e4688",
+      "subject": "fix: remove 'execution' from plan-phase description to fix autocomplete",
+      "appliedAt": "2026-02-22T08:05:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "c4ea358",
+      "forkHash": "10e3831",
+      "subject": "fix(agents): use Write tool for file creation to prevent settings.local.json corruption",
+      "appliedAt": "2026-02-22T08:10:00Z",
+      "conflictType": "content",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "a5caf91",
+      "forkHash": "6d956c5",
+      "subject": "feat(config): add per-agent model overrides via model_overrides config key",
+      "appliedAt": "2026-02-22T08:15:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "c5fbd05",
+      "forkHash": "21c45f8",
+      "subject": "fix(installer): quote config dir in hook templates for local installs",
+      "appliedAt": "2026-02-22T08:20:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "24b933e",
+      "forkHash": "14f9e00",
+      "subject": "fix: rename gsd-tools.js to .cjs to prevent ESM conflicts",
+      "notes": "35+ conflict files. Renamed get-stuff-done/bin/gsd-tools.js to gsd-tools.cjs. Updated all references.",
+      "appliedAt": "2026-02-22T08:30:00Z",
+      "conflictType": "upstream-path-mass",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "afb93a3",
+      "forkHash": "4f4cde5",
+      "subject": "fix(tools): normalize phase padding in insert command",
+      "appliedAt": "2026-02-22T08:35:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "37bb14e",
+      "forkHash": "e06399d",
+      "subject": "feat(config): add user-level default settings via ~/.gsd/defaults.json",
+      "appliedAt": "2026-02-22T08:40:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "9aeafc0",
+      "forkHash": "fd6eacd",
+      "subject": "fix(tools): support #### heading depth in phase matching",
+      "appliedAt": "2026-02-22T08:45:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "8b75531",
+      "forkHash": "be3404f",
+      "subject": "fix(agents): add scope boundary and fix attempt limit to executor",
+      "appliedAt": "2026-02-22T08:50:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "bc13b49",
+      "forkHash": null,
+      "subject": "Merge pull request #505 from pablo-alonso-arista/docs/user-guide",
+      "notes": "Merge commit - skipped",
+      "appliedAt": "2026-02-22T08:55:00Z",
+      "conflictType": null,
+      "status": "skipped"
+    },
+    {
+      "upstreamHash": "8d97732",
+      "forkHash": "1cc9b97",
+      "subject": "fix(tools): write large JSON payloads to tmpfile to prevent truncation",
+      "appliedAt": "2026-02-22T09:00:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "41cb745",
+      "forkHash": "a88ace4",
+      "subject": "feat(phases): archive completed milestone phase directories",
+      "appliedAt": "2026-02-22T09:05:00Z",
+      "conflictType": "upstream-path",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "04380c8",
+      "forkHash": "4683a8f",
+      "subject": "docs: add wave execution diagram to clarify parallelization",
+      "appliedAt": "2026-02-22T09:10:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "0dde979",
+      "forkHash": "d13b6f3",
+      "subject": "fix(installer): use correct config path for local OpenCode installs",
+      "appliedAt": "2026-02-22T09:15:00Z",
+      "conflictType": "content",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "00a13f5",
+      "forkHash": "07b0116",
+      "subject": "docs: update changelog for v1.19.2",
+      "appliedAt": "2026-02-22T09:20:00Z",
+      "conflictType": "content",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "1e3194a",
+      "forkHash": "165b6ce",
+      "subject": "1.19.2",
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1.",
+      "appliedAt": "2026-02-22T09:25:00Z",
+      "conflictType": "mechanical",
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "0f2a3fa",
+      "forkHash": "bb86259",
+      "subject": "fix: add .gitkeep to phase directories for git tracking",
+      "notes": "DU conflict: upstream modified get-shit-done/bin path. Fork lacks cmdPhaseAdd/cmdPhaseInsert, no changes applied to fork gsd-tools.cjs. Empty commit.",
+      "conflictType": "upstream-path",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:22:49.925Z"
+      "appliedAt": "2026-02-22T10:00:00Z"
     },
     {
-      "sha": "339e9112990e024fea746d244765ada8a044a848",
-      "shortSha": "339e911",
-      "message": "chore: remove GitHub Actions release workflow",
+      "upstreamHash": "99c5c41",
+      "forkHash": "06e84a8",
+      "subject": "fix: respect commit_docs when merging branches in complete-milestone",
+      "notes": "Changes to upstream complete-milestone.md workflow (branching section). Fork complete-milestone.md lacks branching strategy section; tracked in .upstream/ only.",
+      "conflictType": "upstream-path",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:26:57.519Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:02:00Z"
     },
     {
-      "sha": "87b2cd0e21de311c33fbedb5a24c97e256e78ef8",
-      "shortSha": "87b2cd0",
-      "message": "fix: scale context bar to show 100% at actual 80% limit",
+      "upstreamHash": "474b75e",
+      "forkHash": "46cd00c",
+      "subject": "fix(installer): convert general-purpose subagent to OpenCode's \"general\"",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:27:13.222Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:04:00Z"
     },
     {
-      "sha": "5379832fc2bb73fc7bc63096929a09162fa6b54a",
-      "shortSha": "5379832",
-      "message": "feat: add Gemini support to installer (#301)",
+      "upstreamHash": "9aca081",
+      "forkHash": "87fc9b0",
+      "subject": "docs: add workaround tip for modifying menu options",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:27:55.924Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:06:00Z"
     },
     {
-      "sha": "91aaa3533c7d0d8ccd62389ff158df4702ddd484",
-      "shortSha": "91aaa35",
-      "message": "chore: remove dead code from Gemini PR",
+      "upstreamHash": "cb7d4db",
+      "forkHash": "7a3fcca",
+      "subject": "feat(health): add /gsd:health command for planning directory validation",
+      "notes": "DU conflict for gsd-tools.cjs and file-location conflict for health.md. Added cmdValidateHealth and validate dispatch to fork gsd-tools.cjs. Created commands/gsd/health.md and get-stuff-done/workflows/health.md with fork branding.",
+      "conflictType": "structural",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:28:20.929Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:08:00Z"
     },
     {
-      "sha": "d58f2b54622205c6a4cb1057a5db94f8ae0f3735",
-      "shortSha": "d58f2b5",
-      "message": "docs: update README and changelog for v1.9.14",
+      "upstreamHash": "1dcedb6",
+      "forkHash": "b8a1acc",
+      "subject": "feat(auto-advance): chain phase execution across full milestone",
+      "notes": "DU conflicts for gsd-tools.cjs and plan-phase.md. Added cmdConfigGet and config-get dispatch. Fixed config get -> config-get in plan-phase.md, discuss-phase.md. Added auto-advance section to execute-phase.md. Propagated --auto flag in transition.md.",
+      "conflictType": "structural",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:28:50.644Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:10:00Z"
     },
     {
-      "sha": "beca9faeadb999978fdd0a7c4185f8450ccf3b4c",
-      "shortSha": "beca9fa",
-      "message": "1.10.0",
+      "upstreamHash": "7510a8a",
+      "forkHash": "210976f",
+      "subject": "feat(quick): add --full flag for plan-checking and verification",
+      "notes": "DU conflict for gsd-tools.cjs. Content conflict in .upstream/commands/gsd/quick.md. Added checker_model/verifier_model to cmdInitQuick. Rewrote get-stuff-done/workflows/quick.md with full --full mode support.",
+      "conflictType": "structural",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:29:13.862Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:12:00Z"
     },
     {
-      "sha": "5660b6fc0b890f8d6ffc1c3f0c407f1a702a5f72",
-      "shortSha": "5660b6f",
-      "message": "fix: Gemini CLI agent loading errors (#347)",
+      "upstreamHash": "fc347d5",
+      "forkHash": "5ad1e26",
+      "subject": "fix: warn when planning without user context or discussing after plans exist",
+      "notes": "DU conflict for plan-phase.md. Applied context warning to plan-phase.md load_context step and discuss-phase.md CONTEXT.md check.",
+      "conflictType": "upstream-path",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:29:32.581Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:14:00Z"
     },
     {
-      "sha": "80d67994ec9a6ff415ba6e192311515779598c24",
-      "shortSha": "80d6799",
-      "message": "1.10.1",
+      "upstreamHash": "1104fc9",
+      "forkHash": "2d51fbc",
+      "subject": "docs: update README for v1.20.0",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:30:05.378Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:16:00Z"
     },
     {
-      "sha": "5ee22e6256d726e93d07e8247f6ccfef7f499c16",
-      "shortSha": "5ee22e6",
-      "message": "feat(git): add squash merge option for branching strategies",
+      "upstreamHash": "7b7e582",
+      "forkHash": "4994310",
+      "subject": "docs: update changelog for v1.20.0",
+      "notes": "Content conflict in CHANGELOG.md. Took upstream [1.20.0] entry. Fixed glittercowboy URLs in footer.",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:30:17.222Z",
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:18:00Z"
     },
     {
-      "sha": "325713903b062e6ac48b51cf8b91be24d8b5b20f",
-      "shortSha": "3257139",
-      "message": "fix(plan-phase): pass CONTEXT.md to all downstream agents",
+      "upstreamHash": "e8eab14",
+      "forkHash": "05adff6",
+      "subject": "1.20.0",
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1. package-lock.json removed (fork does not track it). Empty commit.",
+      "conflictType": "mechanical",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:30:28.356Z",
-      "hadEslintFix": true
+      "appliedAt": "2026-02-22T10:20:00Z"
     },
     {
-      "sha": "f3db981fa7c21bf2009f004528b1ae280c84c0d5",
-      "shortSha": "f3db981",
-      "message": "docs: update changelog and README for v1.11.0",
+      "upstreamHash": "cbf8094",
+      "forkHash": "925a00e",
+      "subject": "requirements tracking chain — strip brackets, add requirements field",
+      "conflictType": "semantic",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:30:44.429Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "notes": "DU conflict in gsd-tools.cjs — applied manually to fork file"
     },
     {
-      "sha": "8d2651d1280da18062b97bcb8e5babe058a4a7c7",
-      "shortSha": "8d2651d",
-      "message": "fix: remove broken gsd-gemini link (404)",
+      "upstreamHash": "9ef582e",
+      "forkHash": "eb10dbd",
+      "subject": "close requirements verification loop and enforce MUST language",
+      "conflictType": "semantic",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:31:47.323Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "notes": "DU conflict in plan-phase.md — applied manually to fork workflows"
     },
     {
-      "sha": "2347fca35ead5b4bf93b238afdf30a0f91947391",
-      "shortSha": "2347fca",
-      "message": "fix: clarify ASCII box-drawing vs text content with diacritics (#289)",
+      "upstreamHash": "fb50d3a",
+      "forkHash": "30ec342",
+      "subject": "docs: update changelog for v1.20.2",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:32:32.527Z",
-      "hadEslintFix": true
+      "notes": "Content conflict — took theirs with fork branding"
     },
     {
-      "sha": "4267c6cf67d38292505129be8b4e4f24d2b8ebda",
-      "shortSha": "4267c6c",
-      "message": "fix: respect parallelization config setting (#379)",
+      "upstreamHash": "710795c",
+      "forkHash": "55d69d7",
+      "subject": "1.20.2",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:32:49.386Z",
-      "hadEslintFix": true
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1"
     },
     {
-      "sha": "ecbc692bc9dccda75a401ad2ed98100fbb020af6",
-      "shortSha": "ecbc692",
-      "message": "fix(#326): enforce context fidelity in planning pipeline (#391)",
+      "upstreamHash": "e449c5a",
+      "forkHash": "2f53b33",
+      "subject": "fix(gemini): escape shell variables in agent bodies",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:33:05.063Z",
-      "hadEslintFix": true
+      "notes": "bin/install.js conflict — fork had convertGeminiToolName already"
     },
     {
-      "sha": "9d7ea9c1888033ba205f9cb2f16e0b071c1fef26",
-      "shortSha": "9d7ea9c",
-      "message": "fix: statusline crash handling, color validation, git staging rules",
+      "upstreamHash": "2f25895",
+      "forkHash": "3cccf2c",
+      "subject": "tighten milestone audit requirements verification with 3-source cross-reference",
+      "conflictType": "semantic",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:33:41.101Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "notes": "Applied to fork workflows: audit-milestone, complete-milestone, plan-milestone-gaps"
     },
     {
-      "sha": "161aa61137d2e3a003bbaca104e45a3508404e56",
-      "shortSha": "161aa61",
-      "message": "fix: researcher agent always writes RESEARCH.md regardless of commit_docs",
+      "upstreamHash": "95bc5a0",
+      "forkHash": "5283474",
+      "subject": "docs: update changelog for v1.20.3",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:33:54.143Z",
-      "hadEslintFix": true
+      "notes": "Content conflict — took theirs with fork branding"
     },
     {
-      "sha": "83845755b318aeacaac7d24c380a0e8f273046ef",
-      "shortSha": "8384575",
-      "message": "fix: update command respects local vs global install",
+      "upstreamHash": "c609f3d",
+      "forkHash": "fed98b1",
+      "subject": "1.20.3",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:34:11.991Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1"
     },
     {
-      "sha": "f380275ed86631e90ee048f47b720dd49e3d0494",
-      "shortSha": "f380275",
-      "message": "fix(executor): add completion verification to prevent hallucinated success (#315)",
+      "upstreamHash": "1764abc",
+      "forkHash": "a91a0ef",
+      "subject": "feat: executor updates ROADMAP.md and REQUIREMENTS.md per-plan",
+      "conflictType": "semantic",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:34:24.639Z",
-      "hadEslintFix": true
+      "notes": "DU conflict in gsd-tools.cjs — added cmdRequirementsMarkComplete to fork"
     },
     {
-      "sha": "4dff9899cc4f6b1e66949680fa2f772e472f9318",
-      "shortSha": "4dff989",
-      "message": "fix(settings): auto-create config.json when missing (#264)",
+      "upstreamHash": "8b181f2",
+      "forkHash": "08a6fec",
+      "subject": "docs: update changelog for v1.20.4",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:34:39.339Z",
-      "hadEslintFix": true
+      "notes": "Content conflict — took theirs with fork branding"
     },
     {
-      "sha": "f53011c9e2d8f13cc580b04963d769d1a0304b51",
-      "shortSha": "f53011c",
-      "message": "fix(#429): prevent API keys from being committed via map-codebase",
+      "upstreamHash": "b94a1ca",
+      "forkHash": "56b07e1",
+      "subject": "1.20.4",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:34:55.351Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "notes": "Upstream version marker only. Fork version stays at 2.2.1"
     },
     {
-      "sha": "af7a057294cff7a44691755fed4c10749a5f2f30",
-      "shortSha": "af7a057",
-      "message": "feat: add GSD Memory cross-project knowledge system",
+      "upstreamHash": "f77252c",
+      "forkHash": "30d5b5d",
+      "subject": "refactor: use inline Task() syntax for map-codebase agent spawning",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:35:16.118Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "notes": "Clean apply — converted 4 agents in map-codebase.md"
     },
     {
-      "sha": "cc3c6aca5619e8882ca07d0c22c63ecee9d232a6",
-      "shortSha": "cc3c6ac",
-      "message": "revert: remove GSD Memory system (not ready for release)",
+      "upstreamHash": "87c3873",
+      "forkHash": "9dba202",
+      "subject": "feat(codex): convert Task() calls to codex exec during install",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:36:04.367Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "notes": "Codex add — reverted by d55998b. Net zero change."
     },
     {
-      "sha": "01ae939c01843e3b88cc0d1f85216d533ce177dc",
-      "shortSha": "01ae939",
-      "message": "feat(gsd-tools): add CLI utility for command extraction",
+      "upstreamHash": "db1d003",
+      "forkHash": "7e7bf1f",
+      "subject": "feat(codex): install GSD commands as prompts for / menu discoverability",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:36:35.470Z",
-      "hadEslintFix": true
+      "notes": "Codex add — reverted by e820263. Net zero change."
     },
     {
-      "sha": "8f26bfa478728c0f7286d6ac1114761a334276b0",
-      "shortSha": "8f26bfa",
-      "message": "refactor: extract check-todos, add-phase, update to thin orchestrators",
+      "upstreamHash": "270b6c4",
+      "forkHash": "04b087f",
+      "subject": "feat: add project skill discovery to subagent spawn points",
+      "conflictType": "semantic",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:37:34.304Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "notes": "DU conflicts in plan-phase.md, agents. Project skills added to all agents."
     },
     {
-      "sha": "d2623e0114115e94c62ef6bb693ac7c8183a541e",
-      "shortSha": "d2623e0",
-      "message": "refactor: extract settings, add-todo, pause-work, set-profile to thin orchestrators",
+      "upstreamHash": "8fd7d0b",
+      "forkHash": "6de2e12",
+      "subject": "feat: add project CLAUDE.md discovery to subagent spawn points",
+      "conflictType": "semantic",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:38:33.052Z",
-      "hadConflict": true,
-      "hadEslintFix": true
+      "notes": "DU conflict in plan-phase.md. CLAUDE.md discovery added to agents."
     },
     {
-      "sha": "d44c7dcc9bacf9811378bdbaca1e46b2099a88fb",
-      "shortSha": "d44c7dc",
-      "message": "refactor: update commands, workflows, agents for gsd-tools integration",
+      "upstreamHash": "bf2f571",
+      "forkHash": "03ef81d",
+      "subject": "fix: create backup before STATE.md regeneration",
+      "conflictType": "semantic",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:44:20.330Z",
-      "hadConflict": true
+      "notes": "DU conflict in gsd-tools.cjs — added backup code to fork"
     },
     {
-      "sha": "56b487a5b02e772b5ae357fc38e0b46a6a28f928",
-      "shortSha": "56b487a",
-      "message": "chore: tidy up old files",
+      "upstreamHash": "3dcd3f0",
+      "forkHash": "e49375d",
+      "subject": "refactor: complete context-proxy orchestration flow",
+      "conflictType": "semantic",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:46:59.761Z",
-      "hadConflict": true
+      "notes": "Large 39-file refactor. Removed parseIncludeFlag, added file paths to cmdInit*. Updated workflows to use files_to_read blocks."
     },
     {
-      "sha": "3f5ab10713e714248d9a9a292733b67c88e5181d",
-      "shortSha": "3f5ab10",
-      "message": "chore: remove CONTRIBUTING.md and GSD-STYLE.md",
+      "upstreamHash": "e820263",
+      "forkHash": "b6d166e",
+      "subject": "Revert: codex prompts install",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:47:17.028Z",
-      "hadConflict": true
+      "notes": "Codex revert — cancels db1d003"
     },
     {
-      "sha": "a52248cb022cac15083654e6a5c2117450400f1a",
-      "shortSha": "a52248c",
-      "message": "chore: remove project-specific planning files",
+      "upstreamHash": "d55998b",
+      "forkHash": "9786766",
+      "subject": "Revert: codex Task() conversion",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:47:29.949Z",
-      "hadConflict": true
+      "notes": "Codex revert — cancels 87c3873. processAttribution fixed post-revert."
     },
     {
-      "sha": "01c9115f3a72ac402c03882708a8c16d5b471980",
-      "shortSha": "01c9115",
-      "message": "fix(#478): respect commit_docs=false in all .planning commit paths (#482)",
+      "upstreamHash": "748901f",
+      "forkHash": "b969d3b",
+      "subject": "docs: update changelog for v1.20.5",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:48:00.900Z",
-      "hadConflict": true
+      "notes": "Content conflict in footer links — kept fork URLs, added v1.20.5 link"
     },
     {
-      "sha": "ca03a061a80776238045b6a02e04b055ce9065fc",
-      "shortSha": "ca03a06",
-      "message": "feat: preserve local patches across GSD updates (#481)",
+      "upstreamHash": "3cf26d6",
+      "forkHash": "ecdb951",
+      "subject": "1.20.5",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:48:20.343Z",
-      "hadConflict": true
+      "notes": "Upstream version marker. Fork identity preserved. Included in branding fix commit."
     },
     {
-      "sha": "6a2d1f1bfbf403013b74d3d4fdd8b7a8be83c42f",
-      "shortSha": "6a2d1f1",
-      "message": "feat(gsd-tools): frontmatter CRUD, verification suite, template fill, state progression (#485)",
+      "upstreamHash": "fa2e156",
+      "forkHash": "5a70198",
+      "subject": "refactor: split gsd-tools.test.cjs into domain test files",
+      "appliedAt": "2026-02-23T00:00:00Z",
+      "conflictType": null,
       "status": "applied",
-      "appliedAt": "2026-02-08T18:48:34.673Z",
-      "hadConflict": true
+      "notes": "Batch 12. 7 domain test files under tests/. helpers.cjs added for upstream CJS tests."
     },
     {
-      "sha": "ced41d771b8d9ca538a7c7d12d7d529391c5c028",
-      "shortSha": "ced41d7",
-      "message": "fix(#453): replace HEREDOC with literal newlines for Windows compatibility",
+      "upstreamHash": "c67ab75",
+      "forkHash": "c1ce8ed",
+      "subject": "refactor: split gsd-tools.cjs into 11 domain modules under bin/lib/",
+      "appliedAt": "2026-02-23T01:00:00Z",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:48:51.488Z"
+      "notes": "Batch 12. Manual apply (git couldn't auto-detect split). 11 lib/*.cjs modules. Validation import in core.cjs."
     },
     {
-      "sha": "7f4908302eaff3b717bcb4c7bda122a7f903331f",
-      "shortSha": "7f49083",
-      "message": "feat(new-project): add --auto flag for unattended initialization",
+      "upstreamHash": "e3dda45",
+      "forkHash": "8b2c60f",
+      "subject": "feat(discuss-phase): add option highlighting and gray area looping",
+      "appliedAt": "2026-02-23T01:10:00Z",
+      "conflictType": null,
+      "status": "applied"
+    },
+    {
+      "upstreamHash": "e0f9c73",
+      "forkHash": "0bc6741",
+      "subject": "feat: add Nyquist validation layer to plan-phase pipeline",
+      "appliedAt": "2026-02-23T02:00:00Z",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:49:04.944Z",
-      "hadConflict": true
+      "notes": "Batch 12. Multiple conflicts resolved: gsd-plan-checker, plan-phase, gsd-tools (module split). VALIDATION.md template added."
     },
     {
-      "sha": "42495068ca3a93adcff7be0aedf521de8bc76f02",
-      "shortSha": "4249506",
-      "message": "fix(execute-phase): explicitly specify subagent_type=\"gsd-executor\"",
+      "upstreamHash": "2c0db8e",
+      "forkHash": "dba1fac",
+      "subject": "fix(gemini): prevent workflows and templates from being incorrectly converted to TOML",
+      "appliedAt": "2026-02-23T02:15:00Z",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:51:04.824Z"
+      "notes": "Batch 12. install.js conflict resolved — fork useLinks branch preserved alongside isCommand fix."
     },
     {
-      "sha": "4072fd2baf4e91b6b9efcac5fafc1724d38270fb",
-      "shortSha": "4072fd2",
-      "message": "fix: add workaround for Claude Code classifyHandoffIfNeeded bug (#480)",
+      "upstreamHash": "7542d36",
+      "forkHash": "ca6e5cc",
+      "subject": "feat: context window monitor hook with agent-side WARNING/CRITICAL alerts",
+      "appliedAt": "2026-02-23T02:30:00Z",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:51:13.989Z"
+      "notes": "Batch 12. hooks/gsd-context-monitor.js added. Bridge file write added to statusline. Fork's 4-stage proximity bar preserved."
     },
     {
-      "sha": "767bef64ef11765e9d012308f81122add9d37610",
-      "shortSha": "767bef6",
-      "message": "fix(#484): persist research decision from new-milestone to config",
+      "upstreamHash": "131f24b",
+      "forkHash": "3417a29",
+      "subject": "fix: auto-advance chain broken — Skills don't resolve inside Task subagents (#669)",
+      "appliedAt": "2026-02-23T02:45:00Z",
+      "conflictType": "content",
       "status": "applied",
-      "appliedAt": "2026-02-08T18:51:28.858Z",
-      "hadConflict": true
+      "notes": "Batch 12. discuss-phase, plan-phase, execute-phase updated with direct @file refs in Task spawning."
     },
     {
-      "sha": "246d542c65fa81091d7fc27d8925f1a756db54c3",
-      "shortSha": "246d542",
-      "message": "feat(gsd-tools): add compound init commands and update workflows (#468)",
-      "status": "applied",
-      "appliedAt": "2026-02-08T18:53:42.244Z",
-      "hadConflict": true
-    },
-    {
-      "sha": "6c537373c61ff5c824ab3d5495ab4661e5a5aed2",
-      "shortSha": "6c53737",
-      "message": "feat: add context-optimizing parsing commands to gsd-tools (#473)",
-      "status": "applied",
-      "appliedAt": "2026-02-08T18:54:06.227Z",
-      "hadConflict": true
-    },
-    {
-      "sha": "36f5bb3d5f859406b7007f7ff54c9a95c267bbb9",
-      "shortSha": "36f5bb3",
-      "message": "feat: delegate deterministic workflow operations to gsd-tools CLI",
-      "status": "applied",
-      "appliedAt": "2026-02-08T18:54:29.686Z",
-      "hadConflict": true
-    },
-    {
-      "sha": "fa81821df4e435b2e945c43e7a3d749269c3f331",
-      "shortSha": "fa81821",
-      "message": "feat: add --include flag to init commands to eliminate redundant file reads",
-      "status": "applied",
-      "appliedAt": "2026-02-08T18:56:50.152Z",
-      "hadConflict": true
-    },
-    {
-      "sha": "1344bd8f1831604063517c84157bc7f4a1bbdf0d",
-      "shortSha": "1344bd8",
-      "message": "fix(#466): add detached: true to SessionStart hook spawn for Windows",
-      "status": "applied",
-      "appliedAt": "2026-02-08T18:57:03.032Z"
-    },
-    {
-      "sha": "1b317dec45fb3bf4b7808806e9f4eb39f1428267",
-      "shortSha": "1b317de",
-      "message": "feat: extract repetitive bash patterns into gsd-tools commands (#472)",
-      "status": "applied",
-      "appliedAt": "2026-02-08T18:59:03.273Z",
-      "hadConflict": true
-    }
-  ],
-  "skipped": [
-    {
-      "sha": "f8fd710",
-      "message": "Merge pull request #298 from davesienkowski/feature/branching-strategy",
-      "reason": "merge commit"
-    },
-    {
-      "sha": "22ec777",
-      "message": "Merge pull request #421 from davesienkowski/fix/set-profile-missing-config",
-      "reason": "merge commit"
-    },
-    {
-      "sha": "0fcdb3a",
-      "message": "Merge pull request #420 from davesienkowski/fix/executor-completion-verification",
-      "reason": "merge commit"
-    },
-    {
-      "sha": "12a06ab",
-      "message": "Merge pull request #373 from Solvely-Colin/fix/remove-dead-gsd-gemini-link",
-      "reason": "merge commit"
-    },
-    {
-      "sha": "a63cc2d",
-      "message": "Merge pull request #463 from glittercowboy/refactor/thin-orchestrator-commands",
-      "reason": "merge commit"
-    },
-    {
-      "sha": "dac502f",
-      "message": "Merge pull request #477 from rmindel/feature/fix-gsd-tools-windows",
-      "reason": "merge commit"
-    },
-    {
-      "sha": "a4d2a8f",
-      "message": "Merge pull request #483 from glittercowboy/claude/expand-gsd-automation-XVhXH",
-      "reason": "merge commit"
-    },
-    {
-      "sha": "3b70b10252f2384a459b430adba1d05b4d8b2607",
-      "shortSha": "3b70b10",
-      "message": "docs: update changelog for v1.10.1",
+      "upstreamHash": "ebfc17a",
+      "forkHash": null,
+      "subject": "Merge pull request #691 from tylersatre/refactor/split-gsd-tools",
+      "appliedAt": "2026-02-23T01:00:00Z",
+      "conflictType": null,
       "status": "skipped",
-      "reason": "cherry-pick continue failed"
+      "notes": "Merge commit — skipped per protocol."
     },
     {
-      "sha": "b5ca9a2b7632db6b2de7f747b9a17e351428b96e",
-      "shortSha": "b5ca9a2",
-      "message": "1.11.1",
+      "upstreamHash": "e9dbb03",
+      "forkHash": null,
+      "subject": "Merge pull request #693 from cmosgh/fix/gemini-template-toml-bug",
+      "appliedAt": "2026-02-23T02:15:00Z",
+      "conflictType": null,
       "status": "skipped",
-      "reason": "cherry-pick continue failed"
+      "notes": "Merge commit — skipped per protocol."
     },
     {
-      "sha": "074b2bcc202915f8d49540e74e4104fe632c55f3",
-      "shortSha": "074b2bc",
-      "message": "fix(#330): update statusline.js reference during install (#392)",
+      "upstreamHash": "bfdd64f",
+      "forkHash": null,
+      "subject": "Merge branch 'feature/nyquist-validation-layer'",
+      "appliedAt": "2026-02-23T02:00:00Z",
+      "conflictType": null,
       "status": "skipped",
-      "reason": "cherry-pick continue failed"
+      "notes": "Merge commit — skipped per protocol."
     },
     {
-      "sha": "7c42763aae622c49cdc837c7bc2735c2be936ccf",
-      "shortSha": "7c42763",
-      "message": "1.11.2",
+      "upstreamHash": "4d09f87",
+      "forkHash": null,
+      "subject": "Merge PR #687: feat: add Nyquist validation layer to plan-phase pipeline",
+      "appliedAt": "2026-02-23T02:00:00Z",
+      "conflictType": null,
       "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "e02b37d5e8e692791744231cf958ebf3dfec9b39",
-      "shortSha": "e02b37d",
-      "message": "1.12.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "3e3f81e6e495d6049a3e1f892097743ddd7e2090",
-      "shortSha": "3e3f81e",
-      "message": "docs: update changelog for v1.12.1",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "64373a8f3660da0e2163cf69a183aa734b88783d",
-      "shortSha": "64373a8",
-      "message": "1.13.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "6cf4a4e3f6fc94072aac307c947fefd3b59b408c",
-      "shortSha": "6cf4a4e",
-      "message": "fix: prevent installer from deleting opencode.json on parse errors (#475)",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "ecba9909331508c80b6964790ac0820cd110a177",
-      "shortSha": "ecba990",
-      "message": "1.14.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "63d99df8e1bf21a0bcfcce7716d76f0fbb996a44",
-      "shortSha": "63d99df",
-      "message": "docs: update changelog for v1.15.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "1c6a35f7baa994772203ab1954581a787e5b9e14",
-      "shortSha": "1c6a35f",
-      "message": "fix: normalize Windows backslashes in gsd-tools path prefix",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "2a4e0b1cf3b74324b53054228e146c170757c402",
-      "shortSha": "2a4e0b1",
-      "message": "docs: update changelog for v1.15.1",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "06399ec4a68ccc86b40647eaf05b280a438eb3f5",
-      "shortSha": "06399ec",
-      "message": "1.17.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "fac12174b0a8d8747a995d407cc21c694029897a",
-      "shortSha": "fac1217",
-      "message": "docs: update changelog for v1.18.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "d8840c45d0abad9d061b0203c875fe2fb7a0d49e",
-      "shortSha": "d8840c4",
-      "message": "1.11.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "75fb063d91fd1e2453779bec899edf6b7230e49c",
-      "shortSha": "75fb063",
-      "message": "docs: update changelog for v1.11.2",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "c94f563eff74a0b2f23dc64b06ba00a10f369900",
-      "shortSha": "c94f563",
-      "message": "docs: update changelog for v1.12.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "e92e64ce48c1b34b59a020e89ff46b4df25d3287",
-      "shortSha": "e92e64c",
-      "message": "1.12.1",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "c9aea445094652158b547e19c665e2c23ac6b3e5",
-      "shortSha": "c9aea44",
-      "message": "docs: update changelog for v1.13.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "1fbffcf742a59cdde7b52671d224940ee92c7862",
-      "shortSha": "1fbffcf",
-      "message": "docs: update changelog for v1.14.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "9ad79038952d7b21538bf5e19e61b4200ca7963d",
-      "shortSha": "9ad7903",
-      "message": "1.15.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "cbb4aa105e89323b41a47bdfc0e9f501078a8cd0",
-      "shortSha": "cbb4aa1",
-      "message": "docs: add --auto flag to new-project command table",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "d1654960ab41d5664c30dc4b065ef64b960dbc1f",
-      "shortSha": "d165496",
-      "message": "feat(install): respect attribution.commit setting (compatible opencode) (#286)",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "5a2f5fa82205bc865f4b6a610b860a05523f57e0",
-      "shortSha": "5a2f5fa",
-      "message": "docs: update changelog for v1.17.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "9adb09fd2991b50e745c1b661da210062fd8ff0c",
-      "shortSha": "9adb09f",
-      "message": "1.18.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "ddc736ecbb8174c0aea8c06cf1b138980508e8a4",
-      "shortSha": "ddc736e",
-      "message": "v1.11.3 - revert memory system",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
-    },
-    {
-      "sha": "ea0204bfc79b802c962883b44b7d71bcd455ce4a",
-      "shortSha": "ea0204b",
-      "message": "1.16.0",
-      "status": "skipped",
-      "reason": "cherry-pick continue failed"
+      "notes": "Merge commit — skipped per protocol."
     }
   ],
   "pending": [],
   "conflicted": null,
   "snapshots": [],
   "protectedPaths": [
+    "package.json",
+    "README.md",
+    "bin/install.js",
+    "bin/gsd.js",
+    "bin/validate-configs.js",
+    "hooks/gsd-statusline.js",
+    "hooks/gsd-check-update.js",
+    "hooks/pre-compact.js",
+    "hooks/pre-compact.sh",
+    "src/",
+    "tests/",
+    ".planning/",
+    ".upstream/",
+    "bun.lock",
     "eslint.config.js",
-    "src/validation/",
-    "get-stuff-done/",
-    "assets/gsd-logo-*",
-    "config/default-config.json",
-    "src/config/ConfigLoader.js",
-    "src/theme/"
+    "scripts/build.js",
+    "get-stuff-done/VERSION",
+    "get-stuff-done/bin/gsd-tools.cjs",
+    "get-stuff-done/bin/dist/",
+    "get-stuff-done/teams/",
+    "get-stuff-done/workflows/upstream-sync.md",
+    "commands/gsd/upstream.md",
+    "agents/gsd-oversight-*.md",
+    "agents/gsd-integration-checker.md",
+    "config/",
+    "docs/",
+    ".github/workflows/ci.yml"
   ],
   "stats": {
-    "totalCommits": 72,
-    "mergeCommitsSkipped": 7,
-    "applied": 45,
-    "conflicts": 36,
-    "eslintFixes": 14,
-    "brandingCorrections": 0
+    "totalCommits": 75,
+    "mergeCommitsSkipped": 4,
+    "applied": 69,
+    "skipped": 6,
+    "conflicts": 40,
+    "brandingCorrections": 2
   },
-  "completedAt": "2026-02-08T20:53:40.453Z",
-  "brandingReconciled": true,
-  "reportPath": ".planning/phases/08-upstream-sync/sync-report.md",
-  "mergedAt": "2026-02-08T21:52:24.411Z",
-  "mergeSha": "75ecc4c6bbf07cfd51c63141af9c33964b33c246",
-  "mergeShortSha": "75ecc4c",
-  "mergeMethod": "no-ff",
-  "mergedInto": "main"
+  "meta": {
+    "lastSync": "2026-02-23",
+    "syncedThrough": "upstream/main (HEAD at 131f24b)"
+  }
 }

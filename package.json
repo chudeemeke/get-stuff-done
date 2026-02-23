@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code. Fork of GSD by TACHES.",
+  "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode and Gemini. Fork of GSD by TACHES.",
   "bin": {
     "get-stuff-done": "bin/install.js",
     "gsd": "bin/gsd.js"
@@ -24,7 +24,11 @@
     "ai",
     "meta-prompting",
     "context-engineering",
-    "spec-driven-development"
+    "spec-driven-development",
+    "gemini",
+    "gemini-cli",
+    "mistral-vibe",
+    "vibe-cli"
   ],
   "author": "Chude (fork), TACHES (original)",
   "license": "MIT",
@@ -59,6 +63,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "bun test",
-    "test:coverage": "bun test --coverage"
+    "test:coverage": "bun test --coverage",
+    "test:upstream": "node --test tests/*.test.cjs"
   }
 }

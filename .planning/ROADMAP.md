@@ -81,9 +81,9 @@ Plans:
   2. The sync workflow automatically creates restore points before each cherry-pick batch, and the user can rollback to the last known-good state with a single command when something fails
   3. Running sync with --dry-run shows the full sync plan (commits to cherry-pick, predicted conflicts based on file overlap analysis, estimated effort) without modifying any files or git state
   4. Safety features work on all 3 platforms (macOS, Linux, Windows Git Bash)
-**Plans:** 2 plans
+**Plans:** 2 plans in 2 waves
 Plans:
-- [ ] 20-01-PLAN.md -- Create sync.cjs plumbing module with preview and checkpoint CLI commands
+- [ ] 20-01-PLAN.md -- Create sync.cjs plumbing module with preview and checkpoint CLI commands + tests
 - [ ] 20-02-PLAN.md -- Enhance upstream-sync workflow with dry-run gate, sync-preview integration, and checkpoint rollback
 
 ### Phase 21: Sync Intelligence

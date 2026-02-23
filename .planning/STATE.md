@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 
 ## Current Position
 
-Phase: 18 of 22 (Upstream Sync Execution)
-Plan: 4 of TBD in current phase (18-01, 18-02, 18-03, 18-04 complete)
-Status: In progress
-Last activity: 2026-02-23 -- Batch 12 sync (v1.20.5..upstream/main HEAD, 7 commits) complete — fork current through upstream/main HEAD (131f24b)
+Phase: 18 of 22 (Upstream Sync Execution) — COMPLETE
+Plan: 5 of 5 in Phase 18 (all complete)
+Status: Phase complete — ready for Phase 19
+Last activity: 2026-02-23 -- sync/v1.20.5 merged to main (44c3359), 649 tests passing, CI green on all 3 platforms
 
-Progress: [####..........] 25% (v0.3.0: 1/5 phases partial — Phase 18 in progress)
+Progress: [#####.........] 30% (v0.3.0: 1/5 phases complete — Phase 18 done)
 
 ## Performance Metrics
 
@@ -28,15 +28,15 @@ Progress: [####..........] 25% (v0.3.0: 1/5 phases partial — Phase 18 in progr
 - Average duration: 8.3 minutes
 - Total execution time: 4.45 hours
 
-**v0.3.0 Velocity (in progress):**
-- Plans completed: 4 (18-01, 18-02, 18-03, 18-04)
+**v0.3.0 Velocity (Phase 18 complete):**
+- Plans completed: 5 (18-01 through 18-05)
 - Average duration: ~142 minutes
-- Total execution time: ~9.44 hours
+- Total execution time: ~11.83 hours
 
 **Cumulative:**
-- 2 milestones shipped
-- 48 plans completed across 18 phases
-- ~15.27 hours total execution time
+- 2 milestones shipped (v0.1.0, v0.2.0)
+- 53 plans completed across 18 phases
+- ~17.66 hours total execution time
 
 ## Accumulated Context
 
@@ -76,24 +76,29 @@ v0.3.0 decisions (Phase 18 Batch 12):
 - Bridge file pattern: statusline writes JSON to $TMPDIR; context-monitor reads it for WARNING/CRITICAL alerts
 - CI triggers on PR not branch push: full cross-platform CI validation deferred to Plan 18-05 PR creation
 
+v0.3.0 decisions (Phase 18 Plan 05 — merge):
+- Merge method: --no-ff (preserves sync/v1.20.5 branch history as distinct from main, clear merge point at 44c3359)
+- Lines coverage gap (94.00% vs 95% target): deferred to Phase 19, root cause is src/platform/detect.js OS-specific branches
+- PR #1 (https://github.com/chudeemeke/get-stuff-done/pull/1): CI green on all 3 platforms before merge approved
+
 ### Pending Todos
 
 None.
 
 ### Blockers/Concerns
 
-- All upstream commits through upstream/main HEAD (131f24b) applied -- sync complete
-- ESLint warnings: security warnings across lib/*.cjs modules (upstream code, non-blocking)
-- CI validation pending PR creation (Plan 18-05): cross-platform CI triggers on PR not branch push
+- Phase 18 complete: all 185 upstream commits integrated into main (44c3359 merge commit)
+- ESLint warnings: security warnings across lib/*.cjs modules (upstream code, non-blocking for Phase 19)
+- Lines coverage at 94.00% (below 95%): src/platform/detect.js at 67.47% due to OS-specific branches — Phase 19 concern
 
 ## Session Continuity
 
 Last session: 2026-02-23
-Status: 18-04 complete, branch sync/v1.20.5 current through upstream/main HEAD (131f24b), pushed to origin
-Stopped at: Completed 18-04-PLAN.md (Batch 12: gsd-tools module split, Nyquist validation, context-monitor, auto-advance fix, SUMMARY)
+Status: Phase 18 complete — sync/v1.20.5 merged to main (44c3359), manifest updated, 649 tests passing
+Stopped at: Completed 18-05-PLAN.md (merge to main, sync manifest finalized, SUMMARY created)
 Resume file: None
 
-**Next step:** Execute Plan 18-05 (merge sync branch to main, version bump, CI, npm publish)
+**Next step:** Execute Phase 19 (Post-Sync Stabilization — esbuild migration, feature overlap assessment)
 
 ---
-*Updated: 2026-02-23 (Plan 18-04 complete)*
+*Updated: 2026-02-23 (Phase 18 complete — Plan 18-05 done)*

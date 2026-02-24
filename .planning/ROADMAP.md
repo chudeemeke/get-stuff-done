@@ -33,8 +33,8 @@ See: .planning/milestones/v0.2.0-ROADMAP.md
 - [x] **Phase 18: Upstream Sync Execution** - Integrate 185 upstream commits and adopt modular gsd-tools architecture
 - [x] **Phase 19: Post-Sync Stabilization** - Migrate esbuild bundling to modular structure and assess upstream feature overlap (completed 2026-02-23)
 - [x] **Phase 20: Sync Safety & Transparency** - Diff preview, rollback snapshots, and dry-run mode for sync operations (completed 2026-02-23)
-- [ ] **Phase 21: Sync Intelligence** - Auto-update monitoring, GPG verification, and commit categorization
-- [ ] **Phase 22: Advanced Sync Automation** - Selective sync by category and AI-assisted conflict resolution
+- [ ] **Phase 21: Sync Intelligence** - Auto-update monitoring, GPG verification, and commit categorization (reassess scope -- upstream overlap)
+- [ ] **Phase 22: Advanced Sync Automation** - Selective sync by category and AI-assisted conflict resolution (reassess scope)
 
 ## Phase Details
 
@@ -114,6 +114,6 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 18. Upstream Sync Execution | v0.3.0 | 6/6 | Complete | 2026-02-23 |
 | 19. Post-Sync Stabilization | 3/3 | Complete    | 2026-02-23 | - |
-| 20. Sync Safety & Transparency | 2/2 | Complete    | 2026-02-23 | - |
-| 21. Sync Intelligence | v0.3.0 | 0/TBD | Not started | - |
-| 22. Advanced Sync Automation | v0.3.0 | 0/TBD | Not started | - |
+| 20. Sync Safety & Transparency | v0.3.0 | 2/2 | Complete | 2026-02-23 |
+| 21. Sync Intelligence | v0.3.0 | 0/TBD | Not started (reassess) | - |
+| 22. Advanced Sync Automation | v0.3.0 | 0/TBD | Not started (reassess) | - |

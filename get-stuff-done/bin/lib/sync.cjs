@@ -8,6 +8,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { spawnSync } = require('child_process');
 const { execGit, output, error, safeReadFile } = require('./core.cjs');
 
@@ -357,6 +358,361 @@ function classifyCommit(subject, files) {
   return { type: 'other', confidence: 'low' };
 }
 
+// ─── Supply Chain Scanner ─────────────────────────────────────────────────────
+
+/**
+ * Extract lines from diff text that contain a given pattern.
+ * Returns up to 5 matching lines as evidence strings.
+ *
+ * @param {string} diff - Full diff text
+ * @param {RegExp[]} patterns - Patterns to search for
+ * @returns {string[]}
+ */
+function extractEvidenceLines(diff, patterns) {
+  const evidence = [];
+  for (const line of diff.split('\n')) {
+    if (evidence.length >= 5) break;
+    for (const re of patterns) {
+      if (re.test(line)) {
+        evidence.push(line.slice(0, 200)); // cap line length
+        break;
+      }
+    }
+  }
+  return evidence;
+}
+
+/**
+ * Check 1: Prompt Integrity Scanner
+ *
+ * Detects potential prompt injection attacks targeting AI execution files.
+ * ELEVATED severity. Requires BOTH file-path AND content check to trigger.
+ *
+ * @param {string} diff - Full diff text
+ * @param {Array<{path: string}>} files - Files changed in commit
+ * @returns {{triggered: string[], evidence: string[]}|null}
+ */
+function checkPromptIntegrity(diff, files) {
+  const PROMPT_DIRS = ['workflows/', 'agents/', 'commands/', 'templates/'];
+
+  // File-path gate: at least one .md file in a PROMPT_DIR required
+  const hasPromptFile = files.some(f =>
+    f.path && f.path.endsWith('.md') && PROMPT_DIRS.some(d => f.path.startsWith(d))
+  );
+  if (!hasPromptFile) return null;
+
+  // Content checks (any ONE match elevates the finding)
+  const INJECTION_PATTERNS = [
+    /ignore previous instructions?/i,
+    /override (your|all) instructions?/i,
+    /new instructions?:/i,
+    /you are now/i,
+    /disregard/i,
+  ];
+  const HIDDEN_UNICODE = /[\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]/;
+  const CREDENTIAL_EXPAND = /~\/\.ssh|~\/\.aws|\.env|credentials/i;
+  const TOOL_CHANGE = /^[+-].*tools:/m;
+  const GUARDRAIL_REMOVAL = /^-.*\b(safe|blocked?|forbidden|disallow|prevent|restrict)\b/im;
+
+  const triggered = [];
+  const evidence = [];
+
+  if (INJECTION_PATTERNS.some(p => p.test(diff))) {
+    triggered.push('injection-pattern');
+    evidence.push(...extractEvidenceLines(diff, INJECTION_PATTERNS));
+  }
+  if (HIDDEN_UNICODE.test(diff)) {
+    triggered.push('hidden-unicode');
+    evidence.push(...extractEvidenceLines(diff, [HIDDEN_UNICODE]));
+  }
+  if (CREDENTIAL_EXPAND.test(diff)) {
+    triggered.push('credential-expand');
+    evidence.push(...extractEvidenceLines(diff, [CREDENTIAL_EXPAND]));
+  }
+  if (TOOL_CHANGE.test(diff)) {
+    triggered.push('tool-list-change');
+    evidence.push(...extractEvidenceLines(diff, [TOOL_CHANGE]));
+  }
+  if (GUARDRAIL_REMOVAL.test(diff)) {
+    triggered.push('guardrail-removal');
+    evidence.push(...extractEvidenceLines(diff, [GUARDRAIL_REMOVAL]));
+  }
+
+  if (triggered.length === 0) return null;
+  return { triggered, evidence: evidence.slice(0, 5) };
+}
+
+/**
+ * Check 2: Dependency Diff Guard
+ *
+ * Detects changes to package dependencies or new import/require statements.
+ *
+ * @param {string} diff - Full diff text
+ * @param {Array<{path: string}>} files - Files changed in commit
+ * @returns {{triggered: string[], evidence: string[]}|null}
+ */
+function checkDependencyDiff(diff, files) {
+  const DEP_FILES = ['package.json', 'bun.lock', 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml'];
+
+  const hasDepFile = files.some(f => f.path && DEP_FILES.some(d => f.path.endsWith(d)));
+  const hasNewRequire = /^\+.*\brequire\s*\(/m.test(diff);
+  const hasNewImport = /^\+.*\bimport\s+/m.test(diff);
+
+  if (!hasDepFile && !hasNewRequire && !hasNewImport) return null;
+
+  const triggered = [];
+  const evidence = [];
+
+  if (hasDepFile) {
+    // Parse package.json additions/removals/changes
+    const addedPkgs = diff.match(/^\+\s+"[^"]+"\s*:/gm) || [];
+    const removedPkgs = diff.match(/^-\s+"[^"]+"\s*:/gm) || [];
+    if (addedPkgs.length > 0) {
+      triggered.push('dependency-added');
+      evidence.push(...addedPkgs.slice(0, 3).map(l => l.trim()));
+    }
+    if (removedPkgs.length > 0) {
+      triggered.push('dependency-removed');
+      evidence.push(...removedPkgs.slice(0, 3).map(l => l.trim()));
+    }
+    if (triggered.length === 0) {
+      // Lockfile or other dep file change with no clear pkg lines
+      triggered.push('dependency-file-changed');
+      evidence.push(...files.filter(f => DEP_FILES.some(d => f.path.endsWith(d))).map(f => f.path));
+    }
+  }
+  if (hasNewRequire) {
+    triggered.push('new-require');
+    evidence.push(...extractEvidenceLines(diff, [/^\+.*\brequire\s*\(/m]));
+  }
+  if (hasNewImport) {
+    triggered.push('new-import');
+    evidence.push(...extractEvidenceLines(diff, [/^\+.*\bimport\s+/m]));
+  }
+
+  return { triggered, evidence: evidence.slice(0, 5) };
+}
+
+/**
+ * Check 3: Execution Path Sentinel
+ *
+ * Detects commits touching install scripts, hooks, executables, or CI configs.
+ * File-path only check -- runs even on large diffs.
+ *
+ * @param {Array<{path: string}>} files - Files changed in commit
+ * @returns {{triggered: string[], evidence: string[]}|null}
+ */
+function checkExecutionPath(files) {
+  const EXEC_PATTERNS = [
+    /^bin\//,
+    /^hooks\//,
+    /^scripts\//,
+    /^\.github\/workflows\//,
+    /^\.github\/actions\//,
+    /^Makefile$/,
+    /^Dockerfile/,
+    /install/i,
+  ];
+
+  const matchingFiles = files.filter(f =>
+    f.path && EXEC_PATTERNS.some(p => p.test(f.path))
+  );
+
+  if (matchingFiles.length === 0) return null;
+
+  return {
+    triggered: ['execution-path-changed'],
+    evidence: matchingFiles.map(f => f.path),
+  };
+}
+
+/**
+ * Check 4: Network Endpoint Audit
+ *
+ * Detects new URLs, fetch/http calls, and network-related additions.
+ * Only flags lines starting with + (additions, not removals).
+ *
+ * @param {string} diff - Full diff text
+ * @returns {{triggered: string[], evidence: string[]}|null}
+ */
+function checkNetworkEndpoints(diff) {
+  const NET_PATTERNS = [
+    { name: 'fetch-call', re: /^\+.*\bfetch\s*\(/m },
+    { name: 'http-request', re: /^\+.*\bhttp\.request\s*\(/m },
+    { name: 'http-get', re: /^\+.*\bhttp\.get\s*\(/m },
+    { name: 'new-url', re: /^\+.*\bnew\s+URL\s*\(/m },
+    { name: 'axios', re: /^\+.*\baxios\b/m },
+    { name: 'xhr', re: /^\+.*\bXMLHttpRequest\b/m },
+    { name: 'url-literal', re: /^\+.*https?:\/\/[^\s'")\]]+/m },
+  ];
+
+  const triggered = [];
+  const evidence = [];
+
+  for (const { name, re } of NET_PATTERNS) {
+    if (re.test(diff)) {
+      triggered.push(name);
+      evidence.push(...extractEvidenceLines(diff, [re]));
+    }
+  }
+
+  if (triggered.length === 0) return null;
+  return { triggered, evidence: evidence.slice(0, 5) };
+}
+
+/**
+ * Check 5: Obfuscation Detector
+ *
+ * Detects eval(), new Function(), long base64 strings, and hex payloads.
+ * Only checks lines starting with + (additions).
+ *
+ * @param {string} diff - Full diff text
+ * @param {Array<{path: string}>} files - Files changed in commit
+ * @returns {{triggered: string[], evidence: string[]}|null}
+ */
+function checkObfuscation(diff, files) {
+  // Only examine added lines
+  const addedLines = diff.split('\n').filter(l => l.startsWith('+') && !l.startsWith('+++'));
+
+  const OBF_PATTERNS = [
+    { name: 'eval', re: /\beval\s*\(/ },
+    { name: 'dynamic-function', re: /\bnew\s+Function\s*\(/ },
+    { name: 'base64-payload', re: /[A-Za-z0-9+/=]{200,}/ },
+    { name: 'hex-payload', re: /(?:\\x[0-9a-fA-F]{2}){11,}/ },
+  ];
+
+  const triggered = [];
+  const evidence = [];
+
+  for (const { name, re } of OBF_PATTERNS) {
+    const matchingLines = addedLines.filter(l => re.test(l));
+    if (matchingLines.length > 0) {
+      triggered.push(name);
+      evidence.push(...matchingLines.slice(0, 2).map(l => l.slice(0, 200)));
+    }
+  }
+
+  if (triggered.length === 0) return null;
+  return { triggered, evidence: evidence.slice(0, 5) };
+}
+
+/**
+ * Check 6: Author Anomaly Detection (pure function, stateless)
+ *
+ * Checks if a commit author is in the known authors set.
+ *
+ * @param {string} authorString - "Name <email>" format
+ * @param {Set<string>} knownAuthors - Set of known author strings
+ * @returns {{isKnown: boolean, author?: string}}
+ */
+function checkAuthorAnomaly(authorString, knownAuthors) {
+  if (knownAuthors.has(authorString)) {
+    return { isKnown: true };
+  }
+  return { isKnown: false, author: authorString };
+}
+
+/**
+ * Load known authors from persistent JSON cache.
+ *
+ * @param {string} cacheDir - Directory containing gsd-upstream-authors.json
+ * @returns {Set<string>}
+ */
+function loadKnownAuthors(cacheDir) {
+  const file = path.join(cacheDir, 'gsd-upstream-authors.json');
+  try {
+    const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    return new Set(data.authors || []);
+  } catch {
+    return new Set();
+  }
+}
+
+/**
+ * Save known authors to persistent JSON cache.
+ *
+ * @param {string} cacheDir - Directory to write gsd-upstream-authors.json
+ * @param {Set<string>} authorsSet - Authors to persist
+ */
+function saveKnownAuthors(cacheDir, authorsSet) {
+  fs.mkdirSync(cacheDir, { recursive: true });
+  const file = path.join(cacheDir, 'gsd-upstream-authors.json');
+  fs.writeFileSync(file, JSON.stringify({ authors: [...authorsSet], updated: Date.now() }));
+}
+
+/**
+ * Seed known authors from git log (used on first run when cache is empty).
+ * Runs git log --format='%an <%ae>', deduplicates, and saves to cache.
+ *
+ * @param {string} cwd - Working directory (git repo)
+ * @param {string} cacheDir - Directory to write gsd-upstream-authors.json
+ * @returns {Set<string>}
+ */
+function seedKnownAuthors(cwd, cacheDir) {
+  const result = spawnGit(cwd, ['log', '--format=%an <%ae>']);
+  if (result.exitCode !== 0 || !result.stdout) {
+    return new Set();
+  }
+  const authors = new Set(result.stdout.split('\n').filter(Boolean));
+  saveKnownAuthors(cacheDir, authors);
+  return authors;
+}
+
+/**
+ * Orchestrate all 6 supply chain checks for a single commit.
+ *
+ * @param {string} diff - Full diff text from git show
+ * @param {Array<{path: string}>} files - Files changed in commit
+ * @param {string} authorString - Commit author "Name <email>"
+ * @param {Set<string>} knownAuthors - Set of known author strings
+ * @returns {Array<{check: string, severity: string, triggered: string[], evidence: string[]}>}
+ */
+function runSupplyChainChecks(diff, files, authorString, knownAuthors) {
+  const findings = [];
+
+  // Diff size guard: skip content-based checks for very large diffs (Pitfall 3)
+  const diffTooLarge = diff.length > 500 * 1024;
+  const safeDiff = diffTooLarge ? '' : diff;
+
+  // Check 1 (ELEVATED -- primary check, highest display prominence)
+  const promptRisk = checkPromptIntegrity(safeDiff, files);
+  if (promptRisk) findings.push({ check: 'prompt-integrity', severity: 'elevated', ...promptRisk });
+
+  // Check 2
+  const depRisk = checkDependencyDiff(safeDiff, files);
+  if (depRisk) findings.push({ check: 'dependency-diff', severity: 'high', ...depRisk });
+
+  // Check 3 (file-path only -- runs even on large diffs)
+  const execRisk = checkExecutionPath(files);
+  if (execRisk) findings.push({ check: 'execution-path', severity: 'high', ...execRisk });
+
+  // Check 4
+  const netRisk = checkNetworkEndpoints(safeDiff);
+  if (netRisk) findings.push({ check: 'network-endpoints', severity: 'medium', ...netRisk });
+
+  // Check 5
+  const obfRisk = checkObfuscation(safeDiff, files);
+  if (obfRisk) findings.push({ check: 'obfuscation', severity: 'high', ...obfRisk });
+
+  // Check 6 -- author anomaly (stateless check; caller manages cache)
+  const authorResult = checkAuthorAnomaly(authorString, knownAuthors);
+  if (!authorResult.isKnown) {
+    findings.push({ check: 'author-anomaly', severity: 'medium', author: authorResult.author, triggered: ['unknown-author'], evidence: [authorResult.author] });
+  }
+
+  // If diff was too large, add an informational finding
+  if (diffTooLarge) {
+    findings.push({
+      check: 'diff-size',
+      severity: 'info',
+      triggered: ['diff-too-large'],
+      evidence: [`Diff is ${Math.round(diff.length / 1024)}KB, content checks skipped`],
+    });
+  }
+
+  return findings;
+}
+
 // ─── CLI Commands ──────────────────────────────────────────────────────────────
 
 /**
@@ -403,9 +759,17 @@ function cmdSyncPreview(cwd, range, options, raw) {
   // Load protected paths
   const protectedPaths = loadProtectedPaths(cwd);
 
+  // Load known authors for supply chain author anomaly detection
+  const cacheDir = path.join(os.homedir(), '.claude', 'cache');
+  let knownAuthors = loadKnownAuthors(cacheDir);
+  if (knownAuthors.size === 0) {
+    knownAuthors = seedKnownAuthors(cwd, cacheDir);
+  }
+
   // Build per-commit data
   const allCommitFiles = [];
   const enrichedCommits = [];
+  const newAuthors = new Set();
 
   for (const commit of commits) {
     const files = getFilesForCommit(cwd, commit.hash);
@@ -421,6 +785,16 @@ function cmdSyncPreview(cwd, range, options, raw) {
     const conflictRisk = assessConflictRiskByOverlap(cwd, files);
     const classification = classifyCommit(commit.subject, enrichedFiles);
 
+    // Fetch full diff for supply chain analysis
+    const diffResult = spawnGit(cwd, ['show', '--format=', commit.hash]);
+    const diff = diffResult.exitCode === 0 ? diffResult.stdout : '';
+    const supplyChainRisks = runSupplyChainChecks(diff, enrichedFiles, commit.author, knownAuthors);
+
+    // Track new authors for cache update after loop
+    if (!knownAuthors.has(commit.author)) {
+      newAuthors.add(commit.author);
+    }
+
     enrichedCommits.push({
       hash: commit.hash,
       hashShort: commit.hashShort,
@@ -431,7 +805,16 @@ function cmdSyncPreview(cwd, range, options, raw) {
       conflictRisk,
       securityFlags: sensitiveFiles.map(f => f.path),
       classification,
+      supplyChainRisks,
     });
+  }
+
+  // Persist any new authors encountered to the cache
+  if (newAuthors.size > 0) {
+    for (const author of newAuthors) {
+      knownAuthors.add(author);
+    }
+    saveKnownAuthors(cacheDir, knownAuthors);
   }
 
   // Effort estimate
@@ -457,6 +840,8 @@ function cmdSyncPreview(cwd, range, options, raw) {
     else byType.other++;
   }
 
+  const supplyChainFindings = enrichedCommits.filter(c => c.supplyChainRisks.length > 0).length;
+
   if (options && options.json) {
     // JSON output path: structured schema
     const result = {
@@ -468,6 +853,7 @@ function cmdSyncPreview(cwd, range, options, raw) {
         highRiskCount,
         overlapRiskCount,
         byType,
+        supplyChainFindings,
       },
       effortEstimate,
     };
@@ -541,6 +927,27 @@ function cmdSyncPreview(cwd, range, options, raw) {
         out += prefix + f.status + ' ' + f.path + '\n';
       }
     }
+
+    // Supply chain risk badges
+    if (commit.supplyChainRisks && commit.supplyChainRisks.length > 0) {
+      for (const finding of commit.supplyChainRisks) {
+        let badgeAnsi;
+        if (finding.severity === 'elevated' || finding.severity === 'high') {
+          badgeAnsi = RED;
+        } else if (finding.severity === 'medium') {
+          badgeAnsi = YELLOW;
+        } else {
+          badgeAnsi = DIM;
+        }
+        const evidenceSummary = finding.evidence && finding.evidence.length > 0
+          ? finding.evidence[0].slice(0, 80)
+          : '';
+        out += '  ' + badgeAnsi + '[RISK:' + finding.check + ']' + RESET + ' ' + finding.severity;
+        if (evidenceSummary) out += ': ' + evidenceSummary;
+        out += '\n';
+      }
+    }
+
     out += '\n';
   }
 
@@ -674,4 +1081,15 @@ module.exports = {
   assessConflictRiskByOverlap,
   computeEffortEstimate,
   classifyCommit,
+  // Supply chain scanner
+  checkPromptIntegrity,
+  checkDependencyDiff,
+  checkExecutionPath,
+  checkNetworkEndpoints,
+  checkObfuscation,
+  checkAuthorAnomaly,
+  runSupplyChainChecks,
+  loadKnownAuthors,
+  saveKnownAuthors,
+  seedKnownAuthors,
 };

@@ -282,6 +282,81 @@ function computeEffortEstimate(cwd, pendingCount) {
   };
 }
 
+// ─── Commit Classification ────────────────────────────────────────────────────
+
+/**
+ * Classify a commit by subject and changed files into a semantic type.
+ *
+ * Classification precedence (highest to lowest):
+ *   1. Security keywords in subject
+ *   2. Breaking change marker (! or BREAKING CHANGE)
+ *   3. Conventional commit prefix (feat, fix, refactor, docs, chore, test, perf, style)
+ *   4. File-path heuristics (docs/, tests/, bin/, hooks/)
+ *   5. Fallback: 'other'
+ *
+ * @param {string} subject - Commit subject line
+ * @param {Array<{path: string}>} files - Files changed in the commit
+ * @returns {{type: string, confidence: 'high'|'medium'|'low'}}
+ */
+function classifyCommit(subject, files) {
+  const subjectStr = typeof subject === 'string' ? subject : '';
+
+  // Tier 1: Security keywords (highest priority)
+  const SECURITY_RE = /\b(security|cve|vuln|exploit|xss|sqli|rce|injection)\b/i;
+  if (SECURITY_RE.test(subjectStr)) {
+    return { type: 'security', confidence: 'high' };
+  }
+
+  // Tier 2: Breaking change markers
+  // Matches "feat!:" or "feat(scope)!:" or bare "BREAKING CHANGE" keyword
+  const BREAKING_PREFIX_RE = /^[a-z]+(\(.+\))?!:/;
+  if (BREAKING_PREFIX_RE.test(subjectStr) || subjectStr.includes('BREAKING CHANGE')) {
+    return { type: 'breaking', confidence: 'high' };
+  }
+
+  // Tier 3: Conventional commit prefix
+  const CONVENTIONAL_RE = /^(feat|fix|refactor|docs|chore|test|perf|style)(\(.+\))?:/i;
+  const convMatch = subjectStr.match(CONVENTIONAL_RE);
+  if (convMatch) {
+    const prefix = convMatch[1].toLowerCase();
+    // Normalize aliases
+    let type = prefix;
+    if (prefix === 'test' || prefix === 'style') type = 'chore';
+    if (prefix === 'perf') type = 'refactor';
+    return { type, confidence: 'high' };
+  }
+
+  // Tier 4: File-path heuristics (fallback when no conventional prefix)
+  const filePaths = Array.isArray(files) ? files.map(f => f && f.path || '') : [];
+
+  // docs/ or .md extension files (but not bin/ or hooks/)
+  const hasDocs = filePaths.some(p => {
+    if (p.startsWith('bin/') || p.startsWith('hooks/')) return false;
+    return p.startsWith('docs/') || p.endsWith('.md');
+  });
+  if (hasDocs) {
+    return { type: 'docs', confidence: 'medium' };
+  }
+
+  // tests/ or .test. or .spec. files (but not bin/ or hooks/)
+  const hasTest = filePaths.some(p => {
+    if (p.startsWith('bin/') || p.startsWith('hooks/')) return false;
+    return p.startsWith('tests/') || p.includes('.test.') || p.includes('.spec.');
+  });
+  if (hasTest) {
+    return { type: 'chore', confidence: 'medium' };
+  }
+
+  // bin/ or hooks/ files
+  const hasBinOrHooks = filePaths.some(p => p.startsWith('bin/') || p.startsWith('hooks/'));
+  if (hasBinOrHooks) {
+    return { type: 'feat', confidence: 'low' };
+  }
+
+  // Tier 5: Fallback
+  return { type: 'other', confidence: 'low' };
+}
+
 // ─── CLI Commands ──────────────────────────────────────────────────────────────
 
 /**
@@ -576,4 +651,5 @@ module.exports = {
   isSensitivePath,
   assessConflictRiskByOverlap,
   computeEffortEstimate,
+  classifyCommit,
 };

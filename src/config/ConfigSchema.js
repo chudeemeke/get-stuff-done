@@ -42,6 +42,13 @@ const configSchema = {
         theme: { type: 'string', default: 'aidev' }
       },
       additionalProperties: false
+    },
+    gsd: {
+      type: 'object',
+      properties: {
+        role: { type: 'string', enum: ['consumer', 'maintainer'], default: 'consumer' }
+      },
+      additionalProperties: false
     }
   },
   required: ['version'],

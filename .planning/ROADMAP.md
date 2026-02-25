@@ -94,7 +94,7 @@ Plans:
   1. The system periodically checks for new upstream commits and displays a summary categorized by severity (breaking changes, security fixes, features, bug fixes, chores) with visual indicators
   2. Supply chain integrity analysis scans upstream commits for 6 documented attack vectors (prompt injection, dependency hijack, execution path compromise, network exfiltration, obfuscation, author anomaly) and surfaces findings in the sync preview
   3. Every upstream commit is automatically classified as feature/fix/refactor/docs/chore based on commit message parsing and file path analysis, with the classification visible in the sync preview
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 Plans:
 - [ ] 21-01-PLAN.md -- Commit classifier in sync.cjs + ConfigSchema gsd.role fix + extended sync-preview with classification
 - [ ] 21-02-PLAN.md -- Supply chain integrity scanner (6 checks) in sync.cjs + extended sync-preview with risk data
@@ -119,5 +119,5 @@ Plans:
 | 18. Upstream Sync Execution | v0.3.0 | 6/6 | Complete | 2026-02-23 |
 | 19. Post-Sync Stabilization | 3/3 | Complete    | 2026-02-23 | - |
 | 20. Sync Safety & Transparency | v0.3.0 | 2/2 | Complete | 2026-02-23 |
-| 21. Sync Intelligence | 1/3 | In Progress|  | - |
+| 21. Sync Intelligence | 2/3 | In Progress|  | - |
 | 22. Advanced Sync Automation | v0.3.0 | 0/TBD | Not started (reassess) | - |

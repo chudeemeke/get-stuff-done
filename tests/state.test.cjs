@@ -6,7 +6,7 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runGsdTools, runGsdToolsDirect, createTempProject, cleanup } = require('./helpers.cjs');
 
 describe('state-snapshot command', () => {
   let tmpDir;
@@ -191,12 +191,10 @@ describe('state mutation commands', () => {
     cleanup(tmpDir);
   });
 
-  // Direct dollar-sign CLI arguments are mangled by MINGW shell expansion on Windows
-  // ($0, $1, $2 expand as positional params). The file-input variants below cover
-  // dollar-sign preservation cross-platform.
+  // These tests use runGsdToolsDirect (execFileSync array form) instead of
+  // runGsdTools (execSync string form) because dollar-sign arguments like
+  // $0.50 are expanded by MINGW shell on Windows. Array form bypasses shell.
   test('add-decision preserves dollar amounts without corrupting Decisions section', () => {
-    if (process.platform === 'win32') return; // MINGW shell expands $N; see file-input variant below
-
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'STATE.md'),
       `# Project State
@@ -209,8 +207,10 @@ None
 `
     );
 
-    const result = runGsdTools(
-      "state add-decision --phase 11-01 --summary 'Benchmark prices moved from $0.50 to $2.00 to $5.00' --rationale 'track cost growth'",
+    const result = runGsdToolsDirect(
+      ['state', 'add-decision', '--phase', '11-01',
+       '--summary', 'Benchmark prices moved from $0.50 to $2.00 to $5.00',
+       '--rationale', 'track cost growth'],
       tmpDir
     );
     assert.ok(result.success, `Command failed: ${result.error}`);
@@ -226,8 +226,6 @@ None
   });
 
   test('add-blocker preserves dollar strings without corrupting Blockers section', () => {
-    if (process.platform === 'win32') return; // MINGW shell expands $N; see file-input variant below
-
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'STATE.md'),
       `# Project State
@@ -240,7 +238,10 @@ None
 `
     );
 
-    const result = runGsdTools("state add-blocker --text 'Waiting on vendor quote $1.00 before approval'", tmpDir);
+    const result = runGsdToolsDirect(
+      ['state', 'add-blocker', '--text', 'Waiting on vendor quote $1.00 before approval'],
+      tmpDir
+    );
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');

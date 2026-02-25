@@ -26,7 +26,7 @@ Requirements for v0.3.0 Upstream Sync & Workflow Maturity. Phases continue from 
 ### Sync Workflow - Advanced Automation
 
 - [ ] **SYNC-07**: GPG verification of upstream commits -- validate commit signatures when available, warn on unsigned commits in security-sensitive paths
-- [ ] **SYNC-08**: Auto-categorization of upstream changes -- classify each commit as feature/fix/refactor/docs/chore using commit message parsing and file path analysis
+- [x] **SYNC-08**: Auto-categorization of upstream changes -- classify each commit as feature/fix/refactor/docs/chore using commit message parsing and file path analysis
 - [ ] **SYNC-09**: Selective sync -- allow cherry-picking specific categories or individual commits instead of all-or-nothing, with dependency tracking between related commits
 - [ ] **SYNC-10**: AI-assisted conflict resolution -- when cherry-pick conflicts arise, use Claude to analyze both sides, suggest resolutions that preserve fork identity, and explain the conflict context
 
@@ -75,7 +75,7 @@ These requirements activate based on ASSESS-01 and ASSESS-02 outcomes. Scope TBD
 | SYNC-03 | Phase 21 | Pending |
 | SYNC-04 | Phase 20 | Complete |
 | SYNC-07 | Phase 21 | Pending |
-| SYNC-08 | Phase 21 | Pending |
+| SYNC-08 | Phase 21 | Complete |
 | SYNC-09 | Phase 22 | Pending |
 | SYNC-10 | Phase 22 | Pending |
 | ASSESS-01 | Phase 19 | Complete |

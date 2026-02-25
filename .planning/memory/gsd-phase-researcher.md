@@ -1,7 +1,7 @@
 ---
 agent: gsd-phase-researcher
-updated: 2026-02-23
-entries: 30
+updated: 2026-02-25
+entries: 35
 ---
 
 - finding: "esbuild is already a devDependency (v0.24.2) in get-stuff-done and is importable via require('esbuild') from project root. It bundles all three hooks successfully with zero errors."
@@ -179,3 +179,33 @@ entries: 30
   confidence: HIGH
   phase: "20-sync-safety-transparency"
   date: "2026-02-23"
+
+- finding: "Phase 21 ConfigSchema bug: src/config/ConfigSchema.js has additionalProperties: false at the top level with no 'gsd' section. gsd-statusline.js reads gsd.role via getConfigValue(config, 'gsd.role', 'consumer') but any user setting gsd: { role: 'maintainer' } in ~/.gsd/config.json will get a validation error and role always falls back to 'consumer'. Fix: add gsd section with role enum ['consumer', 'maintainer'] to ConfigSchema.js before Phase 21 monitoring depends on role detection."
+  source: "Phase 21, Sync Intelligence Research"
+  confidence: HIGH
+  phase: "21-sync-intelligence"
+  date: "2026-02-25"
+
+- finding: "Phase 21 gsd-check-update.js background process pattern: the hook spawns a child process via spawn(process.execPath, ['-e', codeString]) and unref()s it. Values from the parent scope are injected into the child via JSON.stringify() interpolation. Role detection for maintainer/consumer path must be done in the parent (via ConfigLoader) and injected as a string variable into the spawn code, matching the existing projectVersionFile/globalVersionFile injection pattern."
+  source: "Phase 21, Sync Intelligence Research"
+  confidence: HIGH
+  phase: "21-sync-intelligence"
+  date: "2026-02-25"
+
+- finding: "Phase 21 supply chain diff acquisition: git show --format= <sha> produces full patch text for a commit without the commit header. This is the correct command to pass to supply chain pattern-matching functions. Large commits (diff > 500KB) should skip obfuscation/injection pattern matching and flag as 'diff too large to scan'; file-path-based checks (prompt integrity, execution path, dependency diff) still run since they need only file lists."
+  source: "Phase 21, Sync Intelligence Research"
+  confidence: HIGH
+  phase: "21-sync-intelligence"
+  date: "2026-02-25"
+
+- finding: "Phase 21 author anomaly seeding: on first run (empty/missing author cache at ~/.claude/cache/gsd-upstream-authors.json), seed from existing repo git log using spawnGit(cwd, ['log', '--format=%an <%ae>']). Without seeding, every commit in the first /gsd:upstream run will be flagged as unknown author, producing a wall of false positives that destroys trust in the check."
+  source: "Phase 21, Sync Intelligence Research"
+  confidence: HIGH
+  phase: "21-sync-intelligence"
+  date: "2026-02-25"
+
+- finding: "Phase 21 plan sequencing: implement in 3 plans. Plan 1: classifyCommit() + runSupplyChainChecks() in sync.cjs + extended cmdSyncPreview --json output (classification + supplyChainRisks fields per commit, byType + supplyChainFindings in summary). Plan 2: ConfigSchema gsd section + gsd-check-update.js maintainer path (git fetch + count + classify) + gsd-statusline.js extended notification. Plan 3: /gsd:upstream workflow detailed view (3-layer depth: dashboard, auto-expand risk lines, on-demand clean diff). This order means classifier+scanner are testable via CLI before UX integration."
+  source: "Phase 21, Sync Intelligence Research"
+  confidence: HIGH
+  phase: "21-sync-intelligence"
+  date: "2026-02-25"

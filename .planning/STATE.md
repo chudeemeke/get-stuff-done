@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 Phase: 20 of 22 (Sync Safety & Transparency) -- Complete
 Upstream sync: v1.20.6+ integrated (20 commits, published as v2.3.0)
 Status: Phase 20 complete + upstream sync done. Open items remain before Phase 21.
-Last activity: 2026-02-24 -- Published v2.3.0 to npm after upstream sync
+Last activity: 2026-02-25 -- Completed quick task 3: fix the dollar-sign test approach
 
 Progress: [##########....] 68% (v0.3.0: 3/5 phases complete -- Phase 18, 19, 20 done; upstream synced to 3fddd62)
 
@@ -79,6 +79,12 @@ None.
 
 - Phase 21/22 scope needs reassessment against newly integrated upstream features (open item #1)
 - Lines coverage at 94.93%: detect.js now at 96.99%, remaining gap from test helpers (pre-existing)
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 3 | fix the dollar-sign test approach | 2026-02-25 | b585a43 | Verified | [3-fix-the-dollar-sign-test-approach](./quick/3-fix-the-dollar-sign-test-approach/) |
 
 ## Session Continuity
 

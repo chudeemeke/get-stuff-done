@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 
 ## Current Position
 
-Phase: 21 of 22 (Sync Intelligence) -- Plan 03 complete
+Phase: 21 of 22 (Sync Intelligence) -- All 3 plans complete
 Upstream sync: v1.20.6+ integrated (20 commits, published as v2.3.0)
-Status: Phase 21 Plan 03 complete. Maintainer git-based upstream check + rich statusline notification. Plans 01 and 03 done; Plan 02 (supply chain) independent.
-Last activity: 2026-02-25 -- Phase 21 Plan 03 executed
+Status: Phase 21 complete. Plans 01 (classifyCommit), 02 (supply chain scanner), and 03 (monitoring hook) all done.
+Last activity: 2026-02-25 -- Phase 21 Plan 02 executed
 
 Progress: [##########....] 68% (v0.3.0: 3/5 phases complete -- Phase 18, 19, 20 done; Phase 21 context ready)
 
@@ -68,6 +68,13 @@ v0.3.0 decisions (Phase 21, Plan 01):
 - test/perf/style conventional prefixes normalize to chore/refactor/chore for semantic grouping
 - byType summary uses fixed 8-type set; unknown types fall into 'other' bucket
 
+v0.3.0 decisions (Phase 21, Plan 02):
+- Prompt Integrity requires BOTH file-path AND content match to trigger elevated severity (file-path alone = null)
+- Diff size guard at 500KB: content-based checks skip on large diffs; execution-path (file-path only) always runs
+- Author cache seeded from git log on first run to avoid false-positive wall
+- runSupplyChainChecks is pure: caller (cmdSyncPreview) manages cache load/save
+- Supply chain findings are informational only: cmdSyncPreview never exits non-zero on supply chain results
+
 v0.3.0 decisions (Phase 21, Plan 03):
 - gsd.role injected into background subprocess via JSON.stringify (Option B from RESEARCH.md)
 - Classification logic duplicated inline in background process (cannot require sync.cjs from node -e without project node_modules)
@@ -100,13 +107,12 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Status: Phase 21 Plan 03 complete. Maintainer monitoring (git-based check + statusline) done. Plan 02 (supply chain scanner) still pending.
-Stopped at: Completed 21-sync-intelligence Plan 03 (21-03-PLAN.md)
-Resume file: .planning/phases/21-sync-intelligence/21-03-SUMMARY.md
+Status: Phase 21 complete. All 3 plans done: classifyCommit, supply chain scanner, monitoring hook.
+Stopped at: Completed 21-sync-intelligence Plan 02 (21-02-PLAN.md)
+Resume file: .planning/phases/21-sync-intelligence/21-02-SUMMARY.md
 
 **Next steps (in order):**
-1. Execute Phase 21 Plan 02 (supply chain scanner - independent of Plan 03)
-2. Reassess Phase 22 scope based on Phase 21 outcomes
+1. Reassess Phase 22 scope based on Phase 21 outcomes
 
 ---
 *Updated: 2026-02-25 (Phase 21 context gathered)*

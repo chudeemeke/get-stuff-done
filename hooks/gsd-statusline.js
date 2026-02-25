@@ -90,7 +90,7 @@ process.stdin.on('end', () => {
           const bridgeData = JSON.stringify({
             session_id: session,
             remaining_percentage: remaining,
-            used_pct: used,
+            used_pct: rawUsage,
             timestamp: Math.floor(Date.now() / 1000)
           });
           fs.writeFileSync(bridgePath, bridgeData);
@@ -153,15 +153,27 @@ process.stdin.on('end', () => {
     if (fs.existsSync(cacheFile)) {
       try {
         const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
-        if (cache.update_available) {
+        if (cache.update_available && !cache.fetch_error) {
           if (gsdRole === 'maintainer') {
-            // Maintainer sees upstream sync prompt
-            line2 = theme.text.notice.render('\uD83D\uDCE6 upstream updates | /gsd:upstream');
+            // Maintainer sees rich upstream notification with count + severity
+            const count = cache.upstream_count || 0;
+            const severity = cache.highest_severity || 'other';
+            // Severity label mapping per CONTEXT.md
+            const severityLabels = {
+              fix: 'fixes', feat: 'features', security: 'security fixes',
+              breaking: 'breaking changes', chore: 'chores', refactor: 'refactors',
+              docs: 'docs', other: 'changes'
+            };
+            const severityLabel = severityLabels[severity] || 'changes';
+            const countLabel = count === 1 ? '1 commit' : `${count} commits`;
+            line2 = theme.text.notice.render(
+              `${countLabel} upstream (${severityLabel}) | /gsd:upstream`
+            );
           } else {
-            // Consumer sees version update prompt
-            const current = cache.current_version || 'v0.1.0';
-            const latest = cache.latest_version || 'v0.2.0';
-            line2 = theme.text.notice.render(`\uD83D\uDCE6 ${current} \u2192 ${latest} | /gsd:update`);
+            // Consumer sees version update prompt (use correct cache field names)
+            const current = cache.installed || 'unknown';
+            const latest = cache.latest || 'unknown';
+            line2 = theme.text.notice.render(`${current} \u2192 ${latest} | /gsd:update`);
           }
         }
       } catch (e) {}

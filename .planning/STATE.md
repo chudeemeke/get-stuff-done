@@ -39,18 +39,12 @@ Progress: [##########....] 68% (v0.3.0: 3/5 phases complete -- Phase 18, 19, 20 
 
 ## Open Items
 
-### 1. Fix dollar-sign test approach (from upstream sync UAT)
-- **What:** Tests `add-decision preserves dollar amounts` and `add-blocker preserves dollar strings` use early-return on Windows instead of proper fix
-- **Proper fix:** Add `runGsdToolsDirect(argsArray, cwd)` helper using `execFileSync` (bypasses shell entirely), update these 2 tests to use it
-- **Files:** `tests/helpers.cjs`, `tests/state.test.cjs`
-- **Why:** Current approach silently passes on Windows; proper fix makes them actually test on all platforms
-
-### 2. Reassess Phase 21 and 22 scope
+### 1. Reassess Phase 21 and 22 scope
 - **What:** Upstream sync brought in features that overlap with Phase 21/22 goals: Nyquist validation, context window monitor, planning improvements, /gsd:add-tests
 - **Action:** Review Phase 21 (Sync Intelligence) and Phase 22 (Advanced Sync Automation) success criteria against what's now in the codebase. Some criteria may already be met or partially met.
 - **Consider:** Whether remaining Phase 21/22 work justifies 2 phases or can be consolidated
 
-### 3. Multi-runtime support (future milestone)
+### 2. Multi-runtime support (future milestone)
 - **What:** 6 upstream commits skipped (Codex: 409fc0d, 5a733dc, 12692ee, 186ca66, c1fae94; Gemini: 2c0db8e)
 - **Decision:** Separate milestone, not v0.3.0. Requires: branding pass for 3 runtimes, CI matrix expansion, installer test coverage, documentation
 - **Phases needed:** Cherry-pick + brand, installer tests, CI matrix, docs
@@ -72,7 +66,7 @@ v0.3.0 decisions (Phase 20):
 v0.3.0 decisions (Upstream sync 2026-02-24):
 - 20 of 38 upstream commits cherry-picked; skipped: merge commits (0 files), Codex (5), Gemini (1), module split (2, already done), version tags/changelogs (2)
 - .gitignore `.planning/` line reverted: upstream ignores it, fork tracks it
-- Dollar-sign CLI tests: early-return on Windows as interim fix; proper fix (execFileSync) deferred to open item #1
+- Dollar-sign CLI tests: proper fix applied (execFileSync array form via runGsdToolsDirect) -- tests now execute on all platforms
 - Conflict marker in gsd-plan-checker.md found and resolved during branding pass
 - Multi-runtime support deferred to separate milestone per user decision
 - Version bump: minor (2.2.1 -> 2.3.0) for features + bug fixes
@@ -83,21 +77,19 @@ None.
 
 ### Blockers/Concerns
 
-- Dollar-sign test early-return is a code smell (open item #1)
-- Phase 21/22 scope needs reassessment against newly integrated upstream features (open item #2)
+- Phase 21/22 scope needs reassessment against newly integrated upstream features (open item #1)
 - Lines coverage at 94.93%: detect.js now at 96.99%, remaining gap from test helpers (pre-existing)
 
 ## Session Continuity
 
-Last session: 2026-02-24
-Status: Phase 20 complete, upstream sync done, v2.3.0 published
-Stopped at: All sync work committed and pushed. 3 open items documented above.
+Last session: 2026-02-25
+Status: Quick task 3 complete. Phase 20 done, upstream sync done, v2.3.0 published
+Stopped at: Quick task 3 complete (dollar-sign test fix). 2 open items remain.
 Resume file: None
 
 **Next steps (in order):**
-1. Fix dollar-sign tests (open item #1) -- small, self-contained
-2. Reassess Phase 21/22 scope (open item #2) -- may change remaining roadmap
-3. Plan and execute Phase 21 (or consolidated phase if scope reduced)
+1. Reassess Phase 21/22 scope (open item #1) -- may change remaining roadmap
+2. Plan and execute Phase 21 (or consolidated phase if scope reduced)
 
 ---
-*Updated: 2026-02-24 (upstream sync complete, v2.3.0 published)*
+*Updated: 2026-02-25 (quick task 3: dollar-sign test fix applied)*

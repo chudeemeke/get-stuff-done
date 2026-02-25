@@ -5,7 +5,7 @@
  * The helpers/ directory provides the full set; this file re-exports and extends.
  */
 
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -18,6 +18,25 @@ const TOOLS_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tool
 function runGsdTools(args, cwd = process.cwd()) {
   try {
     const result = execSync(`node "${TOOLS_PATH}" ${args}`, {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { success: true, output: result.trim() };
+  } catch (err) {
+    return {
+      success: false,
+      output: err.stdout?.toString().trim() || '',
+      error: err.stderr?.toString().trim() || err.message,
+    };
+  }
+}
+
+// Shell-safe helper using execFileSync array form (bypasses shell entirely).
+// Use this when CLI arguments contain dollar signs or other shell-sensitive chars.
+function runGsdToolsDirect(argsArray, cwd = process.cwd()) {
+  try {
+    const result = execFileSync(process.execPath, [TOOLS_PATH, ...argsArray], {
       cwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -48,6 +67,7 @@ module.exports = {
   ...dirHelpers,
   // Additional helpers for upstream .test.cjs files
   runGsdTools,
+  runGsdToolsDirect,
   createTempProject,
   cleanup,
   TOOLS_PATH,

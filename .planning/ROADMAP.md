@@ -32,8 +32,8 @@ See: .planning/milestones/v0.2.0-ROADMAP.md
 
 - [x] **Phase 18: Upstream Sync Execution** - Integrate 185 upstream commits and adopt modular gsd-tools architecture
 - [x] **Phase 19: Post-Sync Stabilization** - Migrate esbuild bundling to modular structure and assess upstream feature overlap (completed 2026-02-23)
-- [x] **Phase 20: Sync Safety & Transparency** - Diff preview, rollback snapshots, and dry-run mode for sync operations (completed 2026-02-23)
-- [ ] **Phase 21: Sync Intelligence** - Auto-update monitoring, GPG verification, and commit categorization (reassess scope -- upstream overlap)
+- [x] **Phase 20: Sync Safety & Transparency** - Diff preview, rollback snapshots, and dry-run mode for sync operations (completed 2026-02-23)
+- [ ] **Phase 21: Sync Intelligence** - Commit classification, supply chain integrity scanner, and maintainer-path upstream monitoring
 - [ ] **Phase 22: Advanced Sync Automation** - Selective sync by category and AI-assisted conflict resolution (reassess scope)
 
 ## Phase Details
@@ -87,14 +87,18 @@ Plans:
 - [ ] 20-02-PLAN.md -- Enhance upstream-sync workflow with dry-run gate, sync-preview integration, and checkpoint rollback
 
 ### Phase 21: Sync Intelligence
-**Goal**: The sync workflow has automated intelligence -- it monitors for new upstream changes, verifies commit integrity, and classifies changes by type
+**Goal**: The sync workflow has automated intelligence -- it classifies upstream changes by type, scans for supply chain risks, and monitors for new upstream commits with severity-aware notifications
 **Depends on**: Phase 20
 **Requirements**: SYNC-03, SYNC-07, SYNC-08
 **Success Criteria** (what must be TRUE):
   1. The system periodically checks for new upstream commits and displays a summary categorized by severity (breaking changes, security fixes, features, bug fixes, chores) with visual indicators
-  2. When GPG signatures are available on upstream commits, the system validates them and warns the user about unsigned commits in security-sensitive paths (bin/, hooks/, install scripts)
+  2. Supply chain integrity analysis scans upstream commits for 6 documented attack vectors (prompt injection, dependency hijack, execution path compromise, network exfiltration, obfuscation, author anomaly) and surfaces findings in the sync preview
   3. Every upstream commit is automatically classified as feature/fix/refactor/docs/chore based on commit message parsing and file path analysis, with the classification visible in the sync preview
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 21-01-PLAN.md -- Commit classifier in sync.cjs + ConfigSchema gsd.role fix + extended sync-preview with classification
+- [ ] 21-02-PLAN.md -- Supply chain integrity scanner (6 checks) in sync.cjs + extended sync-preview with risk data
+- [ ] 21-03-PLAN.md -- Maintainer-path monitoring upgrade in gsd-check-update.js + statusline notification
 
 ### Phase 22: Advanced Sync Automation
 **Goal**: The sync workflow supports precision cherry-picking by category and AI-assisted conflict resolution, enabling efficient handling of large upstream deltas
@@ -115,5 +119,5 @@ Plans:
 | 18. Upstream Sync Execution | v0.3.0 | 6/6 | Complete | 2026-02-23 |
 | 19. Post-Sync Stabilization | 3/3 | Complete    | 2026-02-23 | - |
 | 20. Sync Safety & Transparency | v0.3.0 | 2/2 | Complete | 2026-02-23 |
-| 21. Sync Intelligence | v0.3.0 | 0/TBD | Not started (reassess) | - |
+| 21. Sync Intelligence | v0.3.0 | 0/3 | Planned | - |
 | 22. Advanced Sync Automation | v0.3.0 | 0/TBD | Not started (reassess) | - |

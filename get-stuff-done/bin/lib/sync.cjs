@@ -419,6 +419,7 @@ function cmdSyncPreview(cwd, range, options, raw) {
 
     const sensitiveFiles = enrichedFiles.filter(f => f.sensitive);
     const conflictRisk = assessConflictRiskByOverlap(cwd, files);
+    const classification = classifyCommit(commit.subject, enrichedFiles);
 
     enrichedCommits.push({
       hash: commit.hash,
@@ -429,6 +430,7 @@ function cmdSyncPreview(cwd, range, options, raw) {
       files: enrichedFiles,
       conflictRisk,
       securityFlags: sensitiveFiles.map(f => f.path),
+      classification,
     });
   }
 
@@ -447,6 +449,14 @@ function cmdSyncPreview(cwd, range, options, raw) {
     c => c.conflictRisk === 'overlap'
   ).length;
 
+  // Compute byType summary from classifications
+  const byType = { feat: 0, fix: 0, docs: 0, chore: 0, refactor: 0, other: 0, security: 0, breaking: 0 };
+  for (const c of enrichedCommits) {
+    const t = c.classification.type;
+    if (t in byType) byType[t]++;
+    else byType.other++;
+  }
+
   if (options && options.json) {
     // JSON output path: structured schema
     const result = {
@@ -457,6 +467,7 @@ function cmdSyncPreview(cwd, range, options, raw) {
         sensitivePathCount,
         highRiskCount,
         overlapRiskCount,
+        byType,
       },
       effortEstimate,
     };
@@ -471,6 +482,15 @@ function cmdSyncPreview(cwd, range, options, raw) {
   const YELLOW = '\x1b[33m';
   const CYAN = '\x1b[36m';
   const GREEN = '\x1b[32m';
+  const DIM = '\x1b[2m';
+
+  // Map classification type to ANSI color for type badge
+  function typeBadgeColor(type) {
+    if (type === 'security' || type === 'breaking') return RED;
+    if (type === 'fix') return YELLOW;
+    if (type === 'feat') return GREEN;
+    return DIM; // docs, chore, refactor, other
+  }
 
   let out = '';
   out += BOLD + 'Sync Preview: ' + range + RESET + '\n';
@@ -481,7 +501,9 @@ function cmdSyncPreview(cwd, range, options, raw) {
   out += '\n\n';
 
   for (const commit of enrichedCommits) {
-    out += BOLD + commit.hashShort + RESET + ' ' + commit.subject + '\n';
+    const { type } = commit.classification;
+    const badgeColor = typeBadgeColor(type);
+    out += BOLD + commit.hashShort + RESET + ' ' + badgeColor + '[' + type + ']' + RESET + ' ' + commit.subject + '\n';
     out += '  ' + commit.date + ' by ' + commit.author + '\n';
 
     if (commit.conflictRisk === 'overlap') {

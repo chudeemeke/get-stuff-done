@@ -571,6 +571,85 @@ describe('sync-preview command', () => {
     assert.ok('overlapRiskCount' in data.summary, 'summary should have overlapRiskCount');
     assert.ok(data.effortEstimate !== undefined, 'JSON should have effortEstimate');
   });
+
+  test('--json output includes classification field on each commit', () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Add commits with conventional prefixes so classification is deterministic
+      fs.writeFileSync(path.join(repoDir, 'feature.txt'), 'new feature');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add new feature"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'bugfix.txt'), 'bug fix');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "fix: resolve issue"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
+      assert.ok(result.success, `sync-preview failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      assert.ok(Array.isArray(data.commits), 'Should have commits array');
+      assert.strictEqual(data.commits.length, 2, 'Should have 2 commits');
+
+      for (const commit of data.commits) {
+        assert.ok('classification' in commit, 'Each commit should have classification field');
+        assert.ok(commit.classification.type, 'classification.type should be set');
+        assert.ok(commit.classification.confidence, 'classification.confidence should be set');
+      }
+
+      // First commit "fix: resolve issue" (newest, git log is reverse-chronological)
+      // Second commit "feat: add new feature"
+      const subjects = data.commits.map(c => c.subject);
+      const fixCommit = data.commits.find(c => c.subject === 'fix: resolve issue');
+      const featCommit = data.commits.find(c => c.subject === 'feat: add new feature');
+
+      assert.ok(fixCommit, `fix commit should be in results, got subjects: ${JSON.stringify(subjects)}`);
+      assert.ok(featCommit, `feat commit should be in results, got subjects: ${JSON.stringify(subjects)}`);
+
+      assert.deepStrictEqual(fixCommit.classification, { type: 'fix', confidence: 'high' });
+      assert.deepStrictEqual(featCommit.classification, { type: 'feat', confidence: 'high' });
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('--json summary includes byType field with correct counts', () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Add 3 commits: 1 feat, 1 fix, 1 chore
+      fs.writeFileSync(path.join(repoDir, 'a.txt'), 'a');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add feature a"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'b.txt'), 'b');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "fix: fix bug b"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'c.txt'), 'c');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "chore: update deps"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~3', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
+      assert.ok(result.success, `sync-preview failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      assert.ok(data.summary, 'Should have summary');
+      assert.ok('byType' in data.summary, 'summary should have byType field');
+
+      const byType = data.summary.byType;
+      assert.strictEqual(byType.feat, 1, 'byType.feat should be 1');
+      assert.strictEqual(byType.fix, 1, 'byType.fix should be 1');
+      assert.strictEqual(byType.chore, 1, 'byType.chore should be 1');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
 });
 
 // ─── sync-checkpoint CLI integration ──────────────────────────────────────────

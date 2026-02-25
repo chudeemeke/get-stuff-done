@@ -352,4 +352,45 @@ describe('ConfigSchema', () => {
 
     expect(() => validateConfig(invalidConfig)).toThrow('Missing required field');
   });
+
+  test('accepts gsd.role maintainer as valid', () => {
+    const validConfig = {
+      version: 1,
+      gsd: {
+        role: 'maintainer'
+      }
+    };
+
+    expect(() => validateConfig(validConfig)).not.toThrow();
+  });
+
+  test('accepts gsd.role consumer as valid', () => {
+    const validConfig = {
+      version: 1,
+      gsd: {
+        role: 'consumer'
+      }
+    };
+
+    expect(() => validateConfig(validConfig)).not.toThrow();
+  });
+
+  test('rejects gsd.role with invalid enum value', () => {
+    const invalidConfig = {
+      version: 1,
+      gsd: {
+        role: 'invalid'
+      }
+    };
+
+    expect(() => validateConfig(invalidConfig)).toThrow();
+  });
+
+  test('accepts config without gsd section', () => {
+    const validConfig = {
+      version: 1
+    };
+
+    expect(() => validateConfig(validConfig)).not.toThrow();
+  });
 });

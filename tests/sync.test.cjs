@@ -22,6 +22,7 @@ const {
   isSensitivePath,
   assessConflictRiskByOverlap,
   computeEffortEstimate,
+  classifyCommit,
 } = require(SYNC_PATH);
 
 // ─── Local Helpers ─────────────────────────────────────────────────────────────
@@ -379,6 +380,100 @@ describe('computeEffortEstimate', () => {
     assert.strictEqual(estimate.historicalConflictRate, 0, 'Rate should be 0% with no conflicts');
     assert.strictEqual(estimate.estimatedConflicts, 0, 'Estimated conflicts should be 0');
     assert.strictEqual(estimate.estimatedCleanCommits, 9, 'All commits should be estimated clean');
+  });
+});
+
+// ─── classifyCommit ───────────────────────────────────────────────────────────
+
+describe('classifyCommit', () => {
+  // Tier 3: conventional commit prefixes (high confidence)
+  test('classifies "fix:" prefix as fix with high confidence', () => {
+    const result = classifyCommit('fix: typo in help text', []);
+    assert.deepStrictEqual(result, { type: 'fix', confidence: 'high' });
+  });
+
+  test('classifies "feat(scope):" prefix as feat with high confidence', () => {
+    const result = classifyCommit('feat(auth): add login', []);
+    assert.deepStrictEqual(result, { type: 'feat', confidence: 'high' });
+  });
+
+  test('classifies "refactor:" prefix as refactor with high confidence', () => {
+    const result = classifyCommit('refactor: cleanup code', []);
+    assert.deepStrictEqual(result, { type: 'refactor', confidence: 'high' });
+  });
+
+  test('classifies "docs:" prefix as docs with high confidence', () => {
+    const result = classifyCommit('docs: update readme', []);
+    assert.deepStrictEqual(result, { type: 'docs', confidence: 'high' });
+  });
+
+  test('classifies "chore:" prefix as chore with high confidence', () => {
+    const result = classifyCommit('chore: bump deps', []);
+    assert.deepStrictEqual(result, { type: 'chore', confidence: 'high' });
+  });
+
+  test('normalizes "test:" prefix to chore with high confidence', () => {
+    const result = classifyCommit('test: add unit tests', []);
+    assert.deepStrictEqual(result, { type: 'chore', confidence: 'high' });
+  });
+
+  test('normalizes "perf:" prefix to refactor with high confidence', () => {
+    const result = classifyCommit('perf: optimize query', []);
+    assert.deepStrictEqual(result, { type: 'refactor', confidence: 'high' });
+  });
+
+  test('normalizes "style:" prefix to chore with high confidence', () => {
+    const result = classifyCommit('style: format code', []);
+    assert.deepStrictEqual(result, { type: 'chore', confidence: 'high' });
+  });
+
+  // Tier 2: breaking change markers (highest priority after security)
+  test('classifies "fix!:" breaking marker as breaking with high confidence', () => {
+    const result = classifyCommit('fix!: remove deprecated API', []);
+    assert.deepStrictEqual(result, { type: 'breaking', confidence: 'high' });
+  });
+
+  test('classifies "feat(api)!:" breaking marker as breaking with high confidence', () => {
+    const result = classifyCommit('feat(api)!: new endpoint', []);
+    assert.deepStrictEqual(result, { type: 'breaking', confidence: 'high' });
+  });
+
+  test('classifies BREAKING CHANGE keyword as breaking with high confidence', () => {
+    const result = classifyCommit('BREAKING CHANGE: remove old API', []);
+    assert.deepStrictEqual(result, { type: 'breaking', confidence: 'high' });
+  });
+
+  // Tier 1: security keywords (overrides other tiers)
+  test('classifies "security:" subject as security with high confidence', () => {
+    const result = classifyCommit('security: patch CVE-2026-1234', []);
+    assert.deepStrictEqual(result, { type: 'security', confidence: 'high' });
+  });
+
+  test('security keyword overrides conventional prefix', () => {
+    const result = classifyCommit('fix: address XSS vulnerability', []);
+    assert.deepStrictEqual(result, { type: 'security', confidence: 'high' });
+  });
+
+  // Tier 4: file-path heuristics (medium/low confidence fallback)
+  test('classifies docs/ file path heuristic as docs with medium confidence', () => {
+    const result = classifyCommit('update documentation', [{ path: 'docs/guide.md' }]);
+    assert.deepStrictEqual(result, { type: 'docs', confidence: 'medium' });
+  });
+
+  test('classifies .test. file path heuristic as chore with medium confidence', () => {
+    const result = classifyCommit('add new test', [{ path: 'tests/foo.test.js' }]);
+    assert.deepStrictEqual(result, { type: 'chore', confidence: 'medium' });
+  });
+
+  test('classifies bin/ file path heuristic as feat with low confidence', () => {
+    const result = classifyCommit('improve startup', [{ path: 'bin/install.js' }]);
+    assert.deepStrictEqual(result, { type: 'feat', confidence: 'low' });
+  });
+
+  // Tier 5: no match fallback
+  test('returns other with low confidence for ambiguous commits', () => {
+    const result = classifyCommit('misc changes', [{ path: 'random.txt' }]);
+    assert.deepStrictEqual(result, { type: 'other', confidence: 'low' });
   });
 });
 

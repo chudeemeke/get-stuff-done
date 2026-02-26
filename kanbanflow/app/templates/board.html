@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ board.name }} — KanbanFlow{% endblock %}
+{% block main_class %}h-[calc(100vh-3.5rem)] flex flex-col overflow-hidden{% endblock %}
+
+{% block nav_actions %}
+<span class="text-sm font-medium text-gray-600 dark:text-gray-400 hidden sm:block">{{ board.name }}</span>
+{% endblock %}
+
+{% block content %}
+<!-- Board header -->
+<div class="flex-shrink-0 px-4 sm:px-6 pt-4 pb-3 flex items-center justify-between gap-4">
+  <div>
+    <h1 class="text-2xl font-bold">{{ board.name }}</h1>
+    {% if board.description %}
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ board.description }}</p>
+    {% endif %}
+  </div>
+  <div class="flex items-center gap-2">
+    <!-- Add column button -->
+    <button onclick="document.getElementById('add-col-form').classList.toggle('hidden')"
+      class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+      + Column
+    </button>
+    <!-- Delete board -->
+    <button hx-delete="/boards/{{ board.id }}" hx-confirm="Delete this entire board?" hx-target="body"
+      hx-on::after-request="window.location='/'"
+      class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+      title="Delete board">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- Add column form (hidden) -->
+<form id="add-col-form" class="hidden flex-shrink-0 px-4 sm:px-6 pb-3"
+  hx-post="/columns/" hx-target="#columns-container" hx-swap="beforeend" hx-on::after-request="this.reset()">
+  <input type="hidden" name="board_id" value="{{ board.id }}" />
+  <div class="flex gap-2 items-center p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+    <input type="text" name="title" placeholder="Column title" required
+      class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 outline-none focus:ring-2 focus:ring-indigo-500" />
+    <input type="color" name="color" value="#6366f1" class="w-8 h-8 rounded-lg cursor-pointer border-0" />
+    <button type="submit" class="px-4 py-1.5 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">Add</button>
+  </div>
+</form>
+
+<!-- Kanban columns -->
+<div id="columns-container"
+  class="flex-1 flex gap-4 overflow-x-auto overflow-y-hidden px-4 sm:px-6 pb-4 snap-x snap-mandatory sm:snap-none">
+  {% for col in board.columns %}
+  {% include "partials/column.html" %}
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Initialize SortableJS on each column's task list
+  function initSortable() {
+    document.querySelectorAll('.task-list').forEach(el => {
+      if (el._sortable) el._sortable.destroy();
+      el._sortable = new Sortable(el, {
+        group: 'kanban',
+        animation: 200,
+        ghostClass: 'opacity-30',
+        chosenClass: 'ring-2',
+        dragClass: 'rotate-2',
+        handle: '.task-card',
+        delay: 100,
+        delayOnTouchOnly: true,
+        onEnd: function(evt) {
+          const taskId = evt.item.dataset.taskId;
+          const newColumnId = evt.to.dataset.columnId;
+          const newPosition = evt.newIndex;
+          fetch('/tasks/move', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              task_id: parseInt(taskId),
+              column_id: parseInt(newColumnId),
+              position: newPosition
+            })
+          });
+        }
+      });
+    });
+  }
+
+  // Init on load
+  initSortable();
+
+  // Re-init after HTMX swaps
+  document.body.addEventListener('htmx:afterSwap', () => {
+    setTimeout(initSortable, 50);
+  });
+
+  // Toggle add-task forms
+  function toggleTaskForm(colId) {
+    const form = document.getElementById('task-form-' + colId);
+    form.classList.toggle('hidden');
+    if (!form.classList.contains('hidden')) {
+      form.querySelector('input[name="title"]').focus();
+    }
+  }
+</script>
+{% endblock %}

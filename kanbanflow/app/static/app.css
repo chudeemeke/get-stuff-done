@@ -1,0 +1,80 @@
+/* KanbanFlow — Custom Styles */
+
+/* Smooth scrollbar */
+.task-list::-webkit-scrollbar {
+  width: 4px;
+}
+.task-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.task-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+.dark .task-list::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+/* Horizontal scroll for columns */
+#columns-container::-webkit-scrollbar {
+  height: 6px;
+}
+#columns-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+#columns-container::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+.dark #columns-container::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+/* SortableJS drag animation */
+.sortable-ghost {
+  opacity: 0.3;
+}
+.sortable-chosen {
+  box-shadow: 0 0 0 2px #6366f1;
+  border-radius: 0.75rem;
+}
+.sortable-drag {
+  transform: rotate(2deg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Line clamp for descriptions */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* HTMX loading indicator */
+.htmx-request {
+  opacity: 0.7;
+  transition: opacity 200ms;
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition-property: background-color, border-color;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* Override transitions for elements that shouldn't animate color */
+input, textarea, select, button, a, .task-card {
+  transition-property: all;
+  transition-duration: 200ms;
+}
+
+/* Mobile touch improvements */
+@media (max-width: 640px) {
+  .task-card {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}

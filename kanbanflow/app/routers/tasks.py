@@ -42,6 +42,15 @@ async def create_task(request: Request, session: Session = Depends(get_session))
     return templates.TemplateResponse("partials/task_card.html", {"request": request, "task": task})
 
 
+@router.get("/{task_id}/card", response_class=HTMLResponse)
+async def get_task_card(task_id: int, request: Request, session: Session = Depends(get_session)):
+    """Return a single task card (used to refresh card after modal edits)."""
+    task = session.get(Task, task_id)
+    if not task:
+        return HTMLResponse("")
+    return templates.TemplateResponse("partials/task_card.html", {"request": request, "task": task})
+
+
 @router.get("/{task_id}/edit", response_class=HTMLResponse)
 async def edit_task_form(task_id: int, request: Request, session: Session = Depends(get_session)):
     task = session.get(Task, task_id)

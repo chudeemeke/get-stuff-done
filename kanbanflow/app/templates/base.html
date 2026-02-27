@@ -26,35 +26,35 @@
 
   <!-- Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/static/app.css" />
 </head>
-<body class="h-full bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
+<body class="h-full bg-gray-50 dark:bg-[#0f1117] text-gray-900 dark:text-gray-100 font-sans antialiased">
 
   <!-- Top Nav -->
-  <nav class="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800">
+  <nav class="sticky top-0 z-50 bg-white/90 dark:bg-[#161822]/90 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50">
     <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-14">
-        <a href="/" class="flex items-center gap-2 group">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
+        <a href="/" class="flex items-center gap-2.5 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-shadow">
+            <svg class="w-[18px] h-[18px] text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h4M4 10h4M4 14h4M10 6h4M10 10h4M10 14h4" />
             </svg>
           </div>
-          <span class="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-            KanbanFlow
+          <span class="text-[17px] font-extrabold tracking-tight text-gray-900 dark:text-white">
+            Kanban<span class="text-indigo-600 dark:text-indigo-400">Flow</span>
           </span>
         </a>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
           {% block nav_actions %}{% endblock %}
           <button onclick="toggleDarkMode()" id="theme-toggle"
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            title="Toggle dark mode">
-            <svg id="sun-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            title="Toggle theme">
+            <svg id="sun-icon" class="w-[18px] h-[18px] hidden text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
-            <svg id="moon-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg id="moon-icon" class="w-[18px] h-[18px] text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
             </svg>
           </button>
@@ -68,9 +68,9 @@
   </main>
 
   <!-- Modal overlay -->
-  <div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+  <div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
        onclick="if(event.target===this) closeModal()">
-    <div id="modal-content" class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div id="modal-content" class="bg-white dark:bg-[#1a1d2e] rounded-2xl shadow-2xl dark:shadow-black/40 w-full max-w-lg max-h-[90vh] overflow-y-auto ring-1 ring-gray-200/50 dark:ring-gray-700/50">
     </div>
   </div>
 
@@ -87,7 +87,6 @@
       document.getElementById('sun-icon').classList.toggle('hidden', !isDark);
       document.getElementById('moon-icon').classList.toggle('hidden', isDark);
     }
-    // Apply saved theme
     if (localStorage.getItem('theme') === 'dark' ||
         (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
@@ -96,6 +95,10 @@
 
     // Modal helpers
     function openModal(url) {
+      const taskIdMatch = url.match(/\/tasks\/(\d+)\//);
+      if (taskIdMatch) {
+        document.getElementById('modal-overlay').dataset.editingTaskId = taskIdMatch[1];
+      }
       fetch(url).then(r => r.text()).then(html => {
         document.getElementById('modal-content').innerHTML = html;
         document.getElementById('modal-overlay').classList.remove('hidden');
@@ -103,9 +106,33 @@
       });
     }
     function closeModal() {
-      document.getElementById('modal-overlay').classList.add('hidden');
+      const overlay = document.getElementById('modal-overlay');
+      const taskId = overlay.dataset.editingTaskId;
+      overlay.classList.add('hidden');
       document.body.style.overflow = '';
+      // Refresh the task card to reflect any subtask/comment changes
+      if (taskId && document.getElementById('task-' + taskId)) {
+        htmx.ajax('GET', '/tasks/' + taskId + '/card', {target: '#task-' + taskId, swap: 'outerHTML'});
+      }
+      overlay.dataset.editingTaskId = '';
     }
+
+    // Overdue date highlighting
+    function markOverdueDates() {
+      const today = new Date().toISOString().split('T')[0];
+      document.querySelectorAll('.due-date-display').forEach(el => {
+        const dueDate = el.dataset.dueDate;
+        if (dueDate && dueDate < today) {
+          el.classList.add('overdue');
+        }
+      });
+    }
+    // Run on load
+    markOverdueDates();
+    // Re-run after HTMX swaps
+    document.body.addEventListener('htmx:afterSwap', () => {
+      setTimeout(markOverdueDates, 50);
+    });
   </script>
 
   {% block scripts %}{% endblock %}

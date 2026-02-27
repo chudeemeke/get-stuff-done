@@ -3,26 +3,24 @@
 {% block main_class %}h-[calc(100vh-3.5rem)] flex flex-col overflow-hidden{% endblock %}
 
 {% block nav_actions %}
-<span class="text-sm font-medium text-gray-600 dark:text-gray-400 hidden sm:block">{{ board.name }}</span>
+<span class="text-sm font-medium text-gray-500 dark:text-gray-400 hidden sm:block truncate max-w-[200px]">{{ board.name }}</span>
 {% endblock %}
 
 {% block content %}
 <!-- Board header -->
-<div class="flex-shrink-0 px-4 sm:px-6 pt-4 pb-3 flex items-center justify-between gap-4">
-  <div>
-    <h1 class="text-2xl font-bold">{{ board.name }}</h1>
+<div class="flex-shrink-0 px-4 sm:px-6 pt-4 pb-2 flex items-center justify-between gap-4">
+  <div class="min-w-0">
+    <h1 class="text-xl font-bold tracking-tight truncate">{{ board.name }}</h1>
     {% if board.description %}
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ board.description }}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5 truncate">{{ board.description }}</p>
     {% endif %}
   </div>
-  <div class="flex items-center gap-2">
-    <!-- Add column button -->
+  <div class="flex items-center gap-2 flex-shrink-0">
     <button onclick="document.getElementById('add-col-form').classList.toggle('hidden')"
-      class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+      class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
       + Column
     </button>
-    <!-- Delete board -->
-    <button hx-delete="/boards/{{ board.id }}" hx-confirm="Delete this entire board?" hx-target="body"
+    <button hx-delete="/boards/{{ board.id }}" hx-confirm="Delete this entire board and all its data?" hx-target="body"
       hx-on::after-request="window.location='/'"
       class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
       title="Delete board">
@@ -33,15 +31,53 @@
   </div>
 </div>
 
+<!-- Filter bar -->
+<div class="flex-shrink-0 px-4 sm:px-6 pb-2">
+  <div class="flex flex-wrap gap-2 items-center p-2.5 bg-white/60 dark:bg-gray-900/40 rounded-xl border border-gray-200/50 dark:border-gray-800/50 backdrop-blur-sm">
+    <div class="relative flex-1 min-w-[180px]">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input type="text" id="filter-search" placeholder="Search tasks..."
+        class="w-full pl-9 pr-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-shadow"
+        oninput="filterTasks()" />
+    </div>
+    <select id="filter-priority" onchange="filterTasks()"
+      class="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer">
+      <option value="">All Priorities</option>
+      <option value="urgent">Urgent</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+    <select id="filter-label" onchange="filterTasks()"
+      class="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer">
+      <option value="">All Labels</option>
+      <option value="feature">Feature</option>
+      <option value="bug">Bug</option>
+      <option value="chore">Chore</option>
+      <option value="docs">Docs</option>
+    </select>
+    <label class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-red-300 dark:hover:border-red-700 transition-colors select-none">
+      <input type="checkbox" id="filter-overdue" onchange="filterTasks()"
+        class="rounded border-gray-300 text-red-500 focus:ring-red-500 w-3.5 h-3.5" />
+      Overdue
+    </label>
+    <button onclick="clearFilters()" id="clear-filters-btn" class="hidden px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+      Clear
+    </button>
+  </div>
+</div>
+
 <!-- Add column form (hidden) -->
-<form id="add-col-form" class="hidden flex-shrink-0 px-4 sm:px-6 pb-3"
+<form id="add-col-form" class="hidden flex-shrink-0 px-4 sm:px-6 pb-2"
   hx-post="/columns/" hx-target="#columns-container" hx-swap="beforeend" hx-on::after-request="this.reset()">
   <input type="hidden" name="board_id" value="{{ board.id }}" />
   <div class="flex gap-2 items-center p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
     <input type="text" name="title" placeholder="Column title" required
-      class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 outline-none focus:ring-2 focus:ring-indigo-500" />
+      class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 outline-none focus:ring-2 focus:ring-indigo-500/40" />
     <input type="color" name="color" value="#6366f1" class="w-8 h-8 rounded-lg cursor-pointer border-0" />
-    <button type="submit" class="px-4 py-1.5 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">Add</button>
+    <button type="submit" class="px-4 py-1.5 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">Add</button>
   </div>
 </form>
 
@@ -87,21 +123,63 @@
     });
   }
 
-  // Init on load
   initSortable();
 
-  // Re-init after HTMX swaps
   document.body.addEventListener('htmx:afterSwap', () => {
     setTimeout(initSortable, 50);
   });
 
-  // Toggle add-task forms
   function toggleTaskForm(colId) {
     const form = document.getElementById('task-form-' + colId);
     form.classList.toggle('hidden');
     if (!form.classList.contains('hidden')) {
       form.querySelector('input[name="title"]').focus();
     }
+  }
+
+  // --- Filter / Search ---
+  function filterTasks() {
+    const search = document.getElementById('filter-search').value.toLowerCase();
+    const priority = document.getElementById('filter-priority').value;
+    const label = document.getElementById('filter-label').value;
+    const overdueOnly = document.getElementById('filter-overdue').checked;
+    const today = new Date().toISOString().split('T')[0];
+
+    const hasFilter = search || priority || label || overdueOnly;
+    document.getElementById('clear-filters-btn').classList.toggle('hidden', !hasFilter);
+
+    document.querySelectorAll('.task-card').forEach(card => {
+      const title = (card.querySelector('.task-title')?.textContent || '').toLowerCase();
+      const desc = (card.querySelector('.task-desc')?.textContent || '').toLowerCase();
+      const cardPriority = card.dataset.priority || '';
+      const cardLabel = card.dataset.label || '';
+      const dueDate = card.dataset.dueDate || '';
+
+      let show = true;
+      if (search && !title.includes(search) && !desc.includes(search)) show = false;
+      if (priority && cardPriority !== priority) show = false;
+      if (label && cardLabel !== label) show = false;
+      if (overdueOnly && (!dueDate || dueDate >= today)) show = false;
+
+      card.style.display = show ? '' : 'none';
+    });
+
+    // Update visible task counts
+    document.querySelectorAll('.task-list').forEach(list => {
+      const colDiv = list.closest('[id^="column-"]');
+      if (!colDiv) return;
+      const visibleCount = list.querySelectorAll('.task-card:not([style*="display: none"])').length;
+      const badge = colDiv.querySelector('.task-count');
+      if (badge) badge.textContent = visibleCount;
+    });
+  }
+
+  function clearFilters() {
+    document.getElementById('filter-search').value = '';
+    document.getElementById('filter-priority').value = '';
+    document.getElementById('filter-label').value = '';
+    document.getElementById('filter-overdue').checked = false;
+    filterTasks();
   }
 </script>
 {% endblock %}

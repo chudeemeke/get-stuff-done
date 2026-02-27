@@ -42,3 +42,30 @@ class Task(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     column: Optional[Column] = Relationship(back_populates="tasks")
+    subtasks: list["Subtask"] = Relationship(
+        back_populates="task",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "order_by": "Subtask.position"},
+    )
+    comments: list["Comment"] = Relationship(
+        back_populates="task",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "order_by": "Comment.created_at"},
+    )
+
+
+class Subtask(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    completed: bool = False
+    position: int = 0
+    task_id: int = Field(foreign_key="task.id")
+
+    task: Optional[Task] = Relationship(back_populates="subtasks")
+
+
+class Comment(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    text: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    task_id: int = Field(foreign_key="task.id")
+
+    task: Optional[Task] = Relationship(back_populates="comments")

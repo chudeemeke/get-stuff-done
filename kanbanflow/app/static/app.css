@@ -30,6 +30,21 @@
   background: #374151;
 }
 
+/* Modal scrollbar */
+#modal-content::-webkit-scrollbar {
+  width: 4px;
+}
+#modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+#modal-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+.dark #modal-content::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
 /* SortableJS drag animation */
 .sortable-ghost {
   opacity: 0.3;
@@ -39,8 +54,8 @@
   border-radius: 0.75rem;
 }
 .sortable-drag {
-  transform: rotate(2deg);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  transform: rotate(1.5deg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
 /* Line clamp for descriptions */
@@ -57,6 +72,21 @@
   transition: opacity 200ms;
 }
 
+/* Overdue date styling */
+.due-date-display.overdue {
+  color: #ef4444 !important;
+  font-weight: 600;
+}
+.due-date-display.overdue svg {
+  color: #ef4444 !important;
+}
+.dark .due-date-display.overdue {
+  color: #f87171 !important;
+}
+.dark .due-date-display.overdue svg {
+  color: #f87171 !important;
+}
+
 /* Smooth transitions for theme changes */
 * {
   transition-property: background-color, border-color;
@@ -64,7 +94,7 @@
   transition-timing-function: ease;
 }
 
-/* Override transitions for elements that shouldn't animate color */
+/* Override transitions for interactive elements */
 input, textarea, select, button, a, .task-card {
   transition-property: all;
   transition-duration: 200ms;
@@ -77,4 +107,38 @@ input, textarea, select, button, a, .task-card {
     -webkit-user-select: none;
     user-select: none;
   }
+}
+
+/* Custom checkbox styling */
+input[type="checkbox"] {
+  cursor: pointer;
+}
+
+/* Subtask item transitions */
+#modal-content [id^="subtask-"] {
+  transition: opacity 200ms, transform 200ms;
+}
+
+/* Comment list scrollbar */
+[id^="comment-list-"]::-webkit-scrollbar {
+  width: 3px;
+}
+[id^="comment-list-"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+[id^="comment-list-"]::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+.dark [id^="comment-list-"]::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+/* Pulse animation for urgent badge */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse {
+  animation: pulse-dot 2s ease-in-out infinite;
 }

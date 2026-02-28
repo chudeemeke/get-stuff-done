@@ -148,7 +148,7 @@ Write document(s) to `.planning/codebase/` using the templates below.
 3. If something is not found, use "Not detected" or "Not applicable"
 4. Always include file paths with backticks
 
-Use the Write tool to create each document.
+**ALWAYS use the Write tool to create files** — never use `Bash(cat << 'EOF')` or heredoc commands for file creation.
 </step>
 
 <step name="return_confirmation">

@@ -414,11 +414,17 @@ function cmdStateSnapshot(cwd, raw) {
 
   const content = fs.readFileSync(statePath, 'utf-8');
 
-  // Helper to extract **Field:** value patterns
+  // Helper to extract field values — supports both **Field:** bold format
+  // and plain Field: format (STATE.md may use either depending on version)
   const extractField = (fieldName) => {
-    const pattern = new RegExp(`\\*\\*${fieldName}:\\*\\*\\s*(.+)`, 'i');
-    const match = content.match(pattern);
-    return match ? match[1].trim() : null;
+    // Try **Field:** format first (bold markdown)
+    const boldPattern = new RegExp(`\\*\\*${fieldName}:\\*\\*\\s*(.+)`, 'i');
+    const boldMatch = content.match(boldPattern);
+    if (boldMatch) return boldMatch[1].trim();
+    // Fall back to plain Field: format
+    const plainPattern = new RegExp(`^${fieldName}:\\s*(.+)`, 'im');
+    const plainMatch = content.match(plainPattern);
+    return plainMatch ? plainMatch[1].trim() : null;
   };
 
   // Extract basic fields
@@ -513,10 +519,14 @@ function cmdStateSnapshot(cwd, raw) {
  * reliably via `state json` instead of fragile regex parsing.
  */
 function buildStateFrontmatter(bodyContent, cwd) {
+  // Supports both **Field:** bold and plain Field: format (see state-snapshot)
   const extractField = (fieldName) => {
-    const pattern = new RegExp(`\\*\\*${fieldName}:\\*\\*\\s*(.+)`, 'i');
-    const match = bodyContent.match(pattern);
-    return match ? match[1].trim() : null;
+    const boldPattern = new RegExp(`\\*\\*${fieldName}:\\*\\*\\s*(.+)`, 'i');
+    const boldMatch = bodyContent.match(boldPattern);
+    if (boldMatch) return boldMatch[1].trim();
+    const plainPattern = new RegExp(`^${fieldName}:\\s*(.+)`, 'im');
+    const plainMatch = bodyContent.match(plainPattern);
+    return plainMatch ? plainMatch[1].trim() : null;
   };
 
   const currentPhase = extractField('Current Phase');

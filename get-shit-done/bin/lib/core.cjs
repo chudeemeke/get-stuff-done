@@ -124,7 +124,11 @@ function loadConfig(cwd) {
 
 function isGitIgnored(cwd, targetPath) {
   try {
-    execSync('git check-ignore -q -- ' + targetPath.replace(/[^a-zA-Z0-9._\-/]/g, ''), {
+    // --no-index checks .gitignore rules regardless of whether the file is tracked.
+    // Without it, git check-ignore returns "not ignored" for tracked files even when
+    // .gitignore explicitly lists them — a common source of confusion when .planning/
+    // was committed before being added to .gitignore.
+    execSync('git check-ignore -q --no-index -- ' + targetPath.replace(/[^a-zA-Z0-9._\-/]/g, ''), {
       cwd,
       stdio: 'pipe',
     });

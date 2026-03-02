@@ -409,6 +409,35 @@ function getMilestoneInfo(cwd) {
   }
 }
 
+/**
+ * Returns a filter function that checks whether a phase directory belongs
+ * to the current milestone based on ROADMAP.md phase headings.
+ * If no ROADMAP exists or no phases are listed, returns a pass-all filter.
+ */
+function getMilestonePhaseFilter(cwd) {
+  const milestonePhaseNums = new Set();
+  try {
+    const roadmap = fs.readFileSync(path.join(cwd, '.planning', 'ROADMAP.md'), 'utf-8');
+    const phasePattern = /#{2,4}\s*Phase\s+(\d+[A-Z]?(?:\.\d+)*)\s*:/gi;
+    let m;
+    while ((m = phasePattern.exec(roadmap)) !== null) {
+      milestonePhaseNums.add(m[1]);
+    }
+  } catch {}
+
+  if (milestonePhaseNums.size === 0) return () => true;
+
+  const normalized = new Set(
+    [...milestonePhaseNums].map(n => (n.replace(/^0+/, '') || '0').toLowerCase())
+  );
+
+  return function isDirInMilestone(dirName) {
+    const m = dirName.match(/^0*(\d+[A-Za-z]?(?:\.\d+)*)/);
+    if (!m) return false;
+    return normalized.has(m[1].toLowerCase());
+  };
+}
+
 module.exports = {
   MODEL_PROFILES,
   output,
@@ -428,5 +457,6 @@ module.exports = {
   pathExistsInternal,
   generateSlugInternal,
   getMilestoneInfo,
+  getMilestonePhaseFilter,
   toPosixPath,
 };

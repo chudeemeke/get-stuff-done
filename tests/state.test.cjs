@@ -1250,5 +1250,88 @@ describe('cmdStateRecordSession (state record-session)', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Milestone-scoped phase counting in frontmatter
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('milestone-scoped phase counting in frontmatter', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('total_phases counts only current milestone phases', () => {
+    // ROADMAP lists only phases 5-6 (current milestone)
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      [
+        '## Roadmap v2.0: Next Release',
+        '',
+        '### Phase 5: Auth',
+        '**Goal:** Add authentication',
+        '',
+        '### Phase 6: Dashboard',
+        '**Goal:** Build dashboard',
+      ].join('\n')
+    );
+
+    // Disk has dirs 01-06 (01-04 are leftover from previous milestone)
+    for (let i = 1; i <= 6; i++) {
+      const padded = String(i).padStart(2, '0');
+      const phaseDir = path.join(tmpDir, '.planning', 'phases', `${padded}-phase-${i}`);
+      fs.mkdirSync(phaseDir, { recursive: true });
+      // Add a plan to each
+      fs.writeFileSync(path.join(phaseDir, `${padded}-01-PLAN.md`), '# Plan');
+      fs.writeFileSync(path.join(phaseDir, `${padded}-01-SUMMARY.md`), '# Summary');
+    }
+
+    // Write a STATE.md and trigger a write that will sync frontmatter
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      '# Project State\n\n**Current Phase:** 05\n**Status:** In progress\n'
+    );
+
+    const result = runGsdTools('state update Status "Executing"', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    // Read the state json to check frontmatter
+    const jsonResult = runGsdTools('state json', tmpDir);
+    assert.ok(jsonResult.success, `state json failed: ${jsonResult.error}`);
+
+    const output = JSON.parse(jsonResult.output);
+    assert.strictEqual(Number(output.progress.total_phases), 2, 'should count only milestone phases (5 and 6), not all 6');
+    assert.strictEqual(Number(output.progress.completed_phases), 2, 'both milestone phases have summaries');
+  });
+
+  test('without ROADMAP counts all phases (pass-all filter)', () => {
+    // No ROADMAP.md — all phases should be counted
+    for (let i = 1; i <= 4; i++) {
+      const padded = String(i).padStart(2, '0');
+      const phaseDir = path.join(tmpDir, '.planning', 'phases', `${padded}-phase-${i}`);
+      fs.mkdirSync(phaseDir, { recursive: true });
+      fs.writeFileSync(path.join(phaseDir, `${padded}-01-PLAN.md`), '# Plan');
+    }
+
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      '# Project State\n\n**Current Phase:** 01\n**Status:** Planning\n'
+    );
+
+    const result = runGsdTools('state update Status "In progress"', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const jsonResult = runGsdTools('state json', tmpDir);
+    assert.ok(jsonResult.success, `state json failed: ${jsonResult.error}`);
+
+    const output = JSON.parse(jsonResult.output);
+    assert.strictEqual(Number(output.progress.total_phases), 4, 'without ROADMAP should count all 4 phases');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // summary-extract command
 // ─────────────────────────────────────────────────────────────────────────────

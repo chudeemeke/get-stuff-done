@@ -157,7 +157,7 @@ Write `~/.gsd/defaults.json` with:
 ```json
 {
   "mode": <current>,
-  "depth": <current>,
+  "granularity": <current>,
   "model_profile": <current>,
   "commit_docs": <current>,
   "parallelization": <current>,

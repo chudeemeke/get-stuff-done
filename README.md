@@ -532,7 +532,7 @@ GSD stores project settings in `.planning/config.json`. Configure during `/gsd:n
 | Setting | Options | Default | What it controls |
 |---------|---------|---------|------------------|
 | `mode` | `yolo`, `interactive` | `interactive` | Auto-approve vs confirm at each step |
-| `depth` | `quick`, `standard`, `comprehensive` | `standard` | Planning thoroughness (phases × plans) |
+| `granularity` | `coarse`, `standard`, `fine` | `standard` | Phase granularity — how finely scope is sliced (phases × plans) |
 
 ### Model Profiles
 

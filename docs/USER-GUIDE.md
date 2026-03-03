@@ -215,7 +215,7 @@ GSD stores project settings in `.planning/config.json`. Configure during `/gsd:n
 ```json
 {
   "mode": "interactive",
-  "depth": "standard",
+  "granularity": "standard",
   "model_profile": "balanced",
   "planning": {
     "commit_docs": true,
@@ -240,7 +240,7 @@ GSD stores project settings in `.planning/config.json`. Configure during `/gsd:n
 | Setting | Options | Default | What it Controls |
 |---------|---------|---------|------------------|
 | `mode` | `interactive`, `yolo` | `interactive` | `yolo` auto-approves decisions; `interactive` confirms at each step |
-| `depth` | `quick`, `standard`, `comprehensive` | `standard` | Planning thoroughness: 3-5, 5-8, or 8-12 phases |
+| `granularity` | `coarse`, `standard`, `fine` | `standard` | Phase granularity: how finely scope is sliced (3-5, 5-8, or 8-12 phases) |
 | `model_profile` | `quality`, `balanced`, `budget` | `balanced` | Model tier for each agent (see table below) |
 
 ### Planning Settings
@@ -364,11 +364,11 @@ claude --dangerously-skip-permissions
 
 ### Speed vs Quality Presets
 
-| Scenario | Mode | Depth | Profile | Research | Plan Check | Verifier |
+| Scenario | Mode | Granularity | Profile | Research | Plan Check | Verifier |
 |----------|------|-------|---------|----------|------------|----------|
-| Prototyping | `yolo` | `quick` | `budget` | off | off | off |
+| Prototyping | `yolo` | `coarse` | `budget` | off | off | off |
 | Normal dev | `interactive` | `standard` | `balanced` | on | on | on |
-| Production | `interactive` | `comprehensive` | `quality` | on | on | on |
+| Production | `interactive` | `fine` | `quality` | on | on | on |
 
 ### Mid-Milestone Scope Changes
 

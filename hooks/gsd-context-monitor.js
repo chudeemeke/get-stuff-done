@@ -100,16 +100,30 @@ process.stdin.on('end', () => {
     warnData.lastLevel = currentLevel;
     fs.writeFileSync(warnPath, JSON.stringify(warnData));
 
-    // Build warning message
+    // Detect if GSD is active (has .planning/STATE.md in working directory)
+    const cwd = data.cwd || process.cwd();
+    const isGsdActive = fs.existsSync(path.join(cwd, '.planning', 'STATE.md'));
+
+    // Build advisory warning message (never use imperative commands that
+    // override user preferences — see #884)
     let message;
     if (isCritical) {
-      message = `CONTEXT MONITOR CRITICAL: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
-        'STOP new work immediately. Save state NOW and inform the user that context is nearly exhausted. ' +
-        'If using GSD, run /gsd:pause-work to save execution state.';
+      message = isGsdActive
+        ? `CONTEXT CRITICAL: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
+          'Context is nearly exhausted. Do NOT start new complex work or write handoff files — ' +
+          'GSD state is already tracked in STATE.md. Inform the user so they can run ' +
+          '/gsd:pause-work at the next natural stopping point.'
+        : `CONTEXT CRITICAL: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
+          'Context is nearly exhausted. Inform the user that context is low and ask how they ' +
+          'want to proceed. Do NOT autonomously save state or write handoff files unless the user asks.';
     } else {
-      message = `CONTEXT MONITOR WARNING: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
-        'Begin wrapping up current task. Do not start new complex work. ' +
-        'If using GSD, consider /gsd:pause-work to save state.';
+      message = isGsdActive
+        ? `CONTEXT WARNING: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
+          'Context is getting limited. Avoid starting new complex work. If not between ' +
+          'defined plan steps, inform the user so they can prepare to pause.'
+        : `CONTEXT WARNING: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
+          'Be aware that context is getting limited. Avoid unnecessary exploration or ' +
+          'starting new complex work.';
     }
 
     const output = {

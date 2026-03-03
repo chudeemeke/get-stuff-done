@@ -638,9 +638,31 @@ function mergeCodexConfig(configPath, gsdBlock) {
 
   // Case 2: Has GSD marker — truncate and re-append
   if (markerIndex !== -1) {
-    const before = existing.substring(0, markerIndex).trimEnd();
-    const newContent = before ? before + '\n\n' + gsdBlock + '\n' : gsdBlock + '\n';
-    fs.writeFileSync(configPath, newContent);
+    let before = existing.substring(0, markerIndex).trimEnd();
+    if (before) {
+      // Strip any GSD-managed sections that leaked above the marker from previous installs
+      before = before.replace(/^\[agents\.gsd-[^\]]+\]\n(?:(?!\[)[^\n]*\n?)*/gm, '');
+      before = before.replace(/^\[agents\]\n(?:(?!\[)[^\n]*\n?)*/m, '');
+      before = before.replace(/\n{3,}/g, '\n\n').trimEnd();
+
+      // Re-inject feature keys if user has [features] above the marker
+      const hasFeatures = /^\[features\]\s*$/m.test(before);
+      if (hasFeatures) {
+        if (!before.includes('multi_agent')) {
+          before = before.replace(/^\[features\]\s*$/m, '[features]\nmulti_agent = true');
+        }
+        if (!before.includes('default_mode_request_user_input')) {
+          before = before.replace(/^\[features\].*$/m, '$&\ndefault_mode_request_user_input = true');
+        }
+      }
+      // Skip [features] from gsdBlock if user already has it
+      const block = hasFeatures
+        ? GSD_CODEX_MARKER + '\n' + gsdBlock.substring(gsdBlock.indexOf('[agents]'))
+        : gsdBlock;
+      fs.writeFileSync(configPath, before + '\n\n' + block + '\n');
+    } else {
+      fs.writeFileSync(configPath, gsdBlock + '\n');
+    }
     return;
   }
 

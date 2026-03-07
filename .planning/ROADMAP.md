@@ -4,7 +4,7 @@
 
 - [x] **v0.1.0 GetStuffDone Fork** - Phases 1-6 (shipped 2026-02-05)
 - [x] **v0.2.0 Hardening & Upstream Sync** - Phases 7-17 (shipped 2026-02-21)
-- [ ] **v0.3.0 Upstream Sync & Workflow Maturity** - Phases 18-22 (all phases complete, pending release)
+- [ ] **v0.3.0 Upstream Sync & Workflow Maturity** - Phases 18-23 (22 complete, 23 gap closure pending)
 
 ## Overview
 
@@ -35,6 +35,10 @@ See: .planning/milestones/v0.2.0-ROADMAP.md
 - [x] **Phase 20: Sync Safety & Transparency** - Diff preview, rollback snapshots, and dry-run mode for sync operations (completed 2026-02-23)
 - [x] **Phase 21: Sync Intelligence** - Commit classification, supply chain integrity scanner, and maintainer-path upstream monitoring (completed 2026-02-25)
 - [x] **Phase 22: Advanced Sync Automation** - Selective sync by category and AI-assisted conflict resolution (completed 2026-03-07)
+
+### Gap Closure
+
+- [ ] **Phase 23: v0.3.0 Gap Closure** - Phase 18 verification, dist rebuild, coverage fix, config cleanup (gap closure - 8 gaps)
 
 ## Phase Details
 
@@ -113,9 +117,24 @@ Plans:
 - [x] 22-01-PLAN.md -- Selective sync filtering in sync.cjs + enhanced sync-preview with category/SHA filtering and dependency detection
 - [x] 22-02-PLAN.md -- Workflow integration for selective sync + AI-assisted conflict resolution in upstream-sync.md
 
+### Phase 23: v0.3.0 Gap Closure
+**Goal**: Close all gaps identified by milestone audit -- Phase 18 retroactive verification, dist bundle rebuild, lines coverage fix, config cleanup, REQUIREMENTS.md update
+**Depends on**: Phase 22 (all v0.3.0 phases complete)
+**Requirements**: SYNC-II-01, SYNC-II-05, SYNC-II-06 (unsatisfied), SYNC-II-02, SYNC-II-04 (partial -- verification gap)
+**Success Criteria** (what must be TRUE):
+  1. Phase 18 VERIFICATION.md exists confirming SYNC-II-01, SYNC-II-02, SYNC-II-04, SYNC-II-06
+  2. Dist bundles rebuilt with Phase 21-22 features (gsd-tools.cjs includes classifyCommit, filterCommitsByCategory, supply chain checks; gsd-check-update.js includes maintainer path)
+  3. Lines coverage at 95%+ (or SYNC-II-05 requirement scope amended to exclude test helpers)
+  4. ConfigLoader.getDefaults() and createDefaultConfig() include gsd section
+  5. autocompact_threshold ghost reference resolved
+  6. REQUIREMENTS.md traceability updated: all 16 requirements show correct status and checkboxes
+  7. Phase 18 SUMMARY frontmatter requirements-completed fields updated
+Plans:
+- [ ] 23-01-PLAN.md -- Phase 18 verification, REQUIREMENTS.md update, SUMMARY frontmatter fixes, dist rebuild, coverage fix, config cleanup
+
 ## Progress
 
-**Execution Order:** 18 -> 19 -> 20 -> 21 -> 22
+**Execution Order:** 18 -> 19 -> 20 -> 21 -> 22 -> 23
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -124,3 +143,4 @@ Plans:
 | 20. Sync Safety & Transparency | v0.3.0 | 2/2 | Complete | 2026-02-23 |
 | 21. Sync Intelligence | 3/3 | Complete    | 2026-02-25 | - |
 | 22. Advanced Sync Automation | v0.3.0 | Complete    | 2026-03-07 | 2026-03-07 |
+| 23. v0.3.0 Gap Closure | v0.3.0 | 0/1 | Not Started | - |

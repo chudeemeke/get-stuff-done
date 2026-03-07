@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Maintain upstream compatibility while establishing distinct identity
-**Current focus:** Phase 21 context gathered, ready for planning
+**Current focus:** Phase 22 Plan 01 complete, Plan 02 next
 
 ## Current Position
 
-Phase: 21 of 22 (Sync Intelligence) -- All 3 plans complete
+Phase: 22 of 22 (Advanced Sync Automation) -- Plan 01 complete, Plan 02 pending
 Upstream sync: v1.20.6+ integrated (20 commits, published as v2.3.0)
-Status: Phase 21 complete. Plans 01 (classifyCommit), 02 (supply chain scanner), and 03 (monitoring hook) all done.
-Last activity: 2026-02-25 -- Phase 21 Plan 02 executed
+Status: Phase 22 Plan 01 complete. Selective sync filtering + dependency detection implemented.
+Last activity: 2026-03-07 -- Phase 22 Plan 01 executed
 
-Progress: [##########....] 68% (v0.3.0: 3/5 phases complete -- Phase 18, 19, 20 done; Phase 21 context ready)
+Progress: [#############.] 90% (v0.3.0: 4/5 phases complete -- Phase 18-21 done; Phase 22 in progress)
 
 ## Performance Metrics
 
@@ -28,14 +28,14 @@ Progress: [##########....] 68% (v0.3.0: 3/5 phases complete -- Phase 18, 19, 20 
 - Average duration: 8.3 minutes
 - Total execution time: 4.45 hours
 
-**v0.3.0 Velocity (Phases 18-20 complete):**
-- Plans completed: 11 (18-01 through 18-06, 19-01 through 19-03, 20-01, 20-02)
-- Total execution time: ~14 hours
+**v0.3.0 Velocity (Phases 18-22 in progress):**
+- Plans completed: 15 (18-01 through 18-06, 19-01 through 19-03, 20-01, 20-02, 21-01 through 21-03, 22-01)
+- Total execution time: ~14.5 hours
 
 **Cumulative:**
 - 2 milestones shipped (v0.1.0, v0.2.0)
-- 55 plans completed across 20 phases
-- ~19.83 hours total execution time
+- 59 plans completed across 22 phases
+- ~20 hours total execution time
 
 ## Open Items
 
@@ -89,6 +89,13 @@ v0.3.0 decisions (Upstream sync 2026-02-24):
 - Multi-runtime support deferred to separate milestone per user decision
 - Version bump: minor (2.2.1 -> 2.3.0) for features + bug fixes
 
+v0.3.0 decisions (Phase 22, Plan 01):
+- SHA exclude has highest precedence over all other filters; SHA include overrides category filters
+- detectFileOverlapDeps tracks earliest commit per file (not most recent) for stable dependency chains
+- dependencies.semantic is empty array placeholder -- populated by workflow layer (Plan 02) via AI analysis
+- Separate --exclude (categories) and --exclude-sha (SHAs) flags to avoid ambiguity
+- Missing dependency warnings computed by checking all commits for cross-boundary deps, not just selected subset
+
 ### Pending Todos
 
 None.
@@ -106,13 +113,13 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-25
-Status: Phase 21 complete. All 3 plans done: classifyCommit, supply chain scanner, monitoring hook.
-Stopped at: Completed 21-sync-intelligence Plan 02 (21-02-PLAN.md)
-Resume file: .planning/phases/21-sync-intelligence/21-02-SUMMARY.md
+Last session: 2026-03-07
+Status: Phase 22 Plan 01 complete. Selective sync filtering and dependency detection implemented.
+Stopped at: Completed 22-advanced-sync-automation Plan 01 (22-01-PLAN.md)
+Resume file: .planning/phases/22-advanced-sync-automation/22-01-SUMMARY.md
 
 **Next steps (in order):**
-1. Reassess Phase 22 scope based on Phase 21 outcomes
+1. Execute Phase 22 Plan 02 (workflow integration for selective sync + AI-assisted conflict resolution)
 
 ---
-*Updated: 2026-02-25 (Phase 21 context gathered)*
+*Updated: 2026-03-07 (Phase 22 Plan 01 complete)*

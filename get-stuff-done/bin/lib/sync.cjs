@@ -713,6 +713,142 @@ function runSupplyChainChecks(diff, files, authorString, knownAuthors) {
   return findings;
 }
 
+// ─── Selective sync filtering ─────────────────────────────────────────────────
+
+/**
+ * Filter enriched commits by category inclusion/exclusion and individual SHA overrides.
+ *
+ * Precedence (per commit):
+ *   1. Individual SHA --exclude overrides everything (force exclude)
+ *   2. Individual SHA --include overrides category filters (force include)
+ *   3. If categories provided and non-empty, only those types included
+ *   4. If excludeCategories provided and non-empty, those types removed
+ *   5. Both can combine: --category feat,fix --exclude feat gives only fix
+ *
+ * @param {Array<{hash, hashShort, classification: {type}}>} commits - Enriched commits
+ * @param {{categories?: string[], excludeCategories?: string[], includeShas?: string[], excludeShas?: string[]}} filters
+ * @returns {{selected: Array, excluded: Array}}
+ */
+function filterCommitsByCategory(commits, filters) {
+  const { categories, excludeCategories, includeShas, excludeShas } = filters || {};
+
+  // Build SHA override sets (lowercase for case-insensitive matching)
+  const forceInclude = new Set((includeShas || []).map(s => s.toLowerCase()));
+  const forceExclude = new Set((excludeShas || []).map(s => s.toLowerCase()));
+
+  const selected = [];
+  const excluded = [];
+
+  for (const commit of commits) {
+    const sha = commit.hashShort.toLowerCase();
+    const fullSha = commit.hash.toLowerCase();
+    const type = commit.classification.type;
+
+    // Rule 1: Individual SHA --exclude overrides everything
+    if (forceExclude.has(sha) || forceExclude.has(fullSha)) {
+      excluded.push({ ...commit, excludeReason: 'sha-excluded' });
+      continue;
+    }
+
+    // Rule 2: Individual SHA --include overrides category filters
+    if (forceInclude.has(sha) || forceInclude.has(fullSha)) {
+      selected.push(commit);
+      continue;
+    }
+
+    // Rules 3-4: Category filtering
+    let included = true;
+    if (categories && categories.length > 0) {
+      included = categories.includes(type);
+    }
+    if (included && excludeCategories && excludeCategories.length > 0) {
+      included = !excludeCategories.includes(type);
+    }
+
+    if (included) {
+      selected.push(commit);
+    } else {
+      excluded.push({ ...commit, excludeReason: 'category-filtered' });
+    }
+  }
+
+  return { selected, excluded };
+}
+
+/**
+ * Detect which bin/lib/*.cjs modules a commit's files touch.
+ *
+ * @param {Array<{path: string}>} files - File objects with path field
+ * @returns {string[]} Module names (e.g., ['sync', 'state', 'core'])
+ */
+function detectModules(files) {
+  const modules = new Set();
+  for (const f of files) {
+    const match = f.path.match(/(?:get-stuff-done\/)?bin\/lib\/([^/]+)\.cjs$/);
+    if (match) {
+      modules.add(match[1]);
+    }
+  }
+  return [...modules];
+}
+
+/**
+ * Check whether two sets of modules share any overlap or have unique entries.
+ * Returns true if the module sets are different (cross-module relationship).
+ *
+ * @param {string[]} modulesA - Modules touched by commit A
+ * @param {string[]} modulesB - Modules touched by commit B
+ * @returns {boolean} true if module sets differ
+ */
+function isCrossModule(modulesA, modulesB) {
+  const setA = new Set(modulesA);
+  const setB = new Set(modulesB);
+  return modulesB.some(m => !setA.has(m)) || modulesA.some(m => !setB.has(m));
+}
+
+/**
+ * Detect file-overlap dependencies between chronologically ordered commits.
+ * If commit B modifies a file also modified by an earlier commit A, B may depend on A.
+ *
+ * @param {Array<{hash, hashShort, files: Array<{path: string}>}>} commits - Chronological order
+ * @returns {Array<{commit: string, dependsOn: string, reason: string, type: 'file-overlap', files: string[]}>}
+ */
+function detectFileOverlapDeps(commits) {
+  const deps = [];
+  // Map: filePath -> earliest commit that touches it
+  const fileToCommit = new Map();
+
+  for (const commit of commits) {
+    for (const file of commit.files) {
+      if (fileToCommit.has(file.path)) {
+        const earlier = fileToCommit.get(file.path);
+        if (earlier.hash !== commit.hash) {
+          // Check if we already recorded this exact dependency pair for another file
+          const existing = deps.find(
+            d => d.commit === commit.hashShort && d.dependsOn === earlier.hashShort
+          );
+          if (existing) {
+            // Append file to existing dependency
+            existing.files.push(file.path);
+            existing.reason = `Both modify ${existing.files.join(', ')}`;
+          } else {
+            deps.push({
+              commit: commit.hashShort,
+              dependsOn: earlier.hashShort,
+              reason: `Both modify ${file.path}`,
+              type: 'file-overlap',
+              files: [file.path],
+            });
+          }
+        }
+      } else {
+        fileToCommit.set(file.path, commit);
+      }
+    }
+  }
+  return deps;
+}
+
 // ─── CLI Commands ──────────────────────────────────────────────────────────────
 
 /**
@@ -1081,6 +1217,11 @@ module.exports = {
   assessConflictRiskByOverlap,
   computeEffortEstimate,
   classifyCommit,
+  // Selective sync filtering
+  filterCommitsByCategory,
+  detectModules,
+  isCrossModule,
+  detectFileOverlapDeps,
   // Supply chain scanner
   checkPromptIntegrity,
   checkDependencyDiff,

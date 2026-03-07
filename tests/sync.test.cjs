@@ -33,6 +33,10 @@ const {
   loadKnownAuthors,
   saveKnownAuthors,
   seedKnownAuthors,
+  filterCommitsByCategory,
+  detectModules,
+  isCrossModule,
+  detectFileOverlapDeps,
 } = require(SYNC_PATH);
 
 // ─── Local Helpers ─────────────────────────────────────────────────────────────
@@ -1242,5 +1246,209 @@ describe('sync-checkpoint command', () => {
     assert.strictEqual(data.count, 0, 'Should report 0 deleted');
     assert.deepStrictEqual(data.deleted, [], 'deleted should be empty array');
     assert.deepStrictEqual(data.failed, [], 'failed should be empty array');
+  });
+});
+
+// ─── Selective sync filtering ─────────────────────────────────────────────────
+
+describe('filterCommitsByCategory', () => {
+  // Helper to create mock enriched commits
+  function makeCommit(hashShort, type, hash) {
+    return {
+      hash: hash || hashShort + '0'.repeat(40 - hashShort.length),
+      hashShort,
+      subject: `${type}: test commit ${hashShort}`,
+      classification: { type, confidence: 'high' },
+    };
+  }
+
+  const commits = [
+    makeCommit('abc1111', 'feat'),
+    makeCommit('abc2222', 'fix'),
+    makeCommit('abc3333', 'refactor'),
+    makeCommit('abc4444', 'docs'),
+    makeCommit('abc5555', 'feat'),
+  ];
+
+  test('returns all commits when no filters applied', () => {
+    const result = filterCommitsByCategory(commits, {});
+    assert.strictEqual(result.selected.length, 5, 'All 5 should be selected');
+    assert.strictEqual(result.excluded.length, 0, 'None should be excluded');
+  });
+
+  test('filters by single category', () => {
+    const result = filterCommitsByCategory(commits, { categories: ['feat'] });
+    assert.strictEqual(result.selected.length, 2, 'Should select 2 feat commits');
+    assert.ok(result.selected.every(c => c.classification.type === 'feat'), 'All selected should be feat');
+    assert.strictEqual(result.excluded.length, 3, 'Should exclude 3 non-feat commits');
+  });
+
+  test('filters by multiple categories', () => {
+    const result = filterCommitsByCategory(commits, { categories: ['feat', 'fix'] });
+    assert.strictEqual(result.selected.length, 3, 'Should select 3 commits (2 feat + 1 fix)');
+    assert.strictEqual(result.excluded.length, 2, 'Should exclude 2 commits');
+  });
+
+  test('excludes by category', () => {
+    const result = filterCommitsByCategory(commits, { excludeCategories: ['refactor'] });
+    assert.strictEqual(result.selected.length, 4, 'Should select 4 commits');
+    assert.ok(result.selected.every(c => c.classification.type !== 'refactor'), 'No refactor in selected');
+    assert.strictEqual(result.excluded.length, 1, 'Should exclude 1 refactor');
+  });
+
+  test('combines category + exclude', () => {
+    const result = filterCommitsByCategory(commits, {
+      categories: ['feat', 'fix'],
+      excludeCategories: ['feat'],
+    });
+    assert.strictEqual(result.selected.length, 1, 'Should select only fix');
+    assert.strictEqual(result.selected[0].classification.type, 'fix', 'Selected should be fix');
+  });
+
+  test('SHA force-include overrides category exclusion', () => {
+    const result = filterCommitsByCategory(commits, {
+      categories: ['fix'],       // only fix
+      includeShas: ['abc1111'],  // force-include a feat commit
+    });
+    assert.strictEqual(result.selected.length, 2, 'Should have fix + force-included feat');
+    const types = result.selected.map(c => c.classification.type);
+    assert.ok(types.includes('feat'), 'Force-included feat should be in selected');
+    assert.ok(types.includes('fix'), 'Fix should be in selected');
+  });
+
+  test('SHA force-exclude overrides category inclusion', () => {
+    const result = filterCommitsByCategory(commits, {
+      categories: ['feat'],       // both feat commits would be selected
+      excludeShas: ['abc1111'],   // force-exclude one feat
+    });
+    assert.strictEqual(result.selected.length, 1, 'Should select only one feat');
+    assert.strictEqual(result.selected[0].hashShort, 'abc5555', 'Non-excluded feat should remain');
+    const excluded1111 = result.excluded.find(c => c.hashShort === 'abc1111');
+    assert.ok(excluded1111, 'abc1111 should be in excluded');
+    assert.strictEqual(excluded1111.excludeReason, 'sha-excluded', 'Should have sha-excluded reason');
+  });
+
+  test('SHA matching works with full hash', () => {
+    const fullHash = commits[0].hash;
+    const result = filterCommitsByCategory(commits, {
+      excludeShas: [fullHash],
+    });
+    const excludedCommit = result.excluded.find(c => c.hash === fullHash);
+    assert.ok(excludedCommit, 'Should exclude by full hash');
+    assert.strictEqual(excludedCommit.excludeReason, 'sha-excluded');
+  });
+
+  test('excluded commits have excludeReason field', () => {
+    const result = filterCommitsByCategory(commits, { categories: ['feat'] });
+    for (const c of result.excluded) {
+      assert.ok(c.excludeReason, 'Each excluded commit should have excludeReason');
+      assert.strictEqual(c.excludeReason, 'category-filtered', 'Category-filtered commits get correct reason');
+    }
+  });
+
+  test('empty commits array returns empty selected and excluded', () => {
+    const result = filterCommitsByCategory([], { categories: ['feat'] });
+    assert.deepStrictEqual(result.selected, []);
+    assert.deepStrictEqual(result.excluded, []);
+  });
+});
+
+describe('detectModules', () => {
+  test('detects single module from bin/lib/sync.cjs path', () => {
+    const files = [{ path: 'bin/lib/sync.cjs' }];
+    const modules = detectModules(files);
+    assert.deepStrictEqual(modules, ['sync']);
+  });
+
+  test('detects multiple modules from multiple paths', () => {
+    const files = [
+      { path: 'bin/lib/sync.cjs' },
+      { path: 'bin/lib/state.cjs' },
+      { path: 'bin/lib/core.cjs' },
+    ];
+    const modules = detectModules(files);
+    assert.strictEqual(modules.length, 3);
+    assert.ok(modules.includes('sync'));
+    assert.ok(modules.includes('state'));
+    assert.ok(modules.includes('core'));
+  });
+
+  test('returns empty array for non-module files', () => {
+    const files = [
+      { path: 'src/index.js' },
+      { path: 'tests/sync.test.cjs' },
+      { path: 'README.md' },
+    ];
+    const modules = detectModules(files);
+    assert.deepStrictEqual(modules, []);
+  });
+
+  test('handles get-stuff-done/ prefix in path', () => {
+    const files = [{ path: 'get-stuff-done/bin/lib/commands.cjs' }];
+    const modules = detectModules(files);
+    assert.deepStrictEqual(modules, ['commands']);
+  });
+});
+
+describe('isCrossModule', () => {
+  test('returns false for identical module sets', () => {
+    assert.strictEqual(isCrossModule(['sync', 'core'], ['sync', 'core']), false);
+  });
+
+  test('returns true when modules differ', () => {
+    assert.strictEqual(isCrossModule(['sync'], ['state']), true);
+  });
+
+  test('returns true for partial overlap (A has extra)', () => {
+    assert.strictEqual(isCrossModule(['sync', 'core'], ['sync']), true);
+  });
+});
+
+describe('detectFileOverlapDeps', () => {
+  test('returns empty array when no files overlap', () => {
+    const commits = [
+      { hash: 'aaa', hashShort: 'aaa1234', files: [{ path: 'file1.js' }] },
+      { hash: 'bbb', hashShort: 'bbb1234', files: [{ path: 'file2.js' }] },
+    ];
+    const deps = detectFileOverlapDeps(commits);
+    assert.deepStrictEqual(deps, []);
+  });
+
+  test('detects single file overlap between two commits', () => {
+    const commits = [
+      { hash: 'aaa', hashShort: 'aaa1234', files: [{ path: 'shared.js' }] },
+      { hash: 'bbb', hashShort: 'bbb1234', files: [{ path: 'shared.js' }] },
+    ];
+    const deps = detectFileOverlapDeps(commits);
+    assert.strictEqual(deps.length, 1);
+    assert.strictEqual(deps[0].commit, 'bbb1234');
+    assert.strictEqual(deps[0].dependsOn, 'aaa1234');
+    assert.strictEqual(deps[0].type, 'file-overlap');
+    assert.deepStrictEqual(deps[0].files, ['shared.js']);
+  });
+
+  test('detects chain dependency (A -> B -> C through same file)', () => {
+    const commits = [
+      { hash: 'aaa', hashShort: 'aaa1234', files: [{ path: 'shared.js' }] },
+      { hash: 'bbb', hashShort: 'bbb1234', files: [{ path: 'shared.js' }] },
+      { hash: 'ccc', hashShort: 'ccc1234', files: [{ path: 'shared.js' }] },
+    ];
+    const deps = detectFileOverlapDeps(commits);
+    // B depends on A (earliest), C depends on A (earliest for shared.js)
+    assert.strictEqual(deps.length, 2);
+    assert.strictEqual(deps[0].commit, 'bbb1234');
+    assert.strictEqual(deps[0].dependsOn, 'aaa1234');
+    assert.strictEqual(deps[1].commit, 'ccc1234');
+    assert.strictEqual(deps[1].dependsOn, 'aaa1234');
+  });
+
+  test('returns correct hashShort identifiers', () => {
+    const commits = [
+      { hash: 'aaaa1111bbbb2222cccc3333dddd4444eeee5555', hashShort: 'aaaa111', files: [{ path: 'x.js' }] },
+      { hash: 'ffff6666gggg7777hhhh8888iiii9999jjjj0000', hashShort: 'ffff666', files: [{ path: 'x.js' }] },
+    ];
+    const deps = detectFileOverlapDeps(commits);
+    assert.strictEqual(deps[0].commit, 'ffff666');
+    assert.strictEqual(deps[0].dependsOn, 'aaaa111');
   });
 });

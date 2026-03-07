@@ -1,7 +1,7 @@
 ---
 name: gsd:upstream
 description: Sync changes from upstream GSD repository (maintainer workflow)
-argument-hint: "[--force-fetch] [--dry-run]"
+argument-hint: "[--force-fetch] [--dry-run] [--force] [--category type,...] [--exclude type,...] [--include sha,...] [--exclude-sha sha,...]"
 allowed-tools:
   - Read
   - Write
@@ -87,6 +87,32 @@ Check if user provided `--dry-run` flag:
   Set `DRY_RUN=true` in sync_context
 - Otherwise: `DRY_RUN=false` (default)
 
+## Selective Sync Flag Detection
+
+Parse category and SHA filter flags from user input or $ARGUMENTS:
+
+- `--category <types>`: Comma-separated list of commit types to include (e.g., feat,fix)
+- `--exclude <types>`: Comma-separated list of commit types to exclude (e.g., refactor,docs)
+- `--include <shas>`: Comma-separated list of SHAs to force-include regardless of category
+- `--exclude-sha <shas>`: Comma-separated list of SHAs to force-exclude
+- `--force`: Suppress dependency auto-inclusion -- apply exactly the selected set regardless of detected dependencies. Dependency warnings still appear but are informational, not blocking.
+
+Store as structured fields:
+- SYNC_CATEGORIES (comma-separated string or empty)
+- SYNC_EXCLUDE_CATEGORIES (comma-separated string or empty)
+- SYNC_INCLUDE_SHAS (comma-separated string or empty)
+- SYNC_EXCLUDE_SHAS (comma-separated string or empty)
+- SYNC_FORCE (true/false -- whether --force was passed)
+
+Examples:
+```
+/gsd:upstream --category feat,fix         # Only sync features and fixes
+/gsd:upstream --exclude refactor,docs     # Sync everything except refactors and docs
+/gsd:upstream --category feat --include abc1234  # Sync features + force-include abc1234
+/gsd:upstream --exclude-sha def5678       # Sync everything except commit def5678
+/gsd:upstream --category fix --force      # Only fixes, skip dependency auto-inclusion
+```
+
 ## Spawn Workflow (Initial)
 
 After pre-flight checks pass, read cache file and spawn workflow:
@@ -104,6 +130,11 @@ Task(
 <sync_context>
 resume_stage: 1
 dry_run: ${DRY_RUN}
+force: ${SYNC_FORCE}
+categories: ${SYNC_CATEGORIES}
+exclude_categories: ${SYNC_EXCLUDE_CATEGORIES}
+include_shas: ${SYNC_INCLUDE_SHAS}
+exclude_shas: ${SYNC_EXCLUDE_SHAS}
 cache_json: ${CACHE_CONTENT}
 </sync_context>",
   subagent_type="general-purpose",
@@ -152,6 +183,11 @@ Task(
 resume_stage: 3
 user_selection: {user_response}
 commit_list: {commits_from_checkpoint}
+force: ${SYNC_FORCE}
+categories: ${SYNC_CATEGORIES}
+exclude_categories: ${SYNC_EXCLUDE_CATEGORIES}
+include_shas: ${SYNC_INCLUDE_SHAS}
+exclude_shas: ${SYNC_EXCLUDE_SHAS}
 cache_json: ${CACHE_CONTENT}
 </sync_context>",
   subagent_type="general-purpose",
@@ -184,6 +220,11 @@ Task(
 resume_stage: 4
 security_approved: true
 selected_commits: {commits_from_plan}
+force: ${SYNC_FORCE}
+categories: ${SYNC_CATEGORIES}
+exclude_categories: ${SYNC_EXCLUDE_CATEGORIES}
+include_shas: ${SYNC_INCLUDE_SHAS}
+exclude_shas: ${SYNC_EXCLUDE_SHAS}
 cache_json: ${CACHE_CONTENT}
 </sync_context>",
   subagent_type="general-purpose",
@@ -262,6 +303,11 @@ Task(
 resume_stage: 4
 conflict_resolved: true
 remaining_commits: {commits_not_yet_applied}
+force: ${SYNC_FORCE}
+categories: ${SYNC_CATEGORIES}
+exclude_categories: ${SYNC_EXCLUDE_CATEGORIES}
+include_shas: ${SYNC_INCLUDE_SHAS}
+exclude_shas: ${SYNC_EXCLUDE_SHAS}
 cache_json: ${CACHE_CONTENT}
 </sync_context>",
   subagent_type="general-purpose",
@@ -269,6 +315,62 @@ cache_json: ${CACHE_CONTENT}
   description="Upstream sync workflow - Stage 4 (after conflict resolution)"
 )
 ```
+
+### 5b. CONFLICT ANALYSIS (AI-Assisted)
+
+```
+## CHECKPOINT: CONFLICT_ANALYSIS
+
+**Commit:** {sha_short} - {summary}
+**Conflicted files:** {count}
+
+{For each conflicted file:}
+### {filepath}
+**What upstream changed:** {explanation}
+**What fork has:** {explanation}
+**Why they conflict:** {explanation}
+**Suggested resolution:** {explanation}
+
+```
+{suggested file content}
+```
+
+**Options:**
+1. "accept" - Apply suggested resolution for all files
+2. "reject" - Skip this commit (git cherry-pick --abort)
+3. "edit" - Manual resolution (open files, resolve, then respond "resolved")
+```
+
+**Action:**
+1. Present conflict analysis to user via AskUserQuestion with the three options (accept/reject/edit)
+2. If "accept": Spawn continuation at Stage 4 with conflict_action=accept and the suggested resolutions
+3. If "reject": Spawn continuation at Stage 4 with conflict_action=reject
+4. If "edit": Tell user to resolve manually, wait for "resolved", then spawn Stage 4 continuation with conflict_resolved=true
+
+Spawn continuation:
+```
+Task(
+  prompt="First, read ~/.claude/get-stuff-done/workflows/upstream-sync.md.
+
+<sync_context>
+resume_stage: 4
+conflict_action: ${USER_CHOICE}
+suggested_resolutions: ${RESOLUTION_DATA}
+remaining_commits: {commits_not_yet_applied}
+force: ${SYNC_FORCE}
+categories: ${SYNC_CATEGORIES}
+exclude_categories: ${SYNC_EXCLUDE_CATEGORIES}
+include_shas: ${SYNC_INCLUDE_SHAS}
+exclude_shas: ${SYNC_EXCLUDE_SHAS}
+cache_json: ${CACHE_CONTENT}
+</sync_context>",
+  subagent_type="general-purpose",
+  model="opus",
+  description="Upstream sync workflow - Stage 4 (after AI conflict analysis)"
+)
+```
+
+Note: The CONFLICT_ANALYSIS checkpoint coexists with the existing CONFLICT_DETECTED. The workflow emits CONFLICT_ANALYSIS when AI analysis is available (default behavior). The old CONFLICT_DETECTED handler remains for backward compatibility.
 
 ### 6. VERIFICATION FAILED
 ```

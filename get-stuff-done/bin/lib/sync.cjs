@@ -853,10 +853,11 @@ function detectFileOverlapDeps(commits) {
 
 /**
  * Preview commits in a range with diff stats, sensitive path flags, and effort estimate.
+ * Supports optional category/SHA filtering for selective sync.
  *
  * @param {string} cwd - Working directory
  * @param {string} range - Commit range "baseRef..targetRef"
- * @param {{json: boolean}} options - Output options
+ * @param {{json?: boolean, categories?: string[], excludeCategories?: string[], includeShas?: string[], excludeShas?: string[]}} options - Output and filter options
  * @param {boolean} raw - Raw output flag
  */
 function cmdSyncPreview(cwd, range, options, raw) {
@@ -953,6 +954,58 @@ function cmdSyncPreview(cwd, range, options, raw) {
     saveKnownAuthors(cacheDir, knownAuthors);
   }
 
+  // ─── Selective sync filtering ───────────────────────────────────────────────
+  const filtersActive = !!(
+    (options.categories && options.categories.length) ||
+    (options.excludeCategories && options.excludeCategories.length) ||
+    (options.includeShas && options.includeShas.length) ||
+    (options.excludeShas && options.excludeShas.length)
+  );
+
+  let selected = enrichedCommits;
+  let excluded = [];
+  let fileOverlapDeps = [];
+  let missingDepWarnings = [];
+
+  if (filtersActive) {
+    const filterResult = filterCommitsByCategory(enrichedCommits, {
+      categories: options.categories,
+      excludeCategories: options.excludeCategories,
+      includeShas: options.includeShas,
+      excludeShas: options.excludeShas,
+    });
+    selected = filterResult.selected;
+    excluded = filterResult.excluded;
+
+    // Detect file-overlap dependencies among selected commits
+    fileOverlapDeps = detectFileOverlapDeps(selected);
+
+    // Check if any selected commit depends on an excluded commit
+    const excludedHashSet = new Set(excluded.map(c => c.hashShort));
+    // Also check all commits (selected + excluded) for cross-boundary deps
+    const allFileOverlapDeps = detectFileOverlapDeps(enrichedCommits);
+    for (const dep of allFileOverlapDeps) {
+      const depInSelected = selected.some(c => c.hashShort === dep.commit);
+      const depOnExcluded = excludedHashSet.has(dep.dependsOn);
+      if (depInSelected && depOnExcluded) {
+        const selectedModules = detectModules(
+          (selected.find(c => c.hashShort === dep.commit) || { files: [] }).files
+        );
+        const excludedModules = detectModules(
+          (excluded.find(c => c.hashShort === dep.dependsOn) || { files: [] }).files
+        );
+        missingDepWarnings.push({
+          type: 'missing-dependency',
+          commit: dep.commit,
+          missingDep: dep.dependsOn,
+          reason: dep.reason,
+          files: dep.files,
+          crossModule: isCrossModule(selectedModules, excludedModules),
+        });
+      }
+    }
+  }
+
   // Effort estimate
   const effortEstimate = computeEffortEstimate(cwd, commits.length);
 
@@ -993,6 +1046,27 @@ function cmdSyncPreview(cwd, range, options, raw) {
       },
       effortEstimate,
     };
+
+    // Add filter-specific fields only when filters are active (backward compat)
+    if (filtersActive) {
+      result.filters = {
+        categories: options.categories || [],
+        excludeCategories: options.excludeCategories || [],
+        includeShas: options.includeShas || [],
+        excludeShas: options.excludeShas || [],
+        active: true,
+      };
+      result.selected = selected;
+      result.excluded = excluded;
+      result.dependencies = {
+        fileOverlap: fileOverlapDeps,
+        semantic: [],  // placeholder -- populated by workflow layer (Plan 02) via AI analysis
+        warnings: missingDepWarnings,
+      };
+      result.summary.selectedCommits = selected.length;
+      result.summary.excludedCommits = excluded.length;
+    }
+
     output(result, raw);
     return;
   }
@@ -1014,54 +1088,15 @@ function cmdSyncPreview(cwd, range, options, raw) {
     return DIM; // docs, chore, refactor, other
   }
 
-  let out = '';
-  out += BOLD + 'Sync Preview: ' + range + RESET + '\n';
-  out += CYAN + `${commits.length} commits` + RESET;
-  if (sensitivePathCount > 0) {
-    out += ' | ' + YELLOW + `${sensitivePathCount} sensitive paths` + RESET;
-  }
-  out += '\n\n';
-
-  for (const commit of enrichedCommits) {
+  // Helper to render a single commit line with stats and risk badges
+  function renderCommitBlock(commit, cwd) {
+    let block = '';
     const { type } = commit.classification;
     const badgeColor = typeBadgeColor(type);
-    out += BOLD + commit.hashShort + RESET + ' ' + badgeColor + '[' + type + ']' + RESET + ' ' + commit.subject + '\n';
-    out += '  ' + commit.date + ' by ' + commit.author + '\n';
+    block += '  ' + BOLD + commit.hashShort + RESET + ' ' + badgeColor + '[' + type + ']' + RESET + ' ' + commit.subject + '\n';
 
     if (commit.conflictRisk === 'overlap') {
-      out += '  ' + RED + '[OVERLAP RISK]' + RESET + ' Files overlap with dirty working tree\n';
-    }
-
-    // Get stat summary for this commit
-    // Use spawnGit for parent check and diff stat: caret ^ is not safe for shell escaping in execGit
-    const parentCheck = spawnGit(cwd, ['rev-parse', commit.hash + '^']);
-    if (parentCheck.exitCode === 0) {
-      const statResult = spawnGit(cwd, [
-        'diff',
-        '--color=always',
-        '--stat',
-        commit.hash + '^..' + commit.hash,
-      ]);
-      if (statResult.exitCode === 0 && statResult.stdout) {
-        const statLines = statResult.stdout.split('\n');
-        for (const line of statLines) {
-          // Flag sensitive paths with [!] marker
-          const matchedSensitive = commit.files.find(
-            f => f.sensitive && line.includes(f.path)
-          );
-          if (matchedSensitive) {
-            out += '  ' + YELLOW + '[!]' + RESET + ' ' + line + '\n';
-          } else {
-            out += '  ' + line + '\n';
-          }
-        }
-      }
-    } else {
-      // Root commit: list files directly
-      for (const f of commit.files) {
-        const prefix = f.sensitive ? YELLOW + '[!] ' + RESET : '    ';
-        out += prefix + f.status + ' ' + f.path + '\n';
-      }
+      block += '    ' + RED + '[OVERLAP RISK]' + RESET + ' Files overlap with dirty working tree\n';
     }
 
     // Supply chain risk badges
@@ -1078,13 +1113,162 @@ function cmdSyncPreview(cwd, range, options, raw) {
         const evidenceSummary = finding.evidence && finding.evidence.length > 0
           ? finding.evidence[0].slice(0, 80)
           : '';
-        out += '  ' + badgeAnsi + '[RISK:' + finding.check + ']' + RESET + ' ' + finding.severity;
-        if (evidenceSummary) out += ': ' + evidenceSummary;
-        out += '\n';
+        block += '    ' + badgeAnsi + '[RISK:' + finding.check + ']' + RESET + ' ' + finding.severity;
+        if (evidenceSummary) block += ': ' + evidenceSummary;
+        block += '\n';
       }
     }
 
+    return block;
+  }
+
+  let out = '';
+  out += BOLD + 'Sync Preview: ' + range + RESET + '\n';
+
+  if (filtersActive) {
+    // ─── Filtered output: category groups with selection indicators ────────
+    // Header with filter summary
+    out += CYAN + `${commits.length} commits` + RESET;
+    out += `, ${GREEN}${selected.length} selected${RESET}`;
+    out += `, ${DIM}${excluded.length} excluded${RESET}`;
+    if (sensitivePathCount > 0) {
+      out += ' | ' + YELLOW + `${sensitivePathCount} sensitive paths` + RESET;
+    }
     out += '\n';
+
+    // Show active filters
+    const filterParts = [];
+    if (options.categories && options.categories.length) {
+      filterParts.push('--category ' + options.categories.join(','));
+    }
+    if (options.excludeCategories && options.excludeCategories.length) {
+      filterParts.push('--exclude ' + options.excludeCategories.join(','));
+    }
+    if (options.includeShas && options.includeShas.length) {
+      filterParts.push('--include ' + options.includeShas.join(','));
+    }
+    if (options.excludeShas && options.excludeShas.length) {
+      filterParts.push('--exclude-sha ' + options.excludeShas.join(','));
+    }
+    out += DIM + 'Filters: ' + filterParts.join(' ') + RESET + '\n\n';
+
+    // Group selected commits by type
+    const selectedByType = {};
+    for (const c of selected) {
+      const t = c.classification.type;
+      if (!selectedByType[t]) selectedByType[t] = [];
+      selectedByType[t].push(c);
+    }
+
+    // Render selected groups
+    for (const [type, groupCommits] of Object.entries(selectedByType)) {
+      out += GREEN + '[SELECTED]' + RESET + ' ' + BOLD + type + RESET + ` (${groupCommits.length} commit${groupCommits.length !== 1 ? 's' : ''})\n`;
+      for (const commit of groupCommits) {
+        out += renderCommitBlock(commit, cwd);
+      }
+      out += '\n';
+    }
+
+    // Group excluded commits by type with reason
+    const excludedByType = {};
+    for (const c of excluded) {
+      const t = c.classification.type;
+      if (!excludedByType[t]) excludedByType[t] = { commits: [], reason: c.excludeReason };
+      excludedByType[t].commits.push(c);
+    }
+
+    for (const [type, group] of Object.entries(excludedByType)) {
+      const reasonLabel = group.reason === 'sha-excluded' ? 'by --exclude-sha' : 'by category filter';
+      out += DIM + '[EXCLUDED ' + reasonLabel + ']' + RESET + ' ' + BOLD + type + RESET + ` (${group.commits.length} commit${group.commits.length !== 1 ? 's' : ''})\n`;
+      for (const commit of group.commits) {
+        out += renderCommitBlock(commit, cwd);
+      }
+      out += '\n';
+    }
+
+    // Dependencies section
+    if (fileOverlapDeps.length > 0 || missingDepWarnings.length > 0) {
+      out += BOLD + '--- Dependencies ---' + RESET + '\n';
+      for (const dep of fileOverlapDeps) {
+        out += `  ${dep.commit} depends on ${dep.dependsOn} (file-overlap: ${dep.files.join(', ')})\n`;
+      }
+      for (const warn of missingDepWarnings) {
+        out += '  ' + YELLOW + 'WARNING' + RESET + `: ${warn.commit} depends on ${warn.missingDep} [EXCLUDED] -- potential breakage`;
+        if (warn.crossModule) out += ' (cross-module)';
+        out += '\n';
+      }
+      out += '\n';
+    }
+
+  } else {
+    // ─── Unfiltered output: original format (backward compatible) ─────────
+    out += CYAN + `${commits.length} commits` + RESET;
+    if (sensitivePathCount > 0) {
+      out += ' | ' + YELLOW + `${sensitivePathCount} sensitive paths` + RESET;
+    }
+    out += '\n\n';
+
+    for (const commit of enrichedCommits) {
+      const { type } = commit.classification;
+      const badgeColor = typeBadgeColor(type);
+      out += BOLD + commit.hashShort + RESET + ' ' + badgeColor + '[' + type + ']' + RESET + ' ' + commit.subject + '\n';
+      out += '  ' + commit.date + ' by ' + commit.author + '\n';
+
+      if (commit.conflictRisk === 'overlap') {
+        out += '  ' + RED + '[OVERLAP RISK]' + RESET + ' Files overlap with dirty working tree\n';
+      }
+
+      // Get stat summary for this commit
+      const parentCheck = spawnGit(cwd, ['rev-parse', commit.hash + '^']);
+      if (parentCheck.exitCode === 0) {
+        const statResult = spawnGit(cwd, [
+          'diff',
+          '--color=always',
+          '--stat',
+          commit.hash + '^..' + commit.hash,
+        ]);
+        if (statResult.exitCode === 0 && statResult.stdout) {
+          const statLines = statResult.stdout.split('\n');
+          for (const line of statLines) {
+            const matchedSensitive = commit.files.find(
+              f => f.sensitive && line.includes(f.path)
+            );
+            if (matchedSensitive) {
+              out += '  ' + YELLOW + '[!]' + RESET + ' ' + line + '\n';
+            } else {
+              out += '  ' + line + '\n';
+            }
+          }
+        }
+      } else {
+        for (const f of commit.files) {
+          const prefix = f.sensitive ? YELLOW + '[!] ' + RESET : '    ';
+          out += prefix + f.status + ' ' + f.path + '\n';
+        }
+      }
+
+      // Supply chain risk badges
+      if (commit.supplyChainRisks && commit.supplyChainRisks.length > 0) {
+        for (const finding of commit.supplyChainRisks) {
+          let badgeAnsi;
+          if (finding.severity === 'elevated' || finding.severity === 'high') {
+            badgeAnsi = RED;
+          } else if (finding.severity === 'medium') {
+            badgeAnsi = YELLOW;
+          } else {
+            badgeAnsi = DIM;
+          }
+          const evidenceSummary = finding.evidence && finding.evidence.length > 0
+            ? finding.evidence[0].slice(0, 80)
+            : '';
+          out += '  ' + badgeAnsi + '[RISK:' + finding.check + ']' + RESET + ' ' + finding.severity;
+          if (evidenceSummary) out += ': ' + evidenceSummary;
+          out += '\n';
+        }
+      }
+
+      out += '\n';
+    }
   }
 
   // Effort estimate section

@@ -1452,3 +1452,132 @@ describe('detectFileOverlapDeps', () => {
     assert.strictEqual(deps[0].dependsOn, 'aaaa111');
   });
 });
+
+// ─── sync-preview selective filtering CLI integration ─────────────────────────
+
+describe('sync-preview selective filtering CLI', () => {
+  test('--category flag filters output correctly', () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Create commits with different conventional prefixes
+      fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'fix.txt'), 'fix');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "fix: resolve bug"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'refactor.txt'), 'refactor');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "refactor: cleanup code"', { cwd: repoDir, stdio: 'pipe' });
+
+      const baseSha = execSync('git rev-parse HEAD~3', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      // Filter to only feat commits
+      const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json --category feat`, repoDir);
+      assert.ok(result.success, `sync-preview --category failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      assert.ok(data.filters, 'Should have filters field');
+      assert.strictEqual(data.filters.active, true, 'Filters should be active');
+      assert.deepStrictEqual(data.filters.categories, ['feat'], 'Categories should be ["feat"]');
+      assert.ok(Array.isArray(data.selected), 'Should have selected array');
+      assert.ok(Array.isArray(data.excluded), 'Should have excluded array');
+      assert.strictEqual(data.selected.length, 1, 'Should select 1 feat commit');
+      assert.strictEqual(data.excluded.length, 2, 'Should exclude 2 non-feat commits');
+      assert.strictEqual(data.selected[0].classification.type, 'feat', 'Selected should be feat');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('--exclude flag removes category from output', () => {
+    const repoDir = createTempGitProject();
+    try {
+      fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'refactor.txt'), 'refactor');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "refactor: cleanup code"', { cwd: repoDir, stdio: 'pipe' });
+
+      const baseSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json --exclude refactor`, repoDir);
+      assert.ok(result.success, `sync-preview --exclude failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      assert.ok(data.filters, 'Should have filters field');
+      assert.deepStrictEqual(data.filters.excludeCategories, ['refactor']);
+      assert.strictEqual(data.selected.length, 1, 'Should select 1 non-refactor commit');
+      assert.strictEqual(data.excluded.length, 1, 'Should exclude 1 refactor commit');
+      assert.ok(data.excluded[0].excludeReason, 'Excluded should have excludeReason');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('without filter flags produces unchanged output (backward compat)', () => {
+    const repoDir = createTempGitProject();
+    try {
+      fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+
+      const baseSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json`, repoDir);
+      assert.ok(result.success, `sync-preview without filters failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      // Backward compat: no filters, selected, excluded, or dependencies fields
+      assert.strictEqual(data.filters, undefined, 'Should NOT have filters field when no filters');
+      assert.strictEqual(data.selected, undefined, 'Should NOT have selected field when no filters');
+      assert.strictEqual(data.excluded, undefined, 'Should NOT have excluded field when no filters');
+      assert.strictEqual(data.dependencies, undefined, 'Should NOT have dependencies field when no filters');
+      // Original schema intact
+      assert.ok(data.range, 'Should still have range');
+      assert.ok(Array.isArray(data.commits), 'Should still have commits array');
+      assert.ok(data.summary, 'Should still have summary');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('--json with filters includes dependencies fields with semantic placeholder', () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Create 2 commits touching the same file (creates file-overlap dependency)
+      fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'version1');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: first change to shared"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'version2');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: second change to shared"', { cwd: repoDir, stdio: 'pipe' });
+
+      const baseSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json --category feat`, repoDir);
+      assert.ok(result.success, `sync-preview --json --category failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      assert.ok(data.dependencies, 'Should have dependencies field');
+      assert.ok(Array.isArray(data.dependencies.fileOverlap), 'Should have fileOverlap array');
+      assert.ok(Array.isArray(data.dependencies.semantic), 'Should have semantic array');
+      assert.deepStrictEqual(data.dependencies.semantic, [], 'semantic should be empty placeholder');
+      assert.ok(Array.isArray(data.dependencies.warnings), 'Should have warnings array');
+      // summary should include selectedCommits and excludedCommits counts
+      assert.strictEqual(typeof data.summary.selectedCommits, 'number', 'summary.selectedCommits should be a number');
+      assert.strictEqual(typeof data.summary.excludedCommits, 'number', 'summary.excludedCommits should be a number');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+});

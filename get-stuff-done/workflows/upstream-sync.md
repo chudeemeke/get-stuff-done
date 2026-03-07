@@ -8,6 +8,12 @@ This workflow is spawned by /gsd:upstream with a sync_context containing:
 - user_selection: User's commit selection (for Stage 3 continuation)
 - version_selection: User's version choice (for Stage 6b continuation)
 - cache_json: Last sync state (SHA and timestamp)
+- force: Whether --force was passed (suppresses dependency auto-inclusion)
+- categories: Comma-separated commit types to include (e.g., "feat,fix")
+- exclude_categories: Comma-separated commit types to exclude (e.g., "refactor,docs")
+- include_shas: Comma-separated SHAs to force-include regardless of category
+- exclude_shas: Comma-separated SHAs to force-exclude
+- conflict_action: User's choice for AI conflict resolution (accept/reject/edit)
 </objective>
 
 <checkpoint_protocol>
@@ -28,9 +34,10 @@ Awaiting selection...
 **Continuation:** Orchestrator spawns new Task with resume_stage and user response in sync_context.
 
 **Checkpoint types:**
-- CHERRY_PICK_SELECTION: User selects which commits to apply
+- CHERRY_PICK_SELECTION: User selects which commits to apply (category-grouped when filters active)
 - VERSION_BUMP: User approves/modifies version and changelog
-- CONFLICT_DETECTED: User must resolve merge conflicts manually
+- CONFLICT_DETECTED: User must resolve merge conflicts manually (legacy -- replaced by CONFLICT_ANALYSIS)
+- CONFLICT_ANALYSIS: AI-analyzed conflict with suggested resolution (accept/reject/edit)
 - VERIFICATION_FAILED: Validation errors block publish
 - PUBLISH_FAILED: npm publish failed after retries
 </checkpoint_protocol>
@@ -104,9 +111,9 @@ Present commits to user for selection.
 
 **Process:**
 
-1. Format commit_list as markdown table
+1. Check if filter fields are present in sync_context (categories, exclude_categories, include_shas, exclude_shas). Determine if filters are active (any non-empty).
 
-2. Output checkpoint to stdout:
+2. **If filters are NOT active** (no category/exclude flags): Format commit_list as markdown table (existing behavior):
    ```
    ## CHECKPOINT: CHERRY_PICK_SELECTION
 
@@ -128,7 +135,70 @@ Present commits to user for selection.
    Awaiting selection...
    ```
 
-3. Workflow pauses here. Orchestrator presents to user and spawns continuation at Stage 3.
+3. **If filters ARE active** (any category/exclude/include/exclude-sha flags provided):
+
+   a. Run sync-preview with filter flags to get categorized view:
+      ```bash
+      node ~/.claude/get-stuff-done/bin/gsd-tools.cjs sync-preview "${LAST_SHA}..upstream/main" --json --category "${categories}" --exclude "${exclude_categories}" --include "${include_shas}" --exclude-sha "${exclude_shas}"
+      ```
+
+   b. **AI classification for non-conventional commits:** For any commit in the sync-preview output where `classification.confidence` is "low" or `classification.type` is "other", check sync-manifest.json for a cached classification:
+      ```bash
+      cat .planning/sync/sync-manifest.json
+      ```
+      Look for entries matching the commit SHA with non-null `category` and `categorySource` fields.
+
+      If no cache hit: Read the commit's diff (`git show {sha}`) and determine the category by analyzing the actual code changes. Then update sync-manifest.json with the AI-inferred classification:
+      ```json
+      {
+        "category": "{inferred_type}",
+        "categoryConfidence": "ai-inferred",
+        "categorySource": "ai-inferred"
+      }
+      ```
+      On subsequent runs, the cached classification is reused without re-analysis.
+
+   c. Format category-grouped output:
+      ```
+      ## CHECKPOINT: CHERRY_PICK_SELECTION
+
+      **Commits available since last sync ({last_sha_short}):**
+
+      **Category filter active:** --category {categories} --exclude {exclude_categories}
+
+      [SELECTED] feat ({N} commits)
+      | SHA | Date | Author | Summary |
+      |-----|------|--------|---------|
+      | abc1234 | 2024-01-15 | author | feat: add feature |
+      ...
+
+      [SELECTED] fix ({N} commits)
+      | SHA | Date | Author | Summary |
+      |-----|------|--------|---------|
+      | def4567 | 2024-01-14 | author | fix: resolve bug |
+      ...
+
+      [EXCLUDED by filter] refactor ({N} commits)
+      | SHA | Date | Author | Summary |
+      |-----|------|--------|---------|
+      | ghi7890 | 2024-01-13 | author | refactor: cleanup |
+      ...
+
+      **Dependencies detected:**
+        bcd2345 depends on abc1234 (file-overlap: bin/lib/commands.cjs)
+
+      **Selected:** {N} of {total} commits
+
+      **Options:**
+      1. Enter "filtered" to apply the {N} selected commits (default)
+      2. Enter "all" to apply all commits regardless of filters
+      3. Enter commit SHAs for manual selection (space-separated)
+      4. Enter "abort" to cancel sync
+
+      Awaiting selection...
+      ```
+
+4. Workflow pauses here. Orchestrator presents to user and spawns continuation at Stage 3.
 
 **Output:** Workflow pauses. Orchestrator handles user input and continuation.
 
@@ -143,6 +213,11 @@ Generate execution plan for selected commits.
 1. Parse user_selection:
    - "abort" → Return `## SYNC ABORTED` with reason "User cancelled"
    - "all" → Use full commit_list from Stage 1
+   - "filtered" → Use the filter-selected commits from sync_context. Re-run filterCommitsByCategory via sync-preview --json to get the exact selected set:
+     ```bash
+     node ~/.claude/get-stuff-done/bin/gsd-tools.cjs sync-preview "${LAST_SHA}..upstream/main" --json --category "${categories}" --exclude "${exclude_categories}" --include "${include_shas}" --exclude-sha "${exclude_shas}"
+     ```
+     Parse the `selected` array from JSON output as the commit list.
    - Space-separated SHAs → Filter commit_list to selected commits only
 
 2. Validate all selected commit SHAs:
@@ -164,6 +239,83 @@ Generate execution plan for selected commits.
 3. Validate selected commits exist in commit_list
 
 3. Sort selected commits chronologically (oldest first for cherry-pick order)
+
+3.5. **AI Semantic Dependency Analysis and Auto-Include (when filters active):**
+
+   Skip this step if no filter fields are present in sync_context (all empty/missing).
+
+   **Step A: Gather deterministic file-overlap dependencies**
+
+   These are already available from the sync-preview --json output (computed in Stage 2). Extract the `dependencies.fileOverlap` array.
+
+   **Step B: AI Semantic Dependency Analysis**
+
+   After the deterministic file-overlap dependencies are computed, perform AI semantic dependency analysis. This detects dependencies that file-overlap cannot catch (e.g., commit B calls a function defined in commit A, but they touch different files).
+
+   For each selected commit, read its diff:
+   ```bash
+   git show {sha} --stat     # Summary of changes
+   git diff {sha}~1 {sha}    # Full diff content
+   ```
+
+   For each excluded commit that has file-overlap proximity to selected commits (or touches the same bin/lib/*.cjs modules), also read its diff.
+
+   Analyze the diffs together. For each pair of commits (selected + excluded), determine: does commit B use anything defined, modified, or restructured by commit A? Look for:
+   - Function/variable definitions in A that are called/referenced in B
+   - Import/require changes in A that B depends on
+   - Configuration changes in A that affect B's behavior
+
+   Record semantic dependencies:
+   ```
+   {
+     commit: 'abc1234',
+     dependsOn: 'def5678',
+     reason: 'abc1234 calls newHelper() which is defined in def5678',
+     type: 'semantic',
+     crossModule: true  // if commits touch different bin/lib/*.cjs modules
+   }
+   ```
+
+   Label AI-inferred dependencies clearly as "semantic (AI-inferred)" in output. Keep the analysis focused: "does commit B use anything defined or modified by commit A?" -- not "what are all possible relationships?"
+
+   **Step C: Auto-Include Logic**
+
+   After combining file-overlap and semantic dependencies:
+
+   a. For each selected commit, check if it depends on any excluded commit (from either fileOverlap or semantic analysis).
+
+   b. If a dependency on an excluded commit is found AND `sync_context.force` is NOT true:
+      - Auto-include the excluded commit into the selected set
+      - Add a warning: `"Auto-including {dep_sha} ({dep_subject}) -- required by {commit_sha}. Use --force to override."`
+      - Track auto-included commits separately for display
+
+   c. If `sync_context.force` IS true:
+      - Do NOT auto-include the excluded commit
+      - Still show the warning but as informational: `"WARNING: {commit_sha} depends on {dep_sha} [EXCLUDED] -- --force active, skipping auto-include"`
+
+   d. After auto-inclusion, re-sort the entire selected set chronologically (oldest first for cherry-pick order). Auto-included commits must be in correct cherry-pick order.
+
+   e. If a large proportion of excluded commits would be auto-included (>50%), show a summary warning:
+      `"X of Y excluded commits would be auto-included due to dependencies. Consider including the {category} category."`
+
+   **Step D: Add dependency analysis to plan file**
+
+   If filters were active, include dependency analysis section in the plan file:
+   ```markdown
+   ## Dependency Analysis
+
+   **File-overlap dependencies:**
+   {list from sync-preview --json output}
+
+   **Semantic dependencies (AI-inferred):**
+   {list from AI analysis}
+
+   **Auto-included commits:** {count}
+   {list of auto-included commits with reasons}
+
+   **Warnings:**
+   {any remaining dependency concerns after auto-inclusion}
+   ```
 
 4. Create plan directory if missing:
    ```bash
@@ -213,9 +365,13 @@ Generate execution plan for selected commits.
 
 8. **Dry-run gate:** If `DRY_RUN` is set to `true` in sync_context (passed from orchestrator when user provides `--dry-run` flag):
 
-   Run sync-preview for the full plan output:
+   Run sync-preview for the full plan output (pass filter flags through when active):
    ```bash
+   # Without filters:
    node ~/.claude/get-stuff-done/bin/gsd-tools.cjs sync-preview "${FIRST_SHA}..${LAST_SHA}"
+
+   # With filters active:
+   node ~/.claude/get-stuff-done/bin/gsd-tools.cjs sync-preview "${FIRST_SHA}..${LAST_SHA}" --category "${categories}" --exclude "${exclude_categories}" --include "${include_shas}" --exclude-sha "${exclude_shas}"
    ```
 
    Then output dry-run completion notice:
@@ -282,6 +438,12 @@ Spawn the upstream-sync-team using the template at `get-stuff-done/teams/upstrea
 Review diffs of selected commits before executing cherry-picks.
 
 **Entry:** After Stage 3 generates the plan with validated commits
+
+**Filter context:** When filters are active, include filter metadata in the security review checkpoint output:
+```
+**Filter applied:** {categories} (excluding {excludeCategories})
+**Commits to apply:** {N} of {total} (filtered, {M} auto-included)
+```
 
 **Process:**
 
@@ -397,7 +559,7 @@ For each selected commit in chronological order:
 
 5. Continue to next commit
 
-**Conflict handling:**
+**Conflict handling (AI-Assisted):**
 
 When cherry-pick exits with status 1:
 
@@ -406,36 +568,82 @@ When cherry-pick exits with status 1:
    git status --short | grep '^UU\|^AA\|^DD'
    ```
 
-2. Return conflict checkpoint:
+2. **AI Conflict Analysis:** For each conflicted file, gather context:
+
+   ```bash
+   # Fork base version (HEAD before conflict)
+   git show HEAD:{filepath}
+
+   # Upstream version (what the cherry-picked commit introduces)
+   git show {sha}:{filepath}
+
+   # Current file with conflict markers
+   cat {filepath}
    ```
-   ## CONFLICT DETECTED
+
+3. Read branding-map.json to identify fork identity patterns:
+   ```bash
+   cat .planning/sync/branding-map.json
+   ```
+
+4. Analyze the conflict using Claude's reasoning. For each conflicted file, produce analysis:
+   - What upstream changed and why (from upstream diff context)
+   - What fork has and why (from fork version)
+   - Where they conflict (specific sections)
+   - Suggested resolution following the fork identity rule: fork branding (get-stuff-done vs get-shit-done), custom features, and fork config always win. Upstream logic/behavior changes are accepted.
+
+5. Generate suggested resolved file content:
+   - Start from upstream's changes (accept their logic/behavior)
+   - Replace any upstream branding strings with fork equivalents using branding-map.json patterns
+   - Preserve any fork-specific code blocks that upstream doesn't have
+   - The suggested content must be CLEAN -- no conflict markers (<<<<<<<, =======, >>>>>>>)
+
+6. Return AI conflict analysis checkpoint:
+   ```
+   ## CHECKPOINT: CONFLICT_ANALYSIS
 
    **Commit:** {sha_short} - {summary}
+   **Conflicted files:** {count}
 
-   **Conflicted files:**
-   {file list with conflict markers}
-
-   **Instructions:**
-   1. Open the conflicted files and resolve the conflicts
-   2. Remove conflict markers: <<<<<<<, =======, >>>>>>>
-   3. Stage resolved files: `git add {file}`
-   4. Continue cherry-pick: `git cherry-pick --continue`
-   5. Return to workflow and respond with "resolved"
+   ### {filepath}
+   **What upstream changed:** {explanation}
+   **What fork has:** {explanation}
+   **Why they conflict:** {explanation}
+   **Suggested resolution:**
+   ```{ext}
+   {clean resolved content -- NO conflict markers}
+   ```
 
    **Options:**
-   1. Resolve conflicts manually (follow instructions above), then respond "resolved"
-   2. Rollback to checkpoint: `git reset --hard sync-checkpoint-${BATCH_ID}`
-   3. Abort cherry-pick only (leaves HEAD at last successful pick): `git cherry-pick --abort`
+   1. "accept" - Apply all suggested resolutions, stage files, and continue
+   2. "reject" - Skip this commit entirely (git cherry-pick --abort)
+   3. "edit" - Keep conflict markers for manual resolution, respond "resolved" when done
 
-   **Crash recovery:** If Claude Code session died, run:
-   `git reset --hard sync-checkpoint-${BATCH_ID}` to restore pre-sync state
+   **Rollback:** `git reset --hard sync-checkpoint-${BATCH_ID}` to restore pre-sync state
 
    Awaiting resolution...
    ```
 
-3. Workflow pauses. After user resolves:
-   - If user_response = "resolved": Continue with remaining commits
-   - If user_response = "abort": Run `git cherry-pick --abort`, return `## SYNC ABORTED`
+7. Handle continuation from orchestrator:
+   - `conflict_action = "accept"`:
+     a. Write suggested content to each conflicted file
+     b. Stage each resolved file: `git add {file}`
+     c. Verify no conflict markers remain:
+        ```bash
+        grep -c '^<<<<<<<' {file}
+        ```
+        Must return 0 for each file. If markers found, abort accept and fall back to manual edit checkpoint (re-emit CONFLICT_ANALYSIS with error note).
+     d. Continue cherry-pick: `git cherry-pick --continue`
+     e. Continue with remaining commits
+
+   - `conflict_action = "reject"`:
+     a. Run `git cherry-pick --abort`
+     b. Skip this commit, continue with remaining commits
+
+   - `conflict_resolved = true` (manual edit from "edit" option):
+     a. Continue with remaining commits (same as current behavior)
+
+**Legacy fallback:** If AI analysis cannot be performed for any reason (e.g., file too large, binary file), fall back to the original CONFLICT_DETECTED checkpoint format with manual-only resolution instructions.
 
 **Output:** After all commits successfully applied, continue to Stage 5
 
@@ -447,10 +655,13 @@ Run verification on changed files.
 
 **Process:**
 
-1. Count number of cherry-picked commits:
+1. Count number of actually applied cherry-picked commits:
    ```bash
-   N_COMMITS={count from selected_commits}
+   # Use actual applied count, not planned count (selective sync may skip commits via reject)
+   APPLIED_COUNT=$(git rev-list sync-checkpoint-${BATCH_ID}..HEAD --count)
+   N_COMMITS=${APPLIED_COUNT}
    ```
+   Note: When selective sync applies fewer commits than planned (e.g., user rejected a conflicted commit), use the actual applied count for HEAD~N calculations, not selected_commits.length.
 
 2. Get list of changed files from cherry-picks:
    ```bash
@@ -864,9 +1075,11 @@ Update cache and show summary.
 
 **Conflict errors:**
 - Pause workflow immediately
-- Return `## CONFLICT DETECTED` with file list
-- Wait for user to resolve
-- Resume after confirmation
+- Perform AI conflict analysis: read both sides, analyze context, generate suggested resolution
+- Return `## CHECKPOINT: CONFLICT_ANALYSIS` with analysis, explanation, and suggested resolution
+- User chooses: accept (apply AI suggestion), reject (skip commit), or edit (manual resolution)
+- If AI analysis fails, fall back to `## CONFLICT DETECTED` with manual-only instructions
+- Resume after user response
 
 **Validation failures:**
 - Block publish (do not proceed to Stage 6)

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Maintain upstream compatibility while establishing distinct identity
-**Current focus:** Phase 22 Plan 01 complete, Plan 02 next
+**Current focus:** Phase 22 complete -- all plans executed
 
 ## Current Position
 
-Phase: 22 of 22 (Advanced Sync Automation) -- Plan 01 complete, Plan 02 pending
+Phase: 22 of 22 (Advanced Sync Automation) -- Plan 02 complete, phase complete
 Upstream sync: v1.20.6+ integrated (20 commits, published as v2.3.0)
-Status: Phase 22 Plan 01 complete. Selective sync filtering + dependency detection implemented.
-Last activity: 2026-03-07 -- Phase 22 Plan 01 executed
+Status: Phase 22 complete. Selective sync filtering, AI semantic deps, auto-include, and AI conflict resolution implemented.
+Last activity: 2026-03-07 -- Phase 22 Plan 02 executed
 
-Progress: [#############.] 90% (v0.3.0: 4/5 phases complete -- Phase 18-21 done; Phase 22 in progress)
+Progress: [###############] 100% (v0.3.0: 5/5 phases complete -- Phase 18-22 done)
 
 ## Performance Metrics
 
@@ -29,13 +29,13 @@ Progress: [#############.] 90% (v0.3.0: 4/5 phases complete -- Phase 18-21 done;
 - Total execution time: 4.45 hours
 
 **v0.3.0 Velocity (Phases 18-22 in progress):**
-- Plans completed: 15 (18-01 through 18-06, 19-01 through 19-03, 20-01, 20-02, 21-01 through 21-03, 22-01)
-- Total execution time: ~14.5 hours
+- Plans completed: 16 (18-01 through 18-06, 19-01 through 19-03, 20-01, 20-02, 21-01 through 21-03, 22-01, 22-02)
+- Total execution time: ~14.6 hours
 
 **Cumulative:**
 - 2 milestones shipped (v0.1.0, v0.2.0)
-- 59 plans completed across 22 phases
-- ~20 hours total execution time
+- 60 plans completed across 22 phases
+- ~20.1 hours total execution time
 
 ## Open Items
 
@@ -96,6 +96,14 @@ v0.3.0 decisions (Phase 22, Plan 01):
 - Separate --exclude (categories) and --exclude-sha (SHAs) flags to avoid ambiguity
 - Missing dependency warnings computed by checking all commits for cross-boundary deps, not just selected subset
 
+v0.3.0 decisions (Phase 22, Plan 02):
+- CONFLICT_ANALYSIS coexists with legacy CONFLICT_DETECTED (fallback for binary files or analysis failure)
+- AI conflict resolution always active regardless of filter state (UX improvement for all sync operations)
+- --force suppresses dependency auto-inclusion but still shows informational warnings
+- Stage 5 uses actual applied count via git rev-list (not planned count) for selective sync accuracy
+- AI classification for non-conventional commits cached in sync-manifest.json with categorySource: "ai-inferred"
+- Semantic dependency analysis only runs when filters are active (no excluded set to check against otherwise)
+
 ### Pending Todos
 
 None.
@@ -114,12 +122,12 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-07
-Status: Phase 22 Plan 01 complete. Selective sync filtering and dependency detection implemented.
-Stopped at: Completed 22-advanced-sync-automation Plan 01 (22-01-PLAN.md)
-Resume file: .planning/phases/22-advanced-sync-automation/22-01-SUMMARY.md
+Status: Phase 22 complete. All v0.3.0 phases (18-22) executed successfully.
+Stopped at: Completed 22-advanced-sync-automation Plan 02 (22-02-PLAN.md)
+Resume file: .planning/phases/22-advanced-sync-automation/22-02-SUMMARY.md
 
 **Next steps (in order):**
-1. Execute Phase 22 Plan 02 (workflow integration for selective sync + AI-assisted conflict resolution)
+1. v0.3.0 milestone wrap-up: version bump, changelog, release
 
 ---
-*Updated: 2026-03-07 (Phase 22 Plan 01 complete)*
+*Updated: 2026-03-07 (Phase 22 complete)*

@@ -33,8 +33,8 @@ See: .planning/milestones/v0.2.0-ROADMAP.md
 - [x] **Phase 18: Upstream Sync Execution** - Integrate 185 upstream commits and adopt modular gsd-tools architecture
 - [x] **Phase 19: Post-Sync Stabilization** - Migrate esbuild bundling to modular structure and assess upstream feature overlap (completed 2026-02-23)
 - [x] **Phase 20: Sync Safety & Transparency** - Diff preview, rollback snapshots, and dry-run mode for sync operations (completed 2026-02-23)
-- [x] **Phase 21: Sync Intelligence** - Commit classification, supply chain integrity scanner, and maintainer-path upstream monitoring (completed 2026-02-25)
-- [ ] **Phase 22: Advanced Sync Automation** - Selective sync by category and AI-assisted conflict resolution (reassess scope)
+- [x] **Phase 21: Sync Intelligence** - Commit classification, supply chain integrity scanner, and maintainer-path upstream monitoring (completed 2026-02-25)
+- [ ] **Phase 22: Advanced Sync Automation** - Selective sync by category and AI-assisted conflict resolution
 
 ## Phase Details
 
@@ -108,7 +108,10 @@ Plans:
   1. Users can cherry-pick upstream commits by category (e.g., "sync only bug fixes" or "sync features X and Y") instead of all-or-nothing, with the system tracking dependencies between related commits and warning when skipping a commit would break a dependent one
   2. When cherry-pick conflicts arise, the system uses Claude to analyze both sides of the conflict, suggests a resolution that preserves fork identity, and explains the conflict context so the user can make an informed decision
   3. Selective sync respects the modular gsd-tools architecture -- selecting a commit in one domain module does not silently require commits in another module without explicit dependency notification
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 22-01-PLAN.md -- Selective sync filtering in sync.cjs + enhanced sync-preview with category/SHA filtering and dependency detection
+- [ ] 22-02-PLAN.md -- Workflow integration for selective sync + AI-assisted conflict resolution in upstream-sync.md
 
 ## Progress
 
@@ -120,4 +123,4 @@ Plans:
 | 19. Post-Sync Stabilization | 3/3 | Complete    | 2026-02-23 | - |
 | 20. Sync Safety & Transparency | v0.3.0 | 2/2 | Complete | 2026-02-23 |
 | 21. Sync Intelligence | 3/3 | Complete    | 2026-02-25 | - |
-| 22. Advanced Sync Automation | v0.3.0 | 0/TBD | Not started (reassess) | - |
+| 22. Advanced Sync Automation | v0.3.0 | 0/2 | Planned | - |

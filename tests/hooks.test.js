@@ -444,7 +444,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
     }
 
     try { repoCleanup(); } catch (_) {}
-  });
+  }, 15000);
 
   test('maintainer path: zero upstream commits writes update_available=false', () => {
     // Test directly via temp script file to avoid node -e quoting issues

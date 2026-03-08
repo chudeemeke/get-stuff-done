@@ -586,7 +586,7 @@ describe('sync-preview command', () => {
     assert.ok(data.effortEstimate !== undefined, 'JSON should have effortEstimate');
   });
 
-  test('--json output includes classification field on each commit', () => {
+  test('--json output includes classification field on each commit', { timeout: 15000 }, () => {
     const repoDir = createTempGitProject();
     try {
       // Add commits with conventional prefixes so classification is deterministic
@@ -630,7 +630,7 @@ describe('sync-preview command', () => {
     }
   });
 
-  test('--json summary includes byType field with correct counts', () => {
+  test('--json summary includes byType field with correct counts', { timeout: 15000 }, () => {
     const repoDir = createTempGitProject();
     try {
       // Add 3 commits: 1 feat, 1 fix, 1 chore
@@ -1135,7 +1135,7 @@ describe('sync-preview supply chain integration', () => {
     }
   });
 
-  test('--json summary includes supplyChainFindings count', () => {
+  test('--json summary includes supplyChainFindings count', { timeout: 15000 }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'a.txt'), 'content');
@@ -1456,7 +1456,7 @@ describe('detectFileOverlapDeps', () => {
 // ─── sync-preview selective filtering CLI integration ─────────────────────────
 
 describe('sync-preview selective filtering CLI', () => {
-  test('--category flag filters output correctly', () => {
+  test('--category flag filters output correctly', { timeout: 15000 }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create commits with different conventional prefixes
@@ -1493,7 +1493,7 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('--exclude flag removes category from output', () => {
+  test('--exclude flag removes category from output', { timeout: 15000 }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');

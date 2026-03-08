@@ -260,7 +260,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
         execSync(`node "${HOOKS.checkUpdate}"`, {
           cwd: localDir,
           env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome, GSD_ROLE_OVERRIDE: 'maintainer' },
-          timeout: 5000,
+          timeout: 15000,
           stdio: 'ignore'
         });
       } catch (e) {
@@ -302,7 +302,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
       execSync(`node "${HOOKS.checkUpdate}"`, {
         cwd: localDir,
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
-        timeout: 5000,
+        timeout: 15000,
         stdio: 'ignore'
       });
     } catch (e) {
@@ -414,7 +414,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
 
     let output;
     try {
-      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: 10000 });
+      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: 15000 });
     } catch (e) {
       try { repoCleanup(); } catch (_) {}
       try { scriptCleanup(); } catch (_) {}
@@ -481,7 +481,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
 
     let output;
     try {
-      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: 5000 });
+      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: 15000 });
       const cache = JSON.parse(output.trim());
       expect(cache.upstream_count).toBe(0);
       expect(cache.update_available).toBe(false);

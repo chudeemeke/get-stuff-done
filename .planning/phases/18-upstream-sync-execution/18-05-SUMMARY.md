@@ -41,7 +41,7 @@ patterns-established:
   - "sync manifest lifecycle: status in-progress -> complete with completedAt/mergedAt/mergeHash"
   - "identity audit scope: bin/, get-stuff-done/, hooks/, src/ (exclude .planning/, .upstream/, CHANGELOG)"
 
-requirements-completed: []
+requirements-completed: [SYNC-II-01, SYNC-II-06]
 
 # Metrics
 duration: ~20min (Task 3 only; Tasks 1-2 completed in prior executor session)

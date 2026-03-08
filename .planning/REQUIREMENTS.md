@@ -9,12 +9,12 @@ Requirements for v0.3.0 Upstream Sync & Workflow Maturity. Phases continue from 
 
 ### Upstream Sync II
 
-- [ ] **SYNC-II-01**: Integrate all upstream commits from v1.10.0 through v1.20.5 (185 commits) via the 7-stage cherry-pick sync workflow, preserving fork identity and cross-platform support
-- [ ] **SYNC-II-02**: Adopt upstream's modular gsd-tools architecture -- migrate from monolithic gsd-tools.js to 11 CJS domain modules in bin/lib/ (commands, config, core, frontmatter, init, milestone, phase, roadmap, state, template, verify)
+- [x] **SYNC-II-01**: Integrate all upstream commits from v1.10.0 through v1.20.5 (185 commits) via the 7-stage cherry-pick sync workflow, preserving fork identity and cross-platform support
+- [x] **SYNC-II-02**: Adopt upstream's modular gsd-tools architecture -- migrate from monolithic gsd-tools.js to 11 CJS domain modules in bin/lib/ (commands, config, core, frontmatter, init, milestone, phase, roadmap, state, template, verify)
 - [x] **SYNC-II-03**: Migrate esbuild bundling pipeline to produce self-contained dist files from the new modular gsd-tools structure (copy-mode install must continue to work)
-- [ ] **SYNC-II-04**: Preserve fork identity through sync -- all branding (GetStuffDone/GSD), URLs (chudeemeke/get-stuff-done), package name (@chude/get-stuff-done), and custom assets remain intact
-- [ ] **SYNC-II-05**: Maintain test suite through sync -- 563+ tests passing at 95%+ coverage, CI matrix green on all 3 platforms
-- [ ] **SYNC-II-06**: Document upstream approach comparison report -- where fork and upstream solved the same problem differently, document both approaches and rationale for chosen direction
+- [x] **SYNC-II-04**: Preserve fork identity through sync -- all branding (GetStuffDone/GSD), URLs (chudeemeke/get-stuff-done), package name (@chude/get-stuff-done), and custom assets remain intact
+- [x] **SYNC-II-05**: Maintain test suite through sync -- 563+ tests passing at 95%+ coverage on production code (src/, hooks/, bin/), CI matrix green on all 3 platforms
+- [x] **SYNC-II-06**: Document upstream approach comparison report -- where fork and upstream solved the same problem differently, document both approaches and rationale for chosen direction
 
 ### Sync Workflow - Core UX
 
@@ -64,12 +64,12 @@ These requirements activate based on ASSESS-01 and ASSESS-02 outcomes. Scope TBD
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SYNC-II-01 | Phase 18, Phase 23 (gap closure) | Pending |
-| SYNC-II-02 | Phase 18, Phase 23 (verification) | Pending |
+| SYNC-II-01 | Phase 18, Phase 23 (gap closure) | Complete |
+| SYNC-II-02 | Phase 18, Phase 23 (verification) | Complete |
 | SYNC-II-03 | Phase 19 | Complete |
-| SYNC-II-04 | Phase 18, Phase 23 (verification) | Pending |
-| SYNC-II-05 | Phase 18, Phase 23 (gap closure) | Pending |
-| SYNC-II-06 | Phase 18, Phase 23 (gap closure) | Pending |
+| SYNC-II-04 | Phase 18, Phase 23 (verification) | Complete |
+| SYNC-II-05 | Phase 18, Phase 23 (scope amendment) | Complete |
+| SYNC-II-06 | Phase 18, Phase 23 (gap closure) | Complete |
 | SYNC-01 | Phase 20 | Complete |
 | SYNC-02 | Phase 20 | Complete |
 | SYNC-03 | Phase 21 | Complete |
@@ -84,8 +84,8 @@ These requirements activate based on ASSESS-01 and ASSESS-02 outcomes. Scope TBD
 **Coverage:**
 - v0.3.0 requirements: 16 total (+ 3 conditional)
 - Mapped to phases: 16 (5 reassigned to Phase 23 gap closure)
-- Complete: 11
-- Pending (gap closure): 5 (SYNC-II-01, SYNC-II-02, SYNC-II-04, SYNC-II-05, SYNC-II-06)
+- Complete: 16
+- Pending (gap closure): 0
 - Conditional: 3 (pending assessment)
 
 ---

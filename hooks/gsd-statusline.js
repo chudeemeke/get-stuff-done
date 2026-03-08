@@ -15,14 +15,13 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Load config for role and threshold
+// Autocompact threshold: matches Claude Code internal default; not user-configurable
+const AUTOCOMPACT_THRESHOLD = 16.5;
 let gsdRole = 'consumer';
-let autocompactThreshold = 16.5;  // Default: % remaining when autocompact fires
 try {
   const { loadConfig, getConfigValue } = require('../src/config/ConfigLoader');
   const config = loadConfig();
   gsdRole = getConfigValue(config, 'gsd.role', 'consumer');
-  autocompactThreshold = getConfigValue(config, 'context_management.autocompact_threshold', 16.5);
 } catch (e) {
   // Silent fail - use defaults
 }
@@ -78,7 +77,7 @@ process.stdin.on('end', () => {
     let ctx = '';
     if (remaining != null) {
       // Scale raw usage to threshold: 0% raw = 0% bar, threshold = 100% bar
-      const maxUsage = 100 - autocompactThreshold;  // e.g., 83.5% when threshold=16.5
+      const maxUsage = 100 - AUTOCOMPACT_THRESHOLD;  // e.g., 83.5% when threshold=16.5
       const rawUsage = 100 - remaining;
       const proximity = Math.max(0, Math.min(100, Math.round((rawUsage / maxUsage) * 100)));
 

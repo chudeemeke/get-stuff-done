@@ -55,6 +55,9 @@ function getDefaults() {
       show_progress_bar: true,
       show_context_usage: true,
       theme: 'aidev'
+    },
+    gsd: {
+      role: 'consumer'
     }
   };
 }
@@ -105,6 +108,11 @@ function createDefaultConfig(configPath) {
     show_progress_bar: true,
     show_context_usage: true,
     theme: "aidev",
+  },
+
+  // GSD fork role (consumer tracks upstream, maintainer publishes upstream)
+  gsd: {
+    role: "consumer",
   },
 }
 `;

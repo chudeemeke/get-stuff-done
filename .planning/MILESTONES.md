@@ -1,5 +1,35 @@
 # Project Milestones: GetStuffDone
 
+## v0.3.0 Upstream Sync & Workflow Maturity (Shipped: 2026-03-08)
+
+**Delivered:** Full upstream sync (185 commits through v1.20.5), modular gsd-tools architecture adoption, and production-grade sync workflow tooling with safety features, intelligence, and AI-assisted automation.
+
+**Phases completed:** 18-23 (17 plans total, 6 phases including 1 gap closure)
+
+**Key accomplishments:**
+
+- Integrated 185 upstream commits (v1.10.0-v1.20.5) via cherry-pick sync, adopting modular gsd-tools architecture with 11 CJS domain modules
+- Sync safety features: colorized diff preview, checkpoint-based rollback, --dry-run mode for risk-free simulation
+- Sync intelligence: auto-classification of commits by type/severity, supply chain integrity scanning (6 attack vectors), severity-aware statusline monitoring
+- Selective sync: category-based cherry-picking with file-overlap and AI semantic dependency detection, auto-include logic
+- AI-assisted conflict resolution: Claude analyzes both sides, preserves fork identity via branding-map.json, suggests clean resolutions
+- Gap closure: retroactive Phase 18 verification, config cleanup, dist rebuild, requirements traceability fully updated
+
+**Stats:**
+
+- ~25,773 lines of JavaScript
+- 6 phases, 17 plans, 1,213 commits
+- 262 files changed (+36,545 / -4,219 lines)
+- 16 days from start to ship (Feb 21 - Mar 8)
+- ~15.0 hours total execution time
+- 16/16 v0.3.0 requirements complete (3 conditional deferred per assessment)
+
+**Git range:** `v0.2.0` -> `1f36914`
+
+**What's next:** TBD -- next milestone planning
+
+---
+
 ## v0.2.0 Hardening & Upstream Sync (Shipped: 2026-02-21)
 
 **Delivered:** Production-grade quality through security hardening, upstream sync of 72 commits, cross-platform support (macOS/Linux/Windows), Claude Code agent enhancements, CI/CD with 563 tests, and comprehensive gap closure.

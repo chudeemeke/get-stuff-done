@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Done" for the AI Dev Environment ecosystem. It's a meta-prompting, context engineering, and spec-driven development system for Claude Code with security hardening, cross-platform support (Windows/macOS/Linux), CI/CD testing, agent memory protocol, and team-based orchestration -- all while maintaining upstream compatibility.
+A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Done" for the AI Dev Environment ecosystem. It's a meta-prompting, context engineering, and spec-driven development system for Claude Code with security hardening, cross-platform support (Windows/macOS/Linux), CI/CD testing, agent memory protocol, team-based orchestration, and mature upstream sync tooling with safety features, intelligence, and AI-assisted automation -- all while maintaining upstream compatibility.
 
 ## Core Value
 
@@ -24,27 +24,15 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 - SYNC-05, SYNC-06: Upstream sync execution and workflow improvements -- v0.2.0
 - CLAUDE-01 through CLAUDE-03: Agent memory, effort calibration, team patterns -- v0.2.0
 - CI-01: GitHub Actions cross-platform matrix testing -- v0.2.0
+- SYNC-II-01 through SYNC-II-06: Full upstream sync (185 commits), modular architecture adoption, dist migration, fork identity preservation, test suite maintenance, approach comparison -- v0.3.0
+- SYNC-01 through SYNC-04: Diff preview, rollback snapshots, severity-aware auto-update, dry-run mode -- v0.3.0
+- SYNC-07, SYNC-08: GPG verification, auto-categorization of upstream changes -- v0.3.0
+- SYNC-09, SYNC-10: Selective sync with dependency tracking, AI-assisted conflict resolution -- v0.3.0
+- ASSESS-01, ASSESS-02: Post-sync feature overlap assessments (agent teams, diff viewer, multi-upstream) -- v0.3.0
 
 ### Active
 
-**v0.3.0 Upstream Sync & Workflow Maturity:**
-
-- SYNC-II-01: Integrate 185 upstream commits (v1.10.0 through v1.20.5) via 7-stage cherry-pick workflow
-- SYNC-II-02: Adopt upstream's modular gsd-tools architecture (11 CJS domain modules in bin/lib/)
-- SYNC-II-03: Migrate esbuild bundling to target modular gsd-tools structure
-- SYNC-II-04: Preserve fork identity (branding, URLs, naming) through sync
-- SYNC-II-05: Maintain cross-platform support and test suite (563+ tests) through sync
-- SYNC-II-06: Document upstream approach comparison where solutions overlap with fork
-- SYNC-01: Colorized diff preview before cherry-picks
-- SYNC-02: State snapshots and rollback for sync operations
-- SYNC-03: Auto-update check with severity indicators
-- SYNC-04: --dry-run mode for sync operations
-- SYNC-07: GPG verification of upstream commits
-- SYNC-08: Auto-categorization of upstream changes (features, fixes, refactors)
-- SYNC-09: Selective sync (cherry-pick specific features/fixes by category)
-- SYNC-10: AI-assisted conflict resolution during cherry-picks
-- ASSESS-01: Post-sync evaluation of CLAUDE-06 (agent teams orchestration) against upstream auto-advance
-- ASSESS-02: Post-sync evaluation of PLAT-07/PLAT-08 (interactive diff viewer, multi-upstream support)
+(None -- planning next milestone)
 
 ### Out of Scope
 
@@ -54,21 +42,23 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 - Fast mode integration (CLAUDE-04) -- marginal benefit per CONTEXT.md
 - Bash-to-Claude-tools migration (CLAUDE-05) -- bash has valid advantages per CONTEXT.md
 - Auto-applying upstream updates -- destroys user control
+- OpenCode/Gemini/Mistral installer support -- fork is Claude Code-only
 
 ### Deferred
 
-- CLAUDE-06: Full agent teams orchestration for parallel phases (pending ASSESS-01 post-sync evaluation)
-- PLAT-07: Interactive diff viewer (pending ASSESS-02 post-sync evaluation)
-- PLAT-08: Multi-upstream support (pending ASSESS-02 post-sync evaluation)
+- CLAUDE-06: Full agent teams orchestration for parallel phases (upstream auto-advance sufficient per ASSESS-01)
+- PLAT-07: Interactive diff viewer (sync-preview CLI sufficient per ASSESS-02)
+- PLAT-08: Multi-upstream support (single-upstream workflow sufficient per ASSESS-02)
+- Multi-runtime support (6 upstream commits deferred: Codex 5, Gemini 1) -- separate milestone
 
 ## Context
 
-**Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13 (upstream now at v1.20.5)
+**Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13 (upstream synced through v1.20.6+)
 **Private repo:** github.com/chudeemeke/get-stuff-done
 **Environment:** Windows with Git Bash, Claude Code CLI (cross-platform: macOS, Linux, Windows)
-**Current version:** 2.2.0 (published to npm as @chude/get-stuff-done)
-**Codebase:** ~24,862 LOC JavaScript, 563 tests
-**Tech stack:** Node.js, JSON5/AJV config, esbuild bundling, bun:test, GitHub Actions CI, SVG assets, Claude Code hooks/skills/agents/teams
+**Current version:** 2.3.0 (published to npm as @chude/get-stuff-done)
+**Codebase:** ~25,773 LOC JavaScript, 825 tests
+**Tech stack:** Node.js, JSON5/AJV config, esbuild bundling, bun:test, GitHub Actions CI, SVG assets, Claude Code hooks/skills/agents/teams, modular gsd-tools (11 CJS domain modules)
 
 **Shipped in v0.1.0:**
 - Nested JSON5 configuration with AJV validation
@@ -84,6 +74,13 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 - Claude Code adoption: agent memory protocol, effort calibration, 4 team templates with config-driven workflow routing
 - CI/CD: GitHub Actions cross-platform matrix, 563 tests at 95%+ coverage, source-to-installed parity checks
 - Infrastructure: 16 missing workflows, esbuild hook/tool bundling for copy-mode install
+
+**Shipped in v0.3.0:**
+- Upstream sync: 185 commits (v1.10.0-v1.20.5) integrated, modular gsd-tools architecture (11 CJS domain modules) adopted
+- Sync safety: colorized diff preview, checkpoint-based rollback, --dry-run mode
+- Sync intelligence: commit classification by type/severity, supply chain integrity scanning (6 attack vectors), severity-aware statusline monitoring
+- Selective sync: category-based cherry-picking with dependency detection and auto-include logic
+- AI-assisted conflict resolution: Claude-powered analysis preserving fork identity via branding-map.json
 
 ## Constraints
 
@@ -118,9 +115,11 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 | Result type pattern for validation | No exceptions thrown, explicit error handling | Good |
 | bun:test over node:test | Better performance, native TypeScript support | Good |
 | Agent teams disabled by default | Experimental feature, two-gate safety (config + env flag) | Good |
-
-| Adopt upstream modular gsd-tools | 11 CJS modules better than monolith for extensibility and SOLID | -- Pending |
-| Upstream features win on architecture conflicts | Fork adapts to upstream patterns unless fork approach is clearly superior | -- Pending |
+| Adopt upstream modular gsd-tools | 11 CJS modules better than monolith for extensibility and SOLID | Good |
+| Upstream features win on architecture conflicts | Fork adapts to upstream patterns unless fork approach is clearly superior | Good |
+| Plumbing/porcelain split for sync | sync.cjs for data ops, upstream-sync.md for UX orchestration | Good |
+| SYNC-II-05 scope amendment | 95%+ coverage applies to production code, not test helpers | Good |
+| AUTOCOMPACT_THRESHOLD as constant | Claude Code controls internally, not user-configurable | Good |
 
 ---
-*Last updated: 2026-02-27 after v0.3.0 milestone start*
+*Last updated: 2026-03-08 after v0.3.0 milestone*

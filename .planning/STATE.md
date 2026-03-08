@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Maintain upstream compatibility while establishing distinct identity
-**Current focus:** Phase 23 gap closure -- milestone audit identified 8 gaps
+**Current focus:** v0.3.0 milestone completion -- all gaps closed
 
 ## Current Position
 
-Phase: 23 of 23 (v0.3.0 Gap Closure) -- Not started
+Phase: 23 of 23 (v0.3.0 Gap Closure) -- Complete
 Upstream sync: v1.20.6+ integrated (20 commits, published as v2.3.0)
-Status: Milestone audit found 8 gaps (3 critical, 5 non-critical). Phase 23 gap closure created.
-Last activity: 2026-03-07 -- Milestone audit complete, gap closure phase created
+Status: All 8 milestone audit gaps closed. All 16 v0.3.0 requirements at Complete status.
+Last activity: 2026-03-08 -- Phase 23 gap closure complete
 
-Progress: [##############-] 93% (v0.3.0: 5/6 phases complete -- Phase 18-22 done, Phase 23 gap closure pending)
+Progress: [################] 100% (v0.3.0: 6/6 phases complete -- Phase 18-23 done)
 
 ## Performance Metrics
 
@@ -28,14 +28,14 @@ Progress: [##############-] 93% (v0.3.0: 5/6 phases complete -- Phase 18-22 done
 - Average duration: 8.3 minutes
 - Total execution time: 4.45 hours
 
-**v0.3.0 Velocity (Phases 18-22 in progress):**
-- Plans completed: 16 (18-01 through 18-06, 19-01 through 19-03, 20-01, 20-02, 21-01 through 21-03, 22-01, 22-02)
-- Total execution time: ~14.6 hours
+**v0.3.0 Velocity (Phases 18-23 complete):**
+- Plans completed: 17 (18-01 through 18-06, 19-01 through 19-03, 20-01, 20-02, 21-01 through 21-03, 22-01, 22-02, 23-01)
+- Total execution time: ~15.0 hours
 
 **Cumulative:**
-- 2 milestones shipped (v0.1.0, v0.2.0)
-- 60 plans completed across 22 phases
-- ~20.1 hours total execution time
+- 2 milestones shipped (v0.1.0, v0.2.0), v0.3.0 ready for release
+- 61 plans completed across 23 phases
+- ~20.5 hours total execution time
 
 ## Open Items
 
@@ -104,14 +104,18 @@ v0.3.0 decisions (Phase 22, Plan 02):
 - AI classification for non-conventional commits cached in sync-manifest.json with categorySource: "ai-inferred"
 - Semantic dependency analysis only runs when filters are active (no excluded set to check against otherwise)
 
+v0.3.0 decisions (Phase 23, Plan 01):
+- SYNC-II-05 scope amended: 95%+ coverage applies to production code (src/, hooks/, bin/), not test helpers
+- autocompact_threshold replaced with AUTOCOMPACT_THRESHOLD hardcoded constant: Claude Code controls this internally
+- Merge commit hash: ef5ae08 is the actual merge hash (44c3359 was stale reference in SUMMARY)
+
 ### Pending Todos
 
 None.
 
 ### Blockers/Concerns
 
-- Phase 21/22 scope needs reassessment against newly integrated upstream features (open item #1)
-- Lines coverage at 94.93%: detect.js now at 96.99%, remaining gap from test helpers (pre-existing)
+None.
 
 ### Quick Tasks Completed
 
@@ -121,19 +125,17 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-07
-Status: Milestone audit complete. Phase 23 gap closure created.
-Stopped at: Gap closure phases created from milestone audit
-Resume file: .planning/v0.3.0-MILESTONE-AUDIT.md
+Last session: 2026-03-08
+Status: Phase 23 gap closure complete. All v0.3.0 phases done.
+Stopped at: Completed 23-01-PLAN.md (final plan of v0.3.0)
+Resume file: .planning/phases/23-v030-gap-closure/23-01-SUMMARY.md
 
 **Roadmap Evolution:**
-- Added 1 gap closure phase (Phase 23) from milestone audit (2026-03-07)
+- Phase 23 gap closure executed (2026-03-08): all 8 gaps closed
 
 **Next steps (in order):**
-1. Plan Phase 23: /gsd:plan-phase 23 --gaps
-2. Execute Phase 23: /gsd:execute-phase 23
-3. Re-audit milestone: /gsd:audit-milestone
-4. v0.3.0 release: /gsd:complete-milestone
+1. Re-audit milestone: /gsd:audit-milestone
+2. v0.3.0 release: /gsd:complete-milestone
 
 ---
-*Updated: 2026-03-07 (Phase 22 complete)*
+*Updated: 2026-03-08 (Phase 23 complete)*

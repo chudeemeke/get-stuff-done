@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
-updated: 2026-02-23
-entries: 45
+updated: 2026-03-08
+entries: 46
 ---
 
 - finding: "For assessment-report-only plans (no code changes), git status will show pre-existing modified files from earlier sessions. Only stage the plan's own artifacts (SUMMARY.md, STATE.md, ROADMAP.md, REQUIREMENTS.md). Do NOT stage tests/ or get-stuff-done/ files that were modified before the plan started."
@@ -297,3 +297,9 @@ entries: 45
   confidence: HIGH
   phase: "20-sync-safety-transparency"
   date: "2026-02-23"
+
+- finding: "Dist bundles (hooks/dist/, get-stuff-done/bin/dist/) are gitignored. When a plan calls for 'dist rebuild', the rebuild is for local/install use only. Do not attempt to git add dist files. The 'rebuild dist bundles' task commits no files if the only changes are in gitignored dist paths -- pair it with documentation changes that ARE tracked."
+  source: "Phase 23, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "23-v030-gap-closure"
+  date: "2026-03-08"

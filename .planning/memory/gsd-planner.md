@@ -1,7 +1,7 @@
 ---
 agent: gsd-planner
-updated: 2026-02-23
-entries: 17
+updated: 2026-03-08
+entries: 18
 ---
 
 - finding: "GSD has ~15 JS files (~6,850 lines) as testable surface. The installer (bin/install.js) alone is 1,760 lines and deserves its own dedicated plan due to complexity (symlink fallback chains, runtime detection, settings.json manipulation)."
@@ -107,3 +107,9 @@ entries: 17
   confidence: HIGH
   phase: "20-sync-safety-transparency"
   date: "2026-02-23"
+
+- finding: "Milestone gap closure phases that combine source fixes + documentation fixes + build + verification fit in a single plan when the research has already confirmed exact code changes. Phase 23: 8 gaps, 1 plan, 3 tasks (~35% context). Task ordering is critical: source fixes first (ConfigLoader, statusline), then documentation + dist rebuild (needs source fixes applied before build), then verification last (must verify final state). The research code examples were precise enough to use directly in task actions -- no discovery needed."
+  source: "Phase 23, planning"
+  confidence: HIGH
+  phase: "23-v030-gap-closure"
+  date: "2026-03-08"

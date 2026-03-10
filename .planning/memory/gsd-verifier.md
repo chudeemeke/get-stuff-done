@@ -1,7 +1,7 @@
 ---
 agent: gsd-verifier
-updated: 2026-02-23
-entries: 22
+updated: 2026-03-08
+entries: 24
 ---
 
 ## Agent Memory: GSD Verifier
@@ -138,3 +138,15 @@ entries:
     confidence: HIGH
     phase: "20-sync-safety-transparency"
     date: "2026-02-23"
+
+  - finding: "Grep tool output_mode=count returns misleading output: shows a number (e.g., '3') followed by 'Found 0 total occurrences across 0 files'. The number on the first line appears to be the match count. For reliable verification, use Bash grep -c instead of the Grep tool's count mode."
+    source: "Phase 23 verification"
+    confidence: HIGH
+    phase: "23-v030-gap-closure"
+    date: "2026-03-08"
+
+  - finding: "For gap closure phases (Phase 23 pattern): verification is straightforward when all success criteria are programmatically verifiable. Key checks: (1) file existence via ls, (2) content verification via grep for specific strings/patterns, (3) functional verification via node -e for JS modules, (4) documentation state via checkbox/table counts. Dist bundles that are gitignored must be verified via ls + grep on disk, not via git status."
+    source: "Phase 23 verification"
+    confidence: HIGH
+    phase: "23-v030-gap-closure"
+    date: "2026-03-08"

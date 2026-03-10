@@ -1,7 +1,7 @@
 ---
 agent: gsd-roadmapper
-updated: 2026-02-27
-entries: 3
+updated: 2026-03-10
+entries: 5
 ---
 
 ## Learnings
@@ -23,3 +23,15 @@ entries: 3
   confidence: HIGH
   phase: "19-post-sync-stabilization"
   date: "2026-02-27"
+
+- finding: "v0.4.0 upstream sync (158 commits, v1.20.6-v1.22.4) is comparable to v0.3.0 sync (185 commits). Proven pattern: split sync into execution phase + post-sync stabilization phase. Sync execution gets 5 SYNC requirements, stabilization gets 1 (test health). This matches v0.3.0 Phase 18/19 split."
+  source: "v0.4.0 roadmap creation"
+  confidence: HIGH
+  phase: "25-upstream-sync-execution"
+  date: "2026-03-10"
+
+- finding: "Quality verification before upstream sync is a deliberate ordering choice: sync intelligence (Phase 21) and sync automation (Phase 22) tools are used during upstream sync execution. UAT must confirm they work before relying on them. This 'verify your tools before using them' pattern should be applied whenever building on top of previously unverified work."
+  source: "v0.4.0 roadmap creation"
+  confidence: HIGH
+  phase: "24-quality-verification"
+  date: "2026-03-10"

@@ -68,10 +68,17 @@ process.stdin.on('data', chunk => input += chunk);
 process.stdin.on('end', () => {
   try {
     const data = JSON.parse(input);
+
     const model = data.model?.display_name || 'Claude';
     const dir = data.workspace?.current_dir || process.cwd();
     const session = data.session_id || '';
     const remaining = data.context_window?.remaining_percentage;
+
+    // Current context usage = input + cache_creation + cache_read
+    const usage = data.context_window?.current_usage;
+    const contextTokens = usage
+      ? (usage.input_tokens || 0) + (usage.cache_creation_input_tokens || 0) + (usage.cache_read_input_tokens || 0)
+      : 0;
 
     // Context window display (shows proximity to autocompact)
     let ctx = '';
@@ -225,11 +232,15 @@ process.stdin.on('end', () => {
     const branding = getBranding();
     const modelDisplay = theme.text.muted.render(model);
     const cwdDisplay = theme.text.muted.render(dirname);
+    const tokenDisplay = contextTokens > 0
+      ? theme.text.muted.render(`${Number(contextTokens).toLocaleString()} tokens`)
+      : '';
 
-    // Line 1: branding | model | [branch |] context bar | cwd
+    // Line 1: branding | model | [branch |] context bar | cwd [| tokens]
     // Note: ctx already includes its own color codes and spacing
     const branchSep = branchDisplay ? `${branchDisplay}${SEP}` : '';
-    const line1 = `${branding}${SEP}${modelDisplay}${SEP}${branchSep}${ctx.trim()}${SEP}${cwdDisplay}`;
+    const tokenSep = tokenDisplay ? `${SEP}${tokenDisplay}` : '';
+    const line1 = `${branding}${SEP}${modelDisplay}${SEP}${branchSep}${ctx.trim()}${SEP}${cwdDisplay}${tokenSep}`;
 
     // Output: line1, or line1 + newline + line2 if update available
     if (line2) {

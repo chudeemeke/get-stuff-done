@@ -52,7 +52,11 @@ See: .planning/milestones/v0.3.0-ROADMAP.md
   3. Selective sync filters commits by category with correct dependency detection; AI conflict resolution produces merge-ready suggestions that preserve fork identity
   4. `node install.js` completes without ReferenceError on the claudeToGeminiTools code path
   5. Codebase audit findings addressed (specific items determined by audit results)
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 24-01-PLAN.md -- Fix claudeToGeminiTools ReferenceError + Phase 6 Logo UAT
+- [ ] 24-02-PLAN.md -- Phase 21 Sync Intelligence UAT + Phase 22 Sync Automation UAT
+- [ ] 24-03-PLAN.md -- Test coverage for config.cjs and frontmatter.cjs (TDD)
+- [ ] 24-04-PLAN.md -- Test coverage for template.cjs and core.cjs (TDD) + codebase audit
 
 ### Phase 25: Upstream Sync Execution
 **Goal**: Integrate 158 upstream commits (v1.20.6-v1.22.4) into the fork, absorbing multi-runtime code, Windows fixes, and quality features while preserving fork identity
@@ -127,7 +131,7 @@ Phases execute in numeric order: 24 -> 25 -> 26 -> 27 -> 28
 | 21. Sync Intelligence | v0.3.0 | 3/3 | Complete | 2026-02-25 |
 | 22. Advanced Sync Automation | v0.3.0 | 2/2 | Complete | 2026-03-07 |
 | 23. v0.3.0 Gap Closure | v0.3.0 | 1/1 | Complete | 2026-03-08 |
-| 24. Quality Verification & Bug Fixes | v0.4.0 | 0/? | Not started | - |
+| 24. Quality Verification & Bug Fixes | v0.4.0 | 0/4 | Not started | - |
 | 25. Upstream Sync Execution | v0.4.0 | 0/? | Not started | - |
 | 26. Post-Sync Stabilization | v0.4.0 | 0/? | Not started | - |
 | 27. Multi-Runtime Integration | v0.4.0 | 0/? | Not started | - |

@@ -2,18 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-08)
+See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Maintain upstream compatibility while establishing distinct identity
-**Current focus:** Planning next milestone
+**Current focus:** Phase 24 -- Quality Verification & Bug Fixes
 
 ## Current Position
 
-Phase: 23 of 23 -- v0.3.0 milestone complete and archived
-Status: Ready to plan next milestone
-Last activity: 2026-03-08 -- v0.3.0 milestone archived
+Phase: 24 of 28 (Quality Verification & Bug Fixes)
+Plan: 0 of ? in current phase
+Status: Ready to plan
+Last activity: 2026-03-10 -- v0.4.0 roadmap created
 
-Progress: [################] 100% (3 milestones shipped: v0.1.0, v0.2.0, v0.3.0)
+Progress: [                ] 0% (0/? plans across 5 phases)
 
 ## Performance Metrics
 
@@ -38,17 +39,23 @@ Progress: [################] 100% (3 milestones shipped: v0.1.0, v0.2.0, v0.3.0)
 
 ## Open Items
 
-### 1. Multi-runtime support (future milestone)
-- **What:** 6 upstream commits skipped (Codex: 409fc0d, 5a733dc, 12692ee, 186ca66, c1fae94; Gemini: 2c0db8e)
-- **Decision:** Separate milestone. Requires: branding pass for 3 runtimes, CI matrix expansion, installer test coverage, documentation
+### 1. Multi-runtime code from upstream
+- **What:** 158 upstream commits (v1.20.6-v1.22.4) include ~16 multi-runtime commits (Codex, OpenCode, Gemini)
+- **Decision:** Sync absorbs the code (Phase 25), runtime phases (27-28) polish and brand it
+
+### 2. QUAL-05 scope TBD
+- **What:** Codebase audit findings not yet known -- specific items determined by audit agent during Phase 24
+- **Impact:** Phase 24 plan count depends on audit results
 
 ## Accumulated Context
 
 ### Decisions
 
 All v0.1.0 decisions: 14 decisions in PROJECT.md, all marked Good.
-All v0.2.0 decisions: 144 decisions logged, archived to milestones/v0.2.0-ROADMAP.md.
+All v0.2.0 decisions: archived to milestones/v0.2.0-ROADMAP.md.
 All v0.3.0 decisions: archived to milestones/v0.3.0-ROADMAP.md.
+
+v0.4.0 roadmap decision: Quality first, upstream sync second, multi-runtime polish third. Rationale: sync intelligence tools (Phase 21) and sync automation tools (Phase 22) are used during upstream sync -- they need UAT verification before relying on them.
 
 ### Pending Todos
 
@@ -60,13 +67,12 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-08
-Status: v0.3.0 milestone archived and shipped
-Stopped at: Milestone completion workflow
+Last session: 2026-03-10
+Status: v0.4.0 roadmap created
+Stopped at: Roadmap creation complete, ready for Phase 24 planning
 
 **Next steps:**
-1. Version bump and release: `aidev release` + `aidev publish`
-2. Start next milestone: `/gsd:new-milestone`
+1. Plan Phase 24: `/gsd:plan-phase 24`
 
 ---
-*Updated: 2026-03-08 (v0.3.0 milestone complete)*
+*Updated: 2026-03-10 (v0.4.0 roadmap created)*

@@ -32,7 +32,19 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 
 ### Active
 
-(None -- planning next milestone)
+- [ ] QUAL-01: Retroactive UAT for Phase 6 (Logo Assets)
+- [ ] QUAL-02: Retroactive UAT for Phase 21 (Sync Intelligence)
+- [ ] QUAL-03: Retroactive UAT for Phase 22 (Advanced Sync Automation)
+- [ ] QUAL-04: Codebase quality audit findings (TBD from audit)
+- [ ] SYNC-III-01: Upstream sync v1.20.5 through v1.22.4 (158 commits)
+- [ ] SYNC-III-02: Resolve merge conflicts preserving fork identity
+- [ ] SYNC-III-03: Post-sync test stabilization and coverage maintenance
+- [ ] RUNTIME-01: Full Codex skills-first runtime support
+- [ ] RUNTIME-02: OpenCode runtime support with correct path detection
+- [ ] RUNTIME-03: Gemini runtime support with correct hook events
+- [ ] RUNTIME-04: Fix claudeToGeminiTools ReferenceError in installer
+- [ ] RUNTIME-05: Multi-runtime branding pass (fork identity per runtime)
+- [ ] RUNTIME-06: CI matrix expansion for multi-runtime testing
 
 ### Out of Scope
 
@@ -42,21 +54,21 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 - Fast mode integration (CLAUDE-04) -- marginal benefit per CONTEXT.md
 - Bash-to-Claude-tools migration (CLAUDE-05) -- bash has valid advantages per CONTEXT.md
 - Auto-applying upstream updates -- destroys user control
-- OpenCode/Gemini/Mistral installer support -- fork is Claude Code-only
+- ~~OpenCode/Gemini/Mistral installer support~~ -- moved to Active for v0.4.0
 
 ### Deferred
 
 - CLAUDE-06: Full agent teams orchestration for parallel phases (upstream auto-advance sufficient per ASSESS-01)
 - PLAT-07: Interactive diff viewer (sync-preview CLI sufficient per ASSESS-02)
 - PLAT-08: Multi-upstream support (single-upstream workflow sufficient per ASSESS-02)
-- Multi-runtime support (6 upstream commits deferred: Codex 5, Gemini 1) -- separate milestone
+- ~~Multi-runtime support~~ -- moved to Active for v0.4.0
 
 ## Context
 
 **Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13 (upstream synced through v1.20.6+)
 **Private repo:** github.com/chudeemeke/get-stuff-done
 **Environment:** Windows with Git Bash, Claude Code CLI (cross-platform: macOS, Linux, Windows)
-**Current version:** 2.3.0 (published to npm as @chude/get-stuff-done)
+**Current version:** 2.4.0 (published to npm as @chude/get-stuff-done)
 **Codebase:** ~25,773 LOC JavaScript, 825 tests
 **Tech stack:** Node.js, JSON5/AJV config, esbuild bundling, bun:test, GitHub Actions CI, SVG assets, Claude Code hooks/skills/agents/teams, modular gsd-tools (11 CJS domain modules)
 
@@ -122,4 +134,4 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 | AUTOCOMPACT_THRESHOLD as constant | Claude Code controls internally, not user-configurable | Good |
 
 ---
-*Last updated: 2026-03-08 after v0.3.0 milestone*
+*Last updated: 2026-03-10 after v0.4.0 milestone planning*

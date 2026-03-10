@@ -1,7 +1,7 @@
 ---
 agent: gsd-phase-researcher
-updated: 2026-03-08
-entries: 40
+updated: 2026-03-10
+entries: 44
 ---
 
 - finding: "esbuild is already a devDependency (v0.24.2) in get-stuff-done and is importable via require('esbuild') from project root. It bundles all three hooks successfully with zero errors."
@@ -120,7 +120,7 @@ entries: 40
   phase: "18-upstream-sync-execution"
   date: "2026-02-27"
 
-- finding: "The rename commit (24b933e in v1.19.2 batch) renames get-shit-done/bin/gsd-tools.js to get-shit-done/bin/gsd-tools.cjs. When cherry-picked to fork, it will rename get-stuff-done/bin/gsd-tools.js to get-stuff-done/bin/gsd-tools.cjs. This is CORRECT — fork adopts .cjs extension. All 48 reference sites across agents/, commands/, get-stuff-done/ then need updating from gsd-tools.js to gsd-tools.cjs."
+- finding: "The rename commit (24b933e in v1.19.2 batch) renames get-shit-done/bin/gsd-tools.js to get-shit-done/bin/gsd-tools.cjs. When cherry-picked to fork, it will rename get-stuff-done/bin/gsd-tools.js to get-stuff-done/bin/gsd-tools.cjs. This is CORRECT -- fork adopts .cjs extension. All 48 reference sites across agents/, commands/, get-stuff-done/ then need updating from gsd-tools.js to gsd-tools.cjs."
   source: "Phase 18, Upstream Sync Execution Research"
   confidence: HIGH
   phase: "18-upstream-sync-execution"
@@ -156,7 +156,7 @@ entries: 40
   phase: "19-post-sync-stabilization"
   date: "2026-02-23"
 
-- finding: "Phase 20 sync manifest stats: 97 total entries, 91 applied, 6 skipped. 58 had conflict types (13 mechanical, 9 structural — note: remaining 36 were conflictType set to non-null values other than these two). Historical conflict rate: 63.7%. This is the effort estimate training data for SYNC-04 dry-run mode."
+- finding: "Phase 20 sync manifest stats: 97 total entries, 91 applied, 6 skipped. 58 had conflict types (13 mechanical, 9 structural -- note: remaining 36 were conflictType set to non-null values other than these two). Historical conflict rate: 63.7%. This is the effort estimate training data for SYNC-04 dry-run mode."
   source: "Phase 20, Sync Safety Research"
   confidence: HIGH
   phase: "20-sync-safety-transparency"
@@ -239,3 +239,27 @@ entries: 40
   confidence: HIGH
   phase: "23-v030-gap-closure"
   date: "2026-03-08"
+
+- finding: "Phase 24 claudeToGeminiTools bug: bin/install.js references claudeToGeminiTools on lines 610-611 inside convertGeminiToolName() but the const is never declared anywhere in the file. The upstream/main:bin/install.js defines it at lines 369-379 as a 10-entry object (Read->read_file, Write->write_file, Edit->replace, Bash->run_shell_command, Glob->glob, Grep->search_file_content, WebSearch->google_web_search, WebFetch->web_fetch, TodoWrite->write_todos, AskUserQuestion->ask_user). Fix: insert the const definition between claudeToOpencodeTools (ends line 573) and convertGeminiToolName (starts line 600). The bug causes a ReferenceError only on the --gemini code path, not Claude/OpenCode installs."
+  source: "Phase 24, Quality Verification Research"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-10"
+
+- finding: "Phase 24 untested lib modules confirmed: config.cjs (162 lines, 3 exported functions), frontmatter.cjs (299 lines), template.cjs (222 lines), core.cjs (438 lines). Only partial coverage of core.cjs via phase.test.cjs (comparePhaseNum + normalizePhaseName). None of these 4 modules appears in bun test --coverage output -- they are not imported by any test file (except the 2 functions from core.cjs). All test files for these modules must be created as .test.cjs and import via '../get-stuff-done/bin/lib/XXXX.cjs'."
+  source: "Phase 24, Quality Verification Research"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-10"
+
+- finding: "Phase 24 assets/ not in npm package: package.json 'files' array contains [bin, commands, get-stuff-done, agents, hooks/dist, scripts, src]. The 'assets/' directory is NOT included. This means brand assets (SVG, PNG) are only available in the git repo, not in the installed npm package. The Phase 24 QUAL-01 criterion 'installer deploys them' needs a decision: is this intentional (assets are repo-only, not needed at runtime) or a gap?"
+  source: "Phase 24, Quality Verification Research"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-10"
+
+- finding: "Phase 24 test suite status (2026-03-10 run via coverage): 822 pass, 3 fail (down from 4 fail in Phase 23 -- likely timing variance on Windows spawn tests). Full suite takes ~240 seconds. installer.test.js alone: 31 pass in 32s. state.test.cjs: 12 pass in 8s. Hooks tests time out after 60s (timeout in bun test call, not test timeout). Run individual test files to avoid full-suite timeout issues."
+  source: "Phase 24, Quality Verification Research"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-10"

@@ -1,7 +1,7 @@
 ---
 agent: gsd-planner
-updated: 2026-03-08
-entries: 18
+updated: 2026-03-10
+entries: 19
 ---
 
 - finding: "GSD has ~15 JS files (~6,850 lines) as testable surface. The installer (bin/install.js) alone is 1,760 lines and deserves its own dedicated plan due to complexity (symlink fallback chains, runtime detection, settings.json manipulation)."
@@ -113,3 +113,9 @@ entries: 18
   confidence: HIGH
   phase: "23-v030-gap-closure"
   date: "2026-03-08"
+
+- finding: "Quality verification phases with mixed work types (bug fixes, UAT, test coverage) decompose into fully parallel plans when work streams touch different files. Phase 24: 4 plans all in Wave 1 -- bug fix + logo UAT (bin/install.js + checkpoint), sync UAT (no files modified, checkpoint), config+frontmatter TDD (2 test files), template+core TDD (2 test files). Zero file overlap across all 4 plans enables full Wave 1 parallelism. The pattern: group by concern similarity (bug+UAT-visual, UAT-sync, tests-small-modules, tests-large-modules) not by requirement ID. Also: existing tests/config.test.js covers src/config/ConfigLoader.js (Phase 7+ infrastructure), NOT bin/lib/config.cjs (Phase 18 modular split) -- verify no naming collisions when creating new test files."
+  source: "Phase 24, planning"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-10"

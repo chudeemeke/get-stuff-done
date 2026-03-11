@@ -1,7 +1,7 @@
 ---
 agent: gsd-plan-checker
-updated: 2026-02-27
-entries: 14
+updated: 2026-03-10
+entries: 17
 ---
 
 - finding: "AskUserQuestion audit scope can be wider than plan claims -- workflows that are NOT directly referenced by command files (e.g., execute-plan.md, verify-phase.md, discovery-phase.md) can still invoke AskUserQuestion. The plan only fixes the single command file (plan-phase.md) but the audit must check all 28 command files against all their referenced workflows."
@@ -123,3 +123,21 @@ entries: 14
   confidence: HIGH
   phase: "20-sync-safety-transparency"
   date: "2026-02-23"
+
+- finding: "UAT-only plans (runtime inspection, no code changes) correctly use empty artifacts: [] and empty <files></files> in task elements. This is not a gap — the plan produces findings documented in the summary, not file artifacts. Do NOT flag empty artifacts/files for UAT inspection plans."
+  source: "Phase 24, Plan 02, Task 1"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-10"
+
+- finding: "For TDD plans (type: tdd) with Wave 0 gaps in RESEARCH.md, the test files are created by the Wave 1 tasks themselves (RED-GREEN within task). There are no separate Wave 0 plans. Nyquist Check 8d passes because the test file path appears in task <files> and the task <verify> runs those same files — the task both creates and runs the tests."
+  source: "Phase 24, Plans 03 and 04"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-10"
+
+- finding: "When QUAL-05 says 'specific items determined by audit results' and the plan explicitly runs the audit in Task 2 Part A but only commits to the 4 known modules, this is correct scoping. The audit is a discovery step; fixing only the confirmed-in-scope items is the right approach. Flag if additional gaps are silently ignored without documentation."
+  source: "Phase 24, Plan 04, Task 2"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-10"

@@ -13,7 +13,7 @@ Requirements for v0.4.0, ordered by execution priority: quality first, upstream 
 - [ ] **QUAL-02**: Retroactive UAT for Phase 21 (Sync Intelligence) -- verify commit classification, supply chain scanning, severity-aware statusline
 - [ ] **QUAL-03**: Retroactive UAT for Phase 22 (Advanced Sync Automation) -- verify selective sync filtering, dependency detection, AI conflict resolution
 - [ ] **QUAL-04**: Fix claudeToGeminiTools ReferenceError in install.js:610 -- variable referenced but never defined
-- [ ] **QUAL-05**: Add test coverage for 4 untested lib modules (config.cjs, frontmatter.cjs, template.cjs, core.cjs)
+- [x] **QUAL-05**: Add test coverage for 4 untested lib modules (config.cjs, frontmatter.cjs, template.cjs, core.cjs)
 
 ### Upstream Sync
 
@@ -59,7 +59,7 @@ Requirements for v0.4.0, ordered by execution priority: quality first, upstream 
 | QUAL-02 | Phase 24 | Pending |
 | QUAL-03 | Phase 24 | Pending |
 | QUAL-04 | Phase 24 | Pending |
-| QUAL-05 | Phase 24 | Pending |
+| QUAL-05 | Phase 24 | Complete |
 | SYNC-III-01 | Phase 25 | Pending |
 | SYNC-III-02 | Phase 25 | Pending |
 | SYNC-III-03 | Phase 26 | Pending |

@@ -572,6 +572,21 @@ const claudeToOpencodeTools = {
   WebSearch: 'websearch',  // Plugin/MCP - keep for compatibility
 };
 
+// Tool name mapping from Claude Code to Gemini CLI
+// Gemini uses snake_case built-in names; MCP tools are auto-discovered at runtime
+const claudeToGeminiTools = {
+  Read: 'read_file',
+  Write: 'write_file',
+  Edit: 'replace',
+  Bash: 'run_shell_command',
+  Glob: 'glob',
+  Grep: 'search_file_content',
+  WebSearch: 'google_web_search',
+  WebFetch: 'web_fetch',
+  TodoWrite: 'write_todos',
+  AskUserQuestion: 'ask_user',
+};
+
 /**
  * Convert a Claude Code tool name to OpenCode format
  * - Applies special mappings (AskUserQuestion -> question, etc.)

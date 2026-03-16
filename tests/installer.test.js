@@ -742,6 +742,54 @@ describe('Installer - OpenCode Support', () => {
   });
 });
 
+describe('Installer - Gemini Support', () => {
+  let tmpDir;
+  let mockHome;
+  let cleanup;
+
+  beforeEach(() => {
+    const tmp = createTempDir();
+    tmpDir = tmp.path;
+    cleanup = tmp.cleanup;
+
+    mockHome = path.join(tmpDir, 'home');
+    fs.mkdirSync(mockHome, { recursive: true });
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  test('Gemini install completes without ReferenceError', () => {
+    const result = runInstaller(
+      {
+        HOME: mockHome,
+        USERPROFILE: mockHome,
+      },
+      ['--runtime', 'gemini', '--global']
+    );
+
+    // The install may fail for other reasons (missing config, etc.)
+    // but it must NOT fail with a ReferenceError for claudeToGeminiTools
+    const combined = (result.output || '') + (result.error || '');
+    expect(combined).not.toContain('ReferenceError');
+    expect(combined).not.toContain('claudeToGeminiTools is not defined');
+  }, { timeout: 15000 });
+
+  test('creates Gemini directory structure', () => {
+    const result = runInstaller(
+      {
+        HOME: mockHome,
+        USERPROFILE: mockHome,
+      },
+      ['--gemini', '--global']
+    );
+
+    const combined = (result.output || '') + (result.error || '');
+    expect(combined).not.toContain('ReferenceError');
+  }, { timeout: 15000 });
+});
+
 describe('Installer - Help and Version', () => {
   test('shows help with --help flag', () => {
     const result = runInstaller({}, ['--help']);

@@ -1,6 +1,14 @@
 {
   "model_profile": "balanced",
+  "skip_research": false,
+  "skip_plan_check": false,
+  "skip_verification": false,
   "commit_docs": true,
+  "branch_per_phase": false,
+  "workflow": {
+    "auto_advance": false,
+    "nyquist_validation": true
+  },
   "memory": {
     "enabled": true,
     "location": ".planning/memory/",
@@ -40,5 +48,8 @@
       }
     },
     "soft_cap": 8
+  },
+  "gsd": {
+    "role": "maintainer"
   }
 }

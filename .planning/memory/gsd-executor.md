@@ -1,7 +1,7 @@
 ---
 agent: gsd-executor
-updated: 2026-03-08
-entries: 46
+updated: 2026-03-16
+entries: 51
 ---
 
 - finding: "For assessment-report-only plans (no code changes), git status will show pre-existing modified files from earlier sessions. Only stage the plan's own artifacts (SUMMARY.md, STATE.md, ROADMAP.md, REQUIREMENTS.md). Do NOT stage tests/ or get-stuff-done/ files that were modified before the plan started."
@@ -303,3 +303,35 @@ entries: 46
   confidence: HIGH
   phase: "23-v030-gap-closure"
   date: "2026-03-08"
+
+- finding: "For testing gsd-tools lib modules that call output()/error() from core.cjs (which invoke process.exit), use a captureOutput() helper with process.exit as no-op (not throw). Throwing from process.exit gets caught by try-catch blocks inside the functions, triggering secondary error() calls. No-op exit lets the function continue; for success paths this is harmless (output() is the last call), for error paths the continuation crash is suppressed by wrapping in try-catch with exitCode===1 check."
+  source: "Phase 24, Plan 03, Task 1"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-16"
+  status: superseded
+  superseded_by: "Hybrid mock: exit(0) non-throwing, exit(1) throwing. This handles template.cjs try/catch blocks correctly. The no-op approach fails for error() paths because code continues after error() returns."
+
+- finding: "bun coverage only tracks modules loaded in-process, not subprocess executions. Tests that ONLY use runGsdTools/runGsdToolsDirect (subprocess) will show 0% coverage for the tested module. To get coverage, import the module directly and call its functions with process.exit mocked. Combine both approaches: subprocess for integration/error paths, direct calls for coverage tracking."
+  source: "Phase 24, Plan 03, Task 1"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-16"
+
+- finding: "For template.cjs tests: use hybrid process.exit mock -- exit(0) is non-throwing (prevents try/catch fallback in cmdTemplateSelect from triggering), exit(1) throws (stops execution after error() call). The no-op-only approach from 24-03 fails for error() paths because code continues after error() returns, eventually calling output() which overwrites exitCode to 0."
+  source: "Phase 24, Plan 04, Task 1"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-16"
+
+- finding: "model_overrides code path in resolveModelInternal (core.cjs line 369) is dead code -- loadConfig() returns a fixed set of fields and model_overrides is never extracted from the raw config JSON. The optional chaining config.model_overrides?.[agentType] always evaluates to undefined."
+  source: "Phase 24, Plan 04, Task 2"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-16"
+
+- finding: "getMilestoneInfo() name regex /## .*v\\d+\\.\\d+[:\\s]+([^\\n(]+)/ only matches vX.Y format (not vX.Y.Z). After matching v\\d+\\.\\d+, it expects a colon or space. With v0.4.0, the .0 is not consumed by \\d+ so [:\\s]+ fails. Test with vX.Y: format, not vX.Y.Z: format."
+  source: "Phase 24, Plan 04, Task 2"
+  confidence: HIGH
+  phase: "24-quality-verification-bug-fixes"
+  date: "2026-03-16"

@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 29 of 35 (Prototype Gate)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-03-28 -- v1.0.0 Overlay Architecture roadmap created
+Plan: 1 of 1 in current phase
+Status: Phase 29 complete -- go/no-go verdict: GO
+Last activity: 2026-03-28 -- Phase 29 prototype gate validated, all 3 PROTO tests pass
 
-Progress: [====================..........] 66% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 starting)
+Progress: [====================..........] 67% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 29 done)
 
 ## Performance Metrics
 
@@ -41,6 +41,8 @@ Recent decisions affecting current work:
 - Publish-time composition: pre-composed dist/ is self-contained and testable
 - Exact version pinning: prevents unreviewed upstream updates
 - No runtime filtering in v3.0: upstream installer is 5K-line monolith
+- Phase 29 go/no-go: GO -- upstream __dirname path resolution works from composed dir, surface branding safe, overlay coexistence confirmed
+- --config-dir for test isolation: os.homedir() ignores HOME on Windows; --config-dir is reliable cross-platform
 
 ### Pending Todos
 
@@ -48,11 +50,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 29 is a go/no-go gate: if delegation fails, architecture needs revision
 - Upstream test compat feasibility gate in Phase 34: >30% needing adaptation triggers reassessment
 
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Roadmap created for v1.0.0 Overlay Architecture milestone
+Stopped at: Completed 29-01-PLAN.md -- Phase 29 prototype gate complete, go/no-go verdict: GO
 Resume file: None

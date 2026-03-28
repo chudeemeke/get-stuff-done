@@ -64,7 +64,7 @@ Phases 24-28 were partially started (Phase 24 had 2/4 plans in progress). Work f
 
 **Milestone Goal:** Replace the direct-edit fork with an overlay/skin architecture. Upstream (get-shit-done-cc) becomes an npm devDependency consumed at v1.30.0. A composition pipeline builds dist/ at publish time. Surface-only branding preserves internal paths. Ships as npm v3.0.0.
 
-- [ ] **Phase 29: Prototype Gate** - Validate installer delegation mechanism before committing to overlay architecture
+- [x] **Phase 29: Prototype Gate** - Validate installer delegation mechanism before committing to overlay architecture (completed 2026-03-28)
 - [ ] **Phase 30: Composition Pipeline & Branding** - Build the core composition pipeline (resolve, filter, override, brand, merge) and surface-only branding system
 - [ ] **Phase 31: Feature Flags & Override System** - File-level feature exclusion and explicit upstream module replacement with staleness detection
 - [ ] **Phase 32: Fork Code Port** - Port ~2,510 lines of fork-specific code to overlay/ structure with updated imports
@@ -188,7 +188,7 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 22. Advanced Sync Automation | v0.3.0 | 2/2 | Complete | 2026-03-07 |
 | 23. v0.3.0 Gap Closure | v0.3.0 | 1/1 | Complete | 2026-03-08 |
 | 24-28. Platform Expansion | v0.4.0 | - | Superseded | - |
-| 29. Prototype Gate | v1.0.0 | 0/1 | Planning | - |
+| 29. Prototype Gate | 1/1 | Complete   | 2026-03-28 | - |
 | 30. Composition Pipeline & Branding | v1.0.0 | 0/? | Not started | - |
 | 31. Feature Flags & Override System | v1.0.0 | 0/? | Not started | - |
 | 32. Fork Code Port | v1.0.0 | 0/? | Not started | - |

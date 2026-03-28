@@ -10,9 +10,9 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 ### Prototype Gate
 
-- [ ] **PROTO-01**: Upstream install.js runs correctly from a composed directory that preserves its internal structure
-- [ ] **PROTO-02**: Surface-only text branding (package name, URLs) in install.js does not break installation
-- [ ] **PROTO-03**: Overlay additions (fork hooks, commands, workflows) can be copied to target after upstream install completes
+- [x] **PROTO-01**: Upstream install.js runs correctly from a composed directory that preserves its internal structure
+- [x] **PROTO-02**: Surface-only text branding (package name, URLs) in install.js does not break installation
+- [x] **PROTO-03**: Overlay additions (fork hooks, commands, workflows) can be copied to target after upstream install completes
 
 ### Composition Pipeline
 

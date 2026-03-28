@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 30 of 35 (Composition Pipeline & Branding)
-Plan: 1 of 2 complete in current phase
-Status: Phase 30 Plan 01 complete -- overlay scaffold and branding engine shipped
-Last activity: 2026-03-28 -- overlay/branding.json, overlay/features.json, scripts/compose.js; 41 branding tests pass
+Plan: 2 of 2 complete in current phase
+Status: Phase 30 COMPLETE -- all 2 plans done; composition pipeline ships dist/ from upstream + overlay
+Last activity: 2026-03-28 -- scripts/compose.js (5-stage pipeline), tests/compose.test.js (56 tests); 97 total tests pass
 
 Progress: [=====================.........] 69% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 30 in progress)
 
@@ -45,6 +45,10 @@ Recent decisions affecting current work:
 - --config-dir for test isolation: os.homedir() ignores HOME on Windows; --config-dir is reliable cross-platform
 - Branding engine: replaceAll for long patterns, word-boundary regex for short all-caps tokens (TACHES)
 - Integration test uses dynamic bare-count comparison (not hard-coded) -- upstream v1.30.0 has 27 bare refs, not 29 as plan spec stated
+- Pipeline stages are separate importable functions (SRP): resolve, filter, override, brand, merge, compose
+- filter() and override() are Phase 30 pass-through stubs; implementations deferred to Phase 31 and 32
+- brand() reads files lazily at brand stage (not resolve) to keep resolve fast
+- merge() clean rebuild: rmSync then mkdirSync -- no stale files in dist/
 
 ### Pending Todos
 
@@ -57,5 +61,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Completed 30-01-PLAN.md -- overlay scaffold and branding engine complete
+Stopped at: Completed 30-02-PLAN.md -- full composition pipeline complete; Phase 30 done
 Resume file: None

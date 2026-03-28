@@ -16,16 +16,16 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 ### Composition Pipeline
 
-- [ ] **COMP-01**: compose.js reads upstream files from node_modules/get-shit-done-cc/ and overlay files from overlay/
-- [ ] **COMP-02**: compose.js validates upstream directory structure matches expected layout before composing
-- [ ] **COMP-03**: compose.js applies feature flag filtering (exclude workflows, commands, agents, hooks, SDK by name)
-- [ ] **COMP-04**: compose.js applies overrides (files in overrides/ replace upstream equivalents)
+- [x] **COMP-01**: compose.js reads upstream files from node_modules/get-shit-done-cc/ and overlay files from overlay/
+- [x] **COMP-02**: compose.js validates upstream directory structure matches expected layout before composing
+- [x] **COMP-03**: compose.js applies feature flag filtering (exclude workflows, commands, agents, hooks, SDK by name)
+- [x] **COMP-04**: compose.js applies overrides (files in overrides/ replace upstream equivalents)
 - [x] **COMP-05**: compose.js applies surface-only branding from branding.json (text scope, not paths)
-- [ ] **COMP-06**: compose.js merges overlay additive files into composed output
-- [ ] **COMP-07**: compose.js writes .install-meta.json with upstream version, overlay version, timestamp, features disabled, overrides applied
-- [ ] **COMP-08**: compose.js detects collisions (overlay file at same path as upstream file) and errors with guidance
-- [ ] **COMP-09**: compose.js supports --dry-run and --diff flags
-- [ ] **COMP-10**: Each pipeline stage (resolve, filter, override, brand, merge) is a separate importable function following SRP
+- [x] **COMP-06**: compose.js merges overlay additive files into composed output
+- [x] **COMP-07**: compose.js writes .install-meta.json with upstream version, overlay version, timestamp, features disabled, overrides applied
+- [x] **COMP-08**: compose.js detects collisions (overlay file at same path as upstream file) and errors with guidance
+- [x] **COMP-09**: compose.js supports --dry-run and --diff flags
+- [x] **COMP-10**: Each pipeline stage (resolve, filter, override, brand, merge) is a separate importable function following SRP
 - [x] **COMP-11**: Composition pipeline tests written before implementation (TDD); composition tests verify branding, feature flags, overrides, collision detection, meta output
 
 ### Branding

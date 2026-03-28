@@ -61,6 +61,7 @@
   "scripts": {
     "install": "node bin/install.js",
     "build": "node scripts/build.js",
+    "compose": "node scripts/compose.js",
     "prepublishOnly": "git diff --check HEAD && bun run build && node bin/validate-configs.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

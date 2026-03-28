@@ -1,0 +1,26 @@
+{
+  "runtimes": {
+    "claude": true,
+    "opencode": true,
+    "gemini": true,
+    "copilot": true,
+    "codex": true
+  },
+  "workflows": {
+    "enabled": "all",
+    "exclude": []
+  },
+  "commands": {
+    "enabled": "all",
+    "exclude": []
+  },
+  "agents": {
+    "enabled": "all",
+    "exclude": []
+  },
+  "hooks": {
+    "enabled": "all",
+    "exclude": []
+  },
+  "sdk": true
+}

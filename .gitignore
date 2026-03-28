@@ -11,6 +11,7 @@ commands.html
 # Build artifacts (committed to npm, not git)
 hooks/dist/
 get-stuff-done/bin/dist/
+dist/
 
 # Animation assets
 animation/

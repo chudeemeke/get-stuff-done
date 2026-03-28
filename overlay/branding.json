@@ -1,0 +1,23 @@
+{
+  "substitutions": [
+    {
+      "from": "get-shit-done-cc",
+      "to": "@chude/get-stuff-done",
+      "scope": "text",
+      "note": "npm package name in help text, install examples, docs"
+    },
+    {
+      "from": "glittercowboy/get-shit-done",
+      "to": "chudeemeke/get-stuff-done",
+      "scope": "text",
+      "note": "GitHub repo references"
+    },
+    {
+      "from": "TACHES",
+      "to": "Chude Emeke",
+      "scope": "text",
+      "note": "Author attribution in visible surfaces"
+    }
+  ],
+  "preserveUpstreamCredit": true
+}

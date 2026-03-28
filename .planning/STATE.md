@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 30 of 35 (Composition Pipeline & Branding)
-Plan: 2 of 2 complete in current phase
-Status: Phase 30 COMPLETE -- all 2 plans done; composition pipeline ships dist/ from upstream + overlay
-Last activity: 2026-03-28 -- scripts/compose.js (5-stage pipeline), tests/compose.test.js (56 tests); 97 total tests pass
+Plan: 3 of 3 complete in current phase (gap closure)
+Status: Phase 30 COMPLETE -- all 3 plans done including gap closure 30-03; computeDelta() tracks all compose outputs
+Last activity: 2026-03-28 -- scripts/compose.js (computeDelta additive outputs), tests/compose.test.js (61 tests); 102 total tests pass
 
 Progress: [=====================.........] 69% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 30 in progress)
 
@@ -49,6 +49,9 @@ Recent decisions affecting current work:
 - filter() and override() are Phase 30 pass-through stubs; implementations deferred to Phase 31 and 32
 - brand() reads files lazily at brand stage (not resolve) to keep resolve fast
 - merge() clean rebuild: rmSync then mkdirSync -- no stale files in dist/
+- computeDelta() tracks CREDITS.md using generateCredits() for comparison; tracks .install-meta.json as always-modified when dist/ exists
+- CREDITS.md not in wouldWrite when preserveUpstreamCredit is false -- removed-detection flags it correctly
+- .install-meta.json special-case exclusion removed from removed-detection loop -- now tracked via wouldWrite
 
 ### Pending Todos
 
@@ -61,5 +64,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-28
-Stopped at: Completed 30-02-PLAN.md -- full composition pipeline complete; Phase 30 done
+Stopped at: Completed 30-03-PLAN.md -- computeDelta() gap closure complete; Phase 30 fully done
 Resume file: None

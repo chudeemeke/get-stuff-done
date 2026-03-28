@@ -111,6 +111,14 @@ None - no external service configuration required.
 - Phase 33 foundation: tests/prototype-installer.test.js helper functions (setupScratchDir, runUpstreamInstaller, applyBranding, copyOverlayAdditions) are reusable directly.
 - Key cross-platform insight carried forward: always use --config-dir for installer test isolation, never HOME env override.
 
+## Self-Check: PASSED
+
+- tests/prototype-installer.test.js: FOUND
+- .planning/phases/29-prototype-gate/29-01-SUMMARY.md: FOUND
+- Commit 3f8a070 (feat task): FOUND
+- Commit e2a8976 (docs metadata): FOUND
+- bun test tests/prototype-installer.test.js: 3 pass, 0 fail, 28 expect() calls
+
 ---
 *Phase: 29-prototype-gate*
 *Completed: 2026-03-28*

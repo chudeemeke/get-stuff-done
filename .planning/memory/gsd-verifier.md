@@ -1,7 +1,7 @@
 ---
 agent: gsd-verifier
-updated: 2026-03-08
-entries: 24
+updated: 2026-03-27
+entries: 26
 ---
 
 ## Agent Memory: GSD Verifier
@@ -150,3 +150,15 @@ entries:
     confidence: HIGH
     phase: "23-v030-gap-closure"
     date: "2026-03-08"
+
+  - finding: "For prototype/integration test phases (Phase 29 pattern): the key_link 'execSync.*install.js' grep pattern fails when execSync takes a template literal with a variable (execSync(`node \"${installScript}\"`)). Verify subprocess invocation by reading the helper function directly and confirming installScript = path.join(scratchDir, 'bin', 'install.js')."
+    source: "Phase 29 verification"
+    confidence: HIGH
+    phase: "29-prototype-gate"
+    date: "2026-03-27"
+
+  - finding: "Anti-pattern grep for 'placeholder' on prototype test files produces false positives: the word 'placeholder' legitimately appears in copyOverlayAdditions() as the content of test fixture files (overlay placeholder content). Distinguish legitimate test fixture placeholder text from stub code placeholders by checking context (is it content being written to a file, or is it a function that returns nothing?)."
+    source: "Phase 29 verification"
+    confidence: HIGH
+    phase: "29-prototype-gate"
+    date: "2026-03-27"

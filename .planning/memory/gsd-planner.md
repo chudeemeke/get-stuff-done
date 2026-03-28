@@ -1,7 +1,7 @@
 ---
 agent: gsd-planner
-updated: 2026-03-10
-entries: 19
+updated: 2026-03-28
+entries: 20
 ---
 
 - finding: "GSD has ~15 JS files (~6,850 lines) as testable surface. The installer (bin/install.js) alone is 1,760 lines and deserves its own dedicated plan due to complexity (symlink fallback chains, runtime detection, settings.json manipulation)."
@@ -119,3 +119,9 @@ entries: 19
   confidence: HIGH
   phase: "24-quality-verification-bug-fixes"
   date: "2026-03-10"
+
+- finding: "Go/no-go gate phases with thorough research (HIGH confidence, verified source analysis) compress to 1 plan, 2 tasks. Phase 29: Task 1 scaffolds infrastructure (devDep + test helpers), Task 2 fills in integration tests. All three PROTO requirements share the same test file and scratch directory setup -- splitting by requirement would create artificial coupling. The gsd-tools commit command has quoting issues with multi-word messages on Windows; use git directly for commits during planning."
+  source: "Phase 29, planning"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-28"

@@ -335,3 +335,27 @@ entries: 51
   confidence: HIGH
   phase: "24-quality-verification-bug-fixes"
   date: "2026-03-16"
+
+- finding: "For cross-platform installer test isolation, always use --config-dir flag (not HOME env override). os.homedir() is cached at Node.js startup from USERPROFILE/HOMEDRIVE+HOMEPATH on Windows and ignores HOME env changes. --config-dir is the first-priority override in upstream's getGlobalDir() and works identically on all platforms."
+  source: "Phase 29, Plan 01, Task 1 (cross-platform test isolation decision)"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-28"
+
+- finding: "When using fs.cpSync(src, dest, { recursive: true }) to copy an npm package for subprocess testing, the destination directory must NOT already exist (cpSync with recursive:true creates dest from scratch). If scratch dir is inside tmpDir which is freshly created, this is fine. If reusing a dir, call rmSync first."
+  source: "Phase 29, Plan 01, Task 1 (setupScratchDir pattern)"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-28"
+
+- finding: "Surface branding of upstream install.js (get-shit-done-cc -> @chude/get-stuff-done): ONLY replace exact 'get-shit-done-cc' occurrences. Never replace bare 'get-shit-done' -- it appears 130+ times in path resolution (path.join(targetDir, 'get-shit-done')), directory naming, and config markers. Pattern: most specific replacements first (get-shit-done-cc@latest, npx get-shit-done-cc, then get-shit-done-cc)."
+  source: "Phase 29, Plan 01, Task 1 (applyBranding scoping)"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-28"
+
+- finding: "When STATE.md uses free-form text (not machine-parseable key:value format), gsd-tools state advance-plan fails with 'Cannot parse Current Plan'. Update STATE.md manually via Edit tool. This is a known gap from Phase 18 (see prior memory entry)."
+  source: "Phase 29, Plan 01, state update"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-28"

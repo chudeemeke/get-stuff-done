@@ -293,3 +293,27 @@ entries: 48
   confidence: HIGH
   phase: "29-prototype-gate"
   date: "2026-03-27"
+
+- finding: "Phase 30 upstream branding scope: only 11 of 225 upstream files contain branding targets (get-shit-done-cc, TACHES/TÂCHES, glittercowboy). Bare 'get-shit-done' (no -cc) appears 29 times in install.js as internal path identifiers. The scope:'text' rule is implemented via pattern specificity -- brand 'get-shit-done-cc' (with -cc), never bare 'get-shit-done'. The two strings do not overlap in upstream code."
+  source: "Phase 30, Composition Pipeline Research"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "Phase 30 overlay/ does not yet exist. dist/ is not in .gitignore yet. Both must be created/updated at the start of Phase 30 before any compose run. overlay/ scaffold contains: branding.json, features.json, overrides/.gitkeep -- no fork code yet (fork code porting is Phase 32)."
+  source: "Phase 30, Composition Pipeline Research"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "Phase 30 update.md exception: line 149 'npm view get-shit-done-cc version' should NOT be branded. It intentionally queries the upstream npm package name for version checking. Branding it to '@chude/get-stuff-done' would break the update workflow (fork is a different npm package). Document this as an intentional exception."
+  source: "Phase 30, Composition Pipeline Research"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "Phase 30 pipeline pattern: manifest-based file tracking where each stage receives and returns a state object {manifest, branding, features, warnings}. Each ManifestEntry has: sourcePath, destPath (relative in dist/), content (modified or null), action ('copy'|'brand'|'override'|'overlay'|'skip'), stage. --dry-run is implemented by skipping MERGE stage writes, not by a special dry-run code path through all stages."
+  source: "Phase 30, Composition Pipeline Research"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"

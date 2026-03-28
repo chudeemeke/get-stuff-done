@@ -5,7 +5,8 @@
 - v0.1.0 **GetStuffDone Fork** -- Phases 1-6 (shipped 2026-02-05)
 - v0.2.0 **Hardening & Upstream Sync** -- Phases 7-17 (shipped 2026-02-21)
 - v0.3.0 **Upstream Sync & Workflow Maturity** -- Phases 18-23 (shipped 2026-03-08)
-- v0.4.0 **Platform Expansion** -- Phases 24-28 (in progress)
+- v0.4.0 **Platform Expansion** -- Phases 24-28 (superseded by overlay architecture)
+- v1.0.0 **Overlay Architecture** -- Phases 29-35 (in progress)
 
 ## Phases
 
@@ -30,81 +31,134 @@ See: .planning/milestones/v0.3.0-ROADMAP.md
 
 </details>
 
-### v0.4.0 Platform Expansion (In Progress)
+<details>
+<summary>v0.4.0 Platform Expansion (Phases 24-28) -- SUPERSEDED</summary>
 
-**Milestone Goal:** Verify existing work, sync 158 upstream commits (v1.20.6-v1.22.4), and deliver multi-runtime installer support (Codex, OpenCode, Gemini) with fork branding.
+v0.4.0 was superseded by the v1.0.0 overlay architecture milestone. The direct-edit fork model that v0.4.0 was built on (cherry-pick sync of 569 commits) became unsustainable. The overlay architecture eliminates the sync treadmill entirely.
 
-- [ ] **Phase 24: Quality Verification & Bug Fixes** - Retroactive UAT for Phases 6/21/22, fix claudeToGeminiTools ReferenceError, address audit findings
-- [ ] **Phase 25: Upstream Sync Execution** - Cherry-pick 158 commits (v1.20.6-v1.22.4) including multi-runtime code, Windows fixes, and quality features
-- [ ] **Phase 26: Post-Sync Stabilization** - Restore test suite health, maintain 825+ tests at 95%+ coverage per metric
-- [ ] **Phase 27: Multi-Runtime Integration** - Wire Codex, OpenCode, and Gemini installer paths with correct tool mapping
-- [ ] **Phase 28: Multi-Runtime Polish** - Fork branding per runtime, CI matrix expansion, documentation updates
+Phases 24-28 were partially started (Phase 24 had 2/4 plans in progress). Work from Phase 24 (quality verification, bug fixes, test coverage) carries forward as general codebase health but is not formally tracked in the new milestone.
+
+### Phase 24: Quality Verification & Bug Fixes
+**Status**: Superseded (2/4 plans completed)
+**Requirements**: QUAL-01 through QUAL-05
+
+### Phase 25: Upstream Sync Execution
+**Status**: Not started (superseded)
+**Requirements**: SYNC-III-01 through SYNC-III-06
+
+### Phase 26: Post-Sync Stabilization
+**Status**: Not started (superseded)
+**Requirements**: SYNC-III-03
+
+### Phase 27: Multi-Runtime Integration
+**Status**: Not started (superseded)
+**Requirements**: RUNTIME-01 through RUNTIME-04
+
+### Phase 28: Multi-Runtime Polish
+**Status**: Not started (superseded)
+**Requirements**: RUNTIME-05 through RUNTIME-07
+
+</details>
+
+### v1.0.0 Overlay Architecture (In Progress)
+
+**Milestone Goal:** Replace the direct-edit fork with an overlay/skin architecture. Upstream (get-shit-done-cc) becomes an npm devDependency consumed at v1.30.0. A composition pipeline builds dist/ at publish time. Surface-only branding preserves internal paths. Ships as npm v3.0.0.
+
+- [ ] **Phase 29: Prototype Gate** - Validate installer delegation mechanism before committing to overlay architecture
+- [ ] **Phase 30: Composition Pipeline & Branding** - Build the core composition pipeline (resolve, filter, override, brand, merge) and surface-only branding system
+- [ ] **Phase 31: Feature Flags & Override System** - File-level feature exclusion and explicit upstream module replacement with staleness detection
+- [ ] **Phase 32: Fork Code Port** - Port ~2,510 lines of fork-specific code to overlay/ structure with updated imports
+- [ ] **Phase 33: Installer & Update Workflow** - Delegation-based installer and preview-update workflow with supply chain scanning
+- [ ] **Phase 34: Testing & CI Enforcement** - 95%+ coverage per metric, upstream compatibility runner, boundary and override CI checks
+- [ ] **Phase 35: Migration & Ship v3.0.0** - Tag legacy, merge overlay branch, upgrade path for existing users, publish v3.0.0
 
 ## Phase Details
 
-### Phase 24: Quality Verification & Bug Fixes
-**Goal**: Confirm Phases 6, 21, and 22 actually work as specified, and fix known defects before building on top of them
-**Depends on**: Nothing (first phase of v0.4.0)
-**Requirements**: QUAL-01, QUAL-02, QUAL-03, QUAL-04, QUAL-05
+### Phase 29: Prototype Gate
+**Goal**: Confirm that upstream's install.js runs correctly from a composed directory with surface-only branding, and that overlay additions can layer on top -- before committing to the full overlay architecture
+**Depends on**: Nothing (first phase of v1.0.0; go/no-go gate)
+**Requirements**: PROTO-01, PROTO-02, PROTO-03
 **Success Criteria** (what must be TRUE):
-  1. Logo SVG and PNG assets render correctly in terminal and documentation contexts; installer deploys them to target directory
-  2. Commit classification correctly categorizes upstream commits by type (fix/feat/refactor) and severity; supply chain scanner detects known attack vectors; severity-aware statusline displays correct color thresholds
-  3. Selective sync filters commits by category with correct dependency detection; AI conflict resolution produces merge-ready suggestions that preserve fork identity
-  4. `node install.js` completes without ReferenceError on the claudeToGeminiTools code path
-  5. Codebase audit findings addressed (specific items determined by audit results)
-**Plans**: 4 plans
-- [ ] 24-01-PLAN.md -- Fix claudeToGeminiTools ReferenceError + Phase 6 Logo UAT
-- [ ] 24-02-PLAN.md -- Phase 21 Sync Intelligence UAT + Phase 22 Sync Automation UAT
-- [ ] 24-03-PLAN.md -- Test coverage for config.cjs and frontmatter.cjs (TDD)
-- [ ] 24-04-PLAN.md -- Test coverage for template.cjs and core.cjs (TDD) + codebase audit
-
-### Phase 25: Upstream Sync Execution
-**Goal**: Integrate 158 upstream commits (v1.20.6-v1.22.4) into the fork, absorbing multi-runtime code, Windows fixes, and quality features while preserving fork identity
-**Depends on**: Phase 24 (sync intelligence tools verified working before use)
-**Requirements**: SYNC-III-01, SYNC-III-02, SYNC-III-04, SYNC-III-05, SYNC-III-06
-**Success Criteria** (what must be TRUE):
-  1. All 158 upstream commits are cherry-picked or accounted for (applied, skipped with reason, or conflict-resolved)
-  2. Fork identity preserved: package.json name is @chude/get-stuff-done, all non-upstream URLs point to chudeemeke/get-stuff-done, branding-map.json entries applied
-  3. Multi-runtime installer code from upstream (Codex skills-first, OpenCode path detection, Gemini hooks) is present in the codebase
-  4. Upstream quality features (Nyquist validation, discuss-phase, agent frontmatter, context monitor) are functional
-  5. Upstream Windows fixes (@file: protocol, toPosixPath, path separators) are integrated and passing on Windows CI
+  1. Upstream install.js executes from a scratch directory that preserves its internal structure (get-shit-done/ paths intact) and installs to a target directory without errors
+  2. Text-only branding applied to install.js (package name, URLs in help strings) does not break the installation process -- installed files are functional
+  3. After upstream install completes, fork-specific files (a test hook, a test command) can be copied to the target directory and coexist without conflict
 **Plans**: TBD
 
-### Phase 26: Post-Sync Stabilization
-**Goal**: Restore full test health after the sync, ensuring no regressions and coverage thresholds are maintained
-**Depends on**: Phase 25
-**Requirements**: SYNC-III-03
+### Phase 30: Composition Pipeline & Branding
+**Goal**: Users can run `bun run compose` and get a correct dist/ output that merges upstream files with overlay files, applies surface-only branding, and produces an auditable .install-meta.json
+**Depends on**: Phase 29 (delegation mechanism validated)
+**Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, COMP-06, COMP-07, COMP-08, COMP-09, COMP-10, COMP-11, BRAND-01, BRAND-02, BRAND-03, BRAND-04, BRAND-05, BRAND-06
 **Success Criteria** (what must be TRUE):
-  1. 825+ tests pass across all platforms (macOS, Linux, Windows)
-  2. Coverage meets 95%+ per metric (statements, branches, functions, lines) on production code
-  3. No test failures related to sync-introduced changes (new upstream code has test coverage or is excluded from coverage)
+  1. `bun run compose` reads from node_modules/get-shit-done-cc/ and overlay/, validates upstream structure, and writes a complete dist/ with .install-meta.json audit trail
+  2. Branding substitutions appear in user-visible text (help strings, docs, CLI output) but internal directory names (get-shit-done/), code paths, import statements, config keys, and regex patterns are untouched
+  3. Each pipeline stage (resolve, filter, override, brand, merge) is a separate importable function with its own tests; composition tests cover branding, feature flags, overrides, collision detection, and meta output
+  4. `bun run compose --dry-run` previews changes without writing; `bun run compose --diff` shows delta since last composition
+  5. Collision detection errors when an overlay file exists at the same path as an upstream file, with guidance to move to overrides/ if intentional
 **Plans**: TBD
 
-### Phase 27: Multi-Runtime Integration
-**Goal**: Make the upstream multi-runtime installer code work correctly for Codex, OpenCode, and Gemini with proper tool mapping
-**Depends on**: Phase 26 (stable codebase with multi-runtime code present)
-**Requirements**: RUNTIME-01, RUNTIME-02, RUNTIME-03, RUNTIME-04
+### Phase 31: Feature Flags & Override System
+**Goal**: Fork maintainer can disable upstream features by name in features.json and replace upstream modules via overrides/ with enforced documentation and staleness detection
+**Depends on**: Phase 30 (composition pipeline operational)
+**Requirements**: FEAT-01, FEAT-02, FEAT-03, FEAT-04, OVER-01, OVER-02, OVER-03, OVER-04
 **Success Criteria** (what must be TRUE):
-  1. `node install.js --runtime codex` installs skills-first configuration with correct request_user_input mapping and multi-agent config
-  2. `node install.js --runtime opencode` installs with correct config directory detection and flat command structure
-  3. `node install.js --runtime gemini` installs with AfterTool hook events, TOML conversion guard, and agent conversion
-  4. claudeToGeminiTools mapping table is defined and correctly translates tool names during Gemini installation
+  1. Adding a workflow/command/agent/hook name to the exclude list in features.json causes that file to be absent from dist/ after composition
+  2. New upstream files not mentioned in any exclude list appear automatically in dist/ (opt-out model verified)
+  3. A file placed in overrides/ replaces the corresponding upstream file in dist/; composition fails if the override lacks a companion REASON.md
+  4. check-overrides.js detects when the upstream version has changed since an override was written and reports which overrides need review
+  5. Zero overrides exist on day one; config and validation enhancements are wrappers in overlay/ that extend upstream modules
 **Plans**: TBD
 
-### Phase 28: Multi-Runtime Polish
-**Goal**: Apply fork identity to each runtime's installer output, expand CI to test all runtimes, and update user-facing documentation
-**Depends on**: Phase 27
-**Requirements**: RUNTIME-05, RUNTIME-06, RUNTIME-07
+### Phase 32: Fork Code Port
+**Goal**: All ~2,510 lines of fork-specific code live in overlay/ with updated imports, and existing fork tests pass against the ported code
+**Depends on**: Phase 31 (overlay/ structure and composition pipeline complete)
+**Requirements**: PORT-01, PORT-02, PORT-03, PORT-04, PORT-05, PORT-06, PORT-07, PORT-08, PORT-09
 **Success Criteria** (what must be TRUE):
-  1. Each runtime's installed files contain fork-correct name, URLs, and package references (not upstream branding)
-  2. CI matrix runs installer tests for Claude, Codex, OpenCode, and Gemini on all three platforms
-  3. README and help text document multi-runtime support with installation examples per runtime
+  1. sync.cjs, platform detection, theme system, validation module, launcher, hooks, workflows, and commands all live under overlay/ (or bin/ for the launcher) with correct import paths
+  2. Config and validation enhancements are implemented as wrappers that extend upstream modules via import, not as overrides that replace them
+  3. Existing fork tests ported alongside their code pass without modification to test assertions (only import paths change)
+  4. `bun run compose` produces dist/ that includes both upstream files and all ported overlay code in the correct directory layout
+**Plans**: TBD
+
+### Phase 33: Installer & Update Workflow
+**Goal**: End users can install the fork via `bunx @chude/get-stuff-done --claude --global` using delegation to upstream's install.js, and the maintainer can preview and apply upstream updates with supply chain scanning
+**Depends on**: Phase 32 (all fork code ported; dist/ contains complete composed output)
+**Requirements**: INST-01, INST-02, INST-03, INST-04, INST-05, INST-06, UPD-01, UPD-02, UPD-03, UPD-04
+**Success Criteria** (what must be TRUE):
+  1. bin/install.js delegates to upstream's install.js (from dist/) which installs to the target directory, then copies overlay additions (hooks, commands, workflows) on top
+  2. .install-meta.json is written to the installed directory with upstream version, overlay version, timestamp, features disabled, and overrides applied
+  3. `--uninstall` removes both upstream-installed and overlay-installed files from the target
+  4. v2.x installations are detected (by checking .install-meta.json for missing overlay_version or version < 3.0) and cleaned up before v3.0 install proceeds
+  5. `bun run preview-update` diffs pinned upstream version against latest on npm, runs supply chain scan, and flags overrides affected by upstream changes -- all before any upgrade happens
+**Plans**: TBD
+
+### Phase 34: Testing & CI Enforcement
+**Goal**: Fork-specific code achieves 95%+ coverage at each metric individually, upstream compatibility runner validates composed output, and CI enforces boundary and override rules on every push
+**Depends on**: Phase 33 (installer and update workflow complete; full system available for end-to-end testing)
+**Requirements**: TEST-01, TEST-02, TEST-03, TEST-04, CI-01, CI-02, CI-03, CI-04
+**Success Criteria** (what must be TRUE):
+  1. Fork test suite achieves 95%+ at statements, branches, functions, and lines individually -- each metric passes independently
+  2. Upstream test assertions are categorised (path-based, package-name-based, behavioural) and the compatibility runner approach is determined by the feasibility gate (>30% needing adaptation triggers reassessment)
+  3. Upstream compatibility runner executes upstream tests against composed dist/ output and reports pass/fail
+  4. CI matrix runs all four checks (fork tests, upstream compat, boundary check, override check) on macOS, Linux, and Windows
+  5. check-boundary.js fails the build if any upstream file exists in the repo outside overrides/; check-overrides.js fails the build if any override lacks a REASON.md
+**Plans**: TBD
+
+### Phase 35: Migration & Ship v3.0.0
+**Goal**: Existing users can upgrade from v2.x to v3.0.0 cleanly, the overlay-architecture branch becomes main, and the package ships to npm as v3.0.0
+**Depends on**: Phase 34 (all tests pass, CI green on all platforms)
+**Requirements**: MIG-01, MIG-02, MIG-03, MIG-04, MIG-05, MIG-06
+**Success Criteria** (what must be TRUE):
+  1. Current main is tagged as v0.4.0-legacy and the overlay-architecture branch is created with clean overlay structure
+  2. .planning/ history, npm package name (@chude/get-stuff-done), and GitHub repo are all preserved across migration
+  3. `aidev release major` ships v3.0.0 to npm; `bunx @chude/get-stuff-done@3.0.0 --claude --global` installs successfully on a clean machine
+  4. Users on v2.4.0 can install v3.0.0 and the installer detects and cleans up v2.x artifacts automatically
+  5. Rollback is documented: `bunx @chude/get-stuff-done@2.4.0 --claude --global` installs the legacy version
 **Plans**: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 24 -> 25 -> 26 -> 27 -> 28
+Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -131,8 +185,11 @@ Phases execute in numeric order: 24 -> 25 -> 26 -> 27 -> 28
 | 21. Sync Intelligence | v0.3.0 | 3/3 | Complete | 2026-02-25 |
 | 22. Advanced Sync Automation | v0.3.0 | 2/2 | Complete | 2026-03-07 |
 | 23. v0.3.0 Gap Closure | v0.3.0 | 1/1 | Complete | 2026-03-08 |
-| 24. Quality Verification & Bug Fixes | 2/4 | In Progress|  | - |
-| 25. Upstream Sync Execution | v0.4.0 | 0/? | Not started | - |
-| 26. Post-Sync Stabilization | v0.4.0 | 0/? | Not started | - |
-| 27. Multi-Runtime Integration | v0.4.0 | 0/? | Not started | - |
-| 28. Multi-Runtime Polish | v0.4.0 | 0/? | Not started | - |
+| 24-28. Platform Expansion | v0.4.0 | - | Superseded | - |
+| 29. Prototype Gate | v1.0.0 | 0/? | Not started | - |
+| 30. Composition Pipeline & Branding | v1.0.0 | 0/? | Not started | - |
+| 31. Feature Flags & Override System | v1.0.0 | 0/? | Not started | - |
+| 32. Fork Code Port | v1.0.0 | 0/? | Not started | - |
+| 33. Installer & Update Workflow | v1.0.0 | 0/? | Not started | - |
+| 34. Testing & CI Enforcement | v1.0.0 | 0/? | Not started | - |
+| 35. Migration & Ship v3.0.0 | v1.0.0 | 0/? | Not started | - |

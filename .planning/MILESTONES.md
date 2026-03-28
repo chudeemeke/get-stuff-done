@@ -1,5 +1,25 @@
 # Project Milestones: GetStuffDone
 
+## v0.4.0 Platform Expansion (Superseded: 2026-03-28)
+
+**Status:** Superseded by v1.0.0 Overlay Architecture. The direct-edit fork model that v0.4.0 was built on (cherry-pick sync of 569 commits from v1.20.6 to v1.30.0) became unsustainable. The overlay architecture eliminates the sync treadmill entirely.
+
+**Phases planned:** 24-28 (Phase 24 had 2/4 plans in progress; Phases 25-28 not started)
+
+**What was planned:**
+- Quality verification and bug fixes for prior phases
+- Cherry-pick 158 upstream commits (v1.20.6-v1.22.4)
+- Post-sync stabilization
+- Multi-runtime installer support (Codex, OpenCode, Gemini)
+- Fork branding per runtime, CI matrix expansion
+
+**What carries forward:**
+- Phase 24 quality verification work (bug fixes, test coverage) contributes to general codebase health
+- Multi-runtime support is absorbed via upstream dependency (get-shit-done-cc@1.30.0 includes all runtimes)
+- No formal requirement mapping from v0.4.0 to v1.0.0 (clean break)
+
+---
+
 ## v0.3.0 Upstream Sync & Workflow Maturity (Shipped: 2026-03-08)
 
 **Delivered:** Full upstream sync (185 commits through v1.20.5), modular gsd-tools architecture adoption, and production-grade sync workflow tooling with safety features, intelligence, and AI-assisted automation.
@@ -26,7 +46,7 @@
 
 **Git range:** `v0.2.0` -> `1f36914`
 
-**What's next:** TBD -- next milestone planning
+**What's next:** v1.0.0 Overlay Architecture
 
 ---
 
@@ -56,7 +76,7 @@
 
 **Git range:** `v0.1.0` -> `a19af32`
 
-**What's next:** TBD -- next milestone planning
+**What's next:** v0.3.0 Upstream Sync & Workflow Maturity
 
 ---
 
@@ -85,6 +105,6 @@
 
 **Git range:** Initial fork setup through `d3b0414` (v2.1.1)
 
-**What's next:** Security review for upstream workflow, cross-platform testing, CI/CD
+**What's next:** v0.2.0 Hardening & Upstream Sync
 
 ---

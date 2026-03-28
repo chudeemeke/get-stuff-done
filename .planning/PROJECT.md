@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Done" for the AI Dev Environment ecosystem. It's a meta-prompting, context engineering, and spec-driven development system for Claude Code with security hardening, cross-platform support (Windows/macOS/Linux), CI/CD testing, agent memory protocol, team-based orchestration, and mature upstream sync tooling with safety features, intelligence, and AI-assisted automation -- all while maintaining upstream compatibility.
+A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get-stuff-done. It consumes upstream as an npm dependency and layers fork-specific additions (cross-platform tooling, theming, sync safety, launcher) on top through a composition pipeline. Users get upstream's full capabilities plus fork enhancements, with surface-only branding.
 
 ## Core Value
 
-**Maintain upstream compatibility while establishing distinct identity.** The fork should feel like "mine" while still being able to pull valuable improvements from the original GSD.
+**Get upstream improvements automatically while preserving fork identity and additions.** The overlay architecture eliminates manual sync operations -- upstream updates are version bumps, not cherry-pick marathons.
 
 ## Requirements
 
@@ -32,45 +32,46 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 
 ### Active
 
-- [ ] QUAL-01: Retroactive UAT for Phase 6 (Logo Assets)
-- [ ] QUAL-02: Retroactive UAT for Phase 21 (Sync Intelligence)
-- [ ] QUAL-03: Retroactive UAT for Phase 22 (Advanced Sync Automation)
-- [ ] QUAL-04: Codebase quality audit findings (TBD from audit)
-- [ ] SYNC-III-01: Upstream sync v1.20.5 through v1.22.4 (158 commits)
-- [ ] SYNC-III-02: Resolve merge conflicts preserving fork identity
-- [ ] SYNC-III-03: Post-sync test stabilization and coverage maintenance
-- [ ] RUNTIME-01: Full Codex skills-first runtime support
-- [ ] RUNTIME-02: OpenCode runtime support with correct path detection
-- [ ] RUNTIME-03: Gemini runtime support with correct hook events
-- [ ] RUNTIME-04: Fix claudeToGeminiTools ReferenceError in installer
-- [ ] RUNTIME-05: Multi-runtime branding pass (fork identity per runtime)
-- [ ] RUNTIME-06: CI matrix expansion for multi-runtime testing
+- [ ] OVERLAY-01: Validate installer delegation mechanism (Phase 0 prototype gate)
+- [ ] OVERLAY-02: Composition pipeline (resolve, filter, override, brand, merge)
+- [ ] OVERLAY-03: Surface-only branding system (branding.json, text scope only)
+- [ ] OVERLAY-04: Feature flags system (file-level exclusion for workflows/commands/agents/hooks/SDK)
+- [ ] OVERLAY-05: Override system with REASON.md enforcement and staleness detection
+- [ ] OVERLAY-06: Port fork-specific code to overlay/ structure (~2,510 lines)
+- [ ] OVERLAY-07: Installer architecture (delegation to upstream install.js + overlay additions)
+- [ ] OVERLAY-08: Update workflow (preview-update with supply chain scan before upgrade)
+- [ ] OVERLAY-09: Boundary enforcement (CI checks: no upstream files in repo, override reasons)
+- [ ] OVERLAY-10: Fork test suite (~12 test files covering overlay-specific code)
+- [ ] OVERLAY-11: Upstream compatibility test runner against composed output
+- [ ] OVERLAY-12: Existing user upgrade path (v2.x artifact detection and cleanup)
+- [ ] OVERLAY-13: Cross-platform CI matrix (macOS, Linux, Windows)
 
 ### Out of Scope
 
-- Changing GSD's core workflow methodology -- this is an adaptation, not a rewrite
-- Removing .upstream/ directory -- needed for diffing/comparison
+- Changing GSD's core workflow methodology -- this is an overlay, not a rewrite
 - TypeScript migration -- adds build complexity for marginal benefit
-- Fast mode integration (CLAUDE-04) -- marginal benefit per CONTEXT.md
-- Bash-to-Claude-tools migration (CLAUDE-05) -- bash has valid advantages per CONTEXT.md
+- Internal path renaming (get-shit-done/ -> get-stuff-done/) -- surface-only branding per QA review
+- Runtime filtering in install.js -- too complex for monolithic 5,000-line file, users choose at install time
 - Auto-applying upstream updates -- destroys user control
-- ~~OpenCode/Gemini/Mistral installer support~~ -- moved to Active for v0.4.0
+- Reimplementing upstream's installer logic -- delegate, don't duplicate
 
 ### Deferred
 
-- CLAUDE-06: Full agent teams orchestration for parallel phases (upstream auto-advance sufficient per ASSESS-01)
+- CLAUDE-06: Full agent teams orchestration (upstream auto-advance sufficient per ASSESS-01)
 - PLAT-07: Interactive diff viewer (sync-preview CLI sufficient per ASSESS-02)
 - PLAT-08: Multi-upstream support (single-upstream workflow sufficient per ASSESS-02)
-- ~~Multi-runtime support~~ -- moved to Active for v0.4.0
+- Runtime filtering in feature flags (revisit if upstream modularises their installer)
 
 ## Context
 
-**Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13 (upstream synced through v1.20.6+)
+**Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13
+**Architecture:** Overlay model -- upstream consumed as npm devDependency, composed at publish time
+**Upstream:** get-shit-done-cc@1.30.0 (569 commits ahead of last direct sync at v1.20.5)
 **Private repo:** github.com/chudeemeke/get-stuff-done
 **Environment:** Windows with Git Bash, Claude Code CLI (cross-platform: macOS, Linux, Windows)
-**Current version:** 2.4.0 (published to npm as @chude/get-stuff-done)
-**Codebase:** ~25,773 LOC JavaScript, 825 tests
-**Tech stack:** Node.js, JSON5/AJV config, esbuild bundling, bun:test, GitHub Actions CI, SVG assets, Claude Code hooks/skills/agents/teams, modular gsd-tools (11 CJS domain modules)
+**Current version:** 2.4.0 (published to npm as @chude/get-stuff-done), shipping as v3.0.0
+**Fork-specific code:** ~2,510 lines (sync.cjs, platform detection, theming, validation, launcher, hooks)
+**Design spec:** docs/superpowers/specs/2026-03-28-overlay-architecture-design.md
 
 **Shipped in v0.1.0:**
 - Nested JSON5 configuration with AJV validation
@@ -133,5 +134,11 @@ A personalized fork of GSD (Get Shit Done) by TACHES, rebranded as "Get Stuff Do
 | SYNC-II-05 scope amendment | 95%+ coverage applies to production code, not test helpers | Good |
 | AUTOCOMPACT_THRESHOLD as constant | Claude Code controls internally, not user-configurable | Good |
 
+| Overlay architecture | Cherry-pick sync unsustainable at 569-commit delta; overlay model eliminates sync treadmill | -- Pending |
+| Surface-only branding | Internal path renaming cascades complexity through installer delegation and test compat; Android OEMs preserve AOSP internals | -- Pending |
+| Publish-time composition | Users don't need upstream as dependency; pre-composed output is self-contained and testable | -- Pending |
+| Exact version pinning | Prevents unreviewed upstream updates; deliberate upgrades via preview-update workflow | -- Pending |
+| No runtime filtering v3.0 | Upstream install.js is 5K-line monolith; code-level filtering infeasible; users choose at install time | -- Pending |
+
 ---
-*Last updated: 2026-03-10 after v0.4.0 milestone planning*
+*Last updated: 2026-03-28 after v1.0.0 overlay architecture milestone start*

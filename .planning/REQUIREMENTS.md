@@ -1,84 +1,148 @@
-# Requirements: GetStuffDone v0.4.0 Platform Expansion
+# Requirements: GetStuffDone v1.0.0 Overlay Architecture
 
-**Defined:** 2026-03-10
-**Core Value:** Maintain upstream compatibility while establishing distinct identity
+**Defined:** 2026-03-28
+**Core Value:** Get upstream improvements automatically while preserving fork identity and additions
+**Design Spec:** docs/superpowers/specs/2026-03-28-overlay-architecture-design.md
 
-## v0.4.0 Requirements
+## v1.0.0 Requirements
 
-Requirements for v0.4.0, ordered by execution priority: quality first, upstream sync second, multi-runtime polish third.
+Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
-### Quality & Polish
+### Prototype Gate
 
-- [ ] **QUAL-01**: Retroactive UAT for Phase 6 (Logo Assets) -- verify SVG/PNG assets render correctly, installer deploys them
-- [ ] **QUAL-02**: Retroactive UAT for Phase 21 (Sync Intelligence) -- verify commit classification, supply chain scanning, severity-aware statusline
-- [ ] **QUAL-03**: Retroactive UAT for Phase 22 (Advanced Sync Automation) -- verify selective sync filtering, dependency detection, AI conflict resolution
-- [ ] **QUAL-04**: Fix claudeToGeminiTools ReferenceError in install.js:610 -- variable referenced but never defined
-- [x] **QUAL-05**: Add test coverage for 4 untested lib modules (config.cjs, frontmatter.cjs, template.cjs, core.cjs)
+- [ ] **PROTO-01**: Upstream install.js runs correctly from a composed directory that preserves its internal structure
+- [ ] **PROTO-02**: Surface-only text branding (package name, URLs) in install.js does not break installation
+- [ ] **PROTO-03**: Overlay additions (fork hooks, commands, workflows) can be copied to target after upstream install completes
 
-### Upstream Sync
+### Composition Pipeline
 
-- [ ] **SYNC-III-01**: Sync upstream commits v1.20.6 through v1.22.4 (~158 commits, 60 fixes, 23 features)
-- [ ] **SYNC-III-02**: Resolve merge conflicts preserving fork identity (branding-map.json, scoped package name, fork URLs)
-- [ ] **SYNC-III-03**: Post-sync test stabilization -- maintain 825+ tests passing at 95%+ coverage per metric
-- [ ] **SYNC-III-04**: Absorb upstream multi-runtime code (Codex skills-first, OpenCode path detection, Gemini hook fixes)
-- [ ] **SYNC-III-05**: Absorb upstream quality improvements (Nyquist validation, discuss-phase, agent frontmatter, state parsing fixes)
-- [ ] **SYNC-III-06**: Absorb upstream Windows fixes (@file: protocol, toPosixPath, path separators)
+- [ ] **COMP-01**: compose.js reads upstream files from node_modules/get-shit-done-cc/ and overlay files from overlay/
+- [ ] **COMP-02**: compose.js validates upstream directory structure matches expected layout before composing
+- [ ] **COMP-03**: compose.js applies feature flag filtering (exclude workflows, commands, agents, hooks, SDK by name)
+- [ ] **COMP-04**: compose.js applies overrides (files in overrides/ replace upstream equivalents)
+- [ ] **COMP-05**: compose.js applies surface-only branding from branding.json (text scope, not paths)
+- [ ] **COMP-06**: compose.js merges overlay additive files into composed output
+- [ ] **COMP-07**: compose.js writes .install-meta.json with upstream version, overlay version, timestamp, features disabled, overrides applied
+- [ ] **COMP-08**: compose.js detects collisions (overlay file at same path as upstream file) and errors with guidance
+- [ ] **COMP-09**: compose.js supports --dry-run and --diff flags
+- [ ] **COMP-10**: Each pipeline stage (resolve, filter, override, brand, merge) is a separate importable function following SRP
+- [ ] **COMP-11**: Composition pipeline tests written before implementation (TDD); composition tests verify branding, feature flags, overrides, collision detection, meta output
 
-### Multi-Runtime
+### Branding
 
-- [ ] **RUNTIME-01**: Codex runtime installer support -- skills-first architecture, request_user_input mapping, multi-agent config
-- [ ] **RUNTIME-02**: OpenCode runtime installer support -- correct config directory detection, flat command structure
-- [ ] **RUNTIME-03**: Gemini runtime installer support -- AfterTool hook events, TOML conversion guard, agent conversion
-- [ ] **RUNTIME-04**: Define and implement claudeToGeminiTools mapping in install.js (tool name translation table)
-- [ ] **RUNTIME-05**: Multi-runtime branding pass -- fork identity (name, URLs, package references) applied per runtime
-- [ ] **RUNTIME-06**: CI matrix expansion -- test installer for each supported runtime
-- [ ] **RUNTIME-07**: Update documentation (README, help text) to reflect multi-runtime support
+- [ ] **BRAND-01**: branding.json substitutions apply only to user-visible text (help text, docs, CLI output)
+- [ ] **BRAND-02**: Internal directory names (get-shit-done/) preserved unchanged in composed output
+- [ ] **BRAND-03**: Internal code paths, import statements, config keys, regex patterns are NOT branded
+- [ ] **BRAND-04**: Word-boundary matching prevents partial-string corruption
+- [ ] **BRAND-05**: LICENSE file preserved from upstream; CREDITS.md added attributing upstream
+- [ ] **BRAND-06**: branding.json validated against schema before use (prevent injection via malformed substitution rules)
 
-## Deferred (v0.5.0+)
+### Feature Flags
 
-- CLAUDE-06: Full agent teams orchestration for parallel phases
-- PLAT-07: Interactive diff viewer
-- PLAT-08: Multi-upstream support
+- [ ] **FEAT-01**: features.json controls file-level inclusion of workflows, commands, agents, hooks, SDK directory
+- [ ] **FEAT-02**: New upstream files not in any exclude list are included by default (opt-out model)
+- [ ] **FEAT-03**: Runtime flags exist in features.json for documentation but do NOT filter code in v3.0
+- [ ] **FEAT-04**: features.json validated against schema before use
+
+### Override System
+
+- [ ] **OVER-01**: Files in overrides/ replace corresponding upstream files during composition
+- [ ] **OVER-02**: Every override requires a companion REASON.md; CI fails without it
+- [ ] **OVER-03**: check-overrides.js detects stale overrides when upstream version changes the underlying file
+- [ ] **OVER-04**: Zero overrides on day one; config and validation enhancements are wrappers in overlay/
+
+### Installer
+
+- [ ] **INST-01**: bin/install.js delegates to upstream's install.js operating on composed dist/ files
+- [ ] **INST-02**: After upstream install completes, overlay additions copied to target (fork hooks, commands, workflows)
+- [ ] **INST-03**: .install-meta.json written to installed directory with version and composition metadata
+- [ ] **INST-04**: --uninstall removes both upstream and overlay files from target
+- [ ] **INST-05**: Existing v2.x installations detected and cleaned up during v3.0 install
+- [ ] **INST-06**: Installer tests written before implementation (TDD)
+
+### Fork Code Port
+
+- [ ] **PORT-01**: sync.cjs ported to overlay/lib/ with imports updated
+- [ ] **PORT-02**: src/platform/ ported to overlay/src/platform/
+- [ ] **PORT-03**: src/theme/ ported to overlay/src/theme/
+- [ ] **PORT-04**: src/validation/ ported to overlay/src/validation/
+- [ ] **PORT-05**: bin/gsd.js ported to bin/ (launcher)
+- [ ] **PORT-06**: hooks/pre-compact.* ported to overlay/hooks/
+- [ ] **PORT-07**: Fork-specific workflows and commands ported to overlay/
+- [ ] **PORT-08**: Config and validation enhancements reimplemented as wrappers extending upstream modules
+- [ ] **PORT-09**: Existing fork tests ported alongside their code; tests pass after port
+
+### Update Workflow
+
+- [ ] **UPD-01**: preview-update script diffs current pinned upstream version against latest on npm
+- [ ] **UPD-02**: Supply chain scan runs during preview-update, before bun update
+- [ ] **UPD-03**: check-overrides.js flags overrides affected by upstream changes
+- [ ] **UPD-04**: Rollback supported by pinning previous upstream version and recomposing
+
+### Testing and Quality
+
+- [ ] **TEST-01**: Fork-specific code achieves 95%+ at EACH coverage metric (statements, branches, functions, lines) individually
+- [ ] **TEST-02**: Upstream test assertion categorisation completed (feasibility gate for compat runner approach)
+- [ ] **TEST-03**: Upstream compatibility runner executes upstream tests against composed dist/ output
+- [ ] **TEST-04**: TDD enforced: tests written before or alongside implementation in every phase, not as a separate phase
+
+### CI and Enforcement
+
+- [ ] **CI-01**: check-boundary.js scans repo for upstream files outside overrides/; fails build if found
+- [ ] **CI-02**: check-overrides.js verifies REASON.md exists for each override; fails build if missing
+- [ ] **CI-03**: Cross-platform matrix (macOS, Linux, Windows) for all test suites
+- [ ] **CI-04**: All four CI checks pass: fork tests, upstream compat, boundary check, override check
+
+### Migration
+
+- [ ] **MIG-01**: Current main tagged as v0.4.0-legacy before overlay branch merges
+- [ ] **MIG-02**: overlay-architecture branch created with clean structure
+- [ ] **MIG-03**: .planning/ history preserved across migration
+- [ ] **MIG-04**: npm package name (@chude/get-stuff-done) and GitHub repo preserved
+- [ ] **MIG-05**: Ships as v3.0.0 (semver major for architectural change)
+- [ ] **MIG-06**: Rollback documented: users can install v2.4.0 if v3.0 has issues
+
+## v2 Requirements
+
+Deferred to future releases. Not in current roadmap.
+
+### Enhanced Capabilities
+
+- **ENH-01**: Runtime filtering in feature flags (requires upstream installer modularisation)
+- **ENH-02**: CI job for weekly upstream outdated check with notification
+- **ENH-03**: Automated upstream changelog summary generation
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Changing GSD's core workflow methodology | Adaptation, not rewrite |
-| Removing .upstream/ directory | Needed for diffing/comparison |
-| TypeScript migration | Adds build complexity for marginal benefit |
-| Fast mode integration (CLAUDE-04) | Marginal benefit per CONTEXT.md |
-| Bash-to-Claude-tools migration (CLAUDE-05) | Bash has valid advantages per CONTEXT.md |
-| Auto-applying upstream updates | Destroys user control |
+| Internal path renaming | QA review: cascades complexity through installer and tests; Android OEMs preserve internals |
+| Runtime filtering in install.js | Upstream installer is 5K-line monolith; code-level filtering infeasible |
+| Reimplementing upstream install logic | 5,000+ lines; delegation is the core architecture principle |
+| TypeScript migration | Adds build complexity; upstream uses CJS; marginal benefit |
+| Multi-upstream support | Single upstream (get-shit-done-cc) is sufficient |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| QUAL-01 | Phase 24 | Pending |
-| QUAL-02 | Phase 24 | Pending |
-| QUAL-03 | Phase 24 | Pending |
-| QUAL-04 | Phase 24 | Pending |
-| QUAL-05 | Phase 24 | Complete |
-| SYNC-III-01 | Phase 25 | Pending |
-| SYNC-III-02 | Phase 25 | Pending |
-| SYNC-III-03 | Phase 26 | Pending |
-| SYNC-III-04 | Phase 25 | Pending |
-| SYNC-III-05 | Phase 25 | Pending |
-| SYNC-III-06 | Phase 25 | Pending |
-| RUNTIME-01 | Phase 27 | Pending |
-| RUNTIME-02 | Phase 27 | Pending |
-| RUNTIME-03 | Phase 27 | Pending |
-| RUNTIME-04 | Phase 27 | Pending |
-| RUNTIME-05 | Phase 28 | Pending |
-| RUNTIME-06 | Phase 28 | Pending |
-| RUNTIME-07 | Phase 28 | Pending |
+| PROTO-01 through PROTO-03 | Phase 29 | Pending |
+| COMP-01 through COMP-11 | Phase 30 | Pending |
+| BRAND-01 through BRAND-06 | Phase 30 | Pending |
+| FEAT-01 through FEAT-04 | Phase 31 | Pending |
+| OVER-01 through OVER-04 | Phase 31 | Pending |
+| PORT-01 through PORT-09 | Phase 32 | Pending |
+| INST-01 through INST-06 | Phase 33 | Pending |
+| UPD-01 through UPD-04 | Phase 33 | Pending |
+| TEST-01 through TEST-04 | Phase 34 | Pending |
+| CI-01 through CI-04 | Phase 34 | Pending |
+| MIG-01 through MIG-06 | Phase 35 | Pending |
 
 **Coverage:**
-- v0.4.0 requirements: 18 total
-- Mapped to phases: 18
+- v1.0.0 requirements: 61 total (PROTO: 3, COMP: 11, BRAND: 6, FEAT: 4, OVER: 4, PORT: 9, INST: 6, UPD: 4, TEST: 4, CI: 4, MIG: 6)
+- Mapped to phases: 61
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-03-10*
-*Last updated: 2026-03-10 after roadmap creation*
+*Requirements defined: 2026-03-28*
+*Last updated: 2026-03-28 -- corrected requirement count from 52 to 61*

@@ -1,7 +1,7 @@
 ---
 agent: gsd-roadmapper
-updated: 2026-03-10
-entries: 5
+updated: 2026-03-28
+entries: 8
 ---
 
 ## Learnings
@@ -24,14 +24,36 @@ entries: 5
   phase: "19-post-sync-stabilization"
   date: "2026-02-27"
 
-- finding: "v0.4.0 upstream sync (158 commits, v1.20.6-v1.22.4) is comparable to v0.3.0 sync (185 commits). Proven pattern: split sync into execution phase + post-sync stabilization phase. Sync execution gets 5 SYNC requirements, stabilization gets 1 (test health). This matches v0.3.0 Phase 18/19 split."
+- finding: "v0.4.0 upstream sync (158 commits, v1.20.6-v1.22.4) is comparable to v0.3.0 sync (185 commits). Proven pattern: split sync into execution phase + post-sync stabilization phase."
   source: "v0.4.0 roadmap creation"
   confidence: HIGH
   phase: "25-upstream-sync-execution"
   date: "2026-03-10"
+  status: superseded
+  superseded_by: "v0.4.0 superseded by v1.0.0 overlay architecture. Cherry-pick sync replaced by npm devDependency model."
 
-- finding: "Quality verification before upstream sync is a deliberate ordering choice: sync intelligence (Phase 21) and sync automation (Phase 22) tools are used during upstream sync execution. UAT must confirm they work before relying on them. This 'verify your tools before using them' pattern should be applied whenever building on top of previously unverified work."
+- finding: "Quality verification before upstream sync is a deliberate ordering choice: sync intelligence (Phase 21) and sync automation (Phase 22) tools are used during upstream sync execution. UAT must confirm they work before relying on them."
   source: "v0.4.0 roadmap creation"
   confidence: HIGH
   phase: "24-quality-verification"
   date: "2026-03-10"
+  status: superseded
+  superseded_by: "v0.4.0 superseded by v1.0.0. Pattern still valid generically but specific phase references no longer apply."
+
+- finding: "v1.0.0 overlay architecture has a natural 7-phase structure derived from the design spec's own phasing (prototype gate, scaffold+pipeline, feature system, code port, installer, testing, migration). The requirements (52 total) clustered cleanly into these boundaries without forcing."
+  source: "v1.0.0 roadmap creation"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-28"
+
+- finding: "Phase 29 (prototype gate) as go/no-go before committing to full overlay migration is a pattern worth reusing. Validates the core architectural assumption (delegation works) before investing in the rest. Costs 1 phase of effort, saves potentially all remaining phases if the assumption is wrong."
+  source: "v1.0.0 roadmap creation"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-28"
+
+- finding: "Composition pipeline (Phase 30) is the critical path of v1.0.0 -- 17 requirements in a single phase (COMP-01 through COMP-11, BRAND-01 through BRAND-06). This is the densest phase by requirement count. Will likely need 3-5 plans. Each pipeline stage being a separate function (SRP) helps parallelise the plans."
+  source: "v1.0.0 roadmap creation"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"

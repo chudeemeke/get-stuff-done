@@ -20,22 +20,22 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 - [ ] **COMP-02**: compose.js validates upstream directory structure matches expected layout before composing
 - [ ] **COMP-03**: compose.js applies feature flag filtering (exclude workflows, commands, agents, hooks, SDK by name)
 - [ ] **COMP-04**: compose.js applies overrides (files in overrides/ replace upstream equivalents)
-- [ ] **COMP-05**: compose.js applies surface-only branding from branding.json (text scope, not paths)
+- [x] **COMP-05**: compose.js applies surface-only branding from branding.json (text scope, not paths)
 - [ ] **COMP-06**: compose.js merges overlay additive files into composed output
 - [ ] **COMP-07**: compose.js writes .install-meta.json with upstream version, overlay version, timestamp, features disabled, overrides applied
 - [ ] **COMP-08**: compose.js detects collisions (overlay file at same path as upstream file) and errors with guidance
 - [ ] **COMP-09**: compose.js supports --dry-run and --diff flags
 - [ ] **COMP-10**: Each pipeline stage (resolve, filter, override, brand, merge) is a separate importable function following SRP
-- [ ] **COMP-11**: Composition pipeline tests written before implementation (TDD); composition tests verify branding, feature flags, overrides, collision detection, meta output
+- [x] **COMP-11**: Composition pipeline tests written before implementation (TDD); composition tests verify branding, feature flags, overrides, collision detection, meta output
 
 ### Branding
 
-- [ ] **BRAND-01**: branding.json substitutions apply only to user-visible text (help text, docs, CLI output)
-- [ ] **BRAND-02**: Internal directory names (get-shit-done/) preserved unchanged in composed output
-- [ ] **BRAND-03**: Internal code paths, import statements, config keys, regex patterns are NOT branded
-- [ ] **BRAND-04**: Word-boundary matching prevents partial-string corruption
-- [ ] **BRAND-05**: LICENSE file preserved from upstream; CREDITS.md added attributing upstream
-- [ ] **BRAND-06**: branding.json validated against schema before use (prevent injection via malformed substitution rules)
+- [x] **BRAND-01**: branding.json substitutions apply only to user-visible text (help text, docs, CLI output)
+- [x] **BRAND-02**: Internal directory names (get-shit-done/) preserved unchanged in composed output
+- [x] **BRAND-03**: Internal code paths, import statements, config keys, regex patterns are NOT branded
+- [x] **BRAND-04**: Word-boundary matching prevents partial-string corruption
+- [x] **BRAND-05**: LICENSE file preserved from upstream; CREDITS.md added attributing upstream
+- [x] **BRAND-06**: branding.json validated against schema before use (prevent injection via malformed substitution rules)
 
 ### Feature Flags
 

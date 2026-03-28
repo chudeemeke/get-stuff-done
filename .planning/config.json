@@ -1,5 +1,5 @@
 {
-  "model_profile": "balanced",
+  "model_profile": "quality",
   "skip_research": false,
   "skip_plan_check": false,
   "skip_verification": false,

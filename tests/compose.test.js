@@ -592,6 +592,109 @@ describe('compose() end-to-end', () => {
 });
 
 // ---------------------------------------------------------------------------
+// computeDelta additive outputs -- CREDITS.md and .install-meta.json delta
+// ---------------------------------------------------------------------------
+
+describe('computeDelta additive outputs', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+  let distDir;
+
+  beforeAll(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    distDir = path.join(tmpDir, 'dist');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay); // preserveUpstreamCredit: true
+  });
+
+  afterAll(() => {
+    rmDir(tmpDir);
+  });
+
+  test('--diff delta includes CREDITS.md when preserveUpstreamCredit is true', () => {
+    // Establish baseline in distDir
+    compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir });
+
+    const summary = compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir, diff: true });
+    expect(summary.diff).toBe(true);
+    const creditsEntry = summary.delta.find(d => d.relPath === 'CREDITS.md');
+    expect(creditsEntry).toBeDefined();
+    expect(creditsEntry.status).toBe('unchanged');
+  });
+
+  test('--diff delta includes .install-meta.json', () => {
+    // Establish baseline in distDir
+    compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir });
+
+    const summary = compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir, diff: true });
+    expect(summary.diff).toBe(true);
+    const metaEntry = summary.delta.find(d => d.relPath === '.install-meta.json');
+    expect(metaEntry).toBeDefined();
+    // .install-meta.json always shows modified because composed_at timestamp differs
+    expect(['modified', 'unchanged']).toContain(metaEntry.status);
+  });
+
+  test('--diff detects CREDITS.md as added when missing from dist/', () => {
+    // Establish baseline, then remove CREDITS.md
+    compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir });
+    const creditsPath = path.join(distDir, 'CREDITS.md');
+    if (fs.existsSync(creditsPath)) {
+      fs.rmSync(creditsPath);
+    }
+
+    const summary = compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir, diff: true });
+    const creditsEntry = summary.delta.find(d => d.relPath === 'CREDITS.md');
+    expect(creditsEntry).toBeDefined();
+    expect(creditsEntry.status).toBe('added');
+  });
+
+  test('--diff detects CREDITS.md as removed when credit disabled', () => {
+    // First compose WITH credit enabled so CREDITS.md exists in distDir
+    compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir });
+    expect(fs.existsSync(path.join(distDir, 'CREDITS.md'))).toBe(true);
+
+    // Create a second overlay with preserveUpstreamCredit: false
+    const noCreditsOverlay = path.join(tmpDir, 'overlay-no-credits');
+    fs.mkdirSync(noCreditsOverlay, { recursive: true });
+    fs.writeFileSync(path.join(noCreditsOverlay, 'branding.json'), JSON.stringify({
+      substitutions: [
+        { from: 'get-shit-done-cc', to: '@chude/get-stuff-done', scope: 'text', note: 'npm pkg' },
+        { from: 'TACHES', to: 'Chude Emeke', scope: 'text', note: 'author' },
+      ],
+      preserveUpstreamCredit: false,
+    }));
+    fs.writeFileSync(path.join(noCreditsOverlay, 'features.json'), JSON.stringify({
+      runtimes: { claude: true },
+      workflows: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+
+    // Now run diff with credit-disabled config
+    const summary = compose({ upstreamDir: mockUpstream, overlayDir: noCreditsOverlay, distDir, diff: true });
+    const creditsEntry = summary.delta.find(d => d.relPath === 'CREDITS.md');
+    expect(creditsEntry).toBeDefined();
+    expect(creditsEntry.status).toBe('removed');
+  });
+
+  test('--diff detects .install-meta.json as added when missing from dist/', () => {
+    // Establish baseline, then remove .install-meta.json
+    compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir });
+    const metaPath = path.join(distDir, '.install-meta.json');
+    if (fs.existsSync(metaPath)) {
+      fs.rmSync(metaPath);
+    }
+
+    const summary = compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir, diff: true });
+    const metaEntry = summary.delta.find(d => d.relPath === '.install-meta.json');
+    expect(metaEntry).toBeDefined();
+    expect(metaEntry.status).toBe('added');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // COMP-09: CLI flags (--dry-run, --diff, --verbose)
 // ---------------------------------------------------------------------------
 

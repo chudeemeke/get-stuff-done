@@ -701,9 +701,47 @@ function computeDelta(state, distDir) {
     }
   }
 
+  // Part A: Track CREDITS.md (additive output from merge() outside the manifest)
+  const creditsContent = generateCredits(state.branding.preserveUpstreamCredit);
+  if (creditsContent != null) {
+    // CREDITS.md would be written -- track it
+    wouldWrite.add('CREDITS.md');
+    if (!currentFiles.has('CREDITS.md')) {
+      delta.push({ relPath: 'CREDITS.md', status: 'added' });
+    } else {
+      try {
+        const currentCredits = fs.readFileSync(path.join(distDir, 'CREDITS.md'));
+        const newCredits = Buffer.from(creditsContent, 'utf-8');
+        if (Buffer.compare(currentCredits, newCredits) !== 0) {
+          delta.push({ relPath: 'CREDITS.md', status: 'modified' });
+        } else {
+          delta.push({ relPath: 'CREDITS.md', status: 'unchanged' });
+        }
+      } catch (e) {
+        delta.push({ relPath: 'CREDITS.md', status: 'modified' });
+      }
+    }
+    // If creditsContent is null, do NOT add to wouldWrite -- if CREDITS.md
+    // exists in dist/, the removed-detection loop below will flag it as "removed".
+  }
+
+  // Part B: Track .install-meta.json (additive output from merge() outside the manifest)
+  // composed_at will always differ between runs, so status is typically "modified"
+  // when dist/ exists. This is correct -- it reflects that a new composition would
+  // update the timestamp.
+  wouldWrite.add('.install-meta.json');
+  if (!currentFiles.has('.install-meta.json')) {
+    delta.push({ relPath: '.install-meta.json', status: 'added' });
+  } else {
+    // .install-meta.json always differs due to composed_at timestamp
+    delta.push({ relPath: '.install-meta.json', status: 'modified' });
+  }
+
   // Files in dist/ that would be removed
+  // Note: .install-meta.json special-case exclusion removed -- it is now tracked
+  // via wouldWrite above, so it will not appear here unless compose would not write it.
   for (const existingFile of currentFiles) {
-    if (!wouldWrite.has(existingFile) && existingFile !== '.install-meta.json') {
+    if (!wouldWrite.has(existingFile)) {
       delta.push({ relPath: existingFile, status: 'removed' });
     }
   }

@@ -3,8 +3,16 @@
 /**
  * scripts/compose.js -- Composition Pipeline
  *
- * Phase 30: Branding engine functions exported for use by tests and the
- * full pipeline (to be built in Plan 02).
+ * Phase 30: Full 5-stage composition pipeline + branding engine functions.
+ *
+ * Pipeline stages:
+ *   resolve()  -- Walk upstream + overlay, validate structure, detect collisions
+ *   filter()   -- Apply feature flags (Phase 30: pass-through stub)
+ *   override() -- Apply overrides/ files (Phase 30: pass-through stub)
+ *   brand()    -- Apply surface-only branding substitutions
+ *   merge()    -- Write dist/ with clean rebuild + .install-meta.json
+ *
+ * compose() orchestrates all 5 stages.
  *
  * Branding engine design:
  * - Substitutions are literal string replacements (not regex patterns)
@@ -21,6 +29,21 @@
 const fs = require('fs');
 const path = require('path');
 const Ajv = require('ajv');
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const PROJECT_ROOT = path.join(__dirname, '..');
+const DEFAULT_UPSTREAM_DIR = path.join(PROJECT_ROOT, 'node_modules', 'get-shit-done-cc');
+const DEFAULT_OVERLAY_DIR = path.join(PROJECT_ROOT, 'overlay');
+const DEFAULT_DIST_DIR = path.join(PROJECT_ROOT, 'dist');
+
+// Required top-level entries in the upstream package (COMP-02)
+const REQUIRED_UPSTREAM_DIRS = ['agents', 'bin', 'commands', 'get-shit-done', 'hooks', 'scripts'];
+
+// Overlay metadata files that are never treated as additive content
+const OVERLAY_METADATA = new Set(['branding.json', 'features.json', '.gitkeep']);
 
 // ---------------------------------------------------------------------------
 // JSON Schema for branding.json validation (BRAND-06)
@@ -62,7 +85,7 @@ const BINARY_EXTENSIONS = new Set([
 ]);
 
 // ---------------------------------------------------------------------------
-// Public API
+// Branding engine (Plan 01 functions -- kept for export compatibility)
 // ---------------------------------------------------------------------------
 
 /**
@@ -85,9 +108,7 @@ function validateBrandingConfig(config) {
 /**
  * Sorts substitutions by `from` string length descending.
  * This ensures the most-specific (longest) patterns are applied first,
- * preventing double-replace artifacts (e.g., processing
- * "glittercowboy/get-shit-done" before "get-shit-done-cc" prevents
- * the longer pattern from being corrupted by an earlier shorter match).
+ * preventing double-replace artifacts.
  *
  * Does NOT mutate the original array.
  *
@@ -104,13 +125,6 @@ function sortSubstitutions(substitutions) {
  * Substitutions must already be sorted (longest first) before calling.
  * Only substitutions with scope "text" are applied.
  *
- * Algorithm:
- * - Long patterns (>= 8 chars) use String.prototype.replaceAll() for
- *   exact literal replacement -- efficient and collision-free for package
- *   names and URLs.
- * - Short all-caps tokens (< 8 chars and all uppercase) use word-boundary
- *   regex (\b) to prevent replacing substrings inside longer words.
- *
  * @param {string} content - File content as UTF-8 string
  * @param {Array<{from: string, to: string, scope: string}>} sortedSubstitutions
  * @returns {string} Branded content
@@ -123,15 +137,12 @@ function applyBrandingToContent(content, sortedSubstitutions) {
 
     const { from, to } = sub;
 
-    // Short all-caps tokens need word-boundary matching to prevent
-    // partial-word replacement (e.g., TACHES in a longer word)
+    // Short all-caps tokens need word-boundary matching
     if (from.length < 8 && from === from.toUpperCase() && /^[A-Z]+$/.test(from)) {
-      // Escape any regex special chars in the token (unlikely for all-caps but defensive)
       const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`\\b${escaped}\\b`, 'g');
       result = result.replace(regex, to);
     } else {
-      // Standard literal replaceAll -- works for package names and URLs
       result = result.replaceAll(from, to);
     }
   }
@@ -141,14 +152,6 @@ function applyBrandingToContent(content, sortedSubstitutions) {
 
 /**
  * Determines whether a file should have branding applied.
- *
- * Returns false for:
- * - Binary file extensions (image, font, archive formats)
- * - Files in overlay/ (fork-owned, never upstream)
- * - Files in overrides/ (fork-owned, never upstream)
- * - LICENSE file (upstream credit preservation, BRAND-05)
- *
- * Returns true for all other files (JS, TS, MD, JSON, YAML, etc.)
  *
  * @param {string} relPath - Relative path from composition root
  * @returns {boolean}
@@ -201,42 +204,583 @@ function generateCredits(preserveUpstreamCredit) {
 }
 
 // ---------------------------------------------------------------------------
+// Internal: Walk a directory tree and return relative paths
+// ---------------------------------------------------------------------------
+
+/**
+ * Walk a directory recursively and return all file relative paths.
+ * Paths always use forward slashes (cross-platform).
+ *
+ * @param {string} dir - Absolute directory path to walk
+ * @param {string} [base=''] - Relative base prefix
+ * @returns {string[]} Array of forward-slash relative paths
+ */
+function walkDir(dir, base) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const rel = base ? base + '/' + entry.name : entry.name;
+    if (entry.isDirectory()) {
+      files.push(...walkDir(path.join(dir, entry.name), rel));
+    } else {
+      files.push(rel);
+    }
+  }
+  return files;
+}
+
+// ---------------------------------------------------------------------------
+// Stage 1: resolve()
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolves upstream and overlay sources into initial pipeline state.
+ *
+ * Validates:
+ * - Upstream directory exists and has required structure (COMP-02)
+ * - overlay/branding.json and overlay/features.json exist (COMP-02)
+ * - No overlay file path collides with an upstream file path (COMP-08)
+ *
+ * Returns pipeline state:
+ * - manifest: array of ManifestEntry objects
+ * - branding: validated branding config
+ * - features: features config
+ * - warnings: array of warning strings
+ * - meta: partial metadata (upstreamVersion, overlayVersion)
+ *
+ * @param {object} [opts]
+ * @param {string} [opts.upstreamDir] - Path to upstream package
+ * @param {string} [opts.overlayDir] - Path to overlay directory
+ * @returns {PipelineState}
+ * @throws {Error} If validation fails
+ */
+function resolve(opts) {
+  const upstreamDir = (opts && opts.upstreamDir) || DEFAULT_UPSTREAM_DIR;
+  const overlayDir = (opts && opts.overlayDir) || DEFAULT_OVERLAY_DIR;
+
+  // Validate upstream directory exists
+  if (!fs.existsSync(upstreamDir)) {
+    throw new Error(
+      `Upstream directory not found: ${upstreamDir}\n` +
+      `Hint: run 'bun install' to install upstream, or 'bun run preview-update' to check for updates.`
+    );
+  }
+
+  // Validate upstream package.json exists
+  const upstreamPkgPath = path.join(upstreamDir, 'package.json');
+  if (!fs.existsSync(upstreamPkgPath)) {
+    throw new Error(
+      `Missing upstream package.json at: ${upstreamPkgPath}\n` +
+      `Hint: run 'bun install' to reinstall upstream package.`
+    );
+  }
+
+  // Parse upstream package.json for version
+  let upstreamPkg;
+  try {
+    upstreamPkg = JSON.parse(fs.readFileSync(upstreamPkgPath, 'utf-8'));
+  } catch (e) {
+    throw new Error(`Failed to parse upstream package.json: ${e.message}`);
+  }
+
+  // Validate required upstream directories exist
+  const missingDirs = REQUIRED_UPSTREAM_DIRS.filter(
+    d => !fs.existsSync(path.join(upstreamDir, d))
+  );
+  if (missingDirs.length > 0) {
+    throw new Error(
+      `Upstream package missing required directories: ${missingDirs.join(', ')}\n` +
+      `Expected in: ${upstreamDir}\n` +
+      `Hint: run 'bun install' to reinstall upstream, or 'bun run preview-update' to diagnose.`
+    );
+  }
+
+  // Validate overlay/branding.json exists
+  const brandingPath = path.join(overlayDir, 'branding.json');
+  if (!fs.existsSync(brandingPath)) {
+    throw new Error(
+      `Missing overlay/branding.json at: ${brandingPath}\n` +
+      `Hint: create overlay/branding.json with substitutions configuration.`
+    );
+  }
+
+  // Validate overlay/features.json exists
+  const featuresPath = path.join(overlayDir, 'features.json');
+  if (!fs.existsSync(featuresPath)) {
+    throw new Error(
+      `Missing overlay/features.json at: ${featuresPath}\n` +
+      `Hint: create overlay/features.json with feature flag configuration.`
+    );
+  }
+
+  // Load and validate branding config
+  let branding;
+  try {
+    branding = JSON.parse(fs.readFileSync(brandingPath, 'utf-8'));
+    validateBrandingConfig(branding);
+  } catch (e) {
+    throw new Error(`Invalid overlay/branding.json: ${e.message}`);
+  }
+
+  // Load features config
+  let features;
+  try {
+    features = JSON.parse(fs.readFileSync(featuresPath, 'utf-8'));
+  } catch (e) {
+    throw new Error(`Invalid overlay/features.json: ${e.message}`);
+  }
+
+  // Walk upstream directory to build manifest
+  const upstreamFiles = walkDir(upstreamDir, '');
+
+  // Build manifest entries
+  const manifest = upstreamFiles.map(relPath => ({
+    relPath: relPath.replace(/\\/g, '/'),
+    sourcePath: path.join(upstreamDir, relPath),
+    content: null,         // null = copy verbatim (populated in brand stage if needed)
+    brandedContent: null,  // populated in brand stage
+    action: 'copy',
+    stage: 'resolve',
+  }));
+
+  // Build set of upstream relPaths for collision detection
+  const upstreamRelPaths = new Set(manifest.map(e => e.relPath));
+
+  // Walk overlay directory and check for collisions (COMP-08)
+  // Overlay metadata files (branding.json, features.json, .gitkeep) are excluded
+  if (fs.existsSync(overlayDir)) {
+    const overlayFiles = walkDir(overlayDir, '');
+    for (const overlayFile of overlayFiles) {
+      const normalised = overlayFile.replace(/\\/g, '/');
+      const baseName = normalised.split('/').pop();
+
+      // Skip overlay metadata files
+      if (OVERLAY_METADATA.has(baseName)) continue;
+
+      // Check for collision with upstream path
+      if (upstreamRelPaths.has(normalised)) {
+        throw new Error(
+          `Collision detected: overlay/${normalised} matches upstream file at the same path.\n` +
+          `To replace this upstream file, move it to overrides/${normalised} instead.\n` +
+          `The overrides/ directory is for intentional upstream file replacements.`
+        );
+      }
+    }
+  }
+
+  // Read overlay version from package.json (our package)
+  let overlayVersion = 'unknown';
+  const ourPkgPath = path.join(PROJECT_ROOT, 'package.json');
+  if (fs.existsSync(ourPkgPath)) {
+    try {
+      const ourPkg = JSON.parse(fs.readFileSync(ourPkgPath, 'utf-8'));
+      overlayVersion = ourPkg.version || 'unknown';
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  return {
+    manifest,
+    branding,
+    features,
+    warnings: [],
+    meta: {
+      upstreamVersion: upstreamPkg.version || 'unknown',
+      overlayVersion,
+      upstreamDir,
+      overlayDir,
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Stage 2: filter()
+// ---------------------------------------------------------------------------
+
+/**
+ * Applies feature flag filtering to the manifest.
+ *
+ * Phase 30 stub: passes through all files unchanged.
+ * Phase 31 will implement actual feature flag filtering.
+ *
+ * @param {PipelineState} state
+ * @returns {PipelineState} New state with filtered manifest
+ */
+function filter(state) {
+  return {
+    ...state,
+    manifest: state.manifest.map(entry => ({ ...entry })),
+    warnings: [...state.warnings],
+    meta: { ...state.meta },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Stage 3: override()
+// ---------------------------------------------------------------------------
+
+/**
+ * Applies file overrides from the overrides/ directory.
+ *
+ * Phase 30 stub: passes through all files unchanged.
+ * Phase 32 will implement actual override file replacement.
+ *
+ * @param {PipelineState} state
+ * @returns {PipelineState} New state with overrides applied
+ */
+function override(state) {
+  return {
+    ...state,
+    manifest: state.manifest.map(entry => ({ ...entry })),
+    warnings: [...state.warnings],
+    meta: { ...state.meta },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Stage 4: brand()
+// ---------------------------------------------------------------------------
+
+/**
+ * Applies surface-only branding substitutions to upstream file content.
+ *
+ * For each manifest entry where shouldBrandFile() returns true:
+ * - Reads source file content
+ * - Applies sorted substitutions via applyBrandingToContent()
+ * - If content changed, stores branded content in entry.brandedContent
+ * - If content unchanged (no branding targets), leaves brandedContent as null
+ *
+ * @param {PipelineState} state
+ * @returns {PipelineState} New state with brandedContent populated
+ */
+function brand(state) {
+  const sortedSubs = sortSubstitutions(state.branding.substitutions);
+  let brandingRulesApplied = 0;
+
+  const manifest = state.manifest.map(entry => {
+    if (!shouldBrandFile(entry.relPath)) {
+      return { ...entry };
+    }
+
+    let content;
+    try {
+      content = fs.readFileSync(entry.sourcePath, 'utf-8');
+    } catch (e) {
+      // Binary file or read error -- copy verbatim
+      return { ...entry };
+    }
+
+    const branded = applyBrandingToContent(content, sortedSubs);
+
+    if (branded !== content) {
+      brandingRulesApplied++;
+      return { ...entry, brandedContent: branded };
+    }
+
+    return { ...entry };
+  });
+
+  return {
+    ...state,
+    manifest,
+    warnings: [...state.warnings],
+    meta: { ...state.meta, brandingRulesApplied },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Stage 5: merge()
+// ---------------------------------------------------------------------------
+
+/**
+ * Writes the composed output to dist/.
+ *
+ * - Performs clean rebuild: deletes dist/ before writing
+ * - Writes each manifest entry (branded content if available, raw otherwise)
+ * - Writes overlay additive files (non-metadata files from overlay/)
+ * - Writes CREDITS.md when preserveUpstreamCredit is true
+ * - Writes .install-meta.json with full audit trail
+ *
+ * @param {PipelineState} state
+ * @param {object} [opts]
+ * @param {string} [opts.distDir] - Output directory (default: dist/)
+ */
+function merge(state, opts) {
+  const distDir = (opts && opts.distDir) || DEFAULT_DIST_DIR;
+
+  // Clean rebuild: remove existing dist/ to avoid stale files
+  if (fs.existsSync(distDir)) {
+    fs.rmSync(distDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(distDir, { recursive: true });
+
+  let filesWritten = 0;
+  const overridesApplied = [];
+
+  // Write manifest entries
+  for (const entry of state.manifest) {
+    const destPath = path.join(distDir, entry.relPath);
+    const destDir = path.dirname(destPath);
+    fs.mkdirSync(destDir, { recursive: true });
+
+    if (entry.brandedContent != null) {
+      // Write branded text content
+      fs.writeFileSync(destPath, entry.brandedContent, 'utf-8');
+    } else {
+      // Copy verbatim (binary or no branding targets)
+      try {
+        fs.copyFileSync(entry.sourcePath, destPath);
+      } catch (e) {
+        // Source may not exist if it was filtered out -- skip
+        continue;
+      }
+    }
+
+    if (entry.action === 'override') {
+      overridesApplied.push(entry.relPath);
+    }
+
+    filesWritten++;
+  }
+
+  // Write overlay additive files (non-metadata, non-collision files)
+  const overlayDir = state.meta.overlayDir || DEFAULT_OVERLAY_DIR;
+  if (fs.existsSync(overlayDir)) {
+    const overlayFiles = walkDir(overlayDir, '');
+    for (const overlayFile of overlayFiles) {
+      const normalised = overlayFile.replace(/\\/g, '/');
+      const baseName = normalised.split('/').pop();
+      if (OVERLAY_METADATA.has(baseName)) continue;
+
+      const srcPath = path.join(overlayDir, overlayFile);
+      const destPath = path.join(distDir, normalised);
+      const destDir = path.dirname(destPath);
+      fs.mkdirSync(destDir, { recursive: true });
+      fs.copyFileSync(srcPath, destPath);
+      filesWritten++;
+    }
+  }
+
+  // Write CREDITS.md when preserveUpstreamCredit is true (BRAND-05)
+  const creditsContent = generateCredits(state.branding.preserveUpstreamCredit);
+  if (creditsContent != null) {
+    fs.writeFileSync(path.join(distDir, 'CREDITS.md'), creditsContent, 'utf-8');
+    filesWritten++;
+  }
+
+  // Write .install-meta.json (COMP-07)
+  const meta = {
+    upstream_version: state.meta.upstreamVersion,
+    overlay_version: state.meta.overlayVersion,
+    composed_at: new Date().toISOString(),
+    features_disabled: [],  // populated by filter stage in Phase 31
+    overrides_applied: overridesApplied,
+    branding_rules_applied: state.meta.brandingRulesApplied || 0,
+  };
+  fs.writeFileSync(
+    path.join(distDir, '.install-meta.json'),
+    JSON.stringify(meta, null, 2),
+    'utf-8'
+  );
+
+  return { filesWritten, meta };
+}
+
+// ---------------------------------------------------------------------------
+// compose() -- Full pipeline orchestrator
+// ---------------------------------------------------------------------------
+
+/**
+ * Runs the full 5-stage composition pipeline.
+ *
+ * @param {object} [opts]
+ * @param {string} [opts.upstreamDir] - Upstream package directory
+ * @param {string} [opts.overlayDir] - Overlay directory
+ * @param {string} [opts.distDir] - Output dist directory
+ * @param {boolean} [opts.dryRun] - Preview without writing files
+ * @param {boolean} [opts.diff] - Show filename-level delta against current dist/
+ * @param {boolean} [opts.verbose] - Verbose output
+ * @returns {ComposeSummary}
+ */
+function compose(opts) {
+  const upstreamDir = (opts && opts.upstreamDir) || DEFAULT_UPSTREAM_DIR;
+  const overlayDir = (opts && opts.overlayDir) || DEFAULT_OVERLAY_DIR;
+  const distDir = (opts && opts.distDir) || DEFAULT_DIST_DIR;
+  const dryRun = (opts && opts.dryRun) || false;
+  const isDiff = (opts && opts.diff) || false;
+
+  // Run pipeline stages 1-4
+  const resolved = resolve({ upstreamDir, overlayDir });
+  const filtered = filter(resolved);
+  const overridden = override(filtered);
+  const branded = brand(overridden);
+
+  if (dryRun) {
+    return {
+      dryRun: true,
+      filesWritten: 0,
+      wouldWrite: branded.manifest.length,
+      upstreamVersion: branded.meta.upstreamVersion,
+      overlayVersion: branded.meta.overlayVersion,
+      brandingRulesApplied: branded.meta.brandingRulesApplied || 0,
+      warnings: branded.warnings,
+    };
+  }
+
+  if (isDiff) {
+    const delta = computeDelta(branded, distDir);
+    return {
+      diff: true,
+      delta,
+      upstreamVersion: branded.meta.upstreamVersion,
+      warnings: branded.warnings,
+    };
+  }
+
+  // Stage 5: merge
+  const mergeResult = merge(branded, { distDir });
+
+  return {
+    filesWritten: mergeResult.filesWritten,
+    upstreamVersion: branded.meta.upstreamVersion,
+    overlayVersion: branded.meta.overlayVersion,
+    brandingRulesApplied: branded.meta.brandingRulesApplied || 0,
+    warnings: branded.warnings,
+    meta: mergeResult.meta,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Internal: computeDelta() for --diff mode
+// ---------------------------------------------------------------------------
+
+/**
+ * Computes filename-level delta between what would be composed and current dist/.
+ *
+ * @param {PipelineState} state - Post-brand pipeline state
+ * @param {string} distDir - Current dist directory to compare against
+ * @returns {Array<{relPath: string, status: 'added'|'modified'|'unchanged'|'removed'}>}
+ */
+function computeDelta(state, distDir) {
+  const delta = [];
+
+  // Files that would be written
+  const wouldWrite = new Set(state.manifest.map(e => e.relPath));
+
+  // Files currently in dist/
+  const currentFiles = fs.existsSync(distDir)
+    ? new Set(walkDir(distDir, '').map(f => f.replace(/\\/g, '/')))
+    : new Set();
+
+  // Check each manifest entry
+  for (const entry of state.manifest) {
+    const relPath = entry.relPath;
+    const destPath = path.join(distDir, relPath);
+
+    if (!currentFiles.has(relPath)) {
+      delta.push({ relPath, status: 'added' });
+    } else {
+      // Compare content
+      try {
+        const currentContent = fs.readFileSync(destPath);
+        let newContent;
+        if (entry.brandedContent != null) {
+          newContent = Buffer.from(entry.brandedContent, 'utf-8');
+        } else {
+          newContent = fs.readFileSync(entry.sourcePath);
+        }
+        if (Buffer.compare(currentContent, newContent) !== 0) {
+          delta.push({ relPath, status: 'modified' });
+        } else {
+          delta.push({ relPath, status: 'unchanged' });
+        }
+      } catch (e) {
+        delta.push({ relPath, status: 'modified' });
+      }
+    }
+  }
+
+  // Files in dist/ that would be removed
+  for (const existingFile of currentFiles) {
+    if (!wouldWrite.has(existingFile) && existingFile !== '.install-meta.json') {
+      delta.push({ relPath: existingFile, status: 'removed' });
+    }
+  }
+
+  return delta;
+}
+
+// ---------------------------------------------------------------------------
 // CLI entry point (when run directly as "node scripts/compose.js")
 // ---------------------------------------------------------------------------
 if (require.main === module) {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
-  const diff = args.includes('--diff');
+  const isDiff = args.includes('--diff');
+  const verbose = args.includes('--verbose');
 
-  // Load and validate branding config
-  const brandingPath = path.join(__dirname, '..', 'overlay', 'branding.json');
-  if (!fs.existsSync(brandingPath)) {
-    process.stderr.write(`Error: overlay/branding.json not found at ${brandingPath}\n`);
-    process.exit(1);
-  }
-
-  let brandingConfig;
   try {
-    brandingConfig = JSON.parse(fs.readFileSync(brandingPath, 'utf-8'));
-    validateBrandingConfig(brandingConfig);
+    const summary = compose({ dryRun, diff: isDiff, verbose });
+
+    if (dryRun) {
+      process.stdout.write('Dry run -- no files written\n');
+      process.stdout.write(`  upstream_version:       ${summary.upstreamVersion}\n`);
+      process.stdout.write(`  overlay_version:        ${summary.overlayVersion}\n`);
+      process.stdout.write(`  files_would_write:      ${summary.wouldWrite}\n`);
+      process.stdout.write(`  branding_rules:         ${summary.brandingRulesApplied}\n`);
+      if (summary.warnings.length > 0) {
+        process.stdout.write(`  warnings:               ${summary.warnings.length}\n`);
+      }
+    } else if (isDiff) {
+      const added = summary.delta.filter(d => d.status === 'added').length;
+      const modified = summary.delta.filter(d => d.status === 'modified').length;
+      const removed = summary.delta.filter(d => d.status === 'removed').length;
+      const unchanged = summary.delta.filter(d => d.status === 'unchanged').length;
+
+      process.stdout.write('Diff against current dist/\n');
+      process.stdout.write(`  added:     ${added}\n`);
+      process.stdout.write(`  modified:  ${modified}\n`);
+      process.stdout.write(`  removed:   ${removed}\n`);
+      process.stdout.write(`  unchanged: ${unchanged}\n`);
+
+      if (verbose) {
+        for (const entry of summary.delta) {
+          if (entry.status !== 'unchanged') {
+            process.stdout.write(`  [${entry.status}] ${entry.relPath}\n`);
+          }
+        }
+      }
+    } else {
+      process.stdout.write('Composition complete\n');
+      process.stdout.write(`  upstream_version:       ${summary.upstreamVersion}\n`);
+      process.stdout.write(`  overlay_version:        ${summary.overlayVersion}\n`);
+      process.stdout.write(`  files_written:          ${summary.filesWritten}\n`);
+      process.stdout.write(`  branding_rules_applied: ${summary.brandingRulesApplied}\n`);
+      if (summary.warnings.length > 0) {
+        process.stdout.write(`  warnings:               ${summary.warnings.length}\n`);
+        if (verbose) {
+          for (const w of summary.warnings) {
+            process.stdout.write(`    - ${w}\n`);
+          }
+        }
+      }
+    }
   } catch (err) {
     process.stderr.write(`Error: ${err.message}\n`);
     process.exit(1);
   }
-
-  if (dryRun) {
-    process.stdout.write('DRY RUN -- no files written\n');
-    process.stdout.write(`Branding rules loaded: ${brandingConfig.substitutions.length}\n`);
-    process.stdout.write('Full composition pipeline: coming in Phase 30 Plan 02\n');
-  } else if (diff) {
-    process.stdout.write('--diff mode: coming in Phase 30 Plan 02\n');
-  } else {
-    process.stdout.write('Composition pipeline: coming in Phase 30 Plan 02\n');
-    process.stdout.write(`Branding rules loaded: ${brandingConfig.substitutions.length}\n`);
-  }
 }
 
 module.exports = {
+  // Pipeline stages (COMP-10)
+  resolve,
+  filter,
+  override,
+  brand,
+  merge,
+  compose,
+  // Branding engine (exported for test compat from Plan 01)
   applyBrandingToContent,
   validateBrandingConfig,
   sortSubstitutions,

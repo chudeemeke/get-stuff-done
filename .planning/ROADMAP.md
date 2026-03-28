@@ -96,10 +96,11 @@ Plans:
   3. Each pipeline stage (resolve, filter, override, brand, merge) is a separate importable function with its own tests; composition tests cover branding, feature flags, overrides, collision detection, and meta output
   4. `bun run compose --dry-run` previews changes without writing; `bun run compose --diff` shows delta since last composition
   5. Collision detection errors when an overlay file exists at the same path as an upstream file, with guidance to move to overrides/ if intentional
-**Plans**: 2 plans
+**Plans**: 3 plans
 Plans:
-- [ ] 30-01-PLAN.md -- Scaffold overlay/ directory structure and TDD branding engine (BRAND-01 through BRAND-06)
-- [ ] 30-02-PLAN.md -- TDD 5-stage composition pipeline with CLI entry point (COMP-01 through COMP-10)
+- [x] 30-01-PLAN.md -- Scaffold overlay/ directory structure and TDD branding engine (BRAND-01 through BRAND-06)
+- [x] 30-02-PLAN.md -- TDD 5-stage composition pipeline with CLI entry point (COMP-01 through COMP-10)
+- [ ] 30-03-PLAN.md -- Gap closure: computeDelta() tracks CREDITS.md and .install-meta.json additive outputs (COMP-09)
 
 ### Phase 31: Feature Flags & Override System
 **Goal**: Fork maintainer can disable upstream features by name in features.json and replace upstream modules via overrides/ with enforced documentation and staleness detection
@@ -192,7 +193,7 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 23. v0.3.0 Gap Closure | v0.3.0 | 1/1 | Complete | 2026-03-08 |
 | 24-28. Platform Expansion | v0.4.0 | - | Superseded | - |
 | 29. Prototype Gate | v1.0.0 | 1/1 | Complete | 2026-03-28 |
-| 30. Composition Pipeline & Branding | 2/2 | Complete    | 2026-03-28 | - |
+| 30. Composition Pipeline & Branding | v1.0.0 | 2/3 | Gap closure | - |
 | 31. Feature Flags & Override System | v1.0.0 | 0/? | Not started | - |
 | 32. Fork Code Port | v1.0.0 | 0/? | Not started | - |
 | 33. Installer & Update Workflow | v1.0.0 | 0/? | Not started | - |

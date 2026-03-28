@@ -1,7 +1,7 @@
 ---
 agent: gsd-phase-researcher
-updated: 2026-03-10
-entries: 44
+updated: 2026-03-27
+entries: 48
 ---
 
 - finding: "esbuild is already a devDependency (v0.24.2) in get-stuff-done and is importable via require('esbuild') from project root. It bundles all three hooks successfully with zero errors."
@@ -263,3 +263,33 @@ entries: 44
   confidence: HIGH
   phase: "24-quality-verification-bug-fixes"
   date: "2026-03-10"
+
+- finding: "Phase 29 upstream install.js path resolution: single __dirname usage at line 4062 -- 'const src = path.join(__dirname, '..')'. All file operations resolve from src (the package root). The composed dist/ must have: dist/bin/install.js, dist/get-shit-done/, dist/agents/, dist/commands/gsd/, dist/hooks/dist/, dist/package.json, dist/CHANGELOG.md. No other __dirname usages exist in the file."
+  source: "Phase 29, Prototype Gate Research"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-27"
+
+- finding: "Phase 29 Windows os.homedir() behavior: os.homedir() is cached at Node.js startup and does NOT respect the HOME env var on Windows. Setting process.env.HOME = 'C:/test_home' has no effect on os.homedir() output. The correct cross-platform test isolation mechanism is the --config-dir flag, which takes top priority in upstream's getGlobalDir() before os.homedir() is consulted. CLAUDE_CONFIG_DIR env var also works as the second priority."
+  source: "Phase 29, Prototype Gate Research"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-27"
+
+- finding: "Phase 29 non-interactive install guarantee: when args include both a runtime flag (--claude) and a location flag (--global), upstream's main logic at lines 4987-4995 calls installAllRuntimes(runtimes, isGlobal, false) with isInteractive=false. Zero readline prompts are created. TTY check (process.stdin.isTTY) is also bypassed by the flag path. subprocess call with ['--claude', '--global', '--config-dir', tmpDir] is fully non-interactive."
+  source: "Phase 29, Prototype Gate Research"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-27"
+
+- finding: "Phase 29 branding scope: 'get-shit-done-cc' (with -cc suffix) appears in user-visible text: WSL error message (line 120), help text examples (line 331), GSD_CODEX_MARKER (line 17), GSD_COPILOT_INSTRUCTIONS_MARKER (line 21). Bare 'get-shit-done' (without -cc) appears ~130 times in path.join() calls, directory names, and internal logic -- must NOT be replaced. Branding is safe for Claude-only prototype (CODEX and COPILOT markers not triggered by --claude)."
+  source: "Phase 29, Prototype Gate Research"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-27"
+
+- finding: "Phase 29 upstream package structure (v1.30.0): files array = [bin, commands, get-shit-done, agents, hooks/dist, scripts]. Zero production dependencies (pure Node.js). get-shit-done/bin/lib/ contains 17 CJS modules. hooks/dist/ contains 5 bundled hook files. Upstream has GSD_TEST_MODE guard at line 4923 that exports internals when set -- useful for unit testing upstream functions in isolation."
+  source: "Phase 29, Prototype Gate Research"
+  confidence: HIGH
+  phase: "29-prototype-gate"
+  date: "2026-03-27"

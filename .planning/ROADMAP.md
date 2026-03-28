@@ -112,7 +112,11 @@ Plans:
   3. A file placed in overrides/ replaces the corresponding upstream file in dist/; composition fails if the override lacks a companion REASON.md
   4. check-overrides.js detects when the upstream version has changed since an override was written and reports which overrides need review
   5. Zero overrides exist on day one; config and validation enhancements are wrappers in overlay/ that extend upstream modules
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 31-01-PLAN.md -- TDD features.json AJV validation and filter() category exclusion (FEAT-01 through FEAT-04)
+- [ ] 31-02-PLAN.md -- TDD override() file replacement with REASON.md enforcement (OVER-01, OVER-02, OVER-04)
+- [ ] 31-03-PLAN.md -- TDD check-overrides.js standalone staleness detection (OVER-03)
 
 ### Phase 32: Fork Code Port
 **Goal**: All ~2,510 lines of fork-specific code live in overlay/ with updated imports, and existing fork tests pass against the ported code
@@ -194,7 +198,7 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 24-28. Platform Expansion | v0.4.0 | - | Superseded | - |
 | 29. Prototype Gate | v1.0.0 | 1/1 | Complete | 2026-03-28 |
 | 30. Composition Pipeline & Branding | v1.0.0 | 3/3 | Complete | 2026-03-28 |
-| 31. Feature Flags & Override System | v1.0.0 | 0/? | Not started | - |
+| 31. Feature Flags & Override System | v1.0.0 | 0/3 | Not started | - |
 | 32. Fork Code Port | v1.0.0 | 0/? | Not started | - |
 | 33. Installer & Update Workflow | v1.0.0 | 0/? | Not started | - |
 | 34. Testing & CI Enforcement | v1.0.0 | 0/? | Not started | - |

@@ -14,6 +14,7 @@
         "esbuild": "^0.24.0",
         "eslint": "^9.0.0",
         "eslint-plugin-security": "^3.0.1",
+        "get-shit-done-cc": "1.30.0",
         "sharp": "^0.34.5",
         "svgexport": "^0.4.2",
       },
@@ -251,6 +252,8 @@
     "fs-constants": ["fs-constants@1.0.0", "", {}, "sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow=="],
 
     "fs.realpath": ["fs.realpath@1.0.0", "", {}, "sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw=="],
+
+    "get-shit-done-cc": ["get-shit-done-cc@1.30.0", "", { "bin": { "get-shit-done-cc": "bin/install.js" } }, "sha512-1bJzPCbhoZLdjivEh0bOuZTMnc7kaZIlb2rHOaTAUVZ3t8fSI3xI5QCr65HuENoKTFktScpsrWx4b+4pXV8ndA=="],
 
     "get-stream": ["get-stream@5.2.0", "", { "dependencies": { "pump": "^3.0.0" } }, "sha512-nBF+F1rAZVCu/p7rjzgA+Yb4lfYXrpl7a6VmJrU8wF9I1CKvP/QwPNZHnOlwbTkY6dvtFIzFMSyQXbLoTQPRpA=="],
 

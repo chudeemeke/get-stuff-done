@@ -10,6 +10,7 @@
     "gsd": "bin/gsd.js"
   },
   "files": [
+    "assets",
     "bin",
     "commands",
     "get-stuff-done",
@@ -53,6 +54,7 @@
     "esbuild": "^0.24.0",
     "eslint": "^9.0.0",
     "eslint-plugin-security": "^3.0.1",
+    "get-shit-done-cc": "1.30.0",
     "sharp": "^0.34.5",
     "svgexport": "^0.4.2"
   },

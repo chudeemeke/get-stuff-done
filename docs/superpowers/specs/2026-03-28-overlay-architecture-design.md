@@ -1,13 +1,13 @@
 # Overlay Architecture Design
 
 **Date:** 2026-03-28
-**Status:** Draft
+**Status:** Draft (post-QA review)
 **Author:** Chude Emeke
 **Project:** @chude/get-stuff-done (fork of get-shit-done-cc by TACHES)
 
 ## Problem Statement
 
-The fork has diverged 569 commits and 10 minor versions behind upstream (v1.20.5 -> v1.30.0). Direct-edit fork architecture makes syncing progressively harder: each update requires cherry-picking hundreds of commits through merge conflicts in files both sides have modified. The fork's unique value (~2,150 lines of additive code) is entangled with upstream code that has been simplified, stripped, or modified in place.
+The fork has diverged 569 commits and 10 minor versions behind upstream (v1.20.5 -> v1.30.0). Direct-edit fork architecture makes syncing progressively harder: each update requires cherry-picking hundreds of commits through merge conflicts in files both sides have modified. The fork's unique value (~2,510 lines of additive code) is entangled with upstream code that has been simplified, stripped, or modified in place.
 
 The fork needs upstream's ongoing improvements (new runtimes, security hardening, workflow features, bug fixes) without the maintenance treadmill of manual sync operations.
 
@@ -17,42 +17,61 @@ An overlay/skin architecture inspired by Android OEM customisation (Samsung One 
 
 **Key principle:** Upstream files never exist in the fork's repository. They live in `node_modules/` only. Fork code lives in `overlay/`. The installer composes both into the final output.
 
+**Branding principle:** Internal directory names and code paths remain unchanged from upstream (`get-shit-done/`). Only user-visible surfaces are branded (help text, docs, prompts, package name, repo URL). This matches how Android OEMs work: AOSP's internal package names are preserved, resources and surfaces are overlaid.
+
 ## Architecture Overview
 
 ### Dependency Model
 
-Upstream is consumed as an npm dependency:
+Upstream is consumed as an npm **dev** dependency. Composition happens at publish time, not install time. The npm package ships pre-composed output.
 
 ```json
 {
   "name": "@chude/get-stuff-done",
-  "dependencies": {
-    "get-shit-done-cc": "^1.30.0"
+  "version": "3.0.0",
+  "devDependencies": {
+    "get-shit-done-cc": "1.30.0"
   }
 }
 ```
 
-- Installed via `bun add get-shit-done-cc@1.30.0`
-- Updated via `bun update get-shit-done-cc`
-- Pinned in `bun.lock`
-- Upstream files available at `node_modules/get-shit-done-cc/`
+- Exact version pinning (no caret) to prevent unreviewed updates
+- Installed via `bun add -d get-shit-done-cc@1.30.0`
+- Updated deliberately via `bun run preview-update` then `bun update get-shit-done-cc`
+- Upstream files available at `node_modules/get-shit-done-cc/` during development
+- Published npm package contains pre-composed output; end users never download upstream
 
-End users install via `bunx @chude/get-stuff-done --claude --global`. The upstream dependency is internal -- users never interact with it directly.
+End users install via `bunx @chude/get-stuff-done --claude --global`.
+
+### Composition Timing
+
+**Composition happens at publish time, not install time.**
+
+```
+Development:   node_modules/get-shit-done-cc/ + overlay/ --> compose --> dist/
+Publishing:    dist/ is included in npm package files[]
+User install:  bunx @chude/get-stuff-done runs dist/bin/install.js directly
+```
+
+This means:
+- `get-shit-done-cc` is a devDependency (not needed by end users)
+- `dist/` is gitignored but included in the npm package `files` array
+- Users get a self-contained package with no transitive upstream dependency
+- Composition bugs are caught before publishing, not on user machines
 
 ### Package Structure
 
 ```
 @chude/get-stuff-done/
-  package.json                    # declares get-shit-done-cc dependency
+  package.json                    # devDependencies: { "get-shit-done-cc": "1.30.0" }
   bun.lock
   bunfig.toml
 
   bin/
-    install.js                    # overlay-aware installer (the composer)
     gsd.js                        # cross-platform launcher
 
   overlay/
-    branding.json                 # name/URL substitution rules
+    branding.json                 # name/URL substitution rules (user-visible surfaces only)
     features.json                 # enable/disable upstream features
     lib/
       sync.cjs                    # upstream sync safety tooling
@@ -110,8 +129,11 @@ End users install via `bunx @chude/get-stuff-done --claude --global`. The upstre
     integration/
       upstream-compat.test.js
 
-  dist/                           # composed output (gitignored)
-    get-stuff-done/
+  dist/                           # composed output (gitignored, but in npm files[])
+    get-shit-done/                # upstream internal name PRESERVED
+    bin/
+      install.js                  # upstream's install.js with surface branding applied
+    overlay/                      # fork additions merged in
 
   .planning/                      # GSD planning state
 ```
@@ -120,18 +142,22 @@ End users install via `bunx @chude/get-stuff-done --claude --global`. The upstre
 
 1. `overlay/` contains fork-specific code only. Everything here is additive or wraps upstream modules.
 2. `overrides/` contains explicit upstream module replacements. Each file requires a companion REASON.md.
-3. `dist/` is the composed output. Gitignored. Built by `compose.js`. This is what ships in the npm package.
+3. `dist/` is the composed output. Gitignored but included in npm package `files[]`. Built by `scripts/compose.js` at publish time.
 4. Upstream files never exist in the repository outside of `node_modules/`.
 5. `node_modules/` is gitignored and regenerated via `bun install`.
+6. Internal directory names from upstream (`get-shit-done/`) are preserved. Only user-visible text is branded.
 
 ## Composition Pipeline
 
-The core mechanism. Runs in two contexts:
+The core mechanism. Runs at dev/publish time only (not on user machines).
 
-- **Dev-time** (`bun run compose`): Builds `dist/` for inspection and testing.
-- **Install-time** (`bunx @chude/get-stuff-done`): Same logic, writes to user's config directory.
+```bash
+bun run compose              # builds dist/
+bun run compose --dry-run    # preview without writing
+bun run compose --diff       # show changes since last composition
+```
 
-### Five Stages
+### Pipeline Stages
 
 **Stage 1: RESOLVE**
 - Read upstream file manifest from `node_modules/get-shit-done-cc/`
@@ -144,6 +170,7 @@ The core mechanism. Runs in two contexts:
 - For each upstream file, check `features.json`
 - Disabled features are excluded from the composition queue
 - New upstream files not mentioned in features.json are included by default (opt-out model)
+- **Runtime filtering is file-level only** (workflow/command/agent/hook exclusion). Runtime code within `install.js` is not filtered; all runtimes ship. See "Runtime Filtering" section.
 
 **Stage 3: OVERRIDE**
 - For each file in the composition queue, check `overrides/`
@@ -151,16 +178,17 @@ The core mechanism. Runs in two contexts:
 - If no override, use upstream file as-is
 
 **Stage 4: BRAND**
-- Apply `branding.json` substitutions to all text files in the queue
-- Use word-boundary matching to prevent partial-word replacements
-- Binary files (images, etc.) are skipped
-- Files in `overlay/` are skipped (already fork-branded)
-- Files in `overrides/` are skipped (already fork-owned)
+- Apply `branding.json` substitutions to user-visible text surfaces only
+- Target files: help text strings, README, docs, CLI output messages, comments
+- **Do NOT brand**: code paths, directory names, import statements, config keys, regex patterns
+- Binary files skipped
+- Files in `overlay/` skipped (already fork-owned)
+- Files in `overrides/` skipped (already fork-owned)
 
 **Stage 5: MERGE**
-- Write branded upstream files to output directory
-- Copy `overlay/` files to output directory (additive)
-- Copy `assets/` to output directory
+- Write processed upstream files to `dist/`
+- Copy `overlay/` files to `dist/` (additive)
+- Copy `assets/` to `dist/`
 - Write `.install-meta.json` audit trail
 
 ### Conflict Resolution
@@ -184,28 +212,22 @@ Every composition writes `.install-meta.json`:
   "composed_at": "2026-03-28T14:00:00Z",
   "features_disabled": [],
   "overrides_applied": [],
-  "branding_rules_applied": 4
+  "branding_rules_applied": 3
 }
 ```
 
 ## Branding System
 
-`overlay/branding.json` defines all name/URL substitutions as data.
+`overlay/branding.json` defines user-visible substitutions as data. Internal code paths are NOT branded.
 
 ```json
 {
   "substitutions": [
     {
-      "from": "get-shit-done",
-      "to": "get-stuff-done",
-      "scope": "all",
-      "note": "Directory names, package references, path strings"
-    },
-    {
       "from": "get-shit-done-cc",
       "to": "@chude/get-stuff-done",
       "scope": "text",
-      "note": "npm package name in docs, help text, install examples"
+      "note": "npm package name in help text, install examples, docs"
     },
     {
       "from": "glittercowboy/get-shit-done",
@@ -220,36 +242,56 @@ Every composition writes `.install-meta.json`:
       "note": "Author attribution in visible surfaces"
     }
   ],
-  "preserveUpstreamCredit": true,
-  "scope_rules": {
-    "all": "Apply to file paths, directory names, and file contents",
-    "text": "Apply to file contents only, not paths or filenames",
-    "filename": "Apply to filenames only, not contents"
-  }
+  "preserveUpstreamCredit": true
 }
 ```
 
-### Scope Behaviour
+### What Changed from Original Design
 
-- `"all"`: Directory rename (`get-shit-done/` -> `get-stuff-done/`) in paths AND text content.
-- `"text"`: Package name, repo URL, author. File contents only.
-- `"filename"`: File rename only. (Unused currently but available.)
+The original design had `"scope": "all"` which renamed internal directories (`get-shit-done/` -> `get-stuff-done/`). **This was removed.** Internal directory names match upstream exactly. Only user-facing text (`"scope": "text"`) is branded.
 
-### What Branding Does Not Touch
+**Why:** Renaming internal paths requires rewriting every path reference in upstream's 5,000-line install.js, breaks upstream test compatibility, and contradicts how successful overlay systems work (Android preserves AOSP package names, overlays resources).
 
-- Binary files (PNGs, etc.)
+### What Branding Does Touch
+
+- Help text and CLI output messages
+- Documentation files (README, CONTRIBUTING, etc.)
+- npm package name references in user-visible strings
+- GitHub repo URL references
+- Author attribution in visible surfaces
+
+### What Branding Does NOT Touch
+
+- Internal directory names (`get-shit-done/` preserved)
+- Code paths and import statements
+- Config keys and data structures
+- Regex patterns in code
+- Binary files
 - Files in `overlay/` (already fork-owned)
 - Files in `overrides/` (already fork-owned)
-- LICENSE file when `preserveUpstreamCredit: true`
-- `.git/` internals
+- LICENSE file (upstream credit preserved)
+
+### preserveUpstreamCredit Behaviour
+
+When `true` (default):
+- LICENSE file is copied unmodified from upstream
+- A `CREDITS.md` is added to the composed output attributing upstream: "Based on GSD by TACHES (https://github.com/glittercowboy/get-shit-done)"
+- Author field in user-visible help text is branded to fork author
+
+When `false`:
+- LICENSE still copied (MIT requires it)
+- No CREDITS.md added
+- All visible attribution branded
 
 ### Substitution Safety
 
-Substitutions use word-boundary matching, not naive string.replace(). This prevents:
-- `"get-shit-done"` matching inside longer strings like `"forget-shit-done-callback"`
-- Partial matches corrupting code identifiers
+Substitutions use word-boundary matching and apply only to `"scope": "text"` targets. Since internal paths are not branded, the risk of corrupting code identifiers is eliminated.
 
-Branding tests (`tests/branding.test.js`) verify composed output runs correctly after substitution. [automated]
+Branding tests (`tests/branding.test.js`) verify:
+- Correct strings are substituted in user-visible surfaces
+- Internal code paths remain unchanged
+- Composed output runs correctly after substitution
+[automated]
 
 ## Feature Flags System
 
@@ -291,7 +333,6 @@ Branding tests (`tests/branding.test.js`) verify composed output runs correctly 
 
 | Type | Mechanism | Effect of disabling |
 |---|---|---|
-| Runtimes | `runtimes.<name>: false` | Conversion functions excluded, CLI flag removed from help, interactive prompt hides option |
 | Workflows | `workflows.exclude: ["name"]` | Workflow .md file excluded from output |
 | Commands | `commands.exclude: ["name"]` | Command .md file excluded from output |
 | Agents | `agents.exclude: ["name"]` | Agent .md file excluded from output |
@@ -300,13 +341,13 @@ Branding tests (`tests/branding.test.js`) verify composed output runs correctly 
 
 ### Runtime Filtering
 
-Disabling a runtime is more than excluding a file. Runtime support is woven through `install.js`:
-- Conversion functions (e.g., `convertGeminiToolName`)
-- CLI flag parsing and help text
-- Interactive prompt options
-- Config directory resolution
+**Runtime flags in features.json are NOT used for code filtering in v3.0.** All runtimes ship in the composed output. The runtime flags exist for documentation purposes and future use.
 
-The compose step processes `install.js` with conditional blocks keyed by runtime flags.
+**Why:** Runtime support is woven through upstream's `install.js` (conversion functions, CLI flags, interactive prompts, config directory resolution). Filtering runtimes from a 5,000-line monolithic file requires AST manipulation or templating that upstream was not designed for. The cost of maintaining this filtering exceeds the benefit of excluding unused runtimes.
+
+**User-facing effect:** Users choose runtimes at install time via flags (`--claude --global`). Unused runtimes are never installed -- they're just available as options. This matches upstream's behaviour exactly.
+
+**Future:** If upstream modularises their installer (separate files per runtime), runtime filtering becomes file-level exclusion and can be enabled trivially.
 
 ### Default Philosophy
 
@@ -359,70 +400,58 @@ No overrides. Config enhancements and validation additions are implemented as wr
 
 ## Installer Architecture
 
-`bin/install.js` is the most important component. It replaces the current installer entirely.
+### Delegation Mechanism
 
-### Two Modes
+With surface-only branding, upstream's `install.js` runs nearly unmodified. The mechanism:
 
-**Compose mode** (dev-time):
+1. `scripts/compose.js` copies upstream's `install.js` to `dist/bin/install.js`
+2. Applies text-only branding (package name in help strings, repo URLs in comments)
+3. Internal paths (`get-shit-done/`, `__dirname` resolution, config paths) are untouched
+4. The composed `install.js` operates on the composed file set in `dist/`
+
+**This works because:** The composed output preserves upstream's expected directory layout (`get-shit-done/bin/`, `get-shit-done/workflows/`, etc.). The install.js uses `__dirname` and relative paths to find these files. Since the structure is identical, all path resolution works.
+
+The overlay installer (`bin/install.js` in the package) is a thin wrapper:
+1. Resolves the composed `dist/` directory
+2. Invokes upstream's install.js (now in `dist/bin/install.js`) via `require()` or subprocess
+3. After upstream install completes, copies overlay additions (fork hooks, fork commands, fork workflows) to the target directory
+4. Writes `.install-meta.json`
+
+### Compose Script
+
+`scripts/compose.js` is the dev-time orchestrator. It is a separate file from the installer.
+
 ```bash
-bun run compose                    # builds dist/
-bun run compose --dry-run          # preview without writing
-bun run compose --diff             # show changes since last composition
+bun run compose              # compose upstream + overlay -> dist/
+bun run compose --dry-run    # preview
+bun run compose --diff       # delta since last compose
 ```
 
-**Install mode** (user-facing):
-```bash
-bunx @chude/get-stuff-done --claude --global
-```
+The installer imports shared utilities from compose.js but does NOT reimplement the pipeline. One implementation, two entry points.
 
-### Structure (five sections in a single file)
+### Installer Sections
 
-**Section 1: RESOLVE** -- Locate upstream files, load branding/features/overrides config.
+**Section 1: PRE-INSTALL** -- Resolve dist/ directory, validate structure.
 
-**Section 2: COMPOSE** -- Execute the five-stage pipeline (filter, override, brand, merge).
+**Section 2: DELEGATE** -- Run upstream's install.js from dist/ with user's CLI flags.
 
-**Section 3: INSTALL** -- Parse CLI flags. Delegate to upstream's install logic operating on composed files. Write `.install-meta.json`.
+**Section 3: OVERLAY** -- Copy fork-specific additions (overlay hooks, commands, workflows) to target.
 
-**Section 4: UNINSTALL** -- Same as upstream's uninstall, aware of overlay additions.
+**Section 4: META** -- Write `.install-meta.json`.
 
-**Section 5: UPDATE CHECK** -- Compare installed `.install-meta.json` against current package version.
+**Section 5: UNINSTALL** -- Remove both upstream and overlay files from target. Aware of overlay additions.
 
-### Critical Design Decision: Delegate to Upstream Install Logic
-
-The installer does NOT reimplement runtime-specific installation. Upstream's `install.js` handles:
-- Claude Code settings.json manipulation
-- Gemini hook event conversion
-- Codex TOML config management
-- Copilot instructions injection
-- Windsurf/Cursor/Antigravity config
-- Permission grants and hook registration
-
-This logic is 5,000+ lines and growing. The overlay installer:
-1. Composes the file set (branding + features + overrides + additions)
-2. Delegates actual installation to upstream's logic operating on composed files
-
-When upstream adds runtime support or fixes install bugs, the overlay gets those fixes automatically.
-
-### What the Installer Does NOT Do
-
-- Parse Codex TOML configs
-- Manipulate Claude Code settings.json directly
-- Handle Gemini hook event conversion
-- Register Copilot instructions
-- Any runtime-specific installation detail
-
-All of that remains in upstream's code.
+**Section 6: UPDATE CHECK** -- Compare installed `.install-meta.json` against current package version.
 
 ## Update Workflow
 
 ### Standard Update Process
 
 ```bash
-# 1. Check what's available
-bun outdated
-
-# 2. Preview changes (uses sync.cjs)
+# 1. Preview changes FIRST (includes supply chain scan)
 bun run preview-update
+
+# 2. Review the preview output, decide to proceed
 
 # 3. Upgrade
 bun update get-shit-done-cc
@@ -439,9 +468,11 @@ aidev release patch
 aidev publish
 ```
 
+**Important:** `preview-update` runs BEFORE `bun update`, not after. This ensures the supply chain scan happens before new upstream code enters your environment.
+
 ### Preview-Update Output
 
-`bun run preview-update` uses `sync.cjs` to diff current vs latest upstream:
+`bun run preview-update` uses `sync.cjs` to diff current pinned version vs latest upstream on npm:
 
 ```
 Upstream update: get-shit-done-cc 1.30.0 -> 1.32.0
@@ -476,8 +507,8 @@ When upstream changes a file that has an override in `overrides/`:
 ### Rollback
 
 ```bash
-bun add get-shit-done-cc@1.30.0    # pin to previous version
-bun run compose                     # recompose with old upstream
+bun add -d get-shit-done-cc@1.30.0    # pin to previous version
+bun run compose                         # recompose with old upstream
 ```
 
 ## Testing Strategy
@@ -495,7 +526,7 @@ bun run compose                     # recompose with old upstream
 | `launcher.test.js` | gsd.js: banner, state display, arg passthrough |
 | `hooks.test.js` | pre-compact hook: context preservation |
 | `installer.test.js` | composition logic: end-to-end pipeline |
-| `branding.test.js` | branding substitutions produce correct output |
+| `branding.test.js` | branding substitutions: correct surfaces branded, internals untouched |
 | `features.test.js` | feature flag filtering works correctly |
 | `overrides.test.js` | override replacement and REASON.md enforcement |
 | `compose.test.js` | full composition pipeline with real upstream |
@@ -507,11 +538,11 @@ bun run compose                     # recompose with old upstream
 bun run test:upstream-compat
 ```
 
-Runs upstream's own test files against the composed `dist/` output. A branding-aware test adapter normalises package names before assertions to handle the `get-shit-done` -> `get-stuff-done` rename.
+Runs upstream's own test files against the composed `dist/` output. Since internal directory names are preserved (`get-shit-done/`), upstream tests should run with minimal adaptation. No branding adapter needed for path assertions.
 
-**What this catches:** Branding breaking code. Feature filtering removing dependencies. Overrides incompatible with upstream expectations.
+**Remaining adaptation needed:** Upstream tests that assert against the npm package name (`get-shit-done-cc`) in user-visible output will need a thin adapter for the `@chude/get-stuff-done` substitution in those strings.
 
-**Initial setup note:** Upstream tests assert against `get-shit-done` paths. The test adapter must normalise these. Expect a setup phase to get the compat runner green on first integration.
+**Feasibility gate:** Before Phase 4 begins, categorise upstream's test assertions into: (a) path-based (no adaptation needed -- internal paths preserved), (b) package-name-based (adapter needed), (c) behavioural (no adaptation needed). If >30% of assertions need adaptation, reassess the approach.
 
 ### CI Pipeline
 
@@ -540,12 +571,23 @@ main (current)  -->  tag as v0.4.0-legacy
                 -->  when tested and validated: becomes new main
 ```
 
+### Phase 0: Prototype Installer Delegation
+
+**Before any migration work begins**, validate the delegation mechanism:
+1. Install `get-shit-done-cc@1.30.0` in a scratch directory
+2. Copy its files preserving internal structure
+3. Apply text-only branding to install.js (package name, URLs)
+4. Run the branded install.js and verify it installs correctly
+5. Verify overlay files can be copied to the target after upstream install completes
+
+**This phase is a go/no-go gate.** If delegation doesn't work cleanly, the architecture needs revision before proceeding.
+
 ### Phase 1: Scaffold
 
 On `overlay-architecture` branch:
 - Create directory structure
-- Add `get-shit-done-cc@1.30.0` as dependency
-- Create `branding.json`, `features.json`
+- Add `get-shit-done-cc@1.30.0` as devDependency (exact version, no caret)
+- Create `branding.json` (text-only), `features.json`
 - Create empty `overrides/`
 - Write `scripts/compose.js`
 - Write `scripts/check-boundary.js`, `scripts/check-overrides.js`
@@ -566,13 +608,14 @@ Config and validation enhancements reimplemented as wrappers extending upstream 
 
 ### Phase 3: Build the Installer
 
-New `bin/install.js` implementing composition + delegation architecture. This is the most significant new code.
+New `bin/install.js` implementing delegation architecture. Compose script as the shared pipeline.
 
 ### Phase 4: Port and Write Tests
 
 - Copy fork-specific test files, update imports
 - Write new composition tests (branding, features, overrides, pipeline)
-- Set up upstream compatibility test runner with branding adapter
+- Categorise upstream test assertions (feasibility gate for compat runner)
+- Set up upstream compatibility test runner
 - Remove test files that tested upstream modules directly
 
 ### Phase 5: CI and Enforcement
@@ -590,6 +633,15 @@ New `bin/install.js` implementing composition + delegation architecture. This is
 - `aidev release major` (ships as v3.0.0)
 - `aidev publish`
 
+### Existing User Upgrade Path
+
+Users upgrading from v2.x to v3.0:
+
+1. **v3.0 installer detects v2.x artifacts.** Checks for `.install-meta.json` with overlay_version < 3.0 or missing overlay_version field. If found, runs cleanup of v2.x-specific files before installing v3.0.
+2. **Uninstall covers both versions.** `bunx @chude/get-stuff-done --uninstall` removes both v2.x and v3.0 artifacts.
+3. **Documentation.** CHANGELOG and README note the architecture change and any manual steps needed.
+4. **Rollback path.** If v3.0 has issues, users can install the legacy version: `bunx @chude/get-stuff-done@2.4.0 --claude --global`. The `v0.4.0-legacy` tag preserves the old codebase.
+
 ### What Carries Over
 
 - Git history (same repo, same branch lineage)
@@ -599,7 +651,7 @@ New `bin/install.js` implementing composition + delegation architecture. This is
 
 ### What Does Not Carry Over
 
-- Direct copies of upstream files (replaced by npm dependency)
+- Direct copies of upstream files (replaced by npm devDependency)
 - Tests for upstream modules (replaced by upstream compat runner)
 - Stripped/modified upstream code (upstream's full versions restored via dependency)
 
@@ -613,11 +665,14 @@ Current npm version: 2.4.0. Overlay architecture ships as **v3.0.0** (semver maj
 |---|---|---|---|---|
 | Upstream restructures directory layout | Low | High -- compose breaks | `compose.js` validates expected structure, fails fast with descriptive error | [automated] |
 | Upstream renames exported functions | Medium | Medium -- wrappers break | Upstream compat tests catch immediately | [automated] |
-| Branding substitution corrupts code | Medium | High -- silent breakage | Word-boundary matching + branding tests verify output runs | [automated] |
+| Branding substitution corrupts code | Low (text-only scope) | Medium | Branding limited to user-visible text; branding tests verify internals untouched | [automated] |
 | Upstream drops a runtime | Very low | Low -- orphaned flag | `compose.js` warns about enabled runtimes not found in upstream | [automated] |
 | Overlay file collides with new upstream file | Low | Medium -- ambiguous | Compose pipeline detects collision, errors with guidance | [automated] |
-| Upstream tests incompatible with composed output | Medium | Medium -- compat fails | Branding-aware test adapter normalises names | [automated] |
-| npm dependency disappears | Very low | Critical -- can't compose | `bun.lock` pins exact version; manual vendor as last resort | [manual] |
+| Upstream tests incompatible with composed output | Low (internal paths preserved) | Medium -- compat fails | Thin adapter for package-name strings only; feasibility gate in Phase 4 | [automated] |
+| npm dependency disappears | Very low | Critical -- can't compose | Exact version pinning in devDependencies; manual vendor as last resort | [manual] |
+| Upstream renames npm package | Very low | High -- dependency breaks | Pin exact version; lockfile preserves; vendor last known good | [manual] |
+| v3.0 ships broken for end users | Low | High -- trust damage | Phase 0 prototype gate, full CI, manual UAT, legacy version available at v2.4.0 | [manual] |
+| Existing v2.x users upgrade and break | Medium | Medium -- orphaned files | v3.0 installer detects and cleans v2.x artifacts; documented rollback path | [automated] |
 
 ## Boundary Enforcement
 
@@ -664,10 +719,18 @@ All other code comes from upstream via the composition pipeline.
 
 The module's capabilities (diff preview, supply chain scanning, checkpointing) remain valuable. The target changes from a git remote to `node_modules/`.
 
-## Open Questions
+## Resolved Design Decisions
 
-1. **Upstream test adapter complexity.** The branding-aware adapter for running upstream tests against composed output is unproven. Complexity depends on how deeply upstream tests assert against package names and paths. Estimated: moderate effort, may require iterative refinement.
+Decisions made during design review that shaped the final architecture:
 
-2. **Runtime filtering in install.js.** Disabling a runtime requires processing install.js as a template with conditional blocks. The implementation approach (AST manipulation vs. marker comments vs. runtime feature checks) needs to be determined during Phase 3.
+1. **Surface-only branding.** Internal paths preserve upstream naming. Eliminates install.js path rewriting, simplifies test compatibility, matches Android OEM overlay patterns.
 
-3. **Upstream install.js delegation.** The exact mechanism for "run upstream's install logic on composed files" needs prototyping. Options: import upstream's install functions, monkey-patch file paths, or preprocess and eval. Each has trade-offs in maintainability and fragility.
+2. **Publish-time composition.** `dist/` is pre-composed and shipped. Users never download upstream. `get-shit-done-cc` is a devDependency only.
+
+3. **Exact version pinning.** No caret (`"1.30.0"` not `"^1.30.0"`). Updates are deliberate, reviewed via preview-update with supply chain scanning before upgrade.
+
+4. **No runtime filtering in v3.0.** All runtimes ship. Users choose at install time. File-level filtering (workflows, commands, agents, hooks, SDK) works normally.
+
+5. **Phase 0 prototype gate.** Installer delegation must be validated before migration begins.
+
+6. **Upstream test feasibility gate.** Assertion categorisation in Phase 4 determines compat runner approach.

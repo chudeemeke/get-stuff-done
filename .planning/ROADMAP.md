@@ -82,7 +82,9 @@ Phases 24-28 were partially started (Phase 24 had 2/4 plans in progress). Work f
   1. Upstream install.js executes from a scratch directory that preserves its internal structure (get-shit-done/ paths intact) and installs to a target directory without errors
   2. Text-only branding applied to install.js (package name, URLs in help strings) does not break the installation process -- installed files are functional
   3. After upstream install completes, fork-specific files (a test hook, a test command) can be copied to the target directory and coexist without conflict
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 29-01-PLAN.md -- Prototype gate validation: upstream devDep, scratch dir setup, 3 PROTO integration tests
 
 ### Phase 30: Composition Pipeline & Branding
 **Goal**: Users can run `bun run compose` and get a correct dist/ output that merges upstream files with overlay files, applies surface-only branding, and produces an auditable .install-meta.json
@@ -186,7 +188,7 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 22. Advanced Sync Automation | v0.3.0 | 2/2 | Complete | 2026-03-07 |
 | 23. v0.3.0 Gap Closure | v0.3.0 | 1/1 | Complete | 2026-03-08 |
 | 24-28. Platform Expansion | v0.4.0 | - | Superseded | - |
-| 29. Prototype Gate | v1.0.0 | 0/? | Not started | - |
+| 29. Prototype Gate | v1.0.0 | 0/1 | Planning | - |
 | 30. Composition Pipeline & Branding | v1.0.0 | 0/? | Not started | - |
 | 31. Feature Flags & Override System | v1.0.0 | 0/? | Not started | - |
 | 32. Fork Code Port | v1.0.0 | 0/? | Not started | - |

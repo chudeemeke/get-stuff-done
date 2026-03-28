@@ -22,6 +22,10 @@ const planningConfigSchema = {
     model_profile: { type: 'string', enum: ['quality', 'balanced', 'budget'] },
     commit_docs: { type: 'boolean' },
     search_gitignored: { type: 'boolean' },
+    skip_research: { type: 'boolean' },
+    skip_plan_check: { type: 'boolean' },
+    skip_verification: { type: 'boolean' },
+    branch_per_phase: { type: 'boolean' },
     branching_strategy: { type: 'string', enum: ['none', 'phase', 'milestone'] },
     phase_branch_template: { type: 'string' },
     milestone_branch_template: { type: 'string' },
@@ -62,7 +66,16 @@ const planningConfigSchema = {
       properties: {
         research: { type: 'boolean' },
         plan_check: { type: 'boolean' },
-        verifier: { type: 'boolean' }
+        verifier: { type: 'boolean' },
+        auto_advance: { type: 'boolean' },
+        nyquist_validation: { type: 'boolean' }
+      },
+      additionalProperties: false
+    },
+    gsd: {
+      type: 'object',
+      properties: {
+        role: { type: 'string', enum: ['maintainer', 'consumer'] }
       },
       additionalProperties: false
     },

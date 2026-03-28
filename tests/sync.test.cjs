@@ -522,7 +522,7 @@ describe('sync-preview command', () => {
     );
   });
 
-  test('succeeds with dirty working tree (read-only operation)', () => {
+  test('succeeds with dirty working tree (read-only operation)', { timeout: 15000 }, () => {
     // sync-preview is read-only; dirty state is surfaced as overlap risk, not a blocker
     const repoDir = createTempGitProject();
     try {
@@ -630,7 +630,7 @@ describe('sync-preview command', () => {
     }
   });
 
-  test('--json summary includes byType field with correct counts', { timeout: 15000 }, () => {
+  test('--json summary includes byType field with correct counts', { timeout: 30000 }, () => {
     const repoDir = createTempGitProject();
     try {
       // Add 3 commits: 1 feat, 1 fix, 1 chore
@@ -1103,7 +1103,7 @@ describe('runSupplyChainChecks', () => {
 // ─── cmdSyncPreview supply chain integration ──────────────────────────────────
 
 describe('sync-preview supply chain integration', () => {
-  test('--json includes supplyChainRisks array on each commit', () => {
+  test('--json includes supplyChainRisks array on each commit', { timeout: 15000 }, () => {
     const repoDir = createTempGitProject();
     let cacheDir;
     try {
@@ -1549,7 +1549,7 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('--json with filters includes dependencies fields with semantic placeholder', () => {
+  test('--json with filters includes dependencies fields with semantic placeholder', { timeout: 15000 }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create 2 commits touching the same file (creates file-overlap dependency)

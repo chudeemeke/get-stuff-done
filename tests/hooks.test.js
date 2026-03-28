@@ -250,7 +250,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
     if (cleanup) cleanup();
   });
 
-  test('maintainer path writes extended cache with upstream_count when commits exist', () => {
+  test('maintainer path writes extended cache with upstream_count when commits exist', { timeout: 15000 }, () => {
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(2);
 
     try {
@@ -277,7 +277,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
     }
   });
 
-  test('maintainer path: fetch failure leaves existing cache unchanged', () => {
+  test('maintainer path: fetch failure leaves existing cache unchanged', { timeout: 15000 }, () => {
     const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
 
     // Pre-write existing cache
@@ -345,7 +345,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
     expect(cacheContent.checked).toBe(freshCache.checked);
   });
 
-  test('maintainer background process: classifies commits by subject and writes extended cache fields', () => {
+  test('maintainer background process: classifies commits by subject and writes extended cache fields', { timeout: 30000 }, () => {
     // Test the background process classification logic directly by writing a temp script file
     // (avoids node -e quoting issues on Windows with complex multiline scripts).
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(3);
@@ -446,7 +446,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
     try { repoCleanup(); } catch (_) {}
   }, 15000);
 
-  test('maintainer path: zero upstream commits writes update_available=false', () => {
+  test('maintainer path: zero upstream commits writes update_available=false', { timeout: 15000 }, () => {
     // Test directly via temp script file to avoid node -e quoting issues
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(0);
     const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');

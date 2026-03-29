@@ -22,6 +22,12 @@
  * FEAT-02: New upstream files not in exclude list pass through (opt-out model)
  * FEAT-03: Runtimes section in features.json ignored entirely by filter()
  * FEAT-04: features.json validated against AJV schema before filter() processes it
+ *
+ * Phase 31 Plan 02 -- Override File Replacement & REASON.md Enforcement Tests
+ *
+ * OVER-01: override() replaces upstream files with files from overrides/
+ * OVER-02: override() enforces REASON.md companion for each override
+ * OVER-04: override() with zero overrides passes through unchanged
  */
 
 const { describe, test, expect, beforeAll, afterAll, beforeEach } = require('bun:test');
@@ -1268,5 +1274,327 @@ describe('features_disabled propagation to .install-meta.json', () => {
     const meta = JSON.parse(fs.readFileSync(path.join(distDir2, '.install-meta.json'), 'utf-8'));
     expect(Array.isArray(meta.features_disabled)).toBe(true);
     expect(meta.features_disabled.length).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OVER-01: override() file replacement
+// ---------------------------------------------------------------------------
+
+describe('override() file replacement (OVER-01)', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+  let overridesDir;
+
+  beforeEach(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    overridesDir = path.join(tmpDir, 'overrides');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    if (tmpDir) rmDir(tmpDir);
+  });
+
+  test('override() with a file in overrides/bin/install.js swaps the manifest entry sourcePath', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden install\n');
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js.REASON.md'), '# Override: bin/install.js\n\n## Why\nTest override\n\n## Upstream snapshot\n- Version: v1.30.0\n- SHA-256: abc123\n\n## What\'s different\n- Test change\n\n## Review trigger\nWhen upstream bin/install.js changes.\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+    const entry = result.manifest.find(e => e.relPath === 'bin/install.js');
+    expect(entry).toBeDefined();
+    expect(entry.sourcePath).toBe(path.join(overridesDir, 'bin', 'install.js'));
+  });
+
+  test('override() sets action to "override" for overridden entries', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden install\n');
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js.REASON.md'), '# Override: bin/install.js\n\n## Why\nTest\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+    const entry = result.manifest.find(e => e.relPath === 'bin/install.js');
+    expect(entry.action).toBe('override');
+  });
+
+  test('override() preserves all non-overridden manifest entries unchanged', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden install\n');
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js.REASON.md'), '# Override\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+
+    // All non-overridden entries should have same count and original action
+    const nonOverridden = result.manifest.filter(e => e.relPath !== 'bin/install.js');
+    const originalNonOverridden = filtered.manifest.filter(e => e.relPath !== 'bin/install.js');
+    expect(nonOverridden.length).toBe(originalNonOverridden.length);
+    for (const entry of nonOverridden) {
+      expect(entry.action).toBe('copy');
+    }
+  });
+
+  test('override() with multiple overrides replaces all matching manifest entries', () => {
+    // Override bin/install.js
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden install\n');
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js.REASON.md'), '# Override\n');
+    // Override scripts/build-hooks.js
+    fs.mkdirSync(path.join(overridesDir, 'scripts'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'scripts', 'build-hooks.js'), '// overridden build\n');
+    fs.writeFileSync(path.join(overridesDir, 'scripts', 'build-hooks.js.REASON.md'), '# Override\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+
+    const installEntry = result.manifest.find(e => e.relPath === 'bin/install.js');
+    const buildEntry = result.manifest.find(e => e.relPath === 'scripts/build-hooks.js');
+    expect(installEntry.action).toBe('override');
+    expect(buildEntry.action).toBe('override');
+    expect(installEntry.sourcePath).toBe(path.join(overridesDir, 'bin', 'install.js'));
+    expect(buildEntry.sourcePath).toBe(path.join(overridesDir, 'scripts', 'build-hooks.js'));
+  });
+
+  test('override() with override file that matches no manifest entry adds a warning', () => {
+    fs.mkdirSync(path.join(overridesDir, 'lib'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'lib', 'nonexistent.js'), '// no match\n');
+    fs.writeFileSync(path.join(overridesDir, 'lib', 'nonexistent.js.REASON.md'), '# Override\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+    expect(result.warnings.length).toBeGreaterThan(0);
+    const warningText = result.warnings.join(' ');
+    expect(warningText).toMatch(/nonexistent\.js/);
+  });
+
+  test('override() populates state.meta.overridesApplied with relPaths of overridden files', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden\n');
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js.REASON.md'), '# Override\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+    expect(Array.isArray(result.meta.overridesApplied)).toBe(true);
+    expect(result.meta.overridesApplied).toContain('bin/install.js');
+  });
+
+  test('after compose() with overrides, .install-meta.json overrides_applied lists the override relPaths', () => {
+    const distDir = path.join(tmpDir, 'dist');
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden install\n');
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js.REASON.md'), '# Override\n');
+
+    compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir });
+
+    const meta = JSON.parse(fs.readFileSync(path.join(distDir, '.install-meta.json'), 'utf-8'));
+    expect(Array.isArray(meta.overrides_applied)).toBe(true);
+    expect(meta.overrides_applied).toContain('bin/install.js');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OVER-02: REASON.md enforcement
+// ---------------------------------------------------------------------------
+
+describe('override() REASON.md enforcement (OVER-02)', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+  let overridesDir;
+
+  beforeEach(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    overridesDir = path.join(tmpDir, 'overrides');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    if (tmpDir) rmDir(tmpDir);
+  });
+
+  test('override() throws when override file exists without companion REASON.md', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden install\n');
+    // No REASON.md companion
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    expect(() => override(filtered)).toThrow();
+  });
+
+  test('error message includes the expected REASON.md path', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden install\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    let errorMsg = '';
+    try {
+      override(filtered);
+    } catch (e) {
+      errorMsg = e.message;
+    }
+    expect(errorMsg).toContain('overrides/bin/install.js.REASON.md');
+  });
+
+  test('error message includes a paste-ready template with the REASON.md format', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden install\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    let errorMsg = '';
+    try {
+      override(filtered);
+    } catch (e) {
+      errorMsg = e.message;
+    }
+    expect(errorMsg).toContain('# Override: bin/install.js');
+    expect(errorMsg).toContain('## Why');
+    expect(errorMsg).toContain('## Upstream snapshot');
+    expect(errorMsg).toContain('## Review trigger');
+  });
+
+  test('override() succeeds when both override file and companion REASON.md exist', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden install\n');
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js.REASON.md'), '# Override: bin/install.js\n\n## Why\nTest\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    expect(() => override(filtered)).not.toThrow();
+  });
+
+  test('override() skips .gitkeep files (does not treat as override)', () => {
+    fs.mkdirSync(overridesDir, { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, '.gitkeep'), '');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    // Should not throw (no REASON.md needed for .gitkeep)
+    expect(() => override(filtered)).not.toThrow();
+  });
+
+  test('override() skips *.REASON.md files (does not treat as override files)', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden\n');
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js.REASON.md'), '# Override\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+    // REASON.md file itself should not be in manifest or overridesApplied
+    const reasonInApplied = result.meta.overridesApplied.filter(p => p.endsWith('.REASON.md'));
+    expect(reasonInApplied.length).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OVER-04: zero overrides day one
+// ---------------------------------------------------------------------------
+
+describe('override() zero overrides day one (OVER-04)', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+  let overridesDir;
+
+  beforeEach(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    overridesDir = path.join(tmpDir, 'overrides');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    if (tmpDir) rmDir(tmpDir);
+  });
+
+  test('override() with overrides/ containing only .gitkeep returns manifest unchanged', () => {
+    fs.mkdirSync(overridesDir, { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, '.gitkeep'), '');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+    expect(result.manifest.length).toBe(filtered.manifest.length);
+    // All entries should still have action 'copy'
+    for (const entry of result.manifest) {
+      expect(entry.action).toBe('copy');
+    }
+  });
+
+  test('override() with empty overrides/ returns manifest unchanged', () => {
+    fs.mkdirSync(overridesDir, { recursive: true });
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+    expect(result.manifest.length).toBe(filtered.manifest.length);
+  });
+
+  test('override() without overrides/ directory returns manifest unchanged', () => {
+    // overridesDir not created -- does not exist
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+    expect(result.manifest.length).toBe(filtered.manifest.length);
+    expect(result.meta.overridesApplied).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// override() cross-platform path normalisation
+// ---------------------------------------------------------------------------
+
+describe('override() cross-platform path normalisation', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+  let overridesDir;
+
+  beforeAll(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    overridesDir = path.join(tmpDir, 'overrides');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    rmDir(tmpDir);
+  });
+
+  test('override() matches relPaths using forward slashes (normalised paths)', () => {
+    fs.mkdirSync(path.join(overridesDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js'), '// overridden\n');
+    fs.writeFileSync(path.join(overridesDir, 'bin', 'install.js.REASON.md'), '# Override\n');
+
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const filtered = filter(state);
+    const result = override(filtered);
+    const entry = result.manifest.find(e => e.relPath === 'bin/install.js');
+    expect(entry).toBeDefined();
+    expect(entry.action).toBe('override');
+    // relPath should use forward slashes
+    expect(entry.relPath).not.toContain('\\');
   });
 });

@@ -17,7 +17,7 @@ const { describe, test, expect, beforeEach, afterEach } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { validatePlanningConfig, planningConfigSchema } = require('../src/config/schema');
+const { validatePlanningConfig, planningConfigSchema } = require('../overlay/src/config/schema');
 const { createTempDir, createTempFile } = require('./helpers');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');

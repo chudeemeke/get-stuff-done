@@ -17,9 +17,9 @@
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
-const { gsdPaths } = require('../src/platform/paths');
-const { detectTerminal } = require('../src/platform/terminal');
-const { loadConfig, getConfigValue } = require('../src/config/ConfigLoader');
+const { gsdPaths } = require('../overlay/src/platform/paths');
+const { detectTerminal } = require('../overlay/src/platform/terminal');
+const { loadConfig, getConfigValue } = require('../overlay/src/config/ConfigLoader');
 
 // Detect terminal capabilities
 const terminal = detectTerminal();

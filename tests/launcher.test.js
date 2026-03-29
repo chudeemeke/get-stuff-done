@@ -43,7 +43,7 @@ describe('bin/gsd.js launcher', () => {
   });
 
   test('gsdPaths uses correct home directory', () => {
-    const { gsdPaths } = require('../src/platform/paths');
+    const { gsdPaths } = require('../overlay/src/platform/paths');
 
     const gsdHome = gsdPaths.gsdHome();
 

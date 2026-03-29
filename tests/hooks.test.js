@@ -101,7 +101,7 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 const HOOKS = {
   checkUpdate: path.join(PROJECT_ROOT, 'hooks', 'gsd-check-update.js'),
   statusline: path.join(PROJECT_ROOT, 'hooks', 'gsd-statusline.js'),
-  preCompact: path.join(PROJECT_ROOT, 'hooks', 'pre-compact.js')
+  preCompact: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'pre-compact.js')
 };
 
 // Hook script paths (bundled dist)

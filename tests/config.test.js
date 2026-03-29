@@ -11,8 +11,8 @@
 const { describe, test, expect, beforeEach, afterEach } = require('bun:test');
 const os = require('os');
 const path = require('path');
-const { loadConfig, getConfigPath, getDefaults, getConfigValue } = require('../src/config/ConfigLoader');
-const { validateConfig, configSchema } = require('../src/config/ConfigSchema');
+const { loadConfig, getConfigPath, getDefaults, getConfigValue } = require('../overlay/src/config/ConfigLoader');
+const { validateConfig, configSchema } = require('../overlay/src/config/ConfigSchema');
 const { createTempDir, createTempFile, mockEnv } = require('./helpers');
 
 describe('ConfigLoader', () => {

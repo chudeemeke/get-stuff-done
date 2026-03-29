@@ -53,12 +53,12 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 ### Installer
 
-- [ ] **INST-01**: bin/install.js delegates to upstream's install.js operating on composed dist/ files
-- [ ] **INST-02**: After upstream install completes, overlay additions copied to target (fork hooks, commands, workflows)
-- [ ] **INST-03**: .install-meta.json written to installed directory with version and composition metadata
-- [ ] **INST-04**: --uninstall removes both upstream and overlay files from target
-- [ ] **INST-05**: Existing v2.x installations detected and cleaned up during v3.0 install
-- [ ] **INST-06**: Installer tests written before implementation (TDD)
+- [x] **INST-01**: bin/install.js delegates to upstream's install.js operating on composed dist/ files
+- [x] **INST-02**: After upstream install completes, overlay additions copied to target (fork hooks, commands, workflows)
+- [x] **INST-03**: .install-meta.json written to installed directory with version and composition metadata
+- [x] **INST-04**: --uninstall removes both upstream and overlay files from target
+- [x] **INST-05**: Existing v2.x installations detected and cleaned up during v3.0 install
+- [x] **INST-06**: Installer tests written before implementation (TDD)
 
 ### Fork Code Port
 
@@ -132,7 +132,7 @@ Deferred to future releases. Not in current roadmap.
 | FEAT-01 through FEAT-04 | Phase 31 | Complete |
 | OVER-01 through OVER-04 | Phase 31 | Complete |
 | PORT-01 through PORT-09 | Phase 32 | Pending |
-| INST-01 through INST-06 | Phase 33 | Pending |
+| INST-01 through INST-06 | Phase 33 | Complete |
 | UPD-01 through UPD-04 | Phase 33 | Pending |
 | TEST-01 through TEST-04 | Phase 34 | Pending |
 | CI-01 through CI-04 | Phase 34 | Pending |

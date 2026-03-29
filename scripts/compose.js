@@ -43,7 +43,7 @@ const DEFAULT_DIST_DIR = path.join(PROJECT_ROOT, 'dist');
 const REQUIRED_UPSTREAM_DIRS = ['agents', 'bin', 'commands', 'get-shit-done', 'hooks', 'scripts'];
 
 // Overlay metadata files that are never treated as additive content
-const OVERLAY_METADATA = new Set(['branding.json', 'features.json', '.gitkeep']);
+const OVERLAY_METADATA = new Set(['branding.json', 'features.json', '.gitkeep', '.overlay-manifest.json']);
 
 // ---------------------------------------------------------------------------
 // JSON Schema for branding.json validation (BRAND-06)
@@ -780,6 +780,7 @@ function merge(state, opts) {
 
   // Write overlay additive files (non-metadata, non-collision files)
   const overlayDir = state.meta.overlayDir || DEFAULT_OVERLAY_DIR;
+  const overlayOnlyPaths = [];
   if (fs.existsSync(overlayDir)) {
     const overlayFiles = walkDir(overlayDir, '');
     for (const overlayFile of overlayFiles) {
@@ -792,6 +793,7 @@ function merge(state, opts) {
       const destDir = path.dirname(destPath);
       fs.mkdirSync(destDir, { recursive: true });
       fs.copyFileSync(srcPath, destPath);
+      overlayOnlyPaths.push(normalised);
       filesWritten++;
     }
   }
@@ -800,8 +802,16 @@ function merge(state, opts) {
   const creditsContent = generateCredits(state.branding.preserveUpstreamCredit);
   if (creditsContent != null) {
     fs.writeFileSync(path.join(distDir, 'CREDITS.md'), creditsContent, 'utf-8');
+    overlayOnlyPaths.push('CREDITS.md');
     filesWritten++;
   }
+
+  // Write .overlay-manifest.json listing overlay-only files for the installer
+  fs.writeFileSync(
+    path.join(distDir, '.overlay-manifest.json'),
+    JSON.stringify(overlayOnlyPaths.sort(), null, 2),
+    'utf-8'
+  );
 
   // Write .install-meta.json (COMP-07)
   const meta = {
@@ -969,6 +979,14 @@ function computeDelta(state, distDir) {
   } else {
     // .install-meta.json always differs due to composed_at timestamp
     delta.push({ relPath: '.install-meta.json', status: 'modified' });
+  }
+
+  // Part C: Track .overlay-manifest.json (additive output from merge())
+  wouldWrite.add('.overlay-manifest.json');
+  if (!currentFiles.has('.overlay-manifest.json')) {
+    delta.push({ relPath: '.overlay-manifest.json', status: 'added' });
+  } else {
+    delta.push({ relPath: '.overlay-manifest.json', status: 'modified' });
   }
 
   // Files in dist/ that would be removed

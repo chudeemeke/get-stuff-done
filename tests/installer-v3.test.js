@@ -1,0 +1,327 @@
+/**
+ * v3.0 Delegation Installer Tests
+ *
+ * Tests for the v3.0 bin/install.js delegation-based installer covering:
+ *   INST-01: Subprocess delegation to upstream install.js
+ *   INST-02: Overlay files copied to target after upstream install
+ *   INST-03: .install-meta.json written with v3.0 format
+ *   INST-04: --uninstall removes all files from target, idempotent
+ *   INST-05: v2.x detection via meta check and directory fingerprint
+ *
+ * SAFETY: All tests install to temporary directories via --config-dir.
+ * Real ~/.claude is never touched.
+ */
+
+const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const { execSync } = require('child_process');
+
+const { createTempDir } = require('./helpers');
+
+// Paths
+const PROJECT_ROOT = path.join(__dirname, '..');
+const INSTALL_SCRIPT = path.join(PROJECT_ROOT, 'bin', 'install.js');
+const DIST_DIR = path.join(PROJECT_ROOT, 'dist');
+const OVERLAY_MANIFEST = path.join(DIST_DIR, '.overlay-manifest.json');
+
+/**
+ * Runs the v3.0 installer with --config-dir for test isolation.
+ * Uses execSync with piped stdio to capture output.
+ *
+ * @param {string} targetDir - Installation target directory (--config-dir value)
+ * @param {string[]} extraArgs - Additional CLI args
+ * @returns {{ success: boolean, output: string, error: string, exitCode: number }}
+ */
+function runV3Installer(targetDir, extraArgs = []) {
+  const args = ['--claude', '--global', '--config-dir', `"${targetDir}"`, ...extraArgs];
+  try {
+    const result = execSync(`node "${INSTALL_SCRIPT}" ${args.join(' ')}`, {
+      encoding: 'utf-8',
+      env: { ...process.env },
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 30000,
+    });
+    return { success: true, output: result, error: '', exitCode: 0 };
+  } catch (err) {
+    return {
+      success: false,
+      output: err.stdout?.toString() || '',
+      error: err.stderr?.toString() || err.message,
+      exitCode: err.status || 1,
+    };
+  }
+}
+
+describe('v3.0 Delegation Installer', () => {
+  let tmpDir;
+  let cleanupTmp;
+
+  beforeEach(() => {
+    const tmp = createTempDir();
+    tmpDir = tmp;
+    cleanupTmp = tmp.cleanup;
+  });
+
+  afterEach(() => {
+    cleanupTmp();
+  });
+
+  // -----------------------------------------------------------------------
+  // Pre-condition: overlay manifest exists
+  // -----------------------------------------------------------------------
+
+  test('pre-condition: dist/.overlay-manifest.json exists', () => {
+    expect(fs.existsSync(OVERLAY_MANIFEST)).toBe(true);
+    const manifest = JSON.parse(fs.readFileSync(OVERLAY_MANIFEST, 'utf-8'));
+    expect(Array.isArray(manifest)).toBe(true);
+    expect(manifest.length).toBeGreaterThan(0);
+  });
+
+  // -----------------------------------------------------------------------
+  // INST-01: Subprocess delegation
+  // -----------------------------------------------------------------------
+
+  describe('INST-01: subprocess delegation', () => {
+    test('delegates to upstream and produces installed file structure', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      const result = runV3Installer(targetDir);
+
+      // v3.0 installer must delegate to upstream and exit 0
+      expect(result.success).toBe(true);
+
+      // Upstream files must exist in target (upstream writes to get-shit-done/ subdir)
+      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'commands', 'gsd'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'agents'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'hooks'))).toBe(true);
+    });
+
+    test('passes all user flags through to upstream', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      // Running with --claude --global should produce claude-specific install
+      const result = runV3Installer(targetDir);
+      expect(result.success).toBe(true);
+
+      // commands/gsd/ directory is created by upstream for claude runtime
+      expect(fs.existsSync(path.join(targetDir, 'commands', 'gsd'))).toBe(true);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // INST-02: Overlay files copied
+  // -----------------------------------------------------------------------
+
+  describe('INST-02: overlay files copied', () => {
+    test('overlay-only files exist in target after install', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      const result = runV3Installer(targetDir);
+      expect(result.success).toBe(true);
+
+      // Read the manifest to know which files should be there
+      const manifest = JSON.parse(fs.readFileSync(OVERLAY_MANIFEST, 'utf-8'));
+
+      // Check representative overlay files
+      const representativeFiles = [
+        'lib/sync.cjs',
+        'src/config/ConfigLoader.js',
+        'src/platform/detect.js',
+        'hooks/pre-compact.js',
+        'CREDITS.md',
+      ];
+
+      for (const relPath of representativeFiles) {
+        // File must be in the manifest
+        expect(manifest).toContain(relPath);
+        // File must exist in the target directory
+        expect(fs.existsSync(path.join(targetDir, relPath))).toBe(true);
+      }
+    });
+
+    test('all manifest files are copied to target', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      const result = runV3Installer(targetDir);
+      expect(result.success).toBe(true);
+
+      const manifest = JSON.parse(fs.readFileSync(OVERLAY_MANIFEST, 'utf-8'));
+
+      for (const relPath of manifest) {
+        expect(fs.existsSync(path.join(targetDir, relPath))).toBe(true);
+      }
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // INST-03: .install-meta.json written
+  // -----------------------------------------------------------------------
+
+  describe('INST-03: .install-meta.json written', () => {
+    test('writes v3.0 format install metadata', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      const result = runV3Installer(targetDir);
+      expect(result.success).toBe(true);
+
+      // .install-meta.json should be in the get-shit-done/ subdirectory
+      const metaPath = path.join(targetDir, 'get-shit-done', '.install-meta.json');
+      expect(fs.existsSync(metaPath)).toBe(true);
+
+      const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+
+      // Required v3.0 fields
+      expect(typeof meta.upstream_version).toBe('string');
+      expect(meta.upstream_version.length).toBeGreaterThan(0);
+      expect(typeof meta.overlay_version).toBe('string');
+      expect(meta.overlay_version.length).toBeGreaterThan(0);
+      expect(typeof meta.installed_at).toBe('string');
+      // ISO timestamp format check
+      expect(new Date(meta.installed_at).toISOString()).toBe(meta.installed_at);
+      expect(Array.isArray(meta.features_disabled)).toBe(true);
+      expect(Array.isArray(meta.overrides_applied)).toBe(true);
+    });
+
+    test('upstream_version matches dist metadata', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      const result = runV3Installer(targetDir);
+      expect(result.success).toBe(true);
+
+      const distMeta = JSON.parse(fs.readFileSync(path.join(DIST_DIR, '.install-meta.json'), 'utf-8'));
+      const metaPath = path.join(targetDir, 'get-shit-done', '.install-meta.json');
+      const installedMeta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+
+      expect(installedMeta.upstream_version).toBe(distMeta.upstream_version);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // INST-04: Uninstall
+  // -----------------------------------------------------------------------
+
+  describe('INST-04: --uninstall', () => {
+    test('removes installed files and exits 0', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      // First install
+      const installResult = runV3Installer(targetDir);
+      expect(installResult.success).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+
+      // Then uninstall
+      const uninstallResult = runV3Installer(targetDir, ['--uninstall']);
+      expect(uninstallResult.success).toBe(true);
+
+      // Target directory should be empty or removed
+      if (fs.existsSync(targetDir)) {
+        const remaining = fs.readdirSync(targetDir);
+        expect(remaining.length).toBe(0);
+      }
+    });
+
+    test('idempotent: uninstall on empty dir exits 0', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'empty-target');
+      // Dir does not exist -- uninstall should still exit 0
+      const result = runV3Installer(targetDir, ['--uninstall']);
+      expect(result.success).toBe(true);
+    });
+
+    test('idempotent: double uninstall exits 0', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      // Install then uninstall twice
+      const installResult = runV3Installer(targetDir);
+      expect(installResult.success).toBe(true);
+
+      const first = runV3Installer(targetDir, ['--uninstall']);
+      expect(first.success).toBe(true);
+
+      const second = runV3Installer(targetDir, ['--uninstall']);
+      expect(second.success).toBe(true);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // INST-05: v2.x detection
+  // -----------------------------------------------------------------------
+
+  describe('INST-05: v2.x detection', () => {
+    test('detects v2.x via .install-meta.json (no overlay_version)', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+
+      // Create mock v2.x installation
+      const gsdDir = path.join(targetDir, 'get-stuff-done');
+      fs.mkdirSync(gsdDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(gsdDir, '.install-meta.json'),
+        JSON.stringify({
+          version: '2.4.0',
+          installType: 'link',
+          installedAt: new Date().toISOString(),
+          platform: { os: 'win32', arch: 'x64' },
+          installMethod: { method: 'junction', reason: 'default' },
+        }),
+        'utf-8'
+      );
+
+      // Run v3.0 installer with --force to skip confirmation prompt
+      const result = runV3Installer(targetDir, ['--force']);
+      expect(result.success).toBe(true);
+
+      // v2.x files should be cleaned up -- get-stuff-done/ should be gone
+      expect(fs.existsSync(gsdDir)).toBe(false);
+
+      // v3.0 files should be installed
+      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+    });
+
+    test('detects v2.x via src/ directory fingerprint', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+
+      // Create mock v2.x installation with src/ directory (v2.x fingerprint)
+      fs.mkdirSync(path.join(targetDir, 'src', 'config'), { recursive: true });
+      fs.writeFileSync(path.join(targetDir, 'src', 'config', 'index.js'), '// v2.x fork code');
+
+      // Run v3.0 installer with --force
+      const result = runV3Installer(targetDir, ['--force']);
+      expect(result.success).toBe(true);
+
+      // v2.x src/ directory should be cleaned up
+      expect(fs.existsSync(path.join(targetDir, 'src', 'config', 'index.js'))).toBe(false);
+
+      // v3.0 files should be installed
+      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+    });
+
+    test('detects v2.x via get-stuff-done/ without get-shit-done/', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+
+      // Create mock v2.x installation with old directory name
+      const gsdDir = path.join(targetDir, 'get-stuff-done');
+      fs.mkdirSync(path.join(gsdDir, 'bin'), { recursive: true });
+      fs.writeFileSync(path.join(gsdDir, 'bin', 'gsd-tools.cjs'), '// v2.x tools');
+
+      // Run v3.0 installer with --force
+      const result = runV3Installer(targetDir, ['--force']);
+      expect(result.success).toBe(true);
+
+      // v2.x directory should be cleaned up
+      expect(fs.existsSync(gsdDir)).toBe(false);
+
+      // v3.0 files should be installed
+      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+    });
+  });
+});

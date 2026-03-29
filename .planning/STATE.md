@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Phase 31 -- Feature Flags & Override System
+**Current focus:** Phase 32 -- Fork Code Port
 
 ## Current Position
 
 Phase: 32 of 35 (Fork Code Port) -- IN PROGRESS
-Plan: 1 of 3 complete in current phase
-Status: Plan 32-01 complete -- leaf modules ported to overlay/src/ (platform, theme, validation)
-Last activity: 2026-03-29 -- copied 8 source files to overlay/src/, updated 4 test imports; 408 tests pass
+Plan: 2 of 3 complete in current phase
+Status: Plan 32-02 complete -- sync.cjs ported, sync-tools.cjs CLI created, 14 markdown files copied to overlay/
+Last activity: 2026-03-29 -- ported sync module and fork-specific markdown files to overlay/
 
-Progress: [========================......] 79% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 32 plan 1/3)
+Progress: [=========================.....] 80% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 32 plan 2/3)
 
 ## Performance Metrics
 
@@ -61,6 +61,8 @@ Recent decisions affecting current work:
 - override() derives overrides/ path as sibling of overlayDir via path.dirname()
 - merge() prefers state.meta.overridesApplied over local entry.action collection (dual-source, meta preferred)
 - REASON.md error template dynamically includes relPath and upstreamVersion from pipeline state
+- Sync commands separated into standalone sync-tools.cjs CLI (not patching upstream gsd-tools.cjs router)
+- overlay/lib/sync.cjs import path targets dist/ layout -- not resolvable from source tree (by design)
 
 ### Pending Todos
 
@@ -73,5 +75,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Completed 32-01-PLAN.md -- leaf modules ported to overlay/src/ (PORT-02, PORT-03, PORT-04, PORT-09 partial)
+Stopped at: Completed 32-02-PLAN.md -- sync.cjs ported, sync-tools.cjs CLI created, 14 fork markdown files in overlay/ (PORT-01, PORT-07, PORT-09)
 Resume file: None

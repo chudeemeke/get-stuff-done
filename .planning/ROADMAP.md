@@ -146,7 +146,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 33-01-PLAN.md -- TDD delegation installer: subprocess spawn, overlay copy, uninstall, v2.x detection (INST-01 through INST-06)
-- [ ] 33-02-PLAN.md -- TDD preview-update: version diff, supply chain scan, override staleness, structured report (UPD-01 through UPD-04)
+- [x] 33-02-PLAN.md -- TDD preview-update: version diff, supply chain scan, override staleness, structured report (UPD-01 through UPD-04)
 
 ### Phase 34: Testing & CI Enforcement
 **Goal**: Fork-specific code achieves 95%+ coverage at each metric individually, upstream compatibility runner validates composed output, and CI enforces boundary and override rules on every push
@@ -158,7 +158,12 @@ Plans:
   3. Upstream compatibility runner executes upstream tests against composed dist/ output and reports pass/fail
   4. CI matrix runs all four checks (fork tests, upstream compat, boundary check, override check) on macOS, Linux, and Windows
   5. check-boundary.js fails the build if any upstream file exists in the repo outside overrides/; check-overrides.js fails the build if any override lacks a REASON.md
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 34-01-PLAN.md -- TDD sync.cjs coverage via symlink shim (TEST-01, TEST-04)
+- [ ] 34-02-PLAN.md -- TDD check-boundary.js and upstream compat runner (TEST-02, TEST-03, TEST-04, CI-01)
+- [ ] 34-03-PLAN.md -- Coverage gap closure for compose.js, preview-update.js, check-overrides.js (TEST-01)
+- [ ] 34-04-PLAN.md -- CI workflow update with 4-check enforcement matrix (CI-02, CI-03, CI-04)
 
 ### Phase 35: Migration & Ship v3.0.0
 **Goal**: Existing users can upgrade from v2.x to v3.0.0 cleanly, the overlay-architecture branch becomes main, and the package ships to npm as v3.0.0
@@ -207,6 +212,6 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 30. Composition Pipeline & Branding | v1.0.0 | 3/3 | Complete | 2026-03-28 |
 | 31. Feature Flags & Override System | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
 | 32. Fork Code Port | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
-| 33. Installer & Update Workflow | 2/2 | Complete    | 2026-03-29 | - |
-| 34. Testing & CI Enforcement | v1.0.0 | 0/? | Not started | - |
+| 33. Installer & Update Workflow | v1.0.0 | 2/2 | Complete | 2026-03-29 |
+| 34. Testing & CI Enforcement | v1.0.0 | 0/4 | Not started | - |
 | 35. Migration & Ship v3.0.0 | v1.0.0 | 0/? | Not started | - |

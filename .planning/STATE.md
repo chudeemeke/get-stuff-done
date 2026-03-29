@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 ## Current Position
 
-Phase: 31 of 35 (Feature Flags & Override System) -- COMPLETE
-Plan: 3 of 3 complete in current phase
-Status: Phase 31 complete -- all 3 plans done (31-01 filter, 31-02 override, 31-03 check-overrides)
-Last activity: 2026-03-29 -- override() file replacement with REASON.md enforcement; 111 compose tests + 38 check-overrides tests pass; 149 tests pass across compose/check-overrides
+Phase: 32 of 35 (Fork Code Port) -- IN PROGRESS
+Plan: 1 of 3 complete in current phase
+Status: Plan 32-01 complete -- leaf modules ported to overlay/src/ (platform, theme, validation)
+Last activity: 2026-03-29 -- copied 8 source files to overlay/src/, updated 4 test imports; 408 tests pass
 
-Progress: [========================......] 77% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 31 complete)
+Progress: [========================......] 79% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 32 plan 1/3)
 
 ## Performance Metrics
 
@@ -73,5 +73,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Completed 31-02-PLAN.md -- override() file replacement with REASON.md enforcement (OVER-01, OVER-02, OVER-04). Phase 31 complete.
+Stopped at: Completed 32-01-PLAN.md -- leaf modules ported to overlay/src/ (PORT-02, PORT-03, PORT-04, PORT-09 partial)
 Resume file: None

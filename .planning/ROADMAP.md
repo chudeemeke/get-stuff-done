@@ -119,7 +119,7 @@ Plans:
 - [x] 31-03-PLAN.md -- TDD check-overrides.js standalone staleness detection (OVER-03)
 
 ### Phase 32: Fork Code Port
-**Goal**: All ~2,510 lines of fork-specific code live in overlay/ with updated imports, and existing fork tests pass against the ported code
+**Goal**: All ~3,800 lines of fork-specific source code live in overlay/ with updated imports, and existing fork tests pass against the ported code
 **Depends on**: Phase 31 (overlay/ structure and composition pipeline complete)
 **Requirements**: PORT-01, PORT-02, PORT-03, PORT-04, PORT-05, PORT-06, PORT-07, PORT-08, PORT-09
 **Success Criteria** (what must be TRUE):
@@ -127,7 +127,11 @@ Plans:
   2. Config and validation enhancements are implemented as wrappers that extend upstream modules via import, not as overrides that replace them
   3. Existing fork tests ported alongside their code pass without modification to test assertions (only import paths change)
   4. `bun run compose` produces dist/ that includes both upstream files and all ported overlay code in the correct directory layout
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 32-01-PLAN.md -- Port leaf modules (platform, theme, validation) to overlay/src/ with test import updates
+- [ ] 32-02-PLAN.md -- Port sync.cjs to overlay/lib/, create sync-tools.cjs CLI, port fork-specific markdown files
+- [ ] 32-03-PLAN.md -- Port config, hooks, validate-configs to overlay/, update launcher imports, verify composition
 
 ### Phase 33: Installer & Update Workflow
 **Goal**: End users can install the fork via `bunx @chude/get-stuff-done --claude --global` using delegation to upstream's install.js, and the maintainer can preview and apply upstream updates with supply chain scanning
@@ -199,7 +203,7 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 29. Prototype Gate | v1.0.0 | 1/1 | Complete | 2026-03-28 |
 | 30. Composition Pipeline & Branding | v1.0.0 | 3/3 | Complete | 2026-03-28 |
 | 31. Feature Flags & Override System | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
-| 32. Fork Code Port | v1.0.0 | 0/? | Not started | - |
+| 32. Fork Code Port | v1.0.0 | 0/3 | Not started | - |
 | 33. Installer & Update Workflow | v1.0.0 | 0/? | Not started | - |
 | 34. Testing & CI Enforcement | v1.0.0 | 0/? | Not started | - |
 | 35. Migration & Ship v3.0.0 | v1.0.0 | 0/? | Not started | - |

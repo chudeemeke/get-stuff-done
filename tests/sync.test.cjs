@@ -14,7 +14,7 @@ const { execSync } = require('child_process');
 const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 // Direct import for internal helper coverage (avoids bun re-require pitfall)
-const SYNC_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'lib', 'sync.cjs');
+const SYNC_PATH = path.join(__dirname, '..', 'overlay', 'lib', 'sync.cjs');
 const {
   getCommitsInRange,
   getFilesForCommit,

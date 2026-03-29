@@ -39,10 +39,10 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 ### Feature Flags
 
-- [ ] **FEAT-01**: features.json controls file-level inclusion of workflows, commands, agents, hooks, SDK directory
-- [ ] **FEAT-02**: New upstream files not in any exclude list are included by default (opt-out model)
-- [ ] **FEAT-03**: Runtime flags exist in features.json for documentation but do NOT filter code in v3.0
-- [ ] **FEAT-04**: features.json validated against schema before use
+- [x] **FEAT-01**: features.json controls file-level inclusion of workflows, commands, agents, hooks, SDK directory
+- [x] **FEAT-02**: New upstream files not in any exclude list are included by default (opt-out model)
+- [x] **FEAT-03**: Runtime flags exist in features.json for documentation but do NOT filter code in v3.0
+- [x] **FEAT-04**: features.json validated against schema before use
 
 ### Override System
 
@@ -129,7 +129,7 @@ Deferred to future releases. Not in current roadmap.
 | PROTO-01 through PROTO-03 | Phase 29 | Pending |
 | COMP-01 through COMP-11 | Phase 30 | Pending |
 | BRAND-01 through BRAND-06 | Phase 30 | Pending |
-| FEAT-01 through FEAT-04 | Phase 31 | Pending |
+| FEAT-01 through FEAT-04 | Phase 31 | Complete |
 | OVER-01 through OVER-04 | Phase 31 | Pending |
 | PORT-01 through PORT-09 | Phase 32 | Pending |
 | INST-01 through INST-06 | Phase 33 | Pending |

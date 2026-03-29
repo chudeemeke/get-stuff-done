@@ -48,7 +48,7 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 - [ ] **OVER-01**: Files in overrides/ replace corresponding upstream files during composition
 - [ ] **OVER-02**: Every override requires a companion REASON.md; CI fails without it
-- [ ] **OVER-03**: check-overrides.js detects stale overrides when upstream version changes the underlying file
+- [x] **OVER-03**: check-overrides.js detects stale overrides when upstream version changes the underlying file
 - [ ] **OVER-04**: Zero overrides on day one; config and validation enhancements are wrappers in overlay/
 
 ### Installer

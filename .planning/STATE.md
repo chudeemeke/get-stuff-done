@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 31 of 35 (Feature Flags & Override System)
-Plan: 1 of 3 complete in current phase
-Status: Phase 31 in progress -- 31-01 done (features.json validation + filter() exclusion); 31-02 and 31-03 remaining
-Last activity: 2026-03-29 -- scripts/compose.js (FEATURES_SCHEMA, filter() category exclusion, merge() wiring); 94 compose tests pass; 1339 total tests pass
+Plan: 2 of 3 complete in current phase (31-01 done, 31-03 done; 31-02 remaining)
+Status: Phase 31 in progress -- 31-01 done (features.json validation + filter() exclusion), 31-03 done (check-overrides.js staleness detection); 31-02 remaining (override() file replacement)
+Last activity: 2026-03-29 -- scripts/check-overrides.js (SHA-256 staleness detection, REASON.md validation); 38 check-overrides tests pass; 165 tests pass across compose/check-overrides/structural
 
-Progress: [=====================.........] 72% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 31 in progress)
+Progress: [======================........] 74% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 31 in progress)
 
 ## Performance Metrics
 
@@ -56,6 +56,8 @@ Recent decisions affecting current work:
 - Unmatched excludes produce warnings (not errors) -- composition still succeeds
 - SDK exclusion is all-or-nothing (sdk: false drops all sdk/ entries)
 - Runtimes section completely ignored by filter() -- documentation-only in v3.0
+- check-overrides.js is fully standalone (no compose.js imports) -- runs independently in CI
+- Content hash comparison (SHA-256) prevents false positives on version-only bumps
 
 ### Pending Todos
 
@@ -68,5 +70,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Completed 31-01-PLAN.md -- features.json validation and filter() category exclusion
+Stopped at: Completed 31-03-PLAN.md -- check-overrides.js standalone staleness detection (OVER-03)
 Resume file: None

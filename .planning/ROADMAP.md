@@ -68,7 +68,7 @@ Phases 24-28 were partially started (Phase 24 had 2/4 plans in progress). Work f
 - [x] **Phase 30: Composition Pipeline & Branding** - Build the core composition pipeline (resolve, filter, override, brand, merge) and surface-only branding system (completed 2026-03-28)
 - [x] **Phase 31: Feature Flags & Override System** - File-level feature exclusion and explicit upstream module replacement with staleness detection (completed 2026-03-29)
 - [x] **Phase 32: Fork Code Port** - Port ~2,510 lines of fork-specific code to overlay/ structure with updated imports (completed 2026-03-29)
-- [ ] **Phase 33: Installer & Update Workflow** - Delegation-based installer and preview-update workflow with supply chain scanning
+- [x] **Phase 33: Installer & Update Workflow** - Delegation-based installer and preview-update workflow with supply chain scanning (completed 2026-03-29)
 - [ ] **Phase 34: Testing & CI Enforcement** - 95%+ coverage per metric, upstream compatibility runner, boundary and override CI checks
 - [ ] **Phase 35: Migration & Ship v3.0.0** - Tag legacy, merge overlay branch, upgrade path for existing users, publish v3.0.0
 
@@ -145,7 +145,7 @@ Plans:
   5. `bun run preview-update` diffs pinned upstream version against latest on npm, runs supply chain scan, and flags overrides affected by upstream changes -- all before any upgrade happens
 **Plans**: 2 plans
 Plans:
-- [ ] 33-01-PLAN.md -- TDD delegation installer: subprocess spawn, overlay copy, uninstall, v2.x detection (INST-01 through INST-06)
+- [x] 33-01-PLAN.md -- TDD delegation installer: subprocess spawn, overlay copy, uninstall, v2.x detection (INST-01 through INST-06)
 - [ ] 33-02-PLAN.md -- TDD preview-update: version diff, supply chain scan, override staleness, structured report (UPD-01 through UPD-04)
 
 ### Phase 34: Testing & CI Enforcement
@@ -207,6 +207,6 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 30. Composition Pipeline & Branding | v1.0.0 | 3/3 | Complete | 2026-03-28 |
 | 31. Feature Flags & Override System | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
 | 32. Fork Code Port | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
-| 33. Installer & Update Workflow | v1.0.0 | 0/2 | Not started | - |
+| 33. Installer & Update Workflow | 2/2 | Complete   | 2026-03-29 | - |
 | 34. Testing & CI Enforcement | v1.0.0 | 0/? | Not started | - |
 | 35. Migration & Ship v3.0.0 | v1.0.0 | 0/? | Not started | - |

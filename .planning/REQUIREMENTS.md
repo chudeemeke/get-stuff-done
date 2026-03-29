@@ -74,10 +74,10 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 ### Update Workflow
 
-- [ ] **UPD-01**: preview-update script diffs current pinned upstream version against latest on npm
-- [ ] **UPD-02**: Supply chain scan runs during preview-update, before bun update
-- [ ] **UPD-03**: check-overrides.js flags overrides affected by upstream changes
-- [ ] **UPD-04**: Rollback supported by pinning previous upstream version and recomposing
+- [x] **UPD-01**: preview-update script diffs current pinned upstream version against latest on npm
+- [x] **UPD-02**: Supply chain scan runs during preview-update, before bun update
+- [x] **UPD-03**: check-overrides.js flags overrides affected by upstream changes
+- [x] **UPD-04**: Rollback supported by pinning previous upstream version and recomposing
 
 ### Testing and Quality
 

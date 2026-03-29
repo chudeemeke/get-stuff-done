@@ -15,6 +15,13 @@
  * COMP-08: resolve() detects collisions (overlay file at same path as upstream file)
  * COMP-09: CLI --dry-run and --diff flags work
  * COMP-10: Each stage is a separate importable function (SRP)
+ *
+ * Phase 31 Plan 01 -- Feature Flags & Schema Validation Tests
+ *
+ * FEAT-01: filter() excludes files by category basename matching
+ * FEAT-02: New upstream files not in exclude list pass through (opt-out model)
+ * FEAT-03: Runtimes section in features.json ignored entirely by filter()
+ * FEAT-04: features.json validated against AJV schema before filter() processes it
  */
 
 const { describe, test, expect, beforeAll, afterAll, beforeEach } = require('bun:test');
@@ -36,6 +43,9 @@ const {
   brand,
   merge,
   compose,
+  validateFeaturesConfig,
+  FEATURES_SCHEMA,
+  CATEGORY_DIR_MAP,
 } = require('../scripts/compose');
 
 // ---------------------------------------------------------------------------
@@ -758,5 +768,505 @@ describe('CLI flags (COMP-09)', () => {
       const content = fs.readFileSync(installPath, 'utf-8');
       expect(content).not.toContain('get-shit-done-cc');
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FEAT-04: features.json schema validation via AJV
+// ---------------------------------------------------------------------------
+
+describe('features.json schema validation (FEAT-04)', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+
+  beforeEach(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    if (tmpDir) rmDir(tmpDir);
+  });
+
+  test('FEATURES_SCHEMA is exported', () => {
+    expect(FEATURES_SCHEMA).toBeDefined();
+    expect(typeof FEATURES_SCHEMA).toBe('object');
+  });
+
+  test('CATEGORY_DIR_MAP is exported with correct entries', () => {
+    expect(CATEGORY_DIR_MAP).toBeDefined();
+    expect(typeof CATEGORY_DIR_MAP).toBe('object');
+    expect(CATEGORY_DIR_MAP.workflows).toBe('get-shit-done/workflows/');
+    expect(CATEGORY_DIR_MAP.commands).toBe('commands/gsd/');
+    expect(CATEGORY_DIR_MAP.agents).toBe('agents/');
+    expect(CATEGORY_DIR_MAP.hooks).toBe('hooks/dist/');
+  });
+
+  test('validateFeaturesConfig is exported and is a function', () => {
+    expect(typeof validateFeaturesConfig).toBe('function');
+  });
+
+  test('valid features.json passes validateFeaturesConfig without throwing', () => {
+    const valid = {
+      runtimes: { claude: true, opencode: false },
+      workflows: { enabled: 'all', exclude: [] },
+      commands: { enabled: 'all', exclude: [] },
+      agents: { enabled: 'all', exclude: [] },
+      hooks: { enabled: 'all', exclude: [] },
+      sdk: true,
+    };
+    expect(() => validateFeaturesConfig(valid)).not.toThrow();
+  });
+
+  test('features.json with invalid type for sdk (string instead of boolean) throws', () => {
+    const invalid = {
+      sdk: 'yes',  // should be boolean
+    };
+    expect(() => validateFeaturesConfig(invalid)).toThrow();
+  });
+
+  test('features.json with extra top-level property throws (additionalProperties: false)', () => {
+    const invalid = {
+      sdk: true,
+      unknownField: 'hello',
+    };
+    expect(() => validateFeaturesConfig(invalid)).toThrow();
+  });
+
+  test('features.json with workflows missing required enabled field throws', () => {
+    const invalid = {
+      workflows: { exclude: [] },  // missing 'enabled'
+    };
+    expect(() => validateFeaturesConfig(invalid)).toThrow();
+  });
+
+  test('features.json with workflows missing required exclude field throws', () => {
+    const invalid = {
+      workflows: { enabled: 'all' },  // missing 'exclude'
+    };
+    expect(() => validateFeaturesConfig(invalid)).toThrow();
+  });
+
+  test('features.json with invalid enabled value (not "all") throws', () => {
+    const invalid = {
+      workflows: { enabled: 'some', exclude: [] },
+    };
+    expect(() => validateFeaturesConfig(invalid)).toThrow();
+  });
+
+  test('features.json with extra property in workflows section throws', () => {
+    const invalid = {
+      workflows: { enabled: 'all', exclude: [], extraField: true },
+    };
+    expect(() => validateFeaturesConfig(invalid)).toThrow();
+  });
+
+  test('features.json with runtimes containing non-boolean value throws', () => {
+    const invalid = {
+      runtimes: { claude: 'yes' },  // should be boolean
+    };
+    expect(() => validateFeaturesConfig(invalid)).toThrow();
+  });
+
+  test('resolve() throws when features.json has invalid schema', () => {
+    // Write invalid features.json to overlay
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      sdk: 'invalid-not-boolean',
+      unknownProperty: true,
+    }));
+    expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
+      .toThrow();
+  });
+
+  test('resolve() succeeds when features.json is minimal valid (sdk only)', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      sdk: false,
+    }));
+    expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
+      .not.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FEAT-01: filter() category exclusion
+// ---------------------------------------------------------------------------
+
+describe('filter() category exclusion (FEAT-01)', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+
+  beforeEach(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    if (tmpDir) rmDir(tmpDir);
+  });
+
+  test('filter() with empty exclude lists preserves all manifest entries (opt-out model)', () => {
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const originalCount = state.manifest.length;
+    const result = filter(state);
+    expect(result.manifest.length).toBe(originalCount);
+  });
+
+  test('filter() with workflows.exclude: ["help"] removes get-shit-done/workflows/help.md', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: ['help'] },
+      commands: { enabled: 'all', exclude: [] },
+      agents: { enabled: 'all', exclude: [] },
+      hooks: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    const paths = result.manifest.map(e => e.relPath);
+    expect(paths).not.toContain('get-shit-done/workflows/help.md');
+  });
+
+  test('filter() with commands.exclude: ["help"] removes commands/gsd/help.md', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: [] },
+      commands: { enabled: 'all', exclude: ['help'] },
+      agents: { enabled: 'all', exclude: [] },
+      hooks: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    const paths = result.manifest.map(e => e.relPath);
+    expect(paths).not.toContain('commands/gsd/help.md');
+  });
+
+  test('filter() with agents.exclude: ["gsd-executor"] removes agents/gsd-executor.md', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: [] },
+      commands: { enabled: 'all', exclude: [] },
+      agents: { enabled: 'all', exclude: ['gsd-executor'] },
+      hooks: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    const paths = result.manifest.map(e => e.relPath);
+    expect(paths).not.toContain('agents/gsd-executor.md');
+  });
+
+  test('filter() with hooks.exclude: ["gsd-statusline"] removes hooks/dist/gsd-statusline.js', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: [] },
+      commands: { enabled: 'all', exclude: [] },
+      agents: { enabled: 'all', exclude: [] },
+      hooks: { enabled: 'all', exclude: ['gsd-statusline'] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    const paths = result.manifest.map(e => e.relPath);
+    expect(paths).not.toContain('hooks/dist/gsd-statusline.js');
+  });
+
+  test('filter() with sdk: false removes all entries starting with sdk/', () => {
+    // Add sdk/ directory to mock upstream first
+    fs.mkdirSync(path.join(mockUpstream, 'sdk'), { recursive: true });
+    fs.writeFileSync(path.join(mockUpstream, 'sdk', 'types.d.ts'), '// sdk types\n');
+    fs.writeFileSync(path.join(mockUpstream, 'sdk', 'index.js'), '// sdk index\n');
+
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      sdk: false,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    const paths = result.manifest.map(e => e.relPath);
+    const sdkPaths = paths.filter(p => p.startsWith('sdk/'));
+    expect(sdkPaths.length).toBe(0);
+  });
+
+  test('filter() manifest count decreases when entries are excluded', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: ['help'] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    expect(result.manifest.length).toBeLessThan(state.manifest.length);
+  });
+
+  test('filter() populates state.meta.featuresDisabled with descriptive strings', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: ['help'] },
+      agents: { enabled: 'all', exclude: ['gsd-executor'] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    expect(Array.isArray(result.meta.featuresDisabled)).toBe(true);
+    expect(result.meta.featuresDisabled).toContain('workflows/help');
+    expect(result.meta.featuresDisabled).toContain('agents/gsd-executor');
+  });
+
+  test('filter() with sdk: false adds "sdk" to featuresDisabled', () => {
+    fs.mkdirSync(path.join(mockUpstream, 'sdk'), { recursive: true });
+    fs.writeFileSync(path.join(mockUpstream, 'sdk', 'index.js'), '// sdk\n');
+
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      sdk: false,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    expect(result.meta.featuresDisabled).toContain('sdk');
+  });
+
+  test('filter() does not mutate the input state', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: ['help'] },
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const originalCount = state.manifest.length;
+    filter(state);
+    expect(state.manifest.length).toBe(originalCount);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FEAT-02: opt-out model -- unexcluded files pass through unchanged
+// ---------------------------------------------------------------------------
+
+describe('filter() opt-out model (FEAT-02)', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+
+  beforeAll(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    rmDir(tmpDir);
+  });
+
+  test('filter() with one item excluded preserves all other manifest entries', () => {
+    // Exclude only workflows/help -- all other files must remain
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: ['help'] },
+      commands: { enabled: 'all', exclude: [] },
+      agents: { enabled: 'all', exclude: [] },
+      hooks: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+
+    // All files from state.manifest except the excluded one should be present
+    const resultPaths = new Set(result.manifest.map(e => e.relPath));
+    for (const entry of state.manifest) {
+      if (entry.relPath === 'get-shit-done/workflows/help.md') continue;  // excluded
+      expect(resultPaths.has(entry.relPath)).toBe(true);
+    }
+  });
+
+  test('filter() with no config (minimal features.json) passes all files through', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    expect(result.manifest.length).toBe(state.manifest.length);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FEAT-03: runtimes section ignored by filter()
+// ---------------------------------------------------------------------------
+
+describe('filter() runtimes ignored (FEAT-03)', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+
+  beforeAll(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    rmDir(tmpDir);
+  });
+
+  test('filter() with runtimes set to various values does not change manifest count', () => {
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const originalCount = state.manifest.length;
+
+    // Mutate state.features directly to set runtimes
+    const stateWithRuntimes = {
+      ...state,
+      features: {
+        ...state.features,
+        runtimes: { claude: false, opencode: false, gemini: false, copilot: false },
+      },
+    };
+    const result = filter(stateWithRuntimes);
+    expect(result.manifest.length).toBe(originalCount);
+  });
+
+  test('filter() with all runtimes false still passes all files through', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      runtimes: { claude: false, opencode: false, gemini: false },
+      workflows: { enabled: 'all', exclude: [] },
+      commands: { enabled: 'all', exclude: [] },
+      agents: { enabled: 'all', exclude: [] },
+      hooks: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const originalCount = state.manifest.length;
+    const result = filter(state);
+    expect(result.manifest.length).toBe(originalCount);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// filter() cross-category isolation and warnings
+// ---------------------------------------------------------------------------
+
+describe('filter() cross-category isolation and warnings', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+
+  beforeEach(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    if (tmpDir) rmDir(tmpDir);
+  });
+
+  test('workflows.exclude: ["help"] removes workflow help but NOT commands/gsd/help.md', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: ['help'] },
+      commands: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    const paths = result.manifest.map(e => e.relPath);
+    expect(paths).not.toContain('get-shit-done/workflows/help.md');
+    expect(paths).toContain('commands/gsd/help.md');
+  });
+
+  test('commands.exclude: ["help"] removes commands help but NOT get-shit-done/workflows/help.md', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: [] },
+      commands: { enabled: 'all', exclude: ['help'] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    const paths = result.manifest.map(e => e.relPath);
+    expect(paths).toContain('get-shit-done/workflows/help.md');
+    expect(paths).not.toContain('commands/gsd/help.md');
+  });
+
+  test('exclude entry matching no upstream file adds a warning to state.warnings', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: ['nonexistent-workflow'] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    expect(result.warnings.length).toBeGreaterThan(0);
+    const warningText = result.warnings.join(' ');
+    expect(warningText).toMatch(/nonexistent-workflow/);
+  });
+
+  test('valid exclude entry that matches does NOT add a warning', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: ['help'] },
+      sdk: true,
+    }));
+    const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    const result = filter(state);
+    // Should have no warning about 'help' since it matched
+    const warningText = result.warnings.join(' ');
+    expect(warningText).not.toMatch(/help.*matched no/i);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// features_disabled propagation to .install-meta.json
+// ---------------------------------------------------------------------------
+
+describe('features_disabled propagation to .install-meta.json', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+  let distDir;
+
+  beforeAll(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    distDir = path.join(tmpDir, 'dist');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    rmDir(tmpDir);
+  });
+
+  test('compose() with exclusions writes populated features_disabled to .install-meta.json', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: ['help'] },
+      commands: { enabled: 'all', exclude: [] },
+      agents: { enabled: 'all', exclude: [] },
+      hooks: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+
+    compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir });
+
+    const meta = JSON.parse(fs.readFileSync(path.join(distDir, '.install-meta.json'), 'utf-8'));
+    expect(Array.isArray(meta.features_disabled)).toBe(true);
+    expect(meta.features_disabled.length).toBeGreaterThan(0);
+    expect(meta.features_disabled).toContain('workflows/help');
+  });
+
+  test('compose() with no exclusions writes empty features_disabled', () => {
+    const distDir2 = path.join(tmpDir, 'dist2');
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      workflows: { enabled: 'all', exclude: [] },
+      commands: { enabled: 'all', exclude: [] },
+      agents: { enabled: 'all', exclude: [] },
+      hooks: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+
+    compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir: distDir2 });
+
+    const meta = JSON.parse(fs.readFileSync(path.join(distDir2, '.install-meta.json'), 'utf-8'));
+    expect(Array.isArray(meta.features_disabled)).toBe(true);
+    expect(meta.features_disabled.length).toBe(0);
   });
 });

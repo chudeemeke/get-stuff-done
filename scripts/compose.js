@@ -7,8 +7,8 @@
  *
  * Pipeline stages:
  *   resolve()  -- Walk upstream + overlay, validate structure, detect collisions
- *   filter()   -- Apply feature flags (Phase 30: pass-through stub)
- *   override() -- Apply overrides/ files (Phase 30: pass-through stub)
+ *   filter()   -- Apply feature flags from features.json (Phase 31: category exclusion)
+ *   override() -- Apply file overrides from overrides/ with REASON.md enforcement
  *   brand()    -- Apply surface-only branding substitutions
  *   merge()    -- Write dist/ with clean rebuild + .install-meta.json
  *
@@ -557,18 +557,118 @@ function filter(state) {
 /**
  * Applies file overrides from the overrides/ directory.
  *
- * Phase 30 stub: passes through all files unchanged.
- * Phase 32 will implement actual override file replacement.
+ * - Walks overrides/ to discover override files (skips .gitkeep and *.REASON.md)
+ * - Enforces REASON.md companion for each override; throws with paste-ready template on missing
+ * - Swaps manifest entry sourcePath and sets action/stage to 'override'
+ * - Warns on overrides matching no manifest entry
+ * - Populates state.meta.overridesApplied with relPaths of overridden files
  *
  * @param {PipelineState} state
  * @returns {PipelineState} New state with overrides applied
+ * @throws {Error} If an override file lacks a companion REASON.md
  */
 function override(state) {
+  // Derive overrides directory (sibling of overlay/)
+  const overridesDir = path.join(path.dirname(state.meta.overlayDir), 'overrides');
+
+  // If overrides/ doesn't exist, pass through with empty overridesApplied
+  if (!fs.existsSync(overridesDir)) {
+    return {
+      ...state,
+      manifest: state.manifest.map(entry => ({ ...entry })),
+      warnings: [...state.warnings],
+      meta: { ...state.meta, overridesApplied: [] },
+    };
+  }
+
+  // Walk overrides/ to find override files
+  let overrideFiles;
+  try {
+    overrideFiles = walkDir(overridesDir, '');
+  } catch (e) {
+    // Empty directory or read error
+    return {
+      ...state,
+      manifest: state.manifest.map(entry => ({ ...entry })),
+      warnings: [...state.warnings],
+      meta: { ...state.meta, overridesApplied: [] },
+    };
+  }
+
+  // Build map of override relPath -> absolute path (skip .gitkeep and *.REASON.md)
+  const overrideMap = new Map();
+  for (const f of overrideFiles) {
+    const normalised = f.replace(/\\/g, '/');
+    if (normalised === '.gitkeep') continue;
+    if (normalised.endsWith('.REASON.md')) continue;
+    overrideMap.set(normalised, path.join(overridesDir, f));
+  }
+
+  // Verify REASON.md companion exists for each override
+  for (const [relPath, absPath] of overrideMap) {
+    const reasonPath = absPath + '.REASON.md';
+    if (!fs.existsSync(reasonPath)) {
+      const tpl = [
+        `# Override: ${relPath}`,
+        '',
+        '## Why',
+        '[Explain why the upstream file needs replacement]',
+        '',
+        '## Upstream snapshot',
+        `- Version: ${state.meta.upstreamVersion || 'unknown'}`,
+        '- SHA-256: [compute with: node -e "console.log(require(\'crypto\').createHash(\'sha256\').update(require(\'fs\').readFileSync(\'path/to/upstream/file\')).digest(\'hex\'))"]',
+        '',
+        '## What\'s different',
+        '- [Bullet list of changes from upstream]',
+        '',
+        '## Review trigger',
+        `When upstream ${relPath} changes, review whether the override is still needed.`,
+      ].join('\n');
+      throw new Error(
+        `Missing REASON.md for override: overrides/${relPath}\n` +
+        `Expected: overrides/${relPath}.REASON.md\n\n` +
+        `Create the file with this template:\n\n${tpl}`
+      );
+    }
+  }
+
+  // If no actual overrides after skipping metadata, pass through
+  if (overrideMap.size === 0) {
+    return {
+      ...state,
+      manifest: state.manifest.map(entry => ({ ...entry })),
+      warnings: [...state.warnings],
+      meta: { ...state.meta, overridesApplied: [] },
+    };
+  }
+
+  const warnings = [...state.warnings];
+  const overridesApplied = [];
+
+  // Build set of manifest relPaths for no-match warnings
+  const manifestPaths = new Set(state.manifest.map(e => e.relPath));
+
+  for (const [relPath] of overrideMap) {
+    if (!manifestPaths.has(relPath)) {
+      warnings.push(`Override "overrides/${relPath}" matches no upstream manifest entry`);
+    }
+  }
+
+  // Swap manifest entries where override exists
+  const manifest = state.manifest.map(entry => {
+    const overrideSrc = overrideMap.get(entry.relPath);
+    if (overrideSrc) {
+      overridesApplied.push(entry.relPath);
+      return { ...entry, sourcePath: overrideSrc, action: 'override', stage: 'override' };
+    }
+    return { ...entry };
+  });
+
   return {
     ...state,
-    manifest: state.manifest.map(entry => ({ ...entry })),
-    warnings: [...state.warnings],
-    meta: { ...state.meta },
+    manifest,
+    warnings,
+    meta: { ...state.meta, overridesApplied },
   };
 }
 
@@ -709,7 +809,7 @@ function merge(state, opts) {
     overlay_version: state.meta.overlayVersion,
     composed_at: new Date().toISOString(),
     features_disabled: state.meta.featuresDisabled || [],
-    overrides_applied: overridesApplied,
+    overrides_applied: state.meta.overridesApplied || overridesApplied,
     branding_rules_applied: state.meta.brandingRulesApplied || 0,
   };
   fs.writeFileSync(

@@ -71,9 +71,69 @@ const BRANDING_SCHEMA = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// JSON Schema for features.json validation (FEAT-04)
+// ---------------------------------------------------------------------------
+const FEATURES_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    runtimes: {
+      type: 'object',
+      additionalProperties: { type: 'boolean' },
+    },
+    workflows: {
+      type: 'object',
+      required: ['enabled', 'exclude'],
+      additionalProperties: false,
+      properties: {
+        enabled: { type: 'string', enum: ['all'] },
+        exclude: { type: 'array', items: { type: 'string' } },
+      },
+    },
+    commands: {
+      type: 'object',
+      required: ['enabled', 'exclude'],
+      additionalProperties: false,
+      properties: {
+        enabled: { type: 'string', enum: ['all'] },
+        exclude: { type: 'array', items: { type: 'string' } },
+      },
+    },
+    agents: {
+      type: 'object',
+      required: ['enabled', 'exclude'],
+      additionalProperties: false,
+      properties: {
+        enabled: { type: 'string', enum: ['all'] },
+        exclude: { type: 'array', items: { type: 'string' } },
+      },
+    },
+    hooks: {
+      type: 'object',
+      required: ['enabled', 'exclude'],
+      additionalProperties: false,
+      properties: {
+        enabled: { type: 'string', enum: ['all'] },
+        exclude: { type: 'array', items: { type: 'string' } },
+      },
+    },
+    sdk: { type: 'boolean' },
+  },
+};
+
+// Category-to-directory mapping for filter() basename matching (FEAT-01)
+const CATEGORY_DIR_MAP = {
+  workflows: 'get-shit-done/workflows/',
+  commands:  'commands/gsd/',
+  agents:    'agents/',
+  hooks:     'hooks/dist/',
+};
+
 // AJV instance with strict mode
 const ajv = new Ajv({ allErrors: true, strict: true });
 const validateSchema = ajv.compile(BRANDING_SCHEMA);
+const validateFeaturesSchema = ajv.compile(FEATURES_SCHEMA);
 
 // ---------------------------------------------------------------------------
 // Binary file extensions that must never be text-processed (BRAND-01)
@@ -102,6 +162,23 @@ function validateBrandingConfig(config) {
       .map(e => `  ${e.instancePath || '(root)'}: ${e.message}`)
       .join('\n');
     throw new Error(`Invalid branding configuration:\n${errors}`);
+  }
+}
+
+/**
+ * Validates a features configuration object against the JSON schema.
+ * Throws a descriptive Error if validation fails.
+ *
+ * @param {object} config - Parsed features.json content
+ * @throws {Error} If config does not match the schema
+ */
+function validateFeaturesConfig(config) {
+  const valid = validateFeaturesSchema(config);
+  if (!valid) {
+    const errors = validateFeaturesSchema.errors
+      .map(e => `  ${e.instancePath || '(root)'}: ${e.message}`)
+      .join('\n');
+    throw new Error(`Invalid features configuration:\n${errors}`);
   }
 }
 
@@ -322,10 +399,11 @@ function resolve(opts) {
     throw new Error(`Invalid overlay/branding.json: ${e.message}`);
   }
 
-  // Load features config
+  // Load and validate features config (FEAT-04)
   let features;
   try {
     features = JSON.parse(fs.readFileSync(featuresPath, 'utf-8'));
+    validateFeaturesConfig(features);
   } catch (e) {
     throw new Error(`Invalid overlay/features.json: ${e.message}`);
   }
@@ -401,18 +479,74 @@ function resolve(opts) {
 /**
  * Applies feature flag filtering to the manifest.
  *
- * Phase 30 stub: passes through all files unchanged.
- * Phase 31 will implement actual feature flag filtering.
+ * - Excludes files by category basename matching (FEAT-01)
+ * - Unmentioned files pass through unchanged (opt-out model, FEAT-02)
+ * - Runtimes section is ignored entirely (FEAT-03)
+ * - SDK all-or-nothing: sdk: false removes all sdk/ entries (FEAT-01)
+ * - Unmatched exclude entries produce warnings (not errors)
+ * - Populates state.meta.featuresDisabled with descriptive strings
  *
  * @param {PipelineState} state
  * @returns {PipelineState} New state with filtered manifest
  */
 function filter(state) {
+  const { features } = state;
+  const excludeSet = new Set();
+  const featuresDisabled = [];
+
+  // Build exclusion set from each category's exclude list
+  for (const [category, dirPrefix] of Object.entries(CATEGORY_DIR_MAP)) {
+    const categoryConfig = features[category];
+    if (!categoryConfig || !Array.isArray(categoryConfig.exclude)) continue;
+
+    for (const baseName of categoryConfig.exclude) {
+      excludeSet.add(`${dirPrefix}${baseName}`);
+      featuresDisabled.push(`${category}/${baseName}`);
+    }
+  }
+
+  // SDK all-or-nothing exclusion
+  const sdkExcluded = features.sdk === false;
+  if (sdkExcluded) {
+    featuresDisabled.push('sdk');
+  }
+
+  const warnings = [...state.warnings];
+  const matchedExcludes = new Set();
+
+  const manifest = state.manifest.filter(entry => {
+    // SDK exclusion: drop everything under sdk/
+    if (sdkExcluded && entry.relPath.startsWith('sdk/')) {
+      return false;
+    }
+
+    // Category exclusion: basename match within category's directory prefix
+    for (const [, dirPrefix] of Object.entries(CATEGORY_DIR_MAP)) {
+      if (!entry.relPath.startsWith(dirPrefix)) continue;
+      const ext = path.extname(entry.relPath);
+      const baseName = path.basename(entry.relPath, ext);
+      const key = `${dirPrefix}${baseName}`;
+      if (excludeSet.has(key)) {
+        matchedExcludes.add(key);
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  // Warn on unmatched excludes (not errors -- compose still succeeds)
+  for (const key of excludeSet) {
+    if (!matchedExcludes.has(key)) {
+      warnings.push(`Feature exclude "${key}" matched no upstream file`);
+    }
+  }
+
   return {
     ...state,
-    manifest: state.manifest.map(entry => ({ ...entry })),
-    warnings: [...state.warnings],
-    meta: { ...state.meta },
+    manifest,
+    warnings,
+    meta: { ...state.meta, featuresDisabled },
   };
 }
 
@@ -574,7 +708,7 @@ function merge(state, opts) {
     upstream_version: state.meta.upstreamVersion,
     overlay_version: state.meta.overlayVersion,
     composed_at: new Date().toISOString(),
-    features_disabled: [],  // populated by filter stage in Phase 31
+    features_disabled: state.meta.featuresDisabled || [],
     overrides_applied: overridesApplied,
     branding_rules_applied: state.meta.brandingRulesApplied || 0,
   };
@@ -825,4 +959,8 @@ module.exports = {
   shouldBrandFile,
   generateCredits,
   BRANDING_SCHEMA,
+  // Feature flags (Phase 31 -- FEAT-01 through FEAT-04)
+  validateFeaturesConfig,
+  FEATURES_SCHEMA,
+  CATEGORY_DIR_MAP,
 };

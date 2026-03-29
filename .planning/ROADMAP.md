@@ -143,7 +143,10 @@ Plans:
   3. `--uninstall` removes both upstream-installed and overlay-installed files from the target
   4. v2.x installations are detected (by checking .install-meta.json for missing overlay_version or version < 3.0) and cleaned up before v3.0 install proceeds
   5. `bun run preview-update` diffs pinned upstream version against latest on npm, runs supply chain scan, and flags overrides affected by upstream changes -- all before any upgrade happens
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 33-01-PLAN.md -- TDD delegation installer: subprocess spawn, overlay copy, uninstall, v2.x detection (INST-01 through INST-06)
+- [ ] 33-02-PLAN.md -- TDD preview-update: version diff, supply chain scan, override staleness, structured report (UPD-01 through UPD-04)
 
 ### Phase 34: Testing & CI Enforcement
 **Goal**: Fork-specific code achieves 95%+ coverage at each metric individually, upstream compatibility runner validates composed output, and CI enforces boundary and override rules on every push
@@ -204,6 +207,6 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 30. Composition Pipeline & Branding | v1.0.0 | 3/3 | Complete | 2026-03-28 |
 | 31. Feature Flags & Override System | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
 | 32. Fork Code Port | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
-| 33. Installer & Update Workflow | v1.0.0 | 0/? | Not started | - |
+| 33. Installer & Update Workflow | v1.0.0 | 0/2 | Not started | - |
 | 34. Testing & CI Enforcement | v1.0.0 | 0/? | Not started | - |
 | 35. Migration & Ship v3.0.0 | v1.0.0 | 0/? | Not started | - |

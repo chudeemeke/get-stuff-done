@@ -66,10 +66,10 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 - [x] **PORT-02**: src/platform/ ported to overlay/src/platform/
 - [x] **PORT-03**: src/theme/ ported to overlay/src/theme/
 - [x] **PORT-04**: src/validation/ ported to overlay/src/validation/
-- [ ] **PORT-05**: bin/gsd.js ported to bin/ (launcher)
-- [ ] **PORT-06**: hooks/pre-compact.* ported to overlay/hooks/
+- [x] **PORT-05**: bin/gsd.js ported to bin/ (launcher)
+- [x] **PORT-06**: hooks/pre-compact.* ported to overlay/hooks/
 - [x] **PORT-07**: Fork-specific workflows and commands ported to overlay/
-- [ ] **PORT-08**: Config and validation enhancements reimplemented as wrappers extending upstream modules
+- [x] **PORT-08**: Config and validation enhancements reimplemented as wrappers extending upstream modules
 - [x] **PORT-09**: Existing fork tests ported alongside their code; tests pass after port
 
 ### Update Workflow

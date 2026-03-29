@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 ## Current Position
 
-Phase: 32 of 35 (Fork Code Port) -- IN PROGRESS
-Plan: 2 of 3 complete in current phase
-Status: Plan 32-02 complete -- sync.cjs ported, sync-tools.cjs CLI created, 14 markdown files copied to overlay/
-Last activity: 2026-03-29 -- ported sync module and fork-specific markdown files to overlay/
+Phase: 32 of 35 (Fork Code Port) -- COMPLETE
+Plan: 3 of 3 complete in current phase
+Status: Phase 32 complete -- all fork code ported to overlay/, launcher and tests updated
+Last activity: 2026-03-29 -- ported config, hooks, validate-configs to overlay/; updated launcher and test imports
 
 Progress: [=========================.....] 80% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 32 plan 2/3)
 
@@ -63,6 +63,9 @@ Recent decisions affecting current work:
 - REASON.md error template dynamically includes relPath and upstreamVersion from pipeline state
 - Sync commands separated into standalone sync-tools.cjs CLI (not patching upstream gsd-tools.cjs router)
 - overlay/lib/sync.cjs import path targets dist/ layout -- not resolvable from source tree (by design)
+- Config system (ConfigLoader, ConfigSchema, schema) is pure fork code in overlay/src/config/ -- not wrapping upstream
+- bin/gsd.js launcher stays in bin/ (not overlay/) -- imports from overlay/src/ for platform and config
+- config.test.cjs intentionally not modified (tests upstream config.cjs, not fork config)
 
 ### Pending Todos
 
@@ -75,5 +78,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Completed 32-02-PLAN.md -- sync.cjs ported, sync-tools.cjs CLI created, 14 fork markdown files in overlay/ (PORT-01, PORT-07, PORT-09)
+Stopped at: Completed 32-03-PLAN.md -- config, hooks, validate-configs ported; launcher and test imports updated (PORT-05, PORT-06, PORT-08, PORT-09)
 Resume file: None

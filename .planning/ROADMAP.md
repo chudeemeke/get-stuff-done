@@ -67,7 +67,7 @@ Phases 24-28 were partially started (Phase 24 had 2/4 plans in progress). Work f
 - [x] **Phase 29: Prototype Gate** - Validate installer delegation mechanism before committing to overlay architecture (completed 2026-03-28)
 - [x] **Phase 30: Composition Pipeline & Branding** - Build the core composition pipeline (resolve, filter, override, brand, merge) and surface-only branding system (completed 2026-03-28)
 - [x] **Phase 31: Feature Flags & Override System** - File-level feature exclusion and explicit upstream module replacement with staleness detection (completed 2026-03-29)
-- [ ] **Phase 32: Fork Code Port** - Port ~2,510 lines of fork-specific code to overlay/ structure with updated imports
+- [x] **Phase 32: Fork Code Port** - Port ~2,510 lines of fork-specific code to overlay/ structure with updated imports (completed 2026-03-29)
 - [ ] **Phase 33: Installer & Update Workflow** - Delegation-based installer and preview-update workflow with supply chain scanning
 - [ ] **Phase 34: Testing & CI Enforcement** - 95%+ coverage per metric, upstream compatibility runner, boundary and override CI checks
 - [ ] **Phase 35: Migration & Ship v3.0.0** - Tag legacy, merge overlay branch, upgrade path for existing users, publish v3.0.0
@@ -130,8 +130,8 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 32-01-PLAN.md -- Port leaf modules (platform, theme, validation) to overlay/src/ with test import updates
-- [ ] 32-02-PLAN.md -- Port sync.cjs to overlay/lib/, create sync-tools.cjs CLI, port fork-specific markdown files
-- [ ] 32-03-PLAN.md -- Port config, hooks, validate-configs to overlay/, update launcher imports, verify composition
+- [x] 32-02-PLAN.md -- Port sync.cjs to overlay/lib/, create sync-tools.cjs CLI, port fork-specific markdown files
+- [x] 32-03-PLAN.md -- Port config, hooks, validate-configs to overlay/, update launcher imports, verify composition
 
 ### Phase 33: Installer & Update Workflow
 **Goal**: End users can install the fork via `bunx @chude/get-stuff-done --claude --global` using delegation to upstream's install.js, and the maintainer can preview and apply upstream updates with supply chain scanning
@@ -203,7 +203,7 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 29. Prototype Gate | v1.0.0 | 1/1 | Complete | 2026-03-28 |
 | 30. Composition Pipeline & Branding | v1.0.0 | 3/3 | Complete | 2026-03-28 |
 | 31. Feature Flags & Override System | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
-| 32. Fork Code Port | 2/3 | In Progress|  | - |
+| 32. Fork Code Port | v1.0.0 | 3/3 | Complete | 2026-03-29 |
 | 33. Installer & Update Workflow | v1.0.0 | 0/? | Not started | - |
 | 34. Testing & CI Enforcement | v1.0.0 | 0/? | Not started | - |
 | 35. Migration & Ship v3.0.0 | v1.0.0 | 0/? | Not started | - |

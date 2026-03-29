@@ -8,9 +8,9 @@
  */
 
 const { describe, test, expect } = require('bun:test');
-const { Style, SGR, FG_BASIC, BG_BASIC } = require('../src/theme/Style');
-const { getTheme, supports256Color, createTheme } = require('../src/theme/themes');
-const { primitives, semantic, contextual } = require('../src/theme/tokens');
+const { Style, SGR, FG_BASIC, BG_BASIC } = require('../overlay/src/theme/Style');
+const { getTheme, supports256Color, createTheme } = require('../overlay/src/theme/themes');
+const { primitives, semantic, contextual } = require('../overlay/src/theme/tokens');
 
 describe('Style', () => {
   describe('construction and chaining', () => {

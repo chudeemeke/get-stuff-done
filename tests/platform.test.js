@@ -15,8 +15,8 @@ const {
   _detectEnvironment,
   _detectNodeVersion,
   _detectGit,
-} = require('../src/platform/detect');
-const { gsdPaths } = require('../src/platform/paths');
+} = require('../overlay/src/platform/detect');
+const { gsdPaths } = require('../overlay/src/platform/paths');
 const {
   detectTerminal,
   clearCache: clearTerminalCache,
@@ -24,7 +24,7 @@ const {
   _detectTerminalEmulator,
   _detectUnicodeSupport,
   _getTerminalDimensions,
-} = require('../src/platform/terminal');
+} = require('../overlay/src/platform/terminal');
 const { mockEnv, mockPlatform } = require('./helpers');
 
 describe('detectPlatform', () => {

@@ -13,7 +13,7 @@
  */
 
 const { describe, test, expect, beforeEach, afterEach } = require('bun:test');
-const { validateGitSHA, validateBranchName, validateConfigPath, validateTagName, validateRemoteURL } = require('../src/validation');
+const { validateGitSHA, validateBranchName, validateConfigPath, validateTagName, validateRemoteURL } = require('../overlay/src/validation');
 const { createTempDir } = require('./helpers');
 
 describe('validateGitSHA', () => {

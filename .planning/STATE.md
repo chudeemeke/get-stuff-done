@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 ## Current Position
 
-Phase: 31 of 35 (Feature Flags & Override System)
-Plan: 2 of 3 complete in current phase (31-01 done, 31-03 done; 31-02 remaining)
-Status: Phase 31 in progress -- 31-01 done (features.json validation + filter() exclusion), 31-03 done (check-overrides.js staleness detection); 31-02 remaining (override() file replacement)
-Last activity: 2026-03-29 -- scripts/check-overrides.js (SHA-256 staleness detection, REASON.md validation); 38 check-overrides tests pass; 165 tests pass across compose/check-overrides/structural
+Phase: 31 of 35 (Feature Flags & Override System) -- COMPLETE
+Plan: 3 of 3 complete in current phase
+Status: Phase 31 complete -- all 3 plans done (31-01 filter, 31-02 override, 31-03 check-overrides)
+Last activity: 2026-03-29 -- override() file replacement with REASON.md enforcement; 111 compose tests + 38 check-overrides tests pass; 149 tests pass across compose/check-overrides
 
-Progress: [======================........] 74% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 31 in progress)
+Progress: [========================......] 77% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 31 complete)
 
 ## Performance Metrics
 
@@ -58,6 +58,9 @@ Recent decisions affecting current work:
 - Runtimes section completely ignored by filter() -- documentation-only in v3.0
 - check-overrides.js is fully standalone (no compose.js imports) -- runs independently in CI
 - Content hash comparison (SHA-256) prevents false positives on version-only bumps
+- override() derives overrides/ path as sibling of overlayDir via path.dirname()
+- merge() prefers state.meta.overridesApplied over local entry.action collection (dual-source, meta preferred)
+- REASON.md error template dynamically includes relPath and upstreamVersion from pipeline state
 
 ### Pending Todos
 
@@ -70,5 +73,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-29
-Stopped at: Completed 31-03-PLAN.md -- check-overrides.js standalone staleness detection (OVER-03)
+Stopped at: Completed 31-02-PLAN.md -- override() file replacement with REASON.md enforcement (OVER-01, OVER-02, OVER-04). Phase 31 complete.
 Resume file: None

@@ -46,10 +46,10 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 ### Override System
 
-- [ ] **OVER-01**: Files in overrides/ replace corresponding upstream files during composition
-- [ ] **OVER-02**: Every override requires a companion REASON.md; CI fails without it
+- [x] **OVER-01**: Files in overrides/ replace corresponding upstream files during composition
+- [x] **OVER-02**: Every override requires a companion REASON.md; CI fails without it
 - [x] **OVER-03**: check-overrides.js detects stale overrides when upstream version changes the underlying file
-- [ ] **OVER-04**: Zero overrides on day one; config and validation enhancements are wrappers in overlay/
+- [x] **OVER-04**: Zero overrides on day one; config and validation enhancements are wrappers in overlay/
 
 ### Installer
 
@@ -130,7 +130,7 @@ Deferred to future releases. Not in current roadmap.
 | COMP-01 through COMP-11 | Phase 30 | Pending |
 | BRAND-01 through BRAND-06 | Phase 30 | Pending |
 | FEAT-01 through FEAT-04 | Phase 31 | Complete |
-| OVER-01 through OVER-04 | Phase 31 | Pending |
+| OVER-01 through OVER-04 | Phase 31 | Complete |
 | PORT-01 through PORT-09 | Phase 32 | Pending |
 | INST-01 through INST-06 | Phase 33 | Pending |
 | UPD-01 through UPD-04 | Phase 33 | Pending |

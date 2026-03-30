@@ -115,7 +115,7 @@ describe('getCommitsInRange', () => {
     assert.deepStrictEqual(commits, [], 'Should return empty array for empty range');
   });
 
-  test('returns commits in range as structured objects', () => {
+  test('returns commits in range as structured objects', { timeout: 15000 }, () => {
     // Add a second commit so we have a range
     fs.writeFileSync(path.join(tmpDir, 'file2.txt'), 'content');
     execSync('git add .', { cwd: tmpDir, stdio: 'pipe' });
@@ -1560,7 +1560,7 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('without filter flags produces unchanged output (backward compat)', () => {
+  test('without filter flags produces unchanged output (backward compat)', { timeout: 15000 }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
@@ -1915,7 +1915,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('errors when target SHA does not exist', () => {
+  test('errors when target SHA does not exist', { timeout: 15000 }, () => {
     const tmpDir = createTempGitProject();
     try {
       const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();

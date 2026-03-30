@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: Overlay Architecture
 status: executing
-stopped_at: Completed 35-01-PLAN.md
-last_updated: "2026-03-30T19:52:51.687Z"
+stopped_at: Completed 35-02-PLAN.md
+last_updated: "2026-03-30T20:11:20.174Z"
 last_activity: 2026-03-30
 progress:
   total_phases: 6
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 35 (migration-ship-v3-0-0) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-03-30
 
@@ -102,6 +102,8 @@ Recent decisions affecting current work:
 - [Phase 35]: tryRequire() fallback pattern for dist/src vs overlay/src launcher imports
 - [Phase 35]: isSafeToClean guard prevents deletion of home dir, root, and shallow paths
 - [Phase 35]: force flag kept as quiet mode for scripted installs per review consensus
+- [Phase 35]: Sync-snapshot tags (72 total) left in place -- zero cost, documents pre-overlay sync history
+- [Phase 35]: v2.4.0-legacy derived from v2.4.0 tag via git rev-list (not hardcoded commit hash)
 
 ### Pending Todos
 
@@ -113,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T19:52:51.671Z
-Stopped at: Completed 35-01-PLAN.md
+Last session: 2026-03-30T20:11:20.150Z
+Stopped at: Completed 35-02-PLAN.md
 Resume file: None

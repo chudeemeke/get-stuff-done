@@ -178,7 +178,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 35-01-PLAN.md -- Update package.json for v3.0 shipping, fix launcher imports, make v2.x cleanup non-interactive (MIG-03, MIG-04, MIG-05)
-- [ ] 35-02-PLAN.md -- Create v2.4.0-legacy tag and write UPGRADING.md (MIG-01, MIG-02, MIG-06)
+- [x] 35-02-PLAN.md -- Create v2.4.0-legacy tag and write UPGRADING.md (MIG-01, MIG-02, MIG-06)
 - [ ] 35-03-PLAN.md -- Pre-publish validation and release v3.0.0 to npm (MIG-04, MIG-05)
 
 ## Progress
@@ -218,4 +218,4 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 32. Fork Code Port | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
 | 33. Installer & Update Workflow | v1.0.0 | 2/2 | Complete | 2026-03-29 |
 | 34. Testing & CI Enforcement | v1.0.0 | 4/4 | Complete | 2026-03-30 |
-| 35. Migration & Ship v3.0.0 | v1.0.0 | 1/3 | In Progress|  |
+| 35. Migration & Ship v3.0.0 | v1.0.0 | 2/3 | In Progress|  |

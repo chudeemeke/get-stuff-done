@@ -82,13 +82,13 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 ### Testing and Quality
 
 - [ ] **TEST-01**: Fork-specific code achieves 95%+ at EACH coverage metric (statements, branches, functions, lines) individually
-- [ ] **TEST-02**: Upstream test assertion categorisation completed (feasibility gate for compat runner approach)
-- [ ] **TEST-03**: Upstream compatibility runner executes upstream tests against composed dist/ output
-- [ ] **TEST-04**: TDD enforced: tests written before or alongside implementation in every phase, not as a separate phase
+- [x] **TEST-02**: Upstream test assertion categorisation completed (feasibility gate for compat runner approach)
+- [x] **TEST-03**: Upstream compatibility runner executes upstream tests against composed dist/ output
+- [x] **TEST-04**: TDD enforced: tests written before or alongside implementation in every phase, not as a separate phase
 
 ### CI and Enforcement
 
-- [ ] **CI-01**: check-boundary.js scans repo for upstream files outside overrides/; fails build if found
+- [x] **CI-01**: check-boundary.js scans repo for upstream files outside overrides/; fails build if found
 - [ ] **CI-02**: check-overrides.js verifies REASON.md exists for each override; fails build if missing
 - [ ] **CI-03**: Cross-platform matrix (macOS, Linux, Windows) for all test suites
 - [ ] **CI-04**: All four CI checks pass: fork tests, upstream compat, boundary check, override check

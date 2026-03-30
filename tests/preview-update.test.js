@@ -10,6 +10,10 @@
  * UPD-02: runPreviewScan() runs supply chain checks during preview
  * UPD-03: getOverrideImpact() flags overrides affected by upstream changes
  * UPD-04: Report includes rollback instructions (pin previous version + recompose)
+ *
+ * Note: This file does NOT use delete require.cache. The module under test has
+ * no mutable module-level state, so re-requiring is unnecessary. Avoiding cache
+ * manipulation ensures bun's coverage tracker sees all function/line executions.
  */
 
 const { describe, test, expect, beforeEach, afterEach } = require('bun:test');
@@ -19,6 +23,9 @@ const os = require('os');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const SCRIPT_PATH = path.join(PROJECT_ROOT, 'scripts', 'preview-update.js');
+
+// Single module load -- no cache clearing -- bun tracks coverage correctly
+const mod = require(SCRIPT_PATH);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -45,16 +52,6 @@ function cleanTempDir(dir) {
 // ---------------------------------------------------------------------------
 
 describe('UPD-01: getVersionDelta()', () => {
-  let mod;
-
-  beforeEach(() => {
-    mod = require(SCRIPT_PATH);
-  });
-
-  afterEach(() => {
-    delete require.cache[require.resolve(SCRIPT_PATH)];
-  });
-
   test('returns hasUpdate: true when pinned < latest', () => {
     const result = mod.getVersionDelta('1.29.0', '1.30.0');
     expect(result).toEqual({
@@ -97,16 +94,6 @@ describe('UPD-01: getVersionDelta()', () => {
 // ---------------------------------------------------------------------------
 
 describe('UPD-02: runPreviewScan()', () => {
-  let mod;
-
-  beforeEach(() => {
-    mod = require(SCRIPT_PATH);
-  });
-
-  afterEach(() => {
-    delete require.cache[require.resolve(SCRIPT_PATH)];
-  });
-
   test('returns an array of findings', () => {
     // With no actual files changing, should return an array (possibly empty)
     const findings = mod.runPreviewScan('1.29.0', '1.30.0');
@@ -162,16 +149,13 @@ describe('UPD-02: runPreviewScan()', () => {
 // ---------------------------------------------------------------------------
 
 describe('UPD-03: getOverrideImpact()', () => {
-  let mod;
   let tmpDir;
 
   beforeEach(() => {
-    mod = require(SCRIPT_PATH);
     tmpDir = makeTempDir();
   });
 
   afterEach(() => {
-    delete require.cache[require.resolve(SCRIPT_PATH)];
     cleanTempDir(tmpDir);
   });
 
@@ -265,16 +249,6 @@ describe('UPD-03: getOverrideImpact()', () => {
 // ---------------------------------------------------------------------------
 
 describe('UPD-04: generateReport()', () => {
-  let mod;
-
-  beforeEach(() => {
-    mod = require(SCRIPT_PATH);
-  });
-
-  afterEach(() => {
-    delete require.cache[require.resolve(SCRIPT_PATH)];
-  });
-
   test('report includes Version Delta section', () => {
     const report = mod.generateReport(
       { pinned: '1.29.0', latest: '1.30.0', hasUpdate: true },
@@ -395,16 +369,6 @@ describe('Read-only safety', () => {
 // ---------------------------------------------------------------------------
 
 describe('Module exports', () => {
-  let mod;
-
-  beforeEach(() => {
-    mod = require(SCRIPT_PATH);
-  });
-
-  afterEach(() => {
-    delete require.cache[require.resolve(SCRIPT_PATH)];
-  });
-
   test('exports getVersionDelta function', () => {
     expect(typeof mod.getVersionDelta).toBe('function');
   });

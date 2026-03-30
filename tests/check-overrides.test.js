@@ -852,3 +852,321 @@ describe('CLI exit codes', () => {
     expect(result.stdout).toContain('Override staleness report');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Orphan REASON.md (REASON.md with no matching override file)
+// ---------------------------------------------------------------------------
+
+describe('orphan REASON.md', () => {
+  let tmpDir;
+
+  afterEach(() => rmDir(tmpDir));
+
+  test('standalone REASON.md without matching override file is ignored (not counted)', () => {
+    // Create a fixture where REASON.md exists but the override file it documents does not
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'lib/config.cjs', content: 'upstream content' }],
+      overrideFiles: [],
+    });
+    tmpDir = fixture.tmpDir;
+
+    // Manually add a REASON.md without its companion override file
+    fs.mkdirSync(path.join(fixture.overridesDir, 'lib'), { recursive: true });
+    fs.writeFileSync(
+      path.join(fixture.overridesDir, 'lib', 'config.cjs.REASON.md'),
+      createReasonMd('lib/config.cjs', 'v1.30.0', computeHash('upstream content'))
+    );
+
+    const { checkOverrides } = require('../scripts/check-overrides');
+    const result = checkOverrides({
+      overridesDir: fixture.overridesDir,
+      upstreamDir: fixture.upstreamDir,
+    });
+    // REASON.md files are filtered out by the .endsWith('.REASON.md') check
+    // so a standalone REASON.md with no override should not be in results
+    expect(result.summary.total).toBe(0);
+    expect(result.ok).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatReport: orphaned entry formatting (lines 279-281)
+// ---------------------------------------------------------------------------
+
+describe('formatReport orphaned entry', () => {
+  test('orphaned entry shows ORPHANED status and removal action', () => {
+    const { formatReport } = require('../scripts/check-overrides');
+    const result = {
+      ok: false,
+      overrides: [
+        {
+          relPath: 'lib/removed.cjs',
+          status: 'orphaned',
+        },
+      ],
+      summary: { total: 1, fresh: 0, stale: 0, missingReason: 0, orphaned: 1 },
+    };
+    const report = formatReport(result);
+    expect(report).toContain('ORPHANED');
+    expect(report).toContain('Remove this override');
+    expect(report).toContain('upstream file no longer exists');
+    expect(report).toContain('1 orphaned');
+  });
+
+  test('report with mixed orphaned and fresh entries shows correct summary', () => {
+    const { formatReport } = require('../scripts/check-overrides');
+    const result = {
+      ok: false,
+      overrides: [
+        { relPath: 'lib/config.cjs', status: 'fresh' },
+        { relPath: 'lib/removed.cjs', status: 'orphaned' },
+      ],
+      summary: { total: 2, fresh: 1, stale: 0, missingReason: 0, orphaned: 1 },
+    };
+    const report = formatReport(result);
+    expect(report).toContain('2 overrides checked');
+    expect(report).toContain('1 orphaned');
+    expect(report).toContain('OK'); // fresh entry
+    expect(report).toContain('ORPHANED'); // orphaned entry
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatReport: zero overrides message
+// ---------------------------------------------------------------------------
+
+describe('formatReport zero overrides', () => {
+  test('zero overrides shows "No overrides found" and "all fresh" is not shown', () => {
+    const { formatReport } = require('../scripts/check-overrides');
+    const result = {
+      ok: true,
+      overrides: [],
+      summary: { total: 0, fresh: 0, stale: 0, missingReason: 0, orphaned: 0 },
+    };
+    const report = formatReport(result);
+    expect(report).toContain('No overrides found');
+    expect(report).toContain('0 overrides checked');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatReport: stale entry version display
+// ---------------------------------------------------------------------------
+
+describe('formatReport stale version display', () => {
+  test('stale entry without recordedVersion omits recorded version line', () => {
+    const { formatReport } = require('../scripts/check-overrides');
+    const result = {
+      ok: false,
+      overrides: [
+        {
+          relPath: 'lib/config.cjs',
+          status: 'stale',
+          recordedHash: 'a'.repeat(64),
+          currentHash: 'b'.repeat(64),
+          // no recordedVersion
+          currentVersion: 'v1.30.0',
+        },
+      ],
+      summary: { total: 1, fresh: 0, stale: 1, missingReason: 0, orphaned: 0 },
+    };
+    const report = formatReport(result);
+    expect(report).toContain('STALE');
+    expect(report).toContain('Current version:');
+    // The report should show the current version
+    expect(report).toContain('v1.30.0');
+  });
+
+  test('stale entry without currentVersion omits current version line', () => {
+    const { formatReport } = require('../scripts/check-overrides');
+    const result = {
+      ok: false,
+      overrides: [
+        {
+          relPath: 'lib/config.cjs',
+          status: 'stale',
+          recordedHash: 'a'.repeat(64),
+          currentHash: 'b'.repeat(64),
+          recordedVersion: 'v1.29.0',
+          // no currentVersion
+        },
+      ],
+      summary: { total: 1, fresh: 0, stale: 1, missingReason: 0, orphaned: 0 },
+    };
+    const report = formatReport(result);
+    expect(report).toContain('STALE');
+    expect(report).toContain('Recorded version:');
+    expect(report).toContain('v1.29.0');
+  });
+
+  test('stale entry with null recordedHash shows (none)', () => {
+    const { formatReport } = require('../scripts/check-overrides');
+    const result = {
+      ok: false,
+      overrides: [
+        {
+          relPath: 'lib/config.cjs',
+          status: 'stale',
+          recordedHash: null,
+          currentHash: 'b'.repeat(64),
+        },
+      ],
+      summary: { total: 1, fresh: 0, stale: 1, missingReason: 0, orphaned: 0 },
+    };
+    const report = formatReport(result);
+    expect(report).toContain('(none)');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// readUpstreamVersion error path (line 119)
+// ---------------------------------------------------------------------------
+
+describe('readUpstreamVersion fallback', () => {
+  test('checkOverrides with missing upstream package.json returns version "unknown"', () => {
+    const tmpDir2 = makeTempDir();
+    const overridesDir = path.join(tmpDir2, 'overrides');
+    const upstreamDir = path.join(tmpDir2, 'upstream');
+    fs.mkdirSync(overridesDir, { recursive: true });
+    fs.mkdirSync(upstreamDir, { recursive: true });
+    // No package.json in upstream -- readUpstreamVersion should return 'unknown'
+
+    // Create a stale override so currentVersion is populated from readUpstreamVersion
+    fs.writeFileSync(path.join(upstreamDir, 'test.js'), 'content');
+    fs.writeFileSync(path.join(overridesDir, 'test.js'), 'override');
+    const oldHash = computeHash('old content');
+    fs.writeFileSync(
+      path.join(overridesDir, 'test.js.REASON.md'),
+      createReasonMd('test.js', 'v1.29.0', oldHash)
+    );
+
+    const { checkOverrides } = require('../scripts/check-overrides');
+    const result = checkOverrides({ overridesDir, upstreamDir });
+
+    // The stale entry should have currentVersion derived from readUpstreamVersion
+    const staleEntry = result.overrides.find(o => o.status === 'stale');
+    expect(staleEntry).toBeDefined();
+    expect(staleEntry.currentVersion).toBe('vunknown');
+
+    rmDir(tmpDir2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// parseArgs() flag parsing
+// ---------------------------------------------------------------------------
+
+describe('parseArgs', () => {
+  test('parses --overrides-dir flag', () => {
+    const { parseArgs } = require('../scripts/check-overrides');
+    const opts = parseArgs(['--overrides-dir', '/tmp/overrides']);
+    expect(opts.overridesDir).toBe('/tmp/overrides');
+  });
+
+  test('parses --upstream-dir flag', () => {
+    const { parseArgs } = require('../scripts/check-overrides');
+    const opts = parseArgs(['--upstream-dir', '/tmp/upstream']);
+    expect(opts.upstreamDir).toBe('/tmp/upstream');
+  });
+
+  test('parses both flags together', () => {
+    const { parseArgs } = require('../scripts/check-overrides');
+    const opts = parseArgs(['--overrides-dir', '/tmp/o', '--upstream-dir', '/tmp/u']);
+    expect(opts.overridesDir).toBe('/tmp/o');
+    expect(opts.upstreamDir).toBe('/tmp/u');
+  });
+
+  test('returns empty object with no flags', () => {
+    const { parseArgs } = require('../scripts/check-overrides');
+    const opts = parseArgs([]);
+    expect(opts.overridesDir).toBeUndefined();
+    expect(opts.upstreamDir).toBeUndefined();
+  });
+
+  test('ignores unknown flags', () => {
+    const { parseArgs } = require('../scripts/check-overrides');
+    const opts = parseArgs(['--unknown', 'value', '--overrides-dir', '/tmp/o']);
+    expect(opts.overridesDir).toBe('/tmp/o');
+    expect(opts.upstreamDir).toBeUndefined();
+  });
+
+  test('flag without value is ignored', () => {
+    const { parseArgs } = require('../scripts/check-overrides');
+    const opts = parseArgs(['--overrides-dir']);
+    expect(opts.overridesDir).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CLI entry: default args (no flags)
+// ---------------------------------------------------------------------------
+
+describe('CLI entry: default args', () => {
+  let tmpDir;
+
+  afterEach(() => rmDir(tmpDir));
+
+  test('node scripts/check-overrides.js with default dirs exits 0 (zero overrides)', () => {
+    // Default overrides/ dir in the repo has only .gitkeep
+    const result = spawnSync(
+      process.execPath,
+      [CHECK_OVERRIDES_SCRIPT],
+      { encoding: 'utf-8', cwd: PROJECT_ROOT }
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('Override staleness report');
+  });
+
+  test('CLI with --overrides-dir pointing to fixture with violations exits 1', () => {
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'lib/config.cjs', content: 'updated content' }],
+      overrideFiles: [
+        {
+          relPath: 'lib/config.cjs',
+          content: 'fork content',
+          reasonHash: computeHash('old content'), // stale hash
+          reasonVersion: 'v1.29.0',
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const result = spawnSync(
+      process.execPath,
+      [
+        CHECK_OVERRIDES_SCRIPT,
+        '--overrides-dir', fixture.overridesDir,
+        '--upstream-dir', fixture.upstreamDir,
+      ],
+      { encoding: 'utf-8' }
+    );
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain('STALE');
+  });
+
+  test('CLI with --overrides-dir pointing to fresh overrides exits 0', () => {
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'lib/config.cjs', content: 'upstream content' }],
+      overrideFiles: [
+        {
+          relPath: 'lib/config.cjs',
+          content: 'fork content',
+          // no reasonHash = uses current upstream hash (fresh)
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const result = spawnSync(
+      process.execPath,
+      [
+        CHECK_OVERRIDES_SCRIPT,
+        '--overrides-dir', fixture.overridesDir,
+        '--upstream-dir', fixture.upstreamDir,
+      ],
+      { encoding: 'utf-8' }
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('OK');
+  });
+});

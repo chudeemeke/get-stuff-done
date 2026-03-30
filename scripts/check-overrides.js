@@ -341,4 +341,5 @@ module.exports = {
   extractHashFromReason,
   extractVersionFromReason,
   formatReport,
+  parseArgs,
 };

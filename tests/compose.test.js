@@ -1598,3 +1598,179 @@ describe('override() cross-platform path normalisation', () => {
     expect(entry.relPath).not.toContain('\\');
   });
 });
+
+// ---------------------------------------------------------------------------
+// CLI entry block integration tests (subprocess execution)
+// ---------------------------------------------------------------------------
+
+describe('CLI entry block', () => {
+  function runComposeCLI(args = [], opts = {}) {
+    return spawnSync(
+      process.execPath,
+      [COMPOSE_SCRIPT, ...args],
+      { encoding: 'utf-8', timeout: opts.timeout || 30000, cwd: PROJECT_ROOT }
+    );
+  }
+
+  test('--dry-run output contains overlay_version field', () => {
+    const result = runComposeCLI(['--dry-run']);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('overlay_version');
+  });
+
+  test('--dry-run output contains upstream_version and files_would_write', () => {
+    const result = runComposeCLI(['--dry-run']);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('upstream_version');
+    expect(result.stdout).toContain('files_would_write');
+    expect(result.stdout).toContain('branding_rules');
+  });
+
+  test('--diff output contains added/modified/removed/unchanged counts', () => {
+    const result = runComposeCLI(['--diff']);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('added:');
+    expect(result.stdout).toContain('modified:');
+    expect(result.stdout).toContain('removed:');
+    expect(result.stdout).toContain('unchanged:');
+  });
+
+  test('--diff --verbose includes file-level detail lines', { timeout: 30000 }, () => {
+    const result = runComposeCLI(['--diff', '--verbose']);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('Diff against current dist/');
+  });
+
+  test('CLI error path: exits 1 and writes to stderr when compose fails', () => {
+    // Simulate the CLI error path by calling compose() with a non-existent upstream dir
+    const result = spawnSync(
+      process.execPath,
+      [
+        '-e',
+        `
+        const { compose } = require('${COMPOSE_SCRIPT.replace(/\\/g, '/')}');
+        try {
+          compose({ upstreamDir: '/nonexistent/upstream/dir' });
+          process.exit(0);
+        } catch (err) {
+          process.stderr.write('Error: ' + err.message + '\\n');
+          process.exit(1);
+        }
+        `,
+      ],
+      { encoding: 'utf-8', timeout: 10000 }
+    );
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('Error:');
+    expect(result.stderr).toMatch(/upstream/i);
+  });
+
+  test('CLI error path: compose with missing overlay throws with descriptive message', () => {
+    const result = spawnSync(
+      process.execPath,
+      [
+        '-e',
+        `
+        const { compose } = require('${COMPOSE_SCRIPT.replace(/\\/g, '/')}');
+        try {
+          compose({ overlayDir: '/nonexistent/overlay' });
+          process.exit(0);
+        } catch (err) {
+          process.stderr.write('Error: ' + err.message + '\\n');
+          process.exit(1);
+        }
+        `,
+      ],
+      { encoding: 'utf-8', timeout: 10000 }
+    );
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('Error:');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolve() additional error paths
+// ---------------------------------------------------------------------------
+
+describe('resolve() additional error paths', () => {
+  let tmpDir;
+  let mockUpstream;
+  let mockOverlay;
+
+  beforeEach(() => {
+    tmpDir = makeTempDir();
+    mockUpstream = path.join(tmpDir, 'upstream');
+    mockOverlay = path.join(tmpDir, 'overlay');
+    createMockUpstream(mockUpstream);
+    createMockOverlay(mockOverlay);
+  });
+
+  afterAll(() => {
+    if (tmpDir) rmDir(tmpDir);
+  });
+
+  test('throws when overlay/features.json is missing', () => {
+    // Remove features.json from overlay
+    fs.rmSync(path.join(mockOverlay, 'features.json'));
+    expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
+      .toThrow(/features\.json/i);
+  });
+
+  test('throws with invalid branding.json content (bad schema)', () => {
+    // Write branding.json with invalid schema (missing required 'substitutions')
+    fs.writeFileSync(path.join(mockOverlay, 'branding.json'), JSON.stringify({
+      notAValidField: true,
+    }));
+    expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
+      .toThrow(/branding\.json/i);
+  });
+
+  test('throws with malformed branding.json (unparseable JSON)', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'branding.json'), '{ not valid json }}}');
+    expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
+      .toThrow(/branding\.json/i);
+  });
+
+  test('throws with invalid features.json content (bad schema)', () => {
+    // Write features.json with invalid schema content
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
+      sdk: 'not-a-boolean',
+      illegalTopLevelField: true,
+    }));
+    expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
+      .toThrow(/features\.json/i);
+  });
+
+  test('throws with malformed features.json (unparseable JSON)', () => {
+    fs.writeFileSync(path.join(mockOverlay, 'features.json'), 'INVALID JSON CONTENT');
+    expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
+      .toThrow(/features\.json/i);
+  });
+
+  test('throws when upstream missing multiple required directories', () => {
+    // Remove multiple required dirs
+    fs.rmSync(path.join(mockUpstream, 'agents'), { recursive: true });
+    fs.rmSync(path.join(mockUpstream, 'scripts'), { recursive: true });
+    expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
+      .toThrow();
+  });
+
+  test('error for missing upstream dirs mentions specific missing directories', () => {
+    fs.rmSync(path.join(mockUpstream, 'agents'), { recursive: true });
+    fs.rmSync(path.join(mockUpstream, 'bin'), { recursive: true });
+    let errorMsg = '';
+    try {
+      resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
+    } catch (e) {
+      errorMsg = e.message;
+    }
+    expect(errorMsg).toContain('agents');
+    expect(errorMsg).toContain('bin');
+  });
+
+  test('error for malformed upstream package.json is descriptive', () => {
+    fs.writeFileSync(path.join(mockUpstream, 'package.json'), 'CORRUPT JSON');
+    expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
+      .toThrow(/package\.json/i);
+  });
+});

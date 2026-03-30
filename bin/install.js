@@ -11,7 +11,7 @@
  *   1. Resolve dist directory (composed output from bun run compose)
  *   2. Parse CLI args, resolve target directory
  *   3. If --uninstall: wipe target, exit 0
- *   4. If v2.x detected: prompt for cleanup (--force skips prompt)
+ *   4. If v2.x detected: auto-clean and proceed (--force for silent mode)
  *   5. Spawn upstream install.js with all user flags + stdio: inherit
  *   6. On upstream exit 0: copy overlay files, write .install-meta.json
  *   7. On upstream failure: warn about partial state, exit with upstream code
@@ -23,7 +23,6 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { spawn } = require('child_process');
-const readline = require('readline');
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -174,53 +173,73 @@ function detectV2(targetDir) {
 // ---------------------------------------------------------------------------
 
 /**
+ * Check if a target directory is safe to wipe during v2.x cleanup.
+ * Refuses home directories, filesystem roots, and suspiciously short paths.
+ * @param {string} targetDir
+ * @returns {{ safe: boolean, reason?: string }}
+ */
+function isSafeToClean(targetDir) {
+  const resolved = path.resolve(targetDir);
+  const home = os.homedir();
+
+  // Never delete home directory itself
+  if (resolved === path.resolve(home)) {
+    return { safe: false, reason: 'target is home directory' };
+  }
+
+  // Never delete filesystem root
+  const parsed = path.parse(resolved);
+  if (resolved === parsed.root) {
+    return { safe: false, reason: 'target is filesystem root' };
+  }
+
+  // Never delete single-level paths like /usr, /tmp, C:\Users
+  const segments = resolved.replace(parsed.root, '').split(path.sep).filter(Boolean);
+  if (segments.length < 2) {
+    return { safe: false, reason: 'target path too shallow (less than 2 segments below root)' };
+  }
+
+  return { safe: true };
+}
+
+/**
  * Clean up a v2.x installation by wiping the target directory.
- * Prompts for confirmation unless --force is set.
+ * Non-interactive: always proceeds. Use --force for silent mode (no banner).
  *
  * @param {string} targetDir
  * @param {{ isV2: boolean, signal?: string, version?: string }} detection
- * @param {boolean} force - Skip confirmation prompt
- * @returns {Promise<boolean>} true if cleaned up, false if user declined
+ * @param {boolean} quiet - Suppress migration banner (--force flag)
+ * @returns {Promise<boolean>} true if cleaned, false if safety guard refused
  */
-async function cleanupV2(targetDir, detection, force) {
+async function cleanupV2(targetDir, detection, quiet) {
+  // Safety guard: refuse to delete unsafe targets
+  const safety = isSafeToClean(targetDir);
+  if (!safety.safe) {
+    console.error(`\n${red}Error:${reset} Refusing to clean target directory.`);
+    console.error(`  Reason: ${safety.reason}`);
+    console.error(`  Path: ${targetDir}`);
+    console.error(`  This is a safety guard. Use --config-dir to specify a valid target.\n`);
+    return false;
+  }
+
   const version = detection.version || 'unknown';
   const signal = detection.signal;
 
-  console.log(`\n${yellow}v2.x installation detected${reset}`);
-  console.log(`  Signal: ${signal}`);
-  if (version !== 'unknown') console.log(`  Version: ${version}`);
-  console.log(`  Location: ${targetDir}`);
-  console.log(`\n  v3.0 uses a different architecture. The v2.x installation must be`);
-  console.log(`  removed before proceeding. User config (~/.gsd/) and project data`);
-  console.log(`  (.planning/) are not affected.\n`);
-
-  if (!force) {
-    const confirmed = await askConfirmation('  Remove v2.x installation and proceed? [y/N] ');
-    if (!confirmed) {
-      console.log('  Aborted.');
-      return false;
-    }
+  if (!quiet) {
+    console.log(`\n${yellow}Upgrading from v2.x to v3.0 -- cleaning old files...${reset}`);
+    console.log(`  Signal: ${signal}`);
+    if (version !== 'unknown') console.log(`  Previous version: ${version}`);
+    console.log(`  Location: ${targetDir}`);
+    console.log(`  User config (~/.gsd/) and project data (.planning/) are not affected.`);
   }
 
   fs.rmSync(targetDir, { recursive: true, force: true });
   fs.mkdirSync(targetDir, { recursive: true });
-  console.log(`  ${green}v2.x installation removed.${reset}\n`);
-  return true;
-}
 
-/**
- * Prompt user for yes/no confirmation.
- * @param {string} prompt
- * @returns {Promise<boolean>}
- */
-function askConfirmation(prompt) {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    rl.question(prompt, (answer) => {
-      rl.close();
-      resolve(answer.trim().toLowerCase() === 'y');
-    });
-  });
+  if (!quiet) {
+    console.log(`  ${green}v2.x files removed. Proceeding with v3.0 install.${reset}\n`);
+  }
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -400,7 +419,7 @@ async function main() {
     console.log(`    ${cyan}-l, --local${reset}               Install locally`);
     console.log(`    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory`);
     console.log(`    ${cyan}-u, --uninstall${reset}           Remove all installed files`);
-    console.log(`    ${cyan}--force${reset}                   Skip confirmation prompts`);
+    console.log(`    ${cyan}--force${reset}                   Quiet mode (suppress migration banner)`);
     console.log(`    ${cyan}-h, --help${reset}                Show this help message\n`);
     process.exit(0);
   }

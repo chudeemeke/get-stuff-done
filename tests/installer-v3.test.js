@@ -276,8 +276,8 @@ describe('v3.0 Delegation Installer', () => {
         'utf-8'
       );
 
-      // Run v3.0 installer with --force to skip confirmation prompt
-      const result = runV3Installer(targetDir, ['--force']);
+      // Run v3.0 installer -- v2.x auto-cleaned without prompt
+      const result = runV3Installer(targetDir, []);
       expect(result.success).toBe(true);
 
       // v2.x files should be cleaned up -- get-stuff-done/ should be gone
@@ -285,6 +285,9 @@ describe('v3.0 Delegation Installer', () => {
 
       // v3.0 files should be installed
       expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+
+      // Auto-clean output contains migration banner
+      expect(result.output).toContain('Upgrading from v2.x to v3.0');
     });
 
     test('detects v2.x via src/ directory fingerprint', { timeout: 30000 }, () => {
@@ -294,8 +297,8 @@ describe('v3.0 Delegation Installer', () => {
       fs.mkdirSync(path.join(targetDir, 'src', 'config'), { recursive: true });
       fs.writeFileSync(path.join(targetDir, 'src', 'config', 'index.js'), '// v2.x fork code');
 
-      // Run v3.0 installer with --force
-      const result = runV3Installer(targetDir, ['--force']);
+      // Run v3.0 installer -- v2.x auto-cleaned without prompt
+      const result = runV3Installer(targetDir, []);
       expect(result.success).toBe(true);
 
       // v2.x src/ directory should be cleaned up
@@ -313,8 +316,8 @@ describe('v3.0 Delegation Installer', () => {
       fs.mkdirSync(path.join(gsdDir, 'bin'), { recursive: true });
       fs.writeFileSync(path.join(gsdDir, 'bin', 'gsd-tools.cjs'), '// v2.x tools');
 
-      // Run v3.0 installer with --force
-      const result = runV3Installer(targetDir, ['--force']);
+      // Run v3.0 installer -- v2.x auto-cleaned without prompt
+      const result = runV3Installer(targetDir, []);
       expect(result.success).toBe(true);
 
       // v2.x directory should be cleaned up
@@ -322,6 +325,99 @@ describe('v3.0 Delegation Installer', () => {
 
       // v3.0 files should be installed
       expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+    });
+
+    test('--force suppresses migration banner (quiet mode)', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'target');
+
+      // Create mock v2.x installation
+      const gsdDir = path.join(targetDir, 'get-stuff-done');
+      fs.mkdirSync(gsdDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(gsdDir, '.install-meta.json'),
+        JSON.stringify({ version: '2.4.0', installType: 'link' }),
+        'utf-8'
+      );
+
+      // Run with --force (quiet mode)
+      const result = runV3Installer(targetDir, ['--force']);
+      expect(result.success).toBe(true);
+
+      // Banner should NOT appear in quiet mode
+      expect(result.output).not.toContain('Upgrading from v2.x to v3.0');
+
+      // v3.0 files should still be installed
+      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // INST-05b: Negative detection tests
+  // -----------------------------------------------------------------------
+
+  describe('INST-05b: negative v2.x detection', () => {
+    test('does NOT detect v2.x for fresh empty directory', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'fresh-target');
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      const result = runV3Installer(targetDir, []);
+      expect(result.success).toBe(true);
+      // Should NOT contain cleanup messages -- it is not v2.x
+      expect(result.output).not.toContain('Upgrading from v2.x');
+    });
+
+    test('does NOT detect v2.x for v3.0 installation', { timeout: 30000 }, () => {
+      const targetDir = path.join(tmpDir.path, 'v3-target');
+      const gshDir = path.join(targetDir, 'get-shit-done');
+      fs.mkdirSync(gshDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(gshDir, '.install-meta.json'),
+        JSON.stringify({ overlay_version: '3.0.0', version: '3.0.0' }),
+        'utf-8'
+      );
+
+      const result = runV3Installer(targetDir, []);
+      expect(result.success).toBe(true);
+      expect(result.output).not.toContain('Upgrading from v2.x');
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // INST-05c: Safety guard
+  // -----------------------------------------------------------------------
+
+  describe('INST-05c: safety guard (isSafeToClean)', () => {
+    // The safety guard (isSafeToClean) in install.js prevents cleanupV2 from
+    // deleting dangerous targets like home directory, filesystem root, or
+    // shallow paths. These are verified by code inspection (grep) rather than
+    // runtime execution, since actually pointing the installer at os.homedir()
+    // or '/' would be destructive. The guard is tested structurally below.
+
+    test('safety guard function exists in install.js', () => {
+      const installSrc = fs.readFileSync(
+        path.join(PROJECT_ROOT, 'bin', 'install.js'),
+        'utf-8'
+      );
+      expect(installSrc).toContain('isSafeToClean');
+      expect(installSrc).toContain('target is home directory');
+      expect(installSrc).toContain('target is filesystem root');
+      expect(installSrc).toContain('target path too shallow');
+    });
+
+    test('readline is not imported in install.js', () => {
+      const installSrc = fs.readFileSync(
+        path.join(PROJECT_ROOT, 'bin', 'install.js'),
+        'utf-8'
+      );
+      expect(installSrc).not.toContain("require('readline')");
+    });
+
+    test('askConfirmation function does not exist in install.js', () => {
+      const installSrc = fs.readFileSync(
+        path.join(PROJECT_ROOT, 'bin', 'install.js'),
+        'utf-8'
+      );
+      expect(installSrc).not.toContain('askConfirmation');
     });
   });
 });

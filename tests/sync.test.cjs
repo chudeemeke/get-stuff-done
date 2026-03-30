@@ -72,6 +72,10 @@ const {
   detectModules,
   isCrossModule,
   detectFileOverlapDeps,
+  cmdSyncPreview,
+  cmdSyncCheckpointCreate,
+  cmdSyncCheckpointList,
+  cmdSyncCheckpointCleanup,
 } = require(SYNC_PATH);
 
 // ─── Local Helpers ─────────────────────────────────────────────────────────────
@@ -1611,6 +1615,581 @@ describe('sync-preview selective filtering CLI', () => {
       // summary should include selectedCommits and excludedCommits counts
       assert.strictEqual(typeof data.summary.selectedCommits, 'number', 'summary.selectedCommits should be a number');
       assert.strictEqual(typeof data.summary.excludedCommits, 'number', 'summary.excludedCommits should be a number');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+});
+
+// ─── Coverage gap: loadProtectedPaths flat sections ───────────────────────────
+
+describe('loadProtectedPaths flat sections', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('extracts string entries from package_json_protected_fields', () => {
+    const syncDir = path.join(tmpDir, '.planning', 'sync');
+    fs.mkdirSync(syncDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(syncDir, 'branding-map.json'),
+      JSON.stringify({
+        package_json_protected_fields: ['name', 'description', 'author'],
+      })
+    );
+
+    const paths = loadProtectedPaths(tmpDir);
+    assert.ok(paths.includes('name'), 'Should include string entry "name"');
+    assert.ok(paths.includes('description'), 'Should include string entry "description"');
+    assert.ok(paths.includes('author'), 'Should include string entry "author"');
+  });
+
+  test('extracts fork property from objects in post_module_split_only', () => {
+    const syncDir = path.join(tmpDir, '.planning', 'sync');
+    fs.mkdirSync(syncDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(syncDir, 'branding-map.json'),
+      JSON.stringify({
+        post_module_split_only: [
+          { upstream: 'old-path', fork: 'new-path' },
+          'simple-string-entry',
+        ],
+      })
+    );
+
+    const paths = loadProtectedPaths(tmpDir);
+    assert.ok(paths.includes('new-path'), 'Should include fork property from object');
+    assert.ok(paths.includes('simple-string-entry'), 'Should include string entry');
+  });
+});
+
+// ─── Coverage gap: checkDependencyDiff new-import branch ──────────────────────
+
+describe('checkDependencyDiff import detection', () => {
+  test('triggers on new ES import statement in diff', () => {
+    const diff = "+import malicious from 'evil-module'\n";
+    const files = [{ path: 'src/app.js' }];
+    const result = checkDependencyDiff(diff, files);
+    assert.ok(result !== null, 'Should trigger on new import');
+    assert.ok(result.triggered.some(t => t.includes('new-import')), 'triggered should include new-import');
+  });
+});
+
+// ─── Coverage gap: seedKnownAuthors empty git log ─────────────────────────────
+
+describe('seedKnownAuthors edge cases', () => {
+  test('returns empty set for non-git directory', () => {
+    const tmpDir = createTempProject();
+    try {
+      const cacheDir = path.join(tmpDir, '.cache');
+      fs.mkdirSync(cacheDir, { recursive: true });
+      const result = seedKnownAuthors(tmpDir, cacheDir);
+      assert.ok(result instanceof Set, 'Should return a Set');
+      assert.strictEqual(result.size, 0, 'Should be empty for non-git directory');
+    } finally {
+      cleanup(tmpDir);
+    }
+  });
+});
+
+// ─── Coverage gap: detectFileOverlapDeps dedup ────────────────────────────────
+
+describe('detectFileOverlapDeps deduplication', () => {
+  test('deduplicates when multiple files overlap between same commit pair', () => {
+    // Simulate two commits that both modify two shared files
+    const commits = [
+      {
+        hash: 'aaa1111111111111111111111111111111111111',
+        hashShort: 'aaa1111',
+        subject: 'feat: first',
+        files: [
+          { path: 'shared-a.txt', status: 'M' },
+          { path: 'shared-b.txt', status: 'M' },
+        ],
+      },
+      {
+        hash: 'bbb2222222222222222222222222222222222222',
+        hashShort: 'bbb2222',
+        subject: 'feat: second',
+        files: [
+          { path: 'shared-a.txt', status: 'M' },
+          { path: 'shared-b.txt', status: 'M' },
+        ],
+      },
+    ];
+
+    const deps = detectFileOverlapDeps(commits);
+    // Should have exactly one dependency entry (deduped), not two
+    const relevantDeps = deps.filter(
+      d => d.commit === 'bbb2222' && d.dependsOn === 'aaa1111'
+    );
+    assert.strictEqual(relevantDeps.length, 1, 'Should deduplicate to one dependency entry');
+    // The deduped entry should list both files
+    assert.ok(
+      relevantDeps[0].files.includes('shared-a.txt') && relevantDeps[0].files.includes('shared-b.txt'),
+      'Deduped entry should contain both overlapping files'
+    );
+  });
+});
+
+// ─── Coverage gap: cmd* functions (direct in-process via process.exit mock) ──
+
+/**
+ * Helper to call a function that invokes process.exit() via core.cjs output/error.
+ * Intercepts process.exit and captures stdout/stderr writes.
+ *
+ * @param {Function} fn - Function to call
+ * @param {Array} args - Arguments to pass
+ * @returns {{exitCode: number|null, stdout: string, stderr: string}}
+ */
+function captureCmd(fn, args) {
+  let exitCode = null;
+  let stdout = '';
+  let stderr = '';
+
+  const origExit = process.exit;
+  const origStdoutWrite = process.stdout.write;
+  const origStderrWrite = process.stderr.write;
+
+  // Sentinel error to unwind the call stack after process.exit
+  class ExitSentinel extends Error {
+    constructor(code) {
+      super(`process.exit(${code})`);
+      this.code = code;
+    }
+  }
+
+  process.exit = (code) => { exitCode = code; throw new ExitSentinel(code); };
+  process.stdout.write = (chunk) => { stdout += String(chunk); return true; };
+  process.stderr.write = (chunk) => { stderr += String(chunk); return true; };
+
+  try {
+    fn(...args);
+  } catch (e) {
+    if (!(e instanceof ExitSentinel)) throw e;
+  } finally {
+    process.exit = origExit;
+    process.stdout.write = origStdoutWrite;
+    process.stderr.write = origStderrWrite;
+  }
+
+  return { exitCode, stdout, stderr };
+}
+
+describe('cmdSyncPreview direct (overlay coverage)', () => {
+  test('errors when range is missing', () => {
+    const { exitCode, stderr } = captureCmd(cmdSyncPreview, ['/tmp', null, {}, false]);
+    assert.strictEqual(exitCode, 1, 'Should exit with code 1');
+    assert.ok(stderr.includes('range required'), 'Should mention range required');
+  });
+
+  test('errors when range format is invalid (no ..)', () => {
+    const { exitCode, stderr } = captureCmd(cmdSyncPreview, ['/tmp', 'abc123', {}, false]);
+    assert.strictEqual(exitCode, 1, 'Should exit with code 1');
+    assert.ok(stderr.includes('invalid range format'), 'Should mention invalid range format');
+  });
+
+  test('errors when baseRef is empty', () => {
+    const { exitCode, stderr } = captureCmd(cmdSyncPreview, ['/tmp', '..abc123', {}, false]);
+    assert.strictEqual(exitCode, 1, 'Should exit with code 1');
+    assert.ok(stderr.includes('both baseRef and targetRef required'), 'Should mention both refs required');
+  });
+
+  test('errors when targetRef is empty', () => {
+    const { exitCode, stderr } = captureCmd(cmdSyncPreview, ['/tmp', 'abc123..', {}, false]);
+    assert.strictEqual(exitCode, 1, 'Should exit with code 1');
+    assert.ok(stderr.includes('both baseRef and targetRef required'), 'Should mention both refs required');
+  });
+
+  test('errors when base SHA does not exist', () => {
+    const tmpDir = createTempGitProject();
+    try {
+      const { exitCode, stderr } = captureCmd(cmdSyncPreview, [tmpDir, 'deadbeef..HEAD', {}, false]);
+      assert.strictEqual(exitCode, 1, 'Should exit with code 1');
+      assert.ok(stderr.includes('SHA not found'), 'Should mention SHA not found');
+    } finally {
+      cleanup(tmpDir);
+    }
+  });
+
+  test('produces JSON output for valid range', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Create a second commit for a valid range
+      fs.writeFileSync(path.join(repoDir, 'feature.txt'), 'new feature');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, { json: true }, false,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      const data = JSON.parse(stdout);
+      assert.ok(data.range, 'Should have range field');
+      assert.ok(Array.isArray(data.commits), 'Should have commits array');
+      assert.strictEqual(data.summary.totalCommits, 1, 'Should have 1 commit');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('produces human-readable output for valid range', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      fs.writeFileSync(path.join(repoDir, 'readme.md'), 'docs');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "docs: add readme"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, {}, true,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      assert.ok(stdout.includes('Sync Preview'), 'Should include header');
+      assert.ok(stdout.includes('Effort Estimate'), 'Should include effort section');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('produces filtered output with category flag', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      fs.writeFileSync(path.join(repoDir, 'a.txt'), 'feat');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add a"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'b.txt'), 'fix');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "fix: fix b"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, { json: true, categories: ['feat'] }, false,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      const data = JSON.parse(stdout);
+      assert.ok(data.filters, 'Should have filters field');
+      assert.ok(data.filters.active, 'Filters should be active');
+      assert.ok(data.selected.length > 0, 'Should have selected commits');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('produces filtered human-readable output', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      fs.writeFileSync(path.join(repoDir, 'c.txt'), 'content');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add c"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'd.txt'), 'content');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "chore: add d"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, { categories: ['feat'] }, true,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      assert.ok(stdout.includes('SELECTED'), 'Should include selected section');
+      assert.ok(stdout.includes('EXCLUDED'), 'Should include excluded section');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('errors when target SHA does not exist', () => {
+    const tmpDir = createTempGitProject();
+    try {
+      const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+      const { exitCode, stderr } = captureCmd(cmdSyncPreview, [tmpDir, `${headSha}..deadbeef`, {}, false]);
+      assert.strictEqual(exitCode, 1, 'Should exit with code 1');
+      assert.ok(stderr.includes('SHA not found'), 'Should mention SHA not found for target');
+    } finally {
+      cleanup(tmpDir);
+    }
+  });
+
+  test('renders supply chain risk badges in human-readable output', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Create a commit that modifies package.json (triggers dependency-diff supply chain check)
+      fs.writeFileSync(path.join(repoDir, 'package.json'), JSON.stringify({
+        name: 'test-pkg',
+        dependencies: { 'new-dep': '^1.0.0' },
+      }, null, 2));
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add dependency"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, {}, true,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      // Supply chain check should flag the dependency addition
+      assert.ok(stdout.includes('RISK:'), 'Should include supply chain risk badge');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('renders sensitive path markers in human-readable output', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Set up a branding map so isSensitivePath triggers
+      const syncDir = path.join(repoDir, '.planning', 'sync');
+      fs.mkdirSync(syncDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(syncDir, 'branding-map.json'),
+        JSON.stringify({ path_patterns: [{ upstream: 'pkg', fork: 'package.json' }] })
+      );
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "chore: add branding map"', { cwd: repoDir, stdio: 'pipe' });
+
+      // Now commit a change to the sensitive path
+      fs.writeFileSync(path.join(repoDir, 'package.json'), '{"name":"test"}');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add package.json"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, {}, true,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      assert.ok(stdout.includes('sensitive path'), 'Should mention sensitive paths in summary');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('cross-boundary dep warnings in filtered JSON output', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Create two commits touching the same file but different categories
+      fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'v1');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: initial shared"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'v2');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "fix: update shared"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      // Select only 'fix', exclude 'feat' -- creates cross-boundary dependency
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, { json: true, categories: ['fix'] }, false,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      const data = JSON.parse(stdout);
+      assert.ok(data.dependencies, 'Should have dependencies field');
+      assert.ok(Array.isArray(data.dependencies.warnings), 'Should have warnings array');
+      // The fix commit depends on the feat commit (same file), but feat is excluded
+      if (data.dependencies.warnings.length > 0) {
+        assert.strictEqual(data.dependencies.warnings[0].type, 'missing-dependency',
+          'Warning should be of type missing-dependency');
+      }
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('renders cross-boundary dep warnings in filtered human-readable output', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      fs.writeFileSync(path.join(repoDir, 'overlap.txt'), 'a');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add overlap"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'overlap.txt'), 'b');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "fix: update overlap"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, { categories: ['fix'] }, true,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      // Dependencies section should appear in filtered human-readable output
+      assert.ok(stdout.includes('Sync Preview'), 'Should have header');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('renders supply chain risks in filtered human-readable output', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Commit with package.json change (triggers supply chain) plus a non-feat commit
+      fs.writeFileSync(path.join(repoDir, 'package.json'), JSON.stringify({
+        name: 'risky',
+        dependencies: { 'suspicious-pkg': '^1.0.0' },
+      }, null, 2));
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "feat: add risky dep"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'docs.md'), 'docs');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "docs: add docs"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      // Filter to feat only -- triggers filtered rendering path with supply chain badges
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, { categories: ['feat'] }, true,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      assert.ok(stdout.includes('SELECTED'), 'Should show selected section');
+      assert.ok(stdout.includes('RISK:'), 'Should show supply chain risk in filtered output');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('renders unfiltered output with sensitive path markers', { timeout: 15000 }, () => {
+    const repoDir = createTempGitProject();
+    try {
+      const syncDir = path.join(repoDir, '.planning', 'sync');
+      fs.mkdirSync(syncDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(syncDir, 'branding-map.json'),
+        JSON.stringify({ path_patterns: [{ upstream: 'readme', fork: 'readme.md' }] })
+      );
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "chore: branding map"', { cwd: repoDir, stdio: 'pipe' });
+
+      fs.writeFileSync(path.join(repoDir, 'readme.md'), 'content');
+      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
+      execSync('git commit -m "docs: update readme"', { cwd: repoDir, stdio: 'pipe' });
+
+      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+
+      // Unfiltered human-readable output with sensitive path
+      const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
+        repoDir, `${firstSha}..${lastSha}`, {}, true,
+      ]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      assert.ok(stdout.includes('sensitive path'), 'Should flag sensitive paths');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+});
+
+describe('cmdSyncCheckpointCreate direct (overlay coverage)', () => {
+  test('errors when batchId is missing', () => {
+    const { exitCode, stderr } = captureCmd(cmdSyncCheckpointCreate, ['/tmp', null, false]);
+    assert.strictEqual(exitCode, 1, 'Should exit with code 1');
+    assert.ok(stderr.includes('batchId required'), 'Should mention batchId required');
+  });
+
+  test('creates checkpoint tag in git repo', () => {
+    const repoDir = createTempGitProject();
+    try {
+      const { exitCode, stdout } = captureCmd(cmdSyncCheckpointCreate, [repoDir, 'test-batch-1', false]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      const data = JSON.parse(stdout);
+      assert.strictEqual(data.tag, 'sync-checkpoint-test-batch-1', 'Tag name should match');
+      assert.ok(data.sha, 'Should include SHA');
+      assert.ok(data.created, 'Should include created timestamp');
+
+      // Verify tag exists
+      const tagCheck = execSync('git tag -l sync-checkpoint-test-batch-1', { cwd: repoDir, encoding: 'utf-8' });
+      assert.ok(tagCheck.includes('sync-checkpoint-test-batch-1'), 'Tag should exist in repo');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+});
+
+describe('cmdSyncCheckpointList direct (overlay coverage)', () => {
+  test('lists empty checkpoints for repo with no checkpoint tags', () => {
+    const repoDir = createTempGitProject();
+    try {
+      const { exitCode, stdout } = captureCmd(cmdSyncCheckpointList, [repoDir, false]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      const data = JSON.parse(stdout);
+      assert.deepStrictEqual(data.checkpoints, [], 'Should have empty checkpoints');
+      assert.strictEqual(data.count, 0, 'Count should be 0');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('lists existing checkpoint tags', () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Create a checkpoint first
+      captureCmd(cmdSyncCheckpointCreate, [repoDir, 'list-test', false]);
+
+      const { exitCode, stdout } = captureCmd(cmdSyncCheckpointList, [repoDir, false]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      const data = JSON.parse(stdout);
+      assert.strictEqual(data.count, 1, 'Should have 1 checkpoint');
+      assert.strictEqual(data.checkpoints[0].tag, 'sync-checkpoint-list-test', 'Tag should match');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+});
+
+describe('cmdSyncCheckpointCleanup direct (overlay coverage)', () => {
+  test('no-op cleanup when no checkpoints exist', () => {
+    const repoDir = createTempGitProject();
+    try {
+      const { exitCode, stdout } = captureCmd(cmdSyncCheckpointCleanup, [repoDir, false]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      const data = JSON.parse(stdout);
+      assert.deepStrictEqual(data.deleted, [], 'Should have no deleted tags');
+      assert.strictEqual(data.count, 0, 'Count should be 0');
+    } finally {
+      cleanup(repoDir);
+    }
+  });
+
+  test('deletes existing checkpoint tags', () => {
+    const repoDir = createTempGitProject();
+    try {
+      // Create checkpoints
+      captureCmd(cmdSyncCheckpointCreate, [repoDir, 'cleanup-1', false]);
+      captureCmd(cmdSyncCheckpointCreate, [repoDir, 'cleanup-2', false]);
+
+      const { exitCode, stdout } = captureCmd(cmdSyncCheckpointCleanup, [repoDir, false]);
+      assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+      const data = JSON.parse(stdout);
+      assert.strictEqual(data.count, 2, 'Should have deleted 2 tags');
+      assert.ok(data.deleted.includes('sync-checkpoint-cleanup-1'), 'Should include first tag');
+      assert.ok(data.deleted.includes('sync-checkpoint-cleanup-2'), 'Should include second tag');
+
+      // Verify tags are gone
+      const tagCheck = execSync('git tag -l sync-checkpoint-*', { cwd: repoDir, encoding: 'utf-8' });
+      assert.strictEqual(tagCheck.trim(), '', 'No checkpoint tags should remain');
     } finally {
       cleanup(repoDir);
     }

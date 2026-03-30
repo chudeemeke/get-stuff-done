@@ -97,9 +97,9 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 - [ ] **MIG-01**: Current main tagged as v0.4.0-legacy before overlay branch merges
 - [ ] **MIG-02**: overlay-architecture branch created with clean structure
-- [ ] **MIG-03**: .planning/ history preserved across migration
-- [ ] **MIG-04**: npm package name (@chude/get-stuff-done) and GitHub repo preserved
-- [ ] **MIG-05**: Ships as v3.0.0 (semver major for architectural change)
+- [x] **MIG-03**: .planning/ history preserved across migration
+- [x] **MIG-04**: npm package name (@chude/get-stuff-done) and GitHub repo preserved
+- [x] **MIG-05**: Ships as v3.0.0 (semver major for architectural change)
 - [ ] **MIG-06**: Rollback documented: users can install v2.4.0 if v3.0 has issues
 
 ## v2 Requirements

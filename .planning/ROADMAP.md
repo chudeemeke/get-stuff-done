@@ -160,22 +160,26 @@ Plans:
   5. check-boundary.js fails the build if any upstream file exists in the repo outside overrides/; check-overrides.js fails the build if any override lacks a REASON.md
 **Plans**: 4 plans
 Plans:
-- [ ] 34-01-PLAN.md -- TDD sync.cjs coverage via symlink shim (TEST-01, TEST-04)
-- [ ] 34-02-PLAN.md -- TDD check-boundary.js and upstream compat runner (TEST-02, TEST-03, TEST-04, CI-01)
-- [ ] 34-03-PLAN.md -- Coverage gap closure for compose.js, preview-update.js, check-overrides.js (TEST-01)
-- [ ] 34-04-PLAN.md -- CI workflow update with 4-check enforcement matrix (CI-02, CI-03, CI-04)
+- [x] 34-01-PLAN.md -- TDD sync.cjs coverage via symlink shim (TEST-01, TEST-04)
+- [x] 34-02-PLAN.md -- TDD check-boundary.js and upstream compat runner (TEST-02, TEST-03, TEST-04, CI-01)
+- [x] 34-03-PLAN.md -- Coverage gap closure for compose.js, preview-update.js, check-overrides.js (TEST-01)
+- [x] 34-04-PLAN.md -- CI workflow update with 4-check enforcement matrix (CI-02, CI-03, CI-04)
 
 ### Phase 35: Migration & Ship v3.0.0
 **Goal**: Existing users can upgrade from v2.x to v3.0.0 cleanly, the overlay-architecture branch becomes main, and the package ships to npm as v3.0.0
 **Depends on**: Phase 34 (all tests pass, CI green on all platforms)
 **Requirements**: MIG-01, MIG-02, MIG-03, MIG-04, MIG-05, MIG-06
 **Success Criteria** (what must be TRUE):
-  1. Current main is tagged as v0.4.0-legacy and the overlay-architecture branch is created with clean overlay structure
+  1. Current main is tagged as v2.4.0-legacy (per D-01, matches actual published version)
   2. .planning/ history, npm package name (@chude/get-stuff-done), and GitHub repo are all preserved across migration
   3. `aidev release major` ships v3.0.0 to npm; `bunx @chude/get-stuff-done@3.0.0 --claude --global` installs successfully on a clean machine
   4. Users on v2.4.0 can install v3.0.0 and the installer detects and cleans up v2.x artifacts automatically
   5. Rollback is documented: `bunx @chude/get-stuff-done@2.4.0 --claude --global` installs the legacy version
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 35-01-PLAN.md -- Update package.json for v3.0 shipping, fix launcher imports, make v2.x cleanup non-interactive (MIG-03, MIG-04, MIG-05)
+- [ ] 35-02-PLAN.md -- Create v2.4.0-legacy tag and write UPGRADING.md (MIG-01, MIG-02, MIG-06)
+- [ ] 35-03-PLAN.md -- Pre-publish validation and release v3.0.0 to npm (MIG-04, MIG-05)
 
 ## Progress
 
@@ -213,5 +217,5 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 | 31. Feature Flags & Override System | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
 | 32. Fork Code Port | v1.0.0 | Complete    | 2026-03-29 | 2026-03-29 |
 | 33. Installer & Update Workflow | v1.0.0 | 2/2 | Complete | 2026-03-29 |
-| 34. Testing & CI Enforcement | 4/4 | Complete   | 2026-03-30 | - |
-| 35. Migration & Ship v3.0.0 | v1.0.0 | 0/? | Not started | - |
+| 34. Testing & CI Enforcement | v1.0.0 | 4/4 | Complete | 2026-03-30 |
+| 35. Migration & Ship v3.0.0 | v1.0.0 | 0/3 | Not started | - |

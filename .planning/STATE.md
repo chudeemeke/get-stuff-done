@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 34 of 35 (Testing & CI Enforcement) -- IN PROGRESS
-Plan: 3 of 4 complete in current phase
-Status: Plan 01 complete -- sync.cjs coverage gap closure via symlink shim (94.86% lines)
-Last activity: 2026-03-30 -- sync.cjs source-tree testing with junction shim (Plan 01)
+Plan: 4 of 4 complete in current phase
+Status: Phase 34 complete -- all 4 plans executed (testing, CI scripts, coverage gaps, CI matrix)
+Last activity: 2026-03-30 -- CI enforcement matrix with 5 parallel jobs (Plan 04)
 
 Progress: [============================..] 90% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 34 in progress)
 
@@ -79,6 +79,8 @@ Recent decisions affecting current work:
 - Upstream compat runner finds 131/451 failures against composed dist/ -- expected due to branding changes
 - Stateless modules: do not use require.cache clearing in tests (bun 1.3.5 coverage tracking bug)
 - Exported parseArgs from check-overrides.js for direct testability (100% function coverage)
+- [Phase 34]: All 5 CI jobs run in parallel (no needs dependencies) for fastest feedback
+- [Phase 34]: upstream-compat on 3 OSes (platform-specific symlink behavior), boundary-override-check on ubuntu only (platform-independent)
 
 ### Pending Todos
 
@@ -91,5 +93,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Completed 34-01-PLAN.md -- sync.cjs coverage gap closure via symlink shim (TEST-01, TEST-04)
+Stopped at: Completed 34-04-PLAN.md -- CI enforcement matrix (CI-02, CI-03, CI-04). Phase 34 fully complete.
 Resume file: None

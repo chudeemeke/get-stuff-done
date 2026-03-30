@@ -89,9 +89,9 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 ### CI and Enforcement
 
 - [x] **CI-01**: check-boundary.js scans repo for upstream files outside overrides/; fails build if found
-- [ ] **CI-02**: check-overrides.js verifies REASON.md exists for each override; fails build if missing
-- [ ] **CI-03**: Cross-platform matrix (macOS, Linux, Windows) for all test suites
-- [ ] **CI-04**: All four CI checks pass: fork tests, upstream compat, boundary check, override check
+- [x] **CI-02**: check-overrides.js verifies REASON.md exists for each override; fails build if missing
+- [x] **CI-03**: Cross-platform matrix (macOS, Linux, Windows) for all test suites
+- [x] **CI-04**: All four CI checks pass: fork tests, upstream compat, boundary check, override check
 
 ### Migration
 

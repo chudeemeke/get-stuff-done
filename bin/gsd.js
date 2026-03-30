@@ -7,6 +7,11 @@
  * Pure Node.js replacement for bin/gsd bash script.
  * Works on Windows (cmd, PowerShell, Git Bash), macOS, and Linux.
  *
+ * Imports from dist/src/ (npm package) with fallback to overlay/src/ (local dev).
+ * This dual-source strategy ensures the launcher works both from the published
+ * npm package (where dist/ ships but overlay/src/ does not) and from a local
+ * development checkout (where overlay/src/ exists but dist/ may not be composed yet).
+ *
  * Features:
  * - Creates default config if missing
  * - Displays startup banner with terminal-aware coloring
@@ -17,9 +22,18 @@
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
-const { gsdPaths } = require('../overlay/src/platform/paths');
-const { detectTerminal } = require('../overlay/src/platform/terminal');
-const { loadConfig, getConfigValue } = require('../overlay/src/config/ConfigLoader');
+// Import from dist/src/ (npm package) with fallback to overlay/src/ (local dev)
+function tryRequire(distPath, overlayPath) {
+  try {
+    return require(distPath);
+  } catch {
+    return require(overlayPath);
+  }
+}
+
+const { gsdPaths } = tryRequire('../dist/src/platform/paths', '../overlay/src/platform/paths');
+const { detectTerminal } = tryRequire('../dist/src/platform/terminal', '../overlay/src/platform/terminal');
+const { loadConfig, getConfigValue } = tryRequire('../dist/src/config/ConfigLoader', '../overlay/src/config/ConfigLoader');
 
 // Detect terminal capabilities
 const terminal = detectTerminal();

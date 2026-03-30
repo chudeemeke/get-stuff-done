@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Phase 33 -- Installer & Update Workflow
+**Current focus:** Phase 34 -- Testing & CI Enforcement
 
 ## Current Position
 
 Phase: 34 of 35 (Testing & CI Enforcement) -- IN PROGRESS
-Plan: 2 of 4 complete in current phase
-Status: Plan 02 complete -- CI enforcement scripts (check-boundary.js, run-upstream-compat.js)
-Last activity: 2026-03-30 -- boundary violation detection (Plan 02), upstream compat runner (Plan 02)
+Plan: 3 of 4 complete in current phase
+Status: Plan 03 complete -- coverage gap closure for compose.js, preview-update.js, check-overrides.js
+Last activity: 2026-03-30 -- coverage tests for compose/preview-update/check-overrides (Plan 03)
 
 Progress: [============================..] 90% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 34 in progress)
 
@@ -75,6 +75,8 @@ Recent decisions affecting current work:
 - check-boundary.js ALLOWED_PREFIXES: overrides/, dist/, node_modules/, .git/, .planning/, tests/, .github/
 - Junction cleanup before rmSync on Windows prevents EBUSY errors (lstat to distinguish symlink vs junction)
 - Upstream compat runner finds 131/451 failures against composed dist/ -- expected due to branding changes
+- Stateless modules: do not use require.cache clearing in tests (bun 1.3.5 coverage tracking bug)
+- Exported parseArgs from check-overrides.js for direct testability (100% function coverage)
 
 ### Pending Todos
 
@@ -87,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Completed 34-02-PLAN.md -- CI enforcement scripts (TEST-02, TEST-03, TEST-04, CI-01)
+Stopped at: Completed 34-03-PLAN.md -- coverage gaps closed for compose.js, preview-update.js, check-overrides.js (TEST-01)
 Resume file: None

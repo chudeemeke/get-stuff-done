@@ -81,7 +81,7 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 ### Testing and Quality
 
-- [ ] **TEST-01**: Fork-specific code achieves 95%+ at EACH coverage metric (statements, branches, functions, lines) individually
+- [x] **TEST-01**: Fork-specific code achieves 95%+ at EACH coverage metric (statements, branches, functions, lines) individually
 - [x] **TEST-02**: Upstream test assertion categorisation completed (feasibility gate for compat runner approach)
 - [x] **TEST-03**: Upstream compatibility runner executes upstream tests against composed dist/ output
 - [x] **TEST-04**: TDD enforced: tests written before or alongside implementation in every phase, not as a separate phase

@@ -298,11 +298,17 @@ function walkDir(dir, base) {
   for (const entry of entries) {
     const abs = path.join(dir, entry.name);
     const rel = base ? base + '/' + entry.name : entry.name;
-    // Resolve symlinks (common on iCloud/NTFS reparse points) via stat()
-    const stat = entry.isSymbolicLink() ? fs.statSync(abs) : entry;
-    if (stat.isDirectory()) {
+    if (entry.isSymbolicLink()) {
+      // Follow file symlinks (iCloud NTFS reparse points), skip directory symlinks (test junctions)
+      let target;
+      try { target = fs.statSync(abs); } catch { continue; } // Broken or inaccessible symlink
+      if (target.isFile()) { files.push(rel); }
+      // Directory symlinks are intentionally skipped
+      continue;
+    }
+    if (entry.isDirectory()) {
       files.push(...walkDir(abs, rel));
-    } else if (stat.isFile()) {
+    } else {
       files.push(rel);
     }
   }
@@ -1084,4 +1090,6 @@ module.exports = {
   validateFeaturesConfig,
   FEATURES_SCHEMA,
   CATEGORY_DIR_MAP,
+  // Utilities (exported for testing)
+  walkDir,
 };

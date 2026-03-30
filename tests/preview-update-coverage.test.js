@@ -375,8 +375,8 @@ describe('runPreviewScan() default file list', () => {
     // This exercises the buildFileList() and walkDirFlat() code paths
     const findings = mod.runPreviewScan('1.29.0', '1.30.0');
     expect(Array.isArray(findings)).toBe(true);
-    // Findings may or may not include execution-path depending on how the upstream package
-    // structures its file paths -- the key assertion is that the scan completes without error
+    // Scan completes without error; findings depend on upstream package structure
+    expect(findings.length).toBeGreaterThanOrEqual(0);
     for (const f of findings) {
       expect(f).toHaveProperty('check');
       expect(f).toHaveProperty('severity');

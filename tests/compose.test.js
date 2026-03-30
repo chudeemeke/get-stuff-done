@@ -30,7 +30,7 @@
  * OVER-04: override() with zero overrides passes through unchanged
  */
 
-const { describe, test, expect, beforeAll, afterAll, beforeEach } = require('bun:test');
+const { describe, test, expect, beforeAll, afterAll, beforeEach, afterEach } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const { execSync, spawnSync } = require('child_process');
@@ -1772,5 +1772,65 @@ describe('resolve() additional error paths', () => {
     fs.writeFileSync(path.join(mockUpstream, 'package.json'), 'CORRUPT JSON');
     expect(() => resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay }))
       .toThrow(/package\.json/i);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// walkDir unit tests
+// ---------------------------------------------------------------------------
+
+describe('walkDir', () => {
+  const { walkDir } = require('../scripts/compose');
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-walkdir-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  test('returns files with forward-slash relative paths', () => {
+    fs.mkdirSync(path.join(tmpDir, 'sub'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'a.txt'), 'a');
+    fs.writeFileSync(path.join(tmpDir, 'sub', 'b.txt'), 'b');
+    const files = walkDir(tmpDir, '');
+    expect(files.sort()).toEqual(['a.txt', 'sub/b.txt']);
+  });
+
+  test('returns empty array for empty directory', () => {
+    const files = walkDir(tmpDir, '');
+    expect(files).toEqual([]);
+  });
+
+  test('skips directory symlinks/junctions', () => {
+    fs.mkdirSync(path.join(tmpDir, 'real'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'real', 'file.txt'), 'content');
+    const type = process.platform === 'win32' ? 'junction' : 'dir';
+    fs.symlinkSync(path.join(tmpDir, 'real'), path.join(tmpDir, 'link'), type);
+    const files = walkDir(tmpDir, '');
+    expect(files).toEqual(['real/file.txt']);
+  });
+
+  test('follows file symlinks (iCloud reparse points)', () => {
+    fs.writeFileSync(path.join(tmpDir, 'original.txt'), 'content');
+    fs.symlinkSync(path.join(tmpDir, 'original.txt'), path.join(tmpDir, 'linked.txt'));
+    const files = walkDir(tmpDir, '').sort();
+    expect(files).toContain('linked.txt');
+    expect(files).toContain('original.txt');
+  });
+
+  test('skips broken symlinks without error', () => {
+    fs.symlinkSync(path.join(tmpDir, 'nonexistent'), path.join(tmpDir, 'broken.txt'));
+    fs.writeFileSync(path.join(tmpDir, 'good.txt'), 'content');
+    const files = walkDir(tmpDir, '');
+    expect(files).toEqual(['good.txt']);
+  });
+
+  test('respects base parameter for path prefix', () => {
+    fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
+    const files = walkDir(tmpDir, 'prefix');
+    expect(files).toEqual(['prefix/file.txt']);
   });
 });

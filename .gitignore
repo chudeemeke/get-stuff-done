@@ -13,6 +13,9 @@ hooks/dist/
 get-stuff-done/bin/dist/
 dist/
 
+# Test symlink shim (created by sync.test.cjs, cleaned up on exit)
+overlay/get-shit-done
+
 # Animation assets
 animation/
 *.gif

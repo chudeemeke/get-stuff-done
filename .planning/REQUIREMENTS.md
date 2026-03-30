@@ -134,7 +134,7 @@ Deferred to future releases. Not in current roadmap.
 | PORT-01 through PORT-09 | Phase 32 | Pending |
 | INST-01 through INST-06 | Phase 33 | Complete |
 | UPD-01 through UPD-04 | Phase 33 | Pending |
-| TEST-01 through TEST-04 | Phase 34 | Pending |
+| TEST-01 through TEST-04 | Phase 34 | In Progress (TEST-01, TEST-04 complete) |
 | CI-01 through CI-04 | Phase 34 | Pending |
 | MIG-01 through MIG-06 | Phase 35 | Pending |
 

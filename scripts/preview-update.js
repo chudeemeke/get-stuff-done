@@ -414,4 +414,5 @@ module.exports = {
   runPreviewScan,
   getOverrideImpact,
   generateReport,
+  runFallbackChecks,
 };

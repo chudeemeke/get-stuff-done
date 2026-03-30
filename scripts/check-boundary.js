@@ -217,4 +217,4 @@ if (require.main === module) {
 // Module exports
 // ---------------------------------------------------------------------------
 
-module.exports = { checkBoundary, formatReport };
+module.exports = { checkBoundary, formatReport, parseArgs };

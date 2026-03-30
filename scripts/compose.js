@@ -296,10 +296,13 @@ function walkDir(dir, base) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
+    const abs = path.join(dir, entry.name);
     const rel = base ? base + '/' + entry.name : entry.name;
-    if (entry.isDirectory()) {
-      files.push(...walkDir(path.join(dir, entry.name), rel));
-    } else {
+    // Resolve symlinks (common on iCloud/NTFS reparse points) via stat()
+    const stat = entry.isSymbolicLink() ? fs.statSync(abs) : entry;
+    if (stat.isDirectory()) {
+      files.push(...walkDir(abs, rel));
+    } else if (stat.isFile()) {
       files.push(rel);
     }
   }

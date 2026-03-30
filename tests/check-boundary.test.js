@@ -373,3 +373,54 @@ describe('CLI exit codes', () => {
     expect(result.stdout).toContain('No boundary violations');
   });
 });
+
+// ---------------------------------------------------------------------------
+// formatReport unit tests
+// ---------------------------------------------------------------------------
+
+describe('formatReport', () => {
+  const { formatReport } = require('../scripts/check-boundary');
+
+  test('clean result produces no-violation message', () => {
+    const report = formatReport({ ok: true, violations: [] });
+    expect(report).toContain('No boundary violations found');
+  });
+
+  test('violations produce count and file list', () => {
+    const report = formatReport({ ok: false, violations: ['bin/tool.cjs', 'lib/config.cjs'] });
+    expect(report).toContain('2 boundary violation(s)');
+    expect(report).toContain('bin/tool.cjs');
+    expect(report).toContain('lib/config.cjs');
+    expect(report).toContain('Move to overrides/ or remove from repo');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// parseArgs unit tests
+// ---------------------------------------------------------------------------
+
+describe('parseArgs', () => {
+  const { parseArgs } = require('../scripts/check-boundary');
+
+  test('parses --upstream-dir flag', () => {
+    const opts = parseArgs(['--upstream-dir', '/tmp/upstream']);
+    expect(opts.upstreamDir).toBe('/tmp/upstream');
+  });
+
+  test('parses --project-dir flag', () => {
+    const opts = parseArgs(['--project-dir', '/tmp/project']);
+    expect(opts.projectDir).toBe('/tmp/project');
+  });
+
+  test('parses both flags', () => {
+    const opts = parseArgs(['--upstream-dir', '/tmp/up', '--project-dir', '/tmp/proj']);
+    expect(opts.upstreamDir).toBe('/tmp/up');
+    expect(opts.projectDir).toBe('/tmp/proj');
+  });
+
+  test('returns empty opts for no flags', () => {
+    const opts = parseArgs([]);
+    expect(opts.upstreamDir).toBeUndefined();
+    expect(opts.projectDir).toBeUndefined();
+  });
+});

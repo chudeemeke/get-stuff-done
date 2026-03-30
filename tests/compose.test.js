@@ -1834,3 +1834,117 @@ describe('walkDir', () => {
     expect(files).toEqual(['prefix/file.txt']);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Error path coverage for compose pipeline
+// ---------------------------------------------------------------------------
+
+describe('compose pipeline error paths', () => {
+  const { resolve, override } = require('../scripts/compose');
+
+  test('resolve() throws when upstream directory does not exist', () => {
+    expect(() => resolve({
+      upstreamDir: path.join(os.tmpdir(), 'nonexistent-upstream-' + Date.now()),
+      overlayDir: path.join(os.tmpdir(), 'nonexistent-overlay-' + Date.now()),
+    })).toThrow(/Upstream directory not found/);
+  });
+
+  test('override() handles missing overrides directory gracefully', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-override-'));
+    try {
+      // Create overlay dir but NOT a sibling overrides/ dir
+      const overlayDir = path.join(tmpDir, 'overlay');
+      fs.mkdirSync(overlayDir);
+      const state = {
+        manifest: [{ relPath: 'test.js', sourcePath: path.join(tmpDir, 'test.js') }],
+        warnings: [],
+        meta: { overlayDir },
+      };
+      // override() derives overridesDir from state.meta.overlayDir's parent
+      const result = override(state);
+      expect(result.manifest).toBeDefined();
+      expect(result.warnings).toBeDefined();
+      expect(result.meta.overridesApplied).toEqual([]);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatCLIOutput unit tests
+// ---------------------------------------------------------------------------
+
+describe('formatCLIOutput', () => {
+  const { formatCLIOutput } = require('../scripts/compose');
+
+  const baseSummary = {
+    upstreamVersion: '1.30.0',
+    overlayVersion: '1.0.0',
+    filesWritten: 256,
+    wouldWrite: 256,
+    brandingRulesApplied: 12,
+    warnings: [],
+    delta: [
+      { status: 'added', relPath: 'new.js' },
+      { status: 'modified', relPath: 'changed.js' },
+      { status: 'removed', relPath: 'old.js' },
+      { status: 'unchanged', relPath: 'stable.js' },
+    ],
+  };
+
+  test('default mode shows Composition complete', () => {
+    const output = formatCLIOutput(baseSummary, {});
+    expect(output).toContain('Composition complete');
+    expect(output).toContain('upstream_version:');
+    expect(output).toContain('files_written:');
+    expect(output).toContain('branding_rules_applied:');
+  });
+
+  test('dryRun mode shows dry run header', () => {
+    const output = formatCLIOutput(baseSummary, { dryRun: true });
+    expect(output).toContain('Dry run');
+    expect(output).toContain('files_would_write:');
+    expect(output).toContain('branding_rules:');
+  });
+
+  test('dryRun with warnings shows count', () => {
+    const withWarnings = { ...baseSummary, warnings: ['warn1', 'warn2'] };
+    const output = formatCLIOutput(withWarnings, { dryRun: true });
+    expect(output).toContain('warnings:');
+    expect(output).toContain('2');
+  });
+
+  test('diff mode shows file status counts', () => {
+    const output = formatCLIOutput(baseSummary, { diff: true });
+    expect(output).toContain('Diff against current dist/');
+    expect(output).toContain('added:');
+    expect(output).toContain('modified:');
+    expect(output).toContain('removed:');
+    expect(output).toContain('unchanged:');
+  });
+
+  test('diff verbose lists non-unchanged files', () => {
+    const output = formatCLIOutput(baseSummary, { diff: true, verbose: true });
+    expect(output).toContain('[added] new.js');
+    expect(output).toContain('[modified] changed.js');
+    expect(output).toContain('[removed] old.js');
+    expect(output).not.toContain('[unchanged]');
+  });
+
+  test('default verbose with warnings lists each warning', () => {
+    const withWarnings = { ...baseSummary, warnings: ['path conflict', 'missing file'] };
+    const output = formatCLIOutput(withWarnings, { verbose: true });
+    expect(output).toContain('Composition complete');
+    expect(output).toContain('warnings:');
+    expect(output).toContain('- path conflict');
+    expect(output).toContain('- missing file');
+  });
+
+  test('default with warnings but not verbose shows count only', () => {
+    const withWarnings = { ...baseSummary, warnings: ['w1'] };
+    const output = formatCLIOutput(withWarnings, {});
+    expect(output).toContain('warnings:');
+    expect(output).not.toContain('- w1');
+  });
+});

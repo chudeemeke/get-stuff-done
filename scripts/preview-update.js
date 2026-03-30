@@ -374,35 +374,51 @@ function generateReport(versionDelta, scanFindings, overrideImpact) {
 }
 
 // ---------------------------------------------------------------------------
-// CLI entry point
+// CLI logic (extracted for testability)
 // ---------------------------------------------------------------------------
 
-if (require.main === module) {
-  console.log('preview-update: Checking for upstream updates...');
-  console.log('');
+/**
+ * Run the preview-update check and return structured output.
+ * @returns {{ output: string, exitCode: number }}
+ */
+function runCLI() {
+  const lines = ['preview-update: Checking for upstream updates...', ''];
 
   try {
     const delta = getVersionDelta();
 
     if (!delta.hasUpdate) {
-      console.log(`Already up to date (pinned: ${delta.pinned})`);
-      process.exit(0);
+      lines.push(`Already up to date (pinned: ${delta.pinned})`);
+      return { output: lines.join('\n'), exitCode: 0 };
     }
 
-    console.log(`Update available: ${delta.pinned} -> ${delta.latest}`);
-    console.log('Running supply chain scan...');
+    lines.push(`Update available: ${delta.pinned} -> ${delta.latest}`);
+    lines.push('Running supply chain scan...');
 
     const findings = runPreviewScan(delta.pinned, delta.latest);
     const overrideResult = getOverrideImpact();
     const report = generateReport(delta, findings, overrideResult);
 
-    console.log('');
-    console.log(report);
-    process.exit(0);
+    lines.push('');
+    lines.push(report);
+    return { output: lines.join('\n'), exitCode: 0 };
   } catch (err) {
-    console.error(`preview-update error: ${err.message}`);
-    process.exit(1);
+    return { output: `preview-update error: ${err.message}`, exitCode: 1 };
   }
+}
+
+// ---------------------------------------------------------------------------
+// CLI entry point
+// ---------------------------------------------------------------------------
+
+if (require.main === module) {
+  const result = runCLI();
+  if (result.exitCode === 0) {
+    console.log(result.output);
+  } else {
+    console.error(result.output);
+  }
+  process.exit(result.exitCode);
 }
 
 // ---------------------------------------------------------------------------
@@ -415,4 +431,5 @@ module.exports = {
   getOverrideImpact,
   generateReport,
   runFallbackChecks,
+  runCLI,
 };

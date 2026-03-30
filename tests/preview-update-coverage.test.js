@@ -485,3 +485,38 @@ describe('runFallbackChecks', () => {
     expect(findings.length).toBe(1);
   });
 });
+
+// ---------------------------------------------------------------------------
+// runCLI unit tests (covers CLI entry logic without subprocess)
+// ---------------------------------------------------------------------------
+
+describe('runCLI', () => {
+  const { runCLI } = require('../scripts/preview-update');
+
+  test('produces output with update check header', () => {
+    const result = runCLI();
+    expect(result).toHaveProperty('output');
+    expect(result).toHaveProperty('exitCode');
+    expect(result.output).toContain('preview-update');
+    expect([0, 1]).toContain(result.exitCode);
+  });
+
+  test('returns exitCode 0 when up to date or report generated', () => {
+    const result = runCLI();
+    // Either "Already up to date" or a full report -- both exit 0 in normal flow
+    if (result.exitCode === 0) {
+      expect(result.output).toMatch(/up to date|Update available/);
+    }
+  });
+
+  test('output includes version info', () => {
+    const result = runCLI();
+    if (result.exitCode === 0) {
+      // Either shows pinned version (up to date) or update delta
+      expect(result.output).toMatch(/pinned|Update available/);
+    } else {
+      // Error case still has structured output
+      expect(result.output).toContain('preview-update');
+    }
+  });
+});

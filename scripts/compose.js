@@ -1011,60 +1011,77 @@ function computeDelta(state, distDir) {
 }
 
 // ---------------------------------------------------------------------------
+// CLI logic (extracted for testability)
+// ---------------------------------------------------------------------------
+
+/**
+ * Format compose summary for CLI output.
+ * @param {object} summary - compose() return value
+ * @param {{ dryRun?: boolean, diff?: boolean, verbose?: boolean }} flags
+ * @returns {string} formatted output
+ */
+function formatCLIOutput(summary, flags = {}) {
+  const lines = [];
+  if (flags.dryRun) {
+    lines.push('Dry run -- no files written');
+    lines.push(`  upstream_version:       ${summary.upstreamVersion}`);
+    lines.push(`  overlay_version:        ${summary.overlayVersion}`);
+    lines.push(`  files_would_write:      ${summary.wouldWrite}`);
+    lines.push(`  branding_rules:         ${summary.brandingRulesApplied}`);
+    if (summary.warnings.length > 0) {
+      lines.push(`  warnings:               ${summary.warnings.length}`);
+    }
+  } else if (flags.diff) {
+    const added = summary.delta.filter(d => d.status === 'added').length;
+    const modified = summary.delta.filter(d => d.status === 'modified').length;
+    const removed = summary.delta.filter(d => d.status === 'removed').length;
+    const unchanged = summary.delta.filter(d => d.status === 'unchanged').length;
+
+    lines.push('Diff against current dist/');
+    lines.push(`  added:     ${added}`);
+    lines.push(`  modified:  ${modified}`);
+    lines.push(`  removed:   ${removed}`);
+    lines.push(`  unchanged: ${unchanged}`);
+
+    if (flags.verbose) {
+      for (const entry of summary.delta) {
+        if (entry.status !== 'unchanged') {
+          lines.push(`  [${entry.status}] ${entry.relPath}`);
+        }
+      }
+    }
+  } else {
+    lines.push('Composition complete');
+    lines.push(`  upstream_version:       ${summary.upstreamVersion}`);
+    lines.push(`  overlay_version:        ${summary.overlayVersion}`);
+    lines.push(`  files_written:          ${summary.filesWritten}`);
+    lines.push(`  branding_rules_applied: ${summary.brandingRulesApplied}`);
+    if (summary.warnings.length > 0) {
+      lines.push(`  warnings:               ${summary.warnings.length}`);
+      if (flags.verbose) {
+        for (const w of summary.warnings) {
+          lines.push(`    - ${w}`);
+        }
+      }
+    }
+  }
+  return lines.join('\n') + '\n';
+}
+
+// ---------------------------------------------------------------------------
 // CLI entry point (when run directly as "node scripts/compose.js")
 // ---------------------------------------------------------------------------
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const dryRun = args.includes('--dry-run');
-  const isDiff = args.includes('--diff');
-  const verbose = args.includes('--verbose');
+  const flags = {
+    dryRun: args.includes('--dry-run'),
+    diff: args.includes('--diff'),
+    verbose: args.includes('--verbose'),
+  };
 
   try {
-    const summary = compose({ dryRun, diff: isDiff, verbose });
-
-    if (dryRun) {
-      process.stdout.write('Dry run -- no files written\n');
-      process.stdout.write(`  upstream_version:       ${summary.upstreamVersion}\n`);
-      process.stdout.write(`  overlay_version:        ${summary.overlayVersion}\n`);
-      process.stdout.write(`  files_would_write:      ${summary.wouldWrite}\n`);
-      process.stdout.write(`  branding_rules:         ${summary.brandingRulesApplied}\n`);
-      if (summary.warnings.length > 0) {
-        process.stdout.write(`  warnings:               ${summary.warnings.length}\n`);
-      }
-    } else if (isDiff) {
-      const added = summary.delta.filter(d => d.status === 'added').length;
-      const modified = summary.delta.filter(d => d.status === 'modified').length;
-      const removed = summary.delta.filter(d => d.status === 'removed').length;
-      const unchanged = summary.delta.filter(d => d.status === 'unchanged').length;
-
-      process.stdout.write('Diff against current dist/\n');
-      process.stdout.write(`  added:     ${added}\n`);
-      process.stdout.write(`  modified:  ${modified}\n`);
-      process.stdout.write(`  removed:   ${removed}\n`);
-      process.stdout.write(`  unchanged: ${unchanged}\n`);
-
-      if (verbose) {
-        for (const entry of summary.delta) {
-          if (entry.status !== 'unchanged') {
-            process.stdout.write(`  [${entry.status}] ${entry.relPath}\n`);
-          }
-        }
-      }
-    } else {
-      process.stdout.write('Composition complete\n');
-      process.stdout.write(`  upstream_version:       ${summary.upstreamVersion}\n`);
-      process.stdout.write(`  overlay_version:        ${summary.overlayVersion}\n`);
-      process.stdout.write(`  files_written:          ${summary.filesWritten}\n`);
-      process.stdout.write(`  branding_rules_applied: ${summary.brandingRulesApplied}\n`);
-      if (summary.warnings.length > 0) {
-        process.stdout.write(`  warnings:               ${summary.warnings.length}\n`);
-        if (verbose) {
-          for (const w of summary.warnings) {
-            process.stdout.write(`    - ${w}\n`);
-          }
-        }
-      }
-    }
+    const summary = compose({ dryRun: flags.dryRun, diff: flags.diff, verbose: flags.verbose });
+    process.stdout.write(formatCLIOutput(summary, flags));
   } catch (err) {
     process.stderr.write(`Error: ${err.message}\n`);
     process.exit(1);
@@ -1092,4 +1109,5 @@ module.exports = {
   CATEGORY_DIR_MAP,
   // Utilities (exported for testing)
   walkDir,
+  formatCLIOutput,
 };

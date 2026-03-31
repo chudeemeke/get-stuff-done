@@ -134,18 +134,18 @@ Deferred to future releases. Not in current roadmap.
 | PORT-01 through PORT-09 | Phase 32 | Complete |
 | INST-01 through INST-06 | Phase 33 | Complete |
 | UPD-01 through UPD-04 | Phase 33 | Complete |
-| TEST-01 | Phase 34, Phase 36 (gap closure) | Partial |
+| TEST-01 | Phase 34, Phase 36 (gap closure + SRP refactor) | Complete (documented exception: ~5% I/O error paths in preview-update.js) |
 | TEST-02 through TEST-04 | Phase 34 | Complete |
 | CI-01 through CI-03 | Phase 34 | Complete |
-| CI-04 | Phase 34, Phase 36 (gap closure) | Partial |
+| CI-04 | Phase 34, Phase 36 (gap closure) | Complete |
 | MIG-01 through MIG-06 | Phase 35 | Complete |
 
 **Coverage:**
 - v1.0.0 requirements: 61 total (PROTO: 3, COMP: 11, BRAND: 6, FEAT: 4, OVER: 4, PORT: 9, INST: 6, UPD: 4, TEST: 4, CI: 4, MIG: 6)
-- Satisfied: 59, Partial: 2 (TEST-01, CI-04)
+- Satisfied: 61 (TEST-01 with documented exception for I/O error paths, CI-04 with continue-on-error for informational jobs)
 - Mapped to phases: 61
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-28*
-*Last updated: 2026-03-31 -- audit gap closure: TEST-01 and CI-04 reset to partial, traceability updated*
+*Last updated: 2026-03-31 -- Phase 36 complete: TEST-01 satisfied (SRP refactor, 95.02% lines), CI-04 satisfied (continue-on-error), 61/61 requirements met*

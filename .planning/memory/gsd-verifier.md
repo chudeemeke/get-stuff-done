@@ -1,7 +1,7 @@
 ---
 agent: gsd-verifier
-updated: 2026-03-27
-entries: 26
+updated: 2026-03-30
+entries: 39
 ---
 
 ## Agent Memory: GSD Verifier
@@ -162,3 +162,93 @@ entries:
     confidence: HIGH
     phase: "29-prototype-gate"
     date: "2026-03-27"
+
+  - finding: "For composition pipeline phases (Phase 30 pattern): intentional pass-through stubs (filter, override) are NOT anti-patterns when: (1) they return a fully-formed state object not null/empty, (2) they are documented in code comments with the phase that implements them, (3) the PLAN frontmatter explicitly describes them as Phase N stubs. Verify by reading the function body -- if it returns {...state, manifest: [...], warnings: [...], meta: {...}} it is a properly-wired stub, not an empty implementation."
+    source: "Phase 30 verification"
+    confidence: HIGH
+    phase: "30-composition-pipeline-branding"
+    date: "2026-03-28"
+
+  - finding: "For multi-plan phases where one script grows across plans (compose.js in Phase 30): verify line count at the END of the phase, not per-plan. Plan 01 min_lines=N + Plan 02 min_lines=M means the combined file should be >= M (the larger requirement wins since Plan 02 adds to Plan 01). Phase 30 compose.js hit 828 lines after Plan 03 additions (well above the 200 min from Plan 02)."
+    source: "Phase 30 verification"
+    confidence: HIGH
+    phase: "30-composition-pipeline-branding"
+    date: "2026-03-28"
+
+  - finding: "Pre-existing test failures in get-stuff-done: tests/core.test.cjs has execGit() timeout failures (Phase 24 vintage) that are Windows MINGW64-specific. These are NOT regressions from Phase 30 -- confirmed by `git log -- tests/core.test.cjs` showing last modification was in Phase 24. When full suite shows failures, always check git log for each failing file to distinguish pre-existing from new failures."
+    source: "Phase 30 verification"
+    confidence: HIGH
+    phase: "30-composition-pipeline-branding"
+    date: "2026-03-28"
+
+  - finding: "Re-verification pattern when initial verification passed but UAT found a gap: the previous VERIFICATION.md may show status:passed even though a gap existed (UAT ran after the initial verification). In this case, treat the UAT gap as the prior status to close, extract must_haves from the gap closure plan (not the initial VERIFICATION.md), and verify both the fix AND regression of all initially-passing truths."
+    source: "Phase 30 re-verification"
+    confidence: HIGH
+    phase: "30-composition-pipeline-branding"
+    date: "2026-03-28"
+
+  - finding: "For --diff gap closure in compose pipelines: the key indicator is whether computeDelta() tracks additive outputs (files written in merge() outside the manifest loop). Check: (1) wouldWrite.add() called for each additive output, (2) special-case exclusions removed from the removed-detection loop, (3) content comparison logic mirrors what merge() actually writes (e.g., generateCredits() for CREDITS.md content)."
+    source: "Phase 30 re-verification (Plan 03)"
+    confidence: HIGH
+    phase: "30-composition-pipeline-branding"
+    date: "2026-03-28"
+
+  - finding: "For feature flag/override phases (Phase 31 pattern): when a phase replaces Phase 30 pass-through stubs with real implementations, verify both the implementation AND the meta propagation chain. Key checks: (1) filter() populates meta.featuresDisabled, (2) override() populates meta.overridesApplied, (3) merge() reads BOTH from state.meta for .install-meta.json output (lines 811-812). The merge() wiring is where meta propagation failures hide -- grep for the meta field name in merge() specifically."
+    source: "Phase 31 verification"
+    confidence: HIGH
+    phase: "31-feature-flags-override-system"
+    date: "2026-03-29"
+
+  - finding: "For standalone companion scripts (check-overrides.js pattern): verify independence by confirming zero imports from the main pipeline script (compose.js). grep for require('..compose') or require('../scripts/compose') in the companion script. The standalone pattern is intentional -- CI runs the companion independently. Also verify the CLI entry point pattern: require.main === module guard, process.exit with ok-based exit codes, parseArgs for --flag support."
+    source: "Phase 31 verification"
+    confidence: HIGH
+    phase: "31-feature-flags-override-system"
+    date: "2026-03-29"
+
+  - finding: "For code port phases (Phase 32 pattern): verification of copy-not-move requires checking BOTH existence at destination AND absence of old paths in test imports (grep for ../src/ in updated test files should return 0 matches). Also verify that modules ported together maintain their relative import paths unchanged (e.g., ConfigLoader->ConfigSchema uses ./ConfigSchema both before and after the port). The key anti-pattern is residual old import paths in test files."
+    source: "Phase 32 verification"
+    confidence: HIGH
+    phase: "32-fork-code-port"
+    date: "2026-03-29"
+
+  - finding: "For overlay architecture with dist/-relative import paths (sync.cjs pattern): modules that import from the composed dist/ layout (e.g., require('../get-shit-done/bin/lib/core.cjs')) will fail require() from the source tree. This is by design -- verify the import path is correct for dist/ layout, and accept that source-tree tests for these modules are deferred to the test isolation phase. The key check is: does the path resolve correctly inside dist/ after composition?"
+    source: "Phase 32 verification"
+    confidence: HIGH
+    phase: "32-fork-code-port"
+    date: "2026-03-29"
+
+  - finding: "For delegation installer phases (Phase 33 pattern): key verification points are (1) spawn() not execSync/require for upstream subprocess delegation with stdio: 'inherit', (2) overlay manifest consumed via JSON.parse of .overlay-manifest.json (deterministic, not hardcoded list), (3) .install-meta.json written to get-shit-done/ subdirectory with 5 v3.0 fields, (4) line count confirms monolith replacement (436 vs 2125). The PLAN estimate of 200-300 lines can legitimately grow to ~400 with --help handler, multi-runtime target resolution (opencode/gemini), and error messages with color codes."
+    source: "Phase 33 verification"
+    confidence: HIGH
+    phase: "33-installer-update-workflow"
+    date: "2026-03-29"
+
+  - finding: "For read-only scripts with fallback module loading (preview-update.js pattern): when a module import (sync.cjs) fails because it depends on dist/ layout paths not present in source tree, verify the fallback implementation replicates the critical checks inline. Key verification: (1) grep for zero fs write operations in the script (writeFileSync, mkdirSync, rmSync etc.), (2) verify fallback checks match the primary scanner's vector names (execution-path, prompt-integrity), (3) verify module.exports includes all functions for testability."
+    source: "Phase 33 verification"
+    confidence: HIGH
+    phase: "33-installer-update-workflow"
+    date: "2026-03-29"
+
+  - finding: "For coverage enforcement phases (Phase 34 pattern): bun test --coverage reports only functions and lines, NOT statements and branches. When success criteria require 95%+ at ALL FOUR metrics, two metrics are unverifiable with bun 1.3.5. Also: bun does not track coverage for code executed in child processes (spawnSync/execFileSync), so CLI entry blocks (require.main === module) tested via subprocess have zero coverage attribution. The only way to get CLI entry coverage is in-process interception (captureCmd pattern from sync.test.cjs)."
+    source: "Phase 34 verification"
+    confidence: HIGH
+    phase: "34-testing-ci-enforcement"
+    date: "2026-03-30"
+
+  - finding: "For CI enforcement check phases: boundary and compat checks that enforce post-migration invariants will fail on a pre-migration codebase. check-boundary.js detecting 48 violations at repo root (agents/, commands/, bin/install.js) is correct behavior -- these files exist both upstream and in the fork's repo root because the overlay migration (Phase 35) has not yet moved them. CI-04 (all checks pass) is inherently a post-migration deliverable when boundary enforcement is part of the check suite."
+    source: "Phase 34 verification"
+    confidence: HIGH
+    phase: "34-testing-ci-enforcement"
+    date: "2026-03-30"
+
+  - finding: "check-boundary.test.js runs under bun:test and all 16 tests pass, yet bun --coverage reports check-boundary.js at 71.43% functions / 61.54% lines. The uncovered lines are formatReport (154-178), parseArgs (191-201), and CLI entry (210-213). This is likely a bun coverage attribution issue where test file imports go through the test helper pattern rather than direct require. Verify by checking if the test file uses temp-dir fixtures that import check-boundary.js indirectly."
+    source: "Phase 34 verification"
+    confidence: MEDIUM
+    phase: "34-testing-ci-enforcement"
+    date: "2026-03-30"
+
+  - finding: "Coverage aggregate across all files can be misleading when test helper mock files (mock-child-process.js at 11.11%, mock-fs.js at 83.33%, mock-process.js at 85.71%) are included. These are test infrastructure, not production code. The REQUIREMENTS say 'fork-specific code' which should exclude test helpers. However, bun's aggregate includes ALL files in the coverage report."
+    source: "Phase 34 verification"
+    confidence: HIGH
+    phase: "34-testing-ci-enforcement"
+    date: "2026-03-30"

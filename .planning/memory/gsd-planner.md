@@ -1,7 +1,7 @@
 ---
 agent: gsd-planner
-updated: 2026-03-28
-entries: 20
+updated: 2026-03-29
+entries: 26
 ---
 
 - finding: "GSD has ~15 JS files (~6,850 lines) as testable surface. The installer (bin/install.js) alone is 1,760 lines and deserves its own dedicated plan due to complexity (symlink fallback chains, runtime detection, settings.json manipulation)."
@@ -125,3 +125,39 @@ entries: 20
   confidence: HIGH
   phase: "29-prototype-gate"
   date: "2026-03-28"
+
+- finding: "TDD-heavy composition pipeline phases split naturally along the branding-engine/pipeline boundary. Plan 01 (branding engine TDD) is a self-contained pure-function system testable with in-memory strings -- ~30% context. Plan 02 (pipeline stages + CLI) depends on Plan 01's exports but is a genuine dependency (the brand() stage calls applyBrandingToContent from Plan 01). The pipeline is a single TDD task because all 5 stages share the same ManifestEntry type and pipeline state -- splitting would force repeated type definitions. Key sizing signal: the research provided complete code patterns for both plans, so GREEN phase is mechanical implementation rather than design. COMP-11 (TDD requirement) appears in both plans because each has its own test file."
+  source: "Phase 30, planning"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "When a pipeline function generates outputs additively (outside the manifest/tracked-files pattern), delta/diff tools that only check manifest entries will miss them. Phase 30 gap: computeDelta() tracked manifest files but not CREDITS.md and .install-meta.json which merge() writes directly. The fix pattern: after iterating manifest, enumerate known additive outputs by calling the same generation functions (generateCredits, meta object construction) and compare against dist/. Remove any special-case exclusions that were workarounds for the missing tracking. This is a single-plan, 2-task TDD gap closure (~15% context)."
+  source: "Phase 30, gap closure planning"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "Pipeline stub replacement phases (replacing pass-through stubs with real logic) split along file ownership: plans touching the same source+test files are sequential, while standalone new scripts can run in parallel. Phase 31: filter() and override() both modify compose.js and compose.test.js, so Plans 01 and 02 must be sequential (Wave 1, Wave 2). check-overrides.js is standalone (separate script + test file, no compose.js imports per CONTEXT.md decision) so Plan 03 runs in Wave 1 parallel with Plan 01. The dependency between Plans 01 and 02 is genuine: override() processes manifest entries that filter() may have already excluded, and both modify the same meta properties. The research's 3-plan suggestion was correct but the wave assignment needed the file-overlap analysis to get right."
+  source: "Phase 31, planning"
+  confidence: HIGH
+  phase: "31-feature-flags-override-system"
+  date: "2026-03-28"
+
+- finding: "Code porting phases (moving files from one directory to another with import path updates) have a natural 2-wave structure when there are internal dependencies: Wave 1 moves leaf modules (no fork-internal deps) in parallel plans, Wave 2 moves dependent modules (config depends on validation, hooks depend on platform). The key parallelism signal is dependency direction: sync.cjs depends on UPSTREAM core.cjs (not other fork modules), so it can run in Wave 1 parallel with leaf modules despite being a large file. Research should be verified against actual codebase -- Phase 32 research listed 5 agents under overlay/agents/ but the fork actually has 2 agents in memory/ and 4 teams in teams/, and no commands/gsd/upstream.md command file exists. Always diff upstream vs fork directories to identify true fork-only additions."
+  source: "Phase 32, planning"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "Installer + update workflow phases with two independent subsystems (installer vs preview-update) decompose into 2 parallel TDD plans with zero file overlap. Plan 01 (installer) touches bin/install.js + compose.js (manifest generation) + tests/installer-v3.test.js. Plan 02 (preview-update) touches scripts/preview-update.js + tests/preview-update.test.js. Both Wave 1. The compose.js modification (adding .overlay-manifest.json generation) belongs in the installer plan because the installer is the consumer. The preview-update plan has no dependency on the manifest -- it reads package.json for version info and invokes existing check-overrides.js and sync.cjs exports. Key decision: the research recommendation to have compose.js generate a manifest (rather than hardcoding an overlay file list or diffing at install time) is the right approach -- makes the installer deterministic and avoids expensive file comparison at install time."
+  source: "Phase 33, planning"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "Testing+CI phases decompose into 3 Wave 1 parallel plans + 1 Wave 2 CI plan. The parallelism comes from file ownership isolation: Plan 01 (sync.cjs tests) touches only tests/sync.test.cjs, Plan 02 (new scripts) creates scripts/check-boundary.js + scripts/run-upstream-compat.js + tests/check-boundary.test.js, Plan 03 (coverage gaps) touches only existing test files (compose.test.js, preview-update.test.js, check-overrides.test.js). Plan 04 (CI workflow) depends only on Plan 02 (needs the scripts to exist in ci.yml). The CI phase follows the Phase 11 horizontal pattern: infrastructure first, then CI wiring. TEST-02 (assertion categorization) was completed entirely during research -- assigned to Plan 02 because the compat runner design depends on it. sync.cjs coverage requires a symlink shim approach (get-shit-done -> get-stuff-done at project root) because its import path targets dist/ layout by design."
+  source: "Phase 34, planning"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-29"

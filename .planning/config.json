@@ -7,7 +7,8 @@
   "branch_per_phase": false,
   "workflow": {
     "auto_advance": false,
-    "nyquist_validation": true
+    "nyquist_validation": true,
+    "_auto_chain_active": false
   },
   "memory": {
     "enabled": true,

@@ -1,7 +1,7 @@
 ---
 agent: gsd-plan-checker
-updated: 2026-03-10
-entries: 17
+updated: 2026-03-28
+entries: 20
 ---
 
 - finding: "AskUserQuestion audit scope can be wider than plan claims -- workflows that are NOT directly referenced by command files (e.g., execute-plan.md, verify-phase.md, discovery-phase.md) can still invoke AskUserQuestion. The plan only fixes the single command file (plan-phase.md) but the audit must check all 28 command files against all their referenced workflows."
@@ -141,3 +141,21 @@ entries: 17
   confidence: HIGH
   phase: "24-quality-verification-bug-fixes"
   date: "2026-03-10"
+
+- finding: "For TDD plans where tasks include RED (write failing tests) then GREEN (implement), the Wave 0 gaps in RESEARCH.md Validation Architecture section are resolved WITHIN the tasks themselves. The <automated> verify tag in each task runs the test file that the task itself creates during the RED phase. This satisfies Nyquist 8d because task <files> includes the test file AND <verify> runs it."
+  source: "Phase 30, Plans 01-02 verification"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "Pure scaffold/config-creation tasks (creating .gitkeep, branding.json, features.json, updating .gitignore) that contain no executable logic appropriately use shell existence checks (test -f, node -e) in <verify> rather than bun test commands. These tasks lack <automated> tags but this is a warning-level Nyquist gap, not a blocker, because the verify commands ARE automated shell commands even without the <automated> wrapper tag."
+  source: "Phase 30, Plan 01, Task 1"
+  confidence: MEDIUM
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "When a plan lists package.json in files_modified but the task action doesn't describe what specifically changes in package.json (because a prior plan already made the needed change), this is an info-level gap. The plan may be tracking it for completeness (version bumps, minor script additions) rather than for a critical wiring task."
+  source: "Phase 30, Plan 02"
+  confidence: MEDIUM
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"

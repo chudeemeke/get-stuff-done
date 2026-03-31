@@ -12,41 +12,40 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 
 ### Validated
 
-- CONFIG-01 through CONFIG-04: Dynamic configuration system -- v0.1.0
-- STATUS-01 through STATUS-09: Redesigned statusline with branding and thresholds -- v0.1.0
-- INSTALL-01 through INSTALL-04: Hybrid installation (copy default, --link for dev) -- v0.1.0
-- BRAND-01 through BRAND-05: Fork identity and URLs -- v0.1.0
-- UPSTREAM-01 through UPSTREAM-10: Maintainer upstream sync workflow -- v0.1.0
-- UPDATE-01 through UPDATE-04: Consumer update workflow -- v0.1.0
-- LOGO-01 through LOGO-05: Custom logo and visual assets -- v0.1.0
-- SEC-01 through SEC-06: Security hardening (validation, ESLint, parameterized commands, config re-validation) -- v0.2.0
-- PLAT-01 through PLAT-06: Cross-platform support (pathe paths, platform detection, fallback chain) -- v0.2.0
-- SYNC-05, SYNC-06: Upstream sync execution and workflow improvements -- v0.2.0
-- CLAUDE-01 through CLAUDE-03: Agent memory, effort calibration, team patterns -- v0.2.0
-- CI-01: GitHub Actions cross-platform matrix testing -- v0.2.0
-- SYNC-II-01 through SYNC-II-06: Full upstream sync (185 commits), modular architecture adoption, dist migration, fork identity preservation, test suite maintenance, approach comparison -- v0.3.0
-- SYNC-01 through SYNC-04: Diff preview, rollback snapshots, severity-aware auto-update, dry-run mode -- v0.3.0
-- SYNC-07, SYNC-08: GPG verification, auto-categorization of upstream changes -- v0.3.0
-- SYNC-09, SYNC-10: Selective sync with dependency tracking, AI-assisted conflict resolution -- v0.3.0
-- ASSESS-01, ASSESS-02: Post-sync feature overlap assessments (agent teams, diff viewer, multi-upstream) -- v0.3.0
+- CONFIG-01 through CONFIG-04: Dynamic configuration system — v0.1.0
+- STATUS-01 through STATUS-09: Redesigned statusline with branding and thresholds — v0.1.0
+- INSTALL-01 through INSTALL-04: Hybrid installation (copy default, --link for dev) — v0.1.0
+- BRAND-01 through BRAND-05: Fork identity and URLs — v0.1.0
+- UPSTREAM-01 through UPSTREAM-10: Maintainer upstream sync workflow — v0.1.0
+- UPDATE-01 through UPDATE-04: Consumer update workflow — v0.1.0
+- LOGO-01 through LOGO-05: Custom logo and visual assets — v0.1.0
+- SEC-01 through SEC-06: Security hardening (validation, ESLint, parameterized commands, config re-validation) — v0.2.0
+- PLAT-01 through PLAT-06: Cross-platform support (pathe paths, platform detection, fallback chain) — v0.2.0
+- SYNC-05, SYNC-06: Upstream sync execution and workflow improvements — v0.2.0
+- CLAUDE-01 through CLAUDE-03: Agent memory, effort calibration, team patterns — v0.2.0
+- CI-01: GitHub Actions cross-platform matrix testing — v0.2.0
+- SYNC-II-01 through SYNC-II-06: Full upstream sync (185 commits), modular architecture adoption, dist migration, fork identity preservation, test suite maintenance, approach comparison — v0.3.0
+- SYNC-01 through SYNC-04: Diff preview, rollback snapshots, severity-aware auto-update, dry-run mode — v0.3.0
+- SYNC-07, SYNC-08: GPG verification, auto-categorization of upstream changes — v0.3.0
+- SYNC-09, SYNC-10: Selective sync with dependency tracking, AI-assisted conflict resolution — v0.3.0
+- ASSESS-01, ASSESS-02: Post-sync feature overlap assessments (agent teams, diff viewer, multi-upstream) — v0.3.0
+- ✓ OVERLAY-01: Validate installer delegation mechanism — v1.0.0
+- ✓ OVERLAY-02: Composition pipeline (resolve, filter, override, brand, merge) — v1.0.0
+- ✓ OVERLAY-03: Surface-only branding system (branding.json, text scope only) — v1.0.0
+- ✓ OVERLAY-04: Feature flags system (file-level exclusion for workflows/commands/agents/hooks/SDK) — v1.0.0
+- ✓ OVERLAY-05: Override system with REASON.md enforcement and staleness detection — v1.0.0
+- ✓ OVERLAY-06: Port fork-specific code to overlay/ structure (~2,510 lines) — v1.0.0
+- ✓ OVERLAY-07: Installer architecture (delegation to upstream install.js + overlay additions) — v1.0.0
+- ✓ OVERLAY-08: Update workflow (preview-update with supply chain scan before upgrade) — v1.0.0
+- ✓ OVERLAY-09: Boundary enforcement (CI checks: no upstream files in repo, override reasons) — v1.0.0
+- ✓ OVERLAY-10: Fork test suite (~12 test files covering overlay-specific code) — v1.0.0
+- ✓ OVERLAY-11: Upstream compatibility test runner against composed output — v1.0.0
+- ✓ OVERLAY-12: Existing user upgrade path (v2.x artifact detection and cleanup) — v1.0.0
+- ✓ OVERLAY-13: Cross-platform CI matrix (macOS, Linux, Windows) — v1.0.0
 
 ### Active
 
-Expanded into 61 detailed requirements (PROTO-xx, COMP-xx, BRAND-xx, FEAT-xx, OVER-xx, PORT-xx, INST-xx, UPD-xx, TEST-xx, CI-xx, MIG-xx) in REQUIREMENTS.md.
-
-- [x] OVERLAY-01: Validate installer delegation mechanism (Phase 29)
-- [x] OVERLAY-02: Composition pipeline (resolve, filter, override, brand, merge) (Phase 30)
-- [x] OVERLAY-03: Surface-only branding system (branding.json, text scope only) (Phase 30)
-- [x] OVERLAY-04: Feature flags system (file-level exclusion for workflows/commands/agents/hooks/SDK) (Phase 31)
-- [x] OVERLAY-05: Override system with REASON.md enforcement and staleness detection (Phase 31)
-- [x] OVERLAY-06: Port fork-specific code to overlay/ structure (~2,510 lines) (Phase 32)
-- [x] OVERLAY-07: Installer architecture (delegation to upstream install.js + overlay additions) (Phase 33)
-- [x] OVERLAY-08: Update workflow (preview-update with supply chain scan before upgrade) (Phase 33)
-- [x] OVERLAY-09: Boundary enforcement (CI checks: no upstream files in repo, override reasons) (Phase 34)
-- [x] OVERLAY-10: Fork test suite (~12 test files covering overlay-specific code) (Phase 34)
-- [x] OVERLAY-11: Upstream compatibility test runner against composed output (Phase 34)
-- [x] OVERLAY-12: Existing user upgrade path (v2.x artifact detection and cleanup) (Phase 35)
-- [x] OVERLAY-13: Cross-platform CI matrix (macOS, Linux, Windows) (Phase 34)
+(Next milestone requirements to be defined via `/gsd:new-milestone`)
 
 ### Out of Scope
 
@@ -64,15 +63,21 @@ Expanded into 61 detailed requirements (PROTO-xx, COMP-xx, BRAND-xx, FEAT-xx, OV
 - PLAT-08: Multi-upstream support (single-upstream workflow sufficient per ASSESS-02)
 - Runtime filtering in feature flags (revisit if upstream modularises their installer)
 
+## Current State
+
+**Shipped:** v1.0.0 Overlay Architecture (npm v3.0.0) on 2026-03-31
+**Architecture:** Overlay model — upstream consumed as npm devDependency, composed at publish time
+**Upstream:** get-shit-done-cc@1.30.0
+**Current version:** 3.0.0 (published to npm as @chude/get-stuff-done)
+**Codebase:** 151 files, ~30K lines added during v1.0.0; fork-specific overlay code ~2,510 lines
+**CI:** 5-check matrix (fork tests, upstream compat, boundary, override) across macOS/Linux/Windows
+**Known tech debt:** 48 boundary violations (structural), ~130 upstream compat failures (branding diffs by design), preview-update.js ~5% uncovered I/O paths
+
 ## Context
 
 **Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13
-**Architecture:** Overlay model -- upstream consumed as npm devDependency, composed at publish time
-**Upstream:** get-shit-done-cc@1.30.0 (569 commits ahead of last direct sync at v1.20.5)
 **Private repo:** github.com/chudeemeke/get-stuff-done
 **Environment:** Windows with Git Bash, Claude Code CLI (cross-platform: macOS, Linux, Windows)
-**Current version:** 3.0.0 (published to npm as @chude/get-stuff-done)
-**Fork-specific code:** ~2,510 lines (sync.cjs, platform detection, theming, validation, launcher, hooks)
 **Design spec:** docs/superpowers/specs/2026-03-28-overlay-architecture-design.md
 
 **Shipped in v0.1.0:**
@@ -136,11 +141,14 @@ Expanded into 61 detailed requirements (PROTO-xx, COMP-xx, BRAND-xx, FEAT-xx, OV
 | SYNC-II-05 scope amendment | 95%+ coverage applies to production code, not test helpers | Good |
 | AUTOCOMPACT_THRESHOLD as constant | Claude Code controls internally, not user-configurable | Good |
 
-| Overlay architecture | Cherry-pick sync unsustainable at 569-commit delta; overlay model eliminates sync treadmill | Good |
-| Surface-only branding | Internal path renaming cascades complexity through installer delegation and test compat; Android OEMs preserve AOSP internals | Good |
-| Publish-time composition | Users don't need upstream as dependency; pre-composed output is self-contained and testable | Good |
-| Exact version pinning | Prevents unreviewed upstream updates; deliberate upgrades via preview-update workflow | Good |
-| No runtime filtering v3.0 | Upstream install.js is 5K-line monolith; code-level filtering infeasible; users choose at install time | Good |
+| Overlay architecture | Cherry-pick sync unsustainable at 569-commit delta; overlay model eliminates sync treadmill | ✓ Good |
+| Surface-only branding | Internal path renaming cascades complexity through installer delegation and test compat; Android OEMs preserve AOSP internals | ✓ Good |
+| Publish-time composition | Users don't need upstream as dependency; pre-composed output is self-contained and testable | ✓ Good |
+| Exact version pinning | Prevents unreviewed upstream updates; deliberate upgrades via preview-update workflow | ✓ Good |
+| No runtime filtering v3.0 | Upstream install.js is 5K-line monolith; code-level filtering infeasible; users choose at install time | ✓ Good |
+| 5-stage pipeline SRP | resolve/filter/override/brand/merge as separate importable functions; testable in isolation | ✓ Good |
+| Delegation installer | Subprocess wrapper (436 lines) vs reimplementing upstream's 5K-line monolith | ✓ Good |
+| continue-on-error for informational CI | Boundary + upstream-compat jobs are informational, not blocking; prevents false red builds | ✓ Good |
 
 ---
-*Last updated: 2026-03-31 after v3.0.0 publish and milestone audit*
+*Last updated: 2026-03-31 after v1.0.0 milestone completion*

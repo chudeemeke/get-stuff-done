@@ -1,5 +1,28 @@
 # Project Milestones: GetStuffDone
 
+## v1.0.0 Overlay Architecture (Shipped: 2026-03-31)
+
+**Phases completed:** 6 phases, 16 plans, 28 tasks
+
+**Key accomplishments:**
+
+- Upstream install.js validated for overlay architecture: composed dir execution, surface branding, and overlay coexistence all confirmed via 3 integration tests (go/no-go verdict: GO)
+- Surface-only branding engine with AJV schema validation, longest-first substitution ordering, and binary/overlay/LICENSE exclusion -- 41 tests passing across BRAND-01 through BRAND-06
+- Full 5-stage composition pipeline (resolve/filter/override/brand/merge) producing dist/ from upstream + overlay, with collision detection, clean rebuild, .install-meta.json audit trail, and --dry-run/--diff CLI flags -- 56 new tests, 97 total passing
+- computeDelta() now tracks CREDITS.md and .install-meta.json, completing --diff coverage for all compose outputs
+- AJV schema validation for features.json and category-based file exclusion in filter() with SDK all-or-nothing, unmatched warnings, and .install-meta.json propagation
+- override() replaces upstream files from overrides/ directory with REASON.md enforcement and paste-ready template errors
+- SHA-256 content-hash staleness detection for overrides with REASON.md validation and actionable CI reporting
+- Sync module ported to overlay/lib/ with standalone sync-tools.cjs CLI entry point; 14 fork-specific markdown files (workflows, agents, commands, teams) copied to overlay/
+- v3.0 delegation installer replacing 2,125-line monolith with 436-line subprocess wrapper using overlay manifest for deterministic file copy
+- Read-only preview-update script with version diff, 6-vector supply chain scan, override staleness check, and structured report with rollback instructions
+- Symlink shim enables source-tree testing of overlay/lib/sync.cjs, closing the largest coverage gap from ~5% to 94.86% lines / 97.10% functions
+- check-boundary.js detects 48 boundary violations in current repo; run-upstream-compat.js runs 11 upstream test files against composed dist/ with pass/fail reporting
+- Close coverage gaps in compose.js, preview-update.js, and check-overrides.js with CLI entry, error path, and report formatting tests
+- Full 4-check CI matrix: fork tests, upstream compat, boundary, and override checks across 3 OSes with parallel execution
+
+---
+
 ## v0.4.0 Platform Expansion (Superseded: 2026-03-28)
 
 **Status:** Superseded by v1.0.0 Overlay Architecture. The direct-edit fork model that v0.4.0 was built on (cherry-pick sync of 569 commits from v1.20.6 to v1.30.0) became unsustainable. The overlay architecture eliminates the sync treadmill entirely.
@@ -7,6 +30,7 @@
 **Phases planned:** 24-28 (Phase 24 had 2/4 plans in progress; Phases 25-28 not started)
 
 **What was planned:**
+
 - Quality verification and bug fixes for prior phases
 - Cherry-pick 158 upstream commits (v1.20.6-v1.22.4)
 - Post-sync stabilization
@@ -14,6 +38,7 @@
 - Fork branding per runtime, CI matrix expansion
 
 **What carries forward:**
+
 - Phase 24 quality verification work (bug fixes, test coverage) contributes to general codebase health
 - Multi-runtime support is absorbed via upstream dependency (get-shit-done-cc@1.30.0 includes all runtimes)
 - No formal requirement mapping from v0.4.0 to v1.0.0 (clean break)

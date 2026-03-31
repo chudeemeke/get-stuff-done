@@ -1,7 +1,7 @@
 ---
 agent: gsd-phase-researcher
-updated: 2026-03-27
-entries: 48
+updated: 2026-03-29
+entries: 69
 ---
 
 - finding: "esbuild is already a devDependency (v0.24.2) in get-stuff-done and is importable via require('esbuild') from project root. It bundles all three hooks successfully with zero errors."
@@ -305,6 +305,8 @@ entries: 48
   confidence: HIGH
   phase: "30-composition-pipeline-branding"
   date: "2026-03-28"
+  status: superseded
+  superseded_by: "overlay/ now exists with full fork code (Phase 32 complete). dist/ is in .gitignore."
 
 - finding: "Phase 30 update.md exception: line 149 'npm view get-shit-done-cc version' should NOT be branded. It intentionally queries the upstream npm package name for version checking. Branding it to '@chude/get-stuff-done' would break the update workflow (fork is a different npm package). Document this as an intentional exception."
   source: "Phase 30, Composition Pipeline Research"
@@ -317,3 +319,141 @@ entries: 48
   confidence: HIGH
   phase: "30-composition-pipeline-branding"
   date: "2026-03-28"
+
+- finding: "Phase 31 upstream v1.30.0 category-to-directory mapping: workflows at get-shit-done/workflows/ (56 files), commands at commands/gsd/ (57 files), agents at agents/ (18 files), hooks at hooks/dist/ (5 files, all .js). No sdk/ directory exists in v1.30.0. Exclude entries use basename without extension for matching."
+  source: "Phase 31, Feature Flags & Override System Research"
+  confidence: HIGH
+  phase: "31-feature-flags-override-system"
+  date: "2026-03-28"
+
+- finding: "Phase 31 AJV pattern: reuse the same Ajv instance (already created for BRANDING_SCHEMA) to compile FEATURES_SCHEMA. Both schemas use strict:true mode and additionalProperties:false. The features.json runtimes section uses additionalProperties: { type: 'boolean' } (open-ended keys) while category sections use fixed properties with required arrays."
+  source: "Phase 31, Feature Flags & Override System Research"
+  confidence: HIGH
+  phase: "31-feature-flags-override-system"
+  date: "2026-03-28"
+
+- finding: "Phase 31 overrides directory: currently contains only .gitkeep (verified). The overrides/ directory is at project root level, NOT inside overlay/. Override relPaths mirror upstream paths exactly (overrides/lib/config.cjs replaces upstream lib/config.cjs). Companion REASON.md uses pattern: override_path + '.REASON.md' appended to full filename."
+  source: "Phase 31, Feature Flags & Override System Research"
+  confidence: HIGH
+  phase: "31-feature-flags-override-system"
+  date: "2026-03-28"
+
+- finding: "Phase 32 fork code inventory: 3,527 lines source code (sync.cjs 1420, platform/ 613, theme/ 395, validation/ 191, config/ 449, launcher 211, hooks 248) + 2,576 lines commands/workflows/agents (upstream.md 418, workflows 1186, agents 972). Total ~6,100 lines across ~25 files."
+  source: "Phase 32, Fork Code Port Research"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "Phase 32 critical PORT-08 design: fork's core.cjs (get-stuff-done/bin/lib/core.cjs) has require('../../../src/validation') at line 8 -- a direct modification of upstream file. In overlay architecture, this must NOT exist. Upstream core.cjs stays untouched. Validation module lives in overlay/src/validation/. The validation integration was additive security hardening; in v3.0 it applies at the overlay calling level (hooks, launcher, sync.cjs), not inside upstream's core module."
+  source: "Phase 32, Fork Code Port Research"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "Phase 32 hooks porting scope: only pre-compact.js and pre-compact.sh are fork-only hooks. gsd-statusline.js, gsd-check-update.js, and gsd-context-monitor.js all exist in upstream hooks/dist/ (verified). Fork has modified source versions but these are bundled artifacts. Zero overrides on day one means accepting upstream hooks for v3.0."
+  source: "Phase 32, Fork Code Port Research"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "Phase 32 overlay additive file merge: compose.js lines 781-797 walk overlay/ directory, skip metadata files (branding.json, features.json, .gitkeep), and copy all other files to dist/ preserving relative paths. No code changes to compose.js needed for overlay files to appear in dist/."
+  source: "Phase 32, Fork Code Port Research"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "Phase 32 sync.cjs router wiring problem: fork's gsd-tools.cjs has require('./lib/sync.cjs') and handles sync-preview/sync-checkpoint commands. Upstream router does NOT have this. Sync commands are fork-only. Solution: create overlay/bin/sync-tools.cjs as separate CLI entry point, update upstream-sync.md workflow to call it instead of gsd-tools.cjs for sync operations."
+  source: "Phase 32, Fork Code Port Research"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "Phase 32 ConfigLoader/ConfigSchema are ENTIRELY fork-specific (manage ~/.gsd/config.json with JSON5+AJV). Upstream's config.cjs (get-shit-done/bin/lib/config.cjs) manages .planning/config.json -- different system entirely. No wrapper/extension needed. Fork config modules move to overlay/src/config/ as-is with only internal import path adjustments."
+  source: "Phase 32, Fork Code Port Research"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "Phase 32 test import paths: 9 test files (8,120 lines) need import path updates. All changes are prefix swaps: ../src/ -> ../overlay/src/, ../get-stuff-done/bin/lib/ -> ../overlay/lib/ for sync. Test frameworks (bun:test, node:test) and assertions unchanged. Test files stay in tests/ at project root."
+  source: "Phase 32, Fork Code Port Research"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "Phase 33 upstream install.js has exactly 10 process.exit() calls (lines 122, 303, 313, 332, 4329, 4772, 4847, 4974, 4977, 4981). The CONTEXT.md stated 15 -- actual count is 10. The principle (subprocess delegation, not require) still holds regardless of exact count."
+  source: "Phase 33, Installer & Update Workflow Research"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "Phase 33 overlay-only files in dist/: exactly 32 files that exist in dist/ but NOT in upstream (node_modules/get-shit-done-cc/). These include: .install-meta.json, agents/general-purpose.md, agents/gsd-oversight-*.md (3), bin/sync-tools.cjs, bin/validate-configs.js, commands/gsd/upstream.md, CREDITS.md, hooks/pre-compact.*, lib/sync.cjs, memory/*.md (2), src/config/* (3), src/platform/* (3), src/theme/* (4), src/validation/index.js, teams/*.md (4), workflows/set-profile.md, workflows/upstream-sync.md."
+  source: "Phase 33, Installer & Update Workflow Research"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "Phase 33 v2.x .install-meta.json format (from actual get-stuff-done/.install-meta.json): has 'version' (2.4.0), 'installType' (link), 'installedAt', 'platform' object (os, arch, shell, isMingw, nodeVersion), 'installMethod' object (method, reason). NO overlay_version field. v3.0 format (from dist/.install-meta.json): has 'upstream_version', 'overlay_version', 'composed_at', 'features_disabled', 'overrides_applied', 'branding_rules_applied'. The two formats have ZERO overlapping field names -- detection is unambiguous."
+  source: "Phase 33, Installer & Update Workflow Research"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "Phase 33 upstream uninstall() function (line 3300): does NOT wipe the target directory. It removes files category by category: commands, skills, agents, hooks, settings, get-shit-done/. This is runtime-specific (different paths for Claude vs OpenCode vs Codex vs Copilot). The fork's --uninstall can be simpler: wipe the entire target directory per CONTEXT.md decision."
+  source: "Phase 33, Installer & Update Workflow Research"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "Phase 33 composed dist/bin/install.js is 5,008 lines (same as upstream). The branding is applied at compose time. The dist/ directory is a complete self-contained package root that upstream's install.js can operate on via its __dirname resolution. dist/ has: bin/, get-shit-done/, agents/, commands/gsd/, hooks/dist/, scripts/, package.json, plus overlay additions."
+  source: "Phase 33, Installer & Update Workflow Research"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "Phase 33 supply chain scanning for preview-update: runSupplyChainChecks() expects git diff format (lines starting with +/-). For npm version delta, the function needs either a synthetic diff or limiting to file-path-based checks only. Checks 3 (execution-path) and 6 (author-anomaly) work with file lists only. Checks 1, 2, 4, 5 need diff content. For preview-update v1, recommend file-list checks + dependency diff from package.json comparison."
+  source: "Phase 33, Installer & Update Workflow Research"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "Phase 33 test patterns: prototype-installer.test.js (Phase 29) established the subprocess test pattern: setupScratchDir() copies upstream to tmp, runUpstreamInstaller() uses execSync with --config-dir for isolation, applyBranding() does surface text replacement, copyOverlayAdditions() layers fork files. This is the template for installer-v3.test.js."
+  source: "Phase 33, Installer & Update Workflow Research"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "Phase 34 upstream test assertion categorization: 1,387 assertions across 12 .test.cjs files. 3 (0.22%) reference fork package names, ~24 (1.7%) reference source paths needing redirection, ~1,360 (98.1%) are purely behavioral. Feasibility gate PASSES -- far below 30% threshold."
+  source: "Phase 34, Testing & CI Enforcement Research"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-29"
+
+- finding: "Phase 34 coverage baseline: bun test reports 91.53% functions / 90.45% lines overall. Three files cause the gap: overlay/lib/sync.cjs (1,420 lines, 3.57% funcs / 5.29% lines -- dist-relative import blocker), scripts/preview-update.js (417 lines, 10% funcs / 7.81% lines), scripts/compose.js CLI entry (1,084 lines, 85.29% funcs / 87.73% lines). All overlay/src/ files are 96%+ already."
+  source: "Phase 34, Testing & CI Enforcement Research"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-29"
+
+- finding: "Phase 34 sync.cjs coverage fix strategy: create a symlink get-shit-done/ -> get-stuff-done/ at project root during testing. This makes overlay/lib/sync.cjs's require('../get-shit-done/bin/lib/core.cjs') resolve to the existing get-stuff-done/bin/lib/core.cjs. No code changes to sync.cjs needed. Alternative: conditional import with try/catch. Symlink is cleaner."
+  source: "Phase 34, Testing & CI Enforcement Research"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-29"
+
+- finding: "Phase 34 compat runner design: symlink-based path redirection in temp directory. Tests require from get-stuff-done/bin/lib/ -> symlinked to dist/get-shit-done/bin/lib/. helpers.cjs TOOLS_PATH also resolves through the symlink. Windows needs 'junction' type for directory symlinks (no admin required). sync.test.cjs excluded from compat (fork-specific module, not upstream verification)."
+  source: "Phase 34, Testing & CI Enforcement Research"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-29"
+
+- finding: "Phase 34 CI structure: existing ci.yml has 3 jobs (lint, test matrix on 3 OSes, parity check). Phase 34 extends with: fork-tests (replaces test), upstream-compat (new, requires compose first), boundary-override-check (new, fast single-OS job). Boundary and override checks are fast (~1s) and don't need OS matrix."
+  source: "Phase 34, Testing & CI Enforcement Research"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-29"
+
+- finding: "Phase 34 bun coverage metrics: bun 1.3.5 reports % Funcs and % Lines only (not statements/branches separately). For WoW 95% per-metric requirement, lines ~= statements (counts executable lines). Branch coverage needs lcov output parsing or acceptance that high line+function coverage implies reasonable branch coverage."
+  source: "Phase 34, Testing & CI Enforcement Research"
+  confidence: MEDIUM
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-29"

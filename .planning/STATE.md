@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: Overlay Architecture
-status: verifying
-stopped_at: Completed 36-02-PLAN.md
-last_updated: "2026-03-31T19:34:15.848Z"
+status: complete
+stopped_at: Milestone v1.0.0 archived
+last_updated: "2026-03-31T23:00:00.000Z"
 last_activity: 2026-03-31
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 16
-  completed_plans: 16
-  percent: 95
+  total_phases: 8
+  completed_phases: 8
+  total_plans: 21
+  completed_plans: 21
+  percent: 100
 ---
 
 # Project State
@@ -21,106 +21,44 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Phase 36 — v1-0-0-gap-closure
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 36
-Plan: Not started
-v3.0.0 published to npm 2026-03-31
-Milestone audit: 59/61 requirements satisfied, 2 partial
-Status: Phase complete — ready for verification
-Last activity: 2026-03-31
+Milestone: v1.0.0 Overlay Architecture — SHIPPED 2026-03-31
+Requirements: 61/61 satisfied
+npm: @chude/get-stuff-done@3.0.0 published
+Tag: v1.0.0
 
-Progress: [============================..] 95% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phases 29-35 complete, gap closure pending)
+Progress: [==============================] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 60 (across v0.1.0-v0.3.0)
+- Total plans completed: 82 (across v0.1.0-v1.0.0)
 - v0.1.0: 12 plans, 1.38 hours
 - v0.2.0: 32 plans, 4.45 hours
 - v0.3.0: 17 plans, 15.0 hours
-
-**v1.0.0 Milestone:**
-
-- Requirements: 61 across 7 phases (29-35)
-- Architecture: Overlay model replacing direct-edit fork
-- Ships as: npm v3.0.0
+- v1.0.0: 21 plans, 4 days (2026-03-28 → 2026-03-31)
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- Overlay architecture: cherry-pick sync unsustainable at 569-commit delta
-- Surface-only branding: internal path renaming cascades complexity
-- Publish-time composition: pre-composed dist/ is self-contained and testable
-- Exact version pinning: prevents unreviewed upstream updates
-- No runtime filtering in v3.0: upstream installer is 5K-line monolith
-- Phase 29 go/no-go: GO -- upstream __dirname path resolution works from composed dir, surface branding safe, overlay coexistence confirmed
-- --config-dir for test isolation: os.homedir() ignores HOME on Windows; --config-dir is reliable cross-platform
-- Branding engine: replaceAll for long patterns, word-boundary regex for short all-caps tokens (TACHES)
-- Integration test uses dynamic bare-count comparison (not hard-coded) -- upstream v1.30.0 has 27 bare refs, not 29 as plan spec stated
-- Pipeline stages are separate importable functions (SRP): resolve, filter, override, brand, merge, compose
-- filter() implemented in Phase 31 with category-based file exclusion; override() remains Phase 30 pass-through stub for Phase 32
-- brand() reads files lazily at brand stage (not resolve) to keep resolve fast
-- merge() clean rebuild: rmSync then mkdirSync -- no stale files in dist/
-- computeDelta() tracks CREDITS.md using generateCredits() for comparison; tracks .install-meta.json as always-modified when dist/ exists
-- CREDITS.md not in wouldWrite when preserveUpstreamCredit is false -- removed-detection flags it correctly
-- .install-meta.json special-case exclusion removed from removed-detection loop -- now tracked via wouldWrite
-- Exclude entries use basename without extension, matched against category directory prefix (FEAT-01)
-- Unmatched excludes produce warnings (not errors) -- composition still succeeds
-- SDK exclusion is all-or-nothing (sdk: false drops all sdk/ entries)
-- Runtimes section completely ignored by filter() -- documentation-only in v3.0
-- check-overrides.js is fully standalone (no compose.js imports) -- runs independently in CI
-- Content hash comparison (SHA-256) prevents false positives on version-only bumps
-- override() derives overrides/ path as sibling of overlayDir via path.dirname()
-- merge() prefers state.meta.overridesApplied over local entry.action collection (dual-source, meta preferred)
-- REASON.md error template dynamically includes relPath and upstreamVersion from pipeline state
-- Sync commands separated into standalone sync-tools.cjs CLI (not patching upstream gsd-tools.cjs router)
-- overlay/lib/sync.cjs import path targets dist/ layout -- not resolvable from source tree (by design)
-- Config system (ConfigLoader, ConfigSchema, schema) is pure fork code in overlay/src/config/ -- not wrapping upstream
-- bin/gsd.js launcher stays in bin/ (not overlay/) -- imports from overlay/src/ for platform and config
-- config.test.cjs intentionally not modified (tests upstream config.cjs, not fork config)
-- Fallback supply chain checks when sync.cjs not loadable (dist/ import path only)
-- Known author 'npm-package' to skip author-anomaly for npm package updates
-- getOverrideImpact is thin delegation to checkOverrides (no wrapper logic)
-- Overlay manifest (.overlay-manifest.json) generated by merge() as sorted JSON array -- deterministic file list for installer
-- v3.0 .install-meta.json written to get-shit-done/ subdir (matching upstream metadata location)
-- v2.x detection uses 3 signals: meta check (no overlay_version), src/ dir fingerprint, directory name
-- Symlink/junction for sync.cjs testing placed at overlay/get-shit-done (not project root) -- require resolution from overlay/lib/ needs .. to overlay/
-- captureCmd pattern for in-process testing of process.exit-calling functions (node --test coverage only tracks main process)
-- check-boundary.js ALLOWED_PREFIXES: overrides/, dist/, node_modules/, .git/, .planning/, tests/, .github/
-- Junction cleanup before rmSync on Windows prevents EBUSY errors (lstat to distinguish symlink vs junction)
-- Upstream compat runner finds 131/451 failures against composed dist/ -- expected due to branding changes
-- Stateless modules: do not use require.cache clearing in tests (bun 1.3.5 coverage tracking bug)
-- Exported parseArgs from check-overrides.js for direct testability (100% function coverage)
-- [Phase 34]: All 5 CI jobs run in parallel (no needs dependencies) for fastest feedback
-- [Phase 34]: upstream-compat on 3 OSes (platform-specific symlink behavior), boundary-override-check on ubuntu only (platform-independent)
-- [Phase 35]: tryRequire() fallback pattern for dist/src vs overlay/src launcher imports
-- [Phase 35]: isSafeToClean guard prevents deletion of home dir, root, and shallow paths
-- [Phase 35]: force flag kept as quiet mode for scripted installs per review consensus
-- [Phase 35]: Sync-snapshot tags (72 total) left in place -- zero cost, documents pre-overlay sync history
-- [Phase 35]: v2.4.0-legacy derived from v2.4.0 tag via git rev-list (not hardcoded commit hash)
-- [Phase 35]: CI fix: added --ignore-scripts and compose step to all CI jobs for v3.0 overlay architecture
-- [Phase 36]: continue-on-error at job level for informational CI jobs (boundary-override-check, upstream-compat)
-- [Phase 36]: Nullish coalescing (??) over logical OR (||) for severity sort ordinals where 0 is a valid value
-- [Phase 36]: preview-update.js 95% lines target infeasible due to 27-line uncoverable CLI entry block; 88.65% is practical ceiling
+All v1.0.0 decisions archived to .planning/milestones/v1.0.0-ROADMAP.md.
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-- Upstream test compat feasibility gate in Phase 34: >30% needing adaptation triggers reassessment
+None — milestone complete.
 
 ## Session Continuity
 
-Last session: 2026-03-31T17:39:41.553Z
-Stopped at: Completed 36-02-PLAN.md
+Last session: 2026-03-31
+Stopped at: Milestone v1.0.0 archived
 Resume file: None

@@ -1,8 +1,50 @@
 ---
 agent: gsd-executor
-updated: 2026-03-16
-entries: 51
+updated: 2026-03-30
+entries: 72
 ---
+
+- finding: "When sync.cjs requires '../get-shit-done/bin/lib/core.cjs' from overlay/lib/, the .. resolves to overlay/ not project root. Junction must be placed at overlay/get-shit-done, not project root/get-shit-done."
+  source: "Phase 34, Plan 01, Task 1"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-30"
+
+- finding: "node --test --experimental-test-coverage only tracks V8 coverage in the main process, not child processes spawned via execSync. To get coverage on modules that call process.exit, use captureCmd pattern (monkey-patch process.exit to throw sentinel, capture stdout/stderr writes)."
+  source: "Phase 34, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-30"
+
+- finding: "fs.rmSync on Windows junctions follows the junction and tries to remove target directory contents. Use fs.unlinkSync to remove just the junction entry itself."
+  source: "Phase 34, Plan 01, Task 1"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-30"
+
+- finding: "preview-update.js has no mutable module-level state. The require.cache clearing in its test file was unnecessary and caused bun 1.3.5 coverage tracking to report only 10% function coverage despite 27 tests. Removing the cache clearing fixes coverage to 100% functions. Rule: for stateless modules, never use require.cache clearing in tests."
+  source: "Phase 34, Plan 03, Task 2"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-30"
+
+- finding: "When a function is only called from a CLI entry block (require.main === module), it won't be tracked by bun coverage. Export such functions (even internal ones like parseArgs) so they can be tested directly. This is a minimal source change that enables 100% function coverage."
+  source: "Phase 34, Plan 03, Task 2"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-30"
+
+- finding: "On Windows, fs.rmSync on a directory containing a junction/symlink fails with EBUSY. Must remove the junction first (fs.rmdirSync for junctions, fs.unlinkSync for symlinks) before removing the parent directory tree."
+  source: "Phase 34, Plan 02, Task 2"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-30"
+
+- finding: "Upstream compat runner against composed dist/ finds significant failures (131/451) because branding changes module exports (e.g., MODEL_PROFILES no longer in core.cjs). The runner correctly detects these as real behavioral differences. This is not a bug -- it's the enforcement tool working as designed."
+  source: "Phase 34, Plan 02, Task 2 verification"
+  confidence: HIGH
+  phase: "34-testing-ci-enforcement"
+  date: "2026-03-30"
 
 - finding: "For assessment-report-only plans (no code changes), git status will show pre-existing modified files from earlier sessions. Only stage the plan's own artifacts (SUMMARY.md, STATE.md, ROADMAP.md, REQUIREMENTS.md). Do NOT stage tests/ or get-stuff-done/ files that were modified before the plan started."
   source: "Phase 19, Plan 02, final commit"
@@ -359,3 +401,99 @@ entries: 51
   confidence: HIGH
   phase: "29-prototype-gate"
   date: "2026-03-28"
+
+- finding: "Upstream install.js v1.30.0 has 27 bare 'get-shit-done' references (not 29 as plan spec stated). Always count dynamically using regex match at test design time rather than trusting plan spec counts for upstream file analysis. Plan specs may reference earlier upstream versions."
+  source: "Phase 30, Plan 01, Task 2 integration test design"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "For branding substitution safety in AJV validation: use additionalProperties:false on both the top-level schema AND the substitution item schema. This prevents unvalidated fields from silently passing through (e.g., a typo'd 'scoep' field would not be flagged without item-level additionalProperties:false)."
+  source: "Phase 30, Plan 01, Task 2 compose.js implementation"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "For pipeline stage tests that write to dist/, use a tmpDir via os.tmpdir() with a unique suffix (makeTempDir pattern) and pass distDir explicitly to merge(). Never write to project's dist/ in unit tests -- it gets clobbered by parallel integration tests. Only the CLI integration tests should touch project dist/."
+  source: "Phase 30, Plan 02, Task 1 (compose pipeline tests)"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "When overlay/ metadata files (branding.json, features.json, .gitkeep) are in a Set constant, collision detection correctly skips them without special-casing each one. Pattern: OVERLAY_METADATA Set with baseName (last path component) check. Extend this set when adding new overlay config files in Phase 31+."
+  source: "Phase 30, Plan 02, Task 1 (collision detection design)"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "When a diff/delta function mirrors a pipeline that writes additive outputs outside the manifest loop, those outputs must be explicitly tracked. Pattern: extend the wouldWrite Set after the manifest loop for each additive output. For conditional outputs (CREDITS.md): do NOT add to wouldWrite when output would not be written -- removed-detection loop then correctly flags it as 'removed'."
+  source: "Phase 30, Plan 03, Task 2 (computeDelta gap closure)"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "For delta tracking of files that always regenerate timestamps (e.g., .install-meta.json with composed_at), always report 'modified' when the file exists in dist/ -- do not compare content. The modification IS real and users need to know a re-compose would update the file. Only report 'added' when the file is absent entirely."
+  source: "Phase 30, Plan 03, Task 2 (computeDelta .install-meta.json tracking)"
+  confidence: HIGH
+  phase: "30-composition-pipeline-branding"
+  date: "2026-03-28"
+
+- finding: "When a prior agent writes implementation code to the working tree but does not commit it, verify it by running tests before committing. Do not re-implement -- the code may be correct. Check git diff to understand what changed, run the test suite, and commit if green. This pattern occurred in Phase 31 Plan 01 where filter() implementation was pre-written."
+  source: "Phase 31, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "31-feature-flags-override-system"
+  date: "2026-03-29"
+
+- finding: "When the RED test commit and the GREEN implementation are done by separate agents/sessions, the implementation file may exist in the working tree as untracked (??) even though the test file is committed. Check git status -- if scripts/X.js shows ?? and tests/X.test.js is clean, the implementation was written but not committed. Run tests first, then git add + commit."
+  source: "Phase 31, Plan 03, Task 2"
+  confidence: HIGH
+  phase: "31-feature-flags-override-system"
+  date: "2026-03-29"
+
+- finding: "For override() tests that need an overrides/ directory at a known path relative to overlay/, create both tmpDir/overlay and tmpDir/overrides as siblings. The implementation derives overridesDir via path.dirname(state.meta.overlayDir) which returns tmpDir, then joins 'overrides'. This means the test setup must create overridesDir as path.join(tmpDir, 'overrides'), NOT inside the overlay directory."
+  source: "Phase 31, Plan 02, Task 1"
+  confidence: HIGH
+  phase: "31-feature-flags-override-system"
+  date: "2026-03-29"
+
+- finding: "When copying src/ files to overlay/src/ for the fork code port, internal relative imports within the same directory (e.g., theme/ files importing ./Style, ./themes, ./tokens) work unchanged because the entire directory moves together. Only test files that reference the parent directory path (../src/...) need import updates."
+  source: "Phase 32, Plan 01, Task 1"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "overlay/lib/sync.cjs import path (../get-shit-done/bin/lib/core.cjs) targets the composed dist/ directory layout, not the source tree. The module cannot be require()'d from the source tree during development. Tests that import overlay modules with dist/-only paths must either run against composed dist/ or use a source-tree shim. This is Phase 34 scope."
+  source: "Phase 32, Plan 02, Task 1"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "When porting config/ to overlay/src/config/, internal relative imports (./ConfigSchema, ../validation) work without changes because the entire subtree moves together. Only external consumers (bin/gsd.js, test files) need import path updates from ../src/ to ../overlay/src/."
+  source: "Phase 32, Plan 03, Task 1"
+  confidence: HIGH
+  phase: "32-fork-code-port"
+  date: "2026-03-29"
+
+- finding: "overlay/lib/sync.cjs cannot be require()'d from source tree because it imports ../get-shit-done/bin/lib/core.cjs which only exists in composed dist/ layout. Scripts that depend on sync.cjs exports (like runSupplyChainChecks) need a fallback implementation for source-tree execution. Pattern: try-catch the require, fall back to inline reimplementation of the needed checks."
+  source: "Phase 33, Plan 02, Task 2"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "When adding additive outputs to compose.js merge() (like .overlay-manifest.json), also add tracking in computeDelta() to prevent --diff mode from reporting them as 'removed'. Pattern: add to wouldWrite set and check currentFiles.has() for added/modified status -- same as .install-meta.json Part B."
+  source: "Phase 33, Plan 01, Task 1"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "The v3.0 delegation installer uses spawn(process.execPath, [script, ...args], {stdio: 'inherit'}) for upstream subprocess. Tests use execSync with stdio: ['pipe','pipe','pipe'] to capture output. These two patterns cannot be mixed -- the test runner needs captured output for assertions."
+  source: "Phase 33, Plan 01, Task 2"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"
+
+- finding: "For npm package version comparison (not git commit diffs), skip author-anomaly check by passing a known author string that is already in the knownAuthors set. Also filter the results to remove any author-anomaly findings. The author concept does not apply to npm package version bumps."
+  source: "Phase 33, Plan 02, Task 2"
+  confidence: HIGH
+  phase: "33-installer-update-workflow"
+  date: "2026-03-29"

@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: Overlay Architecture
-status: executing
-stopped_at: Completed 36-01-PLAN.md
-last_updated: "2026-03-31T16:59:58.889Z"
+status: verifying
+stopped_at: Completed 36-02-PLAN.md
+last_updated: "2026-03-31T17:39:41.575Z"
 last_activity: 2026-03-31
 progress:
   total_phases: 6
@@ -29,7 +29,7 @@ Phase: 36 (v1-0-0-gap-closure) — EXECUTING
 Plan: 2 of 2
 v3.0.0 published to npm 2026-03-31
 Milestone audit: 59/61 requirements satisfied, 2 partial
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-03-31
 
 Progress: [============================..] 95% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phases 29-35 complete, gap closure pending)
@@ -109,6 +109,7 @@ Recent decisions affecting current work:
 - [Phase 35]: CI fix: added --ignore-scripts and compose step to all CI jobs for v3.0 overlay architecture
 - [Phase 36]: continue-on-error at job level for informational CI jobs (boundary-override-check, upstream-compat)
 - [Phase 36]: Nullish coalescing (??) over logical OR (||) for severity sort ordinals where 0 is a valid value
+- [Phase 36]: preview-update.js 95% lines target infeasible due to 27-line uncoverable CLI entry block; 88.65% is practical ceiling
 
 ### Pending Todos
 
@@ -120,6 +121,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-31T16:59:58.881Z
-Stopped at: Completed 36-01-PLAN.md
+Last session: 2026-03-31T17:39:41.553Z
+Stopped at: Completed 36-02-PLAN.md
 Resume file: None

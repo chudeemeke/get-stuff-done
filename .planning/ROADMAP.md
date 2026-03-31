@@ -71,7 +71,7 @@ Phases 24-28 were partially started (Phase 24 had 2/4 plans in progress). Work f
 - [x] **Phase 33: Installer & Update Workflow** - Delegation-based installer and preview-update workflow with supply chain scanning (completed 2026-03-29)
 - [x] **Phase 34: Testing & CI Enforcement** - 95%+ coverage per metric, upstream compatibility runner, boundary and override CI checks (completed 2026-03-30)
 - [x] **Phase 35: Migration & Ship v3.0.0** - Tag legacy, merge overlay branch, upgrade path for existing users, publish v3.0.0 (completed 2026-03-31)
-- [ ] **Phase 36: v1.0.0 Gap Closure** - Close audit gaps: CI stabilization (CI-04), coverage closure (TEST-01), bug fixes
+- [x] **Phase 36: v1.0.0 Gap Closure** - Close audit gaps: CI stabilization (CI-04), coverage closure (TEST-01), bug fixes (completed 2026-03-31)
 
 ## Phase Details
 
@@ -196,7 +196,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 36-01-PLAN.md -- CI stabilization: continue-on-error for informational jobs, Windows timeouts, severity sort bug fix, network test mocking (CI-04)
-- [ ] 36-02-PLAN.md -- Coverage closure: compose.js, preview-update.js, check-boundary.js to 95%+ per metric (TEST-01)
+- [x] 36-02-PLAN.md -- Coverage closure: compose.js, preview-update.js, check-boundary.js to 95%+ per metric (TEST-01)
 
 ## Progress
 
@@ -236,4 +236,4 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35 -> 36
 | 33. Installer & Update Workflow | v1.0.0 | 2/2 | Complete | 2026-03-29 |
 | 34. Testing & CI Enforcement | v1.0.0 | 4/4 | Complete | 2026-03-30 |
 | 35. Migration & Ship v3.0.0 | v1.0.0 | 3/3 | Complete   | 2026-03-31 |
-| 36. v1.0.0 Gap Closure | v1.0.0 | 1/2 | In Progress|  |
+| 36. v1.0.0 Gap Closure | v1.0.0 | 2/2 | Complete   | 2026-03-31 |

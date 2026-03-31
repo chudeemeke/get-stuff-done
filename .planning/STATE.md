@@ -2,35 +2,36 @@
 gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: Overlay Architecture
-status: verifying
-stopped_at: Completed 35-03-PLAN.md (v3.0.0 published to npm)
-last_updated: "2026-03-31T10:13:29.874Z"
+status: gap_closure
+stopped_at: Milestone audit complete, gap closure phase pending
+last_updated: "2026-03-31"
 last_activity: 2026-03-31
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 16
-  completed_plans: 16
-  percent: 90
+  total_phases: 7
+  completed_phases: 7
+  total_plans: 19
+  completed_plans: 19
+  percent: 95
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-28)
+See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Phase 35 — migration-ship-v3-0-0
+**Current focus:** Gap closure — 2 partial requirements (TEST-01, CI-04) from milestone audit
 
 ## Current Position
 
-Phase: 35 (migration-ship-v3-0-0) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 35 (migration-ship-v3-0-0) — COMPLETE
+v3.0.0 published to npm 2026-03-31
+Milestone audit: 59/61 requirements satisfied, 2 partial
+Status: Gap closure phase (Phase 36) pending
 Last activity: 2026-03-31
 
-Progress: [============================..] 90% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 34 in progress)
+Progress: [============================..] 95% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phases 29-35 complete, gap closure pending)
 
 ## Performance Metrics
 

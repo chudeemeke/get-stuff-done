@@ -32,19 +32,21 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 
 ### Active
 
-- [ ] OVERLAY-01: Validate installer delegation mechanism (Phase 0 prototype gate)
-- [ ] OVERLAY-02: Composition pipeline (resolve, filter, override, brand, merge)
-- [ ] OVERLAY-03: Surface-only branding system (branding.json, text scope only)
-- [ ] OVERLAY-04: Feature flags system (file-level exclusion for workflows/commands/agents/hooks/SDK)
-- [ ] OVERLAY-05: Override system with REASON.md enforcement and staleness detection
-- [ ] OVERLAY-06: Port fork-specific code to overlay/ structure (~2,510 lines)
-- [ ] OVERLAY-07: Installer architecture (delegation to upstream install.js + overlay additions)
-- [ ] OVERLAY-08: Update workflow (preview-update with supply chain scan before upgrade)
-- [ ] OVERLAY-09: Boundary enforcement (CI checks: no upstream files in repo, override reasons)
-- [ ] OVERLAY-10: Fork test suite (~12 test files covering overlay-specific code)
-- [ ] OVERLAY-11: Upstream compatibility test runner against composed output
-- [ ] OVERLAY-12: Existing user upgrade path (v2.x artifact detection and cleanup)
-- [ ] OVERLAY-13: Cross-platform CI matrix (macOS, Linux, Windows)
+Expanded into 61 detailed requirements (PROTO-xx, COMP-xx, BRAND-xx, FEAT-xx, OVER-xx, PORT-xx, INST-xx, UPD-xx, TEST-xx, CI-xx, MIG-xx) in REQUIREMENTS.md.
+
+- [x] OVERLAY-01: Validate installer delegation mechanism (Phase 29)
+- [x] OVERLAY-02: Composition pipeline (resolve, filter, override, brand, merge) (Phase 30)
+- [x] OVERLAY-03: Surface-only branding system (branding.json, text scope only) (Phase 30)
+- [x] OVERLAY-04: Feature flags system (file-level exclusion for workflows/commands/agents/hooks/SDK) (Phase 31)
+- [x] OVERLAY-05: Override system with REASON.md enforcement and staleness detection (Phase 31)
+- [x] OVERLAY-06: Port fork-specific code to overlay/ structure (~2,510 lines) (Phase 32)
+- [x] OVERLAY-07: Installer architecture (delegation to upstream install.js + overlay additions) (Phase 33)
+- [x] OVERLAY-08: Update workflow (preview-update with supply chain scan before upgrade) (Phase 33)
+- [x] OVERLAY-09: Boundary enforcement (CI checks: no upstream files in repo, override reasons) (Phase 34)
+- [x] OVERLAY-10: Fork test suite (~12 test files covering overlay-specific code) (Phase 34)
+- [x] OVERLAY-11: Upstream compatibility test runner against composed output (Phase 34)
+- [x] OVERLAY-12: Existing user upgrade path (v2.x artifact detection and cleanup) (Phase 35)
+- [x] OVERLAY-13: Cross-platform CI matrix (macOS, Linux, Windows) (Phase 34)
 
 ### Out of Scope
 
@@ -69,7 +71,7 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 **Upstream:** get-shit-done-cc@1.30.0 (569 commits ahead of last direct sync at v1.20.5)
 **Private repo:** github.com/chudeemeke/get-stuff-done
 **Environment:** Windows with Git Bash, Claude Code CLI (cross-platform: macOS, Linux, Windows)
-**Current version:** 2.4.0 (published to npm as @chude/get-stuff-done), shipping as v3.0.0
+**Current version:** 3.0.0 (published to npm as @chude/get-stuff-done)
 **Fork-specific code:** ~2,510 lines (sync.cjs, platform detection, theming, validation, launcher, hooks)
 **Design spec:** docs/superpowers/specs/2026-03-28-overlay-architecture-design.md
 
@@ -134,11 +136,11 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 | SYNC-II-05 scope amendment | 95%+ coverage applies to production code, not test helpers | Good |
 | AUTOCOMPACT_THRESHOLD as constant | Claude Code controls internally, not user-configurable | Good |
 
-| Overlay architecture | Cherry-pick sync unsustainable at 569-commit delta; overlay model eliminates sync treadmill | -- Pending |
-| Surface-only branding | Internal path renaming cascades complexity through installer delegation and test compat; Android OEMs preserve AOSP internals | -- Pending |
-| Publish-time composition | Users don't need upstream as dependency; pre-composed output is self-contained and testable | -- Pending |
-| Exact version pinning | Prevents unreviewed upstream updates; deliberate upgrades via preview-update workflow | -- Pending |
-| No runtime filtering v3.0 | Upstream install.js is 5K-line monolith; code-level filtering infeasible; users choose at install time | -- Pending |
+| Overlay architecture | Cherry-pick sync unsustainable at 569-commit delta; overlay model eliminates sync treadmill | Good |
+| Surface-only branding | Internal path renaming cascades complexity through installer delegation and test compat; Android OEMs preserve AOSP internals | Good |
+| Publish-time composition | Users don't need upstream as dependency; pre-composed output is self-contained and testable | Good |
+| Exact version pinning | Prevents unreviewed upstream updates; deliberate upgrades via preview-update workflow | Good |
+| No runtime filtering v3.0 | Upstream install.js is 5K-line monolith; code-level filtering infeasible; users choose at install time | Good |
 
 ---
-*Last updated: 2026-03-28 after v1.0.0 overlay architecture milestone start*
+*Last updated: 2026-03-31 after v3.0.0 publish and milestone audit*

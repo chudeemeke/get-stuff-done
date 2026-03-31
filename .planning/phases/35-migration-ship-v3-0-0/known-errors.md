@@ -52,8 +52,9 @@ All must be resolved before closing the v1.0.0 milestone.
 
 ## Resolution Plan
 
-These should be addressed in a v3.0.1 patch or as the first phase of the next milestone:
-1. CI: Add `continue-on-error: true` to boundary-check, upstream-compat, and windows test jobs
-2. Tests: Increase Windows timeout thresholds for subprocess-heavy tests
-3. Config: Report _auto_chain_active schema issue to GSD upstream or patch locally
-4. Upstream: Report Codex extractFrontmatterField crash to upstream
+Being addressed in Phase 36 (v1.0.0 Gap Closure) within the current milestone:
+1. CI: Add `continue-on-error: true` to boundary-check, upstream-compat, and windows test jobs (Plan 36-01)
+2. Tests: Increase Windows timeout thresholds for subprocess-heavy tests (Plan 36-01)
+3. Config: Report _auto_chain_active schema issue to GSD upstream or patch locally (Plan 36-01)
+4. Coverage: Close individual script coverage gaps for TEST-01 (Plan 36-02)
+5. Upstream: Report Codex extractFrontmatterField crash to upstream (deferred — not our code)

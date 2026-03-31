@@ -81,7 +81,7 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 
 ### Testing and Quality
 
-- [x] **TEST-01**: Fork-specific code achieves 95%+ at EACH coverage metric (statements, branches, functions, lines) individually
+- [ ] **TEST-01**: Fork-specific code achieves 95%+ at EACH coverage metric (statements, branches, functions, lines) individually
 - [x] **TEST-02**: Upstream test assertion categorisation completed (feasibility gate for compat runner approach)
 - [x] **TEST-03**: Upstream compatibility runner executes upstream tests against composed dist/ output
 - [x] **TEST-04**: TDD enforced: tests written before or alongside implementation in every phase, not as a separate phase
@@ -91,7 +91,7 @@ Requirements for the overlay architecture milestone. Ships as npm v3.0.0.
 - [x] **CI-01**: check-boundary.js scans repo for upstream files outside overrides/; fails build if found
 - [x] **CI-02**: check-overrides.js verifies REASON.md exists for each override; fails build if missing
 - [x] **CI-03**: Cross-platform matrix (macOS, Linux, Windows) for all test suites
-- [x] **CI-04**: All four CI checks pass: fork tests, upstream compat, boundary check, override check
+- [ ] **CI-04**: All four CI checks pass: fork tests, upstream compat, boundary check, override check
 
 ### Migration
 
@@ -126,23 +126,26 @@ Deferred to future releases. Not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROTO-01 through PROTO-03 | Phase 29 | Pending |
-| COMP-01 through COMP-11 | Phase 30 | Pending |
-| BRAND-01 through BRAND-06 | Phase 30 | Pending |
+| PROTO-01 through PROTO-03 | Phase 29 | Complete |
+| COMP-01 through COMP-11 | Phase 30 | Complete |
+| BRAND-01 through BRAND-06 | Phase 30 | Complete |
 | FEAT-01 through FEAT-04 | Phase 31 | Complete |
 | OVER-01 through OVER-04 | Phase 31 | Complete |
-| PORT-01 through PORT-09 | Phase 32 | Pending |
+| PORT-01 through PORT-09 | Phase 32 | Complete |
 | INST-01 through INST-06 | Phase 33 | Complete |
-| UPD-01 through UPD-04 | Phase 33 | Pending |
-| TEST-01 through TEST-04 | Phase 34 | In Progress (TEST-01, TEST-04 complete) |
-| CI-01 through CI-04 | Phase 34 | Pending |
-| MIG-01 through MIG-06 | Phase 35 | Pending |
+| UPD-01 through UPD-04 | Phase 33 | Complete |
+| TEST-01 | Phase 34, Phase 36 (gap closure) | Partial |
+| TEST-02 through TEST-04 | Phase 34 | Complete |
+| CI-01 through CI-03 | Phase 34 | Complete |
+| CI-04 | Phase 34, Phase 36 (gap closure) | Partial |
+| MIG-01 through MIG-06 | Phase 35 | Complete |
 
 **Coverage:**
 - v1.0.0 requirements: 61 total (PROTO: 3, COMP: 11, BRAND: 6, FEAT: 4, OVER: 4, PORT: 9, INST: 6, UPD: 4, TEST: 4, CI: 4, MIG: 6)
+- Satisfied: 59, Partial: 2 (TEST-01, CI-04)
 - Mapped to phases: 61
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-28*
-*Last updated: 2026-03-28 -- corrected requirement count from 52 to 61*
+*Last updated: 2026-03-31 -- audit gap closure: TEST-01 and CI-04 reset to partial, traceability updated*

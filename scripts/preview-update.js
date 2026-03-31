@@ -300,7 +300,7 @@ function generateReport(versionDelta, scanFindings, overrideImpact) {
     // Sort by severity: elevated first, then high, then medium, then others
     const severityOrder = { elevated: 0, high: 1, medium: 2, low: 3, info: 4 };
     const sorted = [...scanFindings].sort(
-      (a, b) => (severityOrder[a.severity] || 99) - (severityOrder[b.severity] || 99)
+      (a, b) => (severityOrder[a.severity] ?? 99) - (severityOrder[b.severity] ?? 99)
     );
 
     for (const finding of sorted) {

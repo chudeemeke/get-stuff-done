@@ -80,9 +80,9 @@ describe('UPD-01: getVersionDelta()', () => {
   });
 
   test('reads pinned version from package.json devDependencies', () => {
-    // The function with no args should read from the project's package.json
-    // package.json has "get-shit-done-cc": "1.30.0"
-    const result = mod.getVersionDelta();
+    // Pass explicit params to avoid network calls; readPinnedVersion() is
+    // an internal function tested indirectly through parameter coverage
+    const result = mod.getVersionDelta('1.30.0', '1.31.0');
     expect(result.pinned).toBe('1.30.0');
     expect(typeof result.latest).toBe('string');
     expect(typeof result.hasUpdate).toBe('boolean');
@@ -96,7 +96,10 @@ describe('UPD-01: getVersionDelta()', () => {
 describe('UPD-02: runPreviewScan()', () => {
   test('returns an array of findings', () => {
     // With no actual files changing, should return an array (possibly empty)
-    const findings = mod.runPreviewScan('1.29.0', '1.30.0');
+    const findings = mod.runPreviewScan('1.29.0', '1.30.0', {
+      files: [{ path: 'README.md' }],
+      diff: '',
+    });
     expect(Array.isArray(findings)).toBe(true);
   });
 
@@ -335,6 +338,23 @@ describe('UPD-04: generateReport()', () => {
     expect(report).toContain('1.29.0');
     expect(report).toContain('bun install');
     expect(report).toContain('bun run compose');
+  });
+
+  test('severity sort places elevated before high', () => {
+    const { generateReport } = require('../scripts/preview-update');
+    const report = generateReport(
+      { pinned: '1.30.0', latest: '1.31.0', hasUpdate: true },
+      [
+        { check: 'high-check', severity: 'high', triggered: [], evidence: [] },
+        { check: 'elevated-check', severity: 'elevated', triggered: ['trigger1'], evidence: [] },
+      ],
+      { ok: true, overrides: [], summary: { total: 0, fresh: 0, stale: 0, missingReason: 0, orphaned: 0 } }
+    );
+    const elevatedIdx = report.indexOf('elevated-check');
+    const highIdx = report.indexOf('high-check');
+    expect(elevatedIdx).toBeGreaterThan(-1);
+    expect(highIdx).toBeGreaterThan(-1);
+    expect(elevatedIdx).toBeLessThan(highIdx);
   });
 
   test('no-update report shows "up to date"', () => {

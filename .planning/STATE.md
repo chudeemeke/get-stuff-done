@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: Overlay Architecture
-status: executing
-stopped_at: Completed 35-02-PLAN.md
-last_updated: "2026-03-30T20:11:20.174Z"
-last_activity: 2026-03-30
+status: verifying
+stopped_at: Completed 35-03-PLAN.md (v3.0.0 published to npm)
+last_updated: "2026-03-31T10:13:29.874Z"
+last_activity: 2026-03-31
 progress:
   total_phases: 6
   completed_phases: 6
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 
 Phase: 35 (migration-ship-v3-0-0) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
-Last activity: 2026-03-30
+Status: Phase complete — ready for verification
+Last activity: 2026-03-31
 
 Progress: [============================..] 90% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phase 34 in progress)
 
@@ -104,6 +104,7 @@ Recent decisions affecting current work:
 - [Phase 35]: force flag kept as quiet mode for scripted installs per review consensus
 - [Phase 35]: Sync-snapshot tags (72 total) left in place -- zero cost, documents pre-overlay sync history
 - [Phase 35]: v2.4.0-legacy derived from v2.4.0 tag via git rev-list (not hardcoded commit hash)
+- [Phase 35]: CI fix: added --ignore-scripts and compose step to all CI jobs for v3.0 overlay architecture
 
 ### Pending Todos
 
@@ -115,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T20:11:20.150Z
-Stopped at: Completed 35-02-PLAN.md
+Last session: 2026-03-31T10:13:21.462Z
+Stopped at: Completed 35-03-PLAN.md (v3.0.0 published to npm)
 Resume file: None

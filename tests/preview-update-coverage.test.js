@@ -563,4 +563,68 @@ describe('runCLI', () => {
       expect(result.output).toContain('preview-update');
     }
   }, 20000);
+
+  // --- TDD RED: parameterized runCLI tests (no network) ---
+
+  test('accepts pinnedVersion and latestVersion params (no network)', () => {
+    const result = runCLI({ pinnedVersion: '1.30.0', latestVersion: '1.31.0' });
+    expect(result.exitCode).toBe(0);
+    expect(result.output).toContain('1.30.0');
+    expect(result.output).toContain('1.31.0');
+    expect(result.output).toContain('Update available');
+  });
+
+  test('reports no update when pinned equals latest', () => {
+    const result = runCLI({ pinnedVersion: '1.30.0', latestVersion: '1.30.0' });
+    expect(result.exitCode).toBe(0);
+    expect(result.output).toContain('up to date');
+  });
+
+  test('returns exitCode 1 when getVersionDelta throws', () => {
+    // Pass an invalid opts shape that will cause an internal error
+    const result = runCLI({ pinnedVersion: null, latestVersion: null });
+    expect(result.exitCode).toBe(1);
+    expect(result.output).toContain('preview-update error');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CLI wrapper file existence and execution (SRP extraction)
+// ---------------------------------------------------------------------------
+
+describe('bin/preview-update-cli.js (SRP extraction)', () => {
+  test('CLI wrapper file exists at bin/preview-update-cli.js', () => {
+    const cliPath = path.join(PROJECT_ROOT, 'bin', 'preview-update-cli.js');
+    expect(fs.existsSync(cliPath)).toBe(true);
+  });
+
+  test('CLI wrapper requires preview-update module and calls runCLI', () => {
+    const cliPath = path.join(PROJECT_ROOT, 'bin', 'preview-update-cli.js');
+    const content = fs.readFileSync(cliPath, 'utf-8');
+    expect(content).toContain("require('../scripts/preview-update')");
+    expect(content).toContain('runCLI');
+  });
+
+  test('scripts/preview-update.js does NOT contain require.main === module', () => {
+    const libPath = path.join(PROJECT_ROOT, 'scripts', 'preview-update.js');
+    const content = fs.readFileSync(libPath, 'utf-8');
+    expect(content).not.toContain('require.main === module');
+  });
+
+  test('package.json preview-update script points to bin/preview-update-cli.js', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf-8'));
+    expect(pkg.scripts['preview-update']).toBe('node bin/preview-update-cli.js');
+  });
+
+  test('CLI wrapper executes without error (subprocess)', () => {
+    const cliPath = path.join(PROJECT_ROOT, 'bin', 'preview-update-cli.js');
+    const result = spawnSync('node', [cliPath], {
+      cwd: PROJECT_ROOT,
+      timeout: 20000,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    // Exit 0 or 1 are both valid (depends on network)
+    expect([0, 1]).toContain(result.status);
+  }, 25000);
 });

@@ -1948,3 +1948,244 @@ describe('formatCLIOutput', () => {
     expect(output).not.toContain('- w1');
   });
 });
+
+// ---------------------------------------------------------------------------
+// resolve() error paths (Phase 36 Plan 02 -- coverage closure)
+// ---------------------------------------------------------------------------
+
+describe('resolve() error paths', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'compose-resolve-'));
+  });
+
+  afterEach(() => {
+    if (tempDir && fs.existsSync(tempDir)) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test('throws when upstream directory does not exist', () => {
+    expect(() => {
+      resolve({
+        upstreamDir: path.join(tempDir, 'nonexistent'),
+        overlayDir: path.join(tempDir, 'overlay'),
+      });
+    }).toThrow('Upstream directory not found');
+  });
+
+  test('throws when upstream package.json is missing', () => {
+    fs.mkdirSync(path.join(tempDir, 'upstream'), { recursive: true });
+    expect(() => {
+      resolve({
+        upstreamDir: path.join(tempDir, 'upstream'),
+        overlayDir: path.join(tempDir, 'overlay'),
+      });
+    }).toThrow('Missing upstream package.json');
+  });
+
+  test('throws when upstream package.json is invalid JSON', () => {
+    const upDir = path.join(tempDir, 'upstream');
+    fs.mkdirSync(upDir, { recursive: true });
+    fs.writeFileSync(path.join(upDir, 'package.json'), '{invalid');
+    expect(() => {
+      resolve({
+        upstreamDir: upDir,
+        overlayDir: path.join(tempDir, 'overlay'),
+      });
+    }).toThrow('Failed to parse upstream package.json');
+  });
+
+  test('throws when branding.json is missing', () => {
+    const upDir = path.join(tempDir, 'upstream');
+    fs.mkdirSync(upDir, { recursive: true });
+    fs.writeFileSync(path.join(upDir, 'package.json'), JSON.stringify({ name: 'test', version: '0.1.0' }));
+    // Create ALL required upstream directories (agents, bin, commands, get-shit-done, hooks, scripts)
+    for (const d of ['agents', 'bin', 'commands', 'get-shit-done', 'hooks', 'scripts']) {
+      fs.mkdirSync(path.join(upDir, d), { recursive: true });
+    }
+    // Create overlay dir without branding.json
+    fs.mkdirSync(path.join(tempDir, 'overlay'), { recursive: true });
+    expect(() => {
+      resolve({
+        upstreamDir: upDir,
+        overlayDir: path.join(tempDir, 'overlay'),
+      });
+    }).toThrow('Missing overlay/branding.json');
+  });
+
+  test('throws when features.json is missing', () => {
+    const upDir = path.join(tempDir, 'upstream');
+    fs.mkdirSync(upDir, { recursive: true });
+    fs.writeFileSync(path.join(upDir, 'package.json'), JSON.stringify({ name: 'test', version: '0.1.0' }));
+    for (const d of ['agents', 'bin', 'commands', 'get-shit-done', 'hooks', 'scripts']) {
+      fs.mkdirSync(path.join(upDir, d), { recursive: true });
+    }
+    const overlayDir = path.join(tempDir, 'overlay');
+    fs.mkdirSync(overlayDir, { recursive: true });
+    fs.writeFileSync(path.join(overlayDir, 'branding.json'), JSON.stringify({
+      substitutions: [{ from: 'get-shit-done', to: 'get-stuff-done', scope: 'text' }],
+      preserveUpstreamCredit: true,
+    }));
+    // No features.json
+    expect(() => {
+      resolve({
+        upstreamDir: upDir,
+        overlayDir: overlayDir,
+      });
+    }).toThrow('Missing overlay/features.json');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeDelta edge cases (Phase 36 Plan 02 -- coverage closure)
+// ---------------------------------------------------------------------------
+
+describe('computeDelta edge cases', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'compose-delta-'));
+
+    // Minimal upstream package with all required directories
+    const upstreamDir = path.join(tempDir, 'upstream');
+    // REQUIRED_UPSTREAM_DIRS: agents, bin, commands, get-shit-done, hooks, scripts
+    fs.mkdirSync(path.join(upstreamDir, 'agents'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'bin'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'commands'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'get-shit-done', 'hooks'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'get-shit-done', 'commands'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'get-shit-done', 'workflows'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'get-shit-done', 'agents'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'hooks'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'scripts'), { recursive: true });
+    fs.writeFileSync(path.join(upstreamDir, 'package.json'), JSON.stringify({
+      name: 'get-shit-done-cc', version: '1.30.0',
+    }));
+    // One upstream file to compose
+    fs.writeFileSync(path.join(upstreamDir, 'get-shit-done', 'hooks', 'test-hook.sh'), '#!/bin/sh\necho test');
+
+    // Minimal overlay
+    const overlayDir = path.join(tempDir, 'overlay');
+    fs.mkdirSync(overlayDir, { recursive: true });
+    fs.writeFileSync(path.join(overlayDir, 'branding.json'), JSON.stringify({
+      substitutions: [{ from: 'get-shit-done', to: 'get-stuff-done', scope: 'text' }],
+      preserveUpstreamCredit: true,
+    }));
+    fs.writeFileSync(path.join(overlayDir, 'features.json'), JSON.stringify({
+      runtimes: {},
+      workflows: { enabled: 'all', exclude: [] },
+      commands: { enabled: 'all', exclude: [] },
+      agents: { enabled: 'all', exclude: [] },
+      hooks: { enabled: 'all', exclude: [] },
+      sdk: true,
+    }));
+  });
+
+  afterEach(() => {
+    if (tempDir && fs.existsSync(tempDir)) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test('handles no existing dist directory (all files show as added)', () => {
+    const result = compose({
+      upstreamDir: path.join(tempDir, 'upstream'),
+      overlayDir: path.join(tempDir, 'overlay'),
+      distDir: path.join(tempDir, 'dist'),
+      diff: true,
+      dryRun: false,
+    });
+    expect(result.diff).toBe(true);
+    expect(Array.isArray(result.delta)).toBe(true);
+    for (const entry of result.delta) {
+      expect(entry.status).toBe('added');
+    }
+  });
+
+  test('handles existing dist with matching content (unchanged status)', () => {
+    // First compose to create dist/
+    compose({
+      upstreamDir: path.join(tempDir, 'upstream'),
+      overlayDir: path.join(tempDir, 'overlay'),
+      distDir: path.join(tempDir, 'dist'),
+    });
+    // Second compose with diff mode to compare
+    const result = compose({
+      upstreamDir: path.join(tempDir, 'upstream'),
+      overlayDir: path.join(tempDir, 'overlay'),
+      distDir: path.join(tempDir, 'dist'),
+      diff: true,
+    });
+    expect(result.diff).toBe(true);
+    expect(Array.isArray(result.delta)).toBe(true);
+    // Some entries should be unchanged or modified (meta files always modified due to timestamp)
+    const statuses = new Set(result.delta.map(e => e.status));
+    expect(statuses.has('unchanged') || statuses.has('modified')).toBe(true);
+  });
+
+  test('detects modified files when upstream content changes between compositions', () => {
+    // First compose to create dist/
+    compose({
+      upstreamDir: path.join(tempDir, 'upstream'),
+      overlayDir: path.join(tempDir, 'overlay'),
+      distDir: path.join(tempDir, 'dist'),
+    });
+    // Modify the upstream file content
+    fs.writeFileSync(
+      path.join(tempDir, 'upstream', 'get-shit-done', 'hooks', 'test-hook.sh'),
+      '#!/bin/sh\necho modified content'
+    );
+    // Diff should now show the file as modified
+    const result = compose({
+      upstreamDir: path.join(tempDir, 'upstream'),
+      overlayDir: path.join(tempDir, 'overlay'),
+      distDir: path.join(tempDir, 'dist'),
+      diff: true,
+    });
+    expect(result.diff).toBe(true);
+    const modified = result.delta.filter(e => e.status === 'modified');
+    expect(modified.length).toBeGreaterThan(0);
+  });
+
+  test('detects modified CREDITS.md when dist content differs', () => {
+    // First compose to create dist/ (including CREDITS.md since preserveUpstreamCredit: true)
+    compose({
+      upstreamDir: path.join(tempDir, 'upstream'),
+      overlayDir: path.join(tempDir, 'overlay'),
+      distDir: path.join(tempDir, 'dist'),
+    });
+    // Manually alter CREDITS.md in dist so diff detects it as modified
+    const creditsPath = path.join(tempDir, 'dist', 'CREDITS.md');
+    fs.writeFileSync(creditsPath, 'old credits content', 'utf-8');
+    const result = compose({
+      upstreamDir: path.join(tempDir, 'upstream'),
+      overlayDir: path.join(tempDir, 'overlay'),
+      distDir: path.join(tempDir, 'dist'),
+      diff: true,
+    });
+    const creditsEntry = result.delta.find(e => e.relPath === 'CREDITS.md');
+    expect(creditsEntry).toBeDefined();
+    expect(creditsEntry.status).toBe('modified');
+  });
+
+  test('detects removed files when upstream file is deleted', () => {
+    // First compose to create dist/
+    compose({
+      upstreamDir: path.join(tempDir, 'upstream'),
+      overlayDir: path.join(tempDir, 'overlay'),
+      distDir: path.join(tempDir, 'dist'),
+    });
+    // Remove the upstream file so the next diff sees it as removed from dist/
+    fs.unlinkSync(path.join(tempDir, 'upstream', 'get-shit-done', 'hooks', 'test-hook.sh'));
+    const result = compose({
+      upstreamDir: path.join(tempDir, 'upstream'),
+      overlayDir: path.join(tempDir, 'overlay'),
+      distDir: path.join(tempDir, 'dist'),
+      diff: true,
+    });
+    const removed = result.delta.filter(e => e.status === 'removed');
+    expect(removed.length).toBeGreaterThan(0);
+  });
+});

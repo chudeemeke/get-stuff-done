@@ -416,6 +416,56 @@ describe('CLI entry subprocess', () => {
 });
 
 // ---------------------------------------------------------------------------
+// runFallbackChecks (Plan 36-02: additional coverage paths)
+// ---------------------------------------------------------------------------
+
+describe('runFallbackChecks additional coverage', () => {
+  test('runFallbackChecks returns findings array for clean input', () => {
+    const { runFallbackChecks } = require('../scripts/preview-update');
+    const files = [{ path: 'bin/install.js' }, { path: 'hooks/pre-compact.sh' }];
+    const diff = '+ normal code changes';
+    const findings = runFallbackChecks(files, diff);
+    expect(Array.isArray(findings)).toBe(true);
+  });
+
+  test('runFallbackChecks detects suspicious patterns in diff', () => {
+    const { runFallbackChecks } = require('../scripts/preview-update');
+    const files = [{ path: 'bin/install.js' }];
+    const diff = '+ eval(userInput)\n+ new Function(code)';
+    const findings = runFallbackChecks(files, diff);
+    expect(findings.length).toBeGreaterThan(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// runCLI (Plan 36-02: structured result test)
+// ---------------------------------------------------------------------------
+
+describe('runCLI structured result', () => {
+  test('runCLI returns structured result', () => {
+    const { runCLI } = require('../scripts/preview-update');
+    const result = runCLI();
+    expect(result).toHaveProperty('exitCode');
+    expect(result).toHaveProperty('output');
+    expect(typeof result.exitCode).toBe('number');
+    expect(typeof result.output).toBe('string');
+  }, 20000);
+});
+
+// ---------------------------------------------------------------------------
+// runPreviewScan without opts.files (exercises buildFileList + walkDirFlat)
+// ---------------------------------------------------------------------------
+
+describe('runPreviewScan default file list coverage', () => {
+  test('without opts.files, uses buildFileList to enumerate upstream package', () => {
+    const { runPreviewScan } = require('../scripts/preview-update');
+    // Call without opts.files so buildFileList() runs, which calls walkDirFlat()
+    const findings = runPreviewScan('1.29.0', '1.30.0', { diff: '' });
+    expect(Array.isArray(findings)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // runFallbackChecks unit tests
 // ---------------------------------------------------------------------------
 

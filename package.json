@@ -64,6 +64,6 @@
     "test": "bun test",
     "test:coverage": "bun test --coverage",
     "test:upstream": "node --test tests/*.test.cjs",
-    "preview-update": "node scripts/preview-update.js"
+    "preview-update": "node bin/preview-update-cli.js"
   }
 }

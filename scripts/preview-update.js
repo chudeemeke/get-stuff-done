@@ -379,13 +379,17 @@ function generateReport(versionDelta, scanFindings, overrideImpact) {
 
 /**
  * Run the preview-update check and return structured output.
+ *
+ * @param {object} [opts]                Options for test injection
+ * @param {string} [opts.pinnedVersion]  Explicit pinned version (skips package.json read)
+ * @param {string} [opts.latestVersion]  Explicit latest version (skips npm query)
  * @returns {{ output: string, exitCode: number }}
  */
-function runCLI() {
+function runCLI(opts = {}) {
   const lines = ['preview-update: Checking for upstream updates...', ''];
 
   try {
-    const delta = getVersionDelta();
+    const delta = getVersionDelta(opts.pinnedVersion, opts.latestVersion);
 
     if (!delta.hasUpdate) {
       lines.push(`Already up to date (pinned: ${delta.pinned})`);
@@ -405,20 +409,6 @@ function runCLI() {
   } catch (err) {
     return { output: `preview-update error: ${err.message}`, exitCode: 1 };
   }
-}
-
-// ---------------------------------------------------------------------------
-// CLI entry point
-// ---------------------------------------------------------------------------
-
-if (require.main === module) {
-  const result = runCLI();
-  if (result.exitCode === 0) {
-    console.log(result.output);
-  } else {
-    console.error(result.output);
-  }
-  process.exit(result.exitCode);
 }
 
 // ---------------------------------------------------------------------------

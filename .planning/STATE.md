@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: Overlay Architecture
-status: gap_closure
-stopped_at: Milestone audit complete, gap closure phase pending
-last_updated: "2026-03-31"
+status: executing
+stopped_at: Completed 36-01-PLAN.md
+last_updated: "2026-03-31T16:59:58.889Z"
 last_activity: 2026-03-31
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 19
-  completed_plans: 19
+  total_phases: 6
+  completed_phases: 6
+  total_plans: 16
+  completed_plans: 16
   percent: 95
 ---
 
@@ -21,14 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Gap closure — 2 partial requirements (TEST-01, CI-04) from milestone audit
+**Current focus:** Phase 36 — v1-0-0-gap-closure
 
 ## Current Position
 
-Phase: 35 (migration-ship-v3-0-0) — COMPLETE
+Phase: 36 (v1-0-0-gap-closure) — EXECUTING
+Plan: 2 of 2
 v3.0.0 published to npm 2026-03-31
 Milestone audit: 59/61 requirements satisfied, 2 partial
-Status: Gap closure phase (Phase 36) pending
+Status: Ready to execute
 Last activity: 2026-03-31
 
 Progress: [============================..] 95% (milestones 1-3 complete, v0.4.0 superseded, v1.0.0 Phases 29-35 complete, gap closure pending)
@@ -106,6 +107,8 @@ Recent decisions affecting current work:
 - [Phase 35]: Sync-snapshot tags (72 total) left in place -- zero cost, documents pre-overlay sync history
 - [Phase 35]: v2.4.0-legacy derived from v2.4.0 tag via git rev-list (not hardcoded commit hash)
 - [Phase 35]: CI fix: added --ignore-scripts and compose step to all CI jobs for v3.0 overlay architecture
+- [Phase 36]: continue-on-error at job level for informational CI jobs (boundary-override-check, upstream-compat)
+- [Phase 36]: Nullish coalescing (??) over logical OR (||) for severity sort ordinals where 0 is a valid value
 
 ### Pending Todos
 
@@ -117,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-31T10:13:21.462Z
-Stopped at: Completed 35-03-PLAN.md (v3.0.0 published to npm)
+Last session: 2026-03-31T16:59:58.881Z
+Stopped at: Completed 36-01-PLAN.md
 Resume file: None

@@ -195,7 +195,7 @@ Plans:
   5. Network-dependent tests mocked to avoid failures when npm registry is unavailable
 **Plans**: 2 plans
 Plans:
-- [ ] 36-01-PLAN.md -- CI stabilization: continue-on-error for informational jobs, Windows timeouts, severity sort bug fix, network test mocking (CI-04)
+- [x] 36-01-PLAN.md -- CI stabilization: continue-on-error for informational jobs, Windows timeouts, severity sort bug fix, network test mocking (CI-04)
 - [ ] 36-02-PLAN.md -- Coverage closure: compose.js, preview-update.js, check-boundary.js to 95%+ per metric (TEST-01)
 
 ## Progress
@@ -236,4 +236,4 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35 -> 36
 | 33. Installer & Update Workflow | v1.0.0 | 2/2 | Complete | 2026-03-29 |
 | 34. Testing & CI Enforcement | v1.0.0 | 4/4 | Complete | 2026-03-30 |
 | 35. Migration & Ship v3.0.0 | v1.0.0 | 3/3 | Complete   | 2026-03-31 |
-| 36. v1.0.0 Gap Closure | v1.0.0 | 0/2 | In Progress | - |
+| 36. v1.0.0 Gap Closure | v1.0.0 | 1/2 | In Progress|  |

@@ -74,7 +74,10 @@ See: .planning/milestones/v1.0.0-ROADMAP.md
   1. Running installer with user-created files present in the target directory does not delete or overwrite those files
   2. `detectV2()` returns false on a directory that was installed via the overlay architecture (no false-positive triggering of v2 cleanup)
   3. `uninstall()` removes only files listed in the install manifest, leaving all other files intact
-**Plans**: TBD
+**Plans:** 1 plan
+
+Plans:
+- [ ] 37-01-PLAN.md -- Extract safety function exports and write comprehensive unit tests for INST-01/02/03
 
 ### Phase 38: Statusline Deployment
 **Goal**: Fork's enhanced statusline is deployed globally and works reliably across projects
@@ -121,7 +124,7 @@ Phases execute in numeric order: 37 -> 38 -> 39 -> 40
 | 18-23 | v0.3.0 | 17/17 | Complete | 2026-03-08 |
 | 24-28 | v0.4.0 | - | Superseded | - |
 | 29-36 | v1.0.0 | 21/21 | Complete | 2026-03-31 |
-| 37. Installer Safety | v1.1.0 | 0/? | Not started | - |
+| 37. Installer Safety | v1.1.0 | 0/1 | Planning | - |
 | 38. Statusline Deployment | v1.1.0 | 0/? | Not started | - |
 | 39. Test Health & CI | v1.1.0 | 0/? | Not started | - |
 | 40. Cleanup & Verification | v1.1.0 | 0/? | Not started | - |

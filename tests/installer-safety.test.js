@@ -25,6 +25,7 @@ const {
   removeGsdFiles,
   detectV2,
   isSafeToClean,
+  uninstall,
   INSTALLED_MANIFEST_NAME,
 } = require('../bin/install.js');
 
@@ -580,5 +581,78 @@ describe('isSafeToClean', { timeout: 15000 }, () => {
     const result = isSafeToClean(deepPath);
     expect(result.safe).toBe(true);
     expect(result.reason).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// uninstall (public entrypoint)
+// ---------------------------------------------------------------------------
+
+describe('uninstall', { timeout: 15000 }, () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempDir();
+  });
+
+  afterEach(() => {
+    tmpDir.cleanup();
+  });
+
+  test('removes GSD files via manifest and preserves user content', () => {
+    // Seed GSD files
+    const gsdFiles = [
+      'get-shit-done/bin/gsd-tools.cjs',
+      'commands/gsd/workstreams.md',
+    ];
+    for (const f of gsdFiles) {
+      const fp = path.join(tmpDir.path, f);
+      fs.mkdirSync(path.dirname(fp), { recursive: true });
+      fs.writeFileSync(fp, 'gsd content');
+    }
+
+    // Seed user content
+    populateUserContent(tmpDir.path);
+
+    // Write manifest
+    writeManifest(tmpDir.path, gsdFiles);
+
+    // Act -- exit: false so we don't kill the test runner
+    const result = uninstall(tmpDir.path, { exit: false });
+
+    // Assert: GSD files removed
+    for (const f of gsdFiles) {
+      expect(fs.existsSync(path.join(tmpDir.path, f))).toBe(false);
+    }
+
+    // Assert: user content intact
+    assertUserContentIntact(tmpDir.path);
+
+    // Assert: result contains removal info
+    expect(result.removed).toBeGreaterThanOrEqual(1);
+    expect(result.strategy).toBeDefined();
+  });
+
+  test('handles non-existent directory without throwing', () => {
+    const missingDir = path.join(tmpDir.path, 'does-not-exist');
+
+    // Should not throw
+    const result = uninstall(missingDir, { exit: false });
+    expect(result.removed).toBe(0);
+    expect(result.missing).toBe(true);
+  });
+
+  test('legacy fallback path through uninstall removes only known dirs', () => {
+    // No manifest -- triggers legacy fallback via removeGsdFiles
+    fs.mkdirSync(path.join(tmpDir.path, 'get-stuff-done', 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir.path, 'get-stuff-done', 'bin', 'tools.cjs'), 'v2');
+
+    populateUserContent(tmpDir.path);
+
+    const result = uninstall(tmpDir.path, { exit: false });
+
+    expect(fs.existsSync(path.join(tmpDir.path, 'get-stuff-done'))).toBe(false);
+    assertUserContentIntact(tmpDir.path);
+    expect(result.strategy).toBe('legacy-fallback');
   });
 });

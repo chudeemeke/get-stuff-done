@@ -324,6 +324,105 @@ describe('removeGsdFiles', { timeout: 15000 }, () => {
     // Assert: removed = 2 manifest files + manifest file itself + .install-meta.json = 4
     expect(result.removed).toBe(4);
   });
+
+  // -------------------------------------------------------------------------
+  // Path containment (traversal rejection)
+  // -------------------------------------------------------------------------
+
+  describe('path containment (traversal rejection)', () => {
+    test('rejects manifest entry with ../ traversal', () => {
+      // Create a file OUTSIDE targetDir that a traversal would reach
+      const escapeDir = path.join(path.dirname(tmpDir.path), 'escape-target');
+      fs.mkdirSync(escapeDir, { recursive: true });
+      const escapeFile = path.join(escapeDir, 'precious.txt');
+      fs.writeFileSync(escapeFile, 'must survive');
+
+      // Create a valid GSD file inside targetDir
+      fs.mkdirSync(path.join(tmpDir.path, 'get-shit-done'), { recursive: true });
+      fs.writeFileSync(path.join(tmpDir.path, 'get-shit-done', 'legit.cjs'), 'gsd');
+
+      // Write manifest with traversal entry + valid entry
+      writeManifest(tmpDir.path, [
+        '../escape-target/precious.txt',
+        'get-shit-done/legit.cjs',
+      ]);
+
+      const result = removeGsdFiles(tmpDir.path, true);
+
+      // Traversal entry skipped, valid entry removed
+      expect(fs.existsSync(escapeFile)).toBe(true);
+      expect(fs.readFileSync(escapeFile, 'utf-8')).toBe('must survive');
+      expect(fs.existsSync(path.join(tmpDir.path, 'get-shit-done', 'legit.cjs'))).toBe(false);
+      expect(result.skipped).toBeGreaterThanOrEqual(1);
+      expect(result.removed).toBeGreaterThanOrEqual(1);
+
+      // Cleanup escape dir
+      fs.rmSync(escapeDir, { recursive: true, force: true });
+    });
+
+    test('rejects manifest entry with deeply nested traversal (../../)', () => {
+      const deepEscape = path.join(path.dirname(path.dirname(tmpDir.path)), 'fake-bashrc');
+      fs.mkdirSync(path.dirname(deepEscape), { recursive: true });
+      fs.writeFileSync(deepEscape, 'shell config');
+
+      writeManifest(tmpDir.path, ['../../fake-bashrc']);
+
+      const result = removeGsdFiles(tmpDir.path, true);
+      expect(fs.existsSync(deepEscape)).toBe(true);
+      expect(result.skipped).toBeGreaterThanOrEqual(1);
+
+      fs.rmSync(deepEscape, { force: true });
+    });
+
+    test('rejects absolute Unix-style paths in manifest', () => {
+      // Absolute paths resolve to themselves, not inside targetDir
+      writeManifest(tmpDir.path, ['/etc/passwd']);
+
+      const result = removeGsdFiles(tmpDir.path, true);
+      expect(result.skipped).toBeGreaterThanOrEqual(1);
+    });
+
+    test('rejects absolute Windows-style paths in manifest', () => {
+      writeManifest(tmpDir.path, ['C:\\Windows\\System32\\evil.txt']);
+
+      const result = removeGsdFiles(tmpDir.path, true);
+      expect(result.skipped).toBeGreaterThanOrEqual(1);
+    });
+
+    test('mixed valid and traversal entries: deletes valid, skips traversal, user content intact', () => {
+      // Valid GSD files
+      const validFiles = [
+        'get-shit-done/bin/gsd-tools.cjs',
+        'commands/gsd/workstreams.md',
+      ];
+      for (const f of validFiles) {
+        const fp = path.join(tmpDir.path, f);
+        fs.mkdirSync(path.dirname(fp), { recursive: true });
+        fs.writeFileSync(fp, 'gsd content');
+      }
+
+      // User content
+      populateUserContent(tmpDir.path);
+
+      // Manifest with valid + traversal entries
+      writeManifest(tmpDir.path, [
+        ...validFiles,
+        '../escape/nope.txt',
+        '/absolute/nope.txt',
+      ]);
+
+      const result = removeGsdFiles(tmpDir.path, true);
+
+      expect(result.strategy).toBe('manifest');
+      expect(result.skipped).toBe(2);
+      // Valid files removed
+      for (const f of validFiles) {
+        expect(fs.existsSync(path.join(tmpDir.path, f))).toBe(false);
+      }
+      // User content intact
+      assertUserContentIntact(tmpDir.path);
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------

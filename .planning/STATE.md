@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: Installer & Deployment Hardening
-status: requirements
+status: roadmap
 stopped_at: null
-last_updated: "2026-04-02T12:00:00.000Z"
+last_updated: "2026-04-02T14:00:00.000Z"
 last_activity: 2026-04-02
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,14 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Defining requirements for v1.1.0
+**Current focus:** v1.1.0 Installer & Deployment Hardening -- Phase 37 ready to plan
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 37 of 40 (Installer Safety)
 Plan: --
-Status: Defining requirements
-Last activity: 2026-04-02 -- Milestone v1.1.0 started
+Status: Ready to plan
+Last activity: 2026-04-02 -- Roadmap created for v1.1.0
+
+Progress: [░░░░░░░░░░░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -67,5 +69,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-02
-Stopped at: Defining requirements for v1.1.0
+Stopped at: Roadmap created for v1.1.0 (4 phases, 16 requirements)
 Resume file: None

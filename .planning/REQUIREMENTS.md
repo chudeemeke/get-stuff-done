@@ -70,28 +70,28 @@ These are acknowledged, non-blocking items. Not targeted for fix but documented 
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INST-01 | TBD | Pending |
-| INST-02 | TBD | Pending |
-| INST-03 | TBD | Pending |
-| STAT-01 | TBD | Pending |
-| STAT-02 | TBD | Pending |
-| STAT-03 | TBD | Pending |
-| STAT-04 | TBD | Pending |
-| TEST-01 | TBD | Pending |
-| TEST-02 | TBD | Pending |
-| TEST-03 | TBD | Pending |
-| TEST-04 | TBD | Pending |
-| CI-01 | TBD | Pending |
-| CLEAN-01 | TBD | Pending |
-| CLEAN-02 | TBD | Pending |
-| CLEAN-03 | TBD | Pending |
-| CLEAN-04 | TBD | Pending |
+| INST-01 | Phase 37 | Pending |
+| INST-02 | Phase 37 | Pending |
+| INST-03 | Phase 37 | Pending |
+| STAT-01 | Phase 38 | Pending |
+| STAT-02 | Phase 38 | Pending |
+| STAT-03 | Phase 38 | Pending |
+| STAT-04 | Phase 38 | Pending |
+| TEST-01 | Phase 39 | Pending |
+| TEST-02 | Phase 39 | Pending |
+| TEST-03 | Phase 39 | Pending |
+| TEST-04 | Phase 40 | Pending |
+| CI-01 | Phase 39 | Pending |
+| CLEAN-01 | Phase 40 | Pending |
+| CLEAN-02 | Phase 40 | Pending |
+| CLEAN-03 | Phase 40 | Pending |
+| CLEAN-04 | Phase 40 | Pending |
 
 **Coverage:**
 - v1.1.0 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16
+- Mapped to phases: 16
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-02*
-*Last updated: 2026-04-02 after initial definition*
+*Last updated: 2026-04-02 after roadmap creation*

@@ -445,17 +445,23 @@ function writeInstallMeta(targetDir) {
  * User content is structurally preserved. Idempotent: missing target exits 0.
  *
  * @param {string} targetDir
+ * @param {{ exit?: boolean }} [options] - When exit is false, returns result instead of calling process.exit()
+ * @returns {{ removed: number, skipped: number, strategy: string, missing?: boolean } | void}
  */
-function uninstall(targetDir) {
+function uninstall(targetDir, { exit: shouldExit = true } = {}) {
   if (!fs.existsSync(targetDir)) {
+    if (!shouldExit) return { removed: 0, skipped: 0, strategy: 'none', missing: true };
     console.log(`${dim}Nothing to uninstall at ${targetDir}${reset}`);
     process.exit(0);
   }
 
-  const { removed, strategy } = removeGsdFiles(targetDir, false);
+  const { removed, skipped, strategy } = removeGsdFiles(targetDir, false);
+
+  if (!shouldExit) return { removed, skipped, strategy };
 
   console.log(`${green}Uninstalled GSD from ${targetDir}${reset}`);
-  console.log(`${dim}Strategy: ${strategy} (${removed} items removed)${reset}`);
+  const skippedMsg = skipped > 0 ? `, ${skipped} skipped (path containment)` : '';
+  console.log(`${dim}Strategy: ${strategy} (${removed} items removed${skippedMsg})${reset}`);
   console.log(`${dim}User content preserved (CLAUDE.md, rules/, projects/, settings.json, skills/)${reset}`);
   process.exit(0);
 }
@@ -583,4 +589,5 @@ module.exports = {
   isSafeToClean,
   parseConfigDir,
   resolveTargetDir,
+  uninstall,
 };

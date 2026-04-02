@@ -1,9 +1,9 @@
 ---
 phase: 37
-reviewers: [gemini]
+reviewers: [gemini, codex]
 reviewed_at: 2026-04-02T16:00:00Z
 plans_reviewed: [37-01-PLAN.md]
-notes: Codex CLI segfaulted on command-line argument; Claude CLI skipped (current runtime)
+notes: Codex initially segfaulted on command-line argument; succeeded via stdin pipe. Claude CLI skipped (current runtime).
 ---
 
 # Cross-AI Plan Review -- Phase 37
@@ -62,5 +62,61 @@ Codex CLI segfaulted when invoked with the review prompt (both via command-line 
 3. Verify require('./bin/install.js') produces no stdout/stderr
 
 ---
+
+## Codex Review (GPT-5.4, high reasoning effort)
+
+### Summary
+The plan is well-scoped around the actual failure mode: it shifts validation from brittle subprocess integration tests to direct unit coverage of the installer's safety functions, and it traces most of the required behaviors back to concrete fixtures and assertions. Its main weakness is that it overclaims "proof" for installer safety while leaving two important gaps: it does not directly exercise the public `uninstall()` path for INST-03, and it does not test manifest path containment, which is now the main remaining destructive-cleanup risk.
+
+### Strengths
+- Clear requirement traceability: INST-01, INST-02, and INST-03 are carried through objective, task behavior, acceptance criteria, and success criteria
+- Correct test level for the problem: avoids depending on the already-broken upstream installer subprocess and targets safety logic directly
+- Strong regression coverage for the actual incident pattern: src/ false positives, get-shit-done baseline handling, and co-located user-content pruning
+- Good reuse discipline: importing INSTALLED_MANIFEST_NAME instead of hardcoding the filename reduces drift
+
+### Concerns
+- **HIGH**: INST-03 is about `uninstall()`, but the plan only tests `removeGsdFiles()` (internal function). The public entrypoint (`--uninstall` flag -> `uninstall()` function -> `removeGsdFiles()`) and its exit behavior/wiring are unverified.
+- **HIGH**: Manifest-driven cleanup tests only well-formed relative paths. Path traversal (`../escape`), absolute paths, and symlink targets in manifest entries are untested. `removeGsdFiles()` does `path.join(targetDir, relPath)` and deletes -- a malicious/corrupt manifest entry like `../../.bashrc` would escape the target directory. For a safety phase, this is the most important untested edge.
+- **MEDIUM**: The "no side effects on require()" requirement is not proven by the automated verification. The scripted check validates exports but does not capture stdout/stderr or assert no subprocess was spawned.
+- **LOW**: Several acceptance criteria are structural (minimum line count, describe/test counts, grep-based checks) rather than behavioral.
+
+### Suggestions
+- Add one direct `uninstall()` test that seeds a temp target, invokes `uninstall()` under controlled `process.exit` interception, and asserts exit code plus user-content preservation
+- Add manifest confinement tests for `../escape`, absolute paths, and symlink targets; if they fail, harden `removeGsdFiles()` before calling the phase complete
+- Replace the manual import side-effect "spot check" with a deterministic harness that captures stdout/stderr
+- Remove min_lines and most grep-count gates; keep scenario-based assertions and passing test command as the real acceptance bar
+
+### Risk Assessment: MEDIUM
+The plan is directionally strong and catches the original src/ false-positive regression, but does not justify its stronger claims about uninstall safety. Without direct uninstall() coverage and manifest path-containment checks, meaningful residual risk remains in the cleanup path.
+
+---
+
+## Consensus Summary (Updated)
+
+### Agreed Strengths (both reviewers)
+- Unit test approach over subprocess testing is correct for this problem
+- Minimal refactoring keeps risk low
+- Comprehensive user content fixtures
+- Strong regression coverage for the incident pattern
+- INSTALLED_MANIFEST_NAME export reduces drift
+
+### Agreed Concerns
+- Side-effect verification for require() needs strengthening (both flagged, different severity)
+
+### Divergent Views
+| Topic | Gemini | Codex |
+|-------|--------|-------|
+| Risk level | LOW | MEDIUM |
+| INST-03 coverage | Sufficient via removeGsdFiles tests | Insufficient -- uninstall() entrypoint untested |
+| Path traversal | Not mentioned | HIGH concern -- manifest entries can escape target dir |
+| Acceptance criteria | Fine as-is | Structural criteria are noise |
+
+### Codex-Only Findings (Gemini missed)
+1. **Path traversal in manifest entries** (HIGH) -- `removeGsdFiles` joins and deletes without containment checks
+2. **uninstall() public entrypoint untested** (HIGH) -- wiring between --uninstall flag and removeGsdFiles unverified
+3. **Structural acceptance criteria** (LOW) -- min_lines and grep counts are maintenance noise
+
+---
 *Reviewed: 2026-04-02*
-*Reviewers: Gemini (2.5 Pro)*
+*Reviewers: Gemini (2.5 Pro), Codex (GPT-5.4 high reasoning)*
+*CLI invocation notes: Both CLIs segfault on large command-line arguments on Windows/MINGW. Use stdin pipe: `cat prompt | gemini` and `cat prompt | codex exec --skip-git-repo-check -`*

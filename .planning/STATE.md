@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: Installer & Deployment Hardening
-status: planning
-stopped_at: Phase 37 context gathered
-last_updated: "2026-04-02T16:05:32.965Z"
-last_activity: 2026-04-02 -- Roadmap created for v1.1.0
+status: verifying
+stopped_at: Completed 37-01-PLAN.md
+last_updated: "2026-04-02T17:36:48.744Z"
+last_activity: 2026-04-02
 progress:
   total_phases: 4
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.1.0 Installer & Deployment Hardening -- Phase 37 ready to plan
+**Current focus:** Phase 37 — installer-safety
 
 ## Current Position
 
-Phase: 37 of 40 (Installer Safety)
-Plan: --
-Status: Ready to plan
-Last activity: 2026-04-02 -- Roadmap created for v1.1.0
+Phase: 37 (installer-safety) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-04-02
 
 Progress: [░░░░░░░░░░░░░░░░░░░░] 0%
 
@@ -49,6 +49,9 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 All v1.0.0 decisions archived to .planning/milestones/v1.0.0-ROADMAP.md.
 
+- [Phase 37-installer-safety]: require.main guard for CLI/module dual use in bin/install.js
+- [Phase 37-installer-safety]: Export INSTALLED_MANIFEST_NAME alongside functions for test consistency (per Gemini review)
+
 ### Carried Forward Tech Debt (from v1.0.0)
 
 - 48 boundary violations (structural, informational CI)
@@ -68,6 +71,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-02T16:05:32.959Z
-Stopped at: Phase 37 context gathered
-Resume file: .planning/phases/37-installer-safety/37-CONTEXT.md
+Last session: 2026-04-02T17:36:48.739Z
+Stopped at: Completed 37-01-PLAN.md
+Resume file: None

@@ -9,9 +9,9 @@ Requirements for the hardening milestone. Fixes installer safety, statusline dep
 
 ### Installer Safety
 
-- [ ] **INST-01**: Installer manifest-driven cleanup passes end-to-end test (install with user content present, verify nothing deleted)
-- [ ] **INST-02**: `detectV2()` does not false-positive on overlay-installed `src/` directories
-- [ ] **INST-03**: `uninstall()` uses manifest-driven `removeGsdFiles()` and removes only GSD-owned files
+- [x] **INST-01**: Installer manifest-driven cleanup passes end-to-end test (install with user content present, verify nothing deleted)
+- [x] **INST-02**: `detectV2()` does not false-positive on overlay-installed `src/` directories
+- [x] **INST-03**: `uninstall()` uses manifest-driven `removeGsdFiles()` and removes only GSD-owned files
 
 ### Statusline Deployment
 
@@ -70,9 +70,9 @@ These are acknowledged, non-blocking items. Not targeted for fix but documented 
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INST-01 | Phase 37 | Pending |
-| INST-02 | Phase 37 | Pending |
-| INST-03 | Phase 37 | Pending |
+| INST-01 | Phase 37 | Complete |
+| INST-02 | Phase 37 | Complete |
+| INST-03 | Phase 37 | Complete |
 | STAT-01 | Phase 38 | Pending |
 | STAT-02 | Phase 38 | Pending |
 | STAT-03 | Phase 38 | Pending |

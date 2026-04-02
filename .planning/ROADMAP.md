@@ -59,7 +59,7 @@ See: .planning/milestones/v1.0.0-ROADMAP.md
 
 **Milestone Goal:** Fix the installer/deployment pipeline so the fork installs correctly, deploys its enhanced statusline globally, and passes all tests cleanly.
 
-- [ ] **Phase 37: Installer Safety** - Manifest-driven cleanup and v2 detection hardening
+- [x] **Phase 37: Installer Safety** - Manifest-driven cleanup and v2 detection hardening (completed 2026-04-02)
 - [ ] **Phase 38: Statusline Deployment** - Composition pipeline deploys enhanced statusline globally with timeout safety
 - [ ] **Phase 39: Test Health & CI** - Fix pre-existing test failures and add upstream version check
 - [ ] **Phase 40: Cleanup & Verification** - Archive stale artifacts and verify zero test failures
@@ -74,10 +74,10 @@ See: .planning/milestones/v1.0.0-ROADMAP.md
   1. Running installer with user-created files present in the target directory does not delete or overwrite those files
   2. `detectV2()` returns false on a directory that was installed via the overlay architecture (no false-positive triggering of v2 cleanup)
   3. `uninstall()` removes only files listed in the install manifest, leaving all other files intact
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 37-01-PLAN.md -- Extract safety function exports and write comprehensive unit tests for INST-01/02/03
+- [x] 37-01-PLAN.md -- Extract safety function exports and write comprehensive unit tests for INST-01/02/03
 
 ### Phase 38: Statusline Deployment
 **Goal**: Fork's enhanced statusline is deployed globally and works reliably across projects
@@ -124,7 +124,7 @@ Phases execute in numeric order: 37 -> 38 -> 39 -> 40
 | 18-23 | v0.3.0 | 17/17 | Complete | 2026-03-08 |
 | 24-28 | v0.4.0 | - | Superseded | - |
 | 29-36 | v1.0.0 | 21/21 | Complete | 2026-03-31 |
-| 37. Installer Safety | v1.1.0 | 0/1 | Planning | - |
+| 37. Installer Safety | v1.1.0 | 1/1 | Complete   | 2026-04-02 |
 | 38. Statusline Deployment | v1.1.0 | 0/? | Not started | - |
 | 39. Test Health & CI | v1.1.0 | 0/? | Not started | - |
 | 40. Cleanup & Verification | v1.1.0 | 0/? | Not started | - |

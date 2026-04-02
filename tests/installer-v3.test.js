@@ -290,24 +290,6 @@ describe('v3.0 Delegation Installer', () => {
       expect(result.output).toContain('Upgrading from v2.x to v3.0');
     });
 
-    test('detects v2.x via src/ directory fingerprint', { timeout: 30000 }, () => {
-      const targetDir = path.join(tmpDir.path, 'target');
-
-      // Create mock v2.x installation with src/ directory (v2.x fingerprint)
-      fs.mkdirSync(path.join(targetDir, 'src', 'config'), { recursive: true });
-      fs.writeFileSync(path.join(targetDir, 'src', 'config', 'index.js'), '// v2.x fork code');
-
-      // Run v3.0 installer -- v2.x auto-cleaned without prompt
-      const result = runV3Installer(targetDir, []);
-      expect(result.success).toBe(true);
-
-      // v2.x src/ directory should be cleaned up
-      expect(fs.existsSync(path.join(targetDir, 'src', 'config', 'index.js'))).toBe(false);
-
-      // v3.0 files should be installed
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
-    });
-
     test('detects v2.x via get-stuff-done/ without get-shit-done/', { timeout: 30000 }, () => {
       const targetDir = path.join(tmpDir.path, 'target');
 

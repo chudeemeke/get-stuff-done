@@ -7,11 +7,17 @@
  * Thin wrapper that delegates to upstream's install.js via subprocess,
  * then copies overlay-only files from dist/ to the installed target.
  *
+ * Safety invariant: this installer NEVER performs a recursive wipe of the
+ * target directory. All cleanup is manifest-driven -- only files that GSD
+ * previously installed (tracked in gsd-file-manifest.json) are removed.
+ * User content (CLAUDE.md, rules/, projects/, settings.json, skills/, etc.)
+ * is structurally impossible to delete through this installer.
+ *
  * Flow:
  *   1. Resolve dist directory (composed output from bun run compose)
  *   2. Parse CLI args, resolve target directory
- *   3. If --uninstall: wipe target, exit 0
- *   4. If v2.x detected: auto-clean and proceed (--force for silent mode)
+ *   3. If --uninstall: remove manifest-tracked files, exit 0
+ *   4. If v2.x detected: remove only GSD-owned files, proceed
  *   5. Spawn upstream install.js with all user flags + stdio: inherit
  *   6. On upstream exit 0: copy overlay files, write .install-meta.json
  *   7. On upstream failure: warn about partial state, exit with upstream code
@@ -32,6 +38,9 @@ const DIST_DIR = path.join(__dirname, '..', 'dist');
 const MANIFEST_PATH = path.join(DIST_DIR, '.overlay-manifest.json');
 const DIST_META_PATH = path.join(DIST_DIR, '.install-meta.json');
 const PKG_PATH = path.join(__dirname, '..', 'package.json');
+
+/** Filename of the installed-files manifest written by upstream into targetDir. */
+const INSTALLED_MANIFEST_NAME = 'gsd-file-manifest.json';
 
 // Colors
 const cyan = '\x1b[36m';
@@ -110,15 +119,129 @@ function resolveTargetDir(argv) {
 }
 
 // ---------------------------------------------------------------------------
+// Manifest-driven file removal
+// ---------------------------------------------------------------------------
+
+/**
+ * Read the installed-files manifest from a previous GSD installation.
+ * Returns the list of relative paths that GSD owns in the target directory.
+ *
+ * @param {string} targetDir
+ * @returns {string[]} Relative paths of GSD-installed files, empty if no manifest
+ */
+function readInstalledManifest(targetDir) {
+  const manifestPath = path.join(targetDir, INSTALLED_MANIFEST_NAME);
+  if (!fs.existsSync(manifestPath)) return [];
+
+  try {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    if (manifest.files && typeof manifest.files === 'object') {
+      return Object.keys(manifest.files);
+    }
+  } catch {
+    // Corrupt manifest -- return empty (fallback will handle cleanup)
+  }
+  return [];
+}
+
+/**
+ * Remove only GSD-owned files from the target directory.
+ *
+ * Strategy (in priority order):
+ *   1. If gsd-file-manifest.json exists, remove exactly those files (manifest-driven)
+ *   2. Otherwise, remove known v2.x directory structures (legacy fallback)
+ *
+ * In both cases, the manifest file itself and GSD metadata files are also removed.
+ * Empty parent directories left behind after file removal are pruned.
+ *
+ * @param {string} targetDir
+ * @param {boolean} quiet
+ * @returns {{ removed: number, strategy: string }}
+ */
+function removeGsdFiles(targetDir, quiet) {
+  const manifestFiles = readInstalledManifest(targetDir);
+  let removed = 0;
+  let strategy;
+
+  if (manifestFiles.length > 0) {
+    // Strategy 1: Manifest-driven -- remove exactly what the previous install put down
+    strategy = 'manifest';
+    for (const relPath of manifestFiles) {
+      const fullPath = path.join(targetDir, relPath);
+      if (fs.existsSync(fullPath)) {
+        fs.rmSync(fullPath, { force: true });
+        removed++;
+      }
+    }
+
+    // Prune empty directories left behind (deepest-first)
+    const dirs = new Set();
+    for (const relPath of manifestFiles) {
+      let dir = path.dirname(relPath);
+      while (dir && dir !== '.') {
+        dirs.add(dir);
+        dir = path.dirname(dir);
+      }
+    }
+    const sortedDirs = [...dirs].sort((a, b) => b.split('/').length - a.split('/').length);
+    for (const dir of sortedDirs) {
+      const fullDir = path.join(targetDir, dir);
+      try {
+        const entries = fs.readdirSync(fullDir);
+        if (entries.length === 0) {
+          fs.rmdirSync(fullDir);
+        }
+      } catch {
+        // Directory already gone or not empty -- fine
+      }
+    }
+  } else {
+    // Strategy 2: Legacy fallback -- remove known v2.x structures
+    // Only used when no manifest exists (pre-manifest installs)
+    strategy = 'legacy-fallback';
+    const v2Paths = [
+      'get-stuff-done',   // v2.x directory name
+      'get-shit-done',    // v3.0 upstream directory
+    ];
+
+    for (const relPath of v2Paths) {
+      const fullPath = path.join(targetDir, relPath);
+      if (fs.existsSync(fullPath)) {
+        fs.rmSync(fullPath, { recursive: true, force: true });
+        removed++;
+      }
+    }
+  }
+
+  // Always clean GSD metadata files
+  for (const meta of [INSTALLED_MANIFEST_NAME, '.install-meta.json', 'CREDITS.md', 'package.json']) {
+    const fullPath = path.join(targetDir, meta);
+    if (fs.existsSync(fullPath)) {
+      fs.rmSync(fullPath, { force: true });
+      removed++;
+    }
+  }
+
+  if (!quiet) {
+    console.log(`  ${dim}Strategy: ${strategy} (${removed} items removed)${reset}`);
+  }
+
+  return { removed, strategy };
+}
+
+// ---------------------------------------------------------------------------
 // v2.x detection
 // ---------------------------------------------------------------------------
 
 /**
  * Detect v2.x installation in the target directory.
- * Three signals checked in priority order:
+ * Two signals checked in priority order:
  *   1. Meta file at get-stuff-done/.install-meta.json (v2.x location)
- *   2. src/ directory in target (v2.x installed fork source)
- *   3. get-stuff-done/ exists without get-shit-done/ (v2.x dir name)
+ *   2. get-stuff-done/ exists without get-shit-done/ (v2.x dir name)
+ *
+ * Note: src/ directory presence is NOT a v2.x signal. v3.0 overlay installs
+ * src/ files, and other tools may create src/ directories inside the target.
+ * Using src/ as a signal causes false positives that trigger cleanup.
  *
  * @param {string} targetDir
  * @returns {{ isV2: boolean, signal?: string, version?: string }}
@@ -133,18 +256,16 @@ function detectV2(targetDir) {
         return { isV2: true, signal: 'meta', version: meta.version };
       }
     } catch {
-      // Corrupt meta -- treat as v2.x (better safe than sorry)
       return { isV2: true, signal: 'meta-corrupt' };
     }
   }
 
-  // Also check target-root/.install-meta.json (v3.0 composition format in target)
+  // Check target-root/.install-meta.json (v3.0 composition format)
   const rootMetaPath = path.join(targetDir, '.install-meta.json');
   if (fs.existsSync(rootMetaPath)) {
     try {
       const meta = JSON.parse(fs.readFileSync(rootMetaPath, 'utf-8'));
       if (meta.overlay_version) {
-        // This is a v3.0+ installation, not v2.x
         return { isV2: false };
       }
     } catch {
@@ -152,12 +273,7 @@ function detectV2(targetDir) {
     }
   }
 
-  // Signal 2: src/ directory in target (v2.x installed fork source files)
-  if (fs.existsSync(path.join(targetDir, 'src'))) {
-    return { isV2: true, signal: 'src-directory' };
-  }
-
-  // Signal 3: get-stuff-done/ exists without get-shit-done/ (v2.x dir name)
+  // Signal 2: get-stuff-done/ exists without get-shit-done/ (v2.x dir name)
   if (
     fs.existsSync(path.join(targetDir, 'get-stuff-done')) &&
     !fs.existsSync(path.join(targetDir, 'get-shit-done'))
@@ -173,7 +289,7 @@ function detectV2(targetDir) {
 // ---------------------------------------------------------------------------
 
 /**
- * Check if a target directory is safe to wipe during v2.x cleanup.
+ * Check if a target directory is safe to operate on.
  * Refuses home directories, filesystem roots, and suspiciously short paths.
  * @param {string} targetDir
  * @returns {{ safe: boolean, reason?: string }}
@@ -182,18 +298,15 @@ function isSafeToClean(targetDir) {
   const resolved = path.resolve(targetDir);
   const home = os.homedir();
 
-  // Never delete home directory itself
   if (resolved === path.resolve(home)) {
     return { safe: false, reason: 'target is home directory' };
   }
 
-  // Never delete filesystem root
   const parsed = path.parse(resolved);
   if (resolved === parsed.root) {
     return { safe: false, reason: 'target is filesystem root' };
   }
 
-  // Never delete single-level paths like /usr, /tmp, C:\Users
   const segments = resolved.replace(parsed.root, '').split(path.sep).filter(Boolean);
   if (segments.length < 2) {
     return { safe: false, reason: 'target path too shallow (less than 2 segments below root)' };
@@ -203,16 +316,15 @@ function isSafeToClean(targetDir) {
 }
 
 /**
- * Clean up a v2.x installation by wiping the target directory.
- * Non-interactive: always proceeds. Use --force for silent mode (no banner).
+ * Clean up a previous GSD installation using manifest-driven removal.
+ * Only GSD-owned files are removed. User content is structurally preserved.
  *
  * @param {string} targetDir
  * @param {{ isV2: boolean, signal?: string, version?: string }} detection
- * @param {boolean} quiet - Suppress migration banner (--force flag)
+ * @param {boolean} quiet
  * @returns {Promise<boolean>} true if cleaned, false if safety guard refused
  */
 async function cleanupV2(targetDir, detection, quiet) {
-  // Safety guard: refuse to delete unsafe targets
   const safety = isSafeToClean(targetDir);
   if (!safety.safe) {
     console.error(`\n${red}Error:${reset} Refusing to clean target directory.`);
@@ -222,22 +334,20 @@ async function cleanupV2(targetDir, detection, quiet) {
     return false;
   }
 
-  const version = detection.version || 'unknown';
-  const signal = detection.signal;
-
   if (!quiet) {
-    console.log(`\n${yellow}Upgrading from v2.x to v3.0 -- cleaning old files...${reset}`);
-    console.log(`  Signal: ${signal}`);
-    if (version !== 'unknown') console.log(`  Previous version: ${version}`);
+    console.log(`\n${yellow}Upgrading from v2.x to v3.0 -- cleaning GSD files...${reset}`);
+    console.log(`  Signal: ${detection.signal}`);
+    if (detection.version && detection.version !== 'unknown') {
+      console.log(`  Previous version: ${detection.version}`);
+    }
     console.log(`  Location: ${targetDir}`);
-    console.log(`  User config (~/.gsd/) and project data (.planning/) are not affected.`);
+    console.log(`  User content (CLAUDE.md, rules/, projects/, settings.json) is preserved.`);
   }
 
-  fs.rmSync(targetDir, { recursive: true, force: true });
-  fs.mkdirSync(targetDir, { recursive: true });
+  const { removed, strategy } = removeGsdFiles(targetDir, quiet);
 
   if (!quiet) {
-    console.log(`  ${green}v2.x files removed. Proceeding with v3.0 install.${reset}\n`);
+    console.log(`  ${green}GSD files removed (${strategy}: ${removed} items). Proceeding with v3.0 install.${reset}\n`);
   }
   return true;
 }
@@ -300,7 +410,6 @@ function writeInstallMeta(targetDir) {
     overrides_applied: distMeta.overrides_applied || [],
   };
 
-  // Write to get-shit-done/ subdirectory (where upstream writes its own metadata)
   const gsdDir = path.join(targetDir, 'get-shit-done');
   if (fs.existsSync(gsdDir)) {
     fs.writeFileSync(
@@ -316,8 +425,8 @@ function writeInstallMeta(targetDir) {
 // ---------------------------------------------------------------------------
 
 /**
- * Remove all installed files from the target directory.
- * Idempotent: missing target exits 0 with informational message.
+ * Remove only GSD-installed files from the target directory using the manifest.
+ * User content is structurally preserved. Idempotent: missing target exits 0.
  *
  * @param {string} targetDir
  */
@@ -327,14 +436,11 @@ function uninstall(targetDir) {
     process.exit(0);
   }
 
-  // Remove all contents but keep the target directory itself (empty)
-  const entries = fs.readdirSync(targetDir);
-  for (const entry of entries) {
-    const fullPath = path.join(targetDir, entry);
-    fs.rmSync(fullPath, { recursive: true, force: true });
-  }
+  const { removed, strategy } = removeGsdFiles(targetDir, false);
 
-  console.log(`${green}Uninstalled from ${targetDir}${reset}`);
+  console.log(`${green}Uninstalled GSD from ${targetDir}${reset}`);
+  console.log(`${dim}Strategy: ${strategy} (${removed} items removed)${reset}`);
+  console.log(`${dim}User content preserved (CLAUDE.md, rules/, projects/, settings.json, skills/)${reset}`);
   process.exit(0);
 }
 
@@ -395,7 +501,6 @@ function install(distDir, targetDir, userArgs) {
 // ---------------------------------------------------------------------------
 
 async function main() {
-  // Verify dist/ exists
   if (!fs.existsSync(DIST_DIR)) {
     console.error(`${red}Error:${reset} dist/ directory not found.`);
     console.error(`  Run ${cyan}bun run compose${reset} to generate the composed output first.`);
@@ -404,7 +509,6 @@ async function main() {
 
   const args = process.argv.slice(2);
 
-  // Handle --help
   if (args.includes('--help') || args.includes('-h')) {
     const pkg = JSON.parse(fs.readFileSync(PKG_PATH, 'utf-8'));
     console.log(`\n  ${cyan}@chude/get-stuff-done${reset} v${pkg.version}`);
@@ -425,10 +529,9 @@ async function main() {
   }
 
   const hasUninstall = args.includes('--uninstall') || args.includes('-u');
-  const hasForce = args.includes('--force');
   const targetDir = resolveTargetDir(args);
+  const hasForce = args.includes('--force');
 
-  // Handle uninstall
   if (hasUninstall) {
     uninstall(targetDir);
     return;
@@ -445,11 +548,23 @@ async function main() {
     }
   }
 
-  // Run install
   install(DIST_DIR, targetDir, args);
 }
 
-main().catch((err) => {
-  console.error(`${red}Error:${reset} ${err.message}`);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(`${red}Error:${reset} ${err.message}`);
+    process.exit(1);
+  });
+}
+
+// Exports for unit testing -- available when required as a module
+module.exports = {
+  INSTALLED_MANIFEST_NAME,
+  readInstalledManifest,
+  removeGsdFiles,
+  detectV2,
+  isSafeToClean,
+  parseConfigDir,
+  resolveTargetDir,
+};

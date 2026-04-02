@@ -161,13 +161,23 @@ function readInstalledManifest(targetDir) {
 function removeGsdFiles(targetDir, quiet) {
   const manifestFiles = readInstalledManifest(targetDir);
   let removed = 0;
+  let skipped = 0;
   let strategy;
+
+  // Path containment boundary -- all resolved paths must start with this prefix
+  const resolvedTarget = path.resolve(targetDir) + path.sep;
 
   if (manifestFiles.length > 0) {
     // Strategy 1: Manifest-driven -- remove exactly what the previous install put down
     strategy = 'manifest';
     for (const relPath of manifestFiles) {
       const fullPath = path.join(targetDir, relPath);
+      const resolvedFull = path.resolve(fullPath);
+      // Path containment: reject entries that escape targetDir
+      if (!resolvedFull.startsWith(resolvedTarget)) {
+        skipped++;
+        continue;
+      }
       if (fs.existsSync(fullPath)) {
         fs.rmSync(fullPath, { force: true });
         removed++;
@@ -186,6 +196,11 @@ function removeGsdFiles(targetDir, quiet) {
     const sortedDirs = [...dirs].sort((a, b) => b.split('/').length - a.split('/').length);
     for (const dir of sortedDirs) {
       const fullDir = path.join(targetDir, dir);
+      const resolvedDir = path.resolve(fullDir);
+      // Path containment: skip directory pruning outside targetDir
+      if (!resolvedDir.startsWith(resolvedTarget)) {
+        continue;
+      }
       try {
         const entries = fs.readdirSync(fullDir);
         if (entries.length === 0) {
@@ -223,10 +238,11 @@ function removeGsdFiles(targetDir, quiet) {
   }
 
   if (!quiet) {
-    console.log(`  ${dim}Strategy: ${strategy} (${removed} items removed)${reset}`);
+    const skippedMsg = skipped > 0 ? `, ${skipped} skipped (path containment)` : '';
+    console.log(`  ${dim}Strategy: ${strategy} (${removed} items removed${skippedMsg})${reset}`);
   }
 
-  return { removed, strategy };
+  return { removed, skipped, strategy };
 }
 
 // ---------------------------------------------------------------------------

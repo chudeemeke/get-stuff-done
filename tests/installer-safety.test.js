@@ -374,16 +374,27 @@ describe('removeGsdFiles', { timeout: 15000 }, () => {
       fs.rmSync(deepEscape, { force: true });
     });
 
-    test('rejects absolute Unix-style paths in manifest', () => {
-      // Absolute paths resolve to themselves, not inside targetDir
-      writeManifest(tmpDir.path, ['/etc/passwd']);
+    test('rejects absolute paths that resolve outside targetDir', () => {
+      // On Unix, /etc/passwd resolves to itself (outside targetDir).
+      // On Windows, path.join(target, '/etc/passwd') stays inside target (no escape).
+      // Use a path that is guaranteed to escape on the current platform.
+      const outsidePath = path.resolve(path.join(tmpDir.path, '..', '..', 'abs-escape-test.txt'));
+      // Compute the ../ relative path from targetDir to that location
+      const relEscape = path.relative(tmpDir.path, outsidePath);
+
+      writeManifest(tmpDir.path, [relEscape]);
 
       const result = removeGsdFiles(tmpDir.path, true);
       expect(result.skipped).toBeGreaterThanOrEqual(1);
     });
 
-    test('rejects absolute Windows-style paths in manifest', () => {
-      writeManifest(tmpDir.path, ['C:\\Windows\\System32\\evil.txt']);
+    test('rejects entries using platform-native absolute paths', () => {
+      // Construct an absolute path on the current OS that is clearly outside targetDir
+      const absoluteOutside = path.join(os.tmpdir(), 'gsd-abs-escape-test', 'evil.txt');
+      // Compute relative path from targetDir to that location -- will contain ../
+      const relToAbsolute = path.relative(tmpDir.path, absoluteOutside);
+
+      writeManifest(tmpDir.path, [relToAbsolute]);
 
       const result = removeGsdFiles(tmpDir.path, true);
       expect(result.skipped).toBeGreaterThanOrEqual(1);
@@ -404,11 +415,11 @@ describe('removeGsdFiles', { timeout: 15000 }, () => {
       // User content
       populateUserContent(tmpDir.path);
 
-      // Manifest with valid + traversal entries
+      // Manifest with valid + traversal entries (../escape always escapes on all platforms)
       writeManifest(tmpDir.path, [
         ...validFiles,
         '../escape/nope.txt',
-        '/absolute/nope.txt',
+        '../../another-escape/nope.txt',
       ]);
 
       const result = removeGsdFiles(tmpDir.path, true);

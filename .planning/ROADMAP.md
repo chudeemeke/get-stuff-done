@@ -124,7 +124,7 @@ Phases execute in numeric order: 37 -> 38 -> 39 -> 40
 | 18-23 | v0.3.0 | 17/17 | Complete | 2026-03-08 |
 | 24-28 | v0.4.0 | - | Superseded | - |
 | 29-36 | v1.0.0 | 21/21 | Complete | 2026-03-31 |
-| 37. Installer Safety | v1.1.0 | 1/1 | Complete   | 2026-04-02 |
+| 37. Installer Safety | v1.1.0 | 1/1 | Complete    | 2026-04-02 |
 | 38. Statusline Deployment | v1.1.0 | 0/? | Not started | - |
 | 39. Test Health & CI | v1.1.0 | 0/? | Not started | - |
 | 40. Cleanup & Verification | v1.1.0 | 0/? | Not started | - |

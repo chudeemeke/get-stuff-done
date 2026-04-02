@@ -77,7 +77,7 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 **Architecture:** Overlay model — upstream consumed as npm devDependency, composed at publish time
 **Upstream:** get-shit-done-cc@1.30.0 (latest as of 2026-04-02)
 **Current version:** 3.0.0 (published to npm as @chude/get-stuff-done)
-**Codebase:** 151 files, ~30K lines added during v1.0.0; fork-specific overlay code ~2,510 lines; 1536 tests (1529 pass, 7 pre-existing failures)
+**Codebase:** 151 files, ~30K lines added during v1.0.0; fork-specific overlay code ~2,510 lines; 1563 tests (27 new installer safety tests in Phase 37)
 **CI:** 5-check matrix (fork tests, upstream compat, boundary, override) across macOS/Linux/Windows
 **Known tech debt:**
 - 48 boundary violations (structural — overlay files not in overrides/, CI informational)
@@ -182,4 +182,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after v1.1.0 milestone start*
+*Last updated: 2026-04-02 after Phase 37 completion*

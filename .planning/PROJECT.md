@@ -45,7 +45,17 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 
 ### Active
 
-(Next milestone requirements to be defined via `/gsd:new-milestone`)
+## Current Milestone: v1.1.0 Installer & Deployment Hardening
+
+**Goal:** Fix the installer/deployment pipeline so the fork installs correctly, deploys its enhanced statusline globally, and passes all tests cleanly.
+
+**Target features:**
+- Verify installer wipe fix end-to-end (manifest-driven cleanup)
+- Deploy fork's enhanced statusline globally (composition + global settings wiring)
+- Fix statusline git fetch timeout (non-blocking with fallback)
+- Fix pre-existing test failures (validate-configs schema, sync/hooks timeouts)
+- Add CI outdated check (flag when upstream publishes new version)
+- Clean up stale artifacts (debug sessions, Phase 24 plans, handoff files)
 
 ### Out of Scope
 
@@ -58,20 +68,24 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 
 ### Deferred
 
-- CLAUDE-06: Full agent teams orchestration (upstream auto-advance sufficient per ASSESS-01)
-- PLAT-07: Interactive diff viewer (sync-preview CLI sufficient per ASSESS-02)
-- PLAT-08: Multi-upstream support (single-upstream workflow sufficient per ASSESS-02)
+- CLAUDE-06: Parallel phase isolation — safe concurrent phase execution with artifact isolation (reframed from agent teams orchestration; worktree approach has shared artifact conflicts)
 - Runtime filtering in feature flags (revisit if upstream modularises their installer)
 
 ## Current State
 
 **Shipped:** v1.0.0 Overlay Architecture (npm v3.0.0) on 2026-03-31
 **Architecture:** Overlay model — upstream consumed as npm devDependency, composed at publish time
-**Upstream:** get-shit-done-cc@1.30.0
+**Upstream:** get-shit-done-cc@1.30.0 (latest as of 2026-04-02)
 **Current version:** 3.0.0 (published to npm as @chude/get-stuff-done)
-**Codebase:** 151 files, ~30K lines added during v1.0.0; fork-specific overlay code ~2,510 lines
+**Codebase:** 151 files, ~30K lines added during v1.0.0; fork-specific overlay code ~2,510 lines; 1536 tests (1529 pass, 7 pre-existing failures)
 **CI:** 5-check matrix (fork tests, upstream compat, boundary, override) across macOS/Linux/Windows
-**Known tech debt:** 48 boundary violations (structural), ~130 upstream compat failures (branding diffs by design), preview-update.js ~5% uncovered I/O paths
+**Known tech debt:**
+- 48 boundary violations (structural — overlay files not in overrides/, CI informational)
+- ~130 upstream compat failures (branding diffs by design, CI informational)
+- preview-update.js ~5% uncovered I/O paths (documented exception)
+- sync-preview CLI timeout on Windows (pre-existing flaky, re-evaluate on desktop)
+- `_auto_chain_active` schema key (upstream GSD tooling bug, not fork code)
+- Codex `extractFrontmatterField` crash (upstream bug, not fork code)
 
 ## Context
 
@@ -150,5 +164,22 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 | Delegation installer | Subprocess wrapper (436 lines) vs reimplementing upstream's 5K-line monolith | ✓ Good |
 | continue-on-error for informational CI | Boundary + upstream-compat jobs are informational, not blocking; prevents false red builds | ✓ Good |
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? -> Move to Out of Scope with reason
+2. Requirements validated? -> Move to Validated with phase reference
+3. New requirements emerged? -> Add to Active
+4. Decisions to log? -> Add to Key Decisions
+5. "What This Is" still accurate? -> Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check -- still the right priority?
+3. Audit Out of Scope -- reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-03-31 after v1.0.0 milestone completion*
+*Last updated: 2026-04-02 after v1.1.0 milestone start*

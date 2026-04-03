@@ -68,7 +68,8 @@ const planningConfigSchema = {
         plan_check: { type: 'boolean' },
         verifier: { type: 'boolean' },
         auto_advance: { type: 'boolean' },
-        nyquist_validation: { type: 'boolean' }
+        nyquist_validation: { type: 'boolean' },
+        _auto_chain_active: { type: 'boolean' }
       },
       additionalProperties: false
     },

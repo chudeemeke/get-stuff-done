@@ -2,9 +2,9 @@
  * Tests for Hook Scripts
  *
  * Covers:
- * - hooks/gsd-check-update.js
- * - hooks/gsd-statusline.js
- * - hooks/pre-compact.js
+ * - overlay/hooks/gsd-check-update.js
+ * - overlay/hooks/gsd-statusline.js
+ * - overlay/hooks/pre-compact.js
  * - hooks/dist/gsd-check-update.js (bundled)
  * - hooks/dist/gsd-statusline.js (bundled)
  * - hooks/dist/pre-compact.js (bundled)
@@ -97,10 +97,10 @@ function waitForFile(filePath, maxMs = 5000) {
 // Project root (for finding hook scripts)
 const PROJECT_ROOT = path.join(__dirname, '..');
 
-// Hook script paths (source)
+// Hook script paths (source) -- fork hooks live in overlay/hooks/
 const HOOKS = {
-  checkUpdate: path.join(PROJECT_ROOT, 'hooks', 'gsd-check-update.js'),
-  statusline: path.join(PROJECT_ROOT, 'hooks', 'gsd-statusline.js'),
+  checkUpdate: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'gsd-check-update.js'),
+  statusline: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'gsd-statusline.js'),
   preCompact: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'pre-compact.js')
 };
 
@@ -123,7 +123,7 @@ beforeAll(() => {
   }
 });
 
-describe('hooks/gsd-check-update.js', () => {
+describe('overlay/hooks/gsd-check-update.js', () => {
   let tempHome;
   let cleanup;
 
@@ -235,7 +235,7 @@ describe('hooks/gsd-check-update.js', () => {
   });
 });
 
-describe('hooks/gsd-check-update.js (maintainer path)', () => {
+describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
   let tempHome;
   let cleanup;
 
@@ -540,7 +540,7 @@ describe('hooks/gsd-check-update.js (maintainer path)', () => {
   });
 });
 
-describe('hooks/gsd-statusline.js', () => {
+describe('overlay/hooks/gsd-statusline.js', () => {
   let tempHome;
   let cleanup;
 
@@ -637,7 +637,7 @@ describe('hooks/gsd-statusline.js', () => {
   });
 });
 
-describe('hooks/gsd-statusline.js (maintainer notification)', () => {
+describe('overlay/hooks/gsd-statusline.js (maintainer notification)', () => {
   let tempHome;
   let cleanup;
 
@@ -1186,5 +1186,56 @@ describe('hooks/dist/pre-compact.js (bundled)', () => {
         timeout: 5000
       });
     }).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 38: Hook relocation, timeout, and require-depth tests
+// ---------------------------------------------------------------------------
+
+describe('overlay/hooks/gsd-check-update.js (timeout and paths)', () => {
+  test('maintainer git fetch uses 3-second timeout', () => {
+    const src = fs.readFileSync(HOOKS.checkUpdate, 'utf8');
+    expect(src).toContain('timeout: 3000');
+    expect(src).not.toContain('timeout: 15000');
+  });
+
+  test('require paths use ../../src/ for overlay/hooks/ depth', () => {
+    const src = fs.readFileSync(HOOKS.checkUpdate, 'utf8');
+    expect(src).not.toMatch(/require\(['"]\.\.\/src\//);
+    expect(src).toMatch(/require\(['"]\.\.\/\.\.\/src\//);
+  });
+});
+
+describe('overlay/hooks/gsd-statusline.js (timeout and paths)', () => {
+  test('has stdin timeout guard (3s safety net per D-08)', () => {
+    const src = fs.readFileSync(HOOKS.statusline, 'utf8');
+    expect(src).toContain('stdinTimeout');
+    expect(src).toMatch(/setTimeout\(\(\)\s*=>\s*process\.exit\(0\),\s*3000\)/);
+  });
+
+  test('clears stdin timeout on normal end', () => {
+    const src = fs.readFileSync(HOOKS.statusline, 'utf8');
+    expect(src).toContain('clearTimeout(stdinTimeout)');
+  });
+
+  test('require paths use ../../src/ for overlay/hooks/ depth', () => {
+    const src = fs.readFileSync(HOOKS.statusline, 'utf8');
+    expect(src).not.toMatch(/require\(['"]\.\.\/src\//);
+    expect(src).toMatch(/require\(['"]\.\.\/\.\.\/src\//);
+  });
+});
+
+describe('build and parity scripts reference overlay/hooks/', () => {
+  test('build.js HOOKS_DIR points to overlay/hooks', () => {
+    const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'build.js'), 'utf8');
+    expect(src).toMatch(/overlay.*hooks/);
+    expect(src).not.toMatch(/HOOKS_DIR\s*=\s*path\.join\(__dirname,\s*'\.\.'\s*,\s*'hooks'\s*\)/);
+  });
+
+  test('check-parity.js hookFiles uses overlay/hooks/ paths', () => {
+    const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'check-parity.js'), 'utf8');
+    expect(src).toContain('overlay/hooks/gsd-statusline.js');
+    expect(src).toContain('overlay/hooks/gsd-check-update.js');
   });
 });

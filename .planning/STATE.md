@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: Installer & Deployment Hardening
 status: verifying
-stopped_at: Completed 39-02-PLAN.md
-last_updated: "2026-04-03T12:12:29.762Z"
+stopped_at: Completed 40-01-PLAN.md
+last_updated: "2026-04-03T14:56:08.771Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  completed_phases: 4
+  total_plans: 8
+  completed_plans: 8
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Phase 39 — test-health-ci
+**Current focus:** Phase 40 — cleanup-verification
 
 ## Current Position
 
-Phase: 40
-Plan: Not started
+Phase: 40 (cleanup-verification) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-04-03
 
@@ -62,6 +62,8 @@ All v1.0.0 decisions archived to .planning/milestones/v1.0.0-ROADMAP.md.
 - [Phase 39]: Schema-config parity test reads real config.json at test time to catch drift
 - [Phase 39]: Decorator pattern: 7-day throttle wraps existing check logic without modifying it
 - [Phase 39]: 15000ms SUBPROCESS_TIMEOUT and 30000ms HEAVY_SUBPROCESS_TIMEOUT as central constants in tests/helpers/test-timeouts.js
+- [Phase 40-cleanup-verification]: Atomic write via temp file + renameSync for settings.json TOCTOU prevention
+- [Phase 40-cleanup-verification]: INST-04 uninstall test failure is pre-existing manifest tracking gap, not a regression
 
 ### Carried Forward Tech Debt (from v1.0.0)
 
@@ -82,6 +84,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-03T12:01:40.122Z
-Stopped at: Completed 39-02-PLAN.md
+Last session: 2026-04-03T14:56:08.765Z
+Stopped at: Completed 40-01-PLAN.md
 Resume file: None

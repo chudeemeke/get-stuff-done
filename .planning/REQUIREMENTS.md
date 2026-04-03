@@ -25,7 +25,7 @@ Requirements for the hardening milestone. Fixes installer safety, statusline dep
 - [x] **TEST-01**: `validate-configs.test.js` passes against real `.planning/config.json` (schema updated to match actual config structure)
 - [x] **TEST-02**: `sync.test.cjs` flaky timeout tests pass reliably on Windows (per-test timeout increased)
 - [x] **TEST-03**: `hooks.test.js` maintainer path test passes reliably on Windows (timeout increased)
-- [ ] **TEST-04**: Full test suite achieves 0 failures (`bun test` shows 0 fail)
+- [x] **TEST-04**: Full test suite achieves 0 failures (`bun test` shows 0 fail)
 
 ### CI Improvements
 
@@ -33,10 +33,10 @@ Requirements for the hardening milestone. Fixes installer safety, statusline dep
 
 ### Artifact Cleanup
 
-- [ ] **CLEAN-01**: Stale debug sessions archived (progress-bar-blink, progress-bar-color-threshold)
-- [ ] **CLEAN-02**: Phase 24 unexecuted plans (24-01, 24-02) archived with superseded v0.4.0
-- [ ] **CLEAN-03**: `.continue-here.md` and `whats-next.md` deleted (consumed/superseded)
-- [ ] **CLEAN-04**: PLAT-07 and PLAT-08 removed from PROJECT.md deferred list (already done)
+- [x] **CLEAN-01**: Stale debug sessions archived (progress-bar-blink, progress-bar-color-threshold)
+- [x] **CLEAN-02**: Phase 24 unexecuted plans (24-01, 24-02) archived with superseded v0.4.0
+- [x] **CLEAN-03**: `.continue-here.md` and `whats-next.md` deleted (consumed/superseded)
+- [x] **CLEAN-04**: PLAT-07 and PLAT-08 removed from PROJECT.md deferred list (already done)
 
 ## Future Requirements
 
@@ -80,12 +80,12 @@ These are acknowledged, non-blocking items. Not targeted for fix but documented 
 | TEST-01 | Phase 39 | Complete |
 | TEST-02 | Phase 39 | Complete |
 | TEST-03 | Phase 39 | Complete |
-| TEST-04 | Phase 40 | Pending |
+| TEST-04 | Phase 40 | Complete |
 | CI-01 | Phase 39 | Complete |
-| CLEAN-01 | Phase 40 | Pending |
-| CLEAN-02 | Phase 40 | Pending |
-| CLEAN-03 | Phase 40 | Pending |
-| CLEAN-04 | Phase 40 | Pending |
+| CLEAN-01 | Phase 40 | Complete |
+| CLEAN-02 | Phase 40 | Complete |
+| CLEAN-03 | Phase 40 | Complete |
+| CLEAN-04 | Phase 40 | Complete |
 
 **Coverage:**
 - v1.1.0 requirements: 16 total

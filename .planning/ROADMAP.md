@@ -62,7 +62,7 @@ See: .planning/milestones/v1.0.0-ROADMAP.md
 - [x] **Phase 37: Installer Safety** - Manifest-driven cleanup and v2 detection hardening (completed 2026-04-02)
 - [x] **Phase 38: Statusline Deployment** - Composition pipeline deploys enhanced statusline globally with timeout safety (completed 2026-04-03)
 - [x] **Phase 39: Test Health & CI** - Fix pre-existing test failures and add upstream version check (completed 2026-04-03)
-- [ ] **Phase 40: Cleanup & Verification** - Archive stale artifacts and verify zero test failures
+- [x] **Phase 40: Cleanup & Verification** - Archive stale artifacts and verify zero test failures (completed 2026-04-03)
 
 ## Phase Details
 
@@ -120,10 +120,10 @@ Plans:
   2. Phase 24 unexecuted plans and handoff files (.continue-here.md, whats-next.md) are removed from the repository
   3. PROJECT.md deferred list no longer references PLAT-07 or PLAT-08
   4. `bun test` completes with 0 failures across the entire test suite
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 40-01-PLAN.md -- Audit fixes (atomic write, timeout constants), artifact cleanup, full test suite gate
+- [x] 40-01-PLAN.md -- Audit fixes (atomic write, timeout constants), artifact cleanup, full test suite gate
 
 ## Progress
 
@@ -140,4 +140,4 @@ Phases execute in numeric order: 37 -> 38 -> 39 -> 40
 | 37. Installer Safety | v1.1.0 | 2/2 | Complete    | 2026-04-02 |
 | 38. Statusline Deployment | v1.1.0 | 2/2 | Complete    | 2026-04-03 |
 | 39. Test Health & CI | v1.1.0 | 3/3 | Complete    | 2026-04-03 |
-| 40. Cleanup & Verification | v1.1.0 | 0/1 | Not started | - |
+| 40. Cleanup & Verification | v1.1.0 | 1/1 | Complete   | 2026-04-03 |

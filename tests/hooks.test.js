@@ -285,7 +285,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       update_available: true,
       installed: '2.3.0',
       latest: 'upstream/main',
-      checked: Math.floor(Date.now() / 1000) - 10000,  // stale (>4hr)
+      checked: Math.floor(Date.now() / 1000) - (8 * 24 * 60 * 60),  // stale (>7 days, passes both 4h and 7d throttle)
       upstream_count: 3,
       highest_severity: 'fix'
     };

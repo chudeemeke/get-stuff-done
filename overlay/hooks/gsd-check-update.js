@@ -36,6 +36,7 @@ try {
 
 // Check cache TTL before spawning (4-hour TTL: skip if cache is fresh)
 const FOUR_HOURS_SECS = 4 * 60 * 60;
+const SEVEN_DAYS_SECS = 7 * 24 * 60 * 60;
 let cacheIsFresh = false;
 try {
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- cacheFile from path.join(homeDir, ...), no user input
@@ -74,6 +75,19 @@ const child = spawn(process.execPath, ['-e', `
       installed = fs.readFileSync(globalVersionFile, 'utf8').trim();
     }
   } catch (e) {}
+
+  // 7-day throttle: skip network check if cache was checked recently
+  try {
+    if (fs.existsSync(cacheFile)) {
+      const existing = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+      const ageSecs = Math.floor(Date.now() / 1000) - (existing.checked || 0);
+      if (ageSecs < ${SEVEN_DAYS_SECS}) {
+        process.exit(0);  // Cache is fresh enough, no network check needed
+      }
+    }
+  } catch (e) {
+    // Cache read failed, proceed with full check
+  }
 
   if (role === 'maintainer') {
     // Maintainer path: git-based upstream check

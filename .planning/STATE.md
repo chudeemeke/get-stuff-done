@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: Installer & Deployment Hardening
 status: executing
-stopped_at: Phase 38 context gathered
-last_updated: "2026-04-02T20:52:01.622Z"
-last_activity: 2026-04-02
+stopped_at: Completed 38-01-PLAN.md
+last_updated: "2026-04-03T02:04:31.197Z"
+last_activity: 2026-04-03
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Phase 37 — installer-safety
+**Current focus:** Phase 38 — statusline-deployment
 
 ## Current Position
 
-Phase: 38
-Plan: Not started
+Phase: 38 (statusline-deployment) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-04-02
+Last activity: 2026-04-03
 
 Progress: [░░░░░░░░░░░░░░░░░░░░] 0%
 
@@ -53,6 +53,9 @@ All v1.0.0 decisions archived to .planning/milestones/v1.0.0-ROADMAP.md.
 - [Phase 37-installer-safety]: Export INSTALLED_MANIFEST_NAME alongside functions for test consistency (per Gemini review)
 - [Phase 37-installer-safety]: Path containment via path.resolve + startsWith + path.sep for manifest-driven file removal
 - [Phase 37-installer-safety]: uninstall() testable via { exit: false } options pattern instead of mocking process.exit
+- [Phase 38-statusline-deployment]: Fork hooks relocated to overlay/hooks/ for standard compose pipeline inclusion
+- [Phase 38-statusline-deployment]: require paths ../../src/ for 2-level depth from overlay/hooks/
+- [Phase 38-statusline-deployment]: 3s timeout for git fetch and stdin guard to prevent session-start hangs
 
 ### Carried Forward Tech Debt (from v1.0.0)
 
@@ -73,6 +76,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-02T20:52:01.611Z
-Stopped at: Phase 38 context gathered
-Resume file: .planning/phases/38-statusline-deployment/38-CONTEXT.md
+Last session: 2026-04-03T02:04:31.186Z
+Stopped at: Completed 38-01-PLAN.md
+Resume file: None

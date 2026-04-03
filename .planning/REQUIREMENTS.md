@@ -15,9 +15,9 @@ Requirements for the hardening milestone. Fixes installer safety, statusline dep
 
 ### Statusline Deployment
 
-- [ ] **STAT-01**: Composition pipeline deploys fork's enhanced statusline to `~/.claude/hooks/gsd-statusline.js` (replacing upstream's 119-line base)
+- [x] **STAT-01**: Composition pipeline deploys fork's enhanced statusline to `~/.claude/hooks/gsd-statusline.js` (replacing upstream's 119-line base)
 - [ ] **STAT-02**: Installer wires `statusLine` setting into global `~/.claude/settings.json`
-- [ ] **STAT-03**: Statusline `git fetch` has a timeout (max 3s) with graceful fallback on timeout/error
+- [x] **STAT-03**: Statusline `git fetch` has a timeout (max 3s) with graceful fallback on timeout/error
 - [ ] **STAT-04**: Statusline displays correctly in non-GSD projects (verified in at least one other project)
 
 ### Test Health
@@ -73,9 +73,9 @@ These are acknowledged, non-blocking items. Not targeted for fix but documented 
 | INST-01 | Phase 37 | Complete |
 | INST-02 | Phase 37 | Complete |
 | INST-03 | Phase 37 | Complete |
-| STAT-01 | Phase 38 | Pending |
+| STAT-01 | Phase 38 | Complete |
 | STAT-02 | Phase 38 | Pending |
-| STAT-03 | Phase 38 | Pending |
+| STAT-03 | Phase 38 | Complete |
 | STAT-04 | Phase 38 | Pending |
 | TEST-01 | Phase 39 | Pending |
 | TEST-02 | Phase 39 | Pending |

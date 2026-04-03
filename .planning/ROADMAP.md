@@ -89,10 +89,10 @@ Plans:
   2. `~/.claude/settings.json` includes the `statusLine` setting pointing to the deployed hook
   3. Running `git fetch` from a repo with a slow/unreachable remote does not hang the statusline (returns within 3 seconds)
   4. Opening a non-GSD project in Claude Code shows a working statusline without errors
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 38-01-PLAN.md -- Move hooks to overlay, fix timeouts, update compose/test paths (STAT-01, STAT-03)
+- [x] 38-01-PLAN.md -- Move hooks to overlay, fix timeouts, update compose/test paths (STAT-01, STAT-03)
 - [ ] 38-02-PLAN.md -- Installer statusLine wiring and non-GSD project verification (STAT-02, STAT-04)
 
 ### Phase 39: Test Health & CI
@@ -130,6 +130,6 @@ Phases execute in numeric order: 37 -> 38 -> 39 -> 40
 | 24-28 | v0.4.0 | - | Superseded | - |
 | 29-36 | v1.0.0 | 21/21 | Complete | 2026-03-31 |
 | 37. Installer Safety | v1.1.0 | 2/2 | Complete    | 2026-04-02 |
-| 38. Statusline Deployment | v1.1.0 | 0/2 | Not started | - |
+| 38. Statusline Deployment | v1.1.0 | 1/2 | In Progress|  |
 | 39. Test Health & CI | v1.1.0 | 0/? | Not started | - |
 | 40. Cleanup & Verification | v1.1.0 | 0/? | Not started | - |

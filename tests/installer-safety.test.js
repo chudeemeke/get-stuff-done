@@ -19,7 +19,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const { createTempDir } = require('./helpers');
+const { createTempDir, SUBPROCESS_TIMEOUT } = require('./helpers');
 const {
   readInstalledManifest,
   removeGsdFiles,
@@ -94,7 +94,7 @@ function writeManifest(dir, files) {
 // readInstalledManifest
 // ---------------------------------------------------------------------------
 
-describe('readInstalledManifest', { timeout: 15000 }, () => {
+describe('readInstalledManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
   let tmpDir;
 
   beforeEach(() => {
@@ -147,7 +147,7 @@ describe('readInstalledManifest', { timeout: 15000 }, () => {
 // removeGsdFiles
 // ---------------------------------------------------------------------------
 
-describe('removeGsdFiles', { timeout: 15000 }, () => {
+describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
   let tmpDir;
 
   beforeEach(() => {
@@ -442,7 +442,7 @@ describe('removeGsdFiles', { timeout: 15000 }, () => {
 // detectV2
 // ---------------------------------------------------------------------------
 
-describe('detectV2', { timeout: 15000 }, () => {
+describe('detectV2', { timeout: SUBPROCESS_TIMEOUT }, () => {
   let tmpDir;
 
   beforeEach(() => {
@@ -555,7 +555,7 @@ describe('detectV2', { timeout: 15000 }, () => {
 // isSafeToClean
 // ---------------------------------------------------------------------------
 
-describe('isSafeToClean', { timeout: 15000 }, () => {
+describe('isSafeToClean', { timeout: SUBPROCESS_TIMEOUT }, () => {
   test('refuses home directory', () => {
     const result = isSafeToClean(os.homedir());
     expect(result.safe).toBe(false);
@@ -589,7 +589,7 @@ describe('isSafeToClean', { timeout: 15000 }, () => {
 // uninstall (public entrypoint)
 // ---------------------------------------------------------------------------
 
-describe('uninstall', { timeout: 15000 }, () => {
+describe('uninstall', { timeout: SUBPROCESS_TIMEOUT }, () => {
   let tmpDir;
 
   beforeEach(() => {
@@ -662,7 +662,7 @@ describe('uninstall', { timeout: 15000 }, () => {
 // patchStatusLine
 // ---------------------------------------------------------------------------
 
-describe('patchStatusLine', { timeout: 15000 }, () => {
+describe('patchStatusLine', { timeout: SUBPROCESS_TIMEOUT }, () => {
   let tmpDir;
 
   beforeEach(() => {

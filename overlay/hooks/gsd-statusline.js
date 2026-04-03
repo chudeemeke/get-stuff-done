@@ -19,7 +19,7 @@ const os = require('os');
 const AUTOCOMPACT_THRESHOLD = 16.5;
 let gsdRole = 'consumer';
 try {
-  const { loadConfig, getConfigValue } = require('../src/config/ConfigLoader');
+  const { loadConfig, getConfigValue } = require('../../src/config/ConfigLoader');
   const config = loadConfig();
   gsdRole = getConfigValue(config, 'gsd.role', 'consumer');
 } catch (e) {
@@ -28,7 +28,7 @@ try {
 
 // --- Theme System ---
 // Centralized colors and styles from src/theme
-const { getTheme } = require('../src/theme');
+const { getTheme } = require('../../src/theme');
 const theme = getTheme();
 
 // Note: theme.reset available if needed for manual ANSI resets
@@ -44,7 +44,7 @@ const SEP = ` ${theme.text.separator.render('|')} `;
 // NOTE: Blink support moved to theme system (uses reverse video fallback)
 
 // Unicode support detection - use platform module for expanded terminal detection
-const { detectTerminal } = require('../src/platform/terminal');
+const { detectTerminal } = require('../../src/platform/terminal');
 const terminalCaps = detectTerminal();
 
 // Stage icons with fallback
@@ -63,9 +63,12 @@ const STAGE_CRITICAL = 87.5;
 
 // Read JSON from stdin
 let input = '';
+// Safety: exit cleanly if stdin takes too long (belt-and-suspenders, per D-08)
+const stdinTimeout = setTimeout(() => process.exit(0), 3000);
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', chunk => input += chunk);
 process.stdin.on('end', () => {
+  clearTimeout(stdinTimeout);
   try {
     const data = JSON.parse(input);
 

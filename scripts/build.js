@@ -10,7 +10,7 @@
  * dependencies must be bundled at build time.
  *
  * Targets:
- *   - hooks/*.js -> hooks/dist/ (3 hooks)
+ *   - overlay/hooks/*.js -> hooks/dist/ (3 hooks)
  *   - get-stuff-done/bin/gsd-tools.cjs -> get-stuff-done/bin/dist/ (1 tool)
  */
 
@@ -18,8 +18,8 @@ const fs = require('fs');
 const path = require('path');
 const esbuild = require('esbuild');
 
-const HOOKS_DIR = path.join(__dirname, '..', 'hooks');
-const DIST_DIR = path.join(HOOKS_DIR, 'dist');
+const HOOKS_DIR = path.join(__dirname, '..', 'overlay', 'hooks');
+const DIST_DIR = path.join(__dirname, '..', 'hooks', 'dist');
 
 const GSD_BIN_DIR = path.join(__dirname, '..', 'get-stuff-done', 'bin');
 const GSD_DIST_DIR = path.join(GSD_BIN_DIR, 'dist');
@@ -64,7 +64,7 @@ function buildHooks() {
       continue;
     }
 
-    process.stdout.write(`Bundling hooks/${hookFile}... `);
+    process.stdout.write(`Bundling overlay/hooks/${hookFile}... `);
 
     esbuild.buildSync({
       ...ESBUILD_BASE,

@@ -27,7 +27,7 @@ if (!fs.existsSync(cacheDir)) {
 // Per RESEARCH.md Open Question 1, Option B: inject role into spawn string
 let gsdRole = 'consumer';
 try {
-  const { loadConfig, getConfigValue } = require('../src/config/ConfigLoader');
+  const { loadConfig, getConfigValue } = require('../../src/config/ConfigLoader');
   const config = loadConfig();
   gsdRole = getConfigValue(config, 'gsd.role', 'consumer');
 } catch (e) {
@@ -78,12 +78,12 @@ const child = spawn(process.execPath, ['-e', `
   if (role === 'maintainer') {
     // Maintainer path: git-based upstream check
     try {
-      // Fetch upstream (15s timeout)
+      // Fetch upstream (3s timeout -- short to avoid session-start hangs)
       execFileSync('git', ['fetch', 'upstream', 'main'], {
-        encoding: 'utf8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe']
+        encoding: 'utf8', timeout: 3000, stdio: ['pipe', 'pipe', 'pipe']
       });
     } catch (fetchErr) {
-      // Fetch failed (no upstream remote, network down, etc.)
+      // Fetch failed (no upstream remote, network down, timeout, etc.)
       // Leave existing cache unchanged if it exists, or write minimal error cache
       if (!fs.existsSync(cacheFile)) {
         fs.writeFileSync(cacheFile, JSON.stringify({

@@ -92,10 +92,10 @@ function main() {
     if (entry === 'hooks/dist') {
       printResult('SKIP', entry, 'build-generated, checking source');
 
-      // Check hooks/ source directory instead
-      const hooksSourcePath = path.join(PROJECT_ROOT, 'hooks');
+      // Check overlay/hooks/ source directory (hooks moved there in Phase 38)
+      const hooksSourcePath = path.join(PROJECT_ROOT, 'overlay', 'hooks');
       const result = checkDirectory(hooksSourcePath);
-      printResult(result.status, 'hooks/ source', result.message);
+      printResult(result.status, 'overlay/hooks/ source', result.message);
       continue;
     }
 
@@ -140,9 +140,9 @@ function main() {
   console.log('\nHooks source files:\n');
 
   const hookFiles = [
-    'hooks/gsd-check-update.js',
-    'hooks/gsd-statusline.js',
-    'hooks/pre-compact.js'
+    'overlay/hooks/gsd-check-update.js',
+    'overlay/hooks/gsd-statusline.js',
+    'overlay/hooks/pre-compact.js'
   ];
 
   for (const file of hookFiles) {

@@ -12,6 +12,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
 
 // ─── Symlink Shim ──────────────────────────────────────────────────────────────
 //
@@ -115,7 +116,7 @@ describe('getCommitsInRange', () => {
     assert.deepStrictEqual(commits, [], 'Should return empty array for empty range');
   });
 
-  test('returns commits in range as structured objects', { timeout: 15000 }, () => {
+  test('returns commits in range as structured objects', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // Add a second commit so we have a range
     fs.writeFileSync(path.join(tmpDir, 'file2.txt'), 'content');
     execSync('git add .', { cwd: tmpDir, stdio: 'pipe' });
@@ -561,7 +562,7 @@ describe('sync-preview command', () => {
     );
   });
 
-  test('succeeds with dirty working tree (read-only operation)', { timeout: 15000 }, () => {
+  test('succeeds with dirty working tree (read-only operation)', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // sync-preview is read-only; dirty state is surfaced as overlap risk, not a blocker
     const repoDir = createTempGitProject();
     try {
@@ -584,7 +585,7 @@ describe('sync-preview command', () => {
     }
   });
 
-  test('--json flag returns valid JSON with correct schema keys', () => {
+  test('--json flag returns valid JSON with correct schema keys', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // Use the actual repo with a valid range for integration testing
     // We'll use a range from the actual project repo, not tmpDir
     const repoDir = path.join(__dirname, '..');
@@ -625,7 +626,7 @@ describe('sync-preview command', () => {
     assert.ok(data.effortEstimate !== undefined, 'JSON should have effortEstimate');
   });
 
-  test('--json output includes classification field on each commit', { timeout: 15000 }, () => {
+  test('--json output includes classification field on each commit', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Add commits with conventional prefixes so classification is deterministic
@@ -669,7 +670,7 @@ describe('sync-preview command', () => {
     }
   });
 
-  test('--json summary includes byType field with correct counts', { timeout: 30000 }, () => {
+  test('--json summary includes byType field with correct counts', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Add 3 commits: 1 feat, 1 fix, 1 chore
@@ -1142,7 +1143,7 @@ describe('runSupplyChainChecks', () => {
 // ─── cmdSyncPreview supply chain integration ──────────────────────────────────
 
 describe('sync-preview supply chain integration', () => {
-  test('--json includes supplyChainRisks array on each commit', { timeout: 15000 }, () => {
+  test('--json includes supplyChainRisks array on each commit', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     let cacheDir;
     try {
@@ -1174,7 +1175,7 @@ describe('sync-preview supply chain integration', () => {
     }
   });
 
-  test('--json summary includes supplyChainFindings count', { timeout: 15000 }, () => {
+  test('--json summary includes supplyChainFindings count', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'a.txt'), 'content');
@@ -1495,7 +1496,7 @@ describe('detectFileOverlapDeps', () => {
 // ─── sync-preview selective filtering CLI integration ─────────────────────────
 
 describe('sync-preview selective filtering CLI', () => {
-  test('--category flag filters output correctly', { timeout: 15000 }, () => {
+  test('--category flag filters output correctly', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create commits with different conventional prefixes
@@ -1532,7 +1533,7 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('--exclude flag removes category from output', { timeout: 15000 }, () => {
+  test('--exclude flag removes category from output', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
@@ -1560,7 +1561,7 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('without filter flags produces unchanged output (backward compat)', { timeout: 15000 }, () => {
+  test('without filter flags produces unchanged output (backward compat)', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
@@ -1588,7 +1589,7 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('--json with filters includes dependencies fields with semantic placeholder', { timeout: 15000 }, () => {
+  test('--json with filters includes dependencies fields with semantic placeholder', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create 2 commits touching the same file (creates file-overlap dependency)
@@ -1818,7 +1819,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces JSON output for valid range', { timeout: 15000 }, () => {
+  test('produces JSON output for valid range', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create a second commit for a valid range
@@ -1842,7 +1843,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces human-readable output for valid range', { timeout: 15000 }, () => {
+  test('produces human-readable output for valid range', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'readme.md'), 'docs');
@@ -1863,7 +1864,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces filtered output with category flag', { timeout: 15000 }, () => {
+  test('produces filtered output with category flag', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'a.txt'), 'feat');
@@ -1890,7 +1891,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces filtered human-readable output', { timeout: 15000 }, () => {
+  test('produces filtered human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'c.txt'), 'content');
@@ -1915,7 +1916,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('errors when target SHA does not exist', { timeout: 15000 }, () => {
+  test('errors when target SHA does not exist', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const tmpDir = createTempGitProject();
     try {
       const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
@@ -1927,7 +1928,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders supply chain risk badges in human-readable output', { timeout: 15000 }, () => {
+  test('renders supply chain risk badges in human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create a commit that modifies package.json (triggers dependency-diff supply chain check)
@@ -1952,7 +1953,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders sensitive path markers in human-readable output', { timeout: 15000 }, () => {
+  test('renders sensitive path markers in human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Set up a branding map so isSensitivePath triggers
@@ -1983,7 +1984,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('cross-boundary dep warnings in filtered JSON output', { timeout: 15000 }, () => {
+  test('cross-boundary dep warnings in filtered JSON output', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create two commits touching the same file but different categories
@@ -2016,7 +2017,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders cross-boundary dep warnings in filtered human-readable output', { timeout: 15000 }, () => {
+  test('renders cross-boundary dep warnings in filtered human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'overlap.txt'), 'a');
@@ -2041,7 +2042,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders supply chain risks in filtered human-readable output', { timeout: 15000 }, () => {
+  test('renders supply chain risks in filtered human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Commit with package.json change (triggers supply chain) plus a non-feat commit
@@ -2071,7 +2072,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders unfiltered output with sensitive path markers', { timeout: 15000 }, () => {
+  test('renders unfiltered output with sensitive path markers', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       const syncDir = path.join(repoDir, '.planning', 'sync');

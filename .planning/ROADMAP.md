@@ -104,7 +104,12 @@ Plans:
   2. `sync.test.cjs` timeout tests pass reliably on Windows without flaky failures
   3. `hooks.test.js` maintainer path test completes within its timeout on Windows
   4. CI workflow detects when the upstream npm registry has a newer version than the pinned version in package.json
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 39-01-PLAN.md -- Schema parity fix: add _auto_chain_active to schema, add drift detection test (TEST-01)
+- [ ] 39-02-PLAN.md -- Timeout infrastructure: central constants, apply to sync/hooks tests (TEST-02, TEST-03)
+- [ ] 39-03-PLAN.md -- Upstream version throttle: 7-day cache in gsd-check-update.js (CI-01)
 
 ### Phase 40: Cleanup & Verification
 **Goal**: Stale artifacts removed and full test suite passes with zero failures
@@ -131,5 +136,5 @@ Phases execute in numeric order: 37 -> 38 -> 39 -> 40
 | 29-36 | v1.0.0 | 21/21 | Complete | 2026-03-31 |
 | 37. Installer Safety | v1.1.0 | 2/2 | Complete    | 2026-04-02 |
 | 38. Statusline Deployment | v1.1.0 | 2/2 | Complete    | 2026-04-03 |
-| 39. Test Health & CI | v1.1.0 | 0/? | Not started | - |
+| 39. Test Health & CI | v1.1.0 | 0/3 | Not started | - |
 | 40. Cleanup & Verification | v1.1.0 | 0/? | Not started | - |

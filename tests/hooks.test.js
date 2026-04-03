@@ -20,7 +20,7 @@ const { describe, test, expect, beforeEach, afterEach, beforeAll } = require('bu
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { createTempDir, createTempFile, createMockPlanningDir } = require('./helpers');
+const { createTempDir, createTempFile, createMockPlanningDir, SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers');
 
 /**
  * Create a temp git repo with an upstream remote that has N commits ahead.
@@ -250,7 +250,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     if (cleanup) cleanup();
   });
 
-  test('maintainer path writes extended cache with upstream_count when commits exist', { timeout: 15000 }, () => {
+  test('maintainer path writes extended cache with upstream_count when commits exist', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(2);
 
     try {
@@ -260,7 +260,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
         execSync(`node "${HOOKS.checkUpdate}"`, {
           cwd: localDir,
           env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome, GSD_ROLE_OVERRIDE: 'maintainer' },
-          timeout: 15000,
+          timeout: SUBPROCESS_TIMEOUT,
           stdio: 'ignore'
         });
       } catch (e) {
@@ -277,7 +277,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     }
   });
 
-  test('maintainer path: fetch failure leaves existing cache unchanged', { timeout: 15000 }, () => {
+  test('maintainer path: fetch failure leaves existing cache unchanged', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
 
     // Pre-write existing cache
@@ -302,7 +302,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       execSync(`node "${HOOKS.checkUpdate}"`, {
         cwd: localDir,
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
-        timeout: 15000,
+        timeout: SUBPROCESS_TIMEOUT,
         stdio: 'ignore'
       });
     } catch (e) {
@@ -345,7 +345,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     expect(cacheContent.checked).toBe(freshCache.checked);
   });
 
-  test('maintainer background process: classifies commits by subject and writes extended cache fields', { timeout: 30000 }, () => {
+  test('maintainer background process: classifies commits by subject and writes extended cache fields', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     // Test the background process classification logic directly by writing a temp script file
     // (avoids node -e quoting issues on Windows with complex multiline scripts).
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(3);
@@ -414,7 +414,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
 
     let output;
     try {
-      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: 15000 });
+      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: SUBPROCESS_TIMEOUT });
     } catch (e) {
       try { repoCleanup(); } catch (_) {}
       try { scriptCleanup(); } catch (_) {}
@@ -444,9 +444,9 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     }
 
     try { repoCleanup(); } catch (_) {}
-  }, 15000);
+  });
 
-  test('maintainer path: zero upstream commits writes update_available=false', { timeout: 15000 }, () => {
+  test('maintainer path: zero upstream commits writes update_available=false', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // Test directly via temp script file to avoid node -e quoting issues
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(0);
     const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
@@ -481,7 +481,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
 
     let output;
     try {
-      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: 15000 });
+      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: SUBPROCESS_TIMEOUT });
       const cache = JSON.parse(output.trim());
       expect(cache.upstream_count).toBe(0);
       expect(cache.update_available).toBe(false);
@@ -537,6 +537,122 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     expect(results.refactor_perf).toBe('refactor');
     expect(results.chore_style).toBe('chore');
     expect(results.other).toBe('other');
+  });
+
+  describe('7-day throttle', () => {
+    // The 7-day throttle gates the background process: if cache.checked is less
+    // than 7 days old, the background process exits without making a network call.
+    // Layer 1 (4h TTL) prevents subprocess spawn entirely.
+    // Layer 2 (7-day throttle) prevents network call inside the subprocess.
+
+    test('background process skips network check when cache is 5 days old', { timeout: 15000 }, () => {
+      const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+      const FIVE_DAYS_AGO = Math.floor(Date.now() / 1000) - (5 * 24 * 60 * 60);
+
+      // Write cache that is 5 days old (>4h so parent spawns child, but <7d so throttle should skip)
+      const staleCache = {
+        update_available: false,
+        installed: '2.3.0',
+        latest: '2.3.0',
+        checked: FIVE_DAYS_AGO
+      };
+      fs.writeFileSync(cacheFile, JSON.stringify(staleCache));
+
+      try {
+        execSync(`node "${HOOKS.checkUpdate}"`, {
+          env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
+          timeout: 10000,
+          stdio: 'ignore'
+        });
+      } catch (e) {
+        // Expected - hook exits after spawning background
+      }
+
+      // Wait for background process to complete (it should exit quickly due to throttle)
+      const start = Date.now();
+      let cacheContent;
+      while (Date.now() - start < 8000) {
+        cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+        // If checked was updated, break early (test will fail as expected in RED)
+        if (cacheContent.checked !== FIVE_DAYS_AGO) break;
+        execSync('sleep 0.5', { stdio: 'ignore' });
+      }
+      cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+
+      // The 7-day throttle should have prevented the network check,
+      // so cache.checked should NOT have been updated
+      expect(cacheContent.checked).toBe(FIVE_DAYS_AGO);
+    });
+
+    test('background process performs full check when cache is 8 days old', { timeout: 15000 }, () => {
+      const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+      const EIGHT_DAYS_AGO = Math.floor(Date.now() / 1000) - (8 * 24 * 60 * 60);
+
+      // Write cache that is 8 days old (>7d so throttle allows network check)
+      const oldCache = {
+        update_available: false,
+        installed: '2.3.0',
+        latest: '2.3.0',
+        checked: EIGHT_DAYS_AGO
+      };
+      fs.writeFileSync(cacheFile, JSON.stringify(oldCache));
+
+      try {
+        execSync(`node "${HOOKS.checkUpdate}"`, {
+          env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
+          timeout: 10000,
+          stdio: 'ignore'
+        });
+      } catch (e) {
+        // Expected
+      }
+
+      // Wait for background process to complete and update the cache
+      const start = Date.now();
+      let cacheContent;
+      while (Date.now() - start < 8000) {
+        cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+        if (cacheContent.checked !== EIGHT_DAYS_AGO) break;
+        execSync('sleep 0.5', { stdio: 'ignore' });
+      }
+      cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+
+      // After 7+ days, the background process should have performed a full check
+      // and updated cache.checked to approximately now
+      const nowSecs = Math.floor(Date.now() / 1000);
+      expect(cacheContent.checked).not.toBe(EIGHT_DAYS_AGO);
+      expect(cacheContent.checked).toBeGreaterThan(nowSecs - 30);
+    });
+
+    test('background process performs full check when no cache exists', { timeout: 15000 }, () => {
+      const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+
+      // Ensure no cache file exists
+      if (fs.existsSync(cacheFile)) fs.unlinkSync(cacheFile);
+
+      try {
+        execSync(`node "${HOOKS.checkUpdate}"`, {
+          env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
+          timeout: 10000,
+          stdio: 'ignore'
+        });
+      } catch (e) {
+        // Expected
+      }
+
+      // Wait for background process to create the cache
+      const start = Date.now();
+      while (Date.now() - start < 8000) {
+        if (fs.existsSync(cacheFile)) break;
+        execSync('sleep 0.5', { stdio: 'ignore' });
+      }
+
+      // Cache file should have been created with a recent timestamp
+      expect(fs.existsSync(cacheFile)).toBe(true);
+      const cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+      const nowSecs = Math.floor(Date.now() / 1000);
+      expect(cacheContent.checked).toBeGreaterThan(nowSecs - 30);
+    });
   });
 });
 

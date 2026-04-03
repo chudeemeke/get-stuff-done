@@ -26,6 +26,7 @@ const {
   detectV2,
   isSafeToClean,
   uninstall,
+  patchStatusLine,
   INSTALLED_MANIFEST_NAME,
 } = require('../bin/install.js');
 
@@ -654,5 +655,92 @@ describe('uninstall', { timeout: 15000 }, () => {
     expect(fs.existsSync(path.join(tmpDir.path, 'get-stuff-done'))).toBe(false);
     assertUserContentIntact(tmpDir.path);
     expect(result.strategy).toBe('legacy-fallback');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// patchStatusLine
+// ---------------------------------------------------------------------------
+
+describe('patchStatusLine', { timeout: 15000 }, () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempDir();
+  });
+
+  afterEach(() => {
+    tmpDir.cleanup();
+  });
+
+  test('creates settings.json and adds statusLine when file missing', () => {
+    const result = patchStatusLine(tmpDir.path);
+    expect(result.action).toBe('added');
+    const settings = JSON.parse(fs.readFileSync(path.join(tmpDir.path, 'settings.json'), 'utf8'));
+    expect(settings.statusLine).toBeDefined();
+    expect(settings.statusLine.type).toBe('command');
+    expect(settings.statusLine.command).toContain('gsd-statusline.js');
+  });
+
+  test('adds statusLine to existing settings with other keys', () => {
+    const settingsPath = path.join(tmpDir.path, 'settings.json');
+    fs.writeFileSync(settingsPath, JSON.stringify({
+      hooks: { pre_compact: 'node hooks/pre-compact.js' },
+      theme: 'dark'
+    }, null, 2));
+    const result = patchStatusLine(tmpDir.path);
+    expect(result.action).toBe('added');
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    expect(settings.statusLine.command).toContain('gsd-statusline.js');
+    expect(settings.hooks).toBeDefined();  // preserved
+    expect(settings.theme).toBe('dark');    // preserved
+  });
+
+  test('preserves custom non-GSD statusLine (per D-06)', () => {
+    const settingsPath = path.join(tmpDir.path, 'settings.json');
+    fs.writeFileSync(settingsPath, JSON.stringify({
+      statusLine: { type: 'command', command: 'node my-custom-statusline.js' }
+    }, null, 2));
+    const result = patchStatusLine(tmpDir.path);
+    expect(result.action).toBe('preserved_custom');
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    expect(settings.statusLine.command).toBe('node my-custom-statusline.js');
+  });
+
+  test('updates existing GSD statusLine path', () => {
+    const settingsPath = path.join(tmpDir.path, 'settings.json');
+    fs.writeFileSync(settingsPath, JSON.stringify({
+      statusLine: { type: 'command', command: 'node "/old/path/hooks/gsd-statusline.js"' }
+    }, null, 2));
+    const result = patchStatusLine(tmpDir.path);
+    expect(result.action).toBe('updated');
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    expect(settings.statusLine.command).toContain(tmpDir.path.replace(/\\/g, '/'));
+  });
+
+  test('uses forward-slash paths in command', () => {
+    const result = patchStatusLine(tmpDir.path);
+    const settings = JSON.parse(fs.readFileSync(path.join(tmpDir.path, 'settings.json'), 'utf8'));
+    expect(settings.statusLine.command).not.toContain('\\');
+  });
+
+  test('handles corrupt settings.json with backup and warning (not silent reset)', () => {
+    const settingsPath = path.join(tmpDir.path, 'settings.json');
+    fs.writeFileSync(settingsPath, 'not valid json{{{');
+    const result = patchStatusLine(tmpDir.path);
+    // Must create backup
+    expect(fs.existsSync(settingsPath + '.backup')).toBe(true);
+    expect(fs.readFileSync(settingsPath + '.backup', 'utf8')).toBe('not valid json{{{');
+    // Must still write valid settings
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    expect(settings.statusLine).toBeDefined();
+    expect(result.action).toBe('added');
+  });
+
+  test('returns correct action for empty settings (no statusLine key)', () => {
+    const settingsPath = path.join(tmpDir.path, 'settings.json');
+    fs.writeFileSync(settingsPath, '{}');
+    const result = patchStatusLine(tmpDir.path);
+    expect(result.action).toBe('added');
   });
 });

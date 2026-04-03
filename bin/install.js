@@ -481,7 +481,8 @@ function patchStatusLine(targetDir) {
   const action = hadGsdStatusLine ? 'updated' : 'added';
 
   // Build the command using forward slashes (cross-platform, per upstream pattern)
-  const hooksPath = targetDir.replace(/\\/g, '/') + '/hooks/gsd-statusline.js';
+  // Use hooks/dist/ (esbuild-bundled) -- raw overlay source has unresolved require() paths
+  const hooksPath = targetDir.replace(/\\/g, '/') + '/hooks/dist/gsd-statusline.js';
   const command = `node "${hooksPath}"`;
 
   // Per D-05: set the statusLine entry

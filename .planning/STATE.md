@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: Installer & Deployment Hardening
-status: executing
-stopped_at: Completed 38-01-PLAN.md
-last_updated: "2026-04-03T02:04:31.197Z"
+status: verifying
+stopped_at: "Checkpoint: 38-02 Task 2 human-verify (statusline in non-GSD project)"
+last_updated: "2026-04-03T02:16:39.362Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 Phase: 38 (statusline-deployment) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-03
 
 Progress: [░░░░░░░░░░░░░░░░░░░░] 0%
@@ -56,6 +56,8 @@ All v1.0.0 decisions archived to .planning/milestones/v1.0.0-ROADMAP.md.
 - [Phase 38-statusline-deployment]: Fork hooks relocated to overlay/hooks/ for standard compose pipeline inclusion
 - [Phase 38-statusline-deployment]: require paths ../../src/ for 2-level depth from overlay/hooks/
 - [Phase 38-statusline-deployment]: 3s timeout for git fetch and stdin guard to prevent session-start hangs
+- [Phase 38]: patchStatusLine uses read-modify-write with backup on corrupt settings.json
+- [Phase 38]: Action computed before mutation to fix Codex logic bug in added vs updated distinction
 
 ### Carried Forward Tech Debt (from v1.0.0)
 
@@ -76,6 +78,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-03T02:04:31.186Z
-Stopped at: Completed 38-01-PLAN.md
+Last session: 2026-04-03T02:16:39.351Z
+Stopped at: Checkpoint: 38-02 Task 2 human-verify (statusline in non-GSD project)
 Resume file: None

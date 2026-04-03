@@ -22,7 +22,7 @@ Requirements for the hardening milestone. Fixes installer safety, statusline dep
 
 ### Test Health
 
-- [ ] **TEST-01**: `validate-configs.test.js` passes against real `.planning/config.json` (schema updated to match actual config structure)
+- [x] **TEST-01**: `validate-configs.test.js` passes against real `.planning/config.json` (schema updated to match actual config structure)
 - [ ] **TEST-02**: `sync.test.cjs` flaky timeout tests pass reliably on Windows (per-test timeout increased)
 - [ ] **TEST-03**: `hooks.test.js` maintainer path test passes reliably on Windows (timeout increased)
 - [ ] **TEST-04**: Full test suite achieves 0 failures (`bun test` shows 0 fail)
@@ -77,7 +77,7 @@ These are acknowledged, non-blocking items. Not targeted for fix but documented 
 | STAT-02 | Phase 38 | Complete |
 | STAT-03 | Phase 38 | Complete |
 | STAT-04 | Phase 38 | Complete |
-| TEST-01 | Phase 39 | Pending |
+| TEST-01 | Phase 39 | Complete |
 | TEST-02 | Phase 39 | Pending |
 | TEST-03 | Phase 39 | Pending |
 | TEST-04 | Phase 40 | Pending |

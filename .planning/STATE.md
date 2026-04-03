@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: Installer & Deployment Hardening
-status: verifying
-stopped_at: Phase 39 context gathered
-last_updated: "2026-04-03T11:11:31.717Z"
+status: executing
+stopped_at: Completed 39-01-PLAN.md
+last_updated: "2026-04-03T11:53:08.644Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 7
+  completed_plans: 5
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Phase 38 — statusline-deployment
+**Current focus:** Phase 39 — test-health-ci
 
 ## Current Position
 
-Phase: 39
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 39 (test-health-ci) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-04-03
 
 Progress: [░░░░░░░░░░░░░░░░░░░░] 0%
@@ -58,6 +58,8 @@ All v1.0.0 decisions archived to .planning/milestones/v1.0.0-ROADMAP.md.
 - [Phase 38-statusline-deployment]: 3s timeout for git fetch and stdin guard to prevent session-start hangs
 - [Phase 38]: patchStatusLine uses read-modify-write with backup on corrupt settings.json
 - [Phase 38]: Action computed before mutation to fix Codex logic bug in added vs updated distinction
+- [Phase 39]: Single key addition (_auto_chain_active) rather than loosening additionalProperties -- strict validation preserved
+- [Phase 39]: Schema-config parity test reads real config.json at test time to catch drift
 
 ### Carried Forward Tech Debt (from v1.0.0)
 
@@ -78,6 +80,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-03T11:11:31.702Z
-Stopped at: Phase 39 context gathered
-Resume file: .planning/phases/39-test-health-ci/39-CONTEXT.md
+Last session: 2026-04-03T11:53:08.578Z
+Stopped at: Completed 39-01-PLAN.md
+Resume file: None

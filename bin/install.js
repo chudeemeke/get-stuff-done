@@ -437,6 +437,66 @@ function writeInstallMeta(targetDir) {
 }
 
 // ---------------------------------------------------------------------------
+// StatusLine setting
+// ---------------------------------------------------------------------------
+
+/**
+ * Ensure statusLine setting exists in global settings.json.
+ * Read-modify-write: preserves all existing settings.
+ * Per D-06: if user has a custom (non-GSD) statusLine, preserve it.
+ *
+ * @param {string} targetDir - The config directory (e.g., ~/.claude)
+ * @returns {{ action: string, command?: string }} What was done
+ */
+function patchStatusLine(targetDir) {
+  const settingsPath = path.join(targetDir, 'settings.json');
+  let settings = {};
+
+  if (fs.existsSync(settingsPath)) {
+    const raw = fs.readFileSync(settingsPath, 'utf8');
+    try {
+      settings = JSON.parse(raw);
+    } catch (e) {
+      // Corrupt JSON: backup and warn, don't silently destroy
+      const backupPath = settingsPath + '.backup';
+      fs.copyFileSync(settingsPath, backupPath);
+      console.warn(`  Warning: ${settingsPath} is corrupt JSON. Backed up to ${backupPath}`);
+      settings = {};
+    }
+  }
+
+  // Per D-06: preserve custom (non-GSD) statusLine
+  if (settings.statusLine &&
+      typeof settings.statusLine === 'object' &&
+      settings.statusLine.command &&
+      !settings.statusLine.command.includes('gsd-statusline')) {
+    return { action: 'preserved_custom' };
+  }
+
+  // Determine action BEFORE mutation (fixes Codex logic bug)
+  const hadGsdStatusLine = settings.statusLine &&
+      typeof settings.statusLine === 'object' &&
+      settings.statusLine.command &&
+      settings.statusLine.command.includes('gsd-statusline');
+  const action = hadGsdStatusLine ? 'updated' : 'added';
+
+  // Build the command using forward slashes (cross-platform, per upstream pattern)
+  const hooksPath = targetDir.replace(/\\/g, '/') + '/hooks/gsd-statusline.js';
+  const command = `node "${hooksPath}"`;
+
+  // Per D-05: set the statusLine entry
+  settings.statusLine = {
+    type: 'command',
+    command: command,
+  };
+
+  fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
+
+  return { action, command };
+}
+
+// ---------------------------------------------------------------------------
 // Uninstall
 // ---------------------------------------------------------------------------
 
@@ -514,6 +574,14 @@ function install(distDir, targetDir, userArgs) {
     writeInstallMeta(targetDir);
     console.log(`  ${green}.install-meta.json written${reset}`);
 
+    // Ensure statusLine setting points to fork's enhanced version
+    const slResult = patchStatusLine(targetDir);
+    if (slResult.action === 'preserved_custom') {
+      console.log(`  ${yellow}StatusLine:${reset} preserved existing custom setting`);
+    } else {
+      console.log(`  ${green}StatusLine setting ${slResult.action}${reset}`);
+    }
+
     process.exit(0);
   });
 }
@@ -589,5 +657,6 @@ module.exports = {
   isSafeToClean,
   parseConfigDir,
   resolveTargetDir,
+  patchStatusLine,
   uninstall,
 };

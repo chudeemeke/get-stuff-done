@@ -11,7 +11,7 @@ const path = require('path');
 const os = require('os');
 
 describe('bin/install.js module exports', { timeout: 15000 }, () => {
-  test('exports all 7 safety functions + uninstall', () => {
+  test('exports all 8 safety functions + uninstall', () => {
     const mod = require('../bin/install.js');
     const expectedFunctions = [
       'readInstalledManifest',
@@ -20,6 +20,7 @@ describe('bin/install.js module exports', { timeout: 15000 }, () => {
       'isSafeToClean',
       'parseConfigDir',
       'resolveTargetDir',
+      'patchStatusLine',
       'uninstall',
     ];
 

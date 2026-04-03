@@ -6,7 +6,7 @@
  *
  * Task 1 of 35-01:
  *   - package.json files array ships dist/, bin/, overlay/branding.json, overlay/features.json
- *   - package.json prepublishOnly runs bun run compose
+ *   - package.json prepublishOnly runs bun run dist
  *   - bin/gsd.js imports from dist/src/ with fallback to overlay/src/
  */
 
@@ -23,9 +23,9 @@ describe('v3.0 package configuration', () => {
     expect(pkg.files).toEqual(['dist', 'bin', 'overlay/branding.json', 'overlay/features.json']);
   });
 
-  test('package.json prepublishOnly equals "bun run compose"', () => {
+  test('package.json prepublishOnly equals "bun run dist"', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.scripts.prepublishOnly).toBe('bun run compose');
+    expect(pkg.scripts.prepublishOnly).toBe('bun run dist');
   });
 });
 

@@ -29,7 +29,7 @@ Requirements for the hardening milestone. Fixes installer safety, statusline dep
 
 ### CI Improvements
 
-- [ ] **CI-01**: Automated check flags when upstream publishes a new version (compare pinned vs npm registry latest)
+- [x] **CI-01**: Automated check flags when upstream publishes a new version (compare pinned vs npm registry latest)
 
 ### Artifact Cleanup
 
@@ -81,7 +81,7 @@ These are acknowledged, non-blocking items. Not targeted for fix but documented 
 | TEST-02 | Phase 39 | Pending |
 | TEST-03 | Phase 39 | Pending |
 | TEST-04 | Phase 40 | Pending |
-| CI-01 | Phase 39 | Pending |
+| CI-01 | Phase 39 | Complete |
 | CLEAN-01 | Phase 40 | Pending |
 | CLEAN-02 | Phase 40 | Pending |
 | CLEAN-03 | Phase 40 | Pending |

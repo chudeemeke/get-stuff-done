@@ -177,6 +177,57 @@ describe('real .planning/config.json', () => {
   });
 });
 
+// ── Schema-config parity tests ──────────────────────────────────────────────
+
+describe('schema-config parity', () => {
+  const configPath = path.join(PROJECT_ROOT, '.planning', 'config.json');
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+
+  test('every top-level key in config.json has a matching schema property', () => {
+    const schemaKeys = Object.keys(planningConfigSchema.properties);
+    for (const key of Object.keys(config)) {
+      expect(schemaKeys).toContain(key);
+    }
+  });
+
+  test('every key in config.json nested objects has a matching schema sub-property', () => {
+    const nestedSections = ['workflow', 'memory', 'effort', 'teams', 'gsd'];
+    for (const section of nestedSections) {
+      if (config[section] && typeof config[section] === 'object' && !Array.isArray(config[section])) {
+        const schemaSub = planningConfigSchema.properties[section];
+        expect(schemaSub).toBeDefined();
+        expect(schemaSub.properties).toBeDefined();
+        const schemaSubKeys = Object.keys(schemaSub.properties);
+        for (const subKey of Object.keys(config[section])) {
+          expect(schemaSubKeys).toContain(subKey);
+        }
+      }
+    }
+  });
+
+  test('config with _auto_chain_active in workflow section validates', () => {
+    const result = validatePlanningConfig({
+      workflow: {
+        auto_advance: false,
+        nyquist_validation: true,
+        _auto_chain_active: false
+      }
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  test('config with unknown_future_key in workflow section is rejected', () => {
+    const result = validatePlanningConfig({
+      workflow: {
+        auto_advance: false,
+        unknown_future_key: true
+      }
+    });
+    expect(result.ok).toBe(false);
+    expect(result.errors.some(e => e.includes('additional'))).toBe(true);
+  });
+});
+
 // ── validate-configs.js script tests ─────────────────────────────────────────
 
 describe('validate-configs.js script', () => {

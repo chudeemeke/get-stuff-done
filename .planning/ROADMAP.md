@@ -61,7 +61,7 @@ See: .planning/milestones/v1.0.0-ROADMAP.md
 
 - [x] **Phase 37: Installer Safety** - Manifest-driven cleanup and v2 detection hardening (completed 2026-04-02)
 - [x] **Phase 38: Statusline Deployment** - Composition pipeline deploys enhanced statusline globally with timeout safety (completed 2026-04-03)
-- [ ] **Phase 39: Test Health & CI** - Fix pre-existing test failures and add upstream version check
+- [x] **Phase 39: Test Health & CI** - Fix pre-existing test failures and add upstream version check (completed 2026-04-03)
 - [ ] **Phase 40: Cleanup & Verification** - Archive stale artifacts and verify zero test failures
 
 ## Phase Details
@@ -104,11 +104,11 @@ Plans:
   2. `sync.test.cjs` timeout tests pass reliably on Windows without flaky failures
   3. `hooks.test.js` maintainer path test completes within its timeout on Windows
   4. CI workflow detects when the upstream npm registry has a newer version than the pinned version in package.json
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 39-01-PLAN.md -- Schema parity fix: add _auto_chain_active to schema, add drift detection test (TEST-01)
-- [ ] 39-02-PLAN.md -- Timeout infrastructure: central constants, apply to sync/hooks tests (TEST-02, TEST-03)
+- [x] 39-02-PLAN.md -- Timeout infrastructure: central constants, apply to sync/hooks tests (TEST-02, TEST-03)
 - [x] 39-03-PLAN.md -- Upstream version throttle: 7-day cache in gsd-check-update.js (CI-01)
 
 ### Phase 40: Cleanup & Verification
@@ -136,5 +136,5 @@ Phases execute in numeric order: 37 -> 38 -> 39 -> 40
 | 29-36 | v1.0.0 | 21/21 | Complete | 2026-03-31 |
 | 37. Installer Safety | v1.1.0 | 2/2 | Complete    | 2026-04-02 |
 | 38. Statusline Deployment | v1.1.0 | 2/2 | Complete    | 2026-04-03 |
-| 39. Test Health & CI | v1.1.0 | 2/3 | In Progress|  |
+| 39. Test Health & CI | v1.1.0 | 3/3 | Complete   | 2026-04-03 |
 | 40. Cleanup & Verification | v1.1.0 | 0/? | Not started | - |

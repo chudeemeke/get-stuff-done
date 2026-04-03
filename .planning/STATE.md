@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: Installer & Deployment Hardening
-status: executing
-stopped_at: Completed 39-03-PLAN.md
-last_updated: "2026-04-03T11:59:08.287Z"
+status: verifying
+stopped_at: Completed 39-02-PLAN.md
+last_updated: "2026-04-03T12:01:40.176Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 Phase: 39 (test-health-ci) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-03
 
 Progress: [░░░░░░░░░░░░░░░░░░░░] 0%
@@ -61,6 +61,7 @@ All v1.0.0 decisions archived to .planning/milestones/v1.0.0-ROADMAP.md.
 - [Phase 39]: Single key addition (_auto_chain_active) rather than loosening additionalProperties -- strict validation preserved
 - [Phase 39]: Schema-config parity test reads real config.json at test time to catch drift
 - [Phase 39]: Decorator pattern: 7-day throttle wraps existing check logic without modifying it
+- [Phase 39]: 15000ms SUBPROCESS_TIMEOUT and 30000ms HEAVY_SUBPROCESS_TIMEOUT as central constants in tests/helpers/test-timeouts.js
 
 ### Carried Forward Tech Debt (from v1.0.0)
 
@@ -81,6 +82,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-03T11:59:08.271Z
-Stopped at: Completed 39-03-PLAN.md
+Last session: 2026-04-03T12:01:40.122Z
+Stopped at: Completed 39-02-PLAN.md
 Resume file: None

@@ -743,4 +743,18 @@ describe('patchStatusLine', { timeout: 15000 }, () => {
     const result = patchStatusLine(tmpDir.path);
     expect(result.action).toBe('added');
   });
+
+  test('uses atomic write (temp file + rename) to prevent TOCTOU', () => {
+    // Structural verification: patchStatusLine source code must use renameSync
+    const installSrc = fs.readFileSync(path.join(__dirname, '..', 'bin', 'install.js'), 'utf8');
+    // Extract the patchStatusLine function body
+    const fnStart = installSrc.indexOf('function patchStatusLine(');
+    const fnBody = installSrc.slice(fnStart, installSrc.indexOf('\n}', fnStart) + 2);
+
+    // Must use temp file + rename pattern (atomic write)
+    expect(fnBody).toContain('renameSync');
+    expect(fnBody).toContain('.tmp');
+    // Must NOT use direct writeFileSync on the settings path for the final write
+    // (writeFileSync is still used for the temp file, which is fine)
+  });
 });

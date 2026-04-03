@@ -545,7 +545,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     // Layer 1 (4h TTL) prevents subprocess spawn entirely.
     // Layer 2 (7-day throttle) prevents network call inside the subprocess.
 
-    test('background process skips network check when cache is 5 days old', { timeout: 15000 }, () => {
+    test('background process skips network check when cache is 5 days old', { timeout: SUBPROCESS_TIMEOUT }, () => {
       const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
       const FIVE_DAYS_AGO = Math.floor(Date.now() / 1000) - (5 * 24 * 60 * 60);
 
@@ -584,7 +584,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       expect(cacheContent.checked).toBe(FIVE_DAYS_AGO);
     });
 
-    test('background process performs full check when cache is 8 days old', { timeout: 15000 }, () => {
+    test('background process performs full check when cache is 8 days old', { timeout: SUBPROCESS_TIMEOUT }, () => {
       const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
       const EIGHT_DAYS_AGO = Math.floor(Date.now() / 1000) - (8 * 24 * 60 * 60);
 
@@ -624,7 +624,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       expect(cacheContent.checked).toBeGreaterThan(nowSecs - 30);
     });
 
-    test('background process performs full check when no cache exists', { timeout: 15000 }, () => {
+    test('background process performs full check when no cache exists', { timeout: SUBPROCESS_TIMEOUT }, () => {
       const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
 
       // Ensure no cache file exists

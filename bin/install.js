@@ -492,7 +492,10 @@ function patchStatusLine(targetDir) {
   };
 
   fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
-  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
+  const content = JSON.stringify(settings, null, 2) + '\n';
+  const tmpPath = settingsPath + '.tmp';
+  fs.writeFileSync(tmpPath, content);
+  fs.renameSync(tmpPath, settingsPath);
 
   return { action, command };
 }

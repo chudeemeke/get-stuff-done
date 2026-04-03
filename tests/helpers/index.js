@@ -8,6 +8,7 @@
 const mockFs = require('./mock-fs');
 const mockProcess = require('./mock-process');
 const mockChildProcess = require('./mock-child-process');
+const testTimeouts = require('./test-timeouts');
 
 module.exports = {
   // Filesystem helpers
@@ -17,5 +18,8 @@ module.exports = {
   ...mockProcess,
 
   // Child process helpers
-  ...mockChildProcess
+  ...mockChildProcess,
+
+  // Timeout constants
+  ...testTimeouts
 };

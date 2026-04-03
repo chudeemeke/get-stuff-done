@@ -113,6 +113,16 @@ function createMockOverlay(dir) {
     workflows: { enabled: 'all', exclude: [] },
     sdk: true,
   }));
+  // Fork-specific hooks (Phase 38: moved from hooks/ root to overlay/hooks/)
+  fs.mkdirSync(path.join(dir, 'hooks'), { recursive: true });
+  fs.writeFileSync(
+    path.join(dir, 'hooks', 'gsd-statusline.js'),
+    '#!/usr/bin/env node\n// mock statusline for compose test\nconsole.log("statusline");\n'
+  );
+  fs.writeFileSync(
+    path.join(dir, 'hooks', 'gsd-check-update.js'),
+    '#!/usr/bin/env node\n// mock check-update for compose test\nconsole.log("check-update");\n'
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -604,6 +614,17 @@ describe('compose() end-to-end', () => {
     expect(typeof summary).toBe('object');
     expect(summary.diff).toBe(true);
     expect(Array.isArray(summary.delta)).toBe(true);
+  });
+
+  test('overlay hooks included in manifest and dist (Phase 38)', () => {
+    compose({ upstreamDir: mockUpstream, overlayDir: mockOverlay, distDir });
+    const manifest = JSON.parse(fs.readFileSync(
+      path.join(distDir, '.overlay-manifest.json'), 'utf8'
+    ));
+    expect(manifest).toContain('hooks/gsd-statusline.js');
+    expect(manifest).toContain('hooks/gsd-check-update.js');
+    expect(fs.existsSync(path.join(distDir, 'hooks', 'gsd-statusline.js'))).toBe(true);
+    expect(fs.existsSync(path.join(distDir, 'hooks', 'gsd-check-update.js'))).toBe(true);
   });
 });
 

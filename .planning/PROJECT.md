@@ -43,19 +43,15 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 - ✓ OVERLAY-12: Existing user upgrade path (v2.x artifact detection and cleanup) — v1.0.0
 - ✓ OVERLAY-13: Cross-platform CI matrix (macOS, Linux, Windows) — v1.0.0
 
+- ✓ INST-01 through INST-03: Installer safety (manifest-driven cleanup, detectV2 no false-positive, uninstall scoping) -- v1.1.0
+- ✓ STAT-01 through STAT-04: Statusline deployment (composition pipeline, settings.json wiring, 3s timeout, non-GSD project support) -- v1.1.0
+- ✓ TEST-01 through TEST-04: Test health (schema-config parity, central timeout constants, full suite gate) -- v1.1.0
+- ✓ CI-01: Upstream version drift detection (7-day throttled client-side polling) -- v1.1.0
+- ✓ CLEAN-01 through CLEAN-04: Artifact cleanup (debug sessions, Phase 24, handoff files, PROJECT.md deferred list) -- v1.1.0
+
 ### Active
 
-## Current Milestone: v1.1.0 Installer & Deployment Hardening
-
-**Goal:** Fix the installer/deployment pipeline so the fork installs correctly, deploys its enhanced statusline globally, and passes all tests cleanly.
-
-**Target features:**
-- Verify installer wipe fix end-to-end (manifest-driven cleanup)
-- Deploy fork's enhanced statusline globally (composition + global settings wiring)
-- Fix statusline git fetch timeout (non-blocking with fallback)
-- Fix pre-existing test failures (validate-configs schema, sync/hooks timeouts)
-- Add CI outdated check (flag when upstream publishes new version)
-- Clean up stale artifacts (debug sessions, Phase 24 plans, handoff files)
+(None -- next milestone not yet defined)
 
 ### Out of Scope
 
@@ -73,17 +69,18 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 
 ## Current State
 
-**Shipped:** v1.0.0 Overlay Architecture (npm v3.0.0) on 2026-03-31
-**Architecture:** Overlay model — upstream consumed as npm devDependency, composed at publish time
+**Shipped:** v1.1.0 Installer & Deployment Hardening on 2026-04-04
+**Architecture:** Overlay model -- upstream consumed as npm devDependency, composed at publish time
 **Upstream:** get-shit-done-cc@1.30.0 (latest as of 2026-04-02)
 **Current version:** 3.0.0 (published to npm as @chude/get-stuff-done)
-**Codebase:** 151 files, ~30K lines added during v1.0.0; fork-specific overlay code ~2,510 lines; 1563 tests (27 new installer safety tests in Phase 37)
+**Codebase:** ~151 files, ~30K lines; fork-specific overlay code ~2,510 lines; 1593 tests (1588+ passing)
 **CI:** 5-check matrix (fork tests, upstream compat, boundary, override) across macOS/Linux/Windows
 **Known tech debt:**
-- 48 boundary violations (structural — overlay files not in overrides/, CI informational)
+- 48 boundary violations (structural -- overlay files not in overrides/, CI informational)
 - ~130 upstream compat failures (branding diffs by design, CI informational)
 - preview-update.js ~5% uncovered I/O paths (documented exception)
-- sync-preview CLI timeout on Windows (pre-existing flaky, re-evaluate on desktop)
+- INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
+- Intermittent Windows subprocess timeout flakiness (OS-level timing)
 - `_auto_chain_active` schema key (upstream GSD tooling bug, not fork code)
 - Codex `extractFrontmatterField` crash (upstream bug, not fork code)
 
@@ -115,6 +112,13 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 - Sync intelligence: commit classification by type/severity, supply chain integrity scanning (6 attack vectors), severity-aware statusline monitoring
 - Selective sync: category-based cherry-picking with dependency detection and auto-include logic
 - AI-assisted conflict resolution: Claude-powered analysis preserving fork identity via branding-map.json
+
+**Shipped in v1.1.0:**
+- Installer safety: manifest-driven cleanup with path traversal containment, detectV2 false-positive elimination, exported uninstall() with testable mode
+- Statusline deployment: composition pipeline deploys enhanced statusline globally, patchStatusLine with atomic write and custom statusline preservation
+- Test health: central timeout constants (SUBPROCESS_TIMEOUT/HEAVY_SUBPROCESS_TIMEOUT) replacing all hardcoded values, schema-config parity enforcement
+- CI: 7-day throttled upstream version check via two-layer cache architecture (4h subprocess gate + 7d network gate)
+- Cleanup: stale debug sessions and Phase 24 archived, handoff files removed, full test suite gate (1591+ passing)
 
 ## Constraints
 
@@ -163,6 +167,10 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 | 5-stage pipeline SRP | resolve/filter/override/brand/merge as separate importable functions; testable in isolation | ✓ Good |
 | Delegation installer | Subprocess wrapper (436 lines) vs reimplementing upstream's 5K-line monolith | ✓ Good |
 | continue-on-error for informational CI | Boundary + upstream-compat jobs are informational, not blocking; prevents false red builds | ✓ Good |
+| Atomic write for settings.json | Temp file + rename prevents TOCTOU corruption in patchStatusLine | ✓ Good |
+| Two-layer throttle for update check | 4h subprocess gate + 7d network gate prevents excessive polling without missing drift | ✓ Good |
+| Central timeout constants | Single source for subprocess test timeouts; prevents hardcoded value drift | ✓ Good |
+| Manifest-driven uninstall | Only removes files listed in manifest; path traversal containment guard | ✓ Good |
 
 ## Evolution
 
@@ -182,4 +190,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after Phase 37 completion*
+*Last updated: 2026-04-04 after v1.1.0 milestone*

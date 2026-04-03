@@ -1,5 +1,22 @@
 # Project Milestones: GetStuffDone
 
+## v1.1.0 Installer & Deployment Hardening (Shipped: 2026-04-03)
+
+**Phases completed:** 4 phases, 8 plans, 15 tasks
+
+**Key accomplishments:**
+
+- Testable installer module with 27 unit tests proving manifest-driven cleanup preserves user content, detectV2 has no false positives, and legacy fallback is scoped to known directories
+- Path traversal containment guard in removeGsdFiles, exported uninstall() with testable mode, and dual-stream side-effect verification closing three gaps from Codex cross-AI review
+- Fork hooks relocated to overlay/hooks/ with 3s timeout fixes, require-path corrections, and build/parity tooling updates
+- patchStatusLine() added to installer with read-modify-write settings.json patching, D-06 custom preservation, and corrupt-file backup safety
+- Fixed _auto_chain_active schema drift and added structural parity test to prevent future schema-config divergence
+- Central timeout constants (SUBPROCESS_TIMEOUT 15s, HEAVY_SUBPROCESS_TIMEOUT 30s) replacing 28 hardcoded timeout values across sync.test.cjs and hooks.test.js
+- 7-day throttled upstream version check via decorator pattern -- 4h TTL skips subprocess, 7d throttle skips network call
+- Atomic write fix for patchStatusLine, timeout constant centralization, stale artifact archival, and milestone exit gate (1591/1593 passing)
+
+---
+
 ## v1.0.0 Overlay Architecture (Shipped: 2026-03-31)
 
 **Phases completed:** 6 phases, 16 plans, 28 tasks

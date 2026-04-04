@@ -789,9 +789,10 @@ describe('copyOverlayManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
       JSON.stringify(manifest)
     );
 
-    copyOverlayManifest(distDir, tmpDir.path);
+    const result = copyOverlayManifest(distDir, tmpDir.path);
 
     const installed = path.join(gsdDir, '.overlay-manifest.json');
+    expect(result).toBe(true);
     expect(fs.existsSync(installed)).toBe(true);
     expect(JSON.parse(fs.readFileSync(installed, 'utf8'))).toEqual(manifest);
   });
@@ -804,9 +805,10 @@ describe('copyOverlayManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
       JSON.stringify([])
     );
 
-    // Should not throw
-    copyOverlayManifest(distDir, tmpDir.path);
+    // Should not throw, returns false
+    const result = copyOverlayManifest(distDir, tmpDir.path);
 
+    expect(result).toBe(false);
     expect(fs.existsSync(path.join(tmpDir.path, 'get-shit-done'))).toBe(false);
   });
 
@@ -817,9 +819,10 @@ describe('copyOverlayManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const distDir = path.join(tmpDir.path, 'mock-dist');
     fs.mkdirSync(distDir);
 
-    // Should not throw
-    copyOverlayManifest(distDir, tmpDir.path);
+    // Should not throw, returns false
+    const result = copyOverlayManifest(distDir, tmpDir.path);
 
+    expect(result).toBe(false);
     expect(
       fs.existsSync(path.join(gsdDir, '.overlay-manifest.json'))
     ).toBe(false);

@@ -419,14 +419,16 @@ function copyOverlayFiles(distDir, targetDir) {
  *
  * @param {string} distDir - Source dist directory
  * @param {string} targetDir - Installation target
+ * @returns {boolean} Whether the manifest was copied
  */
 function copyOverlayManifest(distDir, targetDir) {
   const srcManifest = path.join(distDir, '.overlay-manifest.json');
   const gsdDir = path.join(targetDir, 'get-shit-done');
 
-  if (!fs.existsSync(srcManifest) || !fs.existsSync(gsdDir)) return;
+  if (!fs.existsSync(srcManifest) || !fs.existsSync(gsdDir)) return false;
 
   fs.copyFileSync(srcManifest, path.join(gsdDir, '.overlay-manifest.json'));
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -643,8 +645,9 @@ function install(distDir, targetDir, userArgs) {
     console.log(`  ${green}.install-meta.json written${reset}`);
 
     // Copy overlay provenance manifest
-    copyOverlayManifest(distDir, targetDir);
-    console.log(`  ${green}.overlay-manifest.json written${reset}`);
+    if (copyOverlayManifest(distDir, targetDir)) {
+      console.log(`  ${green}.overlay-manifest.json written${reset}`);
+    }
 
     // Ensure statusLine setting points to fork's enhanced version
     const slResult = patchStatusLine(targetDir);

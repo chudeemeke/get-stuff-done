@@ -451,9 +451,13 @@ function cleanOrphanedPaths(targetDir) {
 
   let removed = 0;
   for (const orphanPath of orphans) {
-    if (fs.existsSync(orphanPath) && fs.statSync(orphanPath).isDirectory()) {
-      fs.rmSync(orphanPath, { recursive: true });
-      removed++;
+    try {
+      if (fs.existsSync(orphanPath) && fs.lstatSync(orphanPath).isDirectory()) {
+        fs.rmSync(orphanPath, { recursive: true, force: true });
+        removed++;
+      }
+    } catch (_) {
+      // Graceful: orphan cleanup is best-effort, never crashes installer
     }
   }
   return removed;

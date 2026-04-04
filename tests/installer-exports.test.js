@@ -12,7 +12,7 @@ const os = require('os');
 const { SUBPROCESS_TIMEOUT } = require('./helpers');
 
 describe('bin/install.js module exports', { timeout: SUBPROCESS_TIMEOUT }, () => {
-  test('exports all 8 safety functions + uninstall', () => {
+  test('exports all 10 safety functions + uninstall', () => {
     const mod = require('../bin/install.js');
     const expectedFunctions = [
       'readInstalledManifest',
@@ -22,6 +22,8 @@ describe('bin/install.js module exports', { timeout: SUBPROCESS_TIMEOUT }, () =>
       'parseConfigDir',
       'resolveTargetDir',
       'patchStatusLine',
+      'copyOverlayManifest',
+      'cleanOrphanedPaths',
       'uninstall',
     ];
 

@@ -27,6 +27,8 @@ const {
   isSafeToClean,
   uninstall,
   patchStatusLine,
+  copyOverlayManifest,
+  cleanOrphanedPaths,
   INSTALLED_MANIFEST_NAME,
 } = require('../bin/install.js');
 
@@ -756,5 +758,116 @@ describe('patchStatusLine', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(fnBody).toContain('.tmp');
     // Must NOT use direct writeFileSync on the settings path for the final write
     // (writeFileSync is still used for the temp file, which is fine)
+  });
+});
+
+// ---------------------------------------------------------------------------
+// copyOverlayManifest
+// ---------------------------------------------------------------------------
+
+describe('copyOverlayManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempDir();
+  });
+
+  afterEach(() => {
+    tmpDir.cleanup();
+  });
+
+  test('copies .overlay-manifest.json to get-shit-done/ in target', () => {
+    const gsdDir = path.join(tmpDir.path, 'get-shit-done');
+    fs.mkdirSync(gsdDir, { recursive: true });
+
+    // Create a mock dist dir with .overlay-manifest.json
+    const distDir = path.join(tmpDir.path, 'mock-dist');
+    fs.mkdirSync(distDir);
+    const manifest = ['hooks/gsd-statusline.js', 'hooks/gsd-check-update.js'];
+    fs.writeFileSync(
+      path.join(distDir, '.overlay-manifest.json'),
+      JSON.stringify(manifest)
+    );
+
+    copyOverlayManifest(distDir, tmpDir.path);
+
+    const installed = path.join(gsdDir, '.overlay-manifest.json');
+    expect(fs.existsSync(installed)).toBe(true);
+    expect(JSON.parse(fs.readFileSync(installed, 'utf8'))).toEqual(manifest);
+  });
+
+  test('skips gracefully if get-shit-done/ does not exist in target', () => {
+    const distDir = path.join(tmpDir.path, 'mock-dist');
+    fs.mkdirSync(distDir);
+    fs.writeFileSync(
+      path.join(distDir, '.overlay-manifest.json'),
+      JSON.stringify([])
+    );
+
+    // Should not throw
+    copyOverlayManifest(distDir, tmpDir.path);
+
+    expect(fs.existsSync(path.join(tmpDir.path, 'get-shit-done'))).toBe(false);
+  });
+
+  test('skips gracefully if .overlay-manifest.json does not exist in dist', () => {
+    const gsdDir = path.join(tmpDir.path, 'get-shit-done');
+    fs.mkdirSync(gsdDir, { recursive: true });
+
+    const distDir = path.join(tmpDir.path, 'mock-dist');
+    fs.mkdirSync(distDir);
+
+    // Should not throw
+    copyOverlayManifest(distDir, tmpDir.path);
+
+    expect(
+      fs.existsSync(path.join(gsdDir, '.overlay-manifest.json'))
+    ).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanOrphanedPaths
+// ---------------------------------------------------------------------------
+
+describe('cleanOrphanedPaths', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempDir();
+  });
+
+  afterEach(() => {
+    tmpDir.cleanup();
+  });
+
+  test('removes hooks/dist/ directory if it exists', () => {
+    const hooksDistDir = path.join(tmpDir.path, 'hooks', 'dist');
+    fs.mkdirSync(hooksDistDir, { recursive: true });
+    fs.writeFileSync(path.join(hooksDistDir, 'gsd-statusline.js'), 'stale');
+
+    const removed = cleanOrphanedPaths(tmpDir.path);
+
+    expect(fs.existsSync(hooksDistDir)).toBe(false);
+    // Parent hooks/ should still exist
+    expect(fs.existsSync(path.join(tmpDir.path, 'hooks'))).toBe(true);
+    expect(removed).toBeGreaterThan(0);
+  });
+
+  test('returns 0 if no orphans exist', () => {
+    fs.mkdirSync(path.join(tmpDir.path, 'hooks'), { recursive: true });
+
+    const removed = cleanOrphanedPaths(tmpDir.path);
+    expect(removed).toBe(0);
+  });
+
+  test('does not touch hooks/ directory itself', () => {
+    const hooksDir = path.join(tmpDir.path, 'hooks');
+    fs.mkdirSync(hooksDir, { recursive: true });
+    fs.writeFileSync(path.join(hooksDir, 'gsd-statusline.js'), 'active');
+
+    cleanOrphanedPaths(tmpDir.path);
+
+    expect(fs.existsSync(path.join(hooksDir, 'gsd-statusline.js'))).toBe(true);
   });
 });

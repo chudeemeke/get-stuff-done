@@ -406,6 +406,60 @@ function copyOverlayFiles(distDir, targetDir) {
 }
 
 // ---------------------------------------------------------------------------
+// Overlay provenance manifest
+// ---------------------------------------------------------------------------
+
+/**
+ * Copy .overlay-manifest.json to the target directory (inside get-shit-done/).
+ * This records which installed files came from the overlay vs upstream,
+ * enabling provenance auditing at the installed location.
+ *
+ * Gracefully skips if either the source manifest or get-shit-done/ target
+ * directory doesn't exist (partial install state).
+ *
+ * @param {string} distDir - Source dist directory
+ * @param {string} targetDir - Installation target
+ */
+function copyOverlayManifest(distDir, targetDir) {
+  const srcManifest = path.join(distDir, '.overlay-manifest.json');
+  const gsdDir = path.join(targetDir, 'get-shit-done');
+
+  if (!fs.existsSync(srcManifest) || !fs.existsSync(gsdDir)) return;
+
+  fs.copyFileSync(srcManifest, path.join(gsdDir, '.overlay-manifest.json'));
+}
+
+// ---------------------------------------------------------------------------
+// Orphan cleanup
+// ---------------------------------------------------------------------------
+
+/**
+ * Remove known orphaned paths from previous install layouts.
+ *
+ * Upstream's installer reads from hooks/dist/ in the source package and writes
+ * to hooks/ in the target (flattening). Previous installer versions or manual
+ * operations may have left a hooks/dist/ subdirectory at the target. This
+ * function removes those stale artifacts.
+ *
+ * @param {string} targetDir - Installation target
+ * @returns {number} Number of orphaned paths removed
+ */
+function cleanOrphanedPaths(targetDir) {
+  const orphans = [
+    path.join(targetDir, 'hooks', 'dist'),
+  ];
+
+  let removed = 0;
+  for (const orphanPath of orphans) {
+    if (fs.existsSync(orphanPath) && fs.statSync(orphanPath).isDirectory()) {
+      fs.rmSync(orphanPath, { recursive: true });
+      removed++;
+    }
+  }
+  return removed;
+}
+
+// ---------------------------------------------------------------------------
 // Install metadata
 // ---------------------------------------------------------------------------
 
@@ -570,6 +624,12 @@ function install(distDir, targetDir, userArgs) {
       process.exit(code);
     }
 
+    // Clean up orphaned paths from previous install layouts
+    const orphansRemoved = cleanOrphanedPaths(targetDir);
+    if (orphansRemoved > 0) {
+      console.log(`\n  ${green}Cleaned ${orphansRemoved} orphaned path(s)${reset}`);
+    }
+
     // Upstream succeeded -- copy overlay files
     const copied = copyOverlayFiles(distDir, targetDir);
     console.log(`\n  ${green}Overlay files copied:${reset} ${copied}`);
@@ -577,6 +637,10 @@ function install(distDir, targetDir, userArgs) {
     // Write v3.0 install metadata
     writeInstallMeta(targetDir);
     console.log(`  ${green}.install-meta.json written${reset}`);
+
+    // Copy overlay provenance manifest
+    copyOverlayManifest(distDir, targetDir);
+    console.log(`  ${green}.overlay-manifest.json written${reset}`);
 
     // Ensure statusLine setting points to fork's enhanced version
     const slResult = patchStatusLine(targetDir);
@@ -662,5 +726,7 @@ module.exports = {
   parseConfigDir,
   resolveTargetDir,
   patchStatusLine,
+  copyOverlayManifest,
+  cleanOrphanedPaths,
   uninstall,
 };

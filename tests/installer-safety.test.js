@@ -873,4 +873,31 @@ describe('cleanOrphanedPaths', { timeout: SUBPROCESS_TIMEOUT }, () => {
 
     expect(fs.existsSync(path.join(hooksDir, 'gsd-statusline.js'))).toBe(true);
   });
+
+  test('removes gsd-local-patches/ created by upstream installer', () => {
+    const patchesDir = path.join(tmpDir.path, 'gsd-local-patches');
+    fs.mkdirSync(path.join(patchesDir, 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(patchesDir, 'backup-meta.json'), '{}');
+    fs.writeFileSync(path.join(patchesDir, 'hooks', 'gsd-statusline.js'), 'stale');
+
+    const removed = cleanOrphanedPaths(tmpDir.path);
+
+    expect(fs.existsSync(patchesDir)).toBe(false);
+    expect(removed).toBeGreaterThan(0);
+  });
+
+  test('removes both orphan types in single call', () => {
+    const hooksDistDir = path.join(tmpDir.path, 'hooks', 'dist');
+    const patchesDir = path.join(tmpDir.path, 'gsd-local-patches');
+    fs.mkdirSync(hooksDistDir, { recursive: true });
+    fs.mkdirSync(patchesDir, { recursive: true });
+    fs.writeFileSync(path.join(hooksDistDir, 'old.js'), 'x');
+    fs.writeFileSync(path.join(patchesDir, 'meta.json'), 'x');
+
+    const removed = cleanOrphanedPaths(tmpDir.path);
+
+    expect(removed).toBe(2);
+    expect(fs.existsSync(hooksDistDir)).toBe(false);
+    expect(fs.existsSync(patchesDir)).toBe(false);
+  });
 });

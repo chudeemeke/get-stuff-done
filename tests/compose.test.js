@@ -785,7 +785,8 @@ describe('CLI flags (COMP-09)', () => {
     const metaPath = path.join(PROJECT_ROOT, 'dist', '.install-meta.json');
     expect(fs.existsSync(metaPath)).toBe(true);
     const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
-    expect(meta.upstream_version).toBe('1.30.0');
+    const upstreamPkg = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'node_modules', 'get-shit-done-cc', 'package.json'), 'utf-8'));
+    expect(meta.upstream_version).toBe(upstreamPkg.version);
   });
 
   test('no flags: dist/ contains branding-applied content', { timeout: 30000 }, () => {

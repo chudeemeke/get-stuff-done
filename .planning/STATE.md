@@ -4,8 +4,8 @@ milestone: null
 milestone_name: null
 status: between_milestones
 stopped_at: null
-last_updated: "2026-04-04T00:45:00.000Z"
-last_activity: 2026-04-04
+last_updated: "2026-04-09T00:00:00.000Z"
+last_activity: 2026-04-09
 progress:
   total_phases: 0
   completed_phases: 0
@@ -21,11 +21,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Planning next milestone
+**Current focus:** Upstream contributions (no active milestone)
 
 ## Current Position
 
-Between milestones. v1.1.0 shipped 2026-04-04.
+Between milestones. v1.1.0 shipped 2026-04-04. @chude/get-stuff-done@3.0.2 published to npm 2026-04-06.
+
+Recent activity has shifted to upstream contributions on `gsd-build/get-shit-done`:
+- PR #1859 (review.md per-CLI model selection) — fix-pushed and merged with main, MERGEABLE, awaiting re-review
+- Issue #1850 — closed as fork-specific
+- Issue #1851 — needs design refinement, response not yet drafted (next action)
+- Issue #1893 — architectural follow-up filed for `config-get --default` flag, awaiting `approved-enhancement` label
+
+See `memory/project_state.md` and `memory/project_upstream_issues.md` for full session arc and per-issue detail.
 
 ## Performance Metrics
 
@@ -52,8 +60,8 @@ All v1.1.0 decisions archived to .planning/milestones/v1.1.0-ROADMAP.md.
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
 - Intermittent Windows subprocess timeout flakiness (OS-level timing)
-- `_auto_chain_active` schema key (upstream GSD bug, awaiting upstream fix)
-- Codex `extractFrontmatterField` crash (upstream bug, awaiting upstream fix)
+- `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
+- Codex `extractFrontmatterField` crash (RESOLVED -- fork-specific, 4 oversight agents had heading before frontmatter)
 
 ### Pending Todos
 
@@ -65,6 +73,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-04
-Stopped at: Milestone v1.1.0 completed
-Resume file: None
+Last session: 2026-04-09
+Stopped at: Tech debt audit complete (2 items resolved as fork-specific). PR #1859 waiting on trek-e. Windows flakiness root-cause scheduled 2026-04-10. Upstream bump 1.32.0->1.34.2 available but waiting for #1859 merge.
+Resume file: None — see memory/project_state.md for full session arc

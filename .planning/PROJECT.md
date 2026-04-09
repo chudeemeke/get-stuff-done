@@ -81,8 +81,7 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
 - Intermittent Windows subprocess timeout flakiness (OS-level timing)
-- `_auto_chain_active` schema key (upstream GSD tooling bug, not fork code)
-- Codex `extractFrontmatterField` crash (upstream bug, not fork code)
+- ~~Codex `extractFrontmatterField` crash~~ (RESOLVED -- fork-specific, 4 oversight agents fixed)
 
 ## Context
 

@@ -35,11 +35,11 @@ All must be resolved before closing the v1.0.0 milestone.
 - **Fix:** Increase timeout or make the test use a smaller git range.
 - **Severity:** Pre-existing flaky test
 
-### 5. Upstream installer Codex config crash
+### 5. Codex config crash (RESOLVED -- fork-specific)
 - **Error:** `TypeError: Cannot read properties of null (reading 'match')` in `extractFrontmatterField` during Codex runtime install
-- **Root cause:** Upstream installer bug -- crashes when processing Codex config files that don't have expected frontmatter format.
-- **Fix:** Upstream fix needed (report to glittercowboy/get-shit-done). Not a fork issue.
-- **Severity:** Upstream bug -- does not affect Claude Code installation
+- **Root cause:** Fork-specific. 4 overlay agents (gsd-oversight-*.md) had a markdown heading before the `---` frontmatter delimiter. `extractFrontmatterAndBody()` returns `{ frontmatter: null }` for files not starting with `---`, causing `extractFrontmatterField` to crash. Upstream's own agents all have correct frontmatter. Originally misattributed as upstream bug.
+- **Fix:** Removed heading line from 4 oversight agents so frontmatter starts at line 1 (2026-04-09).
+- **Severity:** Was fork-specific -- did not affect vanilla upstream users
 
 ## Config Validation
 
@@ -58,7 +58,7 @@ All must be resolved before closing the v1.0.0 milestone.
 | 2 | Upstream compat failures | `continue-on-error: true` on upstream-compat job | RESOLVED |
 | 3 | Windows test timeouts | `timeout-minutes: 15` + `BUN_TEST_TIMEOUT: 30000` on test job | RESOLVED |
 | 4 | sync-preview CLI timeout | Pre-existing flaky test — not in Phase 36 scope | OPEN (low severity) |
-| 5 | Codex extractFrontmatterField crash | Upstream bug — not our code | DEFERRED |
-| 6 | _auto_chain_active schema | GSD tooling bug — manually fixed per session | OPEN (GSD upstream) |
+| 5 | Codex extractFrontmatterField crash | Fork-specific — 4 oversight agents had heading before frontmatter. Fixed 2026-04-09. | RESOLVED |
+| 6 | _auto_chain_active schema | Fork-specific — upstream has no schema validation. Fixed in Phase 39. | RESOLVED |
 
 Additionally: preview-update.js CLI entry refactored to bin/preview-update-cli.js (SRP), raising lines coverage from 88.65% to 95.02%. TEST-01 now fully satisfied.

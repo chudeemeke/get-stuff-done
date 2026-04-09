@@ -1,5 +1,3 @@
-# gsd-oversight-execution
-
 ---
 name: gsd-oversight-execution
 description: Watches plan execution for requirement drift, missed deviations, security gaps, and quality regressions. Flags without blocking.

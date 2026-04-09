@@ -1,5 +1,3 @@
-# gsd-oversight-verification
-
 ---
 name: gsd-oversight-verification
 description: Watches verification process for incomplete coverage, false passes, and untested wiring. Flags without blocking.

@@ -50,7 +50,7 @@
     "esbuild": "^0.24.0",
     "eslint": "^9.0.0",
     "eslint-plugin-security": "^3.0.1",
-    "get-shit-done-cc": "1.32.0",
+    "get-shit-done-cc": "1.34.2",
     "sharp": "^0.34.5",
     "svgexport": "^0.4.2"
   },

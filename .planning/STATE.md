@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: null
-milestone_name: null
-status: between_milestones
+milestone: v1.2.0
+milestone_name: Ship-Ready Hardening
+status: active
 stopped_at: null
-last_updated: "2026-04-09T00:00:00.000Z"
-last_activity: 2026-04-09
+last_updated: "2026-04-20T00:00:00.000Z"
+last_activity: 2026-04-20
 progress:
   total_phases: 0
   completed_phases: 0
@@ -18,22 +18,19 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-04)
+See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** Upstream contributions (no active milestone)
+**Current focus:** v1.2.0 Ship-Ready Hardening -- defining requirements
 
 ## Current Position
 
-Between milestones. v1.1.0 shipped 2026-04-04. @chude/get-stuff-done@3.0.2 published to npm 2026-04-06.
+Phase: Not started (defining requirements)
+Plan: -
+Status: Defining requirements -- research phase next, then REQUIREMENTS.md, then ROADMAP.md
+Last activity: 2026-04-20 -- Milestone v1.2.0 started
 
-Recent activity has shifted to upstream contributions on `gsd-build/get-shit-done`:
-- PR #1859 (review.md per-CLI model selection) — fix-pushed and merged with main, MERGEABLE, awaiting re-review
-- Issue #1850 — closed as fork-specific
-- Issue #1851 — needs design refinement, response not yet drafted (next action)
-- Issue #1893 — architectural follow-up filed for `config-get --default` flag, awaiting `approved-enhancement` label
-
-See `memory/project_state.md` and `memory/project_upstream_issues.md` for full session arc and per-issue detail.
+**Upstream state:** PR #1859 still OPEN/APPROVED/MERGEABLE, awaiting trek-e merge. Milestone work is independent. Fork upstream pin bumped to 1.34.2.
 
 ## Performance Metrics
 
@@ -73,6 +70,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-09
-Stopped at: Tech debt audit complete (2 items resolved as fork-specific). PR #1859 waiting on trek-e. Windows flakiness root-cause scheduled 2026-04-10. Upstream bump 1.32.0->1.34.2 available but waiting for #1859 merge.
-Resume file: None — see memory/project_state.md for full session arc
+Last session: 2026-04-20
+Stopped at: v1.2.0 milestone started -- defining requirements next. Research phase runs before REQUIREMENTS.md to inform upgrade resilience and ship-readiness verification approaches with industry best practice.
+Resume file: None -- see memory/project_state.md for full session arc

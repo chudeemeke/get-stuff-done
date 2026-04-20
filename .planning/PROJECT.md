@@ -51,7 +51,32 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 
 ### Active
 
-(None -- next milestone not yet defined)
+## Current Milestone: v1.2.0 Ship-Ready Hardening
+
+**Goal:** Eliminate fork brittleness and reach ship-ready quality bar -- upstream bumps become routine version changes, not refactoring events. Market-ready quality: no dead code, no AI-prone sloppy patterns, validated, verified, documented.
+
+**Target features:**
+
+*Upgrade resilience*
+- Automated upgrade test in CI (install -> bump -> recompose -> reinstall -> verify)
+- Historical-version compat matrix (last N vetted upstream versions, not arbitrary future ones)
+- Override staleness enforcement -- blocking CI gate (distinct from informational boundary/compat stance)
+- Upstream hook merge (isNewer, detectConfigDir, stale hook detection, shared cache) with atomic coupling to statusline
+- Live upgrade dogfood -- bump to current upstream during milestone as proof the system works
+
+*Process hardening (oversight pattern)*
+- PROCESS-01: gsd-oversight-execution flags unverified post-merge state
+- PROCESS-02: gsd-oversight-execution flags SUMMARY claims lacking verification
+- PROCESS-03: gsd-oversight-verification flags CI gates raised before local measurement passed
+- PROCESS-04: gsd-oversight-planning flags test approaches without metric-target compatibility check
+
+*Ship-readiness*
+- Security audit (OWASP Top 10, secrets scan, dependency audit, override code review) with triage rule: critical = fix in v1.2.0, major = plan for v1.3.0, minor = backlog
+- Reliability SLO: 100% test pass on all 3 platforms -- requires root-causing Windows subprocess flakiness with decided escape hatch if genuinely unfixable
+- Documentation completeness -- MAINTENANCE.md (not CONTRIBUTING; repo private), upgrade guide, override policy, README polish
+- Performance baseline with budget-enforcement in CI
+
+**Active requirements:** Requirement IDs defined after research phase (see REQUIREMENTS.md).
 
 ### Out of Scope
 
@@ -71,8 +96,8 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 
 **Shipped:** v1.1.0 Installer & Deployment Hardening on 2026-04-04
 **Architecture:** Overlay model -- upstream consumed as npm devDependency, composed at publish time
-**Upstream:** get-shit-done-cc@1.30.0 (latest as of 2026-04-02)
-**Current version:** 3.0.0 (published to npm as @chude/get-stuff-done)
+**Upstream:** get-shit-done-cc@1.34.2 (bumped 2026-04-10)
+**Current version:** 3.0.2 (published to npm as @chude/get-stuff-done)
 **Codebase:** ~151 files, ~30K lines; fork-specific overlay code ~2,510 lines; 1593 tests (1588+ passing)
 **CI:** 5-check matrix (fork tests, upstream compat, boundary, override) across macOS/Linux/Windows
 **Known tech debt:**
@@ -189,4 +214,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-04 after v1.1.0 milestone*
+*Last updated: 2026-04-20 -- v1.2.0 milestone started*

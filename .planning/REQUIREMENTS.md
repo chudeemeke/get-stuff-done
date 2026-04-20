@@ -27,7 +27,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [ ] **PROCESS-04**: `gsd-oversight-verification` includes a structured trigger for CI gates raised before local measurement passed (2-3 lines pointing to principle)
 - [ ] **PROCESS-05**: `gsd-oversight-planning` includes a structured trigger for test approaches without metric-target compatibility check (2-3 lines pointing to principle)
 - [ ] **PROCESS-06**: `scripts/verify-oversight-probes.js` harness + weekly CI job verifies oversight triggers fire when expected (deterministic probes without OPA/Semgrep dependency)
-- [ ] **PROCESS-07**: Advisory -> blocking graduation criteria documented for oversight triggers (D-3): minimum N PRs observed, maximum false-positive rate, explicit promotion ceremony; no triggers graduate in v1.2.0 (criteria only)
+- [ ] **PROCESS-07**: Advisory -> blocking graduation criteria documented for oversight triggers (D-3): minimum 20 PRs observed with the trigger firing or correctly abstaining; maximum 5% false-positive rate across that observation window; explicit promotion ceremony requires maintainer-authored PR review + 2 weeks of clean CI history + MAINTENANCE.md update recording trigger name, promotion date, and observation evidence. No triggers graduate in v1.2.0 (criteria only).
 
 ### SECURITY (supply chain + audit)
 
@@ -50,7 +50,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 
 ### DOCS (documentation completeness)
 
-- [ ] **DOCS-01**: `MAINTENANCE.md` complete with required sections: Upgrade Process, Override Conflict Handling, CI Staleness Response, Release Cadence, Bump Runbook (prohibiting `--theirs`/`--ours`), Security Triage, Perf Budget, Escape-Hatch Decisions Log; each section with executable examples where applicable
+- [ ] **DOCS-01**: `MAINTENANCE.md` complete with required sections: Upgrade Process, Override Conflict Handling, CI Staleness Response, Release Cadence, Bump Runbook (prohibiting `--theirs`/`--ours`), Security Triage, Perf Budget, Escape-Hatch Decisions Log. Per-section acceptance: (a) at least one executable example (script path, command line, or code snippet) per section; (b) minimum 15 lines of substantive content per section (no placeholder-only); (c) every link validated by lychee in CI; (d) the Ship Polish phase CI check extracts at least one example per section and runs it end-to-end, failing if any example is broken or missing. Sections defined as anti-slop contract; plan authors must map each section to concrete artifacts, not prose alone.
 - [ ] **DOCS-02**: Upgrade guide (consumer-facing) documents the preview-update + aidev release workflow
 - [ ] **DOCS-03**: Override policy documents when to override, REASON.md template, SHA snapshot capture process, re-review triggers
 - [ ] **DOCS-04**: `INSTALL.md` covers the cousin-test scenario (fresh install from private-scope token, PATH setup, version verification)
@@ -111,57 +111,63 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UPGRADE-01 | TBD | Pending |
-| UPGRADE-02 | TBD | Pending |
-| UPGRADE-03 | TBD | Pending |
-| UPGRADE-04 | TBD | Pending |
-| UPGRADE-05 | TBD | Pending |
-| UPGRADE-06 | TBD | Pending |
-| UPGRADE-07 | TBD | Pending |
-| UPGRADE-08 | TBD | Pending |
-| UPGRADE-09 | TBD | Pending |
-| PROCESS-01 | TBD | Pending |
-| PROCESS-02 | TBD | Pending |
-| PROCESS-03 | TBD | Pending |
-| PROCESS-04 | TBD | Pending |
-| PROCESS-05 | TBD | Pending |
-| PROCESS-06 | TBD | Pending |
-| PROCESS-07 | TBD | Pending |
-| SECURITY-01 | TBD | Pending |
-| SECURITY-02 | TBD | Pending |
-| SECURITY-03 | TBD | Pending |
-| SECURITY-04 | TBD | Pending |
-| SECURITY-05 | TBD | Pending |
-| SECURITY-06 | TBD | Pending |
-| SHIP-01 | TBD | Pending |
-| SHIP-02 | TBD | Pending |
-| SHIP-03 | TBD | Pending |
-| SHIP-04 | TBD | Pending |
-| SHIP-05 | TBD | Pending |
-| SHIP-06 | TBD | Pending |
-| SHIP-07 | TBD | Pending |
-| DOCS-01 | TBD | Pending |
-| DOCS-02 | TBD | Pending |
-| DOCS-03 | TBD | Pending |
-| DOCS-04 | TBD | Pending |
-| DOCS-05 | TBD | Pending |
-| DOCS-06 | TBD | Pending |
-| DOCS-07 | TBD | Pending |
-| DOCS-08 | TBD | Pending |
-| REL-01 | TBD | Pending |
-| REL-02 | TBD | Pending |
-| REL-03 | TBD | Pending |
-| PERF-01 | TBD | Pending |
-| PERF-02 | TBD | Pending |
-| PERF-03 | TBD | Pending |
-| PERF-04 | TBD | Pending |
-| PERF-05 | TBD | Pending |
+| UPGRADE-01 | Phase 43 | Pending |
+| UPGRADE-02 | Phase 43 | Pending |
+| UPGRADE-03 | Phase 41 | Pending |
+| UPGRADE-04 | Phase 43 | Pending |
+| UPGRADE-05 | Phase 43 | Pending |
+| UPGRADE-06 | Phase 41 | Pending |
+| UPGRADE-07 | Phase 43 | Pending |
+| UPGRADE-08 | Phase 43 | Pending |
+| UPGRADE-09 | Phase 43 | Pending |
+| PROCESS-01 | Phase 42 | Pending |
+| PROCESS-02 | Phase 42 | Pending |
+| PROCESS-03 | Phase 42 | Pending |
+| PROCESS-04 | Phase 42 | Pending |
+| PROCESS-05 | Phase 42 | Pending |
+| PROCESS-06 | Phase 42 | Pending |
+| PROCESS-07 | Phase 42 | Pending |
+| SECURITY-01 | Phase 41 | Pending |
+| SECURITY-02 | Phase 41 | Pending |
+| SECURITY-03 | Phase 41 | Pending |
+| SECURITY-04 | Phase 41 | Pending |
+| SECURITY-05 | Phase 41 | Pending |
+| SECURITY-06 | Phase 41 | Pending |
+| SHIP-01 | Phase 44 | Pending |
+| SHIP-02 | Phase 44 | Pending |
+| SHIP-03 | Phase 43 | Pending |
+| SHIP-04 | Phase 44 | Pending |
+| SHIP-05 | Phase 44 | Pending |
+| SHIP-06 | Phase 44 | Pending |
+| SHIP-07 | Phase 42 | Pending |
+| DOCS-01 | Phase 44 | Pending |
+| DOCS-02 | Phase 44 | Pending |
+| DOCS-03 | Phase 44 | Pending |
+| DOCS-04 | Phase 42 | Pending |
+| DOCS-05 | Phase 42 | Pending |
+| DOCS-06 | Phase 42 | Pending |
+| DOCS-07 | Phase 44 | Pending |
+| DOCS-08 | Phase 44 | Pending |
+| REL-01 | Phase 41 | Pending |
+| REL-02 | Phase 41 | Pending |
+| REL-03 | Phase 41 | Pending |
+| PERF-01 | Phase 41 | Pending |
+| PERF-02 | Phase 41 | Pending |
+| PERF-03 | Phase 42 | Pending |
+| PERF-04 | Phase 42 | Pending |
+| PERF-05 | Phase 42 | Pending |
 
 **Coverage:**
-- v1.2.0 requirements: 44 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 44 (pending roadmap)
+- v1.2.0 requirements: 45 total (actual count from this document; prompt stated 44 -- verified enumeration yields 45)
+- Mapped to phases: 45 (100%)
+- Unmapped: 0
+
+**Per-phase summary:**
+- Phase 41 (Foundation): 13 requirements -- UPGRADE-03, UPGRADE-06, SECURITY-01..06, PERF-01, PERF-02, REL-01..03
+- Phase 42 (Budget + Process + Cousin-Test): 14 requirements -- PERF-03..05, PROCESS-01..07, SHIP-07, DOCS-04..06
+- Phase 43 (Upgrade Resilience): 8 requirements -- UPGRADE-01, UPGRADE-02, UPGRADE-04, UPGRADE-05, UPGRADE-07..09, SHIP-03
+- Phase 44 (Ship Polish): 10 requirements -- SHIP-01, SHIP-02, SHIP-04..06, DOCS-01..03, DOCS-07, DOCS-08
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-04-20 after initial definition*
+*Last updated: 2026-04-20 after roadmap traceability population*

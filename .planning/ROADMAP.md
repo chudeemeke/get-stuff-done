@@ -142,3 +142,17 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 42 | v1.2.0 | 0/TBD | Not started | - |
 | 43 | v1.2.0 | 0/TBD | Not started | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
+
+## Backlog
+
+### Phase 999.1: Investigate plan-checker wave collision detection (BACKLOG)
+
+**Goal:** Verify hypothesis (from authkey Phase 9.2) that `gsd-plan-checker` lacks same-wave file-collision detection; determine if real upstream gap, rule refinement, or fork-specific; evaluate 3 implementation paths before any commit.
+**Source:** authkey project cross-session reference, 2026-04-20
+**Investigation time-box:** 2 hours
+**Requirements:** TBD (promotion creates PROCESS-08 if warranted)
+
+**Promotion criteria:** See `.planning/phases/999.1-investigate-plan-checker-wave-collision-detection/CONTEXT.md` for full decision tree -- upstream-gap + Path C -> decimal-insert into Phase 42; Path B -> PROCESS-08 in v1.2.0; Path A -> upstream issue (no v1.2.0 scope); NOT-a-gap -> close with verification evidence.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when investigation complete)

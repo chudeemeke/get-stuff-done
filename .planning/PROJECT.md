@@ -105,7 +105,8 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 - ~130 upstream compat failures (branding diffs by design, CI informational)
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
-- Intermittent Windows subprocess timeout flakiness (OS-level timing)
+- Intermittent Windows subprocess timeout flakiness (OS-level timing; targeted by v1.2.0 REL-02)
+- Config schema drift -- 8 unknown config keys (4 upstream-drift migrations + 4 fork-extension namespace decisions) flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation complete and Option C recommended resolution path
 - ~~Codex `extractFrontmatterField` crash~~ (RESOLVED -- fork-specific, 4 oversight agents fixed)
 
 ## Context

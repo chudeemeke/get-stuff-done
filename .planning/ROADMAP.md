@@ -156,3 +156,19 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog when investigation complete)
+
+### Phase 999.2: Resolve config schema drift and fork-extension namespace (BACKLOG)
+
+**Goal:** Resolve the 8 unknown config keys flagged by `gsd-tools` warning (4 upstream-drift migrations + 4 fork-extension namespace decisions) and document the class so it cannot fester silently.
+**Source:** `gsd-tools` warning observed during 2026-04-20 commit
+**Investigation time-box:** 80% complete at capture; resolution ~2-3h
+**Requirements:** TBD (migrate drift keys mechanically; choose Option A/B/C for fork-extensions; possible CONFIG-01 candidate for v1.3.0)
+
+**Classification at capture:**
+- Class A (drift, migrate): `skip_research`, `skip_plan_check`, `skip_verification`, `branch_per_phase`
+- Class B (fork extensions, decide path): `memory.*`, `effort.*`, `teams.*`, `gsd.role`
+
+**Promotion criteria:** See `.planning/phases/999.2-resolve-config-schema-drift-and-fork-extension-namespace/CONTEXT.md` for full classification matrix and Option A/B/C evaluation. Preferred resolution path: Option C (rename under existing `features.*` namespace) = quick-resolve inside this backlog item; Option A (upstream PR) = external-AI cross-check first then file; Option B (override) = promote to v1.3.0.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when investigation complete)

@@ -65,6 +65,7 @@ v1.2.0 roadmap decisions:
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
 - Intermittent Windows subprocess timeout flakiness (targeted for root-cause in Phase 41 via REL-02)
+- Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
 - Codex `extractFrontmatterField` crash (RESOLVED -- fork-specific, 4 oversight agents had heading before frontmatter)
 
@@ -79,5 +80,5 @@ None -- research complete, requirements defined, roadmap approved structure in p
 ## Session Continuity
 
 Last session: 2026-04-20
-Stopped at: v1.2.0 ROADMAP.md written (Phases 41-44), STATE.md updated, REQUIREMENTS.md traceability populated and DOCS-01/PROCESS-07 acceptance criteria sharpened. Next: `/gsd:plan-phase 41` for Phase 41 (Foundation).
+Stopped at: v1.2.0 ROADMAP.md written (Phases 41-44), STATE.md updated, REQUIREMENTS.md traceability populated, DOCS-01/PROCESS-07 acceptance criteria sharpened, backlog 999.1 (plan-checker wave collision) and 999.2 (config schema drift) captured with shaped investigation scope. Next: `/gsd:plan-phase 41` for Phase 41 (Foundation).
 Resume file: None -- see memory/project_state.md for full session arc

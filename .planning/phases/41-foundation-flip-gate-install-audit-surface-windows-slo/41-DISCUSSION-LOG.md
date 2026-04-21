@@ -286,3 +286,47 @@ During Q2 of the Windows area, the user surfaced a standing preference that had 
 > "Yes, this project is a single maintainer but I've chosen not to build it with the mindset as it'll make me cut corners and limit the standards of the project, so keep that in memory."
 
 Saved to `~/.claude/projects/<get-stuff-done>/memory/feedback_project_standards_over_single_maintainer.md` and indexed in `MEMORY.md`. All future tradeoff recommendations on this project must evaluate as if team-scale standards apply, not solo-dev corner-cutting standards.
+
+---
+
+## Post-Discussion Architectural Review (2026-04-21)
+
+After decisions D-01..D-18 were initially captured, the user explicitly requested a critique against the skin-fork principle and industry best practice before proceeding to planning:
+
+> "actually before we go further I'd like you to critique this approach and point out the issues and potential issues using the industry best practice and my choices so far in this project since I decided to go with the 'skin' fork approach, I'd like to ensure that I'm not making terrible choices or not longer adhering to my own 'skin' only no changes to the upstream's codebase before I jump to planning."
+
+The user also surfaced a timing meta-question ("Is this the best stage to do this review of after planning?"). Answer captured: **two distinct reviews** exist — architectural/skin-fork (cheapest pre-planning) and plan-quality (post-planning, handled by gsd-plan-checker + /gsd:review). They are not substitutes.
+
+### Skin-fork boundary check — clean pass
+
+Reviewed all 18 decisions against PROJECT.md's overlay principle. No decision modifies upstream code or `.upstream/`. New fork-scoped artifacts (`suppressions.json`, `perf-baseline.json`, `test-timing.json`, `SECURITY.md`, `MAINTENANCE.md`, `.changelog-conflict-check.sh`) are net-additions to fork surface, not upstream edits.
+
+**One latent skin-fork risk surfaced:** D-09's blanket timeout migration could silently patch upstream bugs if flaky subprocess call sites exercise composed `dist/` rather than fork-only code. Amendment A-04 adds mandatory research triangulation (classify every flaky call-site as fork-only / upstream-code / CI-plumbing) before committing to blanket migration as the cure. Upstream-code flakes must be filed as upstream issues, not patched fork-side.
+
+### Six amendments applied in place (decisions retain D-numbers)
+
+| Amendment | Target | Severity | Summary |
+|-----------|--------|----------|---------|
+| A-01 | D-02 | 🟡 | Added planned migration to markdownlint/remark once Phase 42 DOCS-06 lands; scope-cap on awk script (no 2nd pattern before migration). Awk markdown parsers don't scale. |
+| A-02 | D-04 | 🟢 | Replaced "stub" with "scope-partial, quality-full." Sections that exist in Phase 41 MUST meet DOCS-01 acceptance (15+ lines, executable example). No half-quality artifacts. |
+| A-03 | D-07 | 🟡 | Reversed scanner-level severity pre-filter. All severities scanned; HIGH+ blocks; MEDIUM/LOW flow through the D-05 suppression workflow (single pane of glass). |
+| A-04 | D-09 | 🟡 | Softened "`Promise.race([child, timer])`" (error-prone ~2016 pattern) to "built-in Node ≥18 timeout with guaranteed child cleanup" (execSync timeout / AbortSignal.timeout / spawn signal). Rejected hand-rolled Promise.race without explicit kill. Added mandatory skin-fork triangulation. |
+| A-05 | D-10 | 🟢 | Added dedup key (`test-file::test-name::platform`), structured label taxonomy (`flake-platform-*`, `flake-file-*`, `rel-03-candidate`), 30-day auto-close, scope-cap threshold (>5 flakes/week expedites Tailscale collector). |
+| A-06 | D-13 / D-15 / D-16 | 🟡 | Split bench output. `perf-baseline.json` at repo root keeps ONLY install + compose (scope-stable, budget-enforceable). Test-suite timing moves to `.planning/perf/test-timing.json` with per-file tracking and suite-growth-tolerant semantics. Avoids perverse incentive where adding tests fails Phase 42's 1.25x budget gate. |
+
+### Industry-best-practice issues that did NOT require changes
+
+Re-reviewed for completeness; the following decisions held up and were NOT amended:
+- D-01 (job split) — textbook CI separation
+- D-05 (suppression TTL + AJV strict) — matches Snyk/Dependabot norms
+- D-06 (SECURITY.md at root) — GitHub convention
+- D-08 (harden-runner audit→block with observation period) — step-security's recommended rollout
+- D-11 / D-12 / D-17 — time-box + triple-surface visibility + gated closure is mature SLO practice
+- D-14 (3 warmups × 5 runs) — defensible hyperfine parameters
+- D-18 (test-the-tester) — standard
+
+### User response
+
+> "Yes, I'd happily accept all your recommendations"
+
+All six amendments applied. The CONTEXT.md Amendments Log documents the delta; downstream agents treat the amended decisions as canonical.

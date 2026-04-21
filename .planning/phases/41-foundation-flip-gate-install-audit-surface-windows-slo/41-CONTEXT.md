@@ -1,6 +1,7 @@
 # Phase 41: Foundation — Flip Gate, Install Audit Surface, Windows SLO - Context
 
 **Gathered:** 2026-04-21
+**Amended:** 2026-04-21 (post-discussion architectural/industry-best-practice review)
 **Status:** Ready for planning
 
 <domain>
@@ -10,8 +11,8 @@ Make v1.2.0's quality backbone real rather than aspirational. Four foundation la
 
 1. **Flip the override-staleness gate to BLOCKING CI** — currently informational, co-joined with boundary-check in a single `continue-on-error: true` job. Must become a blocking signal that a PR introducing stale overrides (SHA drift or missing REASON.md) cannot merge. Boundary-check stays informational per locked prior decision.
 2. **Stand up the security audit surface** — install audit-ci (blocking), gitleaks (blocking), osv-scanner (blocking), harden-runner (audit mode); codify suppression schema with TTL and re-review enforcement; encode triage policy as a committed artifact.
-3. **Capture a trustworthy perf baseline** — hyperfine measurements of install/compose/test across all three platforms, committed as `perf-baseline.json` at repo root with `acceptedRegressions[]` escape hatch for Phase 42's budget enforcement to consume.
-4. **Root-cause Windows subprocess flakiness and make the Reliability SLO real** — migrate subprocess call sites to `Promise.race([child, timer])`, track per-test flake rate, and build a friction-heavy escape hatch (REL-03) for anything that genuinely resists root-cause.
+3. **Capture a trustworthy perf baseline** — hyperfine measurements of install and compose across all three platforms, committed as `perf-baseline.json` at repo root with `acceptedRegressions[]` escape hatch; test-suite per-file timing captured separately in `.planning/perf/test-timing.json` with scope-growth-tolerant semantics (see D-13 for why these are split).
+4. **Root-cause Windows subprocess flakiness and make the Reliability SLO real** — migrate subprocess call sites to a built-in Node timeout pattern with guaranteed child cleanup (API choice per researcher within Node ≥18 idioms — see D-09), track per-test flake rate via the GitHub Issues interim collector, and build a friction-heavy escape hatch (REL-03) for anything that genuinely resists root-cause.
 
 Out of phase: perf regression gate + accepted-regressions workflow (Phase 42 PERF-03..05), oversight trigger wiring (Phase 42 PROCESS-01..07), MAINTENANCE.md full completion (Phase 44 DOCS-01), harden-runner block-mode promotion (Phase 44 SECURITY-04 conditional on observation period), upgrade resilience mechanics (Phase 43 UPGRADE-01..09 except -03 and -06).
 
@@ -27,24 +28,46 @@ Out of phase: perf regression gate + accepted-regressions workflow (Phase 42 PER
   - **Existing** `boundary-check` job: runs `node scripts/check-boundary.js`, RETAINS `continue-on-error: true` (informational, locked by v1.0.0 key decision).
   - Both run on ubuntu-latest (no cross-platform matrix needed; these are repo-structural checks not platform-sensitive).
   - Parallel execution is free; cleaner CI status badges per concern.
-- **D-02:** `.changelog-conflict-check.sh` detects the known "entry inside a published release section" pattern using an **awk/sed state machine** (pure shell, no node, no markdown AST dep). State tracked: `in_published_section | in_unreleased_section`. Any `- ` bullet found between a `## [X.Y.Z]` heading (where X.Y.Z is a concrete semver, not `Unreleased`) and the next `## [` heading flags exit 1 with the offending line number.
+- **D-02:** `.changelog-conflict-check.sh` detects the known "entry inside a published release section" pattern using an **awk/sed state machine** (pure shell, no node, no markdown AST dep) as an **interim implementation** appropriate while the fork has no node markdown toolchain. State tracked: `in_published_section | in_unreleased_section`. Any `- ` bullet found between a `## [X.Y.Z]` heading (where X.Y.Z is a concrete semver, not `Unreleased`) and the next `## [` heading flags exit 1 with the offending line number.
+  - **Planned migration:** Phase 42 DOCS-06 installs `markdownlint-cli2@0.22.0`. Once that lands, re-express this check as a markdownlint custom rule or `remark` plugin and deprecate `.changelog-conflict-check.sh`. Awk/sed markdown parsers are brittle and grow unmaintainably if patterns expand; keep this single-pattern and scope-capped until DOCS-06 provides the proper toolchain.
+  - **Scope cap:** if a SECOND changelog-structural pattern needs detection before Phase 42, do NOT extend the awk script — block and revisit the migration timing.
 - **D-03:** Changelog-conflict fixtures live at `tests/fixtures/changelog-conflict/good-changelog.md` (passes with exit 0) and `tests/fixtures/changelog-conflict/bad-changelog.md` (fails with exit 1, contains the known pattern). Mirrors project's existing test-fixture convention. Script's self-test invocation: `bash .changelog-conflict-check.sh --self-test` asserts both fixtures.
-- **D-04:** `MAINTENANCE.md` is **stub-created in Phase 41** with a minimal "Bump Runbook" section referencing `.changelog-conflict-check.sh` as a required pre-push step. Phase 44 (DOCS-01) expands it to full 8-section content (Upgrade Process, Override Conflict Handling, CI Staleness Response, Release Cadence, Bump Runbook, Security Triage, Perf Budget, Escape-Hatch Decisions Log). Single-file path, no later migration cost.
+- **D-04:** `MAINTENANCE.md` is created in Phase 41 as a **scope-partial, quality-full** artifact: Phase 41 writes only the sections that Phase 41 itself needs to exist (`Bump Runbook`, `Security` log, `Escape-Hatch Decisions Log`), and each of those sections **already meets DOCS-01 acceptance** (minimum 15 lines of substantive content, at least one executable example such as a script path or command snippet, all links lychee-valid). Phase 44 DOCS-01 then adds the remaining sections (Upgrade Process, Override Conflict Handling, CI Staleness Response, Release Cadence, Perf Budget) and wires the per-section CI extractor. **No half-quality stubs** — a section that exists passes DOCS-01; sections that don't yet exist are legitimately absent until Phase 44.
+  - **DOCS-01 CI behavior:** Phase 44 turns on the per-section extraction check; until then, DOCS-01's CI job either does not exist yet or runs in report-only mode. Phase 41's MAINTENANCE.md will not be prematurely graded by a check that hasn't been installed.
+  - **Section list in Phase 41:** Bump Runbook (executable example: `bash .changelog-conflict-check.sh --self-test`), Security (executable example: `cat .planning/audits/suppressions.json | jq '.'`), Escape-Hatch Decisions Log (executable example: link to first REL-03 issue if any, else placeholder row with N/A).
 
 ### Security Surface
 
 - **D-05:** Suppression schema in `.planning/audits/suppressions.json` follows requirements exactly (`id, severity, reason, reviewer, reviewedDate, reReviewDate`). **Default re-review TTL: 60 days** (aligns with quarterly security review cadence). When `reReviewDate < today`, CI audit-ci gate fails with actionable message: `"Suppression for {id} expired {reReviewDate}; re-review and update or remove the entry in .planning/audits/suppressions.json"`. AJV strict validation (`additionalProperties: false`) per Phase 39 schema precedent.
 - **D-06:** Security triage policy (SECURITY-06: critical → v1.2.0 / major → v1.3.0 / minor → backlog) documented in `SECURITY.md` at repo root. Fork is private but follows GitHub convention (auto-surfaced in repo UI). Phase 44 MAINTENANCE.md Security Triage section links to SECURITY.md rather than duplicating. Policy is a committed artifact, not prose in a code review.
-- **D-07:** Scanner scope:
-  - **gitleaks-action@v2** with `.gitleaks.toml` allowlist for test fixtures and example tokens (documented path patterns in `tests/fixtures/**` and example snippets in docs). Allowlist entries MUST reference an issue/PR justifying the exemption.
-  - **osv-scanner-action@v2** runs against `bun.lock` on direct+transitive dependencies. Severity filter: fail on HIGH and CRITICAL; MEDIUM/LOW are reported but do not block. This matches audit-ci's shape and catches Axios-style transitive CVEs SECURITY-03 exists to catch.
+- **D-07:** Scanner scope — scan ALL severities, block only HIGH+, route MEDIUM/LOW through the suppression workflow (single pane of glass; avoids two filters doing the same job):
+  - **gitleaks-action@v2** with `.gitleaks.toml` allowlist for test fixtures and example tokens (documented path patterns in `tests/fixtures/**` and example snippets in docs). Allowlist entries MUST reference an issue/PR justifying the exemption. Gitleaks matches are always blocking (secrets have no useful severity gradient).
+  - **osv-scanner-action@v2** runs against `bun.lock` on direct+transitive dependencies. **All severities are scanned.** Job-level policy: fail CI on HIGH/CRITICAL; MEDIUM/LOW findings are surfaced in a non-blocking report and routed to either (a) an auto-filed GitHub issue labeled `security-low` (dedup by CVE id), or (b) a committed `.planning/audits/low-sev-findings.jsonl` append-only log — decision within this range is Claude's discretion based on whichever is easier to implement with the osv-scanner-action output.
+  - **Single triage system:** D-05's `suppressions.json` schema applies uniformly — a suppression entry can target any severity. This avoids the antipattern of scanner-level filtering hiding findings from the triage workflow.
+  - **Rationale:** industry convention (GitHub native-security, Snyk, Dependabot) is to surface every finding and let triage policy decide blocking. Severity scoring is often wrong or outdated; pre-filtering at scanner level means you never see LOW/MEDIUM findings that might be exploitable in your context.
 - **D-08:** `step-security/harden-runner@v2` installed in **audit mode** in Phase 41. Audit logs delivered as GitHub Actions workflow artifacts (default 7-day retention). Weekly human review cadence: findings (or confirmation of none) appended as a dated log line to MAINTENANCE.md's Security section (stub section created in Phase 41, expanded in Phase 44). Block-mode promotion is NOT in Phase 41 scope — Phase 44 SECURITY-04 promotes conditional on 2+ weeks clean audit log (documented promotion criterion).
 
 ### Windows Root-Cause
 
-- **D-09:** Apply `Promise.race([child, timer])` pattern as **blanket migration** to ALL test-file subprocess call sites (every `execSync`, `exec`, `spawnSync` in `tests/**`). The pattern lives in a shared helper at `tests/helpers/subprocess-with-timeout.js` exporting `runWithTimeout(cmd, args, options)`. New tests adopt the helper by default. Uniform code, review in a single PR, prevents drift.
-- **D-10:** Per-test flake rate tracked via **GitHub Issues as the interim collector**. On Windows test failure in CI, a GHA Script step opens or comments on a `flake-report` labeled issue with `{date, test-name, platform, run-url}`. Issue history IS the flake history. No new service in Phase 41. **Future direction** (captured under deferred): user will build an own external collector exposed via Tailscale; Phase 41's GitHub Issues interim is a stepping stone, not the destination.
-- **D-11:** **2 working days hard time budget** for Windows root-cause effort (Promise.race migration + suite-10x validation + residual triage). Any test still flaking after day 2 falls under REL-03 (per-test skip with issue link + deadline logged in MAINTENANCE.md Escape-Hatch Decisions Log). Hard boundary prevents the phase stalling.
+- **D-09:** Apply a **built-in Node timeout pattern with guaranteed child cleanup** as a blanket migration to ALL test-file subprocess call sites (every `execSync`, `exec`, `spawnSync`, `spawn` in `tests/**`). The pattern lives in a shared helper at `tests/helpers/subprocess-with-timeout.js` exporting `runWithTimeout(cmd, args, options)`. New tests adopt the helper by default. Uniform code, single-PR review, prevents drift.
+  - **API choice is the researcher's call** (REL-02 requirement wording "`Promise.race([child, timer])` replaces `exec` timeout" is suggestive, not prescriptive; the success criterion is "10 consecutive CI runs with zero retries"). Evaluate these modern Node ≥18 options and pick the right one per call-site kind:
+    - `execSync(cmd, {timeout: N, killSignal: 'SIGTERM'})` — built-in, kills subprocess on timeout, the right answer for most `execSync` sites.
+    - `exec(..., {signal: AbortSignal.timeout(N)})` — idiomatic async pattern; AbortController primitive handles cleanup correctly.
+    - `spawn(..., {signal})` / `spawnSync(..., {timeout, killSignal})` — same primitives for spawn sites.
+  - **Reject hand-rolled `Promise.race([child, timer])` WITHOUT explicit child.kill() cleanup** — that pattern leaks processes on timer win. If researcher lands on Promise.race for any site, it MUST include an explicit kill path + tracking of the child handle.
+  - **Research triangulation required (skin-fork boundary):** before committing to blanket migration as the cure, the researcher must classify every flaky subprocess call site into one of three buckets: (A) exercises fork-only code → fork-local timeout fix is correct; (B) exercises composed `dist/` i.e. upstream code → timeout fix is masking an upstream bug, file upstream issue instead; (C) CI-plumbing / git-bash timing → timeout fix is the correct response. This prevents Phase 41 from silently patching upstream bugs with fork-side bandaids.
+- **D-10:** Per-test flake rate tracked via **GitHub Issues as the interim collector**, with dedup and lifecycle logic mandatory from day 1 (Issues are not time-series databases; without dedup, a flaky test generates 50+ issues per month and the system becomes noise). The GHA Script step on Windows test failure:
+  - **Dedup key:** `{test-file-path}::{test-name}::{platform}`. Check for an open issue whose title matches the key before filing; if one exists, add a comment with `{date, run-url, commit-sha, bun/node version}` instead of opening a new issue.
+  - **Labels** (structured filters for the future Tailscale collector ingestion):
+    - `flake-report` (always)
+    - `flake-platform-windows` (or `-macos` / `-linux` if flake rate expansion occurs)
+    - `flake-file-<basename>` (e.g., `flake-file-sync` for `tests/sync.test.cjs`)
+    - `rel-03-candidate` (added if this test has flaked ≥3 times in 14 days — signals REL-03 triage)
+  - **Auto-close:** a scheduled weekly workflow closes any `flake-report` issue whose last hit comment is >30 days old (the test self-stabilized). Closure comment records `{last-hit date, close date, total-hits}`.
+  - **Scope cap:** if weekly flake file-rate exceeds 5, the interim system has out-grown itself — stop the GHA Script issue-filer and expedite the Tailscale collector. Phase 41 ships the cap threshold as a log-line in the workflow summary, not as an enforcement mechanism.
+  - **No new service in Phase 41.** Issue history IS the flake history; the structured labels are the ingestion contract for the future collector.
+  - **Future direction** (captured under deferred): user will build an own external collector exposed via Tailscale; Phase 41's GitHub Issues interim is a stepping stone, not the destination.
+- **D-11:** **2 working days hard time budget** for Windows root-cause effort (subprocess-timeout blanket migration per D-09 + call-site classification per D-09's triangulation clause + suite-10x validation + residual triage). Any test still flaking after day 2 falls under REL-03 (per-test skip with issue link + deadline logged in MAINTENANCE.md Escape-Hatch Decisions Log). Hard boundary prevents the phase stalling.
 - **D-12:** REL-03 "flagged-on-use" means three simultaneous surfaces:
   1. **In-run visibility**: every Windows CI run appends a `### ⚠ Active REL-03 skips` section to the GHA job summary listing each skipped test with `reason: REL-03-N`, issue link, deadline.
   2. **In-test wrapper**: `test.skip.if(isWindows, { reason: 'REL-03-N: <issue-url>, deadline YYYY-MM-DD' })` (bun:test conditional skip). The reason is visible in local test runs too.
@@ -52,32 +75,56 @@ Out of phase: perf regression gate + accepted-regressions workflow (Phase 42 PER
 
 ### Perf Baseline
 
-- **D-13:** `scripts/bench.js` measures three operations per platform:
-  - **install**: `bun install --ignore-scripts` on a clean temp directory (cold cache; no install.js execution).
-  - **compose**: `bun run compose` (`scripts/compose.js`).
-  - **test**: full `bun test` suite (not a smoke subset — the Windows SLO concern IS the full suite; smoke would be signal-negative).
+- **D-13:** `scripts/bench.js` measures TWO deterministic operations per platform for `perf-baseline.json`; test-suite duration is tracked **separately** in a different artifact with different semantics (benchmarks should be scope-stable, test-suite duration is not — adding tests would falsely regress the baseline under Phase 42 PERF-04's 1.25x budget gate):
+  - **perf-baseline.json scope (Phase 41 core deliverable):**
+    - **install**: `bun install --ignore-scripts` on a clean temp directory (cold cache; no install.js execution). Scope-stable across code changes.
+    - **compose**: `bun run compose` (`scripts/compose.js`). Scope-stable across code changes.
+  - **test-timing.json scope (separate artifact, `.planning/perf/test-timing.json`):**
+    - Full `bun test` suite timing, broken down per-test-file (bun test can emit per-file durations).
+    - Tracks `{ platform: { testFile: { mean_ms, stddev_ms, ... }, ... } }` plus a totals row.
+    - **Semantics:** net suite growth is tolerated (adding tests is expected); a single test-file's duration regressing >1.25x its prior recorded mean IS a signal. Phase 42's check-perf.js (PERF-03) consumes this separately from perf-baseline.json.
+    - NOT in the DOCS-01 CI gate; the budget enforcement (per-file regression detection) is Phase 42 PERF-04 territory.
+  - **Rationale:** PERF-01 roadmap wording says "install time, compose time, test runtime" — we still measure all three, but pin install+compose to the budget-enforceable baseline and route test-timing to a separate artifact whose semantics match what testing reality does (suites grow). This avoids a perverse incentive where adding tests fails CI.
 - **D-14:** Hyperfine parameters: **3 warmups, 5 runs per operation, per platform**. 5 runs yields usable mean ± stddev while keeping CI cost bounded. Bench runs as its **own CI job** (`perf-baseline`, `workflow_dispatch` only in Phase 41 — not on every PR; that's Phase 42 PERF-04 territory) to stay outside the `test` job's 15-min timeout. Bench job timeout: 30 min per platform.
-- **D-15:** Single `perf-baseline.json` committed at repo root, schema:
-  ```json
-  {
-    "metadata": {
-      "capturedAt": "ISO-8601",
-      "nodeVersion": "...",
-      "bunVersion": "...",
-      "upstreamVersion": "1.34.2",
-      "hyperfineVersion": "..."
-    },
-    "platforms": {
-      "linux":   { "install": { "mean_ms": ..., "stddev_ms": ..., "min_ms": ..., "max_ms": ..., "samples": 5 },
-                   "compose": { ... }, "test": { ... } },
-      "macos":   { ... },
-      "windows": { ... }
-    },
-    "acceptedRegressions": []
-  }
-  ```
-  Matches PERF-02 "at repo root" wording. `acceptedRegressions[]` starts empty; Phase 42 PERF-05 defines its entry schema.
-- **D-16:** `scripts/bench.js` wraps hyperfine's `--export-json` output and **normalizes** into the schema above (independent of hyperfine version). Adds AJV schema at `config/perf-baseline.schema.json` validated in CI (matches Phase 39 strict-schema precedent). Raw hyperfine output is not committed.
+- **D-15:** Two artifacts with distinct scope (reflecting D-13's split):
+  - **`perf-baseline.json` at repo root** (budget-enforceable, scope-stable):
+    ```json
+    {
+      "metadata": {
+        "capturedAt": "ISO-8601",
+        "nodeVersion": "...",
+        "bunVersion": "...",
+        "upstreamVersion": "1.34.2",
+        "hyperfineVersion": "..."
+      },
+      "platforms": {
+        "linux":   { "install": { "mean_ms": ..., "stddev_ms": ..., "min_ms": ..., "max_ms": ..., "samples": 5 },
+                     "compose": { ... } },
+        "macos":   { ... },
+        "windows": { ... }
+      },
+      "acceptedRegressions": []
+    }
+    ```
+    Matches PERF-02 "at repo root" wording. Scope-stable — adding tests does not affect install or compose metrics. `acceptedRegressions[]` starts empty; Phase 42 PERF-05 defines its entry schema.
+  - **`.planning/perf/test-timing.json`** (separate artifact, per-file timing, tolerant of suite growth):
+    ```json
+    {
+      "metadata": { "capturedAt": "...", "bunVersion": "...", ... },
+      "platforms": {
+        "linux": {
+          "total": { "mean_ms": ..., "stddev_ms": ..., "samples": 5 },
+          "files": {
+            "tests/installer-safety.test.js": { "mean_ms": ..., "stddev_ms": ..., "samples": 5 },
+            "tests/sync.test.cjs":            { "mean_ms": ..., "stddev_ms": ..., "samples": 5 }
+          }
+        },
+        "macos": { ... }, "windows": { ... }
+      }
+    }
+    ```
+    Phase 42 PERF-03 (check-perf.js) compares per-file means against this file; a single file regressing >1.25x is the signal. Net suite growth (new files) is expected and does not fail.
+- **D-16:** `scripts/bench.js` wraps hyperfine's `--export-json` output and **normalizes** into the `perf-baseline.json` schema above (independent of hyperfine version). A sibling `scripts/bench-test-timing.js` produces `test-timing.json` using bun test's per-file duration output (not hyperfine — bun test provides this natively). Both files get AJV schemas at `config/perf-baseline.schema.json` and `config/test-timing.schema.json` validated in CI (matches Phase 39 strict-schema precedent). Raw hyperfine output is not committed.
 
 ### Phase Completion & Self-Test
 
@@ -89,17 +136,31 @@ Out of phase: perf regression gate + accepted-regressions workflow (Phase 42 PER
 
 ### Claude's Discretion
 
-- Exact AJV schemas for `suppressions.json` and `perf-baseline.schema.json` (follow Phase 39 precedent: strict, typed, required fields).
-- File/function organization within `scripts/bench.js`, `.changelog-conflict-check.sh`, the GHA Script step for flake-report filing.
+- Exact AJV schemas for `suppressions.json`, `perf-baseline.schema.json`, and `test-timing.schema.json` (follow Phase 39 precedent: strict, typed, required fields).
+- File/function organization within `scripts/bench.js`, `scripts/bench-test-timing.js`, `.changelog-conflict-check.sh`, the GHA Script step for flake-report filing.
 - Exact error message strings (cli-standards rule applies: state what happened, why, what to do about it).
 - Which specific eslint-plugin-security rules to audit in SECURITY-05 (presumption: enable all relevant ones unless a rule produces documented false positives in fork-specific code).
 - Test fixture layout inside `tests/fixtures/changelog-conflict/`.
-- GHA Script snippet details for flake-report issue file/comment (dedup logic, label format).
+- Choice of MEDIUM/LOW osv-scanner finding sink in D-07: auto-filed `security-low` GitHub issues vs committed `.planning/audits/low-sev-findings.jsonl` (pick whichever is easier to implement from osv-scanner-action output — both acceptable).
+- Specific timeout-API choice per call-site kind in D-09 (`execSync` timeout option vs `AbortSignal.timeout` vs spawn signal), subject to the D-09 constraints (built-in APIs preferred, hand-rolled `Promise.race` only with explicit kill cleanup).
 - Whether `scripts/bench.js` uses `hyperfine` binary directly (recommended: spawn) or a Node wrapper library (not recommended — adds dep).
 
 ### Folded Todos
 
 None — no pending todos matched Phase 41 via `todo match-phase`.
+
+### Amendments Log (post-discussion architectural review, 2026-04-21)
+
+After initial discussion captured decisions D-01..D-18, the user requested an architectural critique against the skin-fork principle and industry best practice before proceeding to planning. The following six amendments were applied; original decisions remain D-numbered for traceability but carry the amended content in-place above. This log documents the delta.
+
+- **A-01 → D-02:** Added planned migration to markdownlint/remark once Phase 42 DOCS-06 lands, plus a scope cap ("no second pattern before Phase 42"). Rationale: awk/sed markdown parsers don't scale; Phase 42 already installs a proper markdown toolchain.
+- **A-02 → D-04:** Replaced "stub-created in Phase 41 (expanded in Phase 44)" with "scope-partial, quality-full" — sections that exist in Phase 41 MUST meet DOCS-01 acceptance (15+ lines, executable example). No half-quality artifacts. Clarified which sections Phase 41 owns and which Phase 44 adds.
+- **A-03 → D-07:** Reversed scanner-level MEDIUM/LOW pre-filtering. All severities scanned; HIGH+ blocks; MEDIUM/LOW flow through the D-05 suppression workflow (single pane of glass). Rationale: dual filter systems (scanner pre-filter + suppression schema) is the antipattern; surface everything and triage via one system.
+- **A-04 → D-09:** Softened REL-02's literal "`Promise.race([child, timer])`" to "built-in Node timeout pattern with guaranteed child cleanup," enumerating modern Node ≥18 options (execSync timeout, AbortSignal.timeout, spawn signal) and REJECTING hand-rolled Promise.race without explicit kill. ADDED a mandatory research triangulation: classify each flaky call-site as fork-only (fix locally), upstream-code (file upstream issue, don't patch), or CI-plumbing (fix locally). Prevents silent fork-side bandaids masking upstream bugs — a skin-fork boundary violation.
+- **A-05 → D-10:** Added explicit dedup key (`test-file::test-name::platform`), label taxonomy (`flake-platform-*`, `flake-file-*`, `rel-03-candidate`), auto-close after 30d no-hit, and scope-cap threshold (>5 flakes/week triggers Tailscale-collector expedite). GitHub Issues as a time-series store scales poorly without these; day-1 inclusion prevents technical debt.
+- **A-06 → D-13/D-15/D-16:** Split the bench output. `perf-baseline.json` at repo root retains ONLY install + compose (scope-stable, budget-enforceable). Test-suite timing moves to `.planning/perf/test-timing.json` with per-file tracking and scope-growth-tolerant semantics (net growth OK; single-file regression is the signal). Added sibling `scripts/bench-test-timing.js` and `config/test-timing.schema.json`. Rationale: full-test-suite-as-benchmark creates a perverse incentive where adding tests fails Phase 42's 1.25x budget gate.
+
+The amendments log is frozen at this point; further changes require a new entry. Downstream agents (researcher, planner, executor) must treat the amended decisions as canonical.
 
 </decisions>
 
@@ -166,10 +227,11 @@ None — no pending todos matched Phase 41 via `todo match-phase`.
 - bun:test tests in `tests/**/*.test.{js,cjs}`; `tests/**/*.test.cjs` = CommonJS subprocess-heavy, `tests/**/*.test.js` = ESM.
 
 ### Integration Points
-- New jobs insert into `.github/workflows/ci.yml` as peers to existing `lint`, `test`, `parity`, `upstream-compat`, `boundary-override-check` (becoming `boundary-check`).
-- `config/` directory already hosts AJV schemas; new schemas (`suppressions.schema.json`, `perf-baseline.schema.json`) fit the pattern.
-- Any scripts added to `scripts/` need `bun run` entries in package.json to be first-class (`bun run bench`, `bun run audit-check`, etc.).
-- `.planning/audits/` is a NEW directory. `.planning/flakes/` is NOT created in Phase 41 (deferred with the own-collector direction).
+- New jobs insert into `.github/workflows/ci.yml` as peers to existing `lint`, `test`, `parity`, `upstream-compat`, `boundary-override-check` (becoming `boundary-check` + new sibling `override-check`).
+- `config/` directory already hosts AJV schemas; new schemas (`suppressions.schema.json`, `perf-baseline.schema.json`, `test-timing.schema.json`) fit the pattern.
+- Any scripts added to `scripts/` need `bun run` entries in package.json to be first-class (`bun run bench`, `bun run bench:test-timing`, `bun run audit-check`, etc.).
+- **New directories in Phase 41:** `.planning/audits/` (suppressions.json + optional low-sev-findings.jsonl per D-07), `.planning/perf/` (test-timing.json per D-15).
+- `.planning/flakes/` is NOT created in Phase 41. The flake collector is GitHub Issues per D-10; a future Tailscale collector may introduce a local artifact store but that's out of this phase's scope.
 
 ### Platform notes
 - hyperfine pre-installed on `ubuntu-latest` GHA runner. macOS needs `brew install hyperfine`; Windows needs `choco install hyperfine` or direct binary download. Add OS-specific setup step in the `perf-baseline` job.
@@ -193,8 +255,9 @@ None — no pending todos matched Phase 41 via `todo match-phase`.
 
 ### Explicitly deferred (not Phase 41 scope)
 
-- **Own Tailscale-exposed flake collector** — user's stated future direction. GitHub Issues interim (D-10) is the stepping stone. Track as a standalone future phase after v1.2.0 observability work lands, or as part of a dedicated observability milestone.
-- **Phase 44 DOCS-01 full MAINTENANCE.md** — Phase 41 ships a minimal stub with Bump Runbook + Security sections only. Phase 44 expands to all 8 sections with executable examples + CI-extracted example run.
+- **Own Tailscale-exposed flake collector** — user's stated future direction. GitHub Issues interim (D-10) with structured label taxonomy is the stepping stone; the labels ARE the ingestion contract for the future collector. Track as a standalone future phase after v1.2.0 observability work lands, or as part of a dedicated observability milestone.
+- **Changelog-conflict migration to markdown toolchain** (A-01) — Phase 42 DOCS-06 installs `markdownlint-cli2@0.22.0`. Once that lands, re-express D-02's awk/sed check as a markdownlint custom rule or `remark` plugin and deprecate `.changelog-conflict-check.sh`. Tracked as a Phase 42 follow-up tied to DOCS-06.
+- **Phase 44 DOCS-01 remaining MAINTENANCE.md sections** — Phase 41 ships Bump Runbook + Security + Escape-Hatch Decisions Log at full DOCS-01 quality. Phase 44 adds Upgrade Process, Override Conflict Handling, CI Staleness Response, Release Cadence, Perf Budget sections AND turns on the per-section CI extractor.
 - **Phase 44 SECURITY-04 block-mode promotion for harden-runner** — conditional on 2+ weeks clean audit log. Not Phase 41's decision.
 - **Phase 42 PERF-03/04/05** — check-perf.js, perf-budget CI job, acceptedRegressions workflow. Phase 41 only commits the baseline + schema.
 - **Phase 42 PROCESS-01..07** — oversight trigger wiring. Phase 41 does not touch gsd-oversight agents.
@@ -212,3 +275,4 @@ None — no pending todos matched Phase 41.
 
 *Phase: 41-foundation-flip-gate-install-audit-surface-windows-slo*
 *Context gathered: 2026-04-21*
+*Context amended: 2026-04-21 (post-discussion architectural/industry-best-practice review — see Amendments Log under `<decisions>`)*

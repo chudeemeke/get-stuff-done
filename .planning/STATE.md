@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: active
-stopped_at: null
-last_updated: "2026-04-20T00:00:00.000Z"
-last_activity: 2026-04-20
+status: "Roadmap created (2026-04-20). 45 requirements mapped across 4 phases (41-44). Ready for `/gsd:plan-phase 41`."
+stopped_at: Phase 41 context gathered
+last_updated: "2026-04-21T12:54:41.742Z"
+last_activity: 2026-04-20 -- Roadmap created for v1.2.0
 progress:
-  total_phases: 4
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
-  percent: 0
 ---
 
 # Project State
@@ -51,6 +50,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 All v1.1.0 decisions archived to .planning/milestones/v1.1.0-ROADMAP.md.
 
 v1.2.0 roadmap decisions:
+
 - 4 phases derived from research-recommended structure (Foundation -> Budget+Process -> Upgrade Resilience -> Ship Polish)
 - REL-01 (100% test pass) treated as Phase 41 completion criterion, not aspirational SLO
 - SECURITY-04 owned by Phase 41 (audit mode install); block-mode promotion is execution of same requirement, documented as conditional on 2+ weeks clean audit log (Phase 44)
@@ -79,6 +79,6 @@ None -- research complete, requirements defined, roadmap approved structure in p
 
 ## Session Continuity
 
-Last session: 2026-04-20
-Stopped at: v1.2.0 ROADMAP.md written (Phases 41-44), STATE.md updated, REQUIREMENTS.md traceability populated, DOCS-01/PROCESS-07 acceptance criteria sharpened, backlog 999.1 (plan-checker wave collision) and 999.2 (config schema drift) captured with shaped investigation scope. Next: `/gsd:plan-phase 41` for Phase 41 (Foundation).
-Resume file: None -- see memory/project_state.md for full session arc
+Last session: 2026-04-21T12:54:41.734Z
+Stopped at: Phase 41 context gathered
+Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md

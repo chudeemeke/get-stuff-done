@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: "Roadmap created (2026-04-20). 45 requirements mapped across 4 phases (41-44). Ready for `/gsd:plan-phase 41`."
-stopped_at: Phase 41 context gathered
-last_updated: "2026-04-21T12:54:41.742Z"
+stopped_at: "Phase 41 pre-planning artifacts committed (CONTEXT+RESEARCH+VALIDATION); planner NOT yet spawned. PAUSED pending upstream-bump-vs-plan-now decision. See memory/project_state.md session 3 narrative for details. Next: user decides plan-now (Claude recommends; CONTEXT.md is upstream-neutral) vs bump-first (upstream drifted 312 commits / 566 files)."
+last_updated: "2026-04-22T13:38:24.401Z"
 last_activity: 2026-04-20 -- Roadmap created for v1.2.0
 progress:
   total_phases: 6
@@ -79,6 +79,6 @@ None -- research complete, requirements defined, roadmap approved structure in p
 
 ## Session Continuity
 
-Last session: 2026-04-21T12:54:41.734Z
-Stopped at: Phase 41 context gathered
+Last session: 2026-04-22T13:38:24.391Z
+Stopped at: Phase 41 pre-planning artifacts committed (CONTEXT+RESEARCH+VALIDATION); planner NOT yet spawned. PAUSED pending upstream-bump-vs-plan-now decision. See memory/project_state.md session 3 narrative for details. Next: user decides plan-now (Claude recommends; CONTEXT.md is upstream-neutral) vs bump-first (upstream drifted 312 commits / 566 files).
 Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md

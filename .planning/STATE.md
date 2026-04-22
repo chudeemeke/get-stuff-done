@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Roadmap created (2026-04-20). 45 requirements mapped across 4 phases (41-44). Ready for `/gsd:plan-phase 41`."
-stopped_at: "Phase 41 pre-planning artifacts committed (CONTEXT+RESEARCH+VALIDATION); planner NOT yet spawned. PAUSED pending upstream-bump-vs-plan-now decision. See memory/project_state.md session 3 narrative for details. Next: user decides plan-now (Claude recommends; CONTEXT.md is upstream-neutral) vs bump-first (upstream drifted 312 commits / 566 files)."
-last_updated: "2026-04-22T13:38:24.401Z"
-last_activity: 2026-04-20 -- Roadmap created for v1.2.0
+status: "Phase 40.5 inserted 2026-04-22. 46 requirements mapped across 5 phases (40.5, 41-44). Ready for `/gsd:plan-phase 40.5`."
+stopped_at: "Phase 40.5 inserted 2026-04-22 after user chose bump-first ordering over plan-now-with-bump-in-Wave-0. UPGRADE-10 requirement added; UPGRADE-05 reworded to preserve dogfood-bump timing semantics. Phase 41 pre-planning artifacts (CONTEXT+RESEARCH+VALIDATION, post-A-01..A-06 amendments) remain committed and are now downstream of Phase 40.5 — will be re-verified during Phase 40.5 execute. Next: `/gsd:plan-phase 40.5`."
+last_updated: "2026-04-22T21:15:00.000Z"
+last_activity: 2026-04-22 -- Phase 40.5 inserted + UPGRADE-10 added + UPGRADE-05 reworded + backlog 999.3 captured
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.2.0 Ship-Ready Hardening -- roadmap created, ready for plan-phase
+**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 40.5 inserted, ready for `/gsd:plan-phase 40.5`
 
 ## Current Position
 
-Phase: Phase 41 (not started) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
+Phase: Phase 40.5 (not started, INSERTED 2026-04-22) -- Upstream Bump & Phase 41 Decision Re-verification
 Plan: -
-Status: Roadmap created (2026-04-20). 45 requirements mapped across 4 phases (41-44). Ready for `/gsd:plan-phase 41`.
-Last activity: 2026-04-20 -- Roadmap created for v1.2.0
+Status: Phase 40.5 inserted 2026-04-22. 46 requirements mapped across 5 phases (40.5, 41-44). Ready for `/gsd:plan-phase 40.5`. Phase 41 CONTEXT.md (at A-01..A-06 post-amendment state) stays as-is and will be re-verified during Phase 40.5 execute.
+Last activity: 2026-04-22 -- Phase 40.5 inserted + UPGRADE-10 added + UPGRADE-05 reworded + backlog 999.3 captured
 
-**Upstream state:** PR #1859 still OPEN/APPROVED/MERGEABLE, awaiting trek-e merge. Milestone work is independent. Fork upstream pin bumped to 1.34.2.
+**Upstream state:** PR #1859 still OPEN/APPROVED/MERGEABLE, awaiting trek-e merge. Milestone work is independent. Fork upstream pin at 1.34.2 (Phase 40.5 will bump to 1.38.2).
 
 ## Performance Metrics
 
@@ -58,6 +58,10 @@ v1.2.0 roadmap decisions:
 - PROCESS-07 graduation criteria locked to specific numbers (N=20 PRs, <=5% FP rate, maintainer-reviewed PR + 2 weeks clean CI + MAINTENANCE.md entry)
 - Phase numbering continues integer sequence from v1.1.0 last phase (40) -> v1.2.0 starts at Phase 41
 
+### Roadmap Evolution
+
+- Phase 40.5 inserted after Phase 40: Upstream bump 1.34.2 -> 1.38.2 and Phase 41 decision re-verification. (INSERTED 2026-04-22 URGENT). User chose bump-first ordering over plan-now-with-bump-in-Wave-0 to verify Phase 41 decisions against fresh upstream state before planning. UPGRADE-10 requirement added (Phase 40.5); UPGRADE-05 reworded to preserve dogfood-bump timing semantics (Phase 43); backlog 999.3 captured (conditional upstream regex-fix PR filing, only if bug still present on clean 1.38.2).
+
 ### Carried Forward Tech Debt
 
 - 48 boundary violations (structural, informational CI)
@@ -79,6 +83,6 @@ None -- research complete, requirements defined, roadmap approved structure in p
 
 ## Session Continuity
 
-Last session: 2026-04-22T13:38:24.391Z
-Stopped at: Phase 41 pre-planning artifacts committed (CONTEXT+RESEARCH+VALIDATION); planner NOT yet spawned. PAUSED pending upstream-bump-vs-plan-now decision. See memory/project_state.md session 3 narrative for details. Next: user decides plan-now (Claude recommends; CONTEXT.md is upstream-neutral) vs bump-first (upstream drifted 312 commits / 566 files).
-Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md
+Last session: 2026-04-22 (Phase 40.5 insertion session)
+Stopped at: Phase 40.5 inserted with artifacts updated across ROADMAP.md, REQUIREMENTS.md, STATE.md + phase directory created. Next: `/gsd:plan-phase 40.5`.
+Resume file: .planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/

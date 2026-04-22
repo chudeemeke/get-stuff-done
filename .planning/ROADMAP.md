@@ -8,7 +8,7 @@
 - ⚫ **v0.4.0 Platform Expansion** — Phases 24-28 (superseded by v1.0.0)
 - ✅ **v1.0.0 Overlay Architecture** — Phases 29-36 (shipped 2026-03-31)
 - ✅ **v1.1.0 Installer & Deployment Hardening** — Phases 37-40 (shipped 2026-04-04)
-- 🔵 **v1.2.0 Ship-Ready Hardening** — Phases 41-44 (active, started 2026-04-20)
+- 🔵 **v1.2.0 Ship-Ready Hardening** — Phases 40.5, 41-44 (active, started 2026-04-20; Phase 40.5 inserted 2026-04-22)
 
 ## Phases
 
@@ -68,14 +68,27 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 
 </details>
 
-### v1.2.0 Ship-Ready Hardening (Phases 41-44) -- ACTIVE
+### v1.2.0 Ship-Ready Hardening (Phases 40.5, 41-44) -- ACTIVE
 
+- [ ] **Phase 40.5: Upstream Bump & Phase 41 Decision Re-verification** — (INSERTED 2026-04-22) Pre-Phase-41 currency bump. Bump upstream pin from 1.34.2 to 1.38.2 (312 commits / 566 files drift), refresh override SHA-256 snapshots, audit for compose collisions, re-verify all Phase 41 CONTEXT.md decisions against fresh upstream state, and amend CONTEXT.md if any decision changes. Enables Phase 41 planning against current upstream. Distinct from Phase 43's UPGRADE-05 dogfood bump.
 - [ ] **Phase 41: Foundation — Flip Gate, Install Audit Surface, Windows SLO** — Blocking override-staleness gate, supply-chain audit surface, perf baseline capture, and Windows flake root-cause so later gates compose on a clean, trustworthy baseline.
 - [ ] **Phase 42: Budget Enforcement, Process Hardening, Cousin-Test** — Perf budget enforcement against the baseline, consolidated oversight triggers (1 principle + 4 triggers + probes), cold-install CI + INSTALL.md, and markdown/link gates for docs.
 - [ ] **Phase 43: Upgrade Resilience — Verify, Matrix, Dogfood** — End-to-end upgrade simulation via Verdaccio, N=3 historical compat matrix, live dogfood upstream bump, override-churn changelog automation, and SBOM in the compose pipeline.
 - [ ] **Phase 44: Ship Polish — Publish Flow, Provenance, Docs** — Pre-publish hard-gate chain with publint, OIDC-only provenance, workflow static analysis, reproducible-build verification, MAINTENANCE.md with all runbooks, and README/CHANGELOG polish.
 
 ## Phase Details
+
+### Phase 40.5: Upstream Bump & Phase 41 Decision Re-verification (INSERTED)
+**Goal**: Bump upstream pin from 1.34.2 to 1.38.2 and re-verify all Phase 41 CONTEXT.md decisions remain valid against the fresh upstream state before planning Phase 41 against potentially stale assumptions. Preparatory currency — NOT the Phase 43 dogfood bump.
+**Depends on**: Nothing (pre-Phase-41 preparatory work; inserted 2026-04-22 after user chose bump-first ordering over plan-now-with-bump-in-Wave-0).
+**Requirements**: UPGRADE-10
+**Success Criteria** (what must be TRUE):
+  1. `package.json` pins `get-shit-done-cc@1.38.2` (or latest stable at execution time); `bun install` succeeds; fork test suite passes on Linux + macOS (Windows flake is Phase 41's concern per REL-01/02, not a blocker here).
+  2. Every override's SHA-256 snapshot in its REASON.md matches the current upstream source; any drift is either resolved by refreshing the snapshot (if upstream change is benign) or explicitly documented (if the upstream change conflicts with override intent and the override is still needed).
+  3. Compose-collision audit complete: any files that upstream now ships natively which we had as overlays are either moved to `overrides/` (with REASON.md + SHA snapshot) or removed if no longer needed. Historical pattern: 1.32.0 → 1.34.2 bump surfaced `hooks/gsd-check-update.js` + `hooks/gsd-statusline.js` collisions.
+  4. Phase 41 CONTEXT.md re-verified against fresh upstream; each of the 18 decisions + 6 amendments (A-01..A-06) confirmed unchanged OR amended in-place with the Amendments Log updated. Specific re-verification targets: D-09 target API vs upstream #2499 (Windows stdio hang mitigation) — does the upstream fix reduce our subprocess-migration surface? 999.1 hypothesis vs upstream #2487 (wave-dependencies) — does upstream already address the plan-checker gap?
+  5. Findings recorded in phase VERIFICATION.md: commits/files diff counted (baseline: 312 commits / 566 files at 2026-04-21 poll), override deltas listed, CONTEXT.md amendment summary (if any), upstream filing candidates noted (e.g., UI-gate regex false-positive still present on clean 1.38.2 → defer to backlog 999.3 per existing decision).
+**Plans**: TBD
 
 ### Phase 41: Foundation — Flip Gate, Install Audit Surface, Windows SLO
 **Goal**: Make the override-staleness gate blocking, stand up the security audit surface with triage-as-data, capture a trustworthy perf baseline, and root-cause Windows subprocess flakiness so the Reliability SLO is real rather than aspirational.
@@ -138,6 +151,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 24-28 | v0.4.0 | - | Superseded | - |
 | 29-36 | v1.0.0 | 21/21 | Complete | 2026-03-31 |
 | 37-40 | v1.1.0 | 8/8 | Complete | 2026-04-04 |
+| 40.5 | v1.2.0 | 0/TBD | Not started (INSERTED 2026-04-22) | - |
 | 41 | v1.2.0 | 0/TBD | Not started | - |
 | 42 | v1.2.0 | 0/TBD | Not started | - |
 | 43 | v1.2.0 | 0/TBD | Not started | - |
@@ -172,3 +186,19 @@ Plans:
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog when investigation complete)
+
+### Phase 999.3: File upstream PR for plan-phase UI-gate regex word-boundary fix (BACKLOG)
+
+**Goal:** File an upstream issue + PR adding word-boundary matching to the UI-phase-gate regex in `workflows/plan-phase.md` (currently matches `view` inside `re-review`, `form` inside `formatting`, etc.), ONLY if the bug still exists on clean upstream 1.38.2 after Phase 40.5 bump completes. Follows existing `feedback_verify_upstream_scope.md` discipline (verify-before-filing).
+**Source:** Phase 41 plan-phase workflow false-positive triggered during 2026-04-21 session; upstream verified still present at v1.38.2 line ~470 of `workflows/plan-phase.md` at poll time; user decision to file upstream PR only after bump + re-verification on clean state.
+**Investigation time-box:** 30min verification post-bump + 1-2h PR drafting if warranted.
+**Requirements:** TBD (promotion adds filing to phase 40.5 VERIFICATION.md deliverables OR defers to v1.3.0 if upstream has already fixed it).
+
+**Promotion criteria:**
+- After Phase 40.5 bump completes, grep `node_modules/get-shit-done-cc/get-shit-done/workflows/plan-phase.md` for the UI-gate regex pattern (`grep.*iE "UI\|...`).
+- If still present with naive substring matching: file upstream issue + PR with word-boundaries fix (`\b...\b`); record filing in Phase 40.5 VERIFICATION.md; close this backlog item on merge.
+- If already fixed by upstream: close this backlog item as NOT-A-GAP with verification evidence (commit SHA of upstream fix).
+- Do NOT file before bump-verification step — follows `feedback_verify_upstream_scope.md` discipline; 3 prior "upstream bug" labels (#1851, `_auto_chain_active`, `extractFrontmatterField`) all turned out to be fork-specific.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog once Phase 40.5 verification confirms state)

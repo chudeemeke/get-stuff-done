@@ -92,7 +92,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [ ] 40.5-01-PLAN.md — Wave 1: Pin bump 1.34.2 -> 1.38.5 (package.json + bun.lock); Linux+macOS green
 - [ ] 40.5-02-PLAN.md — Wave 2: Override drift detection; SHA-snapshot refresh inline; DRIFT-LOG.md
 - [ ] 40.5-03-PLAN.md — Wave 3: Compose-collision audit incl. #1859 review.md; COLLISIONS.md
-- [ ] 40.5-04-PLAN.md — Wave 4: 22-decision re-verify (D-01..D-18 + A-01..A-06); D-09 vs #2499; 999.1 vs #2487
+- [ ] 40.5-04-PLAN.md — Wave 4: 24-decision re-verify (D-01..D-18 + A-01..A-06); D-09 vs #2499; 999.1 vs #2487
 - [ ] 40.5-05-PLAN.md — Wave 5: Synthesis VERIFICATION.md + README.md; 999.3 disposition; STATE.md close
 
 ### Phase 41: Foundation — Flip Gate, Install Audit Surface, Windows SLO

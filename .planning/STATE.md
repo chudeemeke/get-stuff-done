@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 40.5 inserted 2026-04-22. 46 requirements mapped across 5 phases (40.5, 41-44). Ready for `/gsd:plan-phase 40.5`."
-stopped_at: "Phase 40.5 inserted 2026-04-22 after user chose bump-first ordering over plan-now-with-bump-in-Wave-0. UPGRADE-10 requirement added; UPGRADE-05 reworded to preserve dogfood-bump timing semantics. Phase 41 pre-planning artifacts (CONTEXT+RESEARCH+VALIDATION, post-A-01..A-06 amendments) remain committed and are now downstream of Phase 40.5 — will be re-verified during Phase 40.5 execute. Next: `/gsd:plan-phase 40.5`."
-last_updated: "2026-04-22T21:15:00.000Z"
-last_activity: 2026-04-22 -- Phase 40.5 inserted + UPGRADE-10 added + UPGRADE-05 reworded + backlog 999.3 captured
+status: "Phase 40.5 PLANNED + REVIEWED + REVISED + AMENDED. Ready for `/gsd:execute-phase 40.5`. 5 plans in 5 sequential waves; all 4 cross-AI review MEDIUMs addressed; A-04 (bump target 1.38.5) + A-05 (24-row count correction) recorded in 40.5-CONTEXT.md amendments log. 46 requirements mapped across 5 phases (40.5, 41-44)."
+stopped_at: "Phase 40.5 planning complete 2026-04-29. Cross-AI review (Gemini + Claude separate-session + Codex) produced REVIEWS.md with 2-of-3 consensus on 2 MEDIUMs (count error + Wave 5 commit boundary) plus 2 Claude-only MEDIUMs. Plan revision 2 (commit e4a416b) applied all 4 fixes. A-05 amendment (commit ac5557c) closed the loop by correcting 22→24 wording in 40.5-CONTEXT.md. Bump target resolved to v1.38.5 per A-04 (criterion #1's 'or latest stable at execution time' clause; named verification PRs #2487 + #2499 first land in v1.38.4). 41-CONTEXT.md verified clean of stale '22-decision' wording (zero hits — Claude misattributed location). Next: `/gsd:execute-phase 40.5` (Wave 1 runs autonomously through Task 01-04, pauses at Task 01-05 for human CI verification before Wave 2)."
+last_updated: "2026-04-29T17:50:00.000Z"
+last_activity: 2026-04-29 -- Phase 40.5 plans complete (research + 5 plans + validation strategy + revision-1 + cross-AI review + revision-2 + A-05 amendment); ready for execute-phase
 progress:
   total_phases: 7
   completed_phases: 0
-  total_plans: 0
+  total_plans: 5
   completed_plans: 0
 ---
 
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 40.5 inserted, ready for `/gsd:plan-phase 40.5`
+**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 40.5 fully planned, ready for `/gsd:execute-phase 40.5`
 
 ## Current Position
 
-Phase: Phase 40.5 (not started, INSERTED 2026-04-22) -- Upstream Bump & Phase 41 Decision Re-verification
-Plan: -
-Status: Phase 40.5 inserted 2026-04-22. 46 requirements mapped across 5 phases (40.5, 41-44). Ready for `/gsd:plan-phase 40.5`. Phase 41 CONTEXT.md (at A-01..A-06 post-amendment state) stays as-is and will be re-verified during Phase 40.5 execute.
-Last activity: 2026-04-22 -- Phase 40.5 inserted + UPGRADE-10 added + UPGRADE-05 reworded + backlog 999.3 captured
+Phase: Phase 40.5 (PLANNED, not started) -- Upstream Bump & Phase 41 Decision Re-verification
+Plan: 5 plans complete (40.5-01 through 40.5-05); revision 2 applied REVIEWS.md feedback
+Status: Phase 40.5 fully planned + reviewed + revised + amended 2026-04-29. 5 plans in 5 sequential waves per D-16. All 4 cross-AI review MEDIUMs addressed in revision 2. A-04 (bump target = 1.38.5) and A-05 (24-row count correction) recorded in 40.5-CONTEXT.md amendments log. Plan-checker passed iteration 1 of revision-2. Phase 41 CONTEXT.md verified clean of stale wording. Phase 41 RESEARCH.md + VALIDATION.md from prior session stay as-is and will be re-verified during Phase 40.5 Wave 4 (24-row decision matrix re-verify).
+Last activity: 2026-04-29 -- A-05 amendment landed (commit ac5557c); planning chain complete from 119ff47 through ac5557c
 
-**Upstream state:** PR #1859 still OPEN/APPROVED/MERGEABLE, awaiting trek-e merge. Milestone work is independent. Fork upstream pin at 1.34.2 (Phase 40.5 will bump to 1.38.2).
+**Upstream state:** Fork upstream pin still at 1.34.2 in package.json. Phase 40.5 Wave 1 will bump to v1.38.5 (per A-04, NOT 1.38.2 from initial roadmap framing). PR #1859 still OPEN/APPROVED/MERGEABLE, awaiting trek-e merge — independent of milestone work.
 
 ## Performance Metrics
 
@@ -83,6 +83,6 @@ None -- research complete, requirements defined, roadmap approved structure in p
 
 ## Session Continuity
 
-Last session: 2026-04-22 (Phase 40.5 insertion session)
-Stopped at: Phase 40.5 inserted with artifacts updated across ROADMAP.md, REQUIREMENTS.md, STATE.md + phase directory created. Next: `/gsd:plan-phase 40.5`.
-Resume file: .planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/
+Last session: 2026-04-28 (Phase 40.5 CONTEXT.md augmentation session)
+Stopped at: 40.5-CONTEXT.md written with 23 decisions (D-01..D-23) + 3-item Amendments Log. Phase already discussed via 2026-04-22 roadmap insert; this session augmented with implementation methodology. 999.1 absorbed into 40.5 scope per success criterion #4 (no 40.6 promotion). 999.2 try Option C in-backlog (no 40.7 promotion). 999.3 stays backlog gated by 40.5. Next: `/gsd:plan-phase 40.5`.
+Resume file: .planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/40.5-CONTEXT.md

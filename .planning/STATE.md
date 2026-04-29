@@ -83,6 +83,7 @@ None -- research complete, requirements defined, roadmap approved structure in p
 
 ## Session Continuity
 
-Last session: 2026-04-28 (Phase 40.5 CONTEXT.md augmentation session)
-Stopped at: 40.5-CONTEXT.md written with 23 decisions (D-01..D-23) + 3-item Amendments Log. Phase already discussed via 2026-04-22 roadmap insert; this session augmented with implementation methodology. 999.1 absorbed into 40.5 scope per success criterion #4 (no 40.6 promotion). 999.2 try Option C in-backlog (no 40.7 promotion). 999.3 stays backlog gated by 40.5. Next: `/gsd:plan-phase 40.5`.
+Last session: 2026-04-29 (Phase 40.5 planning + cross-AI review + A-05 amendment session; 9 commits 119ff47..ac5557c)
+Resumed: 2026-04-29 — `/gsd-resume-work` after `/clear`. Triaged 2 inbox items (authkey HIGH wrong-checkbox + medesine-rx MEDIUM percent:100). Both validated against fork code, Phase 40.5 not blocked (HIGH dormant for our ROADMAP ordering; MEDIUM is telemetry-only). User chose option 3 (defer both, execute 40.5) — rationale: upstream bump (1.34.2 → 1.38.5) may obviate both bugs. Inbox files updated to `status: triaged` with re-verification triggers tied to Phase 40.5 Wave 5 completion.
+Stopped at: Phase 40.5 ready to execute. Next: `/clear` then `/gsd:execute-phase 40.5` (Wave 1 runs autonomously through Task 01-04, pauses at Task 01-05 for human CI verification before Wave 2).
 Resume file: .planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/40.5-CONTEXT.md

@@ -5,23 +5,27 @@
  *
  * Meta-test: assert invariants of test-config and test-discovery scope.
  *
- * STRUCTURAL PREVENTION for the upstream-test-bundling failure mode that
- * caused 538 of 586 CI failures on PR #3 (Phase 40.5 Wave 1, 2026-04-30).
+ * STRUCTURAL PREVENTION for the upstream-discovery failure mode that
+ * caused 538+87 CI failures on PR #3 (Phase 40.5 Waves 1.5a + 1.5c, 2026-04-30).
  *
  * Failure mode this test prevents:
- *   1. Upstream package ships .test.* files inside its npm tarball (e.g.
- *      get-shit-done-cc@1.38.5 ships 77 .test.ts files in sdk/src/...).
+ *   1. Upstream package ships .test.* and ESM-syntax files inside its npm tarball
+ *      (e.g. get-shit-done-cc@1.38.5 ships 77 .test.ts files in sdk/src/...).
  *   2. `bun run compose` copies node_modules/<upstream>/ to dist/.
- *   3. bun-test auto-discovers dist/-star-star/-star.test.-star and runs them in fork
- *      context. They fail catastrophically because they need upstream's
- *      fixtures and module-resolution paths.
+ *   3. Tooling configured for the fork's CommonJS context (bun-test, eslint with
+ *      sourceType:'commonjs') discovers files in dist/ and either runs them as
+ *      tests they aren't (fixtures/paths missing) or parses them as the wrong
+ *      module type (ESM import/export rejected by CJS parser).
  *
- * Categorical fix: bunfig.toml [test].exclude includes "double-star/dist/double-star"
- * and "double-star/node_modules/double-star". This meta-test asserts those
- * invariants are preserved AND that no test files exist in dist/ at test time.
+ * Categorical fix: every tool that discovers files by glob excludes dist.
+ *   - bunfig.toml [test].exclude includes "double-star/dist/double-star" and
+ *     "double-star/node_modules/double-star"
+ *   - eslint.config.js ignores includes "dist/double-star"
+ * This meta-test asserts those invariants are preserved AND that no test files
+ * exist in dist/ at test time.
  *
  * If this test fails: someone removed an exclusion or compose accidentally
- * preserved upstream tests. The failure message points at the file to fix.
+ * preserved upstream content. The failure message points at the file to fix.
  */
 
 const fs = require('fs');
@@ -30,6 +34,7 @@ const { describe, test, expect } = require('bun:test');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const BUNFIG_PATH = path.join(PROJECT_ROOT, 'bunfig.toml');
+const ESLINT_CONFIG_PATH = path.join(PROJECT_ROOT, 'eslint.config.js');
 
 function readBunfig() {
   if (!fs.existsSync(BUNFIG_PATH)) {
@@ -131,5 +136,18 @@ describe('test-config hygiene (meta-test)', () => {
     for (const pattern of includes) {
       expect(pattern).not.toMatch(/\*\.test\.\*\s*$/);
     }
+  });
+
+  test('eslint.config.js ignores dist/**', () => {
+    // Same dist/-discovery failure mode as bun-test, but for eslint's parser.
+    // Without this exclusion, eslint with sourceType:'commonjs' chokes on the
+    // ESM import/export syntax in upstream's bundled files (87 parse errors
+    // on PR #3 v1.38.5 bump CI run, 2026-04-30).
+    expect(fs.existsSync(ESLINT_CONFIG_PATH)).toBe(true);
+    const config = require(ESLINT_CONFIG_PATH);
+    expect(Array.isArray(config)).toBe(true);
+    const ignoresEntry = config.find(c => Array.isArray(c.ignores));
+    expect(ignoresEntry).toBeTruthy();
+    expect(ignoresEntry.ignores).toContain('dist/**');
   });
 });

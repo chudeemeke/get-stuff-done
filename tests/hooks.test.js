@@ -99,21 +99,34 @@ function waitForFile(filePath, maxMs = 5000) {
   return false;
 }
 
-// Project root (for finding hook scripts)
-const PROJECT_ROOT = path.join(__dirname, '..');
+// Hook paths derived from the SSOT manifest (hooks/index.js + ADR-0001).
+// Test code MUST NOT hardcode hook locations — that pattern caused a 50-day
+// CI redness during the v3.0.0 architecture transition. See 40.5-CI-DIAGNOSIS.md.
+const hooksManifest = require('../hooks');
+const PROJECT_ROOT = hooksManifest.PROJECT_ROOT;
 
-// Hook script paths (source) -- see file header for overrides/ vs overlay/ convention
-const HOOKS = {
-  checkUpdate: path.join(PROJECT_ROOT, 'overrides', 'hooks', 'gsd-check-update.js'),
-  statusline: path.join(PROJECT_ROOT, 'overrides', 'hooks', 'gsd-statusline.js'),
-  preCompact: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'pre-compact.js')
+const _findHook = name => {
+  const hook = hooksManifest.findByName(name);
+  if (!hook) {
+    throw new Error(
+      `Hook '${name}' not in manifest. Add to hooks/index.js or fix the test reference.`
+    );
+  }
+  return hook;
 };
 
-// Hook script paths (bundled dist)
+// Hook script paths (source) — derived from manifest, never hardcoded
+const HOOKS = {
+  checkUpdate: hooksManifest.sourcePath(_findHook('gsd-check-update.js')),
+  statusline: hooksManifest.sourcePath(_findHook('gsd-statusline.js')),
+  preCompact: hooksManifest.sourcePath(_findHook('pre-compact.js'))
+};
+
+// Hook script paths (bundled dist) — derived from manifest
 const DIST_HOOKS = {
-  checkUpdate: path.join(PROJECT_ROOT, 'hooks', 'dist', 'gsd-check-update.js'),
-  statusline: path.join(PROJECT_ROOT, 'hooks', 'dist', 'gsd-statusline.js'),
-  preCompact: path.join(PROJECT_ROOT, 'hooks', 'dist', 'pre-compact.js')
+  checkUpdate: hooksManifest.distPath(_findHook('gsd-check-update.js')),
+  statusline: hooksManifest.distPath(_findHook('gsd-statusline.js')),
+  preCompact: hooksManifest.distPath(_findHook('pre-compact.js'))
 };
 
 // Ensure dist files exist before running dist tests
@@ -1347,25 +1360,38 @@ describe('overlay/hooks/gsd-statusline.js (timeout and paths)', () => {
   });
 });
 
-describe('build and parity scripts reference correct hook source dirs', () => {
-  // Hook source-tree convention (Phase 30 / v3.0.0):
-  //   - overrides/ for upstream replacements (gsd-check-update, gsd-statusline)
-  //   - overlay/   for fork-only hooks (pre-compact)
-  test('build.js HOOKS_TO_BUNDLE uses overrides/ for upstream-replacement hooks', () => {
+describe('build and parity scripts consume hooks manifest (SSOT)', () => {
+  // After the SSOT refactor (ADR-0001), build.js and check-parity.js MUST
+  // import hooks/index.js (the manifest) rather than hardcoding hook paths.
+  // These assertions enforce that contract — they catch any regression where
+  // a future edit reintroduces hardcoded hook-path duplication.
+
+  test('build.js imports the hooks manifest', () => {
     const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'build.js'), 'utf8');
-    // Each upstream-replacement hook should reference overrides/hooks
-    expect(src).toMatch(/gsd-check-update\.js[\s\S]*?overrides\/hooks/);
-    expect(src).toMatch(/gsd-statusline\.js[\s\S]*?overrides\/hooks/);
-    // pre-compact stays in overlay/hooks
-    expect(src).toMatch(/pre-compact\.js[\s\S]*?overlay\/hooks/);
+    expect(src).toMatch(/require\(['"]\.\.\/hooks['"]\)/);
     // No silent-skip on missing source
     expect(src).toMatch(/throw new Error/);
   });
 
-  test('check-parity.js hookFiles points at correct source directories', () => {
+  test('build.js does NOT hardcode hook source directories', () => {
+    const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'build.js'), 'utf8');
+    // Specific hook names should NOT appear as string literals — they should
+    // come from the manifest. (Comments in the file are allowed to mention
+    // hook names; this assertion checks for `'name'` style string literals.)
+    expect(src).not.toMatch(/['"]gsd-check-update\.js['"]/);
+    expect(src).not.toMatch(/['"]gsd-statusline\.js['"]/);
+    expect(src).not.toMatch(/['"]pre-compact\.js['"]/);
+  });
+
+  test('check-parity.js imports the hooks manifest', () => {
     const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'check-parity.js'), 'utf8');
-    expect(src).toContain('overrides/hooks/gsd-check-update.js');
-    expect(src).toContain('overrides/hooks/gsd-statusline.js');
-    expect(src).toContain('overlay/hooks/pre-compact.js');
+    expect(src).toMatch(/require\(['"]\.\.\/hooks['"]\)/);
+  });
+
+  test('check-parity.js does NOT hardcode hook file paths', () => {
+    const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'check-parity.js'), 'utf8');
+    // Hook source-dir + name combos should NOT appear as string literals
+    expect(src).not.toMatch(/['"]overrides\/hooks\/gsd-/);
+    expect(src).not.toMatch(/['"]overlay\/hooks\/pre-compact\.js['"]/);
   });
 });

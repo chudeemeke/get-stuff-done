@@ -91,6 +91,17 @@ function findFiles(dir, pattern, found = []) {
  * Returns array of { line, segments } where segments is the array of
  * string literals after the base var.
  */
+// Per-line escape marker. Any source line containing this literal substring is
+// excluded from path-constant extraction. Use for paths created at runtime by the
+// test itself (e.g., symlinks built at module load, fixtures provisioned per-test)
+// where non-existence at meta-test scan time is expected.
+//
+//   const SHIM = path.join(ROOT, 'a', 'b'); // meta-test:skip — runtime-created symlink
+//
+// Recommend including the reason after the marker so future readers know WHY the
+// line is exempt.
+const SKIP_MARKER = 'meta-test:skip';
+
 function extractPathConstants(source) {
   const results = [];
   const lines = source.split('\n');
@@ -102,6 +113,7 @@ function extractPathConstants(source) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    if (line.includes(SKIP_MARKER)) continue;
     let match;
     while ((match = pattern.exec(line)) !== null) {
       const base = match[1];
@@ -154,6 +166,17 @@ describe('test-path-validation (meta-test)', () => {
 
   test('found at least 1 test file to scan', () => {
     expect(testFiles.length).toBeGreaterThan(0);
+  });
+
+  test('meta-test:skip marker excludes the line from extraction', () => {
+    const source = [
+      `const A = path.join(PROJECT_ROOT, 'overlay', 'definitely-not-here'); // meta-test:skip — runtime-created`,
+      `const B = path.join(PROJECT_ROOT, 'overlay', 'get-shit-done');`,
+    ].join('\n');
+    const constants = extractPathConstants(source);
+    const lines = constants.map(c => c.line);
+    expect(lines).not.toContain(1);
+    expect(lines).toContain(2);
   });
 
   test('every fork-owned path constant in test files resolves to an existing file or directory', () => {

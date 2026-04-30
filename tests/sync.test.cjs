@@ -22,7 +22,7 @@ const { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test
 // import resolves without modifying production code.
 //
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const SHIM_PATH = path.join(PROJECT_ROOT, 'overlay', 'get-shit-done');
+const SHIM_PATH = path.join(PROJECT_ROOT, 'overlay', 'get-shit-done'); // meta-test:skip — runtime-created symlink (created below at module load)
 const SHIM_TARGET = path.join(PROJECT_ROOT, 'get-stuff-done');
 let shimCreated = false;
 

@@ -1,4 +1,9 @@
 [test]
+# Test discovery is intentionally BOUNDED to fork-owned files.
+# Do not remove `**/dist/**` from exclude — `bun run compose` writes upstream
+# package contents (including any bundled .test.* files) to dist/, and
+# discovering them would run upstream-internal tests in fork context. See
+# tests/test-config-hygiene.test.js for the meta-test that asserts this invariant.
 include = ["**/*.test.js"]
-exclude = ["**/*.test.cjs", "**/node_modules/**"]
+exclude = ["**/*.test.cjs", "**/node_modules/**", "**/dist/**"]
 timeout = 15000

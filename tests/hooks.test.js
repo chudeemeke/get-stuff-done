@@ -2,12 +2,17 @@
  * Tests for Hook Scripts
  *
  * Covers:
- * - overlay/hooks/gsd-check-update.js
- * - overlay/hooks/gsd-statusline.js
- * - overlay/hooks/pre-compact.js
- * - hooks/dist/gsd-check-update.js (bundled)
- * - hooks/dist/gsd-statusline.js (bundled)
- * - hooks/dist/pre-compact.js (bundled)
+ * - overrides/hooks/gsd-check-update.js  (fork override of upstream hook)
+ * - overrides/hooks/gsd-statusline.js    (fork override of upstream hook)
+ * - overlay/hooks/pre-compact.js         (fork-only hook, no upstream counterpart)
+ * - hooks/dist/gsd-check-update.js       (bundled)
+ * - hooks/dist/gsd-statusline.js         (bundled)
+ * - hooks/dist/pre-compact.js            (bundled)
+ *
+ * Hook source-tree convention (Phase 30 / v3.0.0 architecture):
+ * - overrides/ — files that REPLACE an upstream file at the same path
+ * - overlay/  — files that ADD a new path not present upstream
+ * Both flow into dist/ via scripts/compose.js.
  *
  * Testing strategy: Hooks are CLI scripts without module.exports.
  * Test via child process execution with controlled env/stdin/stdout.
@@ -97,10 +102,10 @@ function waitForFile(filePath, maxMs = 5000) {
 // Project root (for finding hook scripts)
 const PROJECT_ROOT = path.join(__dirname, '..');
 
-// Hook script paths (source) -- fork hooks live in overlay/hooks/
+// Hook script paths (source) -- see file header for overrides/ vs overlay/ convention
 const HOOKS = {
-  checkUpdate: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'gsd-check-update.js'),
-  statusline: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'gsd-statusline.js'),
+  checkUpdate: path.join(PROJECT_ROOT, 'overrides', 'hooks', 'gsd-check-update.js'),
+  statusline: path.join(PROJECT_ROOT, 'overrides', 'hooks', 'gsd-statusline.js'),
   preCompact: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'pre-compact.js')
 };
 
@@ -123,7 +128,7 @@ beforeAll(() => {
   }
 });
 
-describe('overlay/hooks/gsd-check-update.js', () => {
+describe('overrides/hooks/gsd-check-update.js', () => {
   let tempHome;
   let cleanup;
 
@@ -656,7 +661,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
   });
 });
 
-describe('overlay/hooks/gsd-statusline.js', () => {
+describe('overrides/hooks/gsd-statusline.js', () => {
   let tempHome;
   let cleanup;
 
@@ -1342,16 +1347,25 @@ describe('overlay/hooks/gsd-statusline.js (timeout and paths)', () => {
   });
 });
 
-describe('build and parity scripts reference overlay/hooks/', () => {
-  test('build.js HOOKS_DIR points to overlay/hooks', () => {
+describe('build and parity scripts reference correct hook source dirs', () => {
+  // Hook source-tree convention (Phase 30 / v3.0.0):
+  //   - overrides/ for upstream replacements (gsd-check-update, gsd-statusline)
+  //   - overlay/   for fork-only hooks (pre-compact)
+  test('build.js HOOKS_TO_BUNDLE uses overrides/ for upstream-replacement hooks', () => {
     const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'build.js'), 'utf8');
-    expect(src).toMatch(/overlay.*hooks/);
-    expect(src).not.toMatch(/HOOKS_DIR\s*=\s*path\.join\(__dirname,\s*'\.\.'\s*,\s*'hooks'\s*\)/);
+    // Each upstream-replacement hook should reference overrides/hooks
+    expect(src).toMatch(/gsd-check-update\.js[\s\S]*?overrides\/hooks/);
+    expect(src).toMatch(/gsd-statusline\.js[\s\S]*?overrides\/hooks/);
+    // pre-compact stays in overlay/hooks
+    expect(src).toMatch(/pre-compact\.js[\s\S]*?overlay\/hooks/);
+    // No silent-skip on missing source
+    expect(src).toMatch(/throw new Error/);
   });
 
-  test('check-parity.js hookFiles uses overlay/hooks/ paths', () => {
+  test('check-parity.js hookFiles points at correct source directories', () => {
     const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'check-parity.js'), 'utf8');
-    expect(src).toContain('overlay/hooks/gsd-statusline.js');
-    expect(src).toContain('overlay/hooks/gsd-check-update.js');
+    expect(src).toContain('overrides/hooks/gsd-check-update.js');
+    expect(src).toContain('overrides/hooks/gsd-statusline.js');
+    expect(src).toContain('overlay/hooks/pre-compact.js');
   });
 });

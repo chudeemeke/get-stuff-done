@@ -90,12 +90,17 @@ function main() {
 
     // Special handling for hooks/dist/ (build-generated)
     if (entry === 'hooks/dist') {
-      printResult('SKIP', entry, 'build-generated, checking source');
+      printResult('SKIP', entry, 'build-generated, checking sources');
 
-      // Check overlay/hooks/ source directory (hooks moved there in Phase 38)
-      const hooksSourcePath = path.join(PROJECT_ROOT, 'overlay', 'hooks');
-      const result = checkDirectory(hooksSourcePath);
-      printResult(result.status, 'overlay/hooks/ source', result.message);
+      // Check both source directories (Phase 30 / v3.0.0 architecture):
+      //   - overrides/hooks/ for upstream-replacement hooks
+      //   - overlay/hooks/ for fork-only hooks
+      // See scripts/build.js HOOKS_TO_BUNDLE for the canonical mapping.
+      for (const sourceDir of ['overrides/hooks', 'overlay/hooks']) {
+        const hooksSourcePath = path.join(PROJECT_ROOT, sourceDir);
+        const result = checkDirectory(hooksSourcePath);
+        printResult(result.status, `${sourceDir}/ source`, result.message);
+      }
       continue;
     }
 
@@ -139,9 +144,12 @@ function main() {
   // Check hooks/ source files (since hooks/dist/ is build-generated)
   console.log('\nHooks source files:\n');
 
+  // Phase 30 / v3.0.0 architecture: hooks live in overrides/ if they replace
+  // an upstream file, in overlay/ if they're fork-only. Keep this list in
+  // sync with scripts/build.js HOOKS_TO_BUNDLE.
   const hookFiles = [
-    'overlay/hooks/gsd-check-update.js',
-    'overlay/hooks/gsd-statusline.js',
+    'overrides/hooks/gsd-check-update.js',
+    'overrides/hooks/gsd-statusline.js',
     'overlay/hooks/pre-compact.js'
   ];
 

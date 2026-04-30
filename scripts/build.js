@@ -10,34 +10,22 @@
  * dependencies must be bundled at build time.
  *
  * Targets:
- *   - overrides/hooks/gsd-check-update.js -> hooks/dist/ (override of upstream hook)
- *   - overrides/hooks/gsd-statusline.js   -> hooks/dist/ (override of upstream hook)
- *   - overlay/hooks/pre-compact.js        -> hooks/dist/ (fork-only hook)
- *   - get-stuff-done/bin/gsd-tools.cjs    -> get-stuff-done/bin/dist/ (1 tool)
+ *   - All hooks declared in hooks/index.js (the SSOT manifest) -> hooks/dist/
+ *   - get-stuff-done/bin/gsd-tools.cjs -> get-stuff-done/bin/dist/ (1 tool)
  *
- * Hook source-tree convention (Phase 30 / v3.0.0 architecture):
- *   - overrides/ — files that REPLACE an upstream file at the same path
- *   - overlay/   — files that ADD a new path not present upstream
+ * Hook list comes from hooks/index.js — see that module + ADR-0001 for
+ * the SSOT pattern rationale. Adding/moving a hook requires NO changes
+ * to this script; edit hooks/index.js instead.
  */
 
 const fs = require('fs');
 const path = require('path');
 const esbuild = require('esbuild');
+const hooksManifest = require('../hooks');
 
-const PROJECT_ROOT = path.join(__dirname, '..');
-const DIST_DIR = path.join(PROJECT_ROOT, 'hooks', 'dist');
-
+const PROJECT_ROOT = hooksManifest.PROJECT_ROOT;
 const GSD_BIN_DIR = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin');
 const GSD_DIST_DIR = path.join(GSD_BIN_DIR, 'dist');
-
-// Hooks to bundle: source path varies per hook (overrides/ for upstream
-// replacements, overlay/ for fork-only additions). Keep the source location
-// alongside the file name so adding/moving a hook is a single-file edit.
-const HOOKS_TO_BUNDLE = [
-  { name: 'gsd-check-update.js', sourceDir: 'overrides/hooks' },
-  { name: 'gsd-statusline.js',   sourceDir: 'overrides/hooks' },
-  { name: 'pre-compact.js',      sourceDir: 'overlay/hooks' }
-];
 
 // Shared esbuild config: inline all deps for copy-mode install compatibility
 const ESBUILD_BASE = {
@@ -57,27 +45,31 @@ function formatSize(bytes) {
 }
 
 function buildHooks() {
-  // Ensure dist directory exists
-  if (!fs.existsSync(DIST_DIR)) {
-    fs.mkdirSync(DIST_DIR, { recursive: true });
+  // Ensure dist directory exists (parent of all per-hook dist paths)
+  const distDir = path.join(PROJECT_ROOT, 'hooks', 'dist');
+  if (!fs.existsSync(distDir)) {
+    fs.mkdirSync(distDir, { recursive: true });
   }
 
-  // Bundle hooks via esbuild (inlines all src/ dependencies)
-  for (const hook of HOOKS_TO_BUNDLE) {
-    const sourceRel = `${hook.sourceDir}/${hook.name}`;
-    const src = path.join(PROJECT_ROOT, hook.sourceDir, hook.name);
-    const dest = path.join(DIST_DIR, hook.name);
+  // Iterate the SSOT manifest. Adding/moving hooks is a hooks/index.js edit;
+  // this loop body is intentionally agnostic to specific hook names.
+  for (const hook of hooksManifest.HOOKS) {
+    const src = hooksManifest.sourcePath(hook);
+    const dest = hooksManifest.distPath(hook);
+    const sourceRel = `${hook.source}/${hook.name}`;
 
     if (!fs.existsSync(src)) {
-      // FAIL LOUD instead of silently skipping. A missing hook source means
-      // the architecture moved underneath this file (or someone deleted a
-      // hook). Silently skipping was the v3.0.0-era bug that left
-      // hooks/dist/ stale for ~50 days. See 40.5-CI-DIAGNOSIS.md.
+      // FAIL LOUD. Manifest says this file should exist; if it doesn't,
+      // either the file moved (update hooks/index.js) or was deleted
+      // (remove the manifest entry). Silently skipping was the v3.0.0-era
+      // bug that left hooks/dist/ stale for ~50 days. The
+      // tests/hooks-manifest.test.js invariant test will also fail in this
+      // case at test time. See 40.5-CI-DIAGNOSIS.md and ADR-0001.
       throw new Error(
         `Hook source not found: ${sourceRel}\n` +
         `  Expected at: ${src}\n` +
-        `  Either the file moved or HOOKS_TO_BUNDLE in scripts/build.js is stale.\n` +
-        `  Convention: overrides/ for upstream replacements; overlay/ for fork-only.`
+        `  Manifest entry: hooks/index.js (kind=${hook.kind})\n` +
+        `  Either the file moved (update manifest) or was deleted (remove entry).`
       );
     }
 

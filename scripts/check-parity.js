@@ -9,8 +9,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const hooksManifest = require('../hooks');
 
-const PROJECT_ROOT = path.resolve(__dirname, '..');
+const PROJECT_ROOT = hooksManifest.PROJECT_ROOT;
 const PACKAGE_JSON_PATH = path.join(PROJECT_ROOT, 'package.json');
 
 // ANSI colors
@@ -92,11 +93,11 @@ function main() {
     if (entry === 'hooks/dist') {
       printResult('SKIP', entry, 'build-generated, checking sources');
 
-      // Check both source directories (Phase 30 / v3.0.0 architecture):
-      //   - overrides/hooks/ for upstream-replacement hooks
-      //   - overlay/hooks/ for fork-only hooks
-      // See scripts/build.js HOOKS_TO_BUNDLE for the canonical mapping.
-      for (const sourceDir of ['overrides/hooks', 'overlay/hooks']) {
+      // Source directories derived from hooks manifest (SSOT). New hook
+      // categories automatically appear here without code changes.
+      // See hooks/index.js + ADR-0001.
+      const sourceDirs = new Set(hooksManifest.HOOKS.map(h => h.source));
+      for (const sourceDir of sourceDirs) {
         const hooksSourcePath = path.join(PROJECT_ROOT, sourceDir);
         const result = checkDirectory(hooksSourcePath);
         printResult(result.status, `${sourceDir}/ source`, result.message);
@@ -141,22 +142,16 @@ function main() {
     printResult(result.status, file, result.message === 'exists' ? '' : result.message);
   }
 
-  // Check hooks/ source files (since hooks/dist/ is build-generated)
+  // Check hooks/ source files (since hooks/dist/ is build-generated).
+  // Hook list comes from the SSOT manifest (hooks/index.js) — no
+  // duplication with scripts/build.js or tests/hooks.test.js.
   console.log('\nHooks source files:\n');
 
-  // Phase 30 / v3.0.0 architecture: hooks live in overrides/ if they replace
-  // an upstream file, in overlay/ if they're fork-only. Keep this list in
-  // sync with scripts/build.js HOOKS_TO_BUNDLE.
-  const hookFiles = [
-    'overrides/hooks/gsd-check-update.js',
-    'overrides/hooks/gsd-statusline.js',
-    'overlay/hooks/pre-compact.js'
-  ];
-
-  for (const file of hookFiles) {
-    const fullPath = path.join(PROJECT_ROOT, file);
+  for (const hook of hooksManifest.HOOKS) {
+    const fullPath = hooksManifest.sourcePath(hook);
+    const relPath = `${hook.source}/${hook.name}`;
     const result = checkFile(fullPath);
-    printResult(result.status, file, result.message === 'exists' ? '' : result.message);
+    printResult(result.status, relPath, result.message === 'exists' ? '' : result.message);
   }
 
   // Summary

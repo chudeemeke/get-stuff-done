@@ -418,7 +418,27 @@ function resolve(opts) {
   }
 
   // Walk upstream directory to build manifest
-  const upstreamFiles = walkDir(upstreamDir, '');
+  const upstreamFilesRaw = walkDir(upstreamDir, '');
+
+  // Filter out upstream-internal test files. Upstream packages may bundle
+  // .test.ts/.test.js/.test.cjs files inside their published tarball
+  // (observed in get-shit-done-cc@1.38.5 which ships 77 .test.ts files in
+  // sdk/src/...). Keeping them in dist/ causes bun-test to discover and run
+  // them in fork context, where they fail because they need upstream's
+  // fixtures and module-resolution paths. The fork's CI uses tests/*.test.cjs
+  // (in repo root, not dist/) for upstream-compatibility testing — bundled
+  // upstream tests are noise from the fork's perspective.
+  //
+  // Defense-in-depth: bunfig.toml [test].exclude includes "**/dist/**" which
+  // prevents discovery; this filter prevents the files from existing in dist/
+  // at all. Both layers must be preserved.
+  //
+  // See tests/test-config-hygiene.test.js for the meta-test that asserts
+  // zero test files in dist/ at test time.
+  const upstreamFiles = upstreamFilesRaw.filter(relPath => {
+    const baseName = relPath.split(/[\\/]/).pop();
+    return !/\.(test|spec)\.(js|ts|cjs|mjs)$/.test(baseName);
+  });
 
   // Build manifest entries
   const manifest = upstreamFiles.map(relPath => ({

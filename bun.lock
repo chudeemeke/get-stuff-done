@@ -14,7 +14,7 @@
         "esbuild": "^0.24.0",
         "eslint": "^9.0.0",
         "eslint-plugin-security": "^3.0.1",
-        "get-shit-done-cc": "1.38.5",
+        "get-shit-done-cc": "1.39.1",
         "sharp": "^0.34.5",
         "svgexport": "^0.4.2",
       },
@@ -339,7 +339,7 @@
 
     "get-proto": ["get-proto@1.0.1", "", { "dependencies": { "dunder-proto": "^1.0.1", "es-object-atoms": "^1.0.0" } }, "sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g=="],
 
-    "get-shit-done-cc": ["get-shit-done-cc@1.38.5", "", { "dependencies": { "@anthropic-ai/claude-agent-sdk": "^0.2.84", "ws": "^8.20.0" }, "bin": { "gsd-sdk": "bin/gsd-sdk.js", "get-shit-done-cc": "bin/install.js" } }, "sha512-p2j/HjEnfvXPXDP+KnfAUz9A0ufJpwu77JS5nWt6AQOZ6W2UVmd610ohR/ki/ackkG/TQU5PdlgMBknG/NvKOQ=="],
+    "get-shit-done-cc": ["get-shit-done-cc@1.39.1", "", { "dependencies": { "@anthropic-ai/claude-agent-sdk": "^0.2.84", "ws": "^8.20.0" }, "bin": { "gsd-sdk": "bin/gsd-sdk.js", "gsd-tools": "bin/gsd-sdk.js", "get-shit-done-cc": "bin/install.js" } }, "sha512-imRihQUs4g15F6e7OvnBS699zySRauUgNuhTOrqUlbqcPS/Vi3eVC17TDKRO02istMKdRmxNVVGtbHyXFcgxOw=="],
 
     "get-stream": ["get-stream@5.2.0", "", { "dependencies": { "pump": "^3.0.0" } }, "sha512-nBF+F1rAZVCu/p7rjzgA+Yb4lfYXrpl7a6VmJrU8wF9I1CKvP/QwPNZHnOlwbTkY6dvtFIzFMSyQXbLoTQPRpA=="],
 

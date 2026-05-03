@@ -51,6 +51,8 @@ jobs:
             ${{ runner.os }}-bun-
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
+      - name: Guard against test files in dist/
+        run: node scripts/check-no-test-files-in-dist.js
       - run: bun test --coverage
 
   parity:

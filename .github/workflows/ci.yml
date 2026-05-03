@@ -95,8 +95,10 @@ jobs:
   boundary-override-check:
     name: Boundary & Override Check
     runs-on: ubuntu-latest
-    # Informational -- 48 structural boundary violations expected in overlay architecture
-    continue-on-error: true
+    # Job is blocking at the WORKFLOW level. Individual informational steps
+    # (boundary, overrides) carry continue-on-error: true so they surface
+    # status without failing the workflow. The Ratchet gate step is BLOCKING
+    # by default and gates merge per Wave 1.6 Task 1.6-04.
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
@@ -106,5 +108,17 @@ jobs:
       - run: bun run compose
       - name: Check boundary violations
         run: node scripts/check-boundary.js
+        # Informational -- 48 structural boundary violations expected in overlay
+        # architecture per AF-7. The ratchet step below enforces no-increase.
+        continue-on-error: true
       - name: Check override staleness
         run: node scripts/check-overrides.js
+        # Informational -- staleness signal until Wave 5 of Phase 40.5 rebases
+        # override REASON.md SHAs against current upstream pin.
+        continue-on-error: true
+      - name: Ratchet gate (debt-baseline.json)
+        run: node scripts/check-debt-ratchet.cjs --no-compose
+        # BLOCKING. Reads .planning/audits/debt-baseline.json and rejects any
+        # increase over the per-OS thresholds. Threshold updates are conscious
+        # decisions captured in ratchet_history. See Phase 40.5 Wave 1.6
+        # Task 1.6-04 + Wave 1.5d.

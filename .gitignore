@@ -30,3 +30,16 @@ docs/GSD-SYSTEM-SPECIFICATION.md
 gaps.md
 improve.md
 philosophy.md
+.planning/upstream-outreach-drafts.md
+
+# Secret-leakage proactive ignores (Phase 40.5 Wave 1.7-A, A-11)
+# Defense in depth: also gated by gitleaks step in CI + GitHub-native
+# secret scanning + push protection (post-public-flip). These patterns
+# catch common-named secret files before they reach the staging area.
+*.env
+*.pem
+*.key
+id_rsa
+id_ed25519
+credentials*
+secrets.json

@@ -46,8 +46,12 @@ jobs:
           # detect = scan working tree + full history. --no-banner for clean
           # logs, --redact so any finding's value is masked in CI output,
           # --report-path so artifact upload has the structured findings.
+          # --config points at the project's .gitleaks.toml (extends default
+          # ruleset + path allowlist for upstream test fixtures; see
+          # rationale comments in .gitleaks.toml).
           gitleaks detect \
             --source . \
+            --config .gitleaks.toml \
             --no-banner \
             --redact \
             --report-format json \

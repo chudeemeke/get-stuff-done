@@ -1,0 +1,48 @@
+# gitleaks configuration for chudeemeke/get-stuff-done
+#
+# Phase 40.5 Wave 1.7-A (amendment A-11). Establishes the project's
+# secret-scanning policy. Composes with:
+# - .gitignore proactive patterns (catch common-named secret files at staging)
+# - .github/workflows/ci.yml secret-scan job (runs gitleaks via this config)
+# - GitHub-native secret scanning + push protection (server-side, post-flip)
+#
+# Author: Chude <chude@emeke.org>
+
+# Inherit gitleaks' default ruleset rather than redefining all rules from
+# scratch. The default ruleset covers AWS, GCP, Anthropic, OpenAI, GitHub,
+# Stripe, Slack, and 100+ other vendor patterns. Bumping gitleaks version
+# in ci.yml automatically pulls newer detections.
+[extend]
+useDefault = true
+
+# ---------------------------------------------------------------------------
+# Allowlist
+# ---------------------------------------------------------------------------
+# Format: every entry MUST cite the upstream context (file role, why the
+# pattern looks like a secret) so future maintainers can audit. A path
+# allowlist without a stated reason is hidden debt — no anonymous entries.
+# ---------------------------------------------------------------------------
+
+[allowlist]
+description = "Test fixtures and known-safe paths"
+
+# Upstream test fixtures: tests that intentionally embed pattern-matching
+# bait strings to verify the upstream's own secret-scanner detects them.
+# These files exist in the fork's git history (inherited from pre-overlay
+# upstream commits) but are not in current HEAD's tree. Allowlisting by
+# path keeps them excluded if they reappear in future upstream syncs.
+#
+# Reachability: gitleaks scans the full ref graph (CI fetch-depth: 0).
+# Upstream commit feec5a37 (Tom Boucher, 2026-03-24, "ci(security): add
+# prompt injection, base64, and secret scanning") introduced these test
+# files plus upstream's parallel .secretscanignore allowlist.
+paths = [
+    '''^tests/security-scan\.test\.(cjs|js|ts)$''',
+    '''^tests/prompt-injection-scan\.test\.(cjs|js|ts)$''',
+    # Upstream's parallel allowlist files (themselves contain example
+    # secret-like patterns as documentation):
+    '''^\.secretscanignore$''',
+    '''^\.base64scanignore$''',
+]
+
+stopwords = []  # No keyword-based suppression; path allowlist is sufficient.

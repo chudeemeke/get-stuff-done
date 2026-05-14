@@ -184,14 +184,23 @@ function repair({ settingsPath, dryRun = false } = {}) {
   const newRaw = JSON.stringify(settings, null, 2) + '\n';
   JSON.parse(newRaw); // throws if invalid (defensive — should never trigger)
 
+  // Capture original file mode for permission preservation. On POSIX/WSL a
+  // 0600 settings.json must remain 0600 after repair; default Node fs.writeFile
+  // creates files at 0644 which would broaden access. No-op on Windows native
+  // (mode bits aren't meaningful) but harmless.
+  const origMode = fs.statSync(settingsPath).mode & 0o777;
+
   // Backup
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const backupPath = settingsPath + '.bak.' + ts;
-  fs.writeFileSync(backupPath, raw);
+  fs.writeFileSync(backupPath, raw, { mode: origMode });
 
   // Atomic write
   const tmpPath = settingsPath + '.tmp.' + ts;
-  fs.writeFileSync(tmpPath, newRaw);
+  fs.writeFileSync(tmpPath, newRaw, { mode: origMode });
+  // Defensive chmod in case the platform ignores writeFile's mode option
+  // (verified harmless across POSIX/WSL/Windows-native).
+  try { fs.chmodSync(tmpPath, origMode); } catch { /* Windows may reject */ }
   fs.renameSync(tmpPath, settingsPath);
 
   return { settingsPath, backupPath, changed, findings, dryRun: false };
@@ -245,7 +254,17 @@ function parseArgs(argv) {
     else if (a === '--version') opts.version = true;
     else if (a === '--dry-run') opts.dryRun = true;
     else if (a === '--verbose') opts.verbose = true;
-    else if (a === '--settings') opts.settingsPath = argv[++i];
+    else if (a === '--settings') {
+      // Reject missing or flag-shaped values. Without this, `--settings`
+      // at end-of-argv silently sets opts.settingsPath = undefined, which
+      // falls back to ~/.claude/settings.json — would overwrite real live
+      // config when the user intended a fixture path.
+      const next = argv[++i];
+      if (next === undefined || next.startsWith('--')) {
+        throw new Error(`--settings requires a value (got ${next === undefined ? 'nothing' : next})`);
+      }
+      opts.settingsPath = next;
+    }
     else if (!opts.subcommand && (a === 'check' || a === 'repair')) opts.subcommand = a;
     else throw new Error(`Unknown argument: ${a}`);
   }

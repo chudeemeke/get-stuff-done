@@ -207,3 +207,19 @@ Plans:
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog once Phase 40.5 verification confirms state)
+
+### Phase 999.4: External GitHub Action SHA-pinning hardening audit (BACKLOG)
+
+**Goal:** Audit fork's CI usage of third-party GitHub Actions (currently `gitleaks-action@v2`, `osv-scanner-action@v2`, `step-security/harden-runner@v2`, plus any future additions in Phase 41 D-07/D-08) and decide whether to upgrade from floating-major (`@v2`) to full-length SHA pinning per [GitHub's secure-use reference](https://docs.github.com/en/actions/reference/security/secure-use). Floating-major picks up security patches auto-magically; SHA pinning is immutable but requires bot-managed update tooling (Dependabot / Renovate) to avoid stale pins.
+**Source:** Codex (gpt-5.5 high reasoning) P2 #1 finding during Phase 40.5 Wave 4 Task 04-03 cross-AI review, 2026-05-15. Phase 41 D-07/D-08 deliberately chose floating-major; this backlog item exists to revisit that choice with cost/benefit + tooling-readiness data.
+**Investigation time-box:** 1h audit + decision matrix; ~2h implementation if SHA-pinning chosen (needs Dependabot config + initial pin commits).
+**Requirements:** TBD (promotion creates a SHIP-* or SECURITY-* requirement in v1.2.0 final scope OR defers to v1.3.0 if Phase 44 ship gates take priority).
+
+**Promotion criteria:**
+- Decision factors: (a) is Dependabot already configured for this repo? (b) acceptable noise level for SHA-bump PRs? (c) does the threat model warrant immutable pins (e.g., supply-chain compromise of a v2 tag)?
+- If KEEP floating-major: close this backlog item with rationale documented in MAINTENANCE.md (Phase 44 DOCS-08 candidate section).
+- If MIGRATE to SHA pins: promote to v1.2.0 or v1.3.0 depending on Phase 44 timing; implementation = Dependabot config + SHA pin commits for all third-party actions + CI gate that fails on un-pinned references (per Phase 44 Success Criterion #2 zizmor analysis).
+- Do NOT file as Wave 4 amendment — Phase 41 D-07/D-08 floating-major policy is deliberate; this is a future-hardening question, not a drift correction.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog after Phase 41 install lands and the audit-surface stabilizes)

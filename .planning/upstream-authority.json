@@ -18,6 +18,7 @@
       "hooksRuntime": "hooks/dist",
       "hooksSource": "hooks",
       "installer": "bin/install.js",
+      "scripts": "scripts",
       "gsdTools": "gsd-core/bin/gsd-tools.cjs",
       "workflows": "gsd-core/workflows"
     }

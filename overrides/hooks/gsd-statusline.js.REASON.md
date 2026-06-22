@@ -4,8 +4,8 @@
 Enhanced context usage bar with autocompact-relative scaling. Our version computes context proximity as a percentage of the distance to Claude Code's autocompact threshold (~16.5%), giving a more accurate "how close am I to compaction" signal than the raw remaining percentage upstream uses.
 
 ## Upstream snapshot
-- Version: 1.39.1
-- SHA-256: 50008bc73692eff0fb9f60da17f08a0a3aaa7234b355ee1dec02108aabbac3fd
+- Version: 1.5.0
+- SHA-256: 81059a0f3e0013c18da874d25850d7f2aec0c7cf6b14804246d4bacafea9d0a8
 
 ## What's different
 - Autocompact-relative context bar (0% = fresh, 100% = compaction imminent)

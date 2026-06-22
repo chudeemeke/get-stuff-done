@@ -7,7 +7,7 @@
  * in the repo outside allowed directories (overrides/, dist/, etc.).
  *
  * Purpose: Prevent accidental vendoring of upstream files into the repo.
- * Files from get-shit-done-cc should only exist in node_modules/ (installed),
+ * Files from the active upstream package should only exist in node_modules/ (installed),
  * overrides/ (intentional replacements), or dist/ (composed output).
  *
  * Usage:
@@ -21,13 +21,14 @@
 
 const fs = require('fs');
 const path = require('path');
+const { getPackageDir } = require('./lib/upstream-source');
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const PROJECT_ROOT = path.join(__dirname, '..');
-const DEFAULT_UPSTREAM_DIR = path.join(PROJECT_ROOT, 'node_modules', 'get-shit-done-cc');
+const DEFAULT_UPSTREAM_DIR = getPackageDir({ projectRoot: PROJECT_ROOT });
 const DEFAULT_PROJECT_DIR = PROJECT_ROOT;
 
 /**

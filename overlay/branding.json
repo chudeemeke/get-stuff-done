@@ -1,22 +1,16 @@
 {
   "substitutions": [
     {
-      "from": "get-shit-done-cc",
+      "from": "@opengsd/gsd-core",
       "to": "@chude/get-stuff-done",
       "scope": "text",
-      "note": "npm package name in help text, install examples, docs"
+      "note": "active upstream npm package name in help text, install examples, docs"
     },
     {
-      "from": "glittercowboy/get-shit-done",
+      "from": "open-gsd/gsd-core",
       "to": "chudeemeke/get-stuff-done",
       "scope": "text",
-      "note": "GitHub repo references"
-    },
-    {
-      "from": "TACHES",
-      "to": "Chude Emeke",
-      "scope": "text",
-      "note": "Author attribution in visible surfaces"
+      "note": "active upstream GitHub repo references"
     }
   ],
   "preserveUpstreamCredit": true

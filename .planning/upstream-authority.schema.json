@@ -53,6 +53,7 @@
             "hooksRuntime",
             "hooksSource",
             "installer",
+            "scripts",
             "gsdTools",
             "workflows"
           ],
@@ -62,6 +63,7 @@
             "hooksRuntime": { "type": "string" },
             "hooksSource": { "type": "string" },
             "installer": { "type": "string" },
+            "scripts": { "type": "string" },
             "gsdTools": { "type": "string" },
             "workflows": { "type": "string" }
           }

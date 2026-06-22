@@ -17,10 +17,18 @@
  *   1 -- npm view failed or unexpected error
  */
 
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
+const fs = require('fs');
 const path = require('path');
+const {
+  getActivePackageName,
+  getAuthorityPathRelative,
+  getBinRelativePath,
+  getPackageDir,
+} = require('./lib/upstream-source');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
+const ACTIVE_UPSTREAM_PACKAGE = getActivePackageName();
 
 // ---------------------------------------------------------------------------
 // UPD-01: Version diff
@@ -54,22 +62,22 @@ function getVersionDelta(pinnedVersion, latestVersion) {
  */
 function readPinnedVersion() {
   const pkgPath = path.join(PROJECT_ROOT, 'package.json');
-  const pkg = JSON.parse(require('fs').readFileSync(pkgPath, 'utf-8'));
-  const version = pkg.devDependencies && pkg.devDependencies['get-shit-done-cc'];
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+  const version = pkg.devDependencies && pkg.devDependencies[ACTIVE_UPSTREAM_PACKAGE];
   if (!version) {
-    throw new Error('get-shit-done-cc not found in devDependencies');
+    throw new Error(`${ACTIVE_UPSTREAM_PACKAGE} not found in devDependencies`);
   }
   return version;
 }
 
 /**
- * Query npm registry for the latest version of get-shit-done-cc.
+ * Query npm registry for the latest version of the active upstream package.
  *
  * @returns {string} Latest version string
  */
 function queryLatestVersion() {
   try {
-    const result = execSync('npm view get-shit-done-cc version', {
+    const result = execFileSync('npm', ['view', ACTIVE_UPSTREAM_PACKAGE, 'version'], {
       encoding: 'utf-8',
       timeout: 15000,
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -138,17 +146,17 @@ function runPreviewScan(pinnedVersion, latestVersion, opts = {}) {
 function buildFileList(_pinnedVersion, _latestVersion) {
   // Try to read from the installed node_modules package
   try {
-    const pkgDir = path.join(PROJECT_ROOT, 'node_modules', 'get-shit-done-cc');
+    const pkgDir = getPackageDir({ projectRoot: PROJECT_ROOT });
     const entries = walkDirFlat(pkgDir, '');
     return entries.map(p => ({ path: p }));
   } catch {
     // If package not installed, return minimal known paths
     return [
-      { path: 'bin/install.js' },
-      { path: 'bin/gsd-tools.cjs' },
+      { path: getBinRelativePath('gsd-core') },
+      { path: getBinRelativePath('gsd-tools') },
       { path: 'hooks/pre-compact.sh' },
-      { path: 'workflows/execute-plan.md' },
-      { path: 'agents/general-purpose.md' },
+      { path: `${getAuthorityPathRelative('workflows')}/execute-plan.md` },
+      { path: `${getAuthorityPathRelative('agents')}/gsd-executor.md` },
     ];
   }
 }
@@ -215,7 +223,7 @@ function runFallbackChecks(files, diff) {
   }
 
   // Prompt integrity check (file-path + diff content)
-  const PROMPT_DIRS = ['workflows/', 'agents/', 'commands/', 'templates/'];
+  const PROMPT_DIRS = ['gsd-core/workflows/', 'workflows/', 'agents/', 'commands/', 'templates/'];
   const hasPromptFile = files.some(f =>
     f.path && f.path.endsWith('.md') && PROMPT_DIRS.some(d => f.path.startsWith(d))
   );
@@ -357,7 +365,7 @@ function generateReport(versionDelta, scanFindings, overrideImpact) {
   lines.push('== Next Steps ==');
   lines.push('');
   lines.push('  To apply this update:');
-  lines.push(`    1. Edit package.json: set get-shit-done-cc to "${versionDelta.latest}"`);
+  lines.push(`    1. Edit package.json: set ${ACTIVE_UPSTREAM_PACKAGE} to "${versionDelta.latest}"`);
   lines.push('    2. Run: bun install');
   lines.push('    3. Run: bun run compose');
   lines.push('    4. Run tests: bun test');

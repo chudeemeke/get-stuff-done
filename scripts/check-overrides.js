@@ -23,6 +23,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { getPackageDir } = require('./lib/upstream-source');
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -30,7 +31,7 @@ const crypto = require('crypto');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const DEFAULT_OVERRIDES_DIR = path.join(PROJECT_ROOT, 'overrides');
-const DEFAULT_UPSTREAM_DIR = path.join(PROJECT_ROOT, 'node_modules', 'get-shit-done-cc');
+const DEFAULT_UPSTREAM_DIR = getPackageDir({ projectRoot: PROJECT_ROOT });
 
 // ---------------------------------------------------------------------------
 // File system helpers

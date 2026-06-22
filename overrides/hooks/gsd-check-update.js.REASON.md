@@ -1,14 +1,14 @@
 # Override: hooks/gsd-check-update.js
 
 ## Why
-Fork-branded version check. Our hook checks `@chude/get-stuff-done` on npm instead of `get-shit-done-cc`, uses hardcoded `.claude` path (fork only supports Claude Code), and reads `gsd.role` from config for consumer/maintainer routing with a 7-day network throttle.
+Fork-branded version check. Our hook checks `@chude/get-stuff-done` on npm instead of the active Open GSD upstream package `@opengsd/gsd-core`, uses hardcoded `.claude` path (fork only supports Claude Code), and reads `gsd.role` from config for consumer/maintainer routing with a 7-day network throttle.
 
 ## Upstream snapshot
-- Version: 1.39.1
-- SHA-256: 5c06f9482265b7795926866b18fdaa69cd6bf7368021ecf433833b5867ba95c8
+- Version: 1.5.0
+- SHA-256: 95bbd1c7ca11246828eb85b0b7b3718771d08d186e8d3b103426749cc9bb5415
 
 ## What's different
-- Checks `@chude/get-stuff-done` package instead of `get-shit-done-cc`
+- Checks `@chude/get-stuff-done` package instead of `@opengsd/gsd-core`
 - Hardcoded `.claude` config path (no multi-runtime detection)
 - Reads `gsd.role` from `.planning/config.json` for consumer/maintainer routing
 - 7-day network throttle instead of upstream's cadence

@@ -1,47 +1,47 @@
 # Continuation Context
 
-**Refreshed at:** 2026-04-29 (manual refresh; previous content was 2026-02-23 / Phase 20 era — 6 phases stale)
-**Trigger:** end-of-session document-for-clear
+**Refreshed at:** 2026-06-22
+**Trigger:** Phase 40.6 upstream authority migration insertion
 
 ## Resume Instructions
 
-1. **Read STATE.md first** — it is the authoritative pointer (`.planning/STATE.md`). The frontmatter `status` and `stopped_at` carry the phase-level "where exactly" plus the next command.
-2. **Read SESSION_LOG.md** for the most recent session's narrative arc, decisions, near-misses, and commit chain (`memory/SESSION_LOG.md`, newest section on top).
-3. Read the relevant `*-PLAN.md` for task details once you've resumed via `/gsd:execute-phase` or equivalent.
-4. Continue from the named next action.
+1. Read `.planning/STATE.md` first. It is the authoritative resume pointer.
+2. Read `.planning/phases/40.6-upstream-authority-migration/40.6-CONTEXT.md`.
+3. Review the four Phase 40.6 plans before implementation: `40.6-01-PLAN.md` through `40.6-04-PLAN.md`.
+4. Do not run the old Phase 40.5 Wave 5 legacy filing path unless Phase 40.6 explicitly re-authorizes it.
 
-## Last Known State (as of 2026-04-29)
+## Last Known State
 
-**Milestone:** v1.2.0 Ship-Ready Hardening (active; started 2026-04-20)
+**Milestone:** v1.2.0 Ship-Ready Hardening
 
-**Phase:** 40.5 — Upstream Bump & Phase 41 Decision Re-verification
+**Phase:** 40.6 -- Upstream Authority Migration
 
-**Status:** PLANNED + REVIEWED + REVISED + AMENDED. Ready for `/gsd:execute-phase 40.5`. Not yet started.
+**Status:** Inserted 2026-06-22 after live upstream review showed the legacy `get-shit-done-cc` / `gsd-build/get-shit-done` authority assumption is no longer safe for market-ready v1.2.0 work.
 
-**Plans:** 5 plans complete (40.5-01 through 40.5-05) in 5 sequential waves per D-16. depends_on chain: `[]` → `["01"]` → `["02"]` → `["03"]` → `["04"]`.
+**Current code state:** Active worktree pins `get-shit-done-cc@1.39.1`. The migration target is Open GSD `@opengsd/gsd-core@1.5.0` as of 2026-06-22 evidence. The package layout is not drop-in.
 
-**Key amendments:**
-- A-04: bump target = `get-shit-done-cc@1.38.5` (NOT v1.38.2 from initial roadmap framing)
-- A-05: row count corrected from "22-decision matrix" → "24-decision matrix" across 40.5-CONTEXT.md (the verification target 41-CONTEXT.md was independently verified clean)
+**Next concrete action:** `/gsd:review --phase 40.6 --all`, then `/gsd:execute-phase 40.6` after review amendments.
 
-**Cross-AI review:** 3 reviewers (Gemini + Claude separate-session + Codex 0.125.0 on gpt-5.5). 4 MEDIUM findings all addressed in revision-2 (commit `e4a416b`). Two are 2-of-3 consensus (count error + Wave 5 commit boundary); two are Claude-only.
+## Phase 40.6 Plans
 
-**Last activity:** 2026-04-29 — A-05 amendment landed (commit `ac5557c`); planning chain complete from `119ff47` through `ac5557c`.
+- `40.6-01-PLAN.md` -- authority ADR and package/source contract
+- `40.6-02-PLAN.md` -- isolated Open GSD package layout spike
+- `40.6-03-PLAN.md` -- implement upstream identity abstraction and migrate tooling
+- `40.6-04-PLAN.md` -- verification, legacy-reference audit, and Phase 41 readiness reset
 
-**Next concrete action:** `/gsd:resume-work` → `/gsd:execute-phase 40.5`
+## Tripwires
 
-Wave 1 will run autonomously through Tasks 01-01..01-04, then **pause at Task 01-05 for human CI verification** before Wave 2 starts. D-04 keeps Wave 2 + Wave 4 amendment work interactive (autonomous: false) per user preference.
+- Do not use `get-shit-done-cc@latest` as a normal bump target. It is now legacy evidence, not active authority.
+- Do not dynamically track Open GSD `latest` or `next`; pin a reviewed stable version.
+- Do not assume `@opengsd/gsd-core` has the old `get-shit-done-cc` layout or bins.
+- Do not patch global GSD installs while debugging this. Work in the repo/worktree and use temp package-layout spikes.
+- Do not file new upstream work against `gsd-build/get-shit-done` from stale Phase 40.5 instructions until Phase 40.6 decides whether legacy filing is still useful.
 
-## Tripwires for next session
+## Active Independent Work
 
-- **Bump target is v1.38.5, NOT v1.38.2.** The original 2026-04-22 roadmap insert framed it as 1.34.2 → 1.38.2; A-04 superseded that. STATE.md.stopped_at is explicit; don't be misled by carried-forward "1.38.2" in the roadmap insert section.
-- **24-row matrix, NOT 22.** Phase 41 CONTEXT.md has 18 decisions + 6 amendments = 24 rows. All 5 plans + ROADMAP.md:95 + 40.5-CONTEXT.md (post-A-05) reflect 24.
-- **Codex CLI invocation prerequisites:** see `memory/feedback_review_cli_invocation.md` — needs codex 0.125+ via `bun install -g` (NOT `bun update -g`), `codex mcp login cloudflare-api`, full user config (NOT `--ignore-user-config`).
-
-## Active independent work
-
-- **PR #1859** (review.md per-CLI model selection) — still OPEN/APPROVED/MERGEABLE, awaiting trek-e merge upstream. Independent of milestone work.
+- Phase 40.5 Wave 1-4 evidence exists in this branch and remains useful as legacy-baseline evidence.
+- Phase 40.5 Wave 5 is superseded until Phase 40.6 re-establishes authority and resets Phase 41 readiness.
 
 ---
 
-*This file is normally auto-generated by the GSD PreCompact hook. The 2026-04-29 manual refresh corrected 6 phases of staleness during end-of-session document-for-clear; the next PreCompact firing will overwrite this content with the same current state, so the manual refresh is non-destructive.*
+This file is a human-readable companion to `STATE.md`; `STATE.md` remains authoritative.

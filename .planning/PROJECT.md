@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get-stuff-done. It consumes upstream as an npm dependency and layers fork-specific additions (cross-platform tooling, theming, sync safety, launcher) on top through a composition pipeline. Users get upstream's full capabilities plus fork enhancements, with surface-only branding.
+A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-done. It consumes upstream as an npm dependency and layers fork-specific additions (cross-platform tooling, theming, sync safety, launcher) on top through a composition pipeline. Users get upstream's full capabilities plus fork enhancements, with surface-only branding. The active v1.2.0 work is migrating upstream authority from the legacy TACHES package to Open GSD while preserving this overlay model.
 
 ## Core Value
 
@@ -58,6 +58,7 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 **Target features:**
 
 *Upgrade resilience*
+- Upstream authority migration from legacy `get-shit-done-cc` / `gsd-build/get-shit-done` to Open GSD `@opengsd/gsd-core` / `open-gsd/gsd-core` before Phase 41
 - Automated upgrade test in CI (install -> bump -> recompose -> reinstall -> verify)
 - Historical-version compat matrix (last N vetted upstream versions, not arbitrary future ones)
 - Override staleness enforcement -- blocking CI gate (distinct from informational boundary/compat stance)
@@ -85,6 +86,7 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 - Internal path renaming (get-shit-done/ -> get-stuff-done/) -- surface-only branding per QA review
 - Runtime filtering in install.js -- too complex for monolithic 5,000-line file, users choose at install time
 - Auto-applying upstream updates -- destroys user control
+- Dynamic consumption of Open GSD `latest` or `next` -- exact reviewed version pins remain mandatory
 - Reimplementing upstream's installer logic -- delegate, don't duplicate
 
 ### Deferred
@@ -96,7 +98,7 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 
 **Shipped:** v1.1.0 Installer & Deployment Hardening on 2026-04-04
 **Architecture:** Overlay model -- upstream consumed as npm devDependency, composed at publish time
-**Upstream:** get-shit-done-cc@1.34.2 (bumped 2026-04-10)
+**Upstream:** Active worktree currently pins legacy `get-shit-done-cc@1.39.1`; Phase 40.6 migrates authority to pinned Open GSD `@opengsd/gsd-core@1.5.0` before Phase 41 resumes.
 **Current version:** 3.0.2 (published to npm as @chude/get-stuff-done)
 **Codebase:** ~151 files, ~30K lines; fork-specific overlay code ~2,510 lines; 1593 tests (1588+ passing)
 **CI:** 5-check matrix (fork tests, upstream compat, boundary, override) across macOS/Linux/Windows
@@ -111,7 +113,7 @@ A personalized overlay of GSD (Get Shit Done) by TACHES, published as @chude/get
 
 ## Context
 
-**Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13
+**Origin:** Forked from github.com/glittercowboy/get-shit-done v1.9.13; legacy upstream later resolved to `gsd-build/get-shit-done`. Active authority migration target is `open-gsd/gsd-core`.
 **Private repo:** github.com/chudeemeke/get-stuff-done
 **Environment:** Windows with Git Bash, Claude Code CLI (cross-platform: macOS, Linux, Windows)
 **Design spec:** docs/superpowers/specs/2026-03-28-overlay-architecture-design.md
@@ -215,4 +217,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-20 -- v1.2.0 milestone started*
+*Last updated: 2026-06-22 -- Phase 40.6 upstream authority migration inserted*

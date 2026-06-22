@@ -19,6 +19,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [ ] **UPGRADE-08**: Semantic override staleness -- comment-only/whitespace-only upstream changes to override source files do NOT trigger false-positive staleness alerts (D-1; scope: `.js` files initially via AST-diff; `.md` deferred with documented reason)
 - [ ] **UPGRADE-09**: Override churn section auto-generated in CHANGELOG on each upstream bump, listing overrides whose upstream source changed (D-8)
 - [ ] **UPGRADE-10**: Pre-Phase-41 upstream currency bump — bump upstream pin from 1.34.2 to 1.38.2 (or latest stable at execution time) BEFORE Phase 41 planning completes, refresh override SHA-256 snapshots, audit for compose collisions, and re-verify all Phase 41 CONTEXT.md decisions against fresh upstream state (amending CONTEXT.md if any decision changes). Ensures Phase 41 planning targets current upstream rather than stale assumptions. Distinct from UPGRADE-05 (the Phase 43 dogfood bump) — UPGRADE-10 establishes currency, UPGRADE-05 dogfoods the bump process against new Phase 41/42 work. (Inserted 2026-04-22 with Phase 40.5.)
+- [ ] **UPGRADE-11**: Upstream authority migration -- migrate the overlay's active upstream from legacy `get-shit-done-cc` / `gsd-build/get-shit-done` to Open GSD `@opengsd/gsd-core` / `open-gsd/gsd-core` before Phase 41, pin a vetted stable Open GSD version, centralize upstream identity in a machine-readable manifest or helper, update compose/override/boundary/update tooling to the new package layout, and explicitly retire legacy upstream filing paths. (Inserted 2026-06-22 with Phase 40.6.)
 
 ### PROCESS (oversight pattern -- 1 principle + 4 triggers)
 
@@ -122,6 +123,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | UPGRADE-08 | Phase 43 | Pending |
 | UPGRADE-09 | Phase 43 | Pending |
 | UPGRADE-10 | Phase 40.5 | Pending |
+| UPGRADE-11 | Phase 40.6 | Pending |
 | PROCESS-01 | Phase 42 | Pending |
 | PROCESS-02 | Phase 42 | Pending |
 | PROCESS-03 | Phase 42 | Pending |
@@ -160,12 +162,13 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PERF-05 | Phase 42 | Pending |
 
 **Coverage:**
-- v1.2.0 requirements: 46 total (45 original + UPGRADE-10 added 2026-04-22 with Phase 40.5 insertion)
-- Mapped to phases: 46 (100%)
+- v1.2.0 requirements: 47 total (45 original + UPGRADE-10 added 2026-04-22 with Phase 40.5 insertion + UPGRADE-11 added 2026-06-22 with Phase 40.6 insertion)
+- Mapped to phases: 47 (100%)
 - Unmapped: 0
 
 **Per-phase summary:**
 - Phase 40.5 (Upstream Bump & Decision Re-verification, INSERTED): 1 requirement -- UPGRADE-10
+- Phase 40.6 (Upstream Authority Migration, INSERTED): 1 requirement -- UPGRADE-11
 - Phase 41 (Foundation): 13 requirements -- UPGRADE-03, UPGRADE-06, SECURITY-01..06, PERF-01, PERF-02, REL-01..03
 - Phase 42 (Budget + Process + Cousin-Test): 14 requirements -- PERF-03..05, PROCESS-01..07, SHIP-07, DOCS-04..06
 - Phase 43 (Upgrade Resilience): 8 requirements -- UPGRADE-01, UPGRADE-02, UPGRADE-04, UPGRADE-05, UPGRADE-07..09, SHIP-03
@@ -173,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-04-22 -- Phase 40.5 inserted, UPGRADE-10 added, UPGRADE-05 reworded to preserve dogfood-bump timing semantics*
+*Last updated: 2026-06-22 -- Phase 40.6 inserted, UPGRADE-11 added, upstream authority migration blocks Phase 41 until Open GSD package layout is verified*

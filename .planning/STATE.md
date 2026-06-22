@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 40.5 PLANNED + REVIEWED + REVISED + AMENDED. Ready for `/gsd:execute-phase 40.5`. 5 plans in 5 sequential waves; all 4 cross-AI review MEDIUMs addressed; A-04 (bump target 1.38.5) + A-05 (24-row count correction) recorded in 40.5-CONTEXT.md amendments log. 46 requirements mapped across 5 phases (40.5, 41-44)."
-stopped_at: "Phase 40.5 planning complete 2026-04-29. Cross-AI review (Gemini + Claude separate-session + Codex) produced REVIEWS.md with 2-of-3 consensus on 2 MEDIUMs (count error + Wave 5 commit boundary) plus 2 Claude-only MEDIUMs. Plan revision 2 (commit e4a416b) applied all 4 fixes. A-05 amendment (commit ac5557c) closed the loop by correcting 22→24 wording in 40.5-CONTEXT.md. Bump target resolved to v1.38.5 per A-04 (criterion #1's 'or latest stable at execution time' clause; named verification PRs #2487 + #2499 first land in v1.38.4). 41-CONTEXT.md verified clean of stale '22-decision' wording (zero hits — Claude misattributed location). Next: `/gsd:execute-phase 40.5` (Wave 1 runs autonomously through Task 01-04, pauses at Task 01-05 for human CI verification before Wave 2)."
-last_updated: "2026-04-29T17:50:00.000Z"
-last_activity: 2026-04-29 -- Phase 40.5 plans complete (research + 5 plans + validation strategy + revision-1 + cross-AI review + revision-2 + A-05 amendment); ready for execute-phase
+status: "Phase 40.6 INSERTED for upstream authority migration. Phase 40.5 reached Wave 4 evidence on legacy `get-shit-done-cc@1.39.1`, but Wave 5's legacy upstream-filing path is superseded by live upstream discovery: old TACHES/GSD package is no longer the right authority; Open GSD `@opengsd/gsd-core@1.5.0` is the migration target. Execute/review Phase 40.6 before Phase 41 or any old Wave 5 filing."
+stopped_at: "2026-06-22 upstream authority pivot. Live npm/GitHub evidence: `get-shit-done-cc` latest is 1.42.3 and still maintained on npm only by glittercowboy; legacy repo is `gsd-build/get-shit-done`; successor Open GSD package `@opengsd/gsd-core` latest stable is 1.5.0 with active `open-gsd/gsd-core` development and different bin/source layout. Next: review Phase 40.6 plan artifacts, then execute Phase 40.6 before returning to Phase 40.5 closure or Phase 41."
+last_updated: "2026-06-22T22:05:56.2133667+01:00"
+last_activity: 2026-06-22 -- Phase 40.6 upstream authority migration inserted; roadmap/requirements/project/resume surfaces updated
 progress:
-  total_phases: 7
+  total_phases: 6
   completed_phases: 0
-  total_plans: 5
+  total_plans: 9
   completed_plans: 0
 ---
 
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 40.5 fully planned, ready for `/gsd:execute-phase 40.5`
+**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 40.6 upstream authority migration inserted; review/execute it before Phase 41
 
 ## Current Position
 
-Phase: Phase 40.5 (PLANNED, not started) -- Upstream Bump & Phase 41 Decision Re-verification
-Plan: 5 plans complete (40.5-01 through 40.5-05); revision 2 applied REVIEWS.md feedback
-Status: Phase 40.5 fully planned + reviewed + revised + amended 2026-04-29. 5 plans in 5 sequential waves per D-16. All 4 cross-AI review MEDIUMs addressed in revision 2. A-04 (bump target = 1.38.5) and A-05 (24-row count correction) recorded in 40.5-CONTEXT.md amendments log. Plan-checker passed iteration 1 of revision-2. Phase 41 CONTEXT.md verified clean of stale wording. Phase 41 RESEARCH.md + VALIDATION.md from prior session stay as-is and will be re-verified during Phase 40.5 Wave 4 (24-row decision matrix re-verify).
-Last activity: 2026-04-29 -- A-05 amendment landed (commit ac5557c); planning chain complete from 119ff47 through ac5557c
+Phase: Phase 40.6 (INSERTED, plan artifacts pending review) -- Upstream Authority Migration
+Plan: 4 plans complete (40.6-01 through 40.6-04) once this insertion patch lands; must be reviewed before implementation
+Status: Phase 40.5 Wave 1-4 work exists in this branch, but its Wave 5 legacy filing path is superseded. Phase 40.6 now owns the upstream-authority decision, Open GSD package-layout spike, tooling migration, verification, and Phase 41 readiness reset. Do not run old `/gsd:execute-phase 40.5` blindly.
+Last activity: 2026-06-22 -- live upstream status checked and Phase 40.6 inserted as a blocking pre-Phase-41 migration phase
 
-**Upstream state:** Fork upstream pin still at 1.34.2 in package.json. Phase 40.5 Wave 1 will bump to v1.38.5 (per A-04, NOT 1.38.2 from initial roadmap framing). PR #1859 still OPEN/APPROVED/MERGEABLE, awaiting trek-e merge — independent of milestone work.
+**Upstream state:** Active worktree currently pins legacy `get-shit-done-cc@1.39.1`. Live npm/GitHub evidence on 2026-06-22 shows legacy `get-shit-done-cc` latest `1.42.3` plus `next=1.43.0-rc2` / canary tags, but Open GSD `@opengsd/gsd-core@1.5.0` is the stable successor target. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override tooling must be migrated deliberately.
 
 ## Performance Metrics
 
@@ -57,10 +57,12 @@ v1.2.0 roadmap decisions:
 - DOCS-01 (MAINTENANCE.md) placed in Phase 44 with single owner to avoid cross-phase ownership split; sharper acceptance criteria (per-section executable examples + minimum content + CI-extracted example run) added to requirement to prevent slop
 - PROCESS-07 graduation criteria locked to specific numbers (N=20 PRs, <=5% FP rate, maintainer-reviewed PR + 2 weeks clean CI + MAINTENANCE.md entry)
 - Phase numbering continues integer sequence from v1.1.0 last phase (40) -> v1.2.0 starts at Phase 41
+- Phase 40.6 inserted 2026-06-22 after upstream status review found the Phase 40.5 legacy authority assumption invalid. This is not a rewrite and not a GSD-2 migration; it preserves the overlay architecture while changing the authoritative upstream package/repo from legacy TACHES/GSD to Open GSD.
 
 ### Roadmap Evolution
 
 - Phase 40.5 inserted after Phase 40: Upstream bump 1.34.2 -> 1.38.2 and Phase 41 decision re-verification. (INSERTED 2026-04-22 URGENT). User chose bump-first ordering over plan-now-with-bump-in-Wave-0 to verify Phase 41 decisions against fresh upstream state before planning. UPGRADE-10 requirement added (Phase 40.5); UPGRADE-05 reworded to preserve dogfood-bump timing semantics (Phase 43); backlog 999.3 captured (conditional upstream regex-fix PR filing, only if bug still present on clean 1.38.2).
+- Phase 40.6 inserted after Phase 40.5: Upstream authority migration from `get-shit-done-cc` / `gsd-build/get-shit-done` to Open GSD `@opengsd/gsd-core` / `open-gsd/gsd-core`. (INSERTED 2026-06-22). This supersedes Phase 40.5 Wave 5's legacy upstream filing path and blocks Phase 41 until compose/override/update tooling is verified against Open GSD layout.
 
 ### Carried Forward Tech Debt
 
@@ -79,11 +81,11 @@ None.
 
 ### Blockers/Concerns
 
-None -- research complete, requirements defined, roadmap approved structure in place.
+Phase 40.6 plan review is required before implementation. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream until Phase 40.6 decides whether any legacy filing still has value.
 
 ## Session Continuity
 
-Last session: 2026-04-29 (Phase 40.5 planning + cross-AI review + A-05 amendment session; 9 commits 119ff47..ac5557c)
-Resumed: 2026-04-29 — `/gsd-resume-work` after `/clear`. Triaged 2 inbox items (authkey HIGH wrong-checkbox + medesine-rx MEDIUM percent:100). Both validated against fork code, Phase 40.5 not blocked (HIGH dormant for our ROADMAP ordering; MEDIUM is telemetry-only). User chose option 3 (defer both, execute 40.5) — rationale: upstream bump (1.34.2 → 1.38.5) may obviate both bugs. Inbox files updated to `status: triaged` with re-verification triggers tied to Phase 40.5 Wave 5 completion.
-Stopped at: Phase 40.5 ready to execute. Next: `/clear` then `/gsd:execute-phase 40.5` (Wave 1 runs autonomously through Task 01-04, pauses at Task 01-05 for human CI verification before Wave 2).
-Resume file: .planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/40.5-CONTEXT.md
+Last session: 2026-06-22 (upstream status review + Phase 40.6 insertion).
+Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
+Stopped at: Phase 40.6 inserted and ready for external review, then execution. Next: `/gsd:review --phase 40.6 --all` followed by `/gsd:execute-phase 40.6` if review clears or is amended.
+Resume file: .planning/phases/40.6-upstream-authority-migration/40.6-CONTEXT.md

@@ -6,8 +6,21 @@
     "version": "1.5.0",
     "repository": "https://github.com/open-gsd/gsd-core",
     "npmUrl": "https://www.npmjs.com/package/@opengsd/gsd-core",
-    "sourceRoot": null,
-    "bin": {}
+    "sourceRoot": ".",
+    "bin": {
+      "gsd-core": "bin/install.js",
+      "gsd-tools": "gsd-core/bin/gsd-tools.cjs",
+      "gsd_run": "gsd-core/bin/gsd_run"
+    },
+    "paths": {
+      "agents": "agents",
+      "commands": "commands/gsd",
+      "hooksRuntime": "hooks/dist",
+      "hooksSource": "hooks",
+      "installer": "bin/install.js",
+      "gsdTools": "gsd-core/bin/gsd-tools.cjs",
+      "workflows": "gsd-core/workflows"
+    }
   },
   "legacy": {
     "packageName": "get-shit-done-cc",

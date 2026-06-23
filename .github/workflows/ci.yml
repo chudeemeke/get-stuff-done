@@ -142,13 +142,12 @@ jobs:
       - run: bun run compose
       - run: node scripts/run-upstream-compat.js
 
-  boundary-override-check:
-    name: Boundary & Override Check
+  boundary-check:
+    name: Boundary Check (informational)
     runs-on: ubuntu-latest
-    # Job is blocking at the WORKFLOW level. Individual informational steps
-    # (boundary, overrides) carry continue-on-error: true so they surface
-    # status without failing the workflow. The Ratchet gate step is BLOCKING
-    # by default and gates merge per Wave 1.6 Task 1.6-04.
+    # The boundary check remains informational because the overlay still has
+    # known structural root-mirror debt. The ratchet gate stays blocking so
+    # existing debt cannot increase silently.
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
@@ -158,13 +157,8 @@ jobs:
       - run: bun run compose
       - name: Check boundary violations
         run: node scripts/check-boundary.js
-        # Informational -- 48 structural boundary violations expected in overlay
+        # Informational -- 41 structural boundary violations expected in overlay
         # architecture per AF-7. The ratchet step below enforces no-increase.
-        continue-on-error: true
-      - name: Check override staleness
-        run: node scripts/check-overrides.js
-        # Informational -- staleness signal until Wave 5 of Phase 40.5 rebases
-        # override REASON.md SHAs against current upstream pin.
         continue-on-error: true
       - name: Ratchet gate (debt-baseline.json)
         run: node scripts/check-debt-ratchet.cjs --no-compose
@@ -172,3 +166,16 @@ jobs:
         # increase over the per-OS thresholds. Threshold updates are conscious
         # decisions captured in ratchet_history. See Phase 40.5 Wave 1.6
         # Task 1.6-04 + Wave 1.5d.
+
+  override-check:
+    name: Override Staleness Check (blocking)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun run compose
+      - name: Check override staleness
+        run: node scripts/check-overrides.js

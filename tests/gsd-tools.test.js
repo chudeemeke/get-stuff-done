@@ -5,7 +5,7 @@
 const { test, describe, beforeEach, afterEach, beforeAll, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { runShellWithTimeout, runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'gsd-tools.cjs');
@@ -15,26 +15,35 @@ const DIST_TOOLS_PATH = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'dist',
 // Auto-build dist if missing (CI support after fresh checkout)
 beforeAll(() => {
   if (!fs.existsSync(DIST_TOOLS_PATH)) {
-    execSync('node scripts/build.js', { cwd: PROJECT_ROOT, stdio: 'inherit' });
+    runWithTimeout(process.execPath, ['scripts/build.js'], {
+      cwd: PROJECT_ROOT,
+      stdio: 'inherit',
+      throwOnError: true,
+    });
   }
 });
 
 // Helper to run gsd-tools command
 function runGsdTools(args, cwd = process.cwd()) {
-  try {
-    const result = execSync(`node "${TOOLS_PATH}" ${args}`, {
-      cwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return { success: true, output: result.trim() };
-  } catch (err) {
-    return {
-      success: false,
-      output: err.stdout?.toString().trim() || '',
-      error: err.stderr?.toString().trim() || err.message,
-    };
-  }
+  const result = runShellWithTimeout(`"${process.execPath}" "${TOOLS_PATH}" ${args}`, {
+    cwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  return {
+    success: result.status === 0 && !result.timedOut,
+    output: result.stdout.trim(),
+    error: result.stderr.trim() || result.error?.message || '',
+  };
+}
+
+function runGit(cwd, args) {
+  runWithTimeout('git', args, {
+    cwd,
+    stdio: 'pipe',
+    throwOnError: true,
+  });
 }
 
 // Create temp directory structure
@@ -655,9 +664,9 @@ describe('validation wiring', () => {
 
   test('commit command rejects file paths outside project root (path traversal)', () => {
     // Initialize a real git repo so cmdCommit can function
-    execSync('git init', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git config user.email "test@test.com"', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git config user.name "Test"', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['init']);
+    runGit(tmpDir, ['config', 'user.email', 'test@test.com']);
+    runGit(tmpDir, ['config', 'user.name', 'Test']);
 
     // Attempt to stage a file path that traverses outside the project root
     const result = runGsdTools('commit "test msg" --files ../../etc/passwd', tmpDir);
@@ -698,12 +707,13 @@ describe('dist: gsd-tools bundled (regression guard for GAP-1)', () => {
     // Run from a temp dir that lacks src/ to simulate post-install environment
     const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-dist-test-'));
     try {
-      const result = execSync(`node "${DIST_TOOLS_PATH}" generate-slug "test text"`, {
+      const result = runWithTimeout(process.execPath, [DIST_TOOLS_PATH, 'generate-slug', 'test text'], {
         cwd: tmpDir,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
+        throwOnError: true,
       });
-      const output = JSON.parse(result.trim());
+      const output = JSON.parse(result.stdout.trim());
       expect(output.slug).toBe('test-text');
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -715,21 +725,26 @@ describe('dist: gsd-tools bundled (regression guard for GAP-1)', () => {
     const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-dist-val-'));
     try {
       // Use frontmatter validate with a minimal input file -- validation module must be loaded
-      const result = execSync(
-        `node "${DIST_TOOLS_PATH}" frontmatter validate "${DIST_TOOLS_PATH}" --schema plan`,
-        {
-          cwd: tmpDir,
-          encoding: 'utf-8',
-          stdio: ['pipe', 'pipe', 'pipe'],
-        }
-      );
+      const result = runWithTimeout(process.execPath, [
+        DIST_TOOLS_PATH,
+        'frontmatter',
+        'validate',
+        DIST_TOOLS_PATH,
+        '--schema',
+        'plan',
+      ], {
+        cwd: tmpDir,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        throwOnError: true,
+      });
       // The command should execute (validation module loaded) even if result is invalid schema
-      const output = JSON.parse(result.trim());
+      const output = JSON.parse(result.stdout.trim());
       expect(output).toHaveProperty('valid');
     } catch (err) {
       // If frontmatter command doesn't exist, that's ok -- what matters is NOT a MODULE_NOT_FOUND error
       // A 'Unknown command' error means validation module WAS loaded (it got past require())
-      const errOutput = err.stderr?.toString() || err.message;
+      const errOutput = err.result?.stderr || err.stderr?.toString() || err.message;
       expect(errOutput).not.toMatch(/MODULE_NOT_FOUND/);
       expect(errOutput).not.toMatch(/Cannot find module/);
     } finally {

@@ -15,10 +15,8 @@
 const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
-const { execSync } = require('child_process');
 
-const { createTempDir } = require('./helpers');
+const { createTempDir, runWithTimeout } = require('./helpers');
 
 // Path to the upstream package installed as devDependency
 const UPSTREAM_PKG = path.join(__dirname, '..', 'node_modules', '@opengsd', 'gsd-core');
@@ -49,22 +47,19 @@ function setupScratchDir(tmpDir) {
  */
 function runUpstreamInstaller(scratchDir, targetDir, extraArgs = []) {
   const installScript = path.join(scratchDir, 'bin', 'install.js');
-  const args = ['--claude', '--global', '--config-dir', `"${targetDir}"`, ...extraArgs];
-  try {
-    const result = execSync(`node "${installScript}" ${args.join(' ')}`, {
-      encoding: 'utf-8',
-      env: { ...process.env },
-      stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: 30000,
-    });
-    return { success: true, output: result };
-  } catch (err) {
-    return {
-      success: false,
-      output: err.stdout?.toString() || '',
-      error: err.stderr?.toString() || err.message,
-    };
-  }
+  const args = ['--claude', '--global', '--config-dir', targetDir, ...extraArgs];
+  const result = runWithTimeout(process.execPath, [installScript, ...args], {
+    encoding: 'utf-8',
+    env: { ...process.env },
+    stdio: ['pipe', 'pipe', 'pipe'],
+    timeout: 30000,
+  });
+
+  return {
+    success: result.status === 0 && !result.timedOut,
+    output: result.stdout,
+    error: result.stderr || result.error?.message || '',
+  };
 }
 
 /**
@@ -219,17 +214,12 @@ describe('Phase 29: Prototype Gate', () => {
 
     // Post-install branding verification: run --help and check output
     const installScript = path.join(scratchDir, 'bin', 'install.js');
-    let helpOutput = '';
-    try {
-      helpOutput = execSync(`node "${installScript}" --help`, {
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 15000,
-      });
-    } catch (err) {
-      // --help may exit non-zero on some versions; capture stdout regardless
-      helpOutput = err.stdout?.toString() || '';
-    }
+    const helpResult = runWithTimeout(process.execPath, [installScript, '--help'], {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 15000,
+    });
+    const helpOutput = helpResult.stdout;
     // Branded name should appear in help text (if help text references the package)
     if (helpOutput.length > 0) {
       expect(helpOutput).not.toContain('@opengsd/gsd-core');

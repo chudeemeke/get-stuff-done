@@ -10,8 +10,8 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { execSync, execFileSync } = require('child_process');
-const { createTempProject, cleanup } = require('./helpers.cjs');
+const { execFileSync } = require('child_process');
+const { createTempProject, cleanup, runWithTimeout } = require('./helpers.cjs');
 
 const CORE_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'lib', 'core.cjs');
 const core = require(CORE_PATH);
@@ -64,6 +64,14 @@ function runCoreScript(scriptBody) {
   } finally {
     try { fs.unlinkSync(tmpScript); } catch {}
   }
+}
+
+function runGit(cwd, args) {
+  runWithTimeout('git', args, {
+    cwd,
+    stdio: 'pipe',
+    throwOnError: true,
+  });
 }
 
 /**
@@ -483,7 +491,7 @@ describe('isGitIgnored()', () => {
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-gitignore-'));
-    execSync('git init', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['init']);
     fs.writeFileSync(path.join(tmpDir, '.gitignore'), 'ignored.txt\n*.log\n');
   });
 
@@ -520,9 +528,9 @@ describe('execGit()', () => {
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-execgit-'));
-    execSync('git init', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git config user.email "test@test.com"', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git config user.name "Test"', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['init']);
+    runGit(tmpDir, ['config', 'user.email', 'test@test.com']);
+    runGit(tmpDir, ['config', 'user.name', 'Test']);
   });
 
   afterEach(() => {
@@ -531,7 +539,7 @@ describe('execGit()', () => {
 
   test('executes git command and returns stdout', () => {
     fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
-    execSync('git add file.txt', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['add', 'file.txt']);
     execFileSync('git', ['commit', '-m', 'initial'], { cwd: tmpDir, stdio: 'pipe' });
     const result = execGit(tmpDir, ['log', '--oneline']);
     assert.strictEqual(result.exitCode, 0);
@@ -563,7 +571,7 @@ describe('execGit()', () => {
 
   test('handles rev-parse command', () => {
     fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
-    execSync('git add file.txt', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['add', 'file.txt']);
     execFileSync('git', ['commit', '-m', 'test commit'], { cwd: tmpDir, stdio: 'pipe' });
     const result = execGit(tmpDir, ['rev-parse', 'HEAD']);
     assert.strictEqual(result.exitCode, 0);
@@ -573,7 +581,7 @@ describe('execGit()', () => {
   test('wraps args containing special characters in single quotes', () => {
     // Args with spaces trigger single-quote wrapping in execGit
     fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
-    execSync('git add file.txt', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['add', 'file.txt']);
     execFileSync('git', ['commit', '-m', 'test commit'], { cwd: tmpDir, stdio: 'pipe' });
     // 'test commit' contains a space, triggers the quote branch
     const result = execGit(tmpDir, ['log', '--format=%s', '-1']);

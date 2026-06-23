@@ -16,10 +16,11 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { runGsdTools, runGsdToolsDirect, createTempProject, cleanup } = require('./helpers.cjs');
+const { runGsdTools, runGsdToolsDirect, createTempProject, cleanup, runWithTimeout } = require('./helpers.cjs');
 
 // Direct import for in-process coverage tracking
 const { cmdConfigEnsureSection, cmdConfigSet, cmdConfigGet } = require('../get-stuff-done/bin/lib/config.cjs');
+const TOOLS_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs');
 
 /**
  * Run a config function with process.exit as no-op and stdout/stderr captured.
@@ -56,6 +57,21 @@ function captureOutput(fn) {
   }
 
   return { exitCode, stdout, stderr };
+}
+
+function runConfigEnsureSection(tmpDir, env) {
+  const result = runWithTimeout(process.execPath, [TOOLS_PATH, 'config-ensure-section'], {
+    cwd: tmpDir,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+  });
+
+  if (result.status !== 0 || result.timedOut) {
+    assert.fail(`Command failed: ${result.stderr || result.error?.message || result.status}`);
+  }
+
+  return result.stdout;
 }
 
 // ============================================================================
@@ -152,22 +168,10 @@ describe('cmdConfigEnsureSection (subprocess)', () => {
 
   test('detects BRAVE_API_KEY environment variable', () => {
     const env = { ...process.env, BRAVE_API_KEY: 'test-key-123' };
-    const { execSync } = require('child_process');
-    const toolsPath = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs');
+    runConfigEnsureSection(tmpDir, env);
 
-    try {
-      execSync(`node "${toolsPath}" config-ensure-section`, {
-        cwd: tmpDir,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        env,
-      });
-
-      const config = JSON.parse(fs.readFileSync(path.join(tmpDir, '.planning', 'config.json'), 'utf-8'));
-      assert.strictEqual(config.brave_search, true);
-    } catch (err) {
-      assert.fail(`Command failed: ${err.stderr}`);
-    }
+    const config = JSON.parse(fs.readFileSync(path.join(tmpDir, '.planning', 'config.json'), 'utf-8'));
+    assert.strictEqual(config.brave_search, true);
   });
 
   test('picks up user defaults from ~/.gsd/defaults.json', () => {
@@ -180,9 +184,6 @@ describe('cmdConfigEnsureSection (subprocess)', () => {
       'utf-8'
     );
 
-    const { execSync } = require('child_process');
-    const toolsPath = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs');
-
     const env = { ...process.env };
     delete env.BRAVE_API_KEY;
     if (process.platform === 'win32') {
@@ -193,12 +194,7 @@ describe('cmdConfigEnsureSection (subprocess)', () => {
     env.HOME = fakeHome;
 
     try {
-      execSync(`node "${toolsPath}" config-ensure-section`, {
-        cwd: tmpDir,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        env,
-      });
+      runConfigEnsureSection(tmpDir, env);
 
       const config = JSON.parse(fs.readFileSync(path.join(tmpDir, '.planning', 'config.json'), 'utf-8'));
       assert.strictEqual(config.model_profile, 'quality');
@@ -221,9 +217,6 @@ describe('cmdConfigEnsureSection (subprocess)', () => {
       'utf-8'
     );
 
-    const { execSync } = require('child_process');
-    const toolsPath = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs');
-
     const env = { ...process.env };
     delete env.BRAVE_API_KEY;
     if (process.platform === 'win32') {
@@ -234,12 +227,7 @@ describe('cmdConfigEnsureSection (subprocess)', () => {
     env.HOME = fakeHome;
 
     try {
-      execSync(`node "${toolsPath}" config-ensure-section`, {
-        cwd: tmpDir,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        env,
-      });
+      runConfigEnsureSection(tmpDir, env);
 
       const config = JSON.parse(fs.readFileSync(path.join(tmpDir, '.planning', 'config.json'), 'utf-8'));
       assert.strictEqual(config.workflow.research, false);
@@ -257,9 +245,6 @@ describe('cmdConfigEnsureSection (subprocess)', () => {
     fs.mkdirSync(gsdDir, { recursive: true });
     fs.writeFileSync(path.join(gsdDir, 'defaults.json'), '{bad json', 'utf-8');
 
-    const { execSync } = require('child_process');
-    const toolsPath = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs');
-
     const env = { ...process.env };
     delete env.BRAVE_API_KEY;
     if (process.platform === 'win32') {
@@ -270,12 +255,7 @@ describe('cmdConfigEnsureSection (subprocess)', () => {
     env.HOME = fakeHome;
 
     try {
-      const stdout = execSync(`node "${toolsPath}" config-ensure-section`, {
-        cwd: tmpDir,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        env,
-      });
+      const stdout = runConfigEnsureSection(tmpDir, env);
 
       const output = JSON.parse(stdout.trim());
       assert.strictEqual(output.created, true);

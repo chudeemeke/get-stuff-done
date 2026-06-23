@@ -13,7 +13,7 @@
 const { test, describe, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 
@@ -61,20 +61,17 @@ describe('v3.0 launcher imports', () => {
   });
 
   test('bin/gsd.js --help exits without MODULE_NOT_FOUND', { timeout: 15000 }, () => {
-    try {
-      const result = execSync(`node "${gsdPath}" --help`, {
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 10000,
-      });
-      // Should produce output without error
-      expect(result.length).toBeGreaterThan(0);
-    } catch (err) {
-      // If it exits non-zero, check it's not MODULE_NOT_FOUND
-      const stderr = err.stderr?.toString() || '';
-      const stdout = err.stdout?.toString() || '';
-      expect(stderr).not.toContain('MODULE_NOT_FOUND');
-      expect(stdout + stderr).not.toContain('Cannot find module');
+    const result = runWithTimeout(process.execPath, [gsdPath, '--help'], {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 10000,
+    });
+
+    if (result.status === 0) {
+      expect(result.stdout.length).toBeGreaterThan(0);
+    } else {
+      expect(result.stderr).not.toContain('MODULE_NOT_FOUND');
+      expect(result.stdout + result.stderr).not.toContain('Cannot find module');
     }
   });
 });

@@ -15,10 +15,8 @@
 const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
-const { execSync } = require('child_process');
 
-const { createTempDir } = require('./helpers');
+const { createTempDir, runWithTimeout } = require('./helpers');
 
 // Paths
 const PROJECT_ROOT = path.join(__dirname, '..');
@@ -28,30 +26,26 @@ const OVERLAY_MANIFEST = path.join(DIST_DIR, '.overlay-manifest.json');
 
 /**
  * Runs the v3.0 installer with --config-dir for test isolation.
- * Uses execSync with piped stdio to capture output.
  *
  * @param {string} targetDir - Installation target directory (--config-dir value)
  * @param {string[]} extraArgs - Additional CLI args
  * @returns {{ success: boolean, output: string, error: string, exitCode: number }}
  */
 function runV3Installer(targetDir, extraArgs = []) {
-  const args = ['--claude', '--global', '--config-dir', `"${targetDir}"`, ...extraArgs];
-  try {
-    const result = execSync(`node "${INSTALL_SCRIPT}" ${args.join(' ')}`, {
-      encoding: 'utf-8',
-      env: { ...process.env },
-      stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: 30000,
-    });
-    return { success: true, output: result, error: '', exitCode: 0 };
-  } catch (err) {
-    return {
-      success: false,
-      output: err.stdout?.toString() || '',
-      error: err.stderr?.toString() || err.message,
-      exitCode: err.status || 1,
-    };
-  }
+  const args = ['--claude', '--global', '--config-dir', targetDir, ...extraArgs];
+  const result = runWithTimeout(process.execPath, [INSTALL_SCRIPT, ...args], {
+    encoding: 'utf-8',
+    env: { ...process.env },
+    stdio: ['pipe', 'pipe', 'pipe'],
+    timeout: 30000,
+  });
+
+  return {
+    success: result.status === 0 && !result.timedOut,
+    output: result.stdout,
+    error: result.stderr || result.error?.message || '',
+    exitCode: result.status || 1,
+  };
 }
 
 describe('v3.0 Delegation Installer', () => {

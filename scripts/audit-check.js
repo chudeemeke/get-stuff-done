@@ -3,6 +3,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+const { spawnSync } = require('child_process');
 const Ajv = require('ajv');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
@@ -124,6 +126,72 @@ function buildAuditCiAllowlist(suppressions) {
   return suppressions.map(entry => entry.id);
 }
 
+function buildAuditCiConfig(suppressions) {
+  return {
+    high: true,
+    critical: true,
+    moderate: false,
+    low: false,
+    'package-manager': 'npm',
+    allowlist: buildAuditCiAllowlist(suppressions),
+  };
+}
+
+function writeTempAuditCiConfig(config) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-audit-ci-'));
+  const filePath = path.join(dir, 'audit-ci.json');
+  fs.writeFileSync(filePath, JSON.stringify(config, null, 2), 'utf-8');
+  return { dir, filePath };
+}
+
+function findAuditCiBin(projectRoot = PROJECT_ROOT) {
+  const binDir = path.join(projectRoot, 'node_modules', '.bin');
+  const candidates = process.platform === 'win32'
+    ? ['audit-ci.cmd', 'audit-ci.ps1', 'audit-ci']
+    : ['audit-ci'];
+
+  for (const candidate of candidates) {
+    const bin = path.join(binDir, candidate);
+    if (fs.existsSync(bin)) {
+      return bin;
+    }
+  }
+
+  return null;
+}
+
+function assertPackageLock(projectRoot = PROJECT_ROOT) {
+  const lockPath = path.join(projectRoot, 'package-lock.json');
+  if (!fs.existsSync(lockPath)) {
+    throw new Error(
+      'package-lock.json is required for audit-ci. Run npm install --package-lock-only --ignore-scripts, then rerun bun run audit:ci.'
+    );
+  }
+}
+
+function runAuditCi(configPath, options = {}) {
+  const auditCiBin = options.auditCiBin || findAuditCiBin(options.projectRoot || PROJECT_ROOT);
+  if (!auditCiBin) {
+    throw new Error('audit-ci binary not found in node_modules/.bin; run bun install --ignore-scripts first.');
+  }
+
+  const result = spawnSync(
+    auditCiBin,
+    ['--config', configPath],
+    {
+      cwd: options.projectRoot || PROJECT_ROOT,
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+    }
+  );
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  return result.status === null ? 1 : result.status;
+}
+
 function parseArgs(argv) {
   const options = {
     suppressionsFile: DEFAULT_SUPPRESSIONS_FILE,
@@ -160,8 +228,16 @@ function main(argv = process.argv.slice(2)) {
     return 0;
   }
 
-  process.stderr.write('Audit execution is not wired yet; run with --validate-only for schema validation.\n');
-  return 1;
+  try {
+    assertPackageLock();
+    const { dir, filePath } = writeTempAuditCiConfig(buildAuditCiConfig(result.suppressions));
+    const status = runAuditCi(filePath);
+    fs.rmSync(dir, { recursive: true, force: true });
+    return status;
+  } catch (err) {
+    process.stderr.write(`${err.message}\n`);
+    return 1;
+  }
 }
 
 if (require.main === module) {
@@ -172,7 +248,11 @@ module.exports = {
   DEFAULT_SUPPRESSIONS_FILE,
   MAX_REVIEW_TTL_DAYS,
   buildAuditCiAllowlist,
+  buildAuditCiConfig,
+  findAuditCiBin,
   main,
   parseArgs,
+  runAuditCi,
   validateSuppressions,
+  writeTempAuditCiConfig,
 };

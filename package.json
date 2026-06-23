@@ -54,6 +54,7 @@
     "eslint": "^9.0.0",
     "eslint-plugin-security": "^3.0.1",
     "@opengsd/gsd-core": "1.5.0",
+    "audit-ci": "7.1.0",
     "husky": "^9.1.7",
     "sharp": "^0.34.5",
     "svgexport": "^0.4.2"
@@ -66,6 +67,7 @@
     "finalize-dist": "node scripts/finalize-dist.js",
     "dist": "bun run compose && bun run build && bun run finalize-dist",
     "prepublishOnly": "bun run dist",
+    "audit:ci": "node scripts/audit-check.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "bun test",

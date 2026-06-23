@@ -1,26 +1,32 @@
 # Continuation Context
 
 **Refreshed at:** 2026-06-23
-**Trigger:** Phase 40.6 upstream authority migration completion
+**Trigger:** Phase 41 planning completion
 
 ## Resume Instructions
 
 1. Read `.planning/STATE.md` first. It is the authoritative resume pointer.
-2. Read `.planning/phases/40.6-upstream-authority-migration/40.6-VERIFICATION.md`.
-3. Proceed to Phase 41 planning/execution using Open GSD evidence.
+2. Read `.planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-01-PLAN.md`, `41-02-PLAN.md`, and `41-05-PLAN.md`.
+3. Execute Phase 41 Wave 1 using Open GSD evidence.
 4. Do not run the old Phase 40.5 Wave 5 legacy filing path. It is retired unless a future reviewed plan creates a new Open GSD-specific filing path.
 
 ## Last Known State
 
 **Milestone:** v1.2.0 Ship-Ready Hardening
 
-**Phase:** 40.6 -- Upstream Authority Migration
+**Phase:** 41 -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
 
-**Status:** Phase 40.6 complete. Implementation migrated active authority from legacy `get-shit-done-cc` / `gsd-build/get-shit-done` to Open GSD.
+**Status:** Phase 41 planned. Seven executable plans passed GSD plan-checker; no blocking issues remain.
 
 **Current code state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` is retained only as historical/deprecation evidence. Package smoke for packed `@chude/get-stuff-done@3.0.2` passed, and the boundary checker still reports 41 structural root-mirror violations as explicit debt.
 
-**Next concrete action:** Commit Phase 40.6 if not yet committed, then plan/execute Phase 41 from Open GSD authority. Do not resume Phase 40.5 Wave 5 legacy filing.
+**Next concrete action:** Execute Phase 41 Wave 1 plans:
+
+- `41-01-PLAN.md` -- blocking override gate and changelog conflict guard
+- `41-02-PLAN.md` -- audit suppressions, security policy, and maintenance sections
+- `41-05-PLAN.md` -- subprocess timeout helper and high-volume Windows-prone test migration
+
+Do not resume Phase 40.5 Wave 5 legacy filing.
 
 ## Phase 40.6 Plans
 
@@ -29,6 +35,16 @@
 - `40.6-03-PLAN.md` -- implement upstream identity abstraction and migrate tooling
 - `40.6-04-PLAN.md` -- verification, legacy-reference audit, and Phase 41 readiness reset
 
+## Phase 41 Plans
+
+- `41-01-PLAN.md` -- Wave 1: blocking override gate and changelog conflict guard
+- `41-02-PLAN.md` -- Wave 1: audit suppressions, security policy, and maintenance sections
+- `41-05-PLAN.md` -- Wave 1: subprocess timeout helper and high-volume Windows-prone test migration
+- `41-03-PLAN.md` -- Wave 2: security scanner CI surface and OSV triage
+- `41-04-PLAN.md` -- Wave 2: perf baseline harness, schemas, workflow, and real three-platform capture protocol
+- `41-06-PLAN.md` -- Wave 3: remaining subprocess migration and Windows flake telemetry
+- `41-07-PLAN.md` -- Wave 4: 10x validation, flake maintenance, and D-11/REL-03 closure discipline
+
 ## Tripwires
 
 - Do not use `get-shit-done-cc@latest` as a normal bump target. It is now legacy evidence, not active authority.
@@ -36,6 +52,8 @@
 - Do not assume `@opengsd/gsd-core` has the old `get-shit-done-cc` layout or bins.
 - Do not patch global GSD installs while debugging this. Work in the repo/worktree and use temp package-layout spikes. Note: one earlier `bun install` did trigger the package installer; record this as a verification breach and mitigation.
 - Do not file new upstream work against `gsd-build/get-shit-done` from stale Phase 40.5 instructions.
+- Phase 41 perf and 10x workflows are `workflow_dispatch`; first run requires default-branch workflow registration before `gh workflow run ... --ref ...`.
+- Do not fabricate missing Linux/macOS/Windows perf or test-timing baseline numbers.
 
 ## Active Independent Work
 

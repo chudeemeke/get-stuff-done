@@ -2,15 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 40.6 COMPLETE. Active code pins Open GSD `@opengsd/gsd-core@1.5.0`; legacy `get-shit-done-cc` is historical/deprecation evidence only. Phase 40.5 Wave 5's legacy upstream-filing path is retired. Next path: Phase 41 planning/execution against Open GSD evidence, carrying boundary debt explicitly."
-stopped_at: "2026-06-23 Phase 40.6 complete. Verification: compose green, overrides fresh, authority manifest valid, lint exit 0 with warnings, full bun test 1666 pass / 0 fail, package smoke passed in scratch consumer. Known debt: check-boundary remains red with 41 structural root-mirror violations; Plan 03 global install mutation recorded and not repeated."
-last_updated: "2026-06-23T01:25:00+01:00"
-last_activity: 2026-06-23 -- Phase 40.6 complete; Open GSD authority active; Phase 41 is next
+status: "Phase 41 PLANNED. Seven executable plans passed GSD plan-checker with all 13 Phase 41 requirements covered. Ready to execute Wave 1 (Plans 01, 02, 05) against Open GSD authority. Known debt remains explicit: boundary checker red with 41 structural root-mirror violations; old Phase 40.5 Wave 5 legacy filing path remains retired."
+stopped_at: "2026-06-23 Phase 41 planning complete. Checker verdict: VERIFICATION PASSED; 7 plans; no blocking issues. Next action: execute Phase 41 Wave 1 plans 01, 02, and 05."
+last_updated: "2026-06-23T02:24:37+01:00"
+last_activity: 2026-06-23 -- Phase 41 planned and checker-verified; ready for execution
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 9
+  total_plans: 16
   completed_plans: 4
+  planned_plans: 7
+  percent: 25
 ---
 
 # Project State
@@ -24,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 
 ## Current Position
 
-Phase: Phase 41 (not started) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
-Plan: TBD; plan Phase 41 from Open GSD evidence
-Status: Phase 40.6 complete. Phase 40.5 Wave 1-4 evidence remains useful as legacy baseline evidence, but Wave 5's legacy filing path is retired. Do not run old `/gsd:execute-phase 40.5` blindly.
-Last activity: 2026-06-23 -- Phase 40.6 complete; Open GSD authority active
+Phase: Phase 41 (planned) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
+Plan: 7 checker-verified plans; Wave 1 = 41-01, 41-02, 41-05
+Status: Ready to execute Wave 1 against Open GSD authority
+Last activity: 2026-06-23 -- Phase 41 planned and checker-verified
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 

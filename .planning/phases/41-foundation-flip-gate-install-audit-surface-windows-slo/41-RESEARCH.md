@@ -1044,32 +1044,63 @@ fs.writeFileSync('.planning/perf/test-timing.json', JSON.stringify(results, null
 - gitleaks-action deprecated reusable workflow → direct action usage via `gitleaks/gitleaks-action@v2`
 - osv-scanner-reusable.yml deprecated → `google/osv-scanner-action@v2`
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Bun's JUnit XML totals format.**
    - What we know: bun test supports `--reporter=junit`.
    - What's unclear: whether bun emits `<testsuites time="...">` total element or only per-suite `<testsuite time="...">`.
-   - Recommendation: during Wave 0, run `bun test --reporter=junit --reporter-outfile=/tmp/t.xml` once locally on all 3 platforms, inspect the actual schema, and adjust the parser. If suite totals are missing, sum per-suite times.
+   - RESOLVED: covered by Plan 04 task 04-02. The parser must tolerate missing
+     total time by summing per-file durations, and partial local output cannot
+     satisfy the committed three-platform timing schema.
 
 2. **audit-ci severity-keyed allowlist granularity.**
    - What we know: audit-ci allowlist supports `GHSA-id` and `GHSA-id|module>path` forms.
    - What's unclear: whether audit-ci 7.1.0 supports per-severity allowlist sections (so "allow this LOW but not if it becomes HIGH").
-   - Recommendation: during planning, test with a real GHSA entry; if severity-keyed allowlist is missing, our wrapper can enforce severity + ID combined (belt-and-braces) before passing to audit-ci.
+   - RESOLVED: covered by Plan 02 task 02-02. The local wrapper enforces the
+     richer schema, TTL, and severity/id policy before generating audit-ci's
+     flat allowlist config.
 
 3. **osv-scanner-action severity filter via scan-args.**
    - What we know: `--severity=HIGH,CRITICAL` CLI flag exists in osv-scanner CLI.
    - What's unclear: whether the action's `scan-args` passes flags verbatim.
-   - Recommendation: during Wave 0, test in a branch with `scan-args: --severity=HIGH`. If it doesn't work, fall back to post-processing the SARIF output with a jq filter before deciding the exit code.
+   - RESOLVED: covered by Plan 03 tasks 03-01 and 03-02. The plan does not rely
+     on scanner-level filtering; it preserves all severities and blocks through
+     local `osv-triage --fail-on high,critical`.
 
 4. **harden-runner audit artifact retention for weekly review.**
    - What we know: Default retention is 7 days; free tier.
    - What's unclear: whether the GHA artifact contains machine-readable process/network data, or only the dashboard URL.
-   - Recommendation: document whichever form it's in; weekly MAINTENANCE.md log entry captures the URL if that's what's exposed. Automation is optional; manual is the floor.
+   - RESOLVED: covered by Plan 03 task 03-04. The summary must record the
+     observed artifact/dashboard shape from the first audit-mode run; manual
+     weekly review is the Phase 41 floor.
 
 5. **Gitleaks license for private personal repo.**
    - What we know: Docs say "required for organization accounts."
    - What's unclear: Whether GitHub detects `chudeemeke/get-stuff-done` as personal (free) or will demand a license.
-   - Recommendation: test with no `GITLEAKS_LICENSE` first; if action fails with license error, revisit.
+   - RESOLVED: covered by Plan 03 task 03-02. The first run tests without
+     `GITLEAKS_LICENSE`; a license failure is a blocker requiring user approval
+     before fallback to the existing direct-binary workaround.
+
+### Planning Resolution Addendum (2026-06-23)
+
+The open questions above are no longer loose planning blockers. They are folded
+into the Phase 41 plan set as explicit tasks and acceptance criteria:
+
+1. Bun JUnit XML totals format -> Plan 04 task 04-02 implements partial and merged
+   `bench-test-timing` modes and tests that partial local output cannot satisfy
+   the committed three-platform timing schema.
+2. audit-ci severity-keyed allowlist granularity -> Plan 02 task 02-02 owns a
+   wrapper that validates the richer suppression schema, enforces TTL, and
+   transforms unexpired ids into audit-ci allowlist entries.
+3. OSV severity filtering -> Plan 03 tasks 03-01 and 03-02 use a normal same-job
+   scanner design with local `osv-triage --fail-on high,critical`, preserving
+   MEDIUM/LOW triage instead of relying on scanner-level filtering.
+4. harden-runner artifact machine-readability -> Plan 03 task 03-04 requires the
+   summary to record the artifact/dashboard shape observed during the first
+   audit-mode run; Phase 41 does not promote to block mode.
+5. Gitleaks license behavior -> Plan 03 task 03-02 treats a license failure as a
+   blocker requiring user approval before any fallback to the existing direct
+   binary workaround.
 
 ## Sources
 
@@ -1148,11 +1179,8 @@ fs.writeFileSync('.planning/perf/test-timing.json', JSON.stringify(results, null
 
 ### Open Questions
 
-1. Bun JUnit XML `<testsuites time>` vs per-suite aggregation -- Wave 0 inspection.
-2. audit-ci severity-keyed allowlist granularity -- Wave 0 smoke test.
-3. osv-scanner-action `scan-args: --severity=HIGH` pass-through -- Wave 0 smoke test.
-4. Harden-runner artifact machine-readability -- Wave 0 inspection on first audit-mode run.
-5. Gitleaks license requirement on private personal repos -- try without license first.
+No remaining planning blockers. The former open questions are folded into the
+Phase 41 plan set by the 2026-06-23 Planning Resolution Addendum above.
 
 ### Ready for Planning
 

@@ -14,7 +14,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [x] **UPGRADE-03**: Override staleness enforcement is a BLOCKING CI gate (distinct from informational boundary/compat jobs); `scripts/check-overrides.js` exit-on-fail is wired into CI
 - [ ] **UPGRADE-04**: `.planning/vetted-upstream-versions.json` tracks the N=3 vetted upstream versions as the compat matrix source of truth; pruning on bump is automated
 - [ ] **UPGRADE-05**: A live dogfood upstream bump is executed AFTER Phases 41 and 42 complete — bumping from whatever pin is current at Phase 43 time to whatever's latest then — as proof-the-system-works (D-7). Exercises the new Phase 41/42 overlay/override work against a subsequent bump; distinct from UPGRADE-10's pre-Phase-41 currency bump (the two bumps serve different verification purposes). Evidence recorded in MAINTENANCE.md.
-- [ ] **UPGRADE-06**: `.changelog-conflict-check.sh` detects the known CHANGELOG merge pattern (entry placed inside published release section) and is wired into the bump runbook
+- [x] **UPGRADE-06**: `.changelog-conflict-check.sh` detects the known CHANGELOG merge pattern (entry placed inside published release section) and is wired into the bump runbook
 - [ ] **UPGRADE-07**: Upstream hook improvements merged into `overrides/hooks/gsd-check-update.js` (isNewer, detectConfigDir, stale hook detection, shared cache) with atomic coupling to `gsd-statusline.js`; fork-specific behavior preserved (package name, role routing, commit classification, 4h/7d throttle)
 - [ ] **UPGRADE-08**: Semantic override staleness -- comment-only/whitespace-only upstream changes to override source files do NOT trigger false-positive staleness alerts (D-1; scope: `.js` files initially via AST-diff; `.md` deferred with documented reason)
 - [ ] **UPGRADE-09**: Override churn section auto-generated in CHANGELOG on each upstream bump, listing overrides whose upstream source changed (D-8)
@@ -37,8 +37,8 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [ ] **SECURITY-02**: `gitleaks-action@v2` secrets scan runs on every PR; fails on detected credentials
 - [ ] **SECURITY-03**: `osv-scanner-action@v2` runs against OSV database in CI; catches transitive CVEs that npm/bun audit misses
 - [ ] **SECURITY-04**: `step-security/harden-runner@v2` installed in audit mode in Phase 1; promoted to block mode in Phase 4 only if 2+ weeks of clean audit log
-- [ ] **SECURITY-05**: `eslint-plugin-security` (already installed) config audited and confirmed enabled with all relevant rules
-- [ ] **SECURITY-06**: Security triage policy encoded and documented: critical CVEs/findings -> fix in v1.2.0; major -> plan for v1.3.0; minor -> backlog with review date
+- [x] **SECURITY-05**: `eslint-plugin-security` (already installed) config audited and confirmed enabled with all relevant rules
+- [x] **SECURITY-06**: Security triage policy encoded and documented: critical CVEs/findings -> fix in v1.2.0; major -> plan for v1.3.0; minor -> backlog with review date
 
 ### SHIP (ship-readiness artifacts)
 
@@ -118,7 +118,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | UPGRADE-03 | Phase 41 | Complete |
 | UPGRADE-04 | Phase 43 | Pending |
 | UPGRADE-05 | Phase 43 | Pending |
-| UPGRADE-06 | Phase 41 | Pending |
+| UPGRADE-06 | Phase 41 | Complete |
 | UPGRADE-07 | Phase 43 | Pending |
 | UPGRADE-08 | Phase 43 | Pending |
 | UPGRADE-09 | Phase 43 | Pending |
@@ -135,8 +135,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SECURITY-02 | Phase 41 | Pending |
 | SECURITY-03 | Phase 41 | Pending |
 | SECURITY-04 | Phase 41 | Pending |
-| SECURITY-05 | Phase 41 | Pending |
-| SECURITY-06 | Phase 41 | Pending |
+| SECURITY-05 | Phase 41 | Complete |
+| SECURITY-06 | Phase 41 | Complete |
 | SHIP-01 | Phase 44 | Pending |
 | SHIP-02 | Phase 44 | Pending |
 | SHIP-03 | Phase 43 | Pending |

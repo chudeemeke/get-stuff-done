@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 41 EXECUTING. Plan 01 complete: override-check is blocking, boundary-check remains informational, and changelog conflict self-test exists. Wave 1 continues with Plan 02 audit surface and Plan 05 subprocess reliability."
-stopped_at: "2026-06-23 Phase 41 Plan 01 complete. Next action: execute Plan 02 (audit suppressions, security policy, maintenance sections), then Plan 05."
-last_updated: "2026-06-23T02:40:45+01:00"
-last_activity: 2026-06-23 -- Phase 41 Plan 01 complete
+status: "Phase 41 EXECUTING. Plans 01 and 02 complete: override-check is blocking, audit suppressions validate with TTL, SECURITY.md triage policy exists, and MAINTENANCE.md has Phase 41 sections. Wave 1 continues with Plan 05 subprocess reliability."
+stopped_at: "2026-06-23 Phase 41 Plan 02 complete. Next action: execute Plan 05 (subprocess timeout helper and high-volume Windows-prone test migration)."
+last_updated: "2026-06-23T03:37:00+01:00"
+last_activity: 2026-06-23 -- Phase 41 Plan 02 complete
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 16
-  completed_plans: 5
-  planned_plans: 6
-  percent: 31
+  completed_plans: 6
+  planned_plans: 5
+  percent: 38
 ---
 
 # Project State
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: Phase 41 (executing) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
-Plan: 1 of 7 complete; Wave 1 remaining = 41-02, 41-05
+Plan: 2 of 7 complete; Wave 1 remaining = 41-05
 Status: Continue Wave 1 against Open GSD authority
-Last activity: 2026-06-23 -- Phase 41 Plan 01 complete
+Last activity: 2026-06-23 -- Phase 41 Plan 02 complete
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -89,7 +89,7 @@ Boundary checker remains red with 41 structural root-mirror violations. This is 
 
 ## Session Continuity
 
-Last session: 2026-06-23 (Phase 41 Plan 01 execution and verification complete).
+Last session: 2026-06-23 (Phase 41 Plan 02 execution and verification complete).
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Phase 41 Plan 01 complete; Wave 1 continues with Plans 02 and 05.
+Stopped at: Phase 41 Plan 02 complete; Wave 1 continues with Plan 05.
 Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md

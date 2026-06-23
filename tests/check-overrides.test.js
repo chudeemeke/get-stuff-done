@@ -819,6 +819,34 @@ describe('CLI exit codes', () => {
     expect(result.status).toBe(1);
   });
 
+  test('stale override CLI output names path and mismatch action', () => {
+    const oldHash = computeHash('old upstream content');
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'lib/config.cjs', content: 'updated upstream content' }],
+      overrideFiles: [
+        {
+          relPath: 'lib/config.cjs',
+          content: 'fork content',
+          reasonHash: oldHash,
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const result = spawnSync(
+      process.execPath,
+      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
+      { encoding: 'utf-8' }
+    );
+    const output = `${result.stdout}\n${result.stderr}`;
+
+    expect(result.status).toBe(1);
+    expect(output).toContain('overrides/lib/config.cjs');
+    expect(output).toContain('STALE');
+    expect(output).toContain('Current hash:');
+    expect(output).toContain('Action:');
+  });
+
   test('exits 1 when REASON.md is missing', () => {
     const fixture = createFixture({
       upstreamFiles: [{ relPath: 'bin/helper.js', content: 'upstream content' }],
@@ -838,6 +866,32 @@ describe('CLI exit codes', () => {
       { encoding: 'utf-8' }
     );
     expect(result.status).toBe(1);
+  });
+
+  test('missing REASON.md CLI output names expected companion file', () => {
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'bin/helper.js', content: 'upstream content' }],
+      overrideFiles: [
+        {
+          relPath: 'bin/helper.js',
+          content: 'fork content',
+          reasonHash: null,
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const result = spawnSync(
+      process.execPath,
+      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
+      { encoding: 'utf-8' }
+    );
+    const output = `${result.stdout}\n${result.stderr}`;
+
+    expect(result.status).toBe(1);
+    expect(output).toContain('overrides/bin/helper.js');
+    expect(output).toContain('MISSING REASON.md');
+    expect(output).toContain('bin/helper.js.REASON.md');
   });
 
   test('CLI output includes the report header', () => {

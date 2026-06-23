@@ -11,7 +11,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 
 - [ ] **UPGRADE-01**: `scripts/verify-upgrade.js` orchestrates the full upgrade cycle (install prior version -> bump upstream -> recompose -> reinstall -> smoke-verify) against a Verdaccio local registry
 - [ ] **UPGRADE-02**: Historical-version compat matrix runs in CI against N=3 most recent vetted upstream versions, driven by `.planning/vetted-upstream-versions.json`
-- [ ] **UPGRADE-03**: Override staleness enforcement is a BLOCKING CI gate (distinct from informational boundary/compat jobs); `scripts/check-overrides.js` exit-on-fail is wired into CI
+- [x] **UPGRADE-03**: Override staleness enforcement is a BLOCKING CI gate (distinct from informational boundary/compat jobs); `scripts/check-overrides.js` exit-on-fail is wired into CI
 - [ ] **UPGRADE-04**: `.planning/vetted-upstream-versions.json` tracks the N=3 vetted upstream versions as the compat matrix source of truth; pruning on bump is automated
 - [ ] **UPGRADE-05**: A live dogfood upstream bump is executed AFTER Phases 41 and 42 complete — bumping from whatever pin is current at Phase 43 time to whatever's latest then — as proof-the-system-works (D-7). Exercises the new Phase 41/42 overlay/override work against a subsequent bump; distinct from UPGRADE-10's pre-Phase-41 currency bump (the two bumps serve different verification purposes). Evidence recorded in MAINTENANCE.md.
 - [ ] **UPGRADE-06**: `.changelog-conflict-check.sh` detects the known CHANGELOG merge pattern (entry placed inside published release section) and is wired into the bump runbook
@@ -115,7 +115,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 |-------------|-------|--------|
 | UPGRADE-01 | Phase 43 | Pending |
 | UPGRADE-02 | Phase 43 | Pending |
-| UPGRADE-03 | Phase 41 | Pending |
+| UPGRADE-03 | Phase 41 | Complete |
 | UPGRADE-04 | Phase 43 | Pending |
 | UPGRADE-05 | Phase 43 | Pending |
 | UPGRADE-06 | Phase 41 | Pending |

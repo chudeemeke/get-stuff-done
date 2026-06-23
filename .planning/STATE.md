@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 41 PLANNED. Seven executable plans passed GSD plan-checker with all 13 Phase 41 requirements covered. Ready to execute Wave 1 (Plans 01, 02, 05) against Open GSD authority. Known debt remains explicit: boundary checker red with 41 structural root-mirror violations; old Phase 40.5 Wave 5 legacy filing path remains retired."
-stopped_at: "2026-06-23 Phase 41 planning complete. Checker verdict: VERIFICATION PASSED; 7 plans; no blocking issues. Next action: execute Phase 41 Wave 1 plans 01, 02, and 05."
-last_updated: "2026-06-23T02:24:37+01:00"
-last_activity: 2026-06-23 -- Phase 41 planned and checker-verified; ready for execution
+status: "Phase 41 EXECUTING. Plan 01 complete: override-check is blocking, boundary-check remains informational, and changelog conflict self-test exists. Wave 1 continues with Plan 02 audit surface and Plan 05 subprocess reliability."
+stopped_at: "2026-06-23 Phase 41 Plan 01 complete. Next action: execute Plan 02 (audit suppressions, security policy, maintenance sections), then Plan 05."
+last_updated: "2026-06-23T02:40:45+01:00"
+last_activity: 2026-06-23 -- Phase 41 Plan 01 complete
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 16
-  completed_plans: 4
-  planned_plans: 7
-  percent: 25
+  completed_plans: 5
+  planned_plans: 6
+  percent: 31
 ---
 
 # Project State
@@ -22,14 +22,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 41 foundation planning/execution against Open GSD authority
+**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 41 Wave 1 execution against Open GSD authority
 
 ## Current Position
 
-Phase: Phase 41 (planned) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
-Plan: 7 checker-verified plans; Wave 1 = 41-01, 41-02, 41-05
-Status: Ready to execute Wave 1 against Open GSD authority
-Last activity: 2026-06-23 -- Phase 41 planned and checker-verified
+Phase: Phase 41 (executing) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
+Plan: 1 of 7 complete; Wave 1 remaining = 41-02, 41-05
+Status: Continue Wave 1 against Open GSD authority
+Last activity: 2026-06-23 -- Phase 41 Plan 01 complete
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -70,7 +70,7 @@ v1.2.0 roadmap decisions:
 
 ### Carried Forward Tech Debt
 
-- 48 boundary violations (structural, informational CI)
+- 41 boundary violations (structural, informational CI)
 - ~130 upstream compat failures (branding diffs, informational CI)
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
@@ -89,7 +89,7 @@ Boundary checker remains red with 41 structural root-mirror violations. This is 
 
 ## Session Continuity
 
-Last session: 2026-06-23 (Phase 40.6 execution and verification complete).
+Last session: 2026-06-23 (Phase 41 Plan 01 execution and verification complete).
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Phase 40.6 complete, ready to proceed into Phase 41 planning/execution.
+Stopped at: Phase 41 Plan 01 complete; Wave 1 continues with Plans 02 and 05.
 Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md

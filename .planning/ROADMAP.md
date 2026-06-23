@@ -124,7 +124,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. The full test suite passes 10 consecutive CI runs on Linux, macOS, AND Windows with zero retries; any residual skip is tagged with an issue link and a deadline recorded in MAINTENANCE.md's Escape-Hatch Decisions Log (REL-03 as flagged-on-use contingency only).
   6. `.changelog-conflict-check.sh` detects the known "entry inside published release section" pattern on a synthetic fixture and exits non-zero; the bump runbook references it as a required pre-push check.
 **Plans**: 7 plans (checker-verified 2026-06-23)
-- [ ] 41-01-PLAN.md -- Wave 1: Blocking override gate and changelog conflict guard
+- [x] 41-01-PLAN.md -- Wave 1: Blocking override gate and changelog conflict guard
 - [ ] 41-02-PLAN.md -- Wave 1: Audit suppressions, security policy, and maintenance sections
 - [ ] 41-05-PLAN.md -- Wave 1: Subprocess timeout helper and high-volume Windows-prone test migration
 - [ ] 41-03-PLAN.md -- Wave 2: Security scanner CI surface and OSV triage
@@ -182,7 +182,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 37-40 | v1.1.0 | 8/8 | Complete | 2026-04-04 |
 | 40.5 | v1.2.0 | 4/5 evidence | Partial; Wave 5 legacy filing path retired by Phase 40.6 | - |
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
-| 41 | v1.2.0 | 0/7 | Planned; checker-verified 2026-06-23; ready for Wave 1 execution | - |
+| 41 | v1.2.0 | 1/7 | In Progress; Plan 01 complete; Wave 1 continues with Plans 02 and 05 | - |
 | 42 | v1.2.0 | 0/TBD | Not started | - |
 | 43 | v1.2.0 | 0/TBD | Not started | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |

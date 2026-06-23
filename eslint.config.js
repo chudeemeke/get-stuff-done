@@ -59,6 +59,8 @@ module.exports = [
       }
     },
     rules: {
+      // Test fixtures intentionally use dynamic paths, subprocesses, and object
+      // probes. Production JavaScript above keeps eslint-plugin-security active.
       'security/detect-non-literal-fs-filename': 'off',
       'security/detect-non-literal-require': 'off',
       'security/detect-child-process': 'off',

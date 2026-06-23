@@ -91,7 +91,7 @@ function createFixture(opts = {}) {
   fs.mkdirSync(upstreamDir, { recursive: true });
   fs.writeFileSync(
     path.join(upstreamDir, 'package.json'),
-    JSON.stringify({ name: 'get-shit-done-cc', version: upstreamVersion }),
+    JSON.stringify({ name: '@opengsd/gsd-core', version: upstreamVersion }),
     'utf-8'
   );
 

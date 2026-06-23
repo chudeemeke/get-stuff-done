@@ -5,7 +5,7 @@
  * import paths for npm package compatibility with local dev fallback.
  *
  * Task 1 of 35-01:
- *   - package.json files array ships dist/, bin/, overlay/branding.json, overlay/features.json
+ *   - package.json files array ships dist/, bin/, overlay manifests, and packaged runtime helpers
  *   - package.json prepublishOnly runs bun run dist
  *   - bin/gsd.js imports from dist/src/ with fallback to overlay/src/
  */
@@ -20,7 +20,15 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 describe('v3.0 package configuration', () => {
   test('package.json files array contains exactly the v3.0 entries', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.files).toEqual(['dist', 'bin', 'overlay/branding.json', 'overlay/features.json']);
+    expect(pkg.files).toEqual([
+      'dist',
+      'bin',
+      'overlay/branding.json',
+      'overlay/features.json',
+      'scripts/check-overrides.js',
+      'scripts/lib/upstream-source.js',
+      'scripts/preview-update.js',
+    ]);
   });
 
   test('package.json prepublishOnly equals "bun run dist"', () => {

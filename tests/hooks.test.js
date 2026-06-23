@@ -22,7 +22,7 @@
  */
 
 const { describe, test, expect, beforeEach, afterEach, beforeAll } = require('bun:test');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { createTempDir, createTempFile, createMockPlanningDir, SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers');
@@ -52,7 +52,7 @@ function createGitRepoWithUpstream(commitCount = 2) {
   } catch (e) { /* already on main */ }
   fs.writeFileSync(path.join(upstreamDir, 'base.txt'), 'base');
   execSync('git add .', { cwd: upstreamDir, ...gitOpts });
-  execSync('git commit -m "chore: init"', { cwd: upstreamDir, ...gitOpts });
+  execFileSync('git', ['commit', '-m', 'chore: init'], { cwd: upstreamDir, ...gitOpts });
 
   // Initialize local repo cloned from upstream
   execSync(`git clone "${upstreamDir}" "${localDir}"`, { ...gitOpts });
@@ -72,7 +72,7 @@ function createGitRepoWithUpstream(commitCount = 2) {
     const msg = commitMessages[i % commitMessages.length];
     fs.writeFileSync(path.join(upstreamDir, `upstream-${i}.txt`), `upstream commit ${i}`);
     execSync('git add .', { cwd: upstreamDir, ...gitOpts });
-    execSync(`git commit -m "${msg}"`, { cwd: upstreamDir, ...gitOpts });
+    execFileSync('git', ['commit', '-m', msg], { cwd: upstreamDir, ...gitOpts });
   }
 
   const cleanup = () => {

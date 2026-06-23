@@ -93,8 +93,8 @@ describe('v3.0 Delegation Installer', () => {
       // v3.0 installer must delegate to upstream and exit 0
       expect(result.success).toBe(true);
 
-      // Upstream files must exist in target (upstream writes to get-shit-done/ subdir)
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      // Upstream files must exist in target (Open GSD writes gsd-core/ as its package root)
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
       expect(fs.existsSync(path.join(targetDir, 'commands', 'gsd'))).toBe(true);
       expect(fs.existsSync(path.join(targetDir, 'agents'))).toBe(true);
       expect(fs.existsSync(path.join(targetDir, 'hooks'))).toBe(true);
@@ -172,8 +172,8 @@ describe('v3.0 Delegation Installer', () => {
       const result = runV3Installer(targetDir);
       expect(result.success).toBe(true);
 
-      // .install-meta.json should be in the get-shit-done/ subdirectory
-      const metaPath = path.join(targetDir, 'get-shit-done', '.install-meta.json');
+      // .install-meta.json should be written at the target root for the composed install
+      const metaPath = path.join(targetDir, '.install-meta.json');
       expect(fs.existsSync(metaPath)).toBe(true);
 
       const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
@@ -198,7 +198,7 @@ describe('v3.0 Delegation Installer', () => {
       expect(result.success).toBe(true);
 
       const distMeta = JSON.parse(fs.readFileSync(path.join(DIST_DIR, '.install-meta.json'), 'utf-8'));
-      const metaPath = path.join(targetDir, 'get-shit-done', '.install-meta.json');
+      const metaPath = path.join(targetDir, '.install-meta.json');
       const installedMeta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
 
       expect(installedMeta.upstream_version).toBe(distMeta.upstream_version);
@@ -217,16 +217,16 @@ describe('v3.0 Delegation Installer', () => {
       // First install
       const installResult = runV3Installer(targetDir);
       expect(installResult.success).toBe(true);
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
 
       // Then uninstall
       const uninstallResult = runV3Installer(targetDir, ['--uninstall']);
       expect(uninstallResult.success).toBe(true);
 
-      // Target directory should be empty or removed
+      // GSD-owned files should be removed. settings.json is preserved as user content.
       if (fs.existsSync(targetDir)) {
         const remaining = fs.readdirSync(targetDir);
-        expect(remaining.length).toBe(0);
+        expect(remaining).toEqual(['settings.json']);
       }
     });
 
@@ -284,13 +284,13 @@ describe('v3.0 Delegation Installer', () => {
       expect(fs.existsSync(gsdDir)).toBe(false);
 
       // v3.0 files should be installed
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
 
       // Auto-clean output contains migration banner
       expect(result.output).toContain('Upgrading from v2.x to v3.0');
     });
 
-    test('detects v2.x via get-stuff-done/ without get-shit-done/', { timeout: 30000 }, () => {
+    test('detects v2.x via get-stuff-done/ without Open GSD root/', { timeout: 30000 }, () => {
       const targetDir = path.join(tmpDir.path, 'target');
 
       // Create mock v2.x installation with old directory name
@@ -306,7 +306,7 @@ describe('v3.0 Delegation Installer', () => {
       expect(fs.existsSync(gsdDir)).toBe(false);
 
       // v3.0 files should be installed
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
     });
 
     test('--force suppresses migration banner (quiet mode)', { timeout: 30000 }, () => {
@@ -329,7 +329,7 @@ describe('v3.0 Delegation Installer', () => {
       expect(result.output).not.toContain('Upgrading from v2.x to v3.0');
 
       // v3.0 files should still be installed
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
     });
   });
 
@@ -350,10 +350,9 @@ describe('v3.0 Delegation Installer', () => {
 
     test('does NOT detect v2.x for v3.0 installation', { timeout: 30000 }, () => {
       const targetDir = path.join(tmpDir.path, 'v3-target');
-      const gshDir = path.join(targetDir, 'get-shit-done');
-      fs.mkdirSync(gshDir, { recursive: true });
+      fs.mkdirSync(targetDir, { recursive: true });
       fs.writeFileSync(
-        path.join(gshDir, '.install-meta.json'),
+        path.join(targetDir, '.install-meta.json'),
         JSON.stringify({ overlay_version: '3.0.0', version: '3.0.0' }),
         'utf-8'
       );

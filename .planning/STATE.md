@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 40.6 INSERTED for upstream authority migration. Phase 40.5 reached Wave 4 evidence on legacy `get-shit-done-cc@1.39.1`, but Wave 5's legacy upstream-filing path is superseded by live upstream discovery: old TACHES/GSD package is no longer the right authority; Open GSD `@opengsd/gsd-core@1.5.0` is the migration target. Execute/review Phase 40.6 before Phase 41 or any old Wave 5 filing."
-stopped_at: "2026-06-22 upstream authority pivot. Live npm/GitHub evidence: `get-shit-done-cc` latest is 1.42.3 and still maintained on npm only by glittercowboy; legacy repo is `gsd-build/get-shit-done`; successor Open GSD package `@opengsd/gsd-core` latest stable is 1.5.0 with active `open-gsd/gsd-core` development and different bin/source layout. Next: review Phase 40.6 plan artifacts, then execute Phase 40.6 before returning to Phase 40.5 closure or Phase 41."
-last_updated: "2026-06-22T22:05:56.2133667+01:00"
-last_activity: 2026-06-22 -- Phase 40.6 upstream authority migration inserted; roadmap/requirements/project/resume surfaces updated
+status: "Phase 40.6 COMPLETE. Active code pins Open GSD `@opengsd/gsd-core@1.5.0`; legacy `get-shit-done-cc` is historical/deprecation evidence only. Phase 40.5 Wave 5's legacy upstream-filing path is retired. Next path: Phase 41 planning/execution against Open GSD evidence, carrying boundary debt explicitly."
+stopped_at: "2026-06-23 Phase 40.6 complete. Verification: compose green, overrides fresh, authority manifest valid, lint exit 0 with warnings, full bun test 1666 pass / 0 fail, package smoke passed in scratch consumer. Known debt: check-boundary remains red with 41 structural root-mirror violations; Plan 03 global install mutation recorded and not repeated."
+last_updated: "2026-06-23T01:25:00+01:00"
+last_activity: 2026-06-23 -- Phase 40.6 complete; Open GSD authority active; Phase 41 is next
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 9
-  completed_plans: 0
+  completed_plans: 4
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 40.6 upstream authority migration inserted; review/execute it before Phase 41
+**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 41 foundation planning/execution against Open GSD authority
 
 ## Current Position
 
-Phase: Phase 40.6 (INSERTED, plan artifacts pending review) -- Upstream Authority Migration
-Plan: 4 plans complete (40.6-01 through 40.6-04) once this insertion patch lands; must be reviewed before implementation
-Status: Phase 40.5 Wave 1-4 work exists in this branch, but its Wave 5 legacy filing path is superseded. Phase 40.6 now owns the upstream-authority decision, Open GSD package-layout spike, tooling migration, verification, and Phase 41 readiness reset. Do not run old `/gsd:execute-phase 40.5` blindly.
-Last activity: 2026-06-22 -- live upstream status checked and Phase 40.6 inserted as a blocking pre-Phase-41 migration phase
+Phase: Phase 41 (not started) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
+Plan: TBD; plan Phase 41 from Open GSD evidence
+Status: Phase 40.6 complete. Phase 40.5 Wave 1-4 evidence remains useful as legacy baseline evidence, but Wave 5's legacy filing path is retired. Do not run old `/gsd:execute-phase 40.5` blindly.
+Last activity: 2026-06-23 -- Phase 40.6 complete; Open GSD authority active
 
-**Upstream state:** Active worktree currently pins legacy `get-shit-done-cc@1.39.1`. Live npm/GitHub evidence on 2026-06-22 shows legacy `get-shit-done-cc` latest `1.42.3` plus `next=1.43.0-rc2` / canary tags, but Open GSD `@opengsd/gsd-core@1.5.0` is the stable successor target. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override tooling must be migrated deliberately.
+**Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
 ## Performance Metrics
 
@@ -58,6 +58,8 @@ v1.2.0 roadmap decisions:
 - PROCESS-07 graduation criteria locked to specific numbers (N=20 PRs, <=5% FP rate, maintainer-reviewed PR + 2 weeks clean CI + MAINTENANCE.md entry)
 - Phase numbering continues integer sequence from v1.1.0 last phase (40) -> v1.2.0 starts at Phase 41
 - Phase 40.6 inserted 2026-06-22 after upstream status review found the Phase 40.5 legacy authority assumption invalid. This is not a rewrite and not a GSD-2 migration; it preserves the overlay architecture while changing the authoritative upstream package/repo from legacy TACHES/GSD to Open GSD.
+- Phase 40.6 execution migrated active code to exact-pinned `@opengsd/gsd-core@1.5.0`, added the upstream-authority helper/fallback, and changed active `/gsd:upstream` surfaces to `open-gsd/gsd-core`.
+- Phase 40.6 completed 2026-06-23. UPGRADE-11 satisfied; package smoke passed from packed tarball; boundary checker remains known structural debt at 41 violations.
 
 ### Roadmap Evolution
 
@@ -81,11 +83,11 @@ None.
 
 ### Blockers/Concerns
 
-Phase 40.6 plan review is required before implementation. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream until Phase 40.6 decides whether any legacy filing still has value.
+Boundary checker remains red with 41 structural root-mirror violations. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path.
 
 ## Session Continuity
 
-Last session: 2026-06-22 (upstream status review + Phase 40.6 insertion).
+Last session: 2026-06-23 (Phase 40.6 execution and verification complete).
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Phase 40.6 inserted and ready for external review, then execution. Next: `/gsd:review --phase 40.6 --all` followed by `/gsd:execute-phase 40.6` if review clears or is amended.
-Resume file: .planning/phases/40.6-upstream-authority-migration/40.6-CONTEXT.md
+Stopped at: Phase 40.6 complete, ready to proceed into Phase 41 planning/execution.
+Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md

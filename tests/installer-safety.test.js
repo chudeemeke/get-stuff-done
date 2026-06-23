@@ -198,7 +198,7 @@ describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
     assertUserContentIntact(tmpDir.path);
   });
 
-  test('INST-03: legacy fallback removes only get-stuff-done/ and get-shit-done/', () => {
+  test('INST-03: legacy fallback removes only known GSD package roots', () => {
     // No manifest -- triggers legacy fallback
 
     // Create v2-style directories
@@ -207,6 +207,9 @@ describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
 
     fs.mkdirSync(path.join(tmpDir.path, 'get-shit-done', 'bin'), { recursive: true });
     fs.writeFileSync(path.join(tmpDir.path, 'get-shit-done', 'bin', 'tools.cjs'), 'v3 code');
+
+    fs.mkdirSync(path.join(tmpDir.path, 'gsd-core', 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir.path, 'gsd-core', 'bin', 'tools.cjs'), 'open gsd code');
 
     // Create user content
     populateUserContent(tmpDir.path);
@@ -220,6 +223,7 @@ describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // Assert: v2 directories removed
     expect(fs.existsSync(path.join(tmpDir.path, 'get-stuff-done'))).toBe(false);
     expect(fs.existsSync(path.join(tmpDir.path, 'get-shit-done'))).toBe(false);
+    expect(fs.existsSync(path.join(tmpDir.path, 'gsd-core'))).toBe(false);
 
     // Assert: user content intact (INST-03)
     assertUserContentIntact(tmpDir.path);
@@ -251,6 +255,32 @@ describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(fs.existsSync(path.join(tmpDir.path, 'get-shit-done'))).toBe(false);
   });
 
+  test('manifest strategy also removes overlay-manifest files', () => {
+    const upstreamFiles = ['gsd-core/bin/install.js'];
+    const overlayFiles = ['hooks/pre-compact.js', 'src/platform/detect.js'];
+
+    for (const f of [...upstreamFiles, ...overlayFiles]) {
+      const fullPath = path.join(tmpDir.path, f);
+      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+      fs.writeFileSync(fullPath, 'content');
+    }
+
+    writeManifest(tmpDir.path, upstreamFiles);
+    fs.writeFileSync(
+      path.join(tmpDir.path, '.overlay-manifest.json'),
+      JSON.stringify(overlayFiles),
+      'utf-8'
+    );
+
+    const result = removeGsdFiles(tmpDir.path, true);
+
+    expect(result.strategy).toBe('manifest');
+    for (const f of [...upstreamFiles, ...overlayFiles]) {
+      expect(fs.existsSync(path.join(tmpDir.path, f))).toBe(false);
+    }
+    expect(fs.existsSync(path.join(tmpDir.path, '.overlay-manifest.json'))).toBe(false);
+  });
+
   test('does NOT prune directory containing user file (co-located content)', () => {
     // Pitfall 4: GSD file and user file in the same directory
     const manifestFiles = [
@@ -278,11 +308,14 @@ describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(fs.readFileSync(path.join(tmpDir.path, 'hooks', 'my-custom-hook.js'), 'utf-8')).toBe('user hook content');
   });
 
-  test('always removes metadata files (manifest, .install-meta, CREDITS, package.json)', () => {
+  test('always removes GSD metadata files', () => {
     // Create metadata files at target root
     fs.writeFileSync(path.join(tmpDir.path, INSTALLED_MANIFEST_NAME), '{}');
     fs.writeFileSync(path.join(tmpDir.path, '.install-meta.json'), '{}');
+    fs.writeFileSync(path.join(tmpDir.path, '.overlay-manifest.json'), '[]');
+    fs.writeFileSync(path.join(tmpDir.path, '.gsd-profile'), 'full');
     fs.writeFileSync(path.join(tmpDir.path, 'CREDITS.md'), '# Credits');
+    fs.writeFileSync(path.join(tmpDir.path, 'gsd-install-state.json'), '{}');
     fs.writeFileSync(path.join(tmpDir.path, 'package.json'), '{}');
 
     // Write a valid manifest so it uses manifest strategy
@@ -296,7 +329,10 @@ describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // Assert: all metadata files removed
     expect(fs.existsSync(path.join(tmpDir.path, INSTALLED_MANIFEST_NAME))).toBe(false);
     expect(fs.existsSync(path.join(tmpDir.path, '.install-meta.json'))).toBe(false);
+    expect(fs.existsSync(path.join(tmpDir.path, '.overlay-manifest.json'))).toBe(false);
+    expect(fs.existsSync(path.join(tmpDir.path, '.gsd-profile'))).toBe(false);
     expect(fs.existsSync(path.join(tmpDir.path, 'CREDITS.md'))).toBe(false);
+    expect(fs.existsSync(path.join(tmpDir.path, 'gsd-install-state.json'))).toBe(false);
     expect(fs.existsSync(path.join(tmpDir.path, 'package.json'))).toBe(false);
   });
 
@@ -514,7 +550,7 @@ describe('detectV2', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(result.signal).toBe('meta-corrupt');
   });
 
-  test('returns true with signal directory-name when get-stuff-done/ exists without get-shit-done/', () => {
+  test('returns true with signal directory-name when get-stuff-done/ exists without gsd-core/', () => {
     fs.mkdirSync(path.join(tmpDir.path, 'get-stuff-done', 'bin'), { recursive: true });
     fs.writeFileSync(
       path.join(tmpDir.path, 'get-stuff-done', 'bin', 'tools.cjs'),
@@ -531,9 +567,9 @@ describe('detectV2', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(result.isV2).toBe(false);
   });
 
-  test('returns false when both get-stuff-done/ and get-shit-done/ exist (v3.0 has both)', () => {
+  test('returns false when both get-stuff-done/ and gsd-core/ exist (active install present)', () => {
     fs.mkdirSync(path.join(tmpDir.path, 'get-stuff-done'), { recursive: true });
-    fs.mkdirSync(path.join(tmpDir.path, 'get-shit-done'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir.path, 'gsd-core'), { recursive: true });
 
     const result = detectV2(tmpDir.path);
     expect(result.isV2).toBe(false);
@@ -776,10 +812,7 @@ describe('copyOverlayManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
     tmpDir.cleanup();
   });
 
-  test('copies .overlay-manifest.json to get-shit-done/ in target', () => {
-    const gsdDir = path.join(tmpDir.path, 'get-shit-done');
-    fs.mkdirSync(gsdDir, { recursive: true });
-
+  test('copies .overlay-manifest.json to target root', () => {
     // Create a mock dist dir with .overlay-manifest.json
     const distDir = path.join(tmpDir.path, 'mock-dist');
     fs.mkdirSync(distDir);
@@ -791,31 +824,28 @@ describe('copyOverlayManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
 
     const result = copyOverlayManifest(distDir, tmpDir.path);
 
-    const installed = path.join(gsdDir, '.overlay-manifest.json');
+    const installed = path.join(tmpDir.path, '.overlay-manifest.json');
     expect(result).toBe(true);
     expect(fs.existsSync(installed)).toBe(true);
     expect(JSON.parse(fs.readFileSync(installed, 'utf8'))).toEqual(manifest);
   });
 
-  test('skips gracefully if get-shit-done/ does not exist in target', () => {
+  test('does not require an upstream package root in target', () => {
     const distDir = path.join(tmpDir.path, 'mock-dist');
     fs.mkdirSync(distDir);
+    const manifest = ['hooks/gsd-statusline.js'];
     fs.writeFileSync(
       path.join(distDir, '.overlay-manifest.json'),
-      JSON.stringify([])
+      JSON.stringify(manifest)
     );
 
-    // Should not throw, returns false
     const result = copyOverlayManifest(distDir, tmpDir.path);
 
-    expect(result).toBe(false);
-    expect(fs.existsSync(path.join(tmpDir.path, 'get-shit-done'))).toBe(false);
+    expect(result).toBe(true);
+    expect(JSON.parse(fs.readFileSync(path.join(tmpDir.path, '.overlay-manifest.json'), 'utf8'))).toEqual(manifest);
   });
 
   test('skips gracefully if .overlay-manifest.json does not exist in dist', () => {
-    const gsdDir = path.join(tmpDir.path, 'get-shit-done');
-    fs.mkdirSync(gsdDir, { recursive: true });
-
     const distDir = path.join(tmpDir.path, 'mock-dist');
     fs.mkdirSync(distDir);
 
@@ -824,7 +854,7 @@ describe('copyOverlayManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
 
     expect(result).toBe(false);
     expect(
-      fs.existsSync(path.join(gsdDir, '.overlay-manifest.json'))
+      fs.existsSync(path.join(tmpDir.path, '.overlay-manifest.json'))
     ).toBe(false);
   });
 });

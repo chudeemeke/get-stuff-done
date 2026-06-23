@@ -8,7 +8,7 @@
 - ⚫ **v0.4.0 Platform Expansion** — Phases 24-28 (superseded by v1.0.0)
 - ✅ **v1.0.0 Overlay Architecture** — Phases 29-36 (shipped 2026-03-31)
 - ✅ **v1.1.0 Installer & Deployment Hardening** — Phases 37-40 (shipped 2026-04-04)
-- 🔵 **v1.2.0 Ship-Ready Hardening** — Phases 40.5-40.6, 41-44 (active, started 2026-04-20; Phase 40.5 inserted 2026-04-22; Phase 40.6 inserted 2026-06-22)
+- 🔵 **v1.2.0 Ship-Ready Hardening** — Phases 40.5-40.6, 41-44 (active, started 2026-04-20; Phase 40.5 inserted 2026-04-22; Phase 40.6 completed 2026-06-23)
 
 ## Phases
 
@@ -71,7 +71,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 ### v1.2.0 Ship-Ready Hardening (Phases 40.5-40.6, 41-44) -- ACTIVE
 
 - [ ] **Phase 40.5: Upstream Bump & Phase 41 Decision Re-verification** — (INSERTED 2026-04-22) Pre-Phase-41 currency bump. Bump upstream pin from 1.34.2 to 1.38.2 (312 commits / 566 files drift), refresh override SHA-256 snapshots, audit for compose collisions, re-verify all Phase 41 CONTEXT.md decisions against fresh upstream state, and amend CONTEXT.md if any decision changes. Enables Phase 41 planning against current upstream. Distinct from Phase 43's UPGRADE-05 dogfood bump.
-- [ ] **Phase 40.6: Upstream Authority Migration** -- (INSERTED 2026-06-22) Replace legacy upstream authority (`get-shit-done-cc` / `gsd-build/get-shit-done`) with active Open GSD authority (`@opengsd/gsd-core` / `open-gsd/gsd-core`) before Phase 41. Pin a vetted Open GSD stable version, rebase compose/override/update tooling on the new package layout, preserve fork identity, and retire Phase 40.5's legacy filing path.
+- [x] **Phase 40.6: Upstream Authority Migration** -- (COMPLETED 2026-06-23) Replaced legacy upstream authority (`get-shit-done-cc` / `gsd-build/get-shit-done`) with active Open GSD authority (`@opengsd/gsd-core` / `open-gsd/gsd-core`) before Phase 41. Pinned vetted Open GSD stable version `1.5.0`, rebased compose/override/update/package tooling on the new package layout, preserved fork identity, and retired Phase 40.5's legacy filing path.
 - [ ] **Phase 41: Foundation — Flip Gate, Install Audit Surface, Windows SLO** — Blocking override-staleness gate, supply-chain audit surface, perf baseline capture, and Windows flake root-cause so later gates compose on a clean, trustworthy baseline.
 - [ ] **Phase 42: Budget Enforcement, Process Hardening, Cousin-Test** — Perf budget enforcement against the baseline, consolidated oversight triggers (1 principle + 4 triggers + probes), cold-install CI + INSTALL.md, and markdown/link gates for docs.
 - [ ] **Phase 43: Upgrade Resilience — Verify, Matrix, Dogfood** — End-to-end upgrade simulation via Verdaccio, N=3 historical compat matrix, live dogfood upstream bump, override-churn changelog automation, and SBOM in the compose pipeline.
@@ -96,7 +96,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [ ] 40.5-04-PLAN.md — Wave 4: 24-decision re-verify (D-01..D-18 + A-01..A-06); D-09 vs #2499; 999.1 vs #2487
 - [ ] 40.5-05-PLAN.md — Wave 5: Synthesis VERIFICATION.md + README.md; 999.3 disposition; STATE.md close
 
-### Phase 40.6: Upstream Authority Migration (INSERTED)
+### Phase 40.6: Upstream Authority Migration (COMPLETED 2026-06-23)
 **Goal**: Move this fork's upstream authority from the legacy `get-shit-done-cc` package / `gsd-build/get-shit-done` repository to the active Open GSD `@opengsd/gsd-core` package / `open-gsd/gsd-core` repository while preserving the overlay architecture, fork identity, and exact-version review discipline.
 **Depends on**: Phase 40.5 Wave 4 evidence (current fork is already pinned to `get-shit-done-cc@1.39.1` and Phase 41 decisions were re-verified there); blocks Phase 40.5 Wave 5's legacy upstream filing path and all Phase 41 implementation until authority is corrected.
 **Requirements**: UPGRADE-11
@@ -107,10 +107,10 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   4. The migration pins a vetted Open GSD stable version (`@opengsd/gsd-core@1.5.0` at 2026-06-22 evidence time) and does not dynamically consume `latest` or `next`; future bumps remain deliberate reviewed version changes.
   5. Verification proves the composed fork can install/compose/check overrides/test against Open GSD layout, and records any Phase 41 plan changes caused by the authority migration before Phase 41 resumes.
 **Plans:** 4 plans
-- [ ] 40.6-01-PLAN.md -- Authority ADR and package/source contract
-- [ ] 40.6-02-PLAN.md -- Isolated Open GSD package layout spike
-- [ ] 40.6-03-PLAN.md -- Implement upstream identity abstraction and migrate tooling
-- [ ] 40.6-04-PLAN.md -- Verification, legacy-reference audit, and Phase 41 readiness reset
+- [x] 40.6-01-PLAN.md -- Authority ADR and package/source contract
+- [x] 40.6-02-PLAN.md -- Isolated Open GSD package layout spike
+- [x] 40.6-03-PLAN.md -- Implement upstream identity abstraction and migrate tooling
+- [x] 40.6-04-PLAN.md -- Verification, legacy-reference audit, and Phase 41 readiness reset
 
 ### Phase 41: Foundation — Flip Gate, Install Audit Surface, Windows SLO
 **Goal**: Make the override-staleness gate blocking, stand up the security audit surface with triage-as-data, capture a trustworthy perf baseline, and root-cause Windows subprocess flakiness so the Reliability SLO is real rather than aspirational.
@@ -143,7 +143,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 **Depends on**: Phase 41 (override-staleness blocking must exist so verify-upgrade has meaningful failure modes) and Phase 42 (100% test pass SLO must hold before upgrade smoke tests are trusted).
 **Requirements**: UPGRADE-01, UPGRADE-02, UPGRADE-04, UPGRADE-05, UPGRADE-07, UPGRADE-08, UPGRADE-09, SHIP-03
 **Success Criteria** (what must be TRUE):
-  1. `bun run verify-upgrade --from <pinned> --to <target>` runs against a Linux Verdaccio service container, performs install->bump->recompose->reinstall->smoke-verify, and emits a structured JSON report whose exit code reflects success; the job is wired into CI on a schedule and on-change to `overlay/`, `scripts/compose.js`, or the `get-shit-done-cc` pin.
+  1. `bun run verify-upgrade --from <pinned> --to <target>` runs against a Linux Verdaccio service container, performs install->bump->recompose->reinstall->smoke-verify, and emits a structured JSON report whose exit code reflects success; the job is wired into CI on a schedule and on-change to `overlay/`, `scripts/compose.js`, or the upstream-authority pin.
   2. `.planning/vetted-upstream-versions.json` contains exactly 3 vetted upstream versions; the `compat-matrix` CI job expands from it (informational on historical versions, blocking on pinned); pruning-oldest-on-bump is automated as part of the bump runbook.
   3. A comment-only or whitespace-only upstream change to an override source `.js` file does NOT trigger a staleness alert (AST-diff based), while a semantic change does; `.md` files are documented as deferred to v1.3.0 with a reason.
   4. `overrides/hooks/gsd-check-update.js` incorporates upstream's hook improvements (isNewer, detectConfigDir, stale hook detection, shared cache) while preserving fork-specific behavior (package name, role routing, commit classification, 4h/7d throttle); the corresponding `gsd-statusline.js` changes are committed atomically in the same PR.
@@ -173,8 +173,8 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 24-28 | v0.4.0 | - | Superseded | - |
 | 29-36 | v1.0.0 | 21/21 | Complete | 2026-03-31 |
 | 37-40 | v1.1.0 | 8/8 | Complete | 2026-04-04 |
-| 40.5 | v1.2.0 | 0/5 | Not started (INSERTED 2026-04-22; planned 2026-04-28) | - |
-| 40.6 | v1.2.0 | 0/4 | Not started (INSERTED 2026-06-22; blocks legacy Wave 5 filing + Phase 41) | - |
+| 40.5 | v1.2.0 | 4/5 evidence | Partial; Wave 5 legacy filing path retired by Phase 40.6 | - |
+| 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 0/TBD | Not started | - |
 | 42 | v1.2.0 | 0/TBD | Not started | - |
 | 43 | v1.2.0 | 0/TBD | Not started | - |
@@ -212,19 +212,19 @@ Plans:
 
 ### Phase 999.3: File upstream PR for plan-phase UI-gate regex word-boundary fix (BACKLOG)
 
-**Goal:** File an upstream issue + PR adding word-boundary matching to the UI-phase-gate regex in `workflows/plan-phase.md` (currently matches `view` inside `re-review`, `form` inside `formatting`, etc.), ONLY if the bug still exists on clean upstream 1.38.2 after Phase 40.5 bump completes. Follows existing `feedback_verify_upstream_scope.md` discipline (verify-before-filing).
+**Goal:** Retired legacy filing path. Original goal was to file an upstream issue + PR adding word-boundary matching to the UI-phase-gate regex in `workflows/plan-phase.md` only if the bug still existed on clean legacy upstream after Phase 40.5. Phase 40.6 changed active authority to Open GSD, so any future filing must first re-verify the bug against `open-gsd/gsd-core` and be promoted as a new Open GSD-specific task.
 **Source:** Phase 41 plan-phase workflow false-positive triggered during 2026-04-21 session; upstream verified still present at v1.38.2 line ~470 of `workflows/plan-phase.md` at poll time; user decision to file upstream PR only after bump + re-verification on clean state.
 **Investigation time-box:** 30min verification post-bump + 1-2h PR drafting if warranted.
-**Requirements:** TBD (promotion adds filing to phase 40.5 VERIFICATION.md deliverables OR defers to v1.3.0 if upstream has already fixed it).
+**Requirements:** TBD (promotion creates a new Open GSD-specific filing task only after fresh verification against `@opengsd/gsd-core`; do not use the legacy Phase 40.5 filing instructions).
 
 **Promotion criteria:**
-- After Phase 40.5 bump completes, grep `node_modules/get-shit-done-cc/get-shit-done/workflows/plan-phase.md` for the UI-gate regex pattern (`grep.*iE "UI\|...`).
-- If still present with naive substring matching: file upstream issue + PR with word-boundaries fix (`\b...\b`); record filing in Phase 40.5 VERIFICATION.md; close this backlog item on merge.
-- If already fixed by upstream: close this backlog item as NOT-A-GAP with verification evidence (commit SHA of upstream fix).
+- Freshly inspect `node_modules/@opengsd/gsd-core/gsd-core/workflows/plan-phase.md` from the pinned Open GSD version before filing anything.
+- If still present with naive substring matching: draft an Open GSD issue/PR with word-boundaries fix (`\b...\b`) and get explicit user sign-off before filing.
+- If already fixed by Open GSD: close this backlog item as NOT-A-GAP with verification evidence (commit SHA or release evidence).
 - Do NOT file before bump-verification step — follows `feedback_verify_upstream_scope.md` discipline; 3 prior "upstream bug" labels (#1851, `_auto_chain_active`, `extractFrontmatterField`) all turned out to be fork-specific.
 
 Plans:
-- [ ] TBD (promote with /gsd-review-backlog once Phase 40.5 verification confirms state)
+- [ ] TBD (promote with /gsd-review-backlog only after Open GSD verification confirms state)
 
 ### Phase 999.4: External GitHub Action SHA-pinning hardening audit (BACKLOG)
 

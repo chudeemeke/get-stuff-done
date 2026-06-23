@@ -19,7 +19,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [ ] **UPGRADE-08**: Semantic override staleness -- comment-only/whitespace-only upstream changes to override source files do NOT trigger false-positive staleness alerts (D-1; scope: `.js` files initially via AST-diff; `.md` deferred with documented reason)
 - [ ] **UPGRADE-09**: Override churn section auto-generated in CHANGELOG on each upstream bump, listing overrides whose upstream source changed (D-8)
 - [ ] **UPGRADE-10**: Pre-Phase-41 upstream currency bump — bump upstream pin from 1.34.2 to 1.38.2 (or latest stable at execution time) BEFORE Phase 41 planning completes, refresh override SHA-256 snapshots, audit for compose collisions, and re-verify all Phase 41 CONTEXT.md decisions against fresh upstream state (amending CONTEXT.md if any decision changes). Ensures Phase 41 planning targets current upstream rather than stale assumptions. Distinct from UPGRADE-05 (the Phase 43 dogfood bump) — UPGRADE-10 establishes currency, UPGRADE-05 dogfoods the bump process against new Phase 41/42 work. (Inserted 2026-04-22 with Phase 40.5.)
-- [ ] **UPGRADE-11**: Upstream authority migration -- migrate the overlay's active upstream from legacy `get-shit-done-cc` / `gsd-build/get-shit-done` to Open GSD `@opengsd/gsd-core` / `open-gsd/gsd-core` before Phase 41, pin a vetted stable Open GSD version, centralize upstream identity in a machine-readable manifest or helper, update compose/override/boundary/update tooling to the new package layout, and explicitly retire legacy upstream filing paths. (Inserted 2026-06-22 with Phase 40.6.)
+- [x] **UPGRADE-11**: Upstream authority migration -- migrated the overlay's active upstream from legacy `get-shit-done-cc` / `gsd-build/get-shit-done` to Open GSD `@opengsd/gsd-core@1.5.0` / `open-gsd/gsd-core` before Phase 41, pinned a vetted stable Open GSD version, centralized upstream identity in a machine-readable manifest/helper with packaged fallback, updated compose/override/boundary/update/package tooling to the new package layout, and explicitly retired legacy upstream filing paths. (Completed 2026-06-23 in Phase 40.6.)
 
 ### PROCESS (oversight pattern -- 1 principle + 4 triggers)
 
@@ -99,7 +99,7 @@ Explicitly excluded with reasoning. Prevents scope creep.
 | Public Scorecard badge | AF-5 -- repo is private; scorecard publishing requires public visibility |
 | Runtime filtering in installer | AF-6 -- upstream install.js is 5K-line monolith; prior decision in PROJECT.md |
 | Converting boundary/upstream-compat informational CI to blocking | AF-7 -- prior decision explicitly made these informational; reversing breaks established Key Decision |
-| `get-shit-done-cc` as semver range instead of exact pin | AF-8 -- would auto-bump unreviewed upstream; violates exact-version-pinning decision |
+| Upstream package as semver range instead of exact pin | AF-8 -- would auto-bump unreviewed upstream; violates exact-version-pinning decision |
 | TypeScript migration | AF-9 per research and PROJECT.md -- adds build complexity for marginal benefit |
 | LLM-based REASON.md validation | AF-10 -- adds AI-slop risk at a quality gate; mechanical SHA check is deterministic |
 | Per-override GPG signing | AF-11 -- SHA-256 snapshots already provide integrity; GPG adds key-management burden without proportional benefit |
@@ -123,7 +123,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | UPGRADE-08 | Phase 43 | Pending |
 | UPGRADE-09 | Phase 43 | Pending |
 | UPGRADE-10 | Phase 40.5 | Pending |
-| UPGRADE-11 | Phase 40.6 | Pending |
+| UPGRADE-11 | Phase 40.6 | Complete |
 | PROCESS-01 | Phase 42 | Pending |
 | PROCESS-02 | Phase 42 | Pending |
 | PROCESS-03 | Phase 42 | Pending |
@@ -176,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-06-22 -- Phase 40.6 inserted, UPGRADE-11 added, upstream authority migration blocks Phase 41 until Open GSD package layout is verified*
+*Last updated: 2026-06-23 -- Phase 40.6 complete; UPGRADE-11 satisfied; Phase 41 resumes against Open GSD authority*

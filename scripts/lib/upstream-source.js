@@ -6,6 +6,45 @@ const path = require('path');
 const PROJECT_ROOT = path.join(__dirname, '..', '..');
 const AUTHORITY_REL_PATH = path.join('.planning', 'upstream-authority.json');
 const STABLE_VERSION_RE = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+const EMBEDDED_AUTHORITY = Object.freeze({
+  schemaVersion: 1,
+  contractScope: 'maintainer-build-time',
+  active: Object.freeze({
+    packageName: '@opengsd/gsd-core',
+    version: '1.5.0',
+    repository: 'https://github.com/open-gsd/gsd-core',
+    npmUrl: 'https://www.npmjs.com/package/@opengsd/gsd-core',
+    sourceRoot: '.',
+    bin: Object.freeze({
+      'gsd-core': 'bin/install.js',
+      'gsd-tools': 'gsd-core/bin/gsd-tools.cjs',
+      gsd_run: 'gsd-core/bin/gsd_run',
+    }),
+    paths: Object.freeze({
+      agents: 'agents',
+      commands: 'commands/gsd',
+      hooksRuntime: 'hooks/dist',
+      hooksSource: 'hooks',
+      installer: 'bin/install.js',
+      scripts: 'scripts',
+      gsdTools: 'gsd-core/bin/gsd-tools.cjs',
+      workflows: 'gsd-core/workflows',
+    }),
+  }),
+  legacy: Object.freeze({
+    packageName: 'get-shit-done-cc',
+    repository: 'https://github.com/gsd-build/get-shit-done',
+    npmUrl: 'https://www.npmjs.com/package/get-shit-done-cc',
+    status: 'deprecated-authority',
+  }),
+  rules: Object.freeze({
+    exactVersionPinRequired: true,
+    allowLatestTag: false,
+    allowPrerelease: false,
+    globalInstallMutationAllowed: false,
+    runtimeMayReadPlanningManifest: false,
+  }),
+});
 
 function getProjectRoot(opts = {}) {
   return opts.projectRoot || PROJECT_ROOT;
@@ -19,6 +58,9 @@ function readAuthorityContract(opts = {}) {
   try {
     parsed = JSON.parse(fs.readFileSync(authorityPath, 'utf-8'));
   } catch (err) {
+    if (err.code === 'ENOENT' && opts.allowEmbeddedFallback !== false) {
+      return EMBEDDED_AUTHORITY;
+    }
     throw new Error(`Failed to read upstream authority contract at ${authorityPath}: ${err.message}`);
   }
 
@@ -196,6 +238,7 @@ function getRequiredUpstreamDirs(optsOrAuthority = {}) {
 
 module.exports = {
   AUTHORITY_REL_PATH,
+  EMBEDDED_AUTHORITY,
   readAuthorityContract,
   getActivePackageName,
   getActivePackageVersion,

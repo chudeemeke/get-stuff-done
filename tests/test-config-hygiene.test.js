@@ -10,7 +10,7 @@
  *
  * Failure mode this test prevents:
  *   1. Upstream package ships .test.* and ESM-syntax files inside its npm tarball
- *      (e.g. get-shit-done-cc@1.38.5 ships 77 .test.ts files in sdk/src/...).
+ *      (e.g. legacy get-shit-done-cc@1.38.5 shipped 77 .test.ts files in sdk/src/...).
  *   2. `bun run compose` copies node_modules/<upstream>/ to dist/.
  *   3. Tooling configured for the fork's CommonJS context (bun-test, eslint with
  *      sourceType:'commonjs') discovers files in dist/ and either runs them as

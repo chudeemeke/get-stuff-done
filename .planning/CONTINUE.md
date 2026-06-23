@@ -1,14 +1,14 @@
 # Continuation Context
 
-**Refreshed at:** 2026-06-22
-**Trigger:** Phase 40.6 upstream authority migration insertion
+**Refreshed at:** 2026-06-23
+**Trigger:** Phase 40.6 upstream authority migration completion
 
 ## Resume Instructions
 
 1. Read `.planning/STATE.md` first. It is the authoritative resume pointer.
-2. Read `.planning/phases/40.6-upstream-authority-migration/40.6-CONTEXT.md`.
-3. Review the four Phase 40.6 plans before implementation: `40.6-01-PLAN.md` through `40.6-04-PLAN.md`.
-4. Do not run the old Phase 40.5 Wave 5 legacy filing path unless Phase 40.6 explicitly re-authorizes it.
+2. Read `.planning/phases/40.6-upstream-authority-migration/40.6-VERIFICATION.md`.
+3. Proceed to Phase 41 planning/execution using Open GSD evidence.
+4. Do not run the old Phase 40.5 Wave 5 legacy filing path. It is retired unless a future reviewed plan creates a new Open GSD-specific filing path.
 
 ## Last Known State
 
@@ -16,11 +16,11 @@
 
 **Phase:** 40.6 -- Upstream Authority Migration
 
-**Status:** Inserted 2026-06-22 after live upstream review showed the legacy `get-shit-done-cc` / `gsd-build/get-shit-done` authority assumption is no longer safe for market-ready v1.2.0 work.
+**Status:** Phase 40.6 complete. Implementation migrated active authority from legacy `get-shit-done-cc` / `gsd-build/get-shit-done` to Open GSD.
 
-**Current code state:** Active worktree pins `get-shit-done-cc@1.39.1`. The migration target is Open GSD `@opengsd/gsd-core@1.5.0` as of 2026-06-22 evidence. The package layout is not drop-in.
+**Current code state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` is retained only as historical/deprecation evidence. Package smoke for packed `@chude/get-stuff-done@3.0.2` passed, and the boundary checker still reports 41 structural root-mirror violations as explicit debt.
 
-**Next concrete action:** `/gsd:review --phase 40.6 --all`, then `/gsd:execute-phase 40.6` after review amendments.
+**Next concrete action:** Commit Phase 40.6 if not yet committed, then plan/execute Phase 41 from Open GSD authority. Do not resume Phase 40.5 Wave 5 legacy filing.
 
 ## Phase 40.6 Plans
 
@@ -34,13 +34,14 @@
 - Do not use `get-shit-done-cc@latest` as a normal bump target. It is now legacy evidence, not active authority.
 - Do not dynamically track Open GSD `latest` or `next`; pin a reviewed stable version.
 - Do not assume `@opengsd/gsd-core` has the old `get-shit-done-cc` layout or bins.
-- Do not patch global GSD installs while debugging this. Work in the repo/worktree and use temp package-layout spikes.
-- Do not file new upstream work against `gsd-build/get-shit-done` from stale Phase 40.5 instructions until Phase 40.6 decides whether legacy filing is still useful.
+- Do not patch global GSD installs while debugging this. Work in the repo/worktree and use temp package-layout spikes. Note: one earlier `bun install` did trigger the package installer; record this as a verification breach and mitigation.
+- Do not file new upstream work against `gsd-build/get-shit-done` from stale Phase 40.5 instructions.
 
 ## Active Independent Work
 
 - Phase 40.5 Wave 1-4 evidence exists in this branch and remains useful as legacy-baseline evidence.
-- Phase 40.5 Wave 5 is superseded until Phase 40.6 re-establishes authority and resets Phase 41 readiness.
+- Phase 40.5 Wave 5 legacy filing path is retired. Any future filing must be Open GSD-specific and planned separately.
+- Phase 40.6 verification files are the authoritative closeout: `40.6-VERIFICATION.md`, `40.6-README.md`, and `40.6-04-SUMMARY.md`.
 
 ---
 

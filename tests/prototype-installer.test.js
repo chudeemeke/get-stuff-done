@@ -21,12 +21,12 @@ const { execSync } = require('child_process');
 const { createTempDir } = require('./helpers');
 
 // Path to the upstream package installed as devDependency
-const UPSTREAM_PKG = path.join(__dirname, '..', 'node_modules', 'get-shit-done-cc');
+const UPSTREAM_PKG = path.join(__dirname, '..', 'node_modules', '@opengsd', 'gsd-core');
 
 /**
  * Sets up a scratch directory that mirrors the upstream package structure.
  * The scratch directory is a copy of the upstream package root, so that
- * scratch/bin/install.js can reference scratch/commands/gsd/, scratch/get-shit-done/, etc.
+ * scratch/bin/install.js can reference scratch/commands/gsd/, scratch/gsd-core/, etc.
  * via its __dirname-relative resolution.
  *
  * @param {string} tmpDir - Base temp directory path
@@ -69,26 +69,45 @@ function runUpstreamInstaller(scratchDir, targetDir, extraArgs = []) {
 
 /**
  * Applies surface-only branding to the upstream install.js.
- * CRITICAL: Only replaces exact npm package name strings, NOT bare 'get-shit-done'
- * which is used 130+ times in path resolution and directory naming.
+ * CRITICAL: Only replaces exact public package/repo identity strings, NOT bare
+ * 'gsd-core' which is used for internal path resolution and directory naming.
  *
  * Substitutions:
- * - "get-shit-done-cc@latest" -> "@chude/get-stuff-done@latest" (version-pinned references)
- * - "npx get-shit-done-cc" -> "bunx @chude/get-stuff-done" (install command examples)
- * - "get-shit-done-cc" -> "@chude/get-stuff-done" (npm package name only)
+ * - "@opengsd/gsd-core@latest" -> "@chude/get-stuff-done@latest" (version-pinned references)
+ * - "npx @opengsd/gsd-core" -> "bunx @chude/get-stuff-done" (install command examples)
+ * - "@opengsd/gsd-core" -> "@chude/get-stuff-done" (npm package name only)
+ * - "open-gsd/gsd-core" -> "chudeemeke/get-stuff-done" (GitHub repo only)
  *
  * @param {string} scratchDir - Path to the scratch directory
  */
 function applyBranding(scratchDir) {
-  const installJsPath = path.join(scratchDir, 'bin', 'install.js');
-  let content = fs.readFileSync(installJsPath, 'utf-8');
+  const textExtensions = new Set(['.js', '.cjs', '.mjs', '.json', '.md', '.txt']);
+  const brandFile = filePath => {
+    if (!textExtensions.has(path.extname(filePath))) return;
 
-  // Order matters: most specific patterns first to avoid double-replacing
-  content = content.replace(/get-shit-done-cc@latest/g, '@chude/get-stuff-done@latest');
-  content = content.replace(/npx get-shit-done-cc/g, 'bunx @chude/get-stuff-done');
-  content = content.replace(/get-shit-done-cc/g, '@chude/get-stuff-done');
+    let content = fs.readFileSync(filePath, 'utf-8');
 
-  fs.writeFileSync(installJsPath, content, 'utf-8');
+    // Order matters: most specific patterns first to avoid double-replacing
+    content = content.replace(/@opengsd\/gsd-core@latest/g, '@chude/get-stuff-done@latest');
+    content = content.replace(/npx @opengsd\/gsd-core/g, 'bunx @chude/get-stuff-done');
+    content = content.replace(/@opengsd\/gsd-core/g, '@chude/get-stuff-done');
+    content = content.replace(/open-gsd\/gsd-core/g, 'chudeemeke/get-stuff-done');
+
+    fs.writeFileSync(filePath, content, 'utf-8');
+  };
+
+  const visit = dir => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        visit(fullPath);
+      } else if (entry.isFile()) {
+        brandFile(fullPath);
+      }
+    }
+  };
+
+  visit(scratchDir);
 }
 
 /**
@@ -144,25 +163,25 @@ describe('Phase 29: Prototype Gate', () => {
     expect(result.success).toBe(true);
 
     // Verify installed directory structure
-    expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
-    expect(fs.existsSync(path.join(targetDir, 'commands', 'gsd'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
     expect(fs.existsSync(path.join(targetDir, 'agents'))).toBe(true);
     expect(fs.existsSync(path.join(targetDir, 'hooks'))).toBe(true);
-
-    // Full content verification: at least one .md file in commands/gsd/
-    const commandFiles = fs.readdirSync(path.join(targetDir, 'commands', 'gsd'));
-    expect(commandFiles.some(f => f.endsWith('.md'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'skills'))).toBe(true);
 
     // Full content verification: at least one .md file in agents/
     const agentFiles = fs.readdirSync(path.join(targetDir, 'agents'));
     expect(agentFiles.some(f => f.endsWith('.md'))).toBe(true);
 
+    // Full content verification: at least one skill directory is installed
+    const skillEntries = fs.readdirSync(path.join(targetDir, 'skills'));
+    expect(skillEntries.length).toBeGreaterThan(0);
+
     // Full content verification: at least one .js file in hooks/
     const hookFiles = fs.readdirSync(path.join(targetDir, 'hooks'));
     expect(hookFiles.some(f => f.endsWith('.js'))).toBe(true);
 
-    // Verify get-shit-done/ contains expected subdirectories (confirms __dirname path resolution worked)
-    const gsdSubdirs = fs.readdirSync(path.join(targetDir, 'get-shit-done'));
+    // Verify gsd-core/ contains expected subdirectories (confirms __dirname path resolution worked)
+    const gsdSubdirs = fs.readdirSync(path.join(targetDir, 'gsd-core'));
     expect(gsdSubdirs.length).toBeGreaterThan(0);
   });
 
@@ -178,10 +197,10 @@ describe('Phase 29: Prototype Gate', () => {
     expect(brandedContent).toContain('@chude/get-stuff-done');
 
     // Original npm package name must be gone
-    expect(brandedContent).not.toContain('get-shit-done-cc');
+    expect(brandedContent).not.toContain('@opengsd/gsd-core');
 
-    // CRITICAL: Bare 'get-shit-done' (internal path name) must still be present
-    expect(brandedContent).toContain('get-shit-done');
+    // CRITICAL: Bare 'gsd-core' (internal path name) must still be present
+    expect(brandedContent).toContain('gsd-core');
 
     // Create target directory and run branded installer
     const targetDir = path.join(tmpDir.path, 'target');
@@ -193,10 +212,10 @@ describe('Phase 29: Prototype Gate', () => {
     expect(result.success).toBe(true);
 
     // Structural verification: installation succeeded despite branding
-    expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
-    expect(fs.existsSync(path.join(targetDir, 'commands', 'gsd'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
     expect(fs.existsSync(path.join(targetDir, 'agents'))).toBe(true);
     expect(fs.existsSync(path.join(targetDir, 'hooks'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'skills'))).toBe(true);
 
     // Post-install branding verification: run --help and check output
     const installScript = path.join(scratchDir, 'bin', 'install.js');
@@ -213,7 +232,7 @@ describe('Phase 29: Prototype Gate', () => {
     }
     // Branded name should appear in help text (if help text references the package)
     if (helpOutput.length > 0) {
-      expect(helpOutput).not.toContain('get-shit-done-cc');
+      expect(helpOutput).not.toContain('@opengsd/gsd-core');
     }
   });
 
@@ -248,7 +267,7 @@ describe('Phase 29: Prototype Gate', () => {
     expect(commandContent).toBe('# Test overlay command\nPrototype validation placeholder');
 
     // Verify upstream files still exist (overlay did NOT clobber them)
-    expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
 
     const agentFiles = fs.readdirSync(path.join(targetDir, 'agents'));
     expect(agentFiles.some(f => f.endsWith('.md'))).toBe(true);

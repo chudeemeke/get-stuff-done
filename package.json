@@ -13,7 +13,10 @@
     "dist",
     "bin",
     "overlay/branding.json",
-    "overlay/features.json"
+    "overlay/features.json",
+    "scripts/check-overrides.js",
+    "scripts/lib/upstream-source.js",
+    "scripts/preview-update.js"
   ],
   "keywords": [
     "claude",

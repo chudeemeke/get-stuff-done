@@ -104,12 +104,13 @@ describe('hooks/index.js manifest (invariants)', () => {
     const failures = [];
     for (const hook of hooksManifest.filterByKind('override')) {
       // Compute what the upstream path would be: replace overrides/ with
-      // node_modules/get-shit-done-cc/ — same relative subpath after that.
+      // node_modules/@opengsd/gsd-core/ -- same relative subpath after that.
       const subPath = hook.source.replace(/^overrides\//, '');
       const upstream = path.join(
         hooksManifest.PROJECT_ROOT,
         'node_modules',
-        'get-shit-done-cc',
+        '@opengsd',
+        'gsd-core',
         subPath,
         hook.name
       );
@@ -124,7 +125,8 @@ describe('hooks/index.js manifest (invariants)', () => {
     const upstreamRoot = path.join(
       hooksManifest.PROJECT_ROOT,
       'node_modules',
-      'get-shit-done-cc'
+      '@opengsd',
+      'gsd-core'
     );
     if (!fs.existsSync(upstreamRoot)) {
       // Upstream not installed — can't verify. Skip gracefully.

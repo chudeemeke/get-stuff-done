@@ -92,6 +92,19 @@ describe('upstream-source authority helper', () => {
     expect(getActiveRepository(authority)).toBe('https://github.com/open-gsd/gsd-core');
   });
 
+  test('falls back to embedded Open GSD authority when package runtime has no planning manifest', () => {
+    const authority = readAuthorityContract({ projectRoot: tmpDir });
+
+    expect(getActivePackageName(authority)).toBe('@opengsd/gsd-core');
+    expect(getActivePackageVersion(authority)).toBe('1.5.0');
+    expect(authority.rules.runtimeMayReadPlanningManifest).toBe(false);
+  });
+
+  test('can require disk authority explicitly when fallback is disabled', () => {
+    expect(() => readAuthorityContract({ projectRoot: tmpDir, allowEmbeddedFallback: false }))
+      .toThrow(/Failed to read upstream authority contract/);
+  });
+
   test('resolves scoped npm packages under node_modules without shell escaping', () => {
     const authority = makeAuthority();
     const pkgDir = getPackageDir({ projectRoot: tmpDir, authority });

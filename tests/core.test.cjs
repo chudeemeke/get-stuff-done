@@ -532,7 +532,7 @@ describe('execGit()', () => {
   test('executes git command and returns stdout', () => {
     fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
     execSync('git add file.txt', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "initial"', { cwd: tmpDir, stdio: 'pipe' });
+    execFileSync('git', ['commit', '-m', 'initial'], { cwd: tmpDir, stdio: 'pipe' });
     const result = execGit(tmpDir, ['log', '--oneline']);
     assert.strictEqual(result.exitCode, 0);
     assert.ok(result.stdout.includes('initial'));
@@ -564,7 +564,7 @@ describe('execGit()', () => {
   test('handles rev-parse command', () => {
     fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
     execSync('git add file.txt', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "test commit"', { cwd: tmpDir, stdio: 'pipe' });
+    execFileSync('git', ['commit', '-m', 'test commit'], { cwd: tmpDir, stdio: 'pipe' });
     const result = execGit(tmpDir, ['rev-parse', 'HEAD']);
     assert.strictEqual(result.exitCode, 0);
     assert.ok(/^[a-f0-9]{40}$/.test(result.stdout));
@@ -574,7 +574,7 @@ describe('execGit()', () => {
     // Args with spaces trigger single-quote wrapping in execGit
     fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
     execSync('git add file.txt', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "test commit"', { cwd: tmpDir, stdio: 'pipe' });
+    execFileSync('git', ['commit', '-m', 'test commit'], { cwd: tmpDir, stdio: 'pipe' });
     // 'test commit' contains a space, triggers the quote branch
     const result = execGit(tmpDir, ['log', '--format=%s', '-1']);
     // Even if the format arg triggers quoting, the command may succeed or fail

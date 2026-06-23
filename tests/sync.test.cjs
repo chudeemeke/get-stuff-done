@@ -10,9 +10,18 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
 const { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
+
+function gitAddAll(cwd) {
+  execFileSync('git', ['add', '.'], { cwd, stdio: 'pipe' });
+}
+
+function gitCommit(cwd, message) {
+  execFileSync('git', ['commit', '-m', message], { cwd, stdio: 'pipe' });
+}
+
 
 // ─── Symlink Shim ──────────────────────────────────────────────────────────────
 //
@@ -91,8 +100,8 @@ function createTempGitProject() {
   execSync('git config user.email "test@test.com"', { cwd: tmpDir, stdio: 'pipe' });
   execSync('git config user.name "Test"', { cwd: tmpDir, stdio: 'pipe' });
   fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'init');
-  execSync('git add .', { cwd: tmpDir, stdio: 'pipe' });
-  execSync('git commit -m "init"', { cwd: tmpDir, stdio: 'pipe' });
+  gitAddAll(tmpDir);
+  gitCommit(tmpDir, "init");
   return tmpDir;
 }
 
@@ -119,8 +128,8 @@ describe('getCommitsInRange', () => {
   test('returns commits in range as structured objects', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // Add a second commit so we have a range
     fs.writeFileSync(path.join(tmpDir, 'file2.txt'), 'content');
-    execSync('git add .', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "second commit"', { cwd: tmpDir, stdio: 'pipe' });
+    gitAddAll(tmpDir);
+    gitCommit(tmpDir, "second commit");
 
     const firstSha = execSync('git rev-parse HEAD~1', { cwd: tmpDir, encoding: 'utf-8' }).trim();
     const lastSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
@@ -138,8 +147,8 @@ describe('getCommitsInRange', () => {
   test('handles subjects containing special characters', () => {
     // Create commit with a subject containing special chars (colon, ampersand, etc.)
     fs.writeFileSync(path.join(tmpDir, 'file3.txt'), 'content');
-    execSync('git add .', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "fix: handle edge case & special chars"', { cwd: tmpDir, stdio: 'pipe' });
+    gitAddAll(tmpDir);
+    gitCommit(tmpDir, "fix: handle edge case & special chars");
 
     const firstSha = execSync('git rev-parse HEAD~1', { cwd: tmpDir, encoding: 'utf-8' }).trim();
     const lastSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
@@ -242,10 +251,10 @@ describe('loadProtectedPaths', () => {
       path.join(syncDir, 'branding-map.json'),
       JSON.stringify({
         npm_patterns: [
-          { upstream: 'get-shit-done-cc', fork: '@chude/get-stuff-done' },
+          { upstream: '@opengsd/gsd-core', fork: '@chude/get-stuff-done' },
         ],
         github_patterns: [
-          { upstream: 'glittercowboy/get-shit-done', fork: 'chudeemeke/get-stuff-done' },
+          { upstream: 'open-gsd/gsd-core', fork: 'chudeemeke/get-stuff-done' },
         ],
       })
     );
@@ -568,7 +577,8 @@ describe('sync-preview command', () => {
     try {
       // Add a second commit for a valid range
       fs.writeFileSync(path.join(repoDir, 'file2.txt'), 'content');
-      execSync('git add . && git commit -m "second"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "second");
 
       // Dirty the working tree
       fs.writeFileSync(path.join(repoDir, 'file2.txt'), 'modified');
@@ -631,12 +641,12 @@ describe('sync-preview command', () => {
     try {
       // Add commits with conventional prefixes so classification is deterministic
       fs.writeFileSync(path.join(repoDir, 'feature.txt'), 'new feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add new feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add new feature");
 
       fs.writeFileSync(path.join(repoDir, 'bugfix.txt'), 'bug fix');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: resolve issue"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: resolve issue");
 
       const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -675,16 +685,16 @@ describe('sync-preview command', () => {
     try {
       // Add 3 commits: 1 feat, 1 fix, 1 chore
       fs.writeFileSync(path.join(repoDir, 'a.txt'), 'a');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature a"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature a");
 
       fs.writeFileSync(path.join(repoDir, 'b.txt'), 'b');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: fix bug b"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: fix bug b");
 
       fs.writeFileSync(path.join(repoDir, 'c.txt'), 'c');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: update deps"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: update deps");
 
       const firstSha = execSync('git rev-parse HEAD~3', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1152,8 +1162,8 @@ describe('sync-preview supply chain integration', () => {
       // We can't override os.homedir() easily, so we rely on the real cache path.
       // Instead, test that supplyChainRisks is present in each commit.
       fs.writeFileSync(path.join(repoDir, 'feature.txt'), 'new feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
       const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1179,8 +1189,8 @@ describe('sync-preview supply chain integration', () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'a.txt'), 'content');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: update"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: update");
 
       const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1496,21 +1506,21 @@ describe('detectFileOverlapDeps', () => {
 // ─── sync-preview selective filtering CLI integration ─────────────────────────
 
 describe('sync-preview selective filtering CLI', () => {
-  test('--category flag filters output correctly', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('--category flag filters output correctly', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create commits with different conventional prefixes
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
       fs.writeFileSync(path.join(repoDir, 'fix.txt'), 'fix');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: resolve bug"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: resolve bug");
 
       fs.writeFileSync(path.join(repoDir, 'refactor.txt'), 'refactor');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "refactor: cleanup code"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "refactor: cleanup code");
 
       const baseSha = execSync('git rev-parse HEAD~3', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1533,16 +1543,16 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('--exclude flag removes category from output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('--exclude flag removes category from output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
       fs.writeFileSync(path.join(repoDir, 'refactor.txt'), 'refactor');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "refactor: cleanup code"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "refactor: cleanup code");
 
       const baseSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1561,12 +1571,12 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('without filter flags produces unchanged output (backward compat)', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('without filter flags produces unchanged output (backward compat)', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
       const baseSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1589,17 +1599,17 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('--json with filters includes dependencies fields with semantic placeholder', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('--json with filters includes dependencies fields with semantic placeholder', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create 2 commits touching the same file (creates file-overlap dependency)
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'version1');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: first change to shared"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: first change to shared");
 
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'version2');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: second change to shared"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: second change to shared");
 
       const baseSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1819,13 +1829,13 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces JSON output for valid range', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('produces JSON output for valid range', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create a second commit for a valid range
       fs.writeFileSync(path.join(repoDir, 'feature.txt'), 'new feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
       const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1843,12 +1853,12 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces human-readable output for valid range', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('produces human-readable output for valid range', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'readme.md'), 'docs');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "docs: add readme"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "docs: add readme");
 
       const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1864,16 +1874,16 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces filtered output with category flag', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('produces filtered output with category flag', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'a.txt'), 'feat');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add a"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add a");
 
       fs.writeFileSync(path.join(repoDir, 'b.txt'), 'fix');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: fix b"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: fix b");
 
       const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1891,16 +1901,16 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces filtered human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('produces filtered human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'c.txt'), 'content');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add c"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add c");
 
       fs.writeFileSync(path.join(repoDir, 'd.txt'), 'content');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: add d"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: add d");
 
       const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1916,7 +1926,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('errors when target SHA does not exist', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('errors when target SHA does not exist', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const tmpDir = createTempGitProject();
     try {
       const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
@@ -1928,7 +1938,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders supply chain risk badges in human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders supply chain risk badges in human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create a commit that modifies package.json (triggers dependency-diff supply chain check)
@@ -1936,8 +1946,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
         name: 'test-pkg',
         dependencies: { 'new-dep': '^1.0.0' },
       }, null, 2));
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add dependency"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add dependency");
 
       const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1953,7 +1963,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders sensitive path markers in human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders sensitive path markers in human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Set up a branding map so isSensitivePath triggers
@@ -1963,13 +1973,13 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
         path.join(syncDir, 'branding-map.json'),
         JSON.stringify({ path_patterns: [{ upstream: 'pkg', fork: 'package.json' }] })
       );
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: add branding map"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: add branding map");
 
       // Now commit a change to the sensitive path
       fs.writeFileSync(path.join(repoDir, 'package.json'), '{"name":"test"}');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add package.json"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add package.json");
 
       const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -1984,17 +1994,17 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('cross-boundary dep warnings in filtered JSON output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('cross-boundary dep warnings in filtered JSON output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create two commits touching the same file but different categories
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'v1');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: initial shared"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: initial shared");
 
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'v2');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: update shared"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: update shared");
 
       const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -2017,16 +2027,16 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders cross-boundary dep warnings in filtered human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders cross-boundary dep warnings in filtered human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'overlap.txt'), 'a');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add overlap"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add overlap");
 
       fs.writeFileSync(path.join(repoDir, 'overlap.txt'), 'b');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: update overlap"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: update overlap");
 
       const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -2042,7 +2052,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders supply chain risks in filtered human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders supply chain risks in filtered human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Commit with package.json change (triggers supply chain) plus a non-feat commit
@@ -2050,12 +2060,12 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
         name: 'risky',
         dependencies: { 'suspicious-pkg': '^1.0.0' },
       }, null, 2));
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add risky dep"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add risky dep");
 
       fs.writeFileSync(path.join(repoDir, 'docs.md'), 'docs');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "docs: add docs"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "docs: add docs");
 
       const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -2072,7 +2082,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders unfiltered output with sensitive path markers', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders unfiltered output with sensitive path markers', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       const syncDir = path.join(repoDir, '.planning', 'sync');
@@ -2081,12 +2091,12 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
         path.join(syncDir, 'branding-map.json'),
         JSON.stringify({ path_patterns: [{ upstream: 'readme', fork: 'readme.md' }] })
       );
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: branding map"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: branding map");
 
       fs.writeFileSync(path.join(repoDir, 'readme.md'), 'content');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "docs: update readme"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "docs: update readme");
 
       const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
       const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
@@ -2110,7 +2120,7 @@ describe('cmdSyncCheckpointCreate direct (overlay coverage)', () => {
     assert.ok(stderr.includes('batchId required'), 'Should mention batchId required');
   });
 
-  test('creates checkpoint tag in git repo', () => {
+  test('creates checkpoint tag in git repo', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       const { exitCode, stdout } = captureCmd(cmdSyncCheckpointCreate, [repoDir, 'test-batch-1', false]);
@@ -2130,7 +2140,7 @@ describe('cmdSyncCheckpointCreate direct (overlay coverage)', () => {
 });
 
 describe('cmdSyncCheckpointList direct (overlay coverage)', () => {
-  test('lists empty checkpoints for repo with no checkpoint tags', () => {
+  test('lists empty checkpoints for repo with no checkpoint tags', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       const { exitCode, stdout } = captureCmd(cmdSyncCheckpointList, [repoDir, false]);
@@ -2143,7 +2153,7 @@ describe('cmdSyncCheckpointList direct (overlay coverage)', () => {
     }
   });
 
-  test('lists existing checkpoint tags', () => {
+  test('lists existing checkpoint tags', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create a checkpoint first
@@ -2161,7 +2171,7 @@ describe('cmdSyncCheckpointList direct (overlay coverage)', () => {
 });
 
 describe('cmdSyncCheckpointCleanup direct (overlay coverage)', () => {
-  test('no-op cleanup when no checkpoints exist', () => {
+  test('no-op cleanup when no checkpoints exist', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       const { exitCode, stdout } = captureCmd(cmdSyncCheckpointCleanup, [repoDir, false]);
@@ -2174,7 +2184,7 @@ describe('cmdSyncCheckpointCleanup direct (overlay coverage)', () => {
     }
   });
 
-  test('deletes existing checkpoint tags', () => {
+  test('deletes existing checkpoint tags', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create checkpoints

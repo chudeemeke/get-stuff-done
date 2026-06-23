@@ -29,6 +29,12 @@ const {
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const ACTIVE_UPSTREAM_PACKAGE = getActivePackageName();
+const NPM_COMMAND = process.platform === 'win32'
+  ? (process.env.ComSpec || 'cmd.exe')
+  : 'npm';
+const NPM_VIEW_ARGS = process.platform === 'win32'
+  ? ['/d', '/s', '/c', 'npm.cmd', 'view']
+  : ['view'];
 
 // ---------------------------------------------------------------------------
 // UPD-01: Version diff
@@ -77,7 +83,7 @@ function readPinnedVersion() {
  */
 function queryLatestVersion() {
   try {
-    const result = execFileSync('npm', ['view', ACTIVE_UPSTREAM_PACKAGE, 'version'], {
+    const result = execFileSync(NPM_COMMAND, [...NPM_VIEW_ARGS, ACTIVE_UPSTREAM_PACKAGE, 'version'], {
       encoding: 'utf-8',
       timeout: 15000,
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -264,7 +270,14 @@ function runFallbackChecks(files, diff) {
  */
 function getOverrideImpact(opts = {}) {
   const { checkOverrides } = require(path.join(PROJECT_ROOT, 'scripts', 'check-overrides.js'));
-  return checkOverrides(opts);
+  const resolvedOpts = { ...opts };
+  if (!resolvedOpts.upstreamDir) {
+    const packageDir = getPackageDir({ projectRoot: PROJECT_ROOT });
+    resolvedOpts.upstreamDir = fs.existsSync(packageDir)
+      ? packageDir
+      : path.join(PROJECT_ROOT, 'dist');
+  }
+  return checkOverrides(resolvedOpts);
 }
 
 // ---------------------------------------------------------------------------

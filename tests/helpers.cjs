@@ -11,6 +11,7 @@ const path = require('path');
 
 // Re-export all helpers from the helpers/ directory (used by fork .test.js files)
 const dirHelpers = require('./helpers/index.js');
+const subprocessHelpers = require('./helpers/subprocess-with-timeout.js');
 
 const TOOLS_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs');
 
@@ -65,6 +66,7 @@ function cleanup(tmpDir) {
 module.exports = {
   // Re-export from helpers/ directory (for fork .test.js files)
   ...dirHelpers,
+  ...subprocessHelpers,
   // Additional helpers for upstream .test.cjs files
   runGsdTools,
   runGsdToolsDirect,

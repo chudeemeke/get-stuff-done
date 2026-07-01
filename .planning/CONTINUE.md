@@ -1,13 +1,13 @@
 # Continuation Context
 
 **Refreshed at:** 2026-07-01
-**Trigger:** Phase 41 Plan 05 completion
+**Trigger:** Phase 41 Plan 03 completion
 
 ## Resume Instructions
 
 1. Read `.planning/STATE.md` first. It is the authoritative resume pointer.
-2. Read `.planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-03-PLAN.md` and `41-04-PLAN.md`.
-3. Execute Phase 41 Wave 2 using Open GSD evidence.
+2. Read `.planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-04-PLAN.md`.
+3. Continue Phase 41 Wave 2 using Open GSD evidence.
 4. Do not run the old Phase 40.5 Wave 5 legacy filing path. It is retired unless a future reviewed plan creates a new Open GSD-specific filing path.
 
 ## Last Known State
@@ -16,13 +16,12 @@
 
 **Phase:** 41 -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
 
-**Status:** Phase 41 Wave 1 complete. Plans 01, 02, and 05 are verified; Plans 03 and 04 are next.
+**Status:** Phase 41 Wave 2 active. Plans 01, 02, 03, and 05 are verified; Plan 04 is next.
 
-**Current code state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` is retained only as historical/deprecation evidence. Package smoke for packed `@chude/get-stuff-done@3.0.2` passed, the boundary checker still reports 41 structural root-mirror violations as explicit debt, and Plan 05 migrated the high-volume subprocess test files to the central timeout helper.
+**Current code state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` is retained only as historical/deprecation evidence. Package smoke for packed `@chude/get-stuff-done@3.0.2` passed, the boundary checker still reports 41 structural root-mirror violations as explicit debt, Plan 05 migrated the high-volume subprocess test files to the central timeout helper, and Plan 03 added blocking security scanner CI jobs plus OSV triage.
 
-**Next concrete action:** Execute Phase 41 Wave 2 plans:
+**Next concrete action:** Execute remaining Phase 41 Wave 2 plan:
 
-- `41-03-PLAN.md` -- security scanner CI surface and OSV triage
 - `41-04-PLAN.md` -- perf baseline harness, schemas, workflow, and real three-platform capture protocol
 
 Do not resume Phase 40.5 Wave 5 legacy filing.
@@ -39,7 +38,7 @@ Do not resume Phase 40.5 Wave 5 legacy filing.
 - `41-01-PLAN.md` -- Wave 1: blocking override gate and changelog conflict guard (complete)
 - `41-02-PLAN.md` -- Wave 1: audit suppressions, security policy, and maintenance sections (complete)
 - `41-05-PLAN.md` -- Wave 1: subprocess timeout helper and high-volume Windows-prone test migration (complete)
-- `41-03-PLAN.md` -- Wave 2: security scanner CI surface and OSV triage
+- `41-03-PLAN.md` -- Wave 2: security scanner CI surface and OSV triage (complete)
 - `41-04-PLAN.md` -- Wave 2: perf baseline harness, schemas, workflow, and real three-platform capture protocol
 - `41-06-PLAN.md` -- Wave 3: remaining subprocess migration and Windows flake telemetry
 - `41-07-PLAN.md` -- Wave 4: 10x validation, flake maintenance, and D-11/REL-03 closure discipline
@@ -53,6 +52,8 @@ Do not resume Phase 40.5 Wave 5 legacy filing.
 - Do not file new upstream work against `gsd-build/get-shit-done` from stale Phase 40.5 instructions.
 - Phase 41 perf and 10x workflows are `workflow_dispatch`; first run requires default-branch workflow registration before `gh workflow run ... --ref ...`.
 - Do not fabricate missing Linux/macOS/Windows perf or test-timing baseline numbers.
+- First CI run for Plan 03 must record gitleaks action license behavior and harden-runner audit artifact shape; local verification could not observe those action-only surfaces.
+- Current coverage command exits 0 but aggregate metrics remain below the user's 95% per-metric standard (`94.86%` functions, `93.08%` lines on 2026-07-01).
 
 ## Active Independent Work
 

@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 41 EXECUTING. Wave 1 complete: override-check is blocking, audit suppressions validate with TTL, SECURITY.md triage policy exists, MAINTENANCE.md has Phase 41 sections, and high-volume subprocess tests use the timeout helper. Next Wave 2: Plans 03 and 04."
-stopped_at: "2026-07-01 Phase 41 Plan 05 complete. Next action: execute Wave 2 Plans 03 and 04."
-last_updated: "2026-07-01T15:48:16+01:00"
-last_activity: 2026-07-01 -- Phase 41 Plan 05 complete
+status: "Phase 41 EXECUTING. Wave 2 active: Plan 03 complete with blocking audit-ci, gitleaks, OSV triage, and harden-runner audit-mode CI jobs. Next Wave 2 action: execute Plan 04 performance baseline harness and artifact protocol."
+stopped_at: "2026-07-01 Phase 41 Plan 03 complete. Next action: execute Wave 2 Plan 04."
+last_updated: "2026-07-01T16:18:39+01:00"
+last_activity: 2026-07-01 -- Phase 41 Plan 03 complete
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 16
-  completed_plans: 7
-  planned_plans: 4
-  percent: 44
+  completed_plans: 8
+  planned_plans: 3
+  percent: 50
 ---
 
 # Project State
@@ -22,14 +22,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 41 Wave 1 execution against Open GSD authority
+**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 41 Wave 2 execution against Open GSD authority
 
 ## Current Position
 
 Phase: Phase 41 (executing) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
-Plan: 3 of 7 complete; Wave 1 complete; Wave 2 next = 41-03 and 41-04
+Plan: 4 of 7 complete; Wave 2 active; next = 41-04
 Status: Continue Wave 2 against Open GSD authority
-Last activity: 2026-07-01 -- Phase 41 Plan 05 complete
+Last activity: 2026-07-01 -- Phase 41 Plan 03 complete
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -75,6 +75,8 @@ v1.2.0 roadmap decisions:
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
 - Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plan 05; remaining subprocess surface and telemetry targeted by Plans 06-07 via REL-02/REL-01)
+- First GitHub Actions run must record account-specific gitleaks license behavior and harden-runner audit artifact shape from the Plan 03 security jobs; local implementation could not observe those CI-only surfaces.
+- Aggregate coverage remains below the user's 95% per-metric standard even though the current repo command exits 0 (`bun test --coverage`: 94.86% functions, 93.08% lines on 2026-07-01).
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
 - Codex `extractFrontmatterField` crash (RESOLVED -- fork-specific, 4 oversight agents had heading before frontmatter)
@@ -89,7 +91,7 @@ Boundary checker remains red with 41 structural root-mirror violations. This is 
 
 ## Session Continuity
 
-Last session: 2026-07-01 (Phase 41 Plan 05 execution and verification complete).
+Last session: 2026-07-01 (Phase 41 Plan 03 execution and verification complete).
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Phase 41 Plan 05 complete; Wave 1 complete; Wave 2 continues with Plans 03 and 04.
+Stopped at: Phase 41 Plan 03 complete; Wave 2 continues with Plan 04.
 Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md

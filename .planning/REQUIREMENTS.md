@@ -33,10 +33,10 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 
 ### SECURITY (supply chain + audit)
 
-- [ ] **SECURITY-01**: `audit-ci@7.1.0` runs in CI as blocking gate; `.planning/audits/suppressions.json` carries TTL'd entries with `{id, severity, reason, reviewer, reviewedDate, reReviewDate}` schema
-- [ ] **SECURITY-02**: `gitleaks-action@v2` secrets scan runs on every PR; fails on detected credentials
-- [ ] **SECURITY-03**: `osv-scanner-action@v2` runs against OSV database in CI; catches transitive CVEs that npm/bun audit misses
-- [ ] **SECURITY-04**: `step-security/harden-runner@v2` installed in audit mode in Phase 1; promoted to block mode in Phase 4 only if 2+ weeks of clean audit log
+- [x] **SECURITY-01**: `audit-ci@7.1.0` runs in CI as blocking gate; `.planning/audits/suppressions.json` carries TTL'd entries with `{id, severity, reason, reviewer, reviewedDate, reReviewDate}` schema
+- [x] **SECURITY-02**: `gitleaks-action@v2` secrets scan runs on every PR; fails on detected credentials
+- [x] **SECURITY-03**: `osv-scanner-action@v2` runs against OSV database in CI; catches transitive CVEs that npm/bun audit misses
+- [x] **SECURITY-04**: `step-security/harden-runner@v2` installed in audit mode in Phase 1; promoted to block mode in Phase 4 only if 2+ weeks of clean audit log
 - [x] **SECURITY-05**: `eslint-plugin-security` (already installed) config audited and confirmed enabled with all relevant rules
 - [x] **SECURITY-06**: Security triage policy encoded and documented: critical CVEs/findings -> fix in v1.2.0; major -> plan for v1.3.0; minor -> backlog with review date
 
@@ -131,10 +131,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PROCESS-05 | Phase 42 | Pending |
 | PROCESS-06 | Phase 42 | Pending |
 | PROCESS-07 | Phase 42 | Pending |
-| SECURITY-01 | Phase 41 | Pending |
-| SECURITY-02 | Phase 41 | Pending |
-| SECURITY-03 | Phase 41 | Pending |
-| SECURITY-04 | Phase 41 | Pending |
+| SECURITY-01 | Phase 41 | Complete |
+| SECURITY-02 | Phase 41 | Complete |
+| SECURITY-03 | Phase 41 | Complete |
+| SECURITY-04 | Phase 41 | Complete |
 | SECURITY-05 | Phase 41 | Complete |
 | SECURITY-06 | Phase 41 | Complete |
 | SHIP-01 | Phase 44 | Pending |
@@ -176,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-07-01 -- Phase 41 Plan 05 complete; REL-02 advanced by central subprocess timeout helper and high-volume test migration*
+*Last updated: 2026-07-01 -- Phase 41 Plan 03 complete; SECURITY-01..04 implemented in CI with first-run action behavior proof pending in Plan 03 summary*

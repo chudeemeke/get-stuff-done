@@ -14,7 +14,7 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: linux
-          - os: macos-latest
+          - os: macos-15
             platform: macos
           - os: windows-latest
             platform: windows
@@ -50,7 +50,7 @@ jobs:
       - name: Capture test timing baseline
         run: node scripts/bench-test-timing.js --platform ${{ matrix.platform }} --runs 5 --out test-timing-${{ matrix.platform }}.json
       - name: Upload platform perf artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: perf-${{ matrix.platform }}
           path: |
@@ -64,7 +64,7 @@ jobs:
     needs: capture
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
       # First-run protocol:
@@ -77,7 +77,7 @@ jobs:
       - name: Merge test timing baseline
         run: node scripts/bench-test-timing.js --merge artifacts --require-platforms linux,macos,windows --out .planning/perf/test-timing.json
       - name: Upload merged baseline artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: perf-baseline-merged
           path: |

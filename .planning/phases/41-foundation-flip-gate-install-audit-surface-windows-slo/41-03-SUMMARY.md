@@ -36,7 +36,9 @@ key-files:
     - tests/fixtures/osv/high-critical.json
     - tests/fixtures/osv/medium-low.json
   modified:
+    - .github/workflows/auto-label-issues.yml
     - .github/workflows/ci.yml
+    - .github/workflows/perf-baseline.yml
     - .gitleaks.toml
     - scripts/audit-check.js
     - scripts/check-boundary.js
@@ -89,6 +91,7 @@ completed: 2026-07-01
 - Hardened `scripts/audit-check.js` so it finds Bun Windows shims and runs `audit-ci` without shell path splitting.
 - Cleared local HIGH/CRITICAL audit findings by bumping `@anthropic-ai/claude-code`, adding flat Bun-compatible security overrides, and removing unused `svgexport`.
 - Replaced the boundary-check `continue-on-error` step with explicit `--report-only` mode so known boundary debt remains visible without producing a failed-step annotation in otherwise green CI.
+- Upgraded GitHub Node actions away from deprecated runtime majors and pinned macOS jobs to `macos-15` to avoid the `macos-latest` migration warning.
 
 ## Task Commits
 
@@ -133,16 +136,20 @@ completed: 2026-07-01
 - `node scripts/check-boundary.js --report-only` - passed with the known 41 boundary violations reported.
 - `bun run lint` - passed with 135 warnings and 0 errors after the report-only parser rewrite.
 - `bun test --coverage` - passed, 1,719 tests, 0 failures.
+- `bun test tests/ci-workflow.test.js` - passed, 6 tests after the action/runner hygiene contracts were added.
+- `bash scripts/lint-workflows.sh` - passed after upgrading `actions/setup-node@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, `actions/github-script@v8`, and pinning macOS runners to `macos-15`.
 
 ## CI Runtime Notes
 
 - **First PR run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28531610222` on PR #3 at `c515393`.
 - **First repaired PR run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28533068807` on PR #3 at `deaa19b`. All CI jobs completed successfully: workflow lint, secret scan, audit-ci, OSV, lint, ubuntu/macos/windows tests, source parity, upstream compat on all three OSes, boundary check, and override staleness.
+- **Boundary annotation cleanup run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28534255286` on PR #3 at `1f7d3fe`. All CI jobs completed successfully, and the boundary failed-step annotation was gone.
 - **Gitleaks action license:** No license blocker appeared. The first PR run failed before scanning because `GITHUB_TOKEN` is now required for pull request scans. Fixed by passing `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to `gitleaks/gitleaks-action@v2`; repaired run `28533068807` passed the secret scan job.
 - **Harden-runner artifact shape:** Harden-runner setup and post steps ran successfully in the first PR run. Artifact/dashboard shape still needs review from the successful post-fix run before any block-mode discussion.
 - **OSV action path:** The direct action path remains intentional, but the floating `@v2` ref does not exist. Verified remote tags and pinned `google/osv-scanner-action/osv-scanner-action@v2.3.8`.
 - **Informational upstream-compat check:** GitHub surfaced the job as red despite the intended informational stance. Added `scripts/run-upstream-compat-ci.js` so the job reports drift in logs and step summary while exiting 0.
-- **Informational boundary annotation:** The repaired PR run was green but still emitted a red "Process completed with exit code 1" annotation for the expected boundary debt. Added `scripts/check-boundary.js --report-only` and updated CI to use it; local verification passes. Remote verification is pending on the next pushed commit.
+- **Informational boundary annotation:** The repaired PR run was green but still emitted a red "Process completed with exit code 1" annotation for the expected boundary debt. Added `scripts/check-boundary.js --report-only` and updated CI to use it; run `28534255286` verifies the annotation is gone while the ratchet gate stays blocking.
+- **CI hygiene annotations:** Run `28534255286` still showed non-blocking annotations for `actions/setup-node@v4` being forced from Node 20 to Node 24 and `macos-latest` migration to macOS 26. Verified current upstream tags and locally upgraded first-party action majors plus pinned macOS labels; remote verification is pending on the next pushed commit.
 - **Active-authority compat target:** `scripts/run-upstream-compat.js` still pointed at legacy `dist/get-shit-done`. It now derives the composed package root from `active.paths.gsdTools` and targets `dist/gsd-core` for the Open GSD authority. Local Windows observation is now 11 compat failures, and the debt ratchet passes (`compat (windows): 11 / 133`). Do not lower linux/macos thresholds until the PR matrix provides OS evidence.
 
 ## Deviations from Plan
@@ -179,9 +186,16 @@ completed: 2026-07-01
 - **Files modified:** `.github/workflows/ci.yml`, `scripts/check-boundary.js`, `tests/check-boundary.test.js`, `tests/ci-workflow.test.js`
 - **Verification:** targeted boundary/workflow tests, workflow lint, report-only command, ratchet gate, `bun run lint`, `bun run compose`, and `bun test --coverage` passed locally.
 
+**5. [Quality] Green PR run still emitted action/runtime and macOS runner migration annotations**
+- **Found during:** PR #3 run `28534255286`.
+- **Issue:** GitHub annotated `actions/setup-node@v4` as Node 20-deprecated and warned that `macos-latest` is migrating to macOS 26.
+- **Fix:** Verified current first-party action tags, upgraded to `actions/setup-node@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, and `actions/github-script@v8`, and pinned active workflow macOS runners to `macos-15`.
+- **Files modified:** `.github/workflows/auto-label-issues.yml`, `.github/workflows/ci.yml`, `.github/workflows/perf-baseline.yml`, `tests/ci-workflow.test.js`
+- **Verification:** `bun test tests/ci-workflow.test.js`, `bash scripts/lint-workflows.sh`, and `bun run lint` passed locally.
+
 ---
 
-**Total deviations:** 4 auto-fixed (3 blocking, 1 CI quality).
+**Total deviations:** 5 auto-fixed (3 blocking, 2 CI quality).
 **Impact on plan:** The fixes strengthen the intended Plan 03 security gate rather than changing its scope.
 
 ## Issues Encountered
@@ -193,7 +207,7 @@ completed: 2026-07-01
 
 ## User Setup Required
 
-None locally. The next GitHub Actions run should verify the boundary report-only cleanup removes the failed-step annotation while keeping the ratchet gate blocking.
+None locally. The next GitHub Actions run should verify the action/runtime and pinned macOS runner changes remove the remaining CI hygiene annotations.
 
 ## Next Phase Readiness
 

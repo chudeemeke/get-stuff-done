@@ -16,7 +16,7 @@ Plan 04 is not complete. `perf-baseline.json` and `.planning/perf/test-timing.js
 - `scripts/bench.js` captures hyperfine install/compose metrics, uses scratch install directories with `bun install --ignore-scripts`, supports partial platform capture, and merges required platform artifacts.
 - `scripts/bench-test-timing.js` captures Bun JUnit timing, supports local partial smoke output, and merges required platform timing artifacts.
 - `package.json` now exposes `bun run bench` and `bun run bench:test-timing`.
-- `.github/workflows/perf-baseline.yml` is `workflow_dispatch` only, captures `linux`, `macos`, and `windows`, installs hyperfine per runner, and merges uploaded artifacts.
+- `.github/workflows/perf-baseline.yml` is `workflow_dispatch` only, captures `linux`, `macos`, and `windows`, installs hyperfine per runner, pins the macOS runner to `macos-15`, and merges uploaded artifacts.
 
 ## Verification
 
@@ -37,7 +37,7 @@ The temporary local timing artifact was removed after smoke verification. `perf-
 | Platform | Source | Status |
 | --- | --- | --- |
 | linux | `perf-linux.json` and `test-timing-linux.json` from `.github/workflows/perf-baseline.yml` | Missing; workflow not registered on `origin/main` yet |
-| macos | `perf-macos.json` and `test-timing-macos.json` from `.github/workflows/perf-baseline.yml` | Missing; workflow not registered on `origin/main` yet |
+| macos | `perf-macos.json` and `test-timing-macos.json` from `.github/workflows/perf-baseline.yml` on `macos-15` | Missing; workflow not registered on `origin/main` yet |
 | windows | `perf-windows.json` and `test-timing-windows.json` from `.github/workflows/perf-baseline.yml` | Missing; workflow not registered on `origin/main` yet |
 
 Workflow run URL: none. The manual workflow exists in commit `6454a4345a933c0d75b4dc58e7ba9356b850d58d`, but it has not been registered on `origin/main`.

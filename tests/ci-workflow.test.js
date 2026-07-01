@@ -3,10 +3,23 @@ const fs = require('fs');
 const path = require('path');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const CI_WORKFLOW = path.join(PROJECT_ROOT, '.github', 'workflows', 'ci.yml');
+const WORKFLOWS_DIR = path.join(PROJECT_ROOT, '.github', 'workflows');
+const CI_WORKFLOW = path.join(WORKFLOWS_DIR, 'ci.yml');
 
 function readCiWorkflow() {
   return fs.readFileSync(CI_WORKFLOW, 'utf8');
+}
+
+function readWorkflow(fileName) {
+  return fs.readFileSync(path.join(WORKFLOWS_DIR, fileName), 'utf8');
+}
+
+function readAllWorkflowText() {
+  return fs
+    .readdirSync(WORKFLOWS_DIR)
+    .filter(fileName => fileName.endsWith('.yml') || fileName.endsWith('.yaml'))
+    .map(fileName => readWorkflow(fileName))
+    .join('\n');
 }
 
 describe('CI workflow security action contracts', () => {
@@ -22,6 +35,29 @@ describe('CI workflow security action contracts', () => {
 
     expect(workflow).toContain('uses: google/osv-scanner-action/osv-scanner-action@v2.3.8');
     expect(workflow).not.toContain('uses: google/osv-scanner-action/osv-scanner-action@v2\n');
+  });
+
+  test('first-party Node actions use Node 24-compatible majors', () => {
+    const workflows = readAllWorkflowText();
+
+    expect(workflows).toContain('actions/setup-node@v6');
+    expect(workflows).not.toContain('actions/setup-node@v4');
+    expect(workflows).toContain('actions/upload-artifact@v7');
+    expect(workflows).not.toContain('actions/upload-artifact@v4');
+    expect(workflows).toContain('actions/download-artifact@v8');
+    expect(workflows).not.toContain('actions/download-artifact@v4');
+    expect(workflows).toContain('actions/github-script@v8');
+    expect(workflows).not.toContain('actions/github-script@v7');
+  });
+
+  test('macOS runners are pinned away from macos-latest migration', () => {
+    const ciWorkflow = readCiWorkflow();
+    const perfWorkflow = readWorkflow('perf-baseline.yml');
+    const workflows = readAllWorkflowText();
+
+    expect(workflows).not.toContain('macos-latest');
+    expect(ciWorkflow).toContain('macos-15');
+    expect(perfWorkflow).toContain('os: macos-15');
   });
 });
 

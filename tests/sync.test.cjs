@@ -10,8 +10,8 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { execSync, execFileSync } = require('child_process');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { execFileSync } = require('child_process');
+const { runGsdTools, createTempProject, cleanup, runWithTimeout } = require('./helpers.cjs');
 const { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
 
 function gitAddAll(cwd) {
@@ -20,6 +20,23 @@ function gitAddAll(cwd) {
 
 function gitCommit(cwd, message) {
   execFileSync('git', ['commit', '-m', message], { cwd, stdio: 'pipe' });
+}
+
+function gitRun(cwd, args) {
+  runWithTimeout('git', args, {
+    cwd,
+    stdio: 'pipe',
+    throwOnError: true,
+  });
+}
+
+function gitOutput(cwd, args) {
+  return runWithTimeout('git', args, {
+    cwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+    throwOnError: true,
+  }).stdout.trim();
 }
 
 
@@ -96,9 +113,9 @@ const {
  */
 function createTempGitProject() {
   const tmpDir = createTempProject();
-  execSync('git init', { cwd: tmpDir, stdio: 'pipe' });
-  execSync('git config user.email "test@test.com"', { cwd: tmpDir, stdio: 'pipe' });
-  execSync('git config user.name "Test"', { cwd: tmpDir, stdio: 'pipe' });
+  gitRun(tmpDir, ['init']);
+  gitRun(tmpDir, ['config', 'user.email', 'test@test.com']);
+  gitRun(tmpDir, ['config', 'user.name', 'Test']);
   fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'init');
   gitAddAll(tmpDir);
   gitCommit(tmpDir, "init");
@@ -118,9 +135,9 @@ describe('getCommitsInRange', () => {
     cleanup(tmpDir);
   });
 
-  test('returns empty array when range has no commits', () => {
+  test('returns empty array when range has no commits', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // HEAD..HEAD is empty (HEAD is both base and target)
-    const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+    const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
     const commits = getCommitsInRange(tmpDir, headSha, headSha);
     assert.deepStrictEqual(commits, [], 'Should return empty array for empty range');
   });
@@ -131,8 +148,8 @@ describe('getCommitsInRange', () => {
     gitAddAll(tmpDir);
     gitCommit(tmpDir, "second commit");
 
-    const firstSha = execSync('git rev-parse HEAD~1', { cwd: tmpDir, encoding: 'utf-8' }).trim();
-    const lastSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+    const firstSha = gitOutput(tmpDir, ['rev-parse', 'HEAD~1']);
+    const lastSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
 
     const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
     assert.strictEqual(commits.length, 1, 'Should return one commit');
@@ -144,14 +161,14 @@ describe('getCommitsInRange', () => {
     assert.strictEqual(commits[0].subject, 'second commit', 'Subject should match commit message');
   });
 
-  test('handles subjects containing special characters', () => {
+  test('handles subjects containing special characters', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // Create commit with a subject containing special chars (colon, ampersand, etc.)
     fs.writeFileSync(path.join(tmpDir, 'file3.txt'), 'content');
     gitAddAll(tmpDir);
     gitCommit(tmpDir, "fix: handle edge case & special chars");
 
-    const firstSha = execSync('git rev-parse HEAD~1', { cwd: tmpDir, encoding: 'utf-8' }).trim();
-    const lastSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+    const firstSha = gitOutput(tmpDir, ['rev-parse', 'HEAD~1']);
+    const lastSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
 
     const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
     assert.strictEqual(commits.length, 1, 'Should return one commit');
@@ -178,7 +195,7 @@ describe('getFilesForCommit', () => {
   });
 
   test('returns files changed in commit as structured objects', () => {
-    const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+    const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
     const files = getFilesForCommit(tmpDir, headSha);
 
     assert.ok(Array.isArray(files), 'Should return an array');
@@ -191,7 +208,7 @@ describe('getFilesForCommit', () => {
   });
 
   test('returns added file with A status', () => {
-    const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+    const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
     const files = getFilesForCommit(tmpDir, headSha);
 
     // The initial commit added init.txt
@@ -583,8 +600,8 @@ describe('sync-preview command', () => {
       // Dirty the working tree
       fs.writeFileSync(path.join(repoDir, 'file2.txt'), 'modified');
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.strictEqual(result.success, true, 'Should succeed despite dirty working tree');
@@ -603,16 +620,8 @@ describe('sync-preview command', () => {
     // Get two consecutive commits from git log
     let firstSha, lastSha;
     try {
-      lastSha = execSync('git rev-parse HEAD', {
-        cwd: repoDir,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-      }).trim();
-      firstSha = execSync('git rev-parse HEAD~1', {
-        cwd: repoDir,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-      }).trim();
+      lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
+      firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
     } catch {
       // Skip test if we can't get valid SHAs
       return;
@@ -648,8 +657,8 @@ describe('sync-preview command', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "fix: resolve issue");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview failed: ${result.error}`);
@@ -696,8 +705,8 @@ describe('sync-preview command', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "chore: update deps");
 
-      const firstSha = execSync('git rev-parse HEAD~3', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~3']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview failed: ${result.error}`);
@@ -1165,8 +1174,8 @@ describe('sync-preview supply chain integration', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "feat: add feature");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview failed: ${result.error}`);
@@ -1192,8 +1201,8 @@ describe('sync-preview supply chain integration', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "chore: update");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview failed: ${result.error}`);
@@ -1248,11 +1257,7 @@ describe('sync-checkpoint command', () => {
     assert.ok(data.created, 'Should have created timestamp');
 
     // Verify the tag was actually created in git
-    const tagsResult = execSync('git tag -l "sync-checkpoint-*"', {
-      cwd: tmpDir,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
+    const tagsResult = gitOutput(tmpDir, ['tag', '-l', 'sync-checkpoint-*']).trim();
     assert.strictEqual(tagsResult, 'sync-checkpoint-test-batch-01', 'Tag should exist in git');
   });
 
@@ -1522,8 +1527,8 @@ describe('sync-preview selective filtering CLI', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "refactor: cleanup code");
 
-      const baseSha = execSync('git rev-parse HEAD~3', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const baseSha = gitOutput(repoDir, ['rev-parse', 'HEAD~3']);
+      const headSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       // Filter to only feat commits
       const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json --category feat`, repoDir);
@@ -1554,8 +1559,8 @@ describe('sync-preview selective filtering CLI', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "refactor: cleanup code");
 
-      const baseSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const baseSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const headSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json --exclude refactor`, repoDir);
       assert.ok(result.success, `sync-preview --exclude failed: ${result.error}`);
@@ -1578,8 +1583,8 @@ describe('sync-preview selective filtering CLI', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "feat: add feature");
 
-      const baseSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const baseSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const headSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview without filters failed: ${result.error}`);
@@ -1611,8 +1616,8 @@ describe('sync-preview selective filtering CLI', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "feat: second change to shared");
 
-      const baseSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const baseSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const headSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json --category feat`, repoDir);
       assert.ok(result.success, `sync-preview --json --category failed: ${result.error}`);
@@ -1837,8 +1842,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "feat: add feature");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, { json: true }, false,
@@ -1860,8 +1865,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "docs: add readme");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, {}, true,
@@ -1885,8 +1890,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "fix: fix b");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, { json: true, categories: ['feat'] }, false,
@@ -1912,8 +1917,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "chore: add d");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, { categories: ['feat'] }, true,
@@ -1929,7 +1934,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
   test('errors when target SHA does not exist', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const tmpDir = createTempGitProject();
     try {
-      const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+      const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
       const { exitCode, stderr } = captureCmd(cmdSyncPreview, [tmpDir, `${headSha}..deadbeef`, {}, false]);
       assert.strictEqual(exitCode, 1, 'Should exit with code 1');
       assert.ok(stderr.includes('SHA not found'), 'Should mention SHA not found for target');
@@ -1949,8 +1954,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "feat: add dependency");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, {}, true,
@@ -1981,8 +1986,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "feat: add package.json");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, {}, true,
@@ -2006,8 +2011,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "fix: update shared");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       // Select only 'fix', exclude 'feat' -- creates cross-boundary dependency
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
@@ -2038,8 +2043,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "fix: update overlap");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, { categories: ['fix'] }, true,
@@ -2067,8 +2072,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "docs: add docs");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       // Filter to feat only -- triggers filtered rendering path with supply chain badges
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
@@ -2098,8 +2103,8 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
       gitAddAll(repoDir);
       gitCommit(repoDir, "docs: update readme");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       // Unfiltered human-readable output with sensitive path
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
@@ -2131,7 +2136,7 @@ describe('cmdSyncCheckpointCreate direct (overlay coverage)', () => {
       assert.ok(data.created, 'Should include created timestamp');
 
       // Verify tag exists
-      const tagCheck = execSync('git tag -l sync-checkpoint-test-batch-1', { cwd: repoDir, encoding: 'utf-8' });
+      const tagCheck = gitOutput(repoDir, ['tag', '-l', 'sync-checkpoint-test-batch-1']);
       assert.ok(tagCheck.includes('sync-checkpoint-test-batch-1'), 'Tag should exist in repo');
     } finally {
       cleanup(repoDir);
@@ -2199,7 +2204,7 @@ describe('cmdSyncCheckpointCleanup direct (overlay coverage)', () => {
       assert.ok(data.deleted.includes('sync-checkpoint-cleanup-2'), 'Should include second tag');
 
       // Verify tags are gone
-      const tagCheck = execSync('git tag -l sync-checkpoint-*', { cwd: repoDir, encoding: 'utf-8' });
+      const tagCheck = gitOutput(repoDir, ['tag', '-l', 'sync-checkpoint-*']);
       assert.strictEqual(tagCheck.trim(), '', 'No checkpoint tags should remain');
     } finally {
       cleanup(repoDir);

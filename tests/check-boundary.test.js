@@ -343,6 +343,29 @@ describe('CLI exit codes', () => {
     expect(result.status).toBe(1);
   });
 
+  test('exits 0 in report-only mode when violations found', () => {
+    const fixture = createFixture({
+      upstreamFiles: ['bin/tool.cjs'],
+      repoFiles: ['bin/tool.cjs'],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const result = spawnSync(
+      process.execPath,
+      [
+        CHECK_BOUNDARY_SCRIPT,
+        '--report-only',
+        '--upstream-dir',
+        fixture.upstreamDir,
+        '--project-dir',
+        fixture.projectDir,
+      ],
+      { encoding: 'utf-8' }
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('bin/tool.cjs');
+  });
+
   test('CLI output includes violation path when violations found', () => {
     const fixture = createFixture({
       upstreamFiles: ['bin/tool.cjs'],
@@ -410,6 +433,11 @@ describe('parseArgs', () => {
   test('parses --project-dir flag', () => {
     const opts = parseArgs(['--project-dir', '/tmp/project']);
     expect(opts.projectDir).toBe('/tmp/project');
+  });
+
+  test('parses --report-only flag', () => {
+    const opts = parseArgs(['--report-only']);
+    expect(opts.reportOnly).toBe(true);
   });
 
   test('parses both flags', () => {

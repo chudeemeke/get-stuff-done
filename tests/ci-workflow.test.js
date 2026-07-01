@@ -32,4 +32,15 @@ describe('CI workflow informational gates', () => {
     expect(workflow).toContain('node scripts/run-upstream-compat-ci.js');
     expect(workflow).not.toContain('run: node scripts/run-upstream-compat.js');
   });
+
+  test('boundary debt reports without producing a failed-step annotation', () => {
+    const workflow = readCiWorkflow();
+    const boundaryJobStart = workflow.indexOf('boundary-check:');
+    const overrideJobStart = workflow.indexOf('override-check:');
+    const boundaryJob = workflow.slice(boundaryJobStart, overrideJobStart);
+
+    expect(boundaryJob).toContain('node scripts/check-boundary.js --report-only');
+    expect(boundaryJob).not.toContain('continue-on-error: true');
+    expect(boundaryJob).toContain('node scripts/check-debt-ratchet.cjs --no-compose');
+  });
 });

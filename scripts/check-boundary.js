@@ -12,10 +12,12 @@
  *
  * Usage:
  *   node scripts/check-boundary.js
+ *   node scripts/check-boundary.js --report-only
  *   node scripts/check-boundary.js --upstream-dir <path> --project-dir <path>
  *
  * Exit codes:
  *   0 -- no boundary violations found
+ *   0 -- boundary violations detected and --report-only is set
  *   1 -- boundary violations detected
  */
 
@@ -185,19 +187,25 @@ function formatReport(result) {
 // ---------------------------------------------------------------------------
 
 /**
- * Parse --upstream-dir and --project-dir from process.argv.
+ * Parse --report-only, --upstream-dir, and --project-dir from process.argv.
  *
- * @returns {{ upstreamDir?: string, projectDir?: string }}
+ * @returns {{ reportOnly?: boolean, upstreamDir?: string, projectDir?: string }}
  */
 function parseArgs(argv) {
   const opts = {};
-  for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--upstream-dir' && argv[i + 1]) {
-      opts.upstreamDir = argv[i + 1];
-      i++;
-    } else if (argv[i] === '--project-dir' && argv[i + 1]) {
-      opts.projectDir = argv[i + 1];
-      i++;
+  let pendingValueFor = null;
+
+  for (const arg of argv) {
+    if (pendingValueFor === '--upstream-dir') {
+      opts.upstreamDir = arg;
+      pendingValueFor = null;
+    } else if (pendingValueFor === '--project-dir') {
+      opts.projectDir = arg;
+      pendingValueFor = null;
+    } else if (arg === '--report-only') {
+      opts.reportOnly = true;
+    } else if (arg === '--upstream-dir' || arg === '--project-dir') {
+      pendingValueFor = arg;
     }
   }
   return opts;
@@ -211,7 +219,7 @@ if (require.main === module) {
   const opts = parseArgs(process.argv.slice(2));
   const result = checkBoundary(opts);
   process.stdout.write(formatReport(result));
-  process.exit(result.ok ? 0 : 1);
+  process.exit(result.ok || opts.reportOnly ? 0 : 1);
 }
 
 // ---------------------------------------------------------------------------

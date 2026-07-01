@@ -39,8 +39,10 @@ key-files:
     - .github/workflows/ci.yml
     - .gitleaks.toml
     - scripts/audit-check.js
+    - scripts/check-boundary.js
     - scripts/run-upstream-compat.js
     - tests/audit-check.test.js
+    - tests/check-boundary.test.js
     - tests/installer-safety.test.js
     - tests/test-path-validation.test.js
     - package.json
@@ -86,6 +88,7 @@ completed: 2026-07-01
 - Added GitHub issue/comment routing for MEDIUM/LOW OSV findings using `actions/github-script@v8`.
 - Hardened `scripts/audit-check.js` so it finds Bun Windows shims and runs `audit-ci` without shell path splitting.
 - Cleared local HIGH/CRITICAL audit findings by bumping `@anthropic-ai/claude-code`, adding flat Bun-compatible security overrides, and removing unused `svgexport`.
+- Replaced the boundary-check `continue-on-error` step with explicit `--report-only` mode so known boundary debt remains visible without producing a failed-step annotation in otherwise green CI.
 
 ## Task Commits
 
@@ -126,14 +129,20 @@ completed: 2026-07-01
 - `node scripts/check-parity.js` - passed, 15/15 checks.
 - `node scripts/check-debt-ratchet.cjs --no-compose` - passed.
 - `node scripts/check-overrides.js` - passed, 2 overrides fresh.
+- `bun test tests/check-boundary.test.js tests/ci-workflow.test.js` - passed, 28 tests.
+- `node scripts/check-boundary.js --report-only` - passed with the known 41 boundary violations reported.
+- `bun run lint` - passed with 135 warnings and 0 errors after the report-only parser rewrite.
+- `bun test --coverage` - passed, 1,719 tests, 0 failures.
 
 ## CI Runtime Notes
 
 - **First PR run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28531610222` on PR #3 at `c515393`.
-- **Gitleaks action license:** No license blocker appeared. The action failed before scanning because `GITHUB_TOKEN` is now required for pull request scans. Fixed by passing `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to `gitleaks/gitleaks-action@v2`; the next PR run is the scan-proof authority.
+- **First repaired PR run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28533068807` on PR #3 at `deaa19b`. All CI jobs completed successfully: workflow lint, secret scan, audit-ci, OSV, lint, ubuntu/macos/windows tests, source parity, upstream compat on all three OSes, boundary check, and override staleness.
+- **Gitleaks action license:** No license blocker appeared. The first PR run failed before scanning because `GITHUB_TOKEN` is now required for pull request scans. Fixed by passing `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to `gitleaks/gitleaks-action@v2`; repaired run `28533068807` passed the secret scan job.
 - **Harden-runner artifact shape:** Harden-runner setup and post steps ran successfully in the first PR run. Artifact/dashboard shape still needs review from the successful post-fix run before any block-mode discussion.
 - **OSV action path:** The direct action path remains intentional, but the floating `@v2` ref does not exist. Verified remote tags and pinned `google/osv-scanner-action/osv-scanner-action@v2.3.8`.
 - **Informational upstream-compat check:** GitHub surfaced the job as red despite the intended informational stance. Added `scripts/run-upstream-compat-ci.js` so the job reports drift in logs and step summary while exiting 0.
+- **Informational boundary annotation:** The repaired PR run was green but still emitted a red "Process completed with exit code 1" annotation for the expected boundary debt. Added `scripts/check-boundary.js --report-only` and updated CI to use it; local verification passes. Remote verification is pending on the next pushed commit.
 - **Active-authority compat target:** `scripts/run-upstream-compat.js` still pointed at legacy `dist/get-shit-done`. It now derives the composed package root from `active.paths.gsdTools` and targets `dist/gsd-core` for the Open GSD authority. Local Windows observation is now 11 compat failures, and the debt ratchet passes (`compat (windows): 11 / 133`). Do not lower linux/macos thresholds until the PR matrix provides OS evidence.
 
 ## Deviations from Plan
@@ -163,21 +172,28 @@ completed: 2026-07-01
 - **Files modified:** `.github/workflows/ci.yml`, `scripts/run-upstream-compat.js`, `scripts/run-upstream-compat-ci.js`, `tests/ci-workflow.test.js`, `tests/run-upstream-compat.test.js`, `tests/run-upstream-compat-ci.test.js`, `tests/audit-check.test.js`, `tests/installer-safety.test.js`, `tests/test-path-validation.test.js`
 - **Verification:** `bash scripts/lint-workflows.sh`, `bun run lint`, `node scripts/check-debt-ratchet.cjs --no-compose`, `node scripts/run-upstream-compat-ci.js`, targeted CI/compat tests, and `bun test --coverage` all passed locally.
 
+**4. [Quality] Green repaired PR run still emitted a failed-step boundary annotation**
+- **Found during:** PR #3 run `28533068807`.
+- **Issue:** `continue-on-error: true` let the boundary job pass but GitHub still displayed a red failed-step annotation for known structural boundary debt.
+- **Fix:** Added `--report-only` mode to `scripts/check-boundary.js`, wired the CI step to `node scripts/check-boundary.js --report-only`, and kept `node scripts/check-debt-ratchet.cjs --no-compose` as the blocking regression gate.
+- **Files modified:** `.github/workflows/ci.yml`, `scripts/check-boundary.js`, `tests/check-boundary.test.js`, `tests/ci-workflow.test.js`
+- **Verification:** targeted boundary/workflow tests, workflow lint, report-only command, ratchet gate, `bun run lint`, `bun run compose`, and `bun test --coverage` passed locally.
+
 ---
 
-**Total deviations:** 3 auto-fixed (3 blocking).
-**Impact on plan:** Both fixes strengthen the intended Plan 03 security gate rather than changing its scope.
+**Total deviations:** 4 auto-fixed (3 blocking, 1 CI quality).
+**Impact on plan:** The fixes strengthen the intended Plan 03 security gate rather than changing its scope.
 
 ## Issues Encountered
 
 - Running `bun update @anthropic-ai/claude-code fast-uri flatted minimatch hono ws` without `--ignore-scripts` triggered the package installer and updated the developer's global Claude/GSD install under the home profile. This was an external side effect of that command; subsequent dependency work used `--ignore-scripts`.
 - Bun 1.3.5 warns that nested overrides are unsupported. The final implementation uses flat overrides that are reflected in `bun.lock`.
-- `bun run lint` still emits existing eslint-security warnings. The command exits 0, so this is warning debt rather than a Plan 03 blocker.
+- `bun run lint` still emits existing eslint-security warnings. The command exits 0, so this is warning debt rather than a Plan 03 blocker. The report-only parser rewrite lowered the local warning count to 135.
 - Full coverage passes as a command but remains below the user's 95% per-metric quality standard. This is existing quality debt to address before market-ready ship, not caused by Plan 03.
 
 ## User Setup Required
 
-None locally. The next GitHub Actions run should be reviewed for account-specific gitleaks license behavior and harden-runner audit output.
+None locally. The next GitHub Actions run should verify the boundary report-only cleanup removes the failed-step annotation while keeping the ratchet gate blocking.
 
 ## Next Phase Readiness
 

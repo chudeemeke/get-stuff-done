@@ -141,6 +141,7 @@ completed: 2026-07-01
 - `bash scripts/lint-workflows.sh` - passed after upgrading `actions/setup-node@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, `actions/github-script@v8`, and pinning macOS runners to `macos-15`.
 - `bun test tests/ci-workflow.test.js` - passed, 6 tests after upgrading `gitleaks/gitleaks-action@v3`.
 - `bash scripts/lint-workflows.sh` - passed after upgrading `gitleaks/gitleaks-action@v3`.
+- PR #3 run `https://github.com/chudeemeke/get-stuff-done/actions/runs/28536087964` - passed all CI jobs after upgrading `gitleaks/gitleaks-action@v3`; the watch output ended without CI hygiene annotations.
 
 ## CI Runtime Notes
 
@@ -149,7 +150,8 @@ completed: 2026-07-01
 - **Boundary annotation cleanup run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28534255286` on PR #3 at `1f7d3fe`. All CI jobs completed successfully, and the boundary failed-step annotation was gone.
 - **Action/runtime hygiene run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28534944081` on PR #3 at `3023d9f`. All CI jobs completed successfully with `actions/setup-node@v6`, newer artifact actions, and `macos-15` matrix labels.
 - **Docs reconciliation run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28535445005` on PR #3 at `ba1608d`. All CI jobs completed successfully, but the run surfaced the remaining `gitleaks/gitleaks-action@v2` Node 20 runtime annotation.
-- **Gitleaks action license/runtime:** No license blocker appeared. The first PR run failed before scanning because `GITHUB_TOKEN` is now required for pull request scans. Fixed by passing `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to `gitleaks/gitleaks-action@v2`; repaired run `28533068807` passed the secret scan job. The remaining Node 20 runtime annotation is fixed locally by upgrading to `gitleaks/gitleaks-action@v3`; remote verification is pending.
+- **Gitleaks runtime cleanup run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28536087964` on PR #3 at `4101115`. All CI jobs completed successfully after upgrading to `gitleaks/gitleaks-action@v3`; the watch output ended without CI hygiene annotations.
+- **Gitleaks action license/runtime:** No license blocker appeared. The first PR run failed before scanning because `GITHUB_TOKEN` is now required for pull request scans. Fixed by passing `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to `gitleaks/gitleaks-action@v2`; repaired run `28533068807` passed the secret scan job. The remaining Node 20 runtime annotation was fixed by upgrading to `gitleaks/gitleaks-action@v3`; run `28536087964` remote-verified the cleanup.
 - **Harden-runner artifact shape:** Harden-runner setup and post steps ran successfully in the first PR run. Artifact/dashboard shape still needs review from the successful post-fix run before any block-mode discussion.
 - **OSV action path:** The direct action path remains intentional, but the floating `@v2` ref does not exist. Verified remote tags and pinned `google/osv-scanner-action/osv-scanner-action@v2.3.8`.
 - **Informational upstream-compat check:** GitHub surfaced the job as red despite the intended informational stance. Added `scripts/run-upstream-compat-ci.js` so the job reports drift in logs and step summary while exiting 0.
@@ -203,7 +205,7 @@ completed: 2026-07-01
 - **Issue:** `gitleaks/gitleaks-action@v2` targets Node 20. GitHub forced it to run on Node 24 and emitted a deprecation annotation even though the Secret Scan job passed.
 - **Fix:** Verified the upstream `v3.0.0` release states it migrates the action runtime to Node 24 with no behavior/input changes, upgraded CI to `gitleaks/gitleaks-action@v3`, and added a workflow contract that rejects the old `@v2` marker.
 - **Files modified:** `.github/workflows/ci.yml`, `tests/ci-workflow.test.js`
-- **Verification:** `bun test tests/ci-workflow.test.js` and `bash scripts/lint-workflows.sh` passed locally; remote verification is pending.
+- **Verification:** `bun test tests/ci-workflow.test.js` and `bash scripts/lint-workflows.sh` passed locally; PR #3 run `28536087964` passed all CI jobs and the watch output ended without CI hygiene annotations.
 
 ---
 

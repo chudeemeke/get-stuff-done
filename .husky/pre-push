@@ -10,6 +10,9 @@
 echo ">> Pre-push: running CI parity check. Skip with --no-verify."
 
 set -e
+# Git exports repository-local env vars into hooks. The test suite creates
+# temporary Git repos, so clear those vars before any child Git process runs.
+unset $(git rev-parse --local-env-vars)
 bun install --frozen-lockfile --ignore-scripts
 bun run compose
 bun run lint

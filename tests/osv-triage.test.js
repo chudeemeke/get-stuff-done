@@ -16,7 +16,7 @@ const cleanupPaths = [];
 
 afterEach(() => {
   for (const filePath of cleanupPaths.splice(0)) {
-    fs.rmSync(filePath, { force: true });
+    fs.rmSync(filePath, { force: true, recursive: true });
   }
 });
 

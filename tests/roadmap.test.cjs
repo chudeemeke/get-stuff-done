@@ -257,6 +257,128 @@ describe('roadmap analyze command', () => {
     assert.strictEqual(output.phases[1].goal, 'Build features');
     assert.strictEqual(output.phases[1].depends_on, 'Phase 1');
   });
+
+  test('counts ROADMAP-declared plans so future work is not hidden', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 1: Complete Slice
+**Goal:** Ship first slice
+**Plans:** 1 plan
+
+### Phase 2: Future Slice
+**Goal:** Ship remaining work
+**Plans**: 4 plans
+`
+    );
+
+    const p1 = path.join(tmpDir, '.planning', 'phases', '01-complete-slice');
+    fs.mkdirSync(p1, { recursive: true });
+    fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+
+    const result = runGsdTools('roadmap analyze', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.phases[0].plan_count, 1, 'phase 1 counts disk/declared plan');
+    assert.strictEqual(output.phases[1].plan_count, 4, 'phase 2 counts declared future plans');
+    assert.strictEqual(output.total_plans, 5, 'total plans include ROADMAP-declared future work');
+    assert.strictEqual(output.total_summaries, 1, 'summaries remain disk-backed');
+    assert.strictEqual(output.progress_percent, 20, 'progress should not report 100% with future work remaining');
+  });
+
+  test('prefers STATE current phase over older partial phases', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 40.5: Older Cleanup
+**Goal:** Retired active work
+**Plans:** 2 plans
+
+### Phase 41: Current Hardening
+**Goal:** Active work
+**Plans**: 2 plans
+
+### Phase 42: Next Work
+**Goal:** Future work
+**Plans:** 1 plan
+`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# Session State
+
+## Current Position
+
+Phase: Phase 41 (executing) -- Current Hardening
+Status: In progress
+`
+    );
+
+    const older = path.join(tmpDir, '.planning', 'phases', '40.5-older-cleanup');
+    fs.mkdirSync(older, { recursive: true });
+    fs.writeFileSync(path.join(older, '40.5-01-PLAN.md'), '# Plan');
+
+    const current = path.join(tmpDir, '.planning', 'phases', '41-current-hardening');
+    fs.mkdirSync(current, { recursive: true });
+    fs.writeFileSync(path.join(current, '41-01-PLAN.md'), '# Plan');
+
+    const result = runGsdTools('roadmap analyze', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.state_current_phase, '41', 'STATE current phase is surfaced');
+    assert.strictEqual(output.current_phase, '41', 'STATE current phase wins over stale older partial phase');
+  });
+});
+
+describe('roadmap update-plan-progress command', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('checks only the exact checklist phase and preserves CRLF endings', () => {
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    const roadmapContent = [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 09.2:** Prep notes that mention Phase 09.3 follow-up',
+      '- [ ] **Phase 09.3:** Secure note flow',
+      '',
+      '### Phase 09.2: Prep',
+      '**Plans:** 1 plan',
+      '',
+      '### Phase 09.3: Secure Notes',
+      '**Plans:** 0/1 plans executed',
+      '',
+    ].join('\r\n');
+    fs.writeFileSync(roadmapPath, roadmapContent, 'utf-8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '09.3-secure-notes');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '09.3-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '09.3-01-SUMMARY.md'), '# Summary');
+
+    const result = runGsdTools('roadmap update-plan-progress 09.3', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    const updated = fs.readFileSync(roadmapPath, 'utf-8');
+    assert.strictEqual(output.updated, true, 'roadmap should be updated');
+    assert.match(updated, /- \[ \] \*\*Phase 09\.2:\*\* Prep notes that mention Phase 09\.3 follow-up/);
+    assert.match(updated, /- \[x\] \*\*Phase 09\.3:\*\* Secure note flow \(completed \d{4}-\d{2}-\d{2}\)/);
+    assert.match(updated, /### Phase 09\.3: Secure Notes\r\n\*\*Plans:\*\* 1\/1 plans complete/);
+    assert.ok(!updated.includes('\n') || updated.includes('\r\n'), 'CRLF line endings should be preserved');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

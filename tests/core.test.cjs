@@ -1261,6 +1261,26 @@ describe('getMilestoneInfo()', () => {
     assert.strictEqual(result.name, 'Quality and Polish');
   });
 
+  test('prefers active milestone over older historical versions', () => {
+    const roadmapContent = `# Roadmap
+
+## Milestones
+
+- [x] **v0.1.0 Initial Fork** - shipped
+- [x] **v1.1.0 Installer Hardening** - shipped
+- [ ] **v1.2.0 Ship-Ready Hardening** - active
+
+## Phases
+
+### v1.2.0 Ship-Ready Hardening (Phases 41-44) -- ACTIVE
+`;
+    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), roadmapContent);
+
+    const result = getMilestoneInfo(tmpDir);
+    assert.strictEqual(result.version, 'v1.2');
+    assert.strictEqual(result.name, 'Ship-Ready Hardening');
+  });
+
   test('returns defaults when ROADMAP.md does not exist', () => {
     const result = getMilestoneInfo(tmpDir);
     assert.strictEqual(result.version, 'v1.0');

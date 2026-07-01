@@ -396,14 +396,61 @@ function generateSlugInternal(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
+function getStateCurrentPhase(cwd) {
+  try {
+    const state = fs.readFileSync(path.join(cwd, '.planning', 'STATE.md'), 'utf-8');
+    const fieldMatch = state.match(/\*\*Current\s+Phase:\*\*\s*(\d+[A-Z]?(?:\.\d+)*)/i);
+    if (fieldMatch) return fieldMatch[1];
+
+    const yamlMatch = state.match(/^current_phase:\s*["']?(\d+[A-Z]?(?:\.\d+)*)/im);
+    if (yamlMatch) return yamlMatch[1];
+
+    const positionMatch = state.match(/^Phase:\s*(?:Phase\s+)?(\d+[A-Z]?(?:\.\d+)*)/im);
+    if (positionMatch) return positionMatch[1];
+
+    const statusMatch = state.match(/^status:\s*["']?.*?\bPhase\s+(\d+[A-Z]?(?:\.\d+)*)/im);
+    return statusMatch ? statusMatch[1] : null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeMilestoneVersion(value) {
+  const match = String(value).match(/v(\d+\.\d+)/i);
+  return match ? `v${match[1]}` : String(value);
+}
+
+function cleanMilestoneName(value) {
+  return String(value)
+    .replace(/\s+[-\u2013\u2014]{1,2}\s+.*$/u, '')
+    .replace(/\s*\([^)]*\)\s*$/u, '')
+    .trim() || 'milestone';
+}
+
 function getMilestoneInfo(cwd) {
   try {
     const roadmap = fs.readFileSync(path.join(cwd, '.planning', 'ROADMAP.md'), 'utf-8');
-    const versionMatch = roadmap.match(/v(\d+\.\d+)/);
-    const nameMatch = roadmap.match(/## .*v\d+\.\d+[:\s]+([^\n(]+)/);
+    const activeListMatch = roadmap.match(/^\s*-\s*.*?\*\*(v\d+\.\d+(?:\.\d+)?)\s+([^*\r\n]+?)\*\*.*\bactive\b/im);
+    if (activeListMatch) {
+      return {
+        version: normalizeMilestoneVersion(activeListMatch[1]),
+        name: cleanMilestoneName(activeListMatch[2]),
+      };
+    }
+
+    const activeHeadingMatch = roadmap.match(/^#{2,4}\s*(v\d+\.\d+(?:\.\d+)?)\s+([^\r\n]+?)\s+[-\u2013\u2014]{1,2}\s+ACTIVE\b/im);
+    if (activeHeadingMatch) {
+      return {
+        version: normalizeMilestoneVersion(activeHeadingMatch[1]),
+        name: cleanMilestoneName(activeHeadingMatch[2]),
+      };
+    }
+
+    const versionMatch = roadmap.match(/^#{1,4}\s*(?:Roadmap\s*)?(v\d+\.\d+(?:\.\d+)?)/im);
+    const nameMatch = roadmap.match(/^#{1,4}\s*[^\r\n]*v\d+\.\d+(?:\.\d+)?(?::[ \t]*|[ \t]+)([^\r\n(]+)/im);
     return {
-      version: versionMatch ? versionMatch[0] : 'v1.0',
-      name: nameMatch ? nameMatch[1].trim() : 'milestone',
+      version: versionMatch ? normalizeMilestoneVersion(versionMatch[1]) : 'v1.0',
+      name: nameMatch ? cleanMilestoneName(nameMatch[1]) : 'milestone',
     };
   } catch {
     return { version: 'v1.0', name: 'milestone' };
@@ -428,6 +475,7 @@ module.exports = {
   resolveModelInternal,
   pathExistsInternal,
   generateSlugInternal,
+  getStateCurrentPhase,
   getMilestoneInfo,
   validateGitSHA,
   validateBranchName,

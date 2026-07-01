@@ -64,7 +64,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 ### RELIABILITY (SLO as phase completion criterion)
 
 - [ ] **REL-01**: 100% test pass on Linux + macOS + Windows platforms as a phase completion criterion (not aspirational); fix-flakiness treated as mandatory
-- [ ] **REL-02**: Windows subprocess flakiness root-caused: `Promise.race([child, timer])` replaces `exec` timeout pattern where applicable; central timeout constants applied; per-test flake rate tracked over CI runs
+- [ ] **REL-02**: Windows subprocess flakiness root-caused: raw subprocess test call sites migrate to the central timeout helper where applicable; central timeout constants are applied; per-test flake rate is tracked over CI runs
 - [ ] **REL-03**: Escape hatch defined with friction: if root-cause genuinely exceeds timebox, per-test skip is allowed only with issue link + explicit deadline; skip is flagged-on-use in CI output; MAINTENANCE.md tracks deadline
 
 ### PERF (performance baselining + budget enforcement)
@@ -176,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-06-23 -- Phase 40.6 complete; UPGRADE-11 satisfied; Phase 41 resumes against Open GSD authority*
+*Last updated: 2026-07-01 -- Phase 41 Plan 05 complete; REL-02 advanced by central subprocess timeout helper and high-volume test migration*

@@ -1,13 +1,13 @@
 # Continuation Context
 
-**Refreshed at:** 2026-06-23
-**Trigger:** Phase 41 planning completion
+**Refreshed at:** 2026-07-01
+**Trigger:** Phase 41 Plan 05 completion
 
 ## Resume Instructions
 
 1. Read `.planning/STATE.md` first. It is the authoritative resume pointer.
-2. Read `.planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-01-PLAN.md`, `41-02-PLAN.md`, and `41-05-PLAN.md`.
-3. Execute Phase 41 Wave 1 using Open GSD evidence.
+2. Read `.planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-03-PLAN.md` and `41-04-PLAN.md`.
+3. Execute Phase 41 Wave 2 using Open GSD evidence.
 4. Do not run the old Phase 40.5 Wave 5 legacy filing path. It is retired unless a future reviewed plan creates a new Open GSD-specific filing path.
 
 ## Last Known State
@@ -16,15 +16,14 @@
 
 **Phase:** 41 -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
 
-**Status:** Phase 41 planned. Seven executable plans passed GSD plan-checker; no blocking issues remain.
+**Status:** Phase 41 Wave 1 complete. Plans 01, 02, and 05 are verified; Plans 03 and 04 are next.
 
-**Current code state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` is retained only as historical/deprecation evidence. Package smoke for packed `@chude/get-stuff-done@3.0.2` passed, and the boundary checker still reports 41 structural root-mirror violations as explicit debt.
+**Current code state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` is retained only as historical/deprecation evidence. Package smoke for packed `@chude/get-stuff-done@3.0.2` passed, the boundary checker still reports 41 structural root-mirror violations as explicit debt, and Plan 05 migrated the high-volume subprocess test files to the central timeout helper.
 
-**Next concrete action:** Execute Phase 41 Wave 1 plans:
+**Next concrete action:** Execute Phase 41 Wave 2 plans:
 
-- `41-01-PLAN.md` -- blocking override gate and changelog conflict guard
-- `41-02-PLAN.md` -- audit suppressions, security policy, and maintenance sections
-- `41-05-PLAN.md` -- subprocess timeout helper and high-volume Windows-prone test migration
+- `41-03-PLAN.md` -- security scanner CI surface and OSV triage
+- `41-04-PLAN.md` -- perf baseline harness, schemas, workflow, and real three-platform capture protocol
 
 Do not resume Phase 40.5 Wave 5 legacy filing.
 
@@ -37,9 +36,9 @@ Do not resume Phase 40.5 Wave 5 legacy filing.
 
 ## Phase 41 Plans
 
-- `41-01-PLAN.md` -- Wave 1: blocking override gate and changelog conflict guard
-- `41-02-PLAN.md` -- Wave 1: audit suppressions, security policy, and maintenance sections
-- `41-05-PLAN.md` -- Wave 1: subprocess timeout helper and high-volume Windows-prone test migration
+- `41-01-PLAN.md` -- Wave 1: blocking override gate and changelog conflict guard (complete)
+- `41-02-PLAN.md` -- Wave 1: audit suppressions, security policy, and maintenance sections (complete)
+- `41-05-PLAN.md` -- Wave 1: subprocess timeout helper and high-volume Windows-prone test migration (complete)
 - `41-03-PLAN.md` -- Wave 2: security scanner CI surface and OSV triage
 - `41-04-PLAN.md` -- Wave 2: perf baseline harness, schemas, workflow, and real three-platform capture protocol
 - `41-06-PLAN.md` -- Wave 3: remaining subprocess migration and Windows flake telemetry

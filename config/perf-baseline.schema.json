@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Phase 41 performance baseline",
+  "type": "object",
+  "required": ["metadata", "platforms", "acceptedRegressions"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["capturedAt", "nodeVersion", "bunVersion", "upstreamVersion", "hyperfineVersion"],
+      "properties": {
+        "capturedAt": { "type": "string", "minLength": 1 },
+        "nodeVersion": { "type": "string", "minLength": 1 },
+        "bunVersion": { "type": "string", "minLength": 1 },
+        "upstreamVersion": { "type": "string", "minLength": 1 },
+        "hyperfineVersion": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "platforms": {
+      "type": "object",
+      "required": ["linux", "macos", "windows"],
+      "properties": {
+        "linux": { "$ref": "#/definitions/platformBaseline" },
+        "macos": { "$ref": "#/definitions/platformBaseline" },
+        "windows": { "$ref": "#/definitions/platformBaseline" }
+      },
+      "additionalProperties": false
+    },
+    "acceptedRegressions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/acceptedRegression" }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "platformBaseline": {
+      "type": "object",
+      "required": ["install", "compose"],
+      "properties": {
+        "install": { "$ref": "#/definitions/metric" },
+        "compose": { "$ref": "#/definitions/metric" }
+      },
+      "additionalProperties": false
+    },
+    "metric": {
+      "type": "object",
+      "required": ["mean_ms", "stddev_ms", "min_ms", "max_ms", "samples"],
+      "properties": {
+        "mean_ms": { "type": "integer", "minimum": 0 },
+        "stddev_ms": { "type": "integer", "minimum": 0 },
+        "min_ms": { "type": "integer", "minimum": 0 },
+        "max_ms": { "type": "integer", "minimum": 0 },
+        "samples": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "acceptedRegression": {
+      "type": "object",
+      "required": ["reason", "reviewer", "reviewedDate", "ticket"],
+      "properties": {
+        "reason": { "type": "string", "minLength": 1 },
+        "reviewer": { "type": "string", "minLength": 1 },
+        "reviewedDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "ticket": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  }
+}

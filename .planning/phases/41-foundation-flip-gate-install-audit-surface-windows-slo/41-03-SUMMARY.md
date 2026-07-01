@@ -28,6 +28,10 @@ tech-stack:
 key-files:
   created:
     - scripts/osv-triage.js
+    - scripts/run-upstream-compat-ci.js
+    - tests/ci-workflow.test.js
+    - tests/run-upstream-compat.test.js
+    - tests/run-upstream-compat-ci.test.js
     - tests/osv-triage.test.js
     - tests/fixtures/osv/high-critical.json
     - tests/fixtures/osv/medium-low.json
@@ -35,7 +39,10 @@ key-files:
     - .github/workflows/ci.yml
     - .gitleaks.toml
     - scripts/audit-check.js
+    - scripts/run-upstream-compat.js
     - tests/audit-check.test.js
+    - tests/installer-safety.test.js
+    - tests/test-path-validation.test.js
     - package.json
     - bun.lock
 
@@ -122,9 +129,12 @@ completed: 2026-07-01
 
 ## CI Runtime Notes
 
-- **Gitleaks action license:** No gitleaks action license was required or encountered during local implementation because `gitleaks/gitleaks-action@v2` only runs inside GitHub Actions. The first CI run remains the authority for this account/repo context. If that run reports a license requirement, it is a blocker and must not be silently replaced with a direct-binary workaround.
-- **Harden-runner artifact shape:** Not locally observable because harden-runner only runs inside GitHub Actions. The first CI run should record the summary/dashboard/artifact shape before any future block-mode discussion.
-- **OSV action path:** The workflow intentionally uses `google/osv-scanner-action/osv-scanner-action@v2` rather than OSV's reusable workflow so the job can keep same-job harden-runner telemetry and local triage.
+- **First PR run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28531610222` on PR #3 at `c515393`.
+- **Gitleaks action license:** No license blocker appeared. The action failed before scanning because `GITHUB_TOKEN` is now required for pull request scans. Fixed by passing `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to `gitleaks/gitleaks-action@v2`; the next PR run is the scan-proof authority.
+- **Harden-runner artifact shape:** Harden-runner setup and post steps ran successfully in the first PR run. Artifact/dashboard shape still needs review from the successful post-fix run before any block-mode discussion.
+- **OSV action path:** The direct action path remains intentional, but the floating `@v2` ref does not exist. Verified remote tags and pinned `google/osv-scanner-action/osv-scanner-action@v2.3.8`.
+- **Informational upstream-compat check:** GitHub surfaced the job as red despite the intended informational stance. Added `scripts/run-upstream-compat-ci.js` so the job reports drift in logs and step summary while exiting 0.
+- **Active-authority compat target:** `scripts/run-upstream-compat.js` still pointed at legacy `dist/get-shit-done`. It now derives the composed package root from `active.paths.gsdTools` and targets `dist/gsd-core` for the Open GSD authority. Local Windows observation is now 11 compat failures, and the debt ratchet passes (`compat (windows): 11 / 133`). Do not lower linux/macos thresholds until the PR matrix provides OS evidence.
 
 ## Deviations from Plan
 
@@ -146,9 +156,16 @@ completed: 2026-07-01
 - **Verification:** `bun install --frozen-lockfile --ignore-scripts`, `npm install --package-lock-only --ignore-scripts`, and `bun run audit:ci` passed.
 - **Committed in:** `0005f0a`
 
+**3. [Blocking] First PR run exposed CI action drift and Unix-only test assumptions**
+- **Found during:** PR #3 run `28531610222`.
+- **Issue:** `gitleaks/gitleaks-action@v2` required `GITHUB_TOKEN`, OSV `@v2` was not a resolvable ref, Unix test runners exposed a platform-specific `audit-ci.exe` expectation and an unsafe `/fake-bashrc` traversal fixture path, and upstream-compat was both red in the PR rollup and pointed at the retired legacy dist root.
+- **Fix:** Added CI workflow contract tests, pinned OSV to `v2.3.8`, passed the gitleaks token, added the non-blocking upstream-compat CI wrapper, made the compat runner authority-derived, fixed the Unix test assumptions, and made the path meta-test build generated artifacts when needed.
+- **Files modified:** `.github/workflows/ci.yml`, `scripts/run-upstream-compat.js`, `scripts/run-upstream-compat-ci.js`, `tests/ci-workflow.test.js`, `tests/run-upstream-compat.test.js`, `tests/run-upstream-compat-ci.test.js`, `tests/audit-check.test.js`, `tests/installer-safety.test.js`, `tests/test-path-validation.test.js`
+- **Verification:** `bash scripts/lint-workflows.sh`, `bun run lint`, `node scripts/check-debt-ratchet.cjs --no-compose`, `node scripts/run-upstream-compat-ci.js`, targeted CI/compat tests, and `bun test --coverage` all passed locally.
+
 ---
 
-**Total deviations:** 2 auto-fixed (2 blocking).
+**Total deviations:** 3 auto-fixed (3 blocking).
 **Impact on plan:** Both fixes strengthen the intended Plan 03 security gate rather than changing its scope.
 
 ## Issues Encountered

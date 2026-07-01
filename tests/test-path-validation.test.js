@@ -35,10 +35,25 @@
 
 const fs = require('fs');
 const path = require('path');
-const { describe, test, expect } = require('bun:test');
+const { execFileSync } = require('child_process');
+const { beforeAll, describe, test, expect } = require('bun:test');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const TESTS_DIR = __dirname;
+
+function ensureGeneratedArtifacts() {
+  const required = [
+    path.join(PROJECT_ROOT, 'hooks', 'dist', 'gsd-statusline.js'),
+    path.join(PROJECT_ROOT, 'get-stuff-done', 'bin', 'dist', 'gsd-tools.cjs'),
+  ];
+
+  if (required.every(file => fs.existsSync(file))) return;
+
+  execFileSync(process.execPath, ['scripts/build.js'], {
+    cwd: PROJECT_ROOT,
+    stdio: 'inherit',
+  });
+}
 
 // Known fork-owned directory roots. Paths under these roots SHOULD exist.
 // Paths under other roots (temp dirs, /usr/, ~/, etc.) are not asserted.
@@ -109,6 +124,7 @@ function extractPathConstants(source) {
   // Match path.join(BASE, 'a', 'b', 'c')
   // BASE: PROJECT_ROOT, __dirname, or similar identifier
   // Args: comma-separated single-quoted or double-quoted strings
+  // eslint-disable-next-line security/detect-unsafe-regex -- Static meta-test scans one source line at a time, not user input.
   const pattern = /path\.join\(\s*([A-Z_a-z][A-Za-z0-9_]*)\s*,\s*((?:['"][^'"]+['"]\s*,?\s*)+)\)/g;
 
   for (let i = 0; i < lines.length; i++) {
@@ -161,6 +177,10 @@ function resolveIfForkOwned(base, segments) {
 }
 
 describe('test-path-validation (meta-test)', () => {
+  beforeAll(() => {
+    ensureGeneratedArtifacts();
+  });
+
   // Discover test files at module-load time so we have stable test IDs
   const testFiles = findFiles(TESTS_DIR, /\.(test|spec)\.(js|cjs)$/);
 

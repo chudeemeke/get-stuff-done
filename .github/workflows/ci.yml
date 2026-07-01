@@ -31,6 +31,7 @@ jobs:
       - name: Run gitleaks scan
         uses: gitleaks/gitleaks-action@v2
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_CONFIG: .gitleaks.toml
           GITLEAKS_ENABLE_SUMMARY: "true"
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
@@ -75,7 +76,7 @@ jobs:
       # telemetry plus local medium/low triage.
       - name: Run OSV scanner against bun.lock
         continue-on-error: true
-        uses: google/osv-scanner-action/osv-scanner-action@v2
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
         with:
           scan-args: |-
             scan
@@ -218,7 +219,6 @@ jobs:
     name: Upstream Compat (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     # Informational: branding-caused upstream test differences are expected.
-    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
@@ -237,7 +237,7 @@ jobs:
             ${{ runner.os }}-bun-
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
-      - run: node scripts/run-upstream-compat.js
+      - run: node scripts/run-upstream-compat-ci.js
 
   boundary-check:
     name: Boundary Check (informational)

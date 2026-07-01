@@ -401,13 +401,15 @@ describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
     });
 
     test('rejects manifest entry with deeply nested traversal (../../)', () => {
-      const deepEscape = path.join(path.dirname(path.dirname(tmpDir.path)), 'fake-bashrc');
+      const nestedTarget = path.join(tmpDir.path, 'inner', 'target');
+      fs.mkdirSync(nestedTarget, { recursive: true });
+      const deepEscape = path.join(tmpDir.path, 'fake-bashrc');
       fs.mkdirSync(path.dirname(deepEscape), { recursive: true });
       fs.writeFileSync(deepEscape, 'shell config');
 
-      writeManifest(tmpDir.path, ['../../fake-bashrc']);
+      writeManifest(nestedTarget, ['../../fake-bashrc']);
 
-      const result = removeGsdFiles(tmpDir.path, true);
+      const result = removeGsdFiles(nestedTarget, true);
       expect(fs.existsSync(deepEscape)).toBe(true);
       expect(result.skipped).toBeGreaterThanOrEqual(1);
 

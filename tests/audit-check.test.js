@@ -93,16 +93,19 @@ describe('audit suppression validation', () => {
 });
 
 describe('audit-ci binary discovery', () => {
-  test('finds Bun Windows audit-ci executable shim', () => {
+  test('finds the platform-appropriate audit-ci executable shim', () => {
     const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-audit-bin-'));
     const binDir = path.join(projectRoot, 'node_modules', '.bin');
-    const auditCiExe = path.join(binDir, 'audit-ci.exe');
+    const auditCiBin = path.join(
+      binDir,
+      process.platform === 'win32' ? 'audit-ci.exe' : 'audit-ci'
+    );
 
     fs.mkdirSync(binDir, { recursive: true });
-    fs.writeFileSync(auditCiExe, '', 'utf-8');
+    fs.writeFileSync(auditCiBin, '', 'utf-8');
 
     try {
-      expect(findAuditCiBin(projectRoot)).toBe(auditCiExe);
+      expect(findAuditCiBin(projectRoot)).toBe(auditCiBin);
     } finally {
       fs.rmSync(projectRoot, { recursive: true, force: true });
     }

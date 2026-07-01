@@ -73,6 +73,8 @@
     "dist": "bun run compose && bun run build && bun run finalize-dist",
     "prepublishOnly": "bun run dist",
     "audit:ci": "node scripts/audit-check.js",
+    "bench": "node scripts/bench.js",
+    "bench:test-timing": "node scripts/bench-test-timing.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "bun test",

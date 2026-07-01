@@ -6,6 +6,7 @@ const os = require('os');
 const path = require('path');
 
 const {
+  buildAuditCiCommand,
   buildAuditCiAllowlist,
   findAuditCiBin,
   validateSuppressions,
@@ -105,5 +106,32 @@ describe('audit-ci binary discovery', () => {
     } finally {
       fs.rmSync(projectRoot, { recursive: true, force: true });
     }
+  });
+
+  test('prefers executable shims over shell shims when both exist', () => {
+    const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-audit-bin-'));
+    const binDir = path.join(projectRoot, 'node_modules', '.bin');
+    const auditCiCmd = path.join(binDir, 'audit-ci.cmd');
+    const auditCiExe = path.join(binDir, 'audit-ci.exe');
+
+    fs.mkdirSync(binDir, { recursive: true });
+    fs.writeFileSync(auditCiCmd, '', 'utf-8');
+    fs.writeFileSync(auditCiExe, '', 'utf-8');
+
+    try {
+      expect(findAuditCiBin(projectRoot)).toBe(auditCiExe);
+    } finally {
+      fs.rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('builds no-shell spawn command for executable path with spaces', () => {
+    const auditCiBin = path.join(os.tmpdir(), 'dir with spaces', 'audit-ci.exe');
+    const configPath = path.join(os.tmpdir(), 'dir with spaces', 'audit-ci.json');
+
+    expect(buildAuditCiCommand(auditCiBin, configPath)).toEqual({
+      command: auditCiBin,
+      args: ['--config', configPath],
+    });
   });
 });

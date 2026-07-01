@@ -18,52 +18,149 @@ jobs:
   secret-scan:
     name: Secret Scan
     runs-on: ubuntu-latest
-    # BLOCKING. Detects leaked credentials before they reach main.
-    # Composes with: .gitignore proactive patterns (catches common-named
-    # files at staging time), GitHub-native secret scanning + push
-    # protection (server-side, partner patterns), and the pending aidev
-    # quality-gate Secrets gate (filed at
-    # ~/Projects/ai-dev-environment/docs/inbox/2026-05-05-get-stuff-done-quality-gate-skill-missing-secrets-gate.md
-    # — when shipped, this step may delegate or be removed). See A-11.
-    #
-    # Uses direct gitleaks binary install rather than gitleaks-action to
-    # avoid GITLEAKS_LICENSE requirement for organization repos. Pinned
-    # to a specific release version for reproducibility; bump as needed.
+    permissions:
+      contents: read
     steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
       - uses: actions/checkout@v6
         with:
-          # Full history needed so gitleaks scans every commit, not just HEAD.
+          # Full history is required so gitleaks scans every commit, not just HEAD.
           fetch-depth: 0
-      - name: Install gitleaks
-        run: |
-          GITLEAKS_VERSION="8.21.2"
-          curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
-            | tar -xz -C /tmp gitleaks
-          sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
-          gitleaks version
       - name: Run gitleaks scan
-        run: |
-          # detect = scan working tree + full history. --no-banner for clean
-          # logs, --redact so any finding's value is masked in CI output,
-          # --report-path so artifact upload has the structured findings.
-          # --config points at the project's .gitleaks.toml (extends default
-          # ruleset + path allowlist for upstream test fixtures; see
-          # rationale comments in .gitleaks.toml).
-          gitleaks detect \
-            --source . \
-            --config .gitleaks.toml \
-            --no-banner \
-            --redact \
-            --report-format json \
-            --report-path gitleaks-report.json \
-            --exit-code 1
-      - name: Upload gitleaks report
-        if: failure()
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_CONFIG: .gitleaks.toml
+          GITLEAKS_ENABLE_SUMMARY: "true"
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
+
+  audit-ci:
+    name: Audit CI (blocking HIGH/CRITICAL)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: npm install --package-lock-only --ignore-scripts
+      - run: bun run audit:ci
+
+  osv-scanner:
+    name: OSV Scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile --ignore-scripts
+      # Direct action usage is intentional. OSV's reusable workflow is the
+      # general recommendation, but this job needs same-job harden-runner
+      # telemetry plus local medium/low triage.
+      - name: Run OSV scanner against bun.lock
+        continue-on-error: true
+        uses: google/osv-scanner-action/osv-scanner-action@v2
+        with:
+          scan-args: |-
+            scan
+            source
+            --lockfile=bun.lock
+            --format=json
+            --output-file=osv-results.json
+      - name: Triage OSV findings
+        run: node scripts/osv-triage.js --input osv-results.json --output osv-triage.json --fail-on high,critical
+      - name: Upload OSV triage artifacts
+        if: ${{ always() && hashFiles('osv-triage.json') != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: gitleaks-report
-          path: gitleaks-report.json
+          name: osv-triage
+          path: |
+            osv-results.json
+            osv-triage.json
           retention-days: 30
+      - name: Upsert medium and low OSV issues
+        if: ${{ always() && hashFiles('osv-triage.json') != '' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+
+            const findings = JSON.parse(fs.readFileSync('osv-triage.json', 'utf8'))
+              .filter(finding => ['medium', 'low'].includes(finding.severity));
+
+            if (findings.length === 0) {
+              core.info('No medium or low OSV findings to route.');
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const labelColors = {
+              security: 'd73a4a',
+              'security-moderate': 'fbca04',
+              'security-low': '0e8a16',
+              osv: '5319e7',
+              dependency: '0366d6',
+            };
+
+            for (const label of new Set(findings.flatMap(finding => finding.labels))) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: label });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({
+                  owner,
+                  repo,
+                  name: label,
+                  color: labelColors[label] || 'ededed',
+                });
+              }
+            }
+
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'osv',
+              per_page: 100,
+            });
+
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+            for (const finding of findings) {
+              const existing = openIssues.find(issue => !issue.pull_request && issue.title === finding.title);
+              if (existing) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: existing.number,
+                  body: `Observed again in ${runUrl}.`,
+                });
+              } else {
+                await github.rest.issues.create({
+                  owner,
+                  repo,
+                  title: finding.title,
+                  body: `${finding.body}\n\nFirst observed in ${runUrl}.`,
+                  labels: finding.labels,
+                });
+              }
+            }
 
   lint:
     name: Lint
@@ -120,7 +217,7 @@ jobs:
   upstream-compat:
     name: Upstream Compat (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    # Informational -- ~130 branding-caused test differences expected
+    # Informational: branding-caused upstream test differences are expected.
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -145,9 +242,8 @@ jobs:
   boundary-check:
     name: Boundary Check (informational)
     runs-on: ubuntu-latest
-    # The boundary check remains informational because the overlay still has
-    # known structural root-mirror debt. The ratchet gate stays blocking so
-    # existing debt cannot increase silently.
+    # Known structural root-mirror debt remains informational. The ratchet gate
+    # is blocking so existing debt cannot increase silently.
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
@@ -157,15 +253,11 @@ jobs:
       - run: bun run compose
       - name: Check boundary violations
         run: node scripts/check-boundary.js
-        # Informational -- 41 structural boundary violations expected in overlay
-        # architecture per AF-7. The ratchet step below enforces no-increase.
+        # Informational: 41 structural boundary violations are expected in the
+        # overlay architecture per AF-7.
         continue-on-error: true
       - name: Ratchet gate (debt-baseline.json)
         run: node scripts/check-debt-ratchet.cjs --no-compose
-        # BLOCKING. Reads .planning/audits/debt-baseline.json and rejects any
-        # increase over the per-OS thresholds. Threshold updates are conscious
-        # decisions captured in ratchet_history. See Phase 40.5 Wave 1.6
-        # Task 1.6-04 + Wave 1.5d.
 
   override-check:
     name: Override Staleness Check (blocking)

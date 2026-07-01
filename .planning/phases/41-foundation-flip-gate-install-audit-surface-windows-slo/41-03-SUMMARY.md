@@ -144,12 +144,13 @@ completed: 2026-07-01
 - **First PR run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28531610222` on PR #3 at `c515393`.
 - **First repaired PR run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28533068807` on PR #3 at `deaa19b`. All CI jobs completed successfully: workflow lint, secret scan, audit-ci, OSV, lint, ubuntu/macos/windows tests, source parity, upstream compat on all three OSes, boundary check, and override staleness.
 - **Boundary annotation cleanup run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28534255286` on PR #3 at `1f7d3fe`. All CI jobs completed successfully, and the boundary failed-step annotation was gone.
+- **Action/runtime hygiene run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28534944081` on PR #3 at `3023d9f`. All CI jobs completed successfully with `actions/setup-node@v6`, newer artifact actions, and `macos-15` matrix labels; no CI hygiene annotations were shown.
 - **Gitleaks action license:** No license blocker appeared. The first PR run failed before scanning because `GITHUB_TOKEN` is now required for pull request scans. Fixed by passing `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to `gitleaks/gitleaks-action@v2`; repaired run `28533068807` passed the secret scan job.
 - **Harden-runner artifact shape:** Harden-runner setup and post steps ran successfully in the first PR run. Artifact/dashboard shape still needs review from the successful post-fix run before any block-mode discussion.
 - **OSV action path:** The direct action path remains intentional, but the floating `@v2` ref does not exist. Verified remote tags and pinned `google/osv-scanner-action/osv-scanner-action@v2.3.8`.
 - **Informational upstream-compat check:** GitHub surfaced the job as red despite the intended informational stance. Added `scripts/run-upstream-compat-ci.js` so the job reports drift in logs and step summary while exiting 0.
 - **Informational boundary annotation:** The repaired PR run was green but still emitted a red "Process completed with exit code 1" annotation for the expected boundary debt. Added `scripts/check-boundary.js --report-only` and updated CI to use it; run `28534255286` verifies the annotation is gone while the ratchet gate stays blocking.
-- **CI hygiene annotations:** Run `28534255286` still showed non-blocking annotations for `actions/setup-node@v4` being forced from Node 20 to Node 24 and `macos-latest` migration to macOS 26. Verified current upstream tags and locally upgraded first-party action majors plus pinned macOS labels; remote verification is pending on the next pushed commit.
+- **CI hygiene annotations:** Run `28534255286` still showed non-blocking annotations for `actions/setup-node@v4` being forced from Node 20 to Node 24 and `macos-latest` migration to macOS 26. Verified current upstream tags, upgraded action majors, pinned macOS labels, and run `28534944081` verified the annotations are gone.
 - **Active-authority compat target:** `scripts/run-upstream-compat.js` still pointed at legacy `dist/get-shit-done`. It now derives the composed package root from `active.paths.gsdTools` and targets `dist/gsd-core` for the Open GSD authority. Local Windows observation is now 11 compat failures, and the debt ratchet passes (`compat (windows): 11 / 133`). Do not lower linux/macos thresholds until the PR matrix provides OS evidence.
 
 ## Deviations from Plan
@@ -207,7 +208,7 @@ completed: 2026-07-01
 
 ## User Setup Required
 
-None locally. The next GitHub Actions run should verify the action/runtime and pinned macOS runner changes remove the remaining CI hygiene annotations.
+None locally. Plan 04 still requires the default-branch workflow registration decision before real perf artifacts can be captured.
 
 ## Next Phase Readiness
 

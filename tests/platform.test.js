@@ -188,6 +188,15 @@ describe('detectPlatform', () => {
       }
     });
 
+    test('isGitBash stays boolean when MSYSTEM is set without EXEPATH', () => {
+      clearPlatformCache();
+      restoreEnv = mockEnv({ MSYSTEM: 'MINGW64' });
+      delete process.env.EXEPATH;
+      const platform = detectPlatform();
+
+      expect(typeof platform.isGitBash).toBe('boolean');
+    });
+
     test('isNative is true when not MinGW or WSL', () => {
       // This test is tricky because we're running in actual environment
       // Just verify the flag exists and is boolean

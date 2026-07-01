@@ -128,7 +128,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 41-02-PLAN.md -- Wave 1: Audit suppressions, security policy, and maintenance sections
 - [x] 41-05-PLAN.md -- Wave 1: Subprocess timeout helper and high-volume Windows-prone test migration
 - [x] 41-03-PLAN.md -- Wave 2: Security scanner CI surface and OSV triage
-- [ ] 41-04-PLAN.md -- Wave 2: Perf baseline harness, schemas, workflow, and real three-platform capture protocol
+- [ ] 41-04-PLAN.md -- Wave 2: Perf baseline harness, schemas, workflow, and real three-platform capture protocol (local harness/workflow committed; blocked on default-branch workflow registration for real artifacts)
 - [ ] 41-06-PLAN.md -- Wave 3: Remaining subprocess migration and Windows flake telemetry
 - [ ] 41-07-PLAN.md -- Wave 4: 10x validation, flake maintenance, and D-11/REL-03 closure discipline
 
@@ -182,7 +182,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 37-40 | v1.1.0 | 8/8 | Complete | 2026-04-04 |
 | 40.5 | v1.2.0 | 4/5 evidence | Partial; Wave 5 legacy filing path retired by Phase 40.6 | - |
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
-| 41 | v1.2.0 | 4/7 | In Progress; Wave 2 active; Plan 03 complete, Plan 04 next | - |
+| 41 | v1.2.0 | 4/7 | In Progress; Wave 2 active; Plan 04 local implementation committed, blocked on real baseline capture | - |
 | 42 | v1.2.0 | 0/TBD | Not started | - |
 | 43 | v1.2.0 | 0/TBD | Not started | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |

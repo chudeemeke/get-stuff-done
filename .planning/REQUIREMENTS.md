@@ -69,8 +69,8 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 
 ### PERF (performance baselining + budget enforcement)
 
-- [ ] **PERF-01**: `scripts/bench.js` measures install time, compose time, test runtime across all 3 platforms via `hyperfine` (JSON export)
-- [ ] **PERF-02**: `perf-baseline.json` committed with per-platform baselines captured from PERF-01
+- [ ] **PERF-01**: `scripts/bench.js` measures install time, compose time, test runtime across all 3 platforms via `hyperfine` (JSON export). Partial 2026-07-01: schemas, scripts, and manual workflow implemented; real linux/macos/windows capture still pending default-branch workflow registration.
+- [ ] **PERF-02**: `perf-baseline.json` committed with per-platform baselines captured from PERF-01. Blocked until real workflow artifacts are merged; placeholders are prohibited.
 - [ ] **PERF-03**: `scripts/check-perf.js` compares current run against baseline with configurable tolerance
 - [ ] **PERF-04**: `perf-budget` CI job enforces: warn at 1.1x baseline, fail at 1.25x baseline, per-platform budgets
 - [ ] **PERF-05**: `acceptedRegressions[]` escape hatch in perf-baseline.json allows reviewed regressions with required `{reason, reviewer, reviewedDate, ticket}` fields
@@ -155,8 +155,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | REL-01 | Phase 41 | Pending |
 | REL-02 | Phase 41 | Pending |
 | REL-03 | Phase 41 | Pending |
-| PERF-01 | Phase 41 | Pending |
-| PERF-02 | Phase 41 | Pending |
+| PERF-01 | Phase 41 | Partial; pending three-platform capture |
+| PERF-02 | Phase 41 | Pending; blocked on real baseline artifacts |
 | PERF-03 | Phase 42 | Pending |
 | PERF-04 | Phase 42 | Pending |
 | PERF-05 | Phase 42 | Pending |
@@ -176,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-07-01 -- Phase 41 Plan 03 complete; SECURITY-01..04 implemented in CI with first-run action behavior proof pending in Plan 03 summary*
+*Last updated: 2026-07-01 -- Phase 41 Plan 04 local harness/workflow implemented; PERF-01/PERF-02 remain pending until default-branch workflow registration and real linux/macos/windows artifacts*

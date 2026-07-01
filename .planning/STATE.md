@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 41 EXECUTING. Wave 2 active: Plan 03 complete with blocking audit-ci, gitleaks, OSV triage, and harden-runner audit-mode CI jobs. Next Wave 2 action: execute Plan 04 performance baseline harness and artifact protocol."
-stopped_at: "2026-07-01 Phase 41 Plan 03 complete. Next action: execute Wave 2 Plan 04."
-last_updated: "2026-07-01T16:18:39+01:00"
-last_activity: 2026-07-01 -- Phase 41 Plan 03 complete
+status: "Phase 41 EXECUTING. Wave 2 active: Plan 04 local perf harness, schemas, scripts, and manual workflow are implemented; real linux/macos/windows baseline artifacts are blocked on default-branch workflow registration."
+stopped_at: "2026-07-01 Phase 41 Plan 04 blocked at real three-platform baseline capture. Next action: decide whether to fast-forward/register the workflow on origin/main, dispatch against the Phase 41 ref, then merge and commit real artifacts."
+last_updated: "2026-07-01T16:35:35+01:00"
+last_activity: 2026-07-01 -- Phase 41 Plan 04 local implementation committed; real baseline capture blocked
 progress:
   total_phases: 6
   completed_phases: 1
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: Phase 41 (executing) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
-Plan: 4 of 7 complete; Wave 2 active; next = 41-04
-Status: Continue Wave 2 against Open GSD authority
-Last activity: 2026-07-01 -- Phase 41 Plan 03 complete
+Plan: 4 of 7 complete; Wave 2 active; 41-04 is blocked at real baseline capture
+Status: Continue Wave 2 against Open GSD authority; resolve Plan 04 workflow-registration blocker before marking PERF-01/PERF-02 complete
+Last activity: 2026-07-01 -- Phase 41 Plan 04 local implementation committed; real baseline capture blocked
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -77,6 +77,7 @@ v1.2.0 roadmap decisions:
 - Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plan 05; remaining subprocess surface and telemetry targeted by Plans 06-07 via REL-02/REL-01)
 - First GitHub Actions run must record account-specific gitleaks license behavior and harden-runner audit artifact shape from the Plan 03 security jobs; local implementation could not observe those CI-only surfaces.
 - Aggregate coverage remains below the user's 95% per-metric standard even though the current repo command exits 0 (`bun test --coverage`: 94.86% functions, 93.08% lines on 2026-07-01).
+- Phase 41 Plan 04 implemented perf schemas, scripts, package commands, and a `workflow_dispatch` manual capture workflow, but `perf-baseline.json` and `.planning/perf/test-timing.json` remain intentionally absent until real Linux/macOS/Windows artifacts are captured from the registered default-branch workflow.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
 - Codex `extractFrontmatterField` crash (RESOLVED -- fork-specific, 4 oversight agents had heading before frontmatter)
@@ -87,11 +88,11 @@ None.
 
 ### Blockers/Concerns
 
-Boundary checker remains red with 41 structural root-mirror violations. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path.
+Boundary checker remains red with 41 structural root-mirror violations. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Phase 41 Plan 04 is blocked on workflow registration and real three-platform artifact capture; do not fabricate missing platform numbers.
 
 ## Session Continuity
 
-Last session: 2026-07-01 (Phase 41 Plan 03 execution and verification complete).
+Last session: 2026-07-01 (Phase 41 Plan 04 local implementation complete; artifact capture blocked).
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Phase 41 Plan 03 complete; Wave 2 continues with Plan 04.
+Stopped at: Phase 41 Plan 04 blocked at default-branch workflow registration and real artifact capture.
 Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md

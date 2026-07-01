@@ -84,7 +84,7 @@ completed: 2026-07-01
 - Added OSV fixtures and parser tests for HIGH/CRITICAL blocking and MEDIUM/LOW issue routing labels.
 - Added `secret-scan`, `audit-ci`, and `osv-scanner` CI jobs.
 - Installed `step-security/harden-runner@v2` with `egress-policy: audit` in every new security job.
-- Wired `gitleaks/gitleaks-action@v2` with full-history checkout and `.gitleaks.toml`.
+- Wired `gitleaks/gitleaks-action@v3` with full-history checkout, `GITHUB_TOKEN`, and `.gitleaks.toml`.
 - Converted `.gitleaks.toml` to current `[[allowlists]]` form with fixture-only rationale and no broad source/root exemptions.
 - Wired `google/osv-scanner-action/osv-scanner-action@v2` against `bun.lock`; the raw scan step is the only allowed `continue-on-error` inside that job.
 - Added GitHub issue/comment routing for MEDIUM/LOW OSV findings using `actions/github-script@v8`.
@@ -92,6 +92,7 @@ completed: 2026-07-01
 - Cleared local HIGH/CRITICAL audit findings by bumping `@anthropic-ai/claude-code`, adding flat Bun-compatible security overrides, and removing unused `svgexport`.
 - Replaced the boundary-check `continue-on-error` step with explicit `--report-only` mode so known boundary debt remains visible without producing a failed-step annotation in otherwise green CI.
 - Upgraded GitHub Node actions away from deprecated runtime majors and pinned macOS jobs to `macos-15` to avoid the `macos-latest` migration warning.
+- Upgraded `gitleaks/gitleaks-action` to `v3` after the green docs reconciliation run exposed the remaining Node 20 runtime annotation.
 
 ## Task Commits
 
@@ -121,7 +122,7 @@ completed: 2026-07-01
 - `node scripts/osv-triage.js --input tests/fixtures/osv/medium-low.json --output .planning/audits/osv-triage-test.json` - passed; deterministic output was generated and then removed.
 - `bun test tests/audit-check.test.js` - passed, 9 tests.
 - `bash scripts/lint-workflows.sh` - passed.
-- Required workflow token scan for `audit-ci`, `secret-scan`, `osv-scanner`, `harden-runner@v2`, `gitleaks/gitleaks-action@v2`, `google/osv-scanner-action/osv-scanner-action@v2`, `osv-triage`, and `--fail-on high,critical` - passed.
+- Required workflow token scan for `audit-ci`, `secret-scan`, `osv-scanner`, `harden-runner@v2`, `gitleaks/gitleaks-action@v3`, `google/osv-scanner-action/osv-scanner-action@v2`, `osv-triage`, and `--fail-on high,critical` - passed.
 - `bun install --frozen-lockfile --ignore-scripts` - passed from a clean local `node_modules`.
 - `npm install --package-lock-only --ignore-scripts` - passed; temporary lock reported 9 moderate and 0 high/critical findings.
 - `bun run audit:ci` - passed with 0 HIGH/CRITICAL findings.
@@ -138,14 +139,17 @@ completed: 2026-07-01
 - `bun test --coverage` - passed, 1,719 tests, 0 failures.
 - `bun test tests/ci-workflow.test.js` - passed, 6 tests after the action/runner hygiene contracts were added.
 - `bash scripts/lint-workflows.sh` - passed after upgrading `actions/setup-node@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, `actions/github-script@v8`, and pinning macOS runners to `macos-15`.
+- `bun test tests/ci-workflow.test.js` - passed, 6 tests after upgrading `gitleaks/gitleaks-action@v3`.
+- `bash scripts/lint-workflows.sh` - passed after upgrading `gitleaks/gitleaks-action@v3`.
 
 ## CI Runtime Notes
 
 - **First PR run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28531610222` on PR #3 at `c515393`.
 - **First repaired PR run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28533068807` on PR #3 at `deaa19b`. All CI jobs completed successfully: workflow lint, secret scan, audit-ci, OSV, lint, ubuntu/macos/windows tests, source parity, upstream compat on all three OSes, boundary check, and override staleness.
 - **Boundary annotation cleanup run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28534255286` on PR #3 at `1f7d3fe`. All CI jobs completed successfully, and the boundary failed-step annotation was gone.
-- **Action/runtime hygiene run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28534944081` on PR #3 at `3023d9f`. All CI jobs completed successfully with `actions/setup-node@v6`, newer artifact actions, and `macos-15` matrix labels; no CI hygiene annotations were shown.
-- **Gitleaks action license:** No license blocker appeared. The first PR run failed before scanning because `GITHUB_TOKEN` is now required for pull request scans. Fixed by passing `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to `gitleaks/gitleaks-action@v2`; repaired run `28533068807` passed the secret scan job.
+- **Action/runtime hygiene run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28534944081` on PR #3 at `3023d9f`. All CI jobs completed successfully with `actions/setup-node@v6`, newer artifact actions, and `macos-15` matrix labels.
+- **Docs reconciliation run observed:** `https://github.com/chudeemeke/get-stuff-done/actions/runs/28535445005` on PR #3 at `ba1608d`. All CI jobs completed successfully, but the run surfaced the remaining `gitleaks/gitleaks-action@v2` Node 20 runtime annotation.
+- **Gitleaks action license/runtime:** No license blocker appeared. The first PR run failed before scanning because `GITHUB_TOKEN` is now required for pull request scans. Fixed by passing `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` to `gitleaks/gitleaks-action@v2`; repaired run `28533068807` passed the secret scan job. The remaining Node 20 runtime annotation is fixed locally by upgrading to `gitleaks/gitleaks-action@v3`; remote verification is pending.
 - **Harden-runner artifact shape:** Harden-runner setup and post steps ran successfully in the first PR run. Artifact/dashboard shape still needs review from the successful post-fix run before any block-mode discussion.
 - **OSV action path:** The direct action path remains intentional, but the floating `@v2` ref does not exist. Verified remote tags and pinned `google/osv-scanner-action/osv-scanner-action@v2.3.8`.
 - **Informational upstream-compat check:** GitHub surfaced the job as red despite the intended informational stance. Added `scripts/run-upstream-compat-ci.js` so the job reports drift in logs and step summary while exiting 0.
@@ -187,16 +191,23 @@ completed: 2026-07-01
 - **Files modified:** `.github/workflows/ci.yml`, `scripts/check-boundary.js`, `tests/check-boundary.test.js`, `tests/ci-workflow.test.js`
 - **Verification:** targeted boundary/workflow tests, workflow lint, report-only command, ratchet gate, `bun run lint`, `bun run compose`, and `bun test --coverage` passed locally.
 
-**5. [Quality] Green PR run still emitted action/runtime and macOS runner migration annotations**
+**5. [Quality] Green PR run still emitted first-party action/runtime and macOS runner migration annotations**
 - **Found during:** PR #3 run `28534255286`.
 - **Issue:** GitHub annotated `actions/setup-node@v4` as Node 20-deprecated and warned that `macos-latest` is migrating to macOS 26.
 - **Fix:** Verified current first-party action tags, upgraded to `actions/setup-node@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, and `actions/github-script@v8`, and pinned active workflow macOS runners to `macos-15`.
 - **Files modified:** `.github/workflows/auto-label-issues.yml`, `.github/workflows/ci.yml`, `.github/workflows/perf-baseline.yml`, `tests/ci-workflow.test.js`
 - **Verification:** `bun test tests/ci-workflow.test.js`, `bash scripts/lint-workflows.sh`, and `bun run lint` passed locally.
 
+**6. [Quality] Green docs reconciliation run still emitted a gitleaks Node 20 runtime annotation**
+- **Found during:** PR #3 run `28535445005`.
+- **Issue:** `gitleaks/gitleaks-action@v2` targets Node 20. GitHub forced it to run on Node 24 and emitted a deprecation annotation even though the Secret Scan job passed.
+- **Fix:** Verified the upstream `v3.0.0` release states it migrates the action runtime to Node 24 with no behavior/input changes, upgraded CI to `gitleaks/gitleaks-action@v3`, and added a workflow contract that rejects the old `@v2` marker.
+- **Files modified:** `.github/workflows/ci.yml`, `tests/ci-workflow.test.js`
+- **Verification:** `bun test tests/ci-workflow.test.js` and `bash scripts/lint-workflows.sh` passed locally; remote verification is pending.
+
 ---
 
-**Total deviations:** 5 auto-fixed (3 blocking, 2 CI quality).
+**Total deviations:** 6 auto-fixed (3 blocking, 3 CI quality).
 **Impact on plan:** The fixes strengthen the intended Plan 03 security gate rather than changing its scope.
 
 ## Issues Encountered

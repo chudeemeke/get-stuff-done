@@ -25,8 +25,11 @@ function readAllWorkflowText() {
 describe('CI workflow security action contracts', () => {
   test('gitleaks receives the GitHub token required for pull request scans', () => {
     const workflow = readCiWorkflow();
-    const gitleaksStep = workflow.slice(workflow.indexOf('uses: gitleaks/gitleaks-action@v2'));
+    const gitleaksStepMarker = 'uses: gitleaks/gitleaks-action@v3';
+    const gitleaksStep = workflow.slice(workflow.indexOf(gitleaksStepMarker));
 
+    expect(workflow).toContain(gitleaksStepMarker);
+    expect(workflow).not.toContain('uses: gitleaks/gitleaks-action@v2');
     expect(gitleaksStep).toContain('GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}');
   });
 

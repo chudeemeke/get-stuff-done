@@ -147,7 +147,7 @@ function writeTempAuditCiConfig(config) {
 function findAuditCiBin(projectRoot = PROJECT_ROOT) {
   const binDir = path.join(projectRoot, 'node_modules', '.bin');
   const candidates = process.platform === 'win32'
-    ? ['audit-ci.cmd', 'audit-ci.ps1', 'audit-ci']
+    ? ['audit-ci.cmd', 'audit-ci.ps1', 'audit-ci.exe', 'audit-ci.bunx', 'audit-ci']
     : ['audit-ci'];
 
   for (const candidate of candidates) {

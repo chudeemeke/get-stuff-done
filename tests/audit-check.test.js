@@ -108,7 +108,7 @@ describe('audit-ci binary discovery', () => {
     }
   });
 
-  test('prefers executable shims over shell shims when both exist', () => {
+  test.skipIf(process.platform !== 'win32')('prefers executable shims over shell shims when both exist', () => {
     const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-audit-bin-'));
     const binDir = path.join(projectRoot, 'node_modules', '.bin');
     const auditCiCmd = path.join(binDir, 'audit-ci.cmd');

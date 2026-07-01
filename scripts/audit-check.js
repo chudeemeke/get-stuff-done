@@ -147,7 +147,7 @@ function writeTempAuditCiConfig(config) {
 function findAuditCiBin(projectRoot = PROJECT_ROOT) {
   const binDir = path.join(projectRoot, 'node_modules', '.bin');
   const candidates = process.platform === 'win32'
-    ? ['audit-ci.cmd', 'audit-ci.ps1', 'audit-ci.exe', 'audit-ci.bunx', 'audit-ci']
+    ? ['audit-ci.exe', 'audit-ci.bunx', 'audit-ci.cmd', 'audit-ci.ps1', 'audit-ci']
     : ['audit-ci'];
 
   for (const candidate of candidates) {
@@ -158,6 +158,34 @@ function findAuditCiBin(projectRoot = PROJECT_ROOT) {
   }
 
   return null;
+}
+
+function quoteForCmd(value) {
+  return `"${String(value).replace(/"/g, '\\"')}"`;
+}
+
+function buildAuditCiCommand(auditCiBin, configPath) {
+  if (process.platform === 'win32') {
+    const extension = path.extname(auditCiBin).toLowerCase();
+    if (extension === '.cmd' || extension === '.bat') {
+      return {
+        command: 'cmd.exe',
+        args: ['/d', '/s', '/c', `${quoteForCmd(auditCiBin)} --config ${quoteForCmd(configPath)}`],
+      };
+    }
+
+    if (extension === '.ps1') {
+      return {
+        command: 'powershell.exe',
+        args: ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', auditCiBin, '--config', configPath],
+      };
+    }
+  }
+
+  return {
+    command: auditCiBin,
+    args: ['--config', configPath],
+  };
 }
 
 function assertPackageLock(projectRoot = PROJECT_ROOT) {
@@ -175,15 +203,12 @@ function runAuditCi(configPath, options = {}) {
     throw new Error('audit-ci binary not found in node_modules/.bin; run bun install --ignore-scripts first.');
   }
 
-  const result = spawnSync(
-    auditCiBin,
-    ['--config', configPath],
-    {
-      cwd: options.projectRoot || PROJECT_ROOT,
-      stdio: 'inherit',
-      shell: process.platform === 'win32',
-    }
-  );
+  const { command, args } = buildAuditCiCommand(auditCiBin, configPath);
+  const result = spawnSync(command, args, {
+    cwd: options.projectRoot || PROJECT_ROOT,
+    stdio: 'inherit',
+    shell: false,
+  });
 
   if (result.error) {
     throw result.error;
@@ -248,6 +273,7 @@ module.exports = {
   DEFAULT_SUPPRESSIONS_FILE,
   MAX_REVIEW_TTL_DAYS,
   buildAuditCiAllowlist,
+  buildAuditCiCommand,
   buildAuditCiConfig,
   findAuditCiBin,
   main,

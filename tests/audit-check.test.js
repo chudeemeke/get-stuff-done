@@ -1,9 +1,13 @@
 'use strict';
 
 const { describe, test, expect } = require('bun:test');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 const {
   buildAuditCiAllowlist,
+  findAuditCiBin,
   validateSuppressions,
 } = require('../scripts/audit-check');
 
@@ -84,5 +88,22 @@ describe('audit suppression validation', () => {
     expect(result.ok).toBe(true);
     expect(result.suppressions[0].severity).toBe('moderate');
     expect(allowlist).toEqual(['GHSA-allow-0001']);
+  });
+});
+
+describe('audit-ci binary discovery', () => {
+  test('finds Bun Windows audit-ci executable shim', () => {
+    const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-audit-bin-'));
+    const binDir = path.join(projectRoot, 'node_modules', '.bin');
+    const auditCiExe = path.join(binDir, 'audit-ci.exe');
+
+    fs.mkdirSync(binDir, { recursive: true });
+    fs.writeFileSync(auditCiExe, '', 'utf-8');
+
+    try {
+      expect(findAuditCiBin(projectRoot)).toBe(auditCiExe);
+    } finally {
+      fs.rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 });

@@ -430,7 +430,7 @@ function cleanMilestoneName(value) {
 function getMilestoneInfo(cwd) {
   try {
     const roadmap = fs.readFileSync(path.join(cwd, '.planning', 'ROADMAP.md'), 'utf-8');
-    const activeListMatch = roadmap.match(/^\s*-\s*.*?\*\*(v\d+\.\d+(?:\.\d+)?)\s+([^*\r\n]+?)\*\*.*\bactive\b/im);
+    const activeListMatch = roadmap.match(/^\s*-\s*(?=[^\r\n]*\b(?:active|in\s+progress|wip|started)\b)[^\r\n]*?\*\*(v\d+\.\d+(?:\.\d+)?)\s+([^*\r\n]+?)\*\*/im);
     if (activeListMatch) {
       return {
         version: normalizeMilestoneVersion(activeListMatch[1]),
@@ -438,7 +438,7 @@ function getMilestoneInfo(cwd) {
       };
     }
 
-    const activeHeadingMatch = roadmap.match(/^#{2,4}\s*(v\d+\.\d+(?:\.\d+)?)\s+([^\r\n]+?)\s+[-\u2013\u2014]{1,2}\s+ACTIVE\b/im);
+    const activeHeadingMatch = roadmap.match(/^#{2,4}\s*(v\d+\.\d+(?:\.\d+)?)\s+([^\r\n]+?)\s+[-\u2013\u2014]{1,2}\s+(?:ACTIVE|IN\s+PROGRESS|WIP|STARTED)\b/im);
     if (activeHeadingMatch) {
       return {
         version: normalizeMilestoneVersion(activeHeadingMatch[1]),

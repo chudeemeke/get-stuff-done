@@ -105,6 +105,92 @@ Status: In progress
     assert.strictEqual(init.next_phase.number, '42');
   });
 
+  test('roadmap parser prefers current body milestone over stale frontmatter', () => {
+    assert.ok(fs.existsSync(RUNTIME_TOOLS_PATH), 'run bun run compose before runtime override tests');
+
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+## Milestones
+
+- SHIPPED **v4.0 Intelligence Layer**
+- IN PROGRESS **v5.0 Market-Leader Memory Platform**
+
+### v4.0 Intelligence Layer (Phases 30-37)
+
+- [x] **Phase 30: Historical Work** - Shipped v4 work.
+
+### v5.0 Market-Leader Memory Platform (Phases 38.0-44)
+
+- [x] **Phase 41.1: Embedding Pipeline Resilience** - Complete.
+- [ ] **Phase 42: Dreaming Consolidation** - Active.
+- [ ] **Phase 42.5: Feature Completeness** - Pending.
+
+## Phase Details
+
+### Phase 30: Historical Work
+**Plans:** 1 plan
+
+---
+
+### Phase 41.1: Embedding Pipeline Resilience
+**Plans:** 1 plan
+
+---
+
+### Phase 42: Dreaming Consolidation
+**Goal:** Consolidate memory dreams.
+**Plans:** 1 plan
+
+---
+
+### Phase 42.5: Feature Completeness
+**Plans:** 1 plan
+
+---
+
+### Cross-Cutting: v4 Quality
+This older cross-cutting section should not be part of the scoped v5 phase list.
+`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `---
+milestone: v4.0
+milestone_name: Intelligence Layer
+---
+
+# Project State
+
+**Current Focus:** Phase 42 - dreaming-consolidation
+
+Phase: 42 (Dreaming Consolidation) - NEXT
+**Milestone:** v5.0 Market-Leader Memory Platform
+`
+    );
+
+    const roadmapResult = runRuntimeGsdTools(['roadmap', 'analyze'], tmpDir);
+    assert.ok(roadmapResult.success, `Command failed: ${roadmapResult.error}`);
+    const roadmap = JSON.parse(roadmapResult.output);
+    assert.strictEqual(roadmap.state_current_phase, '42');
+    assert.strictEqual(roadmap.current_phase, '42');
+    assert.ok(roadmap.phases.some(phase => phase.number === '42'), 'Phase 42 should be in scoped roadmap phases');
+    assert.ok(!roadmap.phases.some(phase => phase.number === '30'), 'v4 Phase 30 should not leak into v5 scope');
+    assert.ok(
+      roadmap.milestones.some(milestone => milestone.version === 'v5.0'),
+      'v5.0 should be the scoped milestone'
+    );
+
+    const phaseResult = runRuntimeGsdTools(['init', 'execute-phase', '42'], tmpDir);
+    assert.ok(phaseResult.success, `Command failed: ${phaseResult.error}`);
+    const phase = JSON.parse(phaseResult.output);
+    assert.strictEqual(phase.phase_found, true);
+    assert.strictEqual(phase.phase_number, '42');
+    assert.strictEqual(phase.milestone_version, 'v5.0');
+    assert.strictEqual(phase.milestone_name, 'Market-Leader Memory Platform');
+  });
+
   test('state update-progress counts ROADMAP-declared future plans', () => {
     assert.ok(fs.existsSync(RUNTIME_TOOLS_PATH), 'run bun run compose before runtime override tests');
 

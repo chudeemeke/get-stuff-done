@@ -1281,6 +1281,25 @@ describe('getMilestoneInfo()', () => {
     assert.strictEqual(result.name, 'Ship-Ready Hardening');
   });
 
+  test('prefers in-progress milestone over shipped historical versions', () => {
+    const roadmapContent = `# Roadmap
+
+## Milestones
+
+- SHIPPED **v4.0 Intelligence Layer**
+- IN PROGRESS **v5.0 Market-Leader Memory Platform**
+
+### v4.0 Intelligence Layer (Phases 30-37)
+
+### v5.0 Market-Leader Memory Platform (Phases 38-44)
+`;
+    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), roadmapContent);
+
+    const result = getMilestoneInfo(tmpDir);
+    assert.strictEqual(result.version, 'v5.0');
+    assert.strictEqual(result.name, 'Market-Leader Memory Platform');
+  });
+
   test('returns defaults when ROADMAP.md does not exist', () => {
     const result = getMilestoneInfo(tmpDir);
     assert.strictEqual(result.version, 'v1.0');

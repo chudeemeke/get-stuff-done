@@ -5,6 +5,15 @@ CLAUDE.md
 /research.claude/
 commands.html
 
+# Cross-project issue inbox: active files are local WIP; terminal records
+# under archived/ and rejected/ are tracked for audit.
+docs/inbox/*.md
+!docs/inbox/README.md
+!docs/inbox/archived/
+!docs/inbox/archived/**
+!docs/inbox/rejected/
+!docs/inbox/rejected/**
+
 # Local test installs
 .claude/
 

@@ -166,12 +166,16 @@ describe('runtime package provenance output', () => {
 
     const provenance = JSON.parse(result.stdout);
     expect(Object.keys(provenance).sort()).toEqual([
+      'forkPackage',
+      'forkVersion',
       'overlayManifestSha256',
       'packageName',
       'upstreamPackage',
       'upstreamVersion',
       'version',
     ]);
+    expect(provenance.forkPackage).toBe(pkg.name);
+    expect(provenance.forkVersion).toBe(pkg.version);
     expect(provenance.packageName).toBe(pkg.name);
     expect(provenance.version).toBe(pkg.version);
     expect(provenance.upstreamPackage).toBe(getActivePackageName(authority));

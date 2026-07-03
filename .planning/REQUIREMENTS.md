@@ -10,9 +10,9 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 ### UPGRADE (upgrade resilience)
 
 - [x] **UPGRADE-01**: `scripts/verify-upgrade.js` orchestrates the full upgrade cycle (install prior version -> bump upstream -> recompose -> reinstall -> smoke-verify) against a Verdaccio local registry
-- [ ] **UPGRADE-02**: Historical-version compat matrix runs in CI against N=3 most recent vetted upstream versions, driven by `.planning/vetted-upstream-versions.json`
+- [x] **UPGRADE-02**: Historical-version compat matrix runs in CI against N=3 most recent vetted upstream versions, driven by `.planning/vetted-upstream-versions.json`
 - [x] **UPGRADE-03**: Override staleness enforcement is a BLOCKING CI gate (distinct from informational boundary/compat jobs); `scripts/check-overrides.js` exit-on-fail is wired into CI
-- [ ] **UPGRADE-04**: `.planning/vetted-upstream-versions.json` tracks the N=3 vetted upstream versions as the compat matrix source of truth; pruning on bump is automated
+- [x] **UPGRADE-04**: `.planning/vetted-upstream-versions.json` tracks the N=3 vetted upstream versions as the compat matrix source of truth; pruning on bump is automated
 - [ ] **UPGRADE-05**: A live dogfood upstream bump is executed AFTER Phases 41 and 42 complete — bumping from whatever pin is current at Phase 43 time to whatever's latest then — as proof-the-system-works (D-7). Exercises the new Phase 41/42 overlay/override work against a subsequent bump; distinct from UPGRADE-10's pre-Phase-41 currency bump (the two bumps serve different verification purposes). Evidence recorded in MAINTENANCE.md.
 - [x] **UPGRADE-06**: `.changelog-conflict-check.sh` detects the known CHANGELOG merge pattern (entry placed inside published release section) and is wired into the bump runbook
 - [ ] **UPGRADE-07**: Upstream hook improvements merged into `overrides/hooks/gsd-check-update.js` (isNewer, detectConfigDir, stale hook detection, shared cache) with atomic coupling to `gsd-statusline.js`; fork-specific behavior preserved (package name, role routing, commit classification, 4h/7d throttle)

@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 41 EXECUTING. Plan 07 is implemented locally; Phase 41 closure still requires the post-registration 10x validation workflow to pass after merge."
-stopped_at: "2026-07-03 Phase 41 Plan 07 completed locally: 10x validation workflow, flake issue maintenance, and D-11/REL-03 maintenance discipline added; post-merge 10x dispatch remains."
-last_updated: "2026-07-03T06:10:00+01:00"
-last_activity: 2026-07-03 -- Phase 41 Plan 07 completed locally; post-registration 10x validation remains before Phase 41 closure
+status: "Phase 41 COMPLETE. Next GSD path is Phase 42 planning: Budget Enforcement, Process Hardening, Cousin-Test."
+stopped_at: "2026-07-03 Phase 41 closed after 10x validation run 28639808289 passed on ubuntu-latest, macos-15, and windows-latest. Phase 42 planning is next; backlog 999.x items remain unpromoted unless explicitly selected."
+last_updated: "2026-07-03T06:35:00+01:00"
+last_activity: 2026-07-03 -- Phase 41 closed; Phase 42 next
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 16
   completed_plans: 11
   planned_plans: 1
@@ -22,14 +22,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 41 Wave 4 closure against Open GSD authority
+**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 42 Budget Enforcement, Process Hardening, Cousin-Test
 
 ## Current Position
 
-Phase: Phase 41 (executing) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
-Plan: 7 of 7 complete locally; Wave 4 implementation done; CI repair and hygiene cleanup remote-verified; GSD routing/progress-accounting, memory-nexus milestone-scope, Codex no-frontmatter installer hotfixes, Plan 04 perf baselines, Plan 06 subprocess/flake telemetry, and Plan 07 closure workflows are verified locally
-Status: Merge Plan 07, dispatch `10x-validation.yml` from the default branch, and close or reopen Phase 41 based on the result
-Last activity: 2026-07-03 -- Phase 41 Plan 07 completed locally; post-registration 10x validation remains before Phase 41 closure
+Phase: Phase 42 (next) -- Budget Enforcement, Process Hardening, Cousin-Test
+Plan: Not started
+Status: Plan Phase 42 from the Phase 41 baselines and closure evidence; do not auto-promote backlog 999.x items without an explicit GSD planning decision
+Last activity: 2026-07-03 -- Phase 41 closed after successful 10x validation
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -37,7 +37,7 @@ Last activity: 2026-07-03 -- Phase 41 Plan 07 completed locally; post-registrati
 
 **Velocity:**
 
-- Total plans completed: 90 (across v0.1.0-v1.1.0)
+- Total plans completed: 97 (across v0.1.0-v1.2.0 through Phase 41)
 - v0.1.0: 12 plans, 1.38 hours
 - v0.2.0: 32 plans, 4.45 hours
 - v0.3.0: 17 plans, 15.0 hours
@@ -76,11 +76,11 @@ v1.2.0 roadmap decisions:
 - Historical ~130 upstream compat failures (branding diffs, informational CI). After active-authority repair, local Windows compat runner reports 11 failures; keep linux/macos/windows baseline thresholds unchanged until PR matrix evidence exists.
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
-- Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plan 05; Plan 06 completed remaining real test subprocess migration and Windows flake telemetry; Plan 07 still owns 10x validation closure via REL-01)
+- Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plans 05-07; 10x validation run `28639808289` passed on Windows, and flake telemetry remains in CI)
 - First GitHub Actions run showed `gitleaks/gitleaks-action@v2` needs `GITHUB_TOKEN` for pull_request scans and OSV `@v2` is not a resolvable tag. The repaired PR run `28533068807` passed all CI jobs. Boundary report-only cleanup was remote-verified by run `28534255286`; first-party action/runtime and `macos-latest` annotation cleanup was remote-verified by run `28534944081`. The docs reconciliation run `28535445005` passed but surfaced the remaining `gitleaks/gitleaks-action@v2` Node 20 annotation; `gitleaks/gitleaks-action@v3` cleanup was remote-verified by run `28536087964`.
 - Aggregate coverage remains below the user's 95% per-metric standard even though the current repo command exits 0 (`bun test --coverage`: 94.86% functions, 93.08% lines on 2026-07-01).
 - Phase 41 Plan 04 implemented perf schemas, scripts, package commands, and a `workflow_dispatch` manual capture workflow. Real Linux/macOS/Windows artifacts from run `28638612289` generated `perf-baseline.json` and `.planning/perf/test-timing.json` after the bench script was corrected to use Bun's supported `--cwd` flag instead of unsupported `hyperfine --working-directory`.
-- Phase 41 Plan 07 implemented the `workflow_dispatch` 10x validation gate, weekly flake issue maintenance, and D-11/REL-03 maintenance-log discipline. Phase closure still requires the workflow to be merged onto default branch and pass on all three platforms.
+- Phase 41 Plan 07 implemented the `workflow_dispatch` 10x validation gate, weekly flake issue maintenance, and D-11/REL-03 maintenance-log discipline. Post-registration run `28639808289` passed on ubuntu-latest, macos-15, and windows-latest.
 - 2026-07-01 inbox triage fix closed the confirmed authkey `roadmap update-plan-progress` wrong-checkbox/CRLF issue and medesine-rx false-100% progress issue in code and tests. Memory-nexus v5/decimal roadmap drift is partially fixed in code and tests: `init execute-phase 42` now reports `v5.0`, `roadmap analyze` scopes to v5 phases only, and no v4 Phase 30/32.6 leakage remains. Memory-nexus Codex no-frontmatter installer crash is fixed/tested as of 2026-07-03; installer transaction/preflight/rollback, VERSION mapping clarity, config-schema drift, and grouped stale-STATE health diagnostics remain open. Plan 06 completed the remaining real test subprocess migration and added Windows flake telemetry; no active REL-03 skips exist.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
@@ -92,11 +92,11 @@ None.
 
 ### Blockers/Concerns
 
-Boundary checker still reports 41 structural root-mirror violations as known debt, but CI now reports it through `--report-only` plus the blocking debt ratchet instead of a failed-step annotation. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Phase 41 closure is blocked on the post-registration 10x validation result, not on missing implementation. The root inbox still has open memory-nexus reports to triage after the current GSD routing/progress fix lands.
+Boundary checker still reports 41 structural root-mirror violations as known debt, but CI now reports it through `--report-only` plus the blocking debt ratchet instead of a failed-step annotation. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Backlog 999.x items are not the default next phase; Phase 42 is the next v1.2 execution path unless explicitly replanned. The root inbox still has open memory-nexus reports to triage after the current GSD routing/progress fix lands.
 
 ## Session Continuity
 
-Last session: 2026-07-03 (Plan 07 closure workflows completed locally; Plan 04 real perf baselines completed from workflow run 28638612289; Plan 06 subprocess hardening and Windows flake telemetry merged; Codex no-frontmatter installer crash fixed/tested; GSD routing/progress-accounting and memory-nexus milestone-scope hotfixes verified; CI repair and hygiene cleanup remote-verified).
+Last session: 2026-07-03 (Phase 41 closed after 10x validation run 28639808289; Plan 07 closure workflows completed and merged; Plan 04 real perf baselines completed from workflow run 28638612289; Plan 06 subprocess hardening and Windows flake telemetry merged; Codex no-frontmatter installer crash fixed/tested; GSD routing/progress-accounting and memory-nexus milestone-scope hotfixes verified; CI repair and hygiene cleanup remote-verified).
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Phase 41 Plan 07 is completed locally, but Phase 41 is not closed until `10x-validation.yml` is merged and passes on Linux, macOS, and Windows. Plan 04 real baselines and Plan 06 flake telemetry are merged; Codex no-frontmatter installer crash, GSD self-routing/progress-accounting, and memory-nexus milestone-scope hotfixes are verified.
+Stopped at: Phase 41 is complete. Next up is Phase 42 planning against the committed perf baselines, override gate, audit surface, and successful 10x validation evidence. Do not resume backlog 999.x as the next path unless the user explicitly promotes it.
 Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-done. It consumes upstream as an npm dependency and layers fork-specific additions (cross-platform tooling, theming, sync safety, launcher) on top through a composition pipeline. Users get upstream's full capabilities plus fork enhancements, with surface-only branding. The active v1.2.0 work is migrating upstream authority from the legacy TACHES package to Open GSD while preserving this overlay model.
+A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-done. It consumes upstream as an npm dependency and layers fork-specific additions (cross-platform tooling, theming, sync safety, launcher) on top through a composition pipeline. Users get upstream's full capabilities plus fork enhancements, with surface-only branding. Active v1.2.0 work has cleared the Phase 41 foundation and now moves to Phase 42 budget enforcement, process hardening, and cousin-test validation.
 
 ## Core Value
 
@@ -50,6 +50,10 @@ A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-don
 - ✓ CLEAN-01 through CLEAN-04: Artifact cleanup (debug sessions, Phase 24, handoff files, PROJECT.md deferred list) -- v1.1.0
 
 - UPGRADE-11: Upstream authority migration from legacy TACHES/GSD package evidence to exact-pinned Open GSD `@opengsd/gsd-core@1.5.0` -- Phase 40.6
+- UPGRADE-03, UPGRADE-06: Blocking override-staleness gate and changelog conflict guard -- Phase 41
+- SECURITY-01 through SECURITY-06: Audit CI, secrets scan, OSV triage, harden-runner audit mode, eslint security posture, and security triage policy -- Phase 41
+- PERF-01, PERF-02: Real Linux/macOS/Windows perf and test-timing baselines captured and committed -- Phase 41
+- REL-01 through REL-03: Windows flake hardening, visible REL-03 escape hatch, and 10x Linux/macOS/Windows validation -- Phase 41
 
 ### Active
 
@@ -102,14 +106,14 @@ A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-don
 **Architecture:** Overlay model -- upstream consumed as npm devDependency, composed at publish time
 **Upstream:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`; legacy `get-shit-done-cc` is retained only as historical/deprecation evidence for Phase 40.6.
 **Current version:** 3.0.2 (published to npm as @chude/get-stuff-done)
-**Codebase:** ~151 files, ~30K lines; fork-specific overlay code ~2,510 lines; 1666 tests passing locally on Windows
-**CI:** 5-check matrix (fork tests, upstream compat, boundary, override) across macOS/Linux/Windows
+**Codebase:** ~151 files, ~30K lines; fork-specific overlay code ~2,510 lines; 1742 tests observed in Phase 41 10x CI validation
+**CI:** Blocking test/lint/security/override gates across macOS/Linux/Windows, informational boundary/upstream-compat gates with ratchets, manual perf-baseline and 10x validation workflows
 **Known tech debt:**
 - 41 boundary violations (structural root mirrors -- CI informational, documented in Phase 40.6 verification)
 - ~130 upstream compat failures (branding diffs by design, CI informational)
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - ~~INST-04 uninstall manifest gap~~ (RESOLVED -- Phase 40.6 copies overlay manifest/install metadata and scratch uninstall leaves only user `settings.json`)
-- Intermittent Windows subprocess timeout flakiness (OS-level timing; targeted by v1.2.0 REL-02)
+- Intermittent Windows subprocess timeout flakiness (MITIGATED -- Phase 41 migrated subprocess tests, added flake telemetry, and passed 10x Windows validation; telemetry remains active)
 - Config schema drift -- 8 unknown config keys (4 upstream-drift migrations + 4 fork-extension namespace decisions) flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation complete and Option C recommended resolution path
 - ~~Codex `extractFrontmatterField` crash~~ (RESOLVED -- fork-specific, 4 oversight agents fixed)
 
@@ -219,4 +223,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-23 -- Phase 40.6 complete; active upstream authority is Open GSD `@opengsd/gsd-core@1.5.0`*
+*Last updated: 2026-07-03 -- Phase 41 complete; Phase 42 planning is next*

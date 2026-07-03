@@ -79,6 +79,13 @@ When you find an issue, produce a structured flag:
 Direct to verifier. Routine verification oversight, not high-stakes.
 </monitoring_protocol>
 
+<evidence_before_claim_triggers>
+## Evidence-Before-Claim Triggers
+
+- `EBC-VERIFY-CI-BEFORE-MEASURE`: Flag CI gate claims raised before local measurement or workflow evidence exists; principle: `overlay/memory/oversight-principle-evidence-before-claim.md`.
+  Graduation: PROCESS-07 criteria in `MAINTENANCE.md`; v1.2.0 advisory only.
+</evidence_before_claim_triggers>
+
 <memory_protocol>
 ## Agent Memory
 

@@ -23,13 +23,13 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 
 ### PROCESS (oversight pattern -- 1 principle + 4 triggers)
 
-- [ ] **PROCESS-01**: Shared principle document `overlay/memory/oversight-principle-evidence-before-claim.md` articulates the "evidence-before-claim verification" principle once
-- [ ] **PROCESS-02**: `gsd-oversight-execution` includes a structured trigger for unverified post-merge state (2-3 lines pointing to principle)
-- [ ] **PROCESS-03**: `gsd-oversight-execution` includes a structured trigger for SUMMARY claims lacking verification (2-3 lines pointing to principle)
-- [ ] **PROCESS-04**: `gsd-oversight-verification` includes a structured trigger for CI gates raised before local measurement passed (2-3 lines pointing to principle)
-- [ ] **PROCESS-05**: `gsd-oversight-planning` includes a structured trigger for test approaches without metric-target compatibility check (2-3 lines pointing to principle)
-- [ ] **PROCESS-06**: `scripts/verify-oversight-probes.js` harness + weekly CI job verifies oversight triggers fire when expected (deterministic probes without OPA/Semgrep dependency)
-- [ ] **PROCESS-07**: Advisory -> blocking graduation criteria documented for oversight triggers (D-3): minimum 20 PRs observed with the trigger firing or correctly abstaining; maximum 5% false-positive rate across that observation window; explicit promotion ceremony requires maintainer-authored PR review + 2 weeks of clean CI history + MAINTENANCE.md update recording trigger name, promotion date, and observation evidence. No triggers graduate in v1.2.0 (criteria only).
+- [x] **PROCESS-01**: Shared principle document `overlay/memory/oversight-principle-evidence-before-claim.md` articulates the "evidence-before-claim verification" principle once
+- [x] **PROCESS-02**: `gsd-oversight-execution` includes a structured trigger for unverified post-merge state (2-3 lines pointing to principle)
+- [x] **PROCESS-03**: `gsd-oversight-execution` includes a structured trigger for SUMMARY claims lacking verification (2-3 lines pointing to principle)
+- [x] **PROCESS-04**: `gsd-oversight-verification` includes a structured trigger for CI gates raised before local measurement passed (2-3 lines pointing to principle)
+- [x] **PROCESS-05**: `gsd-oversight-planning` includes a structured trigger for test approaches without metric-target compatibility check (2-3 lines pointing to principle)
+- [x] **PROCESS-06**: `scripts/verify-oversight-probes.js` harness + weekly CI job verifies oversight triggers fire when expected (deterministic probes without OPA/Semgrep dependency)
+- [x] **PROCESS-07**: Advisory -> blocking graduation criteria documented for oversight triggers (D-3): minimum 20 PRs observed with the trigger firing or correctly abstaining; maximum 5% false-positive rate across that observation window; explicit promotion ceremony requires maintainer-authored PR review + 2 weeks of clean CI history + MAINTENANCE.md update recording trigger name, promotion date, and observation evidence. No triggers graduate in v1.2.0 (criteria only).
 
 ### SECURITY (supply chain + audit)
 
@@ -124,13 +124,13 @@ Which phases cover which requirements. Populated during roadmap creation.
 | UPGRADE-09 | Phase 43 | Pending |
 | UPGRADE-10 | Phase 40.5 | Pending |
 | UPGRADE-11 | Phase 40.6 | Complete |
-| PROCESS-01 | Phase 42 | Pending |
-| PROCESS-02 | Phase 42 | Pending |
-| PROCESS-03 | Phase 42 | Pending |
-| PROCESS-04 | Phase 42 | Pending |
-| PROCESS-05 | Phase 42 | Pending |
-| PROCESS-06 | Phase 42 | Pending |
-| PROCESS-07 | Phase 42 | Pending |
+| PROCESS-01 | Phase 42 | Complete |
+| PROCESS-02 | Phase 42 | Complete |
+| PROCESS-03 | Phase 42 | Complete |
+| PROCESS-04 | Phase 42 | Complete |
+| PROCESS-05 | Phase 42 | Complete |
+| PROCESS-06 | Phase 42 | Complete |
+| PROCESS-07 | Phase 42 | Complete |
 | SECURITY-01 | Phase 41 | Complete |
 | SECURITY-02 | Phase 41 | Complete |
 | SECURITY-03 | Phase 41 | Complete |
@@ -176,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-07-03 -- Phase 41 closed after real perf baseline capture and 10x Linux/macOS/Windows validation*
+*Last updated: 2026-07-03 -- Phase 42 Plan 04 completed PROCESS-01 through PROCESS-07 oversight principle, triggers, probes, workflow, and graduation criteria*

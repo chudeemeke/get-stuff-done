@@ -30,6 +30,25 @@ process sections are owned by Phase 44.
 13. If a bump needs a new manual decision, stop and record the decision before
     changing package metadata.
 
+## Oversight Trigger Graduation Criteria (PROCESS-07)
+
+Oversight triggers are advisory forcing functions until this section is updated
+by an explicit promotion review. Each trigger must reference this heading and
+the shared principle in
+`overlay/memory/oversight-principle-evidence-before-claim.md`.
+
+Promotion requirements:
+
+1. Observe at least 20 PRs with the trigger firing or correctly abstaining.
+2. Keep the false-positive rate at or below 5% false-positive across the
+   observation window.
+3. Require a maintainer-authored PR review that names the trigger, evidence
+   window, and proposed behavior change.
+4. Require 2 weeks clean CI history after the observation window begins.
+5. Update `MAINTENANCE.md` with trigger name, promotion date, and observation
+   evidence before any behavior changes.
+6. For Phase 42 and the v1.2.0 milestone, no trigger graduates to blocking in v1.2.0.
+
 ## Security
 
 This section covers Phase 41 audit operation. Broader release-security sections

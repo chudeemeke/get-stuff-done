@@ -1,0 +1,30 @@
+name: Oversight Probes
+
+on:
+  schedule:
+    - cron: "41 8 * * 1"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "overlay/memory/oversight-principle-evidence-before-claim.md"
+      - "overlay/agents/gsd-oversight-execution.md"
+      - "overlay/agents/gsd-oversight-verification.md"
+      - "overlay/agents/gsd-oversight-planning.md"
+      - "scripts/verify-oversight-probes.js"
+      - "tests/fixtures/oversight-probes/**"
+      - "tests/verify-oversight-probes.test.js"
+      - ".github/workflows/oversight-probes.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-oversight-probes:
+    name: Verify Oversight Probes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: node scripts/verify-oversight-probes.js

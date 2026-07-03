@@ -67,6 +67,16 @@
       "metric": "install",
       "maxRatio": 1.4,
       "expiresOn": "2026-07-10"
+    },
+    {
+      "reason": "macos-15-arm64 install benchmark variance recurred in PR #19 run 28647664953 after non-performance Plan 04 changes, measuring 228ms vs 134ms baseline (1.70x) on runner image 20260623.0190. This temporary exception keeps the gate scoped while Phase 43/44 replaces it with rebaseline or variance-aware policy.",
+      "reviewer": "Chude",
+      "reviewedDate": "2026-07-03",
+      "ticket": "PR-19/run-28647664953",
+      "platform": "macos",
+      "metric": "install",
+      "maxRatio": 1.8,
+      "expiresOn": "2026-07-10"
     }
   ]
 }

@@ -167,7 +167,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
 - [x] 43-04-PLAN.md -- Wave 4: Compatibility matrix evidence and CI
 - [x] 43-05-PLAN.md -- Wave 5: JavaScript semantic override staleness
-- [ ] 43-06-PLAN.md -- Wave 6: Check-update hook reconciliation
+- [x] 43-06-PLAN.md -- Wave 6: Check-update hook reconciliation
 - [ ] 43-07-PLAN.md -- Wave 7: Statusline reconciliation and hook packaging
 - [ ] 43-08-PLAN.md -- Wave 8: Override churn generator
 - [ ] 43-09-PLAN.md -- Wave 9: CycloneDX SBOM pipeline

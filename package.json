@@ -86,6 +86,7 @@
     "test:upstream": "node --test tests/*.test.cjs",
     "preview-update": "node bin/preview-update-cli.js",
     "verify-upgrade": "node scripts/verify-upgrade.js",
-    "vetted-upstream:validate": "node scripts/vetted-upstream-versions.js --validate"
+    "vetted-upstream:validate": "node scripts/vetted-upstream-versions.js --validate",
+    "compat:matrix": "node scripts/run-compat-matrix.js"
   }
 }

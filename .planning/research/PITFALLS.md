@@ -267,7 +267,7 @@ During an upstream bump, a file has merge conflicts. Operator runs `git checkout
 **Phase to address:**
 Process hardening phase. Encode in the upstream bump runbook. Consider a CI check that fails if a merge commit is pushed without a `CONFLICTS_RESOLVED.md` artifact listing each conflict.
 
-**Reference:** [Atlassian: Resolving Merge Conflicts](https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts); [Git Advanced Merging docs](https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging); [Howchoo: ours and theirs](https://howchoo.com/git/git-merge-conflicts-rebase-ours-theirs); authkey incident failure #1.
+**Reference:** [Atlassian: Resolving Merge Conflicts](https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts); [Git Advanced Merging docs](https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging); [git-checkout manual](https://git-scm.com/docs/git-checkout); authkey incident failure #1.
 
 ---
 
@@ -521,7 +521,7 @@ How v1.2.0 roadmap phases should address these pitfalls.
 **External references (HIGH confidence — git):**
 - [Atlassian: Resolving Merge Conflicts](https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts) — Pitfall 9
 - [Git Advanced Merging (git-scm)](https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging) — Pitfall 9
-- [Howchoo: ours and theirs](https://howchoo.com/git/git-merge-conflicts-rebase-ours-theirs) — Pitfall 9
+- [git-checkout manual](https://git-scm.com/docs/git-checkout) — Pitfall 9
 
 **External references (MEDIUM confidence — docs/perf):**
 - [mdbook-linkcheck (crates.io)](https://crates.io/crates/mdbook-linkcheck) — Pitfall 10

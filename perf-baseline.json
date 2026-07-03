@@ -77,6 +77,16 @@
       "metric": "install",
       "maxRatio": 1.8,
       "expiresOn": "2026-07-10"
+    },
+    {
+      "reason": "macos-15-arm64 compose benchmark variance recurred in PR #20 run 28651494074 after non-performance Plan 03 cousin-install CI and docs changes, measuring 499ms vs 370ms baseline (1.35x) on runner image 20260630.0202.1 with 96.6ms stddev. This temporary exception keeps the gate scoped while Phase 43/44 replaces repeated macOS variance exceptions with rebaseline or variance-aware policy.",
+      "reviewer": "Chude",
+      "reviewedDate": "2026-07-03",
+      "ticket": "PR-20/run-28651494074",
+      "platform": "macos",
+      "metric": "compose",
+      "maxRatio": 1.5,
+      "expiresOn": "2026-07-10"
     }
   ]
 }

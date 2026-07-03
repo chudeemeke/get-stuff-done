@@ -1,0 +1,72 @@
+name: Cousin Install
+
+on:
+  schedule:
+    - cron: "23 10 * * 1"
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "bin/**"
+      - "dist/**"
+      - "overlay/**"
+      - "scripts/cousin-smoke.js"
+      - "scripts/lib/package-provenance.js"
+      - "scripts/lib/upstream-source.js"
+      - "package.json"
+      - "bun.lock"
+      - ".github/workflows/cousin-install.yml"
+
+permissions:
+  contents: read
+
+env:
+  PNPM_VERSION: 10.17.1
+
+jobs:
+  cousin-install:
+    name: Cousin Install (${{ matrix.os }}, Node ${{ matrix.node-version }}, ${{ matrix.package-manager }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15, windows-latest]
+        node-version: [20, 22]
+        package-manager: [npm, pnpm, bun]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Enable Corepack for pnpm
+        if: ${{ matrix.package-manager == 'pnpm' }}
+        run: |
+          corepack enable
+          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
+      - name: Install repository dependencies for PR packaging
+        if: ${{ github.event_name == 'pull_request' }}
+        run: bun install --frozen-lockfile --ignore-scripts
+      - name: Resolve package spec
+        id: package
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            bun run dist
+            tarball="$(npm pack --pack-destination "$RUNNER_TEMP" --silent | tail -n 1)"
+            node -e "const fs = require('fs'); const path = require('path'); const spec = path.join(process.env.RUNNER_TEMP, process.argv[1]).split(path.sep).join('/'); fs.appendFileSync(process.env.GITHUB_OUTPUT, 'spec=' + spec + '\n');" "$tarball"
+          else
+            echo "spec=@chude/get-stuff-done@latest" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Cold install and verify provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_READONLY_TOKEN }}
+        # scripts/cousin-smoke.js runs the installed local gsd bin with --version --json.
+        run: >-
+          node scripts/cousin-smoke.js
+          --package-manager "${{ matrix.package-manager }}"
+          --package "${{ steps.package.outputs.spec }}"
+          --temp-root "${{ runner.temp }}"

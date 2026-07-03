@@ -48,14 +48,14 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [ ] **SHIP-04**: npm `--provenance` via GHA OIDC Trusted Publishing; no long-lived NPM_TOKEN alongside OIDC (Axios incident pattern)
 - [ ] **SHIP-05**: `zizmor-action@v0` static analysis of GHA workflow YAML runs in CI
 - [ ] **SHIP-06**: Reproducible builds verified: `bun run compose` twice produces byte-identical output; verified in CI
-- [ ] **SHIP-07**: Cousin-test cold-install CI job: fresh OS (ubuntu-latest + macos-15 + windows-latest) x Node 20+22 x bun/npm/pnpm matrix installs public `@chude/get-stuff-done`, supports an optional read-only registry token, and runs non-interactive provenance smoke test. Partial 2026-07-03: 42-02 completed the non-interactive `gsd --version --json` provenance surface; 42-03 still owns the cold-install matrix and optional token path.
+- [x] **SHIP-07**: Cousin-test cold-install CI job: fresh OS (ubuntu-latest + macos-15 + windows-latest) x Node 20+22 x bun/npm/pnpm matrix installs public `@chude/get-stuff-done`, supports an optional read-only registry token, and runs non-interactive provenance smoke test. Completed 2026-07-03 across 42-02 runtime provenance and 42-03 cold-install workflow/helper.
 
 ### DOCS (documentation completeness)
 
 - [ ] **DOCS-01**: `MAINTENANCE.md` complete with required sections: Upgrade Process, Override Conflict Handling, CI Staleness Response, Release Cadence, Bump Runbook (prohibiting `--theirs`/`--ours`), Security Triage, Perf Budget, Escape-Hatch Decisions Log. Per-section acceptance: (a) at least one executable example (script path, command line, or code snippet) per section; (b) minimum 15 lines of substantive content per section (no placeholder-only); (c) every link validated by lychee in CI; (d) the Ship Polish phase CI check extracts at least one example per section and runs it end-to-end, failing if any example is broken or missing. Sections defined as anti-slop contract; plan authors must map each section to concrete artifacts, not prose alone.
 - [ ] **DOCS-02**: Upgrade guide (consumer-facing) documents the preview-update + aidev release workflow
 - [ ] **DOCS-03**: Override policy documents when to override, REASON.md template, SHA snapshot capture process, re-review triggers
-- [ ] **DOCS-04**: `INSTALL.md` covers the cousin-test scenario (fresh public install, optional read-only registry token, PATH setup, version verification)
+- [x] **DOCS-04**: `INSTALL.md` covers the cousin-test scenario (fresh public install, optional read-only registry token, PATH setup, version verification)
 - [ ] **DOCS-05**: `lychee-action@v2` link checker runs in CI on tracked markdown files, excluding generated/dependency copies only by narrow path
 - [ ] **DOCS-06**: `markdownlint-cli2@0.23.0` runs in CI enforcing consistent markdown structure
 - [ ] **DOCS-07**: README polished for ship-ready state: clear value proposition, install instructions, feature list, link to MAINTENANCE.md
@@ -143,11 +143,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SHIP-04 | Phase 44 | Pending |
 | SHIP-05 | Phase 44 | Pending |
 | SHIP-06 | Phase 44 | Pending |
-| SHIP-07 | Phase 42 | In Progress |
+| SHIP-07 | Phase 42 | Complete |
 | DOCS-01 | Phase 44 | Pending |
 | DOCS-02 | Phase 44 | Pending |
 | DOCS-03 | Phase 44 | Pending |
-| DOCS-04 | Phase 42 | Pending |
+| DOCS-04 | Phase 42 | Complete |
 | DOCS-05 | Phase 42 | Pending |
 | DOCS-06 | Phase 42 | Pending |
 | DOCS-07 | Phase 44 | Pending |
@@ -176,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-07-03 -- Phase 42 Plan 04 completed PROCESS-01 through PROCESS-07 oversight principle, triggers, probes, workflow, and graduation criteria*
+*Last updated: 2026-07-03 -- Phase 42 Plan 03 completed SHIP-07 and DOCS-04 cousin cold-install workflow and install documentation*

@@ -1,0 +1,62 @@
+name: Upgrade Verifier
+
+on:
+  schedule:
+    - cron: "17 9 * * 2"
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".planning/upstream-authority.json"
+      - "package.json"
+      - "bun.lock"
+      - "scripts/compose.js"
+      - "scripts/verify-upgrade.js"
+      - "bin/install.js"
+      - "overlay/**"
+      - "overrides/**"
+      - ".github/workflows/upgrade-verifier.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  upgrade-verifier:
+    name: Upgrade Verifier
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      verdaccio:
+        image: verdaccio/verdaccio:6
+        ports:
+          - 4873:4873
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install repository dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+      - name: Wait for Verdaccio
+        run: |
+          for attempt in {1..30}; do
+            if npm ping --registry http://localhost:4873/; then
+              exit 0
+            fi
+            echo "Verdaccio not ready yet (${attempt}/30)"
+            sleep 2
+          done
+          exit 1
+      - name: Run upgrade verifier
+        run: >-
+          bun run verify-upgrade --from 1.5.0 --to 1.6.1 --registry-url http://localhost:4873/ --json --report upgrade-report.json
+      - name: Upload upgrade report
+        if: ${{ always() && hashFiles('upgrade-report.json') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: upgrade-report
+          path: upgrade-report.json
+          retention-days: 30

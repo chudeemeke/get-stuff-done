@@ -216,3 +216,31 @@ describe('Phase 42 docs gates workflow', () => {
     expect(docsJob).not.toContain('docs/');
   });
 });
+
+describe('Phase 43 upgrade verifier workflow', () => {
+  test('upgrade verifier runs Verdaccio-backed upgrade verification on Linux and relevant triggers', () => {
+    const workflow = readWorkflow('upgrade-verifier.yml');
+
+    expect(workflow).toContain('schedule:');
+    expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).toContain('pull_request:');
+    expect(workflow).toContain('.planning/upstream-authority.json');
+    expect(workflow).toContain('package.json');
+    expect(workflow).toContain('bun.lock');
+    expect(workflow).toContain('scripts/compose.js');
+    expect(workflow).toContain('scripts/verify-upgrade.js');
+    expect(workflow).toContain('bin/install.js');
+    expect(workflow).toContain('overlay/**');
+    expect(workflow).toContain('overrides/**');
+    expect(workflow).toContain('runs-on: ubuntu-latest');
+    expect(workflow).toContain('verdaccio/verdaccio:6');
+    expect(workflow).toContain('4873:4873');
+    expect(workflow).toContain('actions/setup-node@v6');
+    expect(workflow).toContain('node-version: "22"');
+    expect(workflow).toContain('oven-sh/setup-bun@v2');
+    expect(workflow).toContain('bun install --frozen-lockfile --ignore-scripts');
+    expect(workflow).toContain('bun run verify-upgrade --from 1.5.0 --to 1.6.1 --registry-url http://localhost:4873/ --json --report upgrade-report.json');
+    expect(workflow).toContain('actions/upload-artifact@v7');
+    expect(workflow).toContain('upgrade-report.json');
+  });
+});

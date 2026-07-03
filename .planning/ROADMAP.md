@@ -163,7 +163,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist, included in both the tarball and the GitHub release artifact.
 **Plans**: 12 plans (checker-verified 2026-07-03)
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
-- [ ] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
+- [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [ ] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
 - [ ] 43-04-PLAN.md -- Wave 4: Compatibility matrix evidence and CI
 - [ ] 43-05-PLAN.md -- Wave 5: JavaScript semantic override staleness

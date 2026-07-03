@@ -38,8 +38,8 @@ created: 2026-07-03
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 43-01-* | 01 | 1 | UPGRADE-01 | T-43-01 | Upgrade simulation uses temp install targets and emits full D-03 evidence | unit/integration | `bun test tests/verify-upgrade.test.js tests/ci-workflow.test.js` | pending | pending |
-| 43-02-* | 02 | 2 | UPGRADE-01 | T-43-02 | Installer rollback protects user files and provenance separates fork/upstream package versions | unit/integration | `bun test tests/installer-safety.test.js tests/version-provenance.test.js` | pending | pending |
+| 43-01-* | 01 | 1 | UPGRADE-01 | T-43-01 | Upgrade simulation uses temp install targets and emits full D-03 evidence | unit/integration | `bun test tests/verify-upgrade.test.js tests/ci-workflow.test.js` | exists | passed |
+| 43-02-* | 02 | 2 | UPGRADE-01 | T-43-02 | Installer rollback protects user files and provenance separates fork/upstream package versions | unit/integration | `bun test tests/installer-safety.test.js tests/version-provenance.test.js` | exists | passed |
 | 43-03-* | 03 | 3 | UPGRADE-02 | T-43-03 | Candidate manifest cannot mark versions vetted before matrix evidence exists | unit | `bun test tests/vetted-upstream-versions.test.js` | pending | pending |
 | 43-04-* | 04 | 4 | UPGRADE-04 | T-43-04 | Matrix reads exact vetted pins and blocks only current pin by policy | unit/workflow | `bun test tests/run-upstream-compat-ci.test.js tests/ci-workflow.test.js` | pending | pending |
 | 43-05-* | 05 | 5 | UPGRADE-08 | T-43-05 | Semantic comparator cannot suppress real JS behavior changes | unit/integration | `bun test tests/check-overrides.test.js tests/check-overrides-integration.test.js` | exists | pending |
@@ -55,8 +55,8 @@ created: 2026-07-03
 
 ## Wave 0 Requirements
 
-- [ ] `tests/verify-upgrade.test.js` exists before verifier implementation.
-- [ ] `tests/installer-safety.test.js` and `tests/version-provenance.test.js` exist before installer/provenance changes.
+- [x] `tests/verify-upgrade.test.js` exists before verifier implementation.
+- [x] `tests/installer-safety.test.js` and `tests/version-provenance.test.js` exist before installer/provenance changes.
 - [ ] `tests/vetted-upstream-versions.test.js` exists before manifest helper implementation.
 - [ ] `tests/run-upstream-compat-ci.test.js` exists before matrix runner implementation.
 - [ ] `tests/check-overrides.test.js` covers semantic override behavior before gate changes.

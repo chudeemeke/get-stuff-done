@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Completed 43-01-PLAN.md
-last_updated: "2026-07-03T19:18:44.745Z"
+stopped_at: Completed 43-02-PLAN.md
+last_updated: "2026-07-03T21:57:52.215Z"
 last_activity: 2026-07-03
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 34
-  completed_plans: 20
-  percent: 59
+  completed_plans: 21
+  percent: 62
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
-Plan: 2 of 12
+Plan: 3 of 12
 Status: Ready to execute
 Last activity: 2026-07-03
 
@@ -73,6 +73,8 @@ v1.2.0 roadmap decisions:
 - 2026-07-03 Phase 42 Plan 01 decision: `acceptedRegressions[]` entries must include reviewed metadata plus either `platform` + `metric` or explicit `scope: "global"`; missing targets are not wildcard approvals.
 - 2026-07-03 Phase 42 Plan 02 decision: `gsd --version` and `gsd --version --json` exit before config migration, startup banner, or `claude` spawn; runtime package provenance is a non-interactive trust surface for cousin CI.
 - 2026-07-03 Phase 42 Plan 02 decision: runtime package provenance derives fork name/version from package.json, upstream package from the upstream-authority helper, upstream version from `dist/.install-meta.json` when available, and overlay manifest identity from the SHA-256 of `dist/.overlay-manifest.json`.
+- 2026-07-03 Phase 43 Plan 02 decision: installer rollback is transaction-based around the upstream delegation boundary; it snapshots previous settings, metadata, previous manifests, and current dist overlay paths, then removes only newly copied overlay files and restores prior snapshots on failure.
+- 2026-07-03 Phase 43 Plan 02 decision: runtime/install provenance now exposes `forkPackage`, `forkVersion`, `upstreamPackage`, and `upstreamVersion` while preserving `packageName` and `version` as backward-compatible fork aliases for cousin smoke consumers.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -96,7 +98,8 @@ v1.2.0 roadmap decisions:
 - Phase 42 Plan 04 completed PROCESS-01 through PROCESS-07: four advisory triggers (`EBC-EXEC-POSTMERGE`, `EBC-EXEC-SUMMARY`, `EBC-VERIFY-CI-BEFORE-MEASURE`, `EBC-PLAN-METRIC-COMPAT`) are mechanically probed by `scripts/verify-oversight-probes.js` and `.github/workflows/oversight-probes.yml`.
 - Phase 42 Plan 03 completed SHIP-07 and DOCS-04: `scripts/cousin-smoke.js` verifies cold installs through `gsd --version --json`, `.github/workflows/cousin-install.yml` covers ubuntu-latest/macos-15/windows-latest x Node 20/22 x npm/pnpm/bun, and `INSTALL.md` documents public install plus optional read-only token usage.
 - Phase 42 Plan 05 completed DOCS-05 and DOCS-06: `scripts/lint-docs.js` runs `markdownlint-cli2@0.23.0` against tracked markdown discovered by `git ls-files`, `.github/workflows/ci.yml` includes a `docs-gates` job using `lycheeverse/lychee-action@v2`, and `lychee.toml` excludes only generated/vendor/dependency paths (`node_modules/`, `dist/`, `.upstream/`, `overlay/get-shit-done/`) plus localhost examples. Local lychee verification passed with 602 total links and 0 errors.
-- 2026-07-01 inbox triage fix closed the confirmed authkey `roadmap update-plan-progress` wrong-checkbox/CRLF issue and medesine-rx false-100% progress issue in code and tests. Memory-nexus v5/decimal roadmap drift is partially fixed in code and tests: `init execute-phase 42` now reports `v5.0`, `roadmap analyze` scopes to v5 phases only, and no v4 Phase 30/32.6 leakage remains. Memory-nexus Codex no-frontmatter installer crash is fixed/tested as of 2026-07-03; installer transaction/preflight/rollback, VERSION mapping clarity, config-schema drift, and grouped stale-STATE health diagnostics remain open. Plan 06 completed the remaining real test subprocess migration and added Windows flake telemetry; no active REL-03 skips exist.
+- 2026-07-01 inbox triage fix closed the confirmed authkey `roadmap update-plan-progress` wrong-checkbox/CRLF issue and medesine-rx false-100% progress issue in code and tests. Memory-nexus v5/decimal roadmap drift is partially fixed in code and tests: `init execute-phase 42` now reports `v5.0`, `roadmap analyze` scopes to v5 phases only, and no v4 Phase 30/32.6 leakage remains. Memory-nexus Codex no-frontmatter installer crash is fixed/tested as of 2026-07-03; Phase 43 Plan 02 closed the related installer transaction/preflight/rollback and VERSION mapping clarity items for this repo. Config-schema drift and grouped stale-STATE health diagnostics remain open. Plan 06 completed the remaining real test subprocess migration and added Windows flake telemetry; no active REL-03 skips exist.
+- Phase 43 Plan 02 resolved the Plan 01 post-wave `tests/installer-v3.test.js` Windows timeout/hang by finalizing upstream delegation on `exit` and adding rollback-aware post-upstream handling. Hook test timeout debt remains intentionally routed to Phase 43 Plans 06-07.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
 - Codex `extractFrontmatterField` crash (RESOLVED -- fork-specific, 4 oversight agents had heading before frontmatter)
@@ -111,7 +114,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03T19:18:44.731Z
+Last session: 2026-07-03T21:57:52.215Z
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Completed 43-01-PLAN.md
+Stopped at: Completed 43-02-PLAN.md
 Resume file: None

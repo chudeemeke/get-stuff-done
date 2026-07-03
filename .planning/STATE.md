@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 41 COMPLETE. Next GSD path is Phase 42 planning: Budget Enforcement, Process Hardening, Cousin-Test."
-stopped_at: "2026-07-03 Phase 41 closed after 10x validation run 28639808289 passed on ubuntu-latest, macos-15, and windows-latest. Phase 42 planning is next; backlog 999.x items remain unpromoted unless explicitly selected."
-last_updated: "2026-07-03T06:35:00+01:00"
-last_activity: 2026-07-03 -- Phase 41 closed; Phase 42 next
+status: "Phase 42 PLANNED and externally reviewed with no remaining blockers. Ready to execute Plan 01: Perf budget comparison and CI enforcement."
+stopped_at: "2026-07-03 Phase 42 planning created context, research refresh, validation strategy, five executable plans, incorporated external plan-review findings, and passed second-pass review with no blockers/high/medium findings. Execute 42-01 first; backlog 999.x items remain unpromoted unless explicitly selected."
+last_updated: "2026-07-03T07:23:08+01:00"
+last_activity: 2026-07-03 -- Phase 42 plan review incorporated
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 16
+  total_plans: 21
   completed_plans: 11
-  planned_plans: 1
-  percent: 69
+  planned_plans: 5
+  percent: 52
 ---
 
 # Project State
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: Phase 42 (next) -- Budget Enforcement, Process Hardening, Cousin-Test
-Plan: Not started
-Status: Plan Phase 42 from the Phase 41 baselines and closure evidence; do not auto-promote backlog 999.x items without an explicit GSD planning decision
-Last activity: 2026-07-03 -- Phase 41 closed after successful 10x validation
+Plan: 5 planned; execute 42-01 first
+Status: Ready to execute Phase 42 from the Phase 41 baselines, closure evidence, and incorporated external plan-review corrections; second-pass review found no blockers/high/medium findings. Do not auto-promote backlog 999.x items without an explicit GSD planning decision
+Last activity: 2026-07-03 -- Phase 42 planned from durable repo artifacts and external review findings incorporated
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -64,6 +64,12 @@ v1.2.0 roadmap decisions:
 - Phase 40.6 completed 2026-06-23. UPGRADE-11 satisfied; package smoke passed from packed tarball; boundary checker remains known structural debt at 41 violations.
 - 2026-07-01 GSD self-routing/progress fix: `STATE.md` current phase is authoritative over older partial phase directories for `roadmap analyze` and `init progress`; effective plan counts must include ROADMAP `**Plans:**` / `**Plans**:` declarations so disk-only PLAN counts cannot report false completion.
 - 2026-07-01 memory-nexus milestone-scope fix: runtime roadmap parsing must prefer explicit `STATE.md` body milestone text over stale frontmatter, recognize active/in-progress ROADMAP milestone declarations, and filter shared `Phase Details` sections to the current milestone summary list so older milestone detail blocks cannot leak into current progress or next-phase selection.
+- 2026-07-03 Phase 42 planning decision: use `macos-15` instead of stale `macos-latest` wording because Phase 41 added a repository invariant forbidding `macos-latest`.
+- 2026-07-03 Phase 42 planning decision: add non-interactive `gsd --version --json` provenance before cousin-test CI, because the current launcher otherwise displays a banner and launches `claude`.
+- 2026-07-03 Phase 42 planning decision: `@chude/get-stuff-done@3.0.2` is public on npm, so cousin-test default path must not require a secret; optional read-only token support is allowed for private registry scenarios.
+- 2026-07-03 Phase 42 plan-review decision: runtime package provenance must read fork version from `package.json` and upstream identity from the upstream-authority helper, not hardcoded literal package/version values.
+- 2026-07-03 Phase 42 plan-review decision: docs gates target tracked markdown discovered with `git ls-files` semantics; recursive `**/*.md` globs are not sufficient because ignored generated/dependency copies can pollute the signal.
+- 2026-07-03 Phase 42 plan-review decision: perf budget thresholds are strict greater-than boundaries; exact `1.10` does not warn and exact `1.25` does not hard-fail.
 
 ### Roadmap Evolution
 
@@ -81,6 +87,7 @@ v1.2.0 roadmap decisions:
 - Aggregate coverage remains below the user's 95% per-metric standard even though the current repo command exits 0 (`bun test --coverage`: 94.86% functions, 93.08% lines on 2026-07-01).
 - Phase 41 Plan 04 implemented perf schemas, scripts, package commands, and a `workflow_dispatch` manual capture workflow. Real Linux/macOS/Windows artifacts from run `28638612289` generated `perf-baseline.json` and `.planning/perf/test-timing.json` after the bench script was corrected to use Bun's supported `--cwd` flag instead of unsupported `hyperfine --working-directory`.
 - Phase 41 Plan 07 implemented the `workflow_dispatch` 10x validation gate, weekly flake issue maintenance, and D-11/REL-03 maintenance-log discipline. Post-registration run `28639808289` passed on ubuntu-latest, macos-15, and windows-latest.
+- Phase 42 planning created five executable plans: 42-01 perf budget enforcement, 42-02 non-interactive runtime package provenance, 42-03 cousin cold-install workflow and INSTALL.md, 42-04 oversight principle/probes, and 42-05 markdown/link docs gates. Planning refresh found `markdownlint-cli2` latest `0.23.0`, `lycheeverse/lychee-action` v2 latest `v2.8.0`, and `@chude/get-stuff-done` npm latest `3.0.2`. External plan review found no blockers; accepted findings were incorporated; second-pass review found no blockers/high/medium findings. Review evidence is recorded in `.planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-PLAN-REVIEW.md`.
 - 2026-07-01 inbox triage fix closed the confirmed authkey `roadmap update-plan-progress` wrong-checkbox/CRLF issue and medesine-rx false-100% progress issue in code and tests. Memory-nexus v5/decimal roadmap drift is partially fixed in code and tests: `init execute-phase 42` now reports `v5.0`, `roadmap analyze` scopes to v5 phases only, and no v4 Phase 30/32.6 leakage remains. Memory-nexus Codex no-frontmatter installer crash is fixed/tested as of 2026-07-03; installer transaction/preflight/rollback, VERSION mapping clarity, config-schema drift, and grouped stale-STATE health diagnostics remain open. Plan 06 completed the remaining real test subprocess migration and added Windows flake telemetry; no active REL-03 skips exist.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
@@ -96,7 +103,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03 (Phase 41 closed after 10x validation run 28639808289; Plan 07 closure workflows completed and merged; Plan 04 real perf baselines completed from workflow run 28638612289; Plan 06 subprocess hardening and Windows flake telemetry merged; Codex no-frontmatter installer crash fixed/tested; GSD routing/progress-accounting and memory-nexus milestone-scope hotfixes verified; CI repair and hygiene cleanup remote-verified).
+Last session: 2026-07-03 (Phase 42 planning and external plan-review corrections completed after Phase 41 closure; Phase 41 closed after 10x validation run 28639808289; Plan 07 closure workflows completed and merged; Plan 04 real perf baselines completed from workflow run 28638612289; Plan 06 subprocess hardening and Windows flake telemetry merged; Codex no-frontmatter installer crash fixed/tested; GSD routing/progress-accounting and memory-nexus milestone-scope hotfixes verified; CI repair and hygiene cleanup remote-verified).
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Phase 41 is complete. Next up is Phase 42 planning against the committed perf baselines, override gate, audit surface, and successful 10x validation evidence. Do not resume backlog 999.x as the next path unless the user explicitly promotes it.
-Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md
+Stopped at: Phase 42 is planned, external review findings are incorporated, and second-pass review found no blockers/high/medium findings. Next up is executing 42-01-PLAN.md on a fresh implementation branch, then 42-02 and 42-04 can proceed in wave 1. Do not resume backlog 999.x as the next path unless the user explicitly promotes it.
+Resume file: .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-CONTEXT.md and .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-PLAN-REVIEW.md

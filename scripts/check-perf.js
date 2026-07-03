@@ -31,30 +31,30 @@ function parseArgs(argv) {
     failRatio: 1.25,
     help: false,
   };
+  const args = [...argv];
 
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i];
+  while (args.length > 0) {
+    const arg = args.shift();
     const [flag, inlineValue] = arg.split('=', 2);
-    const value = inlineValue === undefined ? argv[i + 1] : inlineValue;
-    const consumed = inlineValue === undefined;
+    const value = inlineValue === undefined ? args[0] : inlineValue;
 
     if (arg === '-h' || arg === '--help') {
       options.help = true;
     } else if (flag === '--baseline' && value) {
       options.baseline = path.resolve(value);
-      if (consumed) i++;
+      if (inlineValue === undefined) args.shift();
     } else if (flag === '--current' && value) {
       options.current = path.resolve(value);
-      if (consumed) i++;
+      if (inlineValue === undefined) args.shift();
     } else if (flag === '--platform' && value) {
       options.platform = value;
-      if (consumed) i++;
+      if (inlineValue === undefined) args.shift();
     } else if (flag === '--warn-ratio' && value) {
       options.warnRatio = Number(value);
-      if (consumed) i++;
+      if (inlineValue === undefined) args.shift();
     } else if (flag === '--fail-ratio' && value) {
       options.failRatio = Number(value);
-      if (consumed) i++;
+      if (inlineValue === undefined) args.shift();
     } else {
       throw new Error(`Unknown or incomplete option: ${arg}`);
     }
@@ -64,6 +64,8 @@ function parseArgs(argv) {
 }
 
 function readJson(filePath) {
+  // CLI inputs intentionally read user-supplied JSON paths after option parsing.
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
   return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 }
 
@@ -147,9 +149,23 @@ function formatRatio(value) {
   return value.toFixed(2);
 }
 
+function getPlatformBaseline(platforms, platform) {
+  if (platform === 'linux') return platforms.linux;
+  if (platform === 'macos') return platforms.macos;
+  if (platform === 'windows') return platforms.windows;
+  return undefined;
+}
+
+function getMetric(metrics, metric) {
+  if (metric === 'install') return metrics.install;
+  if (metric === 'compose') return metrics.compose;
+  return undefined;
+}
+
 function compareMetric({ baseline, current, platform, metric, warnRatio, failRatio }) {
-  const baselineMetric = baseline.platforms[platform][metric];
-  const currentMetric = current[metric];
+  const platformBaseline = getPlatformBaseline(baseline.platforms, platform);
+  const baselineMetric = platformBaseline ? getMetric(platformBaseline, metric) : null;
+  const currentMetric = getMetric(current, metric);
 
   if (!baselineMetric || typeof baselineMetric.mean_ms !== 'number') {
     throw new Error(`Missing baseline metric ${platform} ${metric}`);

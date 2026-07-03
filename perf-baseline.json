@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "capturedAt": "2026-07-03T04:48:43.893Z",
+    "nodeVersion": "per-platform",
+    "bunVersion": "per-platform",
+    "upstreamVersion": "1.5.0",
+    "hyperfineVersion": "per-platform",
+    "source": "merge:.planning\\perf\\artifacts\\run-28638612289"
+  },
+  "platforms": {
+    "linux": {
+      "install": {
+        "mean_ms": 133,
+        "stddev_ms": 3,
+        "min_ms": 131,
+        "max_ms": 138,
+        "samples": 5
+      },
+      "compose": {
+        "mean_ms": 232,
+        "stddev_ms": 3,
+        "min_ms": 228,
+        "max_ms": 237,
+        "samples": 5
+      }
+    },
+    "macos": {
+      "install": {
+        "mean_ms": 134,
+        "stddev_ms": 45,
+        "min_ms": 99,
+        "max_ms": 213,
+        "samples": 5
+      },
+      "compose": {
+        "mean_ms": 370,
+        "stddev_ms": 31,
+        "min_ms": 336,
+        "max_ms": 403,
+        "samples": 5
+      }
+    },
+    "windows": {
+      "install": {
+        "mean_ms": 10203,
+        "stddev_ms": 2264,
+        "min_ms": 8686,
+        "max_ms": 14153,
+        "samples": 5
+      },
+      "compose": {
+        "mean_ms": 595,
+        "stddev_ms": 23,
+        "min_ms": 571,
+        "max_ms": 630,
+        "samples": 5
+      }
+    }
+  },
+  "acceptedRegressions": []
+}

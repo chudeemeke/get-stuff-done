@@ -1,65 +1,60 @@
 # Phase 41 Plan 04 Summary
 
-**Status:** Blocked at real three-platform capture
-**Updated:** 2026-07-01T16:35:35+01:00
+**Status:** Complete locally; PR pending
+**Updated:** 2026-07-03T05:00:00+01:00
 
 ## Outcome
 
-Plan 04 implemented the local benchmark harness, strict JSON schemas, package commands, local timing smoke path, and manual GitHub Actions capture workflow.
+Plan 04 now has real three-platform performance artifacts. The default-branch
+registration blocker was cleared by the merged workflow, the first dispatch
+exposed a real `hyperfine` incompatibility, and the corrected branch run produced
+Linux, macOS, and Windows artifacts that were merged into:
 
-Plan 04 is not complete. `perf-baseline.json` and `.planning/perf/test-timing.json` are intentionally absent because they require real Linux, macOS, and Windows artifacts from a registered `workflow_dispatch` workflow. No placeholder platform numbers were committed.
+- `perf-baseline.json`
+- `.planning/perf/test-timing.json`
 
-## Implemented
+No placeholder platform numbers were committed.
 
-- `config/perf-baseline.schema.json` validates the future committed install/compose baseline and requires `linux`, `macos`, `windows`, and `acceptedRegressions`.
-- `config/test-timing.schema.json` validates the future committed test timing artifact and rejects partial/local-only timing output.
-- `scripts/bench.js` captures hyperfine install/compose metrics, uses scratch install directories with `bun install --ignore-scripts`, supports partial platform capture, and merges required platform artifacts.
-- `scripts/bench-test-timing.js` captures Bun JUnit timing, supports local partial smoke output, and merges required platform timing artifacts.
-- `package.json` now exposes `bun run bench` and `bun run bench:test-timing`.
-- `.github/workflows/perf-baseline.yml` is `workflow_dispatch` only, captures `linux`, `macos`, and `windows`, installs hyperfine per runner, pins the macOS runner to `macos-15`, and merges uploaded artifacts.
+## Capture Runs
 
-## Verification
+- Failed registration-cycle run:
+  `https://github.com/chudeemeke/get-stuff-done/actions/runs/28636289286`
+  on `main` failed on all three capture jobs because `scripts/bench.js` passed
+  unsupported `hyperfine --working-directory`.
+- Successful artifact run:
+  `https://github.com/chudeemeke/get-stuff-done/actions/runs/28638612289`
+  on `phase41-plan04-perf-capture-20260703` commit `1886869` passed all capture
+  jobs and the merge job.
 
-- `bun test tests/perf-baseline-schema.test.js tests/test-timing-schema.test.js`: passed during schema implementation.
-- `bun test tests/bench.test.js tests/bench-test-timing.test.js`: passed during script implementation.
-- `bun test tests/perf-baseline-schema.test.js tests/test-timing-schema.test.js tests/bench.test.js tests/bench-test-timing.test.js`: 16 pass after workflow implementation.
-- `node scripts/bench.js --help`: passed.
-- `node scripts/bench-test-timing.js --help`: passed.
-- `bun run bench:test-timing -- --platform local --runs 1 --out .planning/perf/test-timing.local.json`: passed and wrote a partial local artifact.
-- `node scripts/bench-test-timing.js --merge .planning/perf --require-platforms linux,macos,windows --out .planning/perf/test-timing.json`: failed as expected when required platform artifacts were missing.
-- `node scripts/bench.js --merge .planning/perf --require-platforms linux,macos,windows --out perf-baseline.json`: failed as expected when required platform artifacts were missing.
-- `bash scripts/lint-workflows.sh`: passed.
-
-The temporary local timing artifact was removed after smoke verification. `perf-baseline.json`, `.planning/perf/test-timing.json`, and `.planning/perf/test-timing.local.json` do not exist in the worktree.
+The fix uses Bun's supported `bun install --ignore-scripts --cwd <scratch-dir>`
+instead of the unsupported hyperfine working-directory flag while preserving the
+scratch install invariant.
 
 ## Benchmark Sources
 
-| Platform | Source | Status |
-| --- | --- | --- |
-| linux | `perf-linux.json` and `test-timing-linux.json` from `.github/workflows/perf-baseline.yml` | Missing; workflow not registered on `origin/main` yet |
-| macos | `perf-macos.json` and `test-timing-macos.json` from `.github/workflows/perf-baseline.yml` on `macos-15` | Missing; workflow not registered on `origin/main` yet |
-| windows | `perf-windows.json` and `test-timing-windows.json` from `.github/workflows/perf-baseline.yml` | Missing; workflow not registered on `origin/main` yet |
+| Platform | Node | Bun | hyperfine | install mean | compose mean | test total mean | test files |
+| --- | --- | --- | --- | ---: | ---: | ---: | ---: |
+| linux | v22.23.1 | 1.3.14 | hyperfine 1.18.0 | 133 ms | 232 ms | 38351 ms | 407 |
+| macOS | v22.23.1 | 1.3.14 | hyperfine 1.20.0 | 134 ms | 370 ms | 35509 ms | 407 |
+| windows | v22.23.1 | 1.3.14 | hyperfine 1.20.0 | 10203 ms | 595 ms | 130987 ms | 407 |
 
-Workflow run URL: none. The manual workflow exists in commit `6454a4345a933c0d75b4dc58e7ba9356b850d58d`, but it has not been registered on `origin/main`.
+Merged artifact source directory:
+`.planning/perf/artifacts/run-28638612289` (local scratch, removed before commit).
 
-Hyperfine runner status:
+## Verification
 
-- linux: not observed yet.
-- macos: not observed yet.
-- windows: not observed yet.
+- `bun test tests/bench.test.js` -- 5 pass, 0 fail.
+- `node --check scripts\bench.js` -- pass.
+- `node scripts\bench.js --help` -- pass.
+- `node scripts\bench-test-timing.js --help` -- pass.
+- `bun test tests\bench.test.js tests\bench-test-timing.test.js tests\perf-baseline-schema.test.js tests\test-timing-schema.test.js` -- 16 pass, 0 fail.
+- `bash scripts\lint-workflows.sh` -- pass.
+- `bun run lint` -- exits 0 with the existing 135-warning lint surface.
+- `node scripts\bench.js --merge .planning\perf\artifacts\run-28638612289 --require-platforms linux,macos,windows --out perf-baseline.json` -- pass.
+- `node scripts\bench-test-timing.js --merge .planning\perf\artifacts\run-28638612289 --require-platforms linux,macos,windows --out .planning\perf\test-timing.json` -- pass.
 
-## Blocker
+## Remaining Phase 41 Gate
 
-GitHub can dispatch `workflow_dispatch` only after the workflow exists on the default branch. `origin/main` is `chudeemeke/get-stuff-done`; the local Phase 41 branch is fast-forwardable but 88 commits ahead of `origin/main`.
-
-Required capture sequence:
-
-1. Register `.github/workflows/perf-baseline.yml` on the default branch.
-2. Run `gh workflow run perf-baseline.yml --ref worktree-agent-a1c0cd52236103329 --repo chudeemeke/get-stuff-done`.
-3. Download artifacts with `gh run download`.
-4. Merge real artifacts:
-   - `node scripts/bench.js --merge <artifact-dir> --require-platforms linux,macos,windows --out perf-baseline.json`
-   - `node scripts/bench-test-timing.js --merge <artifact-dir> --require-platforms linux,macos,windows --out .planning/perf/test-timing.json`
-5. Commit `perf-baseline.json` and `.planning/perf/test-timing.json` only after the merge commands pass.
-
-Do not mark `PERF-01` or `PERF-02` complete before this sequence produces real three-platform artifacts.
+Plan 07 remains open for REL-01/REL-03 closure. Phase 41 still cannot close until
+the 10x validation workflow exists on the default branch and passes, or residual
+flakes are made visible through the D-11/REL-03 process.

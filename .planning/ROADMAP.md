@@ -162,7 +162,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist, included in both the tarball and the GitHub release artifact.
 **Plans**: 12 plans (checker-verified 2026-07-03)
-- [ ] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
+- [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [ ] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [ ] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
 - [ ] 43-04-PLAN.md -- Wave 4: Compatibility matrix evidence and CI
@@ -201,7 +201,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 0/12 | Planned; checker verified | - |
+| 43 | v1.2.0 | 1/12 | In Progress|  |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog

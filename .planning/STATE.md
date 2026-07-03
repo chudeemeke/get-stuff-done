@@ -2,17 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 43 planned and checker-verified; ready to execute twelve serialized plans."
-stopped_at: "Phase 43 planning complete; proceed to execution"
-last_updated: "2026-07-03T19:57:07.2708047+01:00"
-last_activity: "2026-07-03 -- Phase 43 checker passed after plan set split into twelve execution units"
+status: executing
+stopped_at: Completed 43-01-PLAN.md
+last_updated: "2026-07-03T19:18:44.745Z"
+last_activity: 2026-07-03
 progress:
-  total_phases: 6
+  total_phases: 10
   completed_phases: 3
-  total_plans: 33
-  completed_plans: 16
-  planned_plans: 12
-  percent: 48
+  total_plans: 34
+  completed_plans: 20
+  percent: 59
 ---
 
 # Project State
@@ -22,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 43 Upgrade Resilience, Verify, Matrix, Dogfood
+**Current focus:** Phase 43 — upgrade-resilience-verify-matrix-dogfood
 
 ## Current Position
 
-Phase: Phase 43 (planned) -- Upgrade Resilience, Verify, Matrix, Dogfood
-Plan: 12 executable plans pending (43-01 through 43-12)
-Status: Phase 43 planned and checker-verified; ready to execute twelve serialized plans.
-Last activity: 2026-07-03 -- Phase 43 checker passed after plan set split into twelve execution units.
+Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
+Plan: 2 of 12
+Status: Ready to execute
+Last activity: 2026-07-03
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -112,7 +111,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03 (PR #22 merged; root-local inbox handoffs reconciled; Phase 43 context gathered for planning.)
+Last session: 2026-07-03T19:18:44.731Z
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Phase 43 context gathered; proceed to Phase 43 planning
-Resume file: .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-CONTEXT.md
+Stopped at: Completed 43-01-PLAN.md
+Resume file: None

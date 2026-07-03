@@ -9,7 +9,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 
 ### UPGRADE (upgrade resilience)
 
-- [ ] **UPGRADE-01**: `scripts/verify-upgrade.js` orchestrates the full upgrade cycle (install prior version -> bump upstream -> recompose -> reinstall -> smoke-verify) against a Verdaccio local registry
+- [x] **UPGRADE-01**: `scripts/verify-upgrade.js` orchestrates the full upgrade cycle (install prior version -> bump upstream -> recompose -> reinstall -> smoke-verify) against a Verdaccio local registry
 - [ ] **UPGRADE-02**: Historical-version compat matrix runs in CI against N=3 most recent vetted upstream versions, driven by `.planning/vetted-upstream-versions.json`
 - [x] **UPGRADE-03**: Override staleness enforcement is a BLOCKING CI gate (distinct from informational boundary/compat jobs); `scripts/check-overrides.js` exit-on-fail is wired into CI
 - [ ] **UPGRADE-04**: `.planning/vetted-upstream-versions.json` tracks the N=3 vetted upstream versions as the compat matrix source of truth; pruning on bump is automated
@@ -113,7 +113,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UPGRADE-01 | Phase 43 | Pending |
+| UPGRADE-01 | Phase 43 | Complete |
 | UPGRADE-02 | Phase 43 | Pending |
 | UPGRADE-03 | Phase 41 | Complete |
 | UPGRADE-04 | Phase 43 | Pending |

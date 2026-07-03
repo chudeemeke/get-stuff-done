@@ -201,6 +201,15 @@ function checkUpdateCacheFile(homeDir) {
   return path.join(checkUpdateCacheDir(homeDir), CHECK_UPDATE_CACHE_FILE_NAME);
 }
 
+function writeStateFile(projectDir, frontmatter, body = '# Project State\n\nPhase: 43 of 12 (upgrade-resilience)\n') {
+  const planningDir = path.join(projectDir, '.planning');
+  fs.mkdirSync(planningDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(planningDir, 'STATE.md'),
+    `---\n${frontmatter.trim()}\n---\n\n${body}`
+  );
+}
+
 // Hook paths derived from the SSOT manifest (hooks/index.js + ADR-0001).
 // Test code MUST NOT hardcode hook locations — that pattern caused a 50-day
 // CI redness during the v3.0.0 architecture transition. See 40.5-CI-DIAGNOSIS.md.
@@ -944,6 +953,91 @@ describe('overrides/hooks/gsd-statusline.js', () => {
     // Should produce empty output on parse error (silent fail)
     expect(output.length).toBe(0);
   });
+
+  test('renders active phase lifecycle fields from STATE frontmatter', () => {
+    const projectDir = path.join(tempHome, 'project-active');
+    fs.mkdirSync(projectDir, { recursive: true });
+    writeStateFile(projectDir, `
+milestone: v1.2.0
+milestone_name: Ship-Ready Hardening
+status: executing
+active_phase: 43
+next_action: null
+next_phases: []
+progress:
+  completed_phases: 3
+  total_phases: 10
+  percent: 74
+`);
+
+    const output = runNodeOrThrow(HOOKS.statusline, {
+      input: JSON.stringify({
+        model: { display_name: 'Claude Sonnet' },
+        workspace: { current_dir: projectDir },
+        context_window: { remaining_percentage: 80 }
+      }),
+      encoding: 'utf8',
+      env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
+      timeout: 5000
+    });
+
+    expect(output).toContain('v1.2.0');
+    expect(output).toContain('74%');
+    expect(output).toContain('Phase 43 executing');
+  });
+
+  test('renders next_action and next_phases when no active phase exists', () => {
+    const projectDir = path.join(tempHome, 'project-next');
+    fs.mkdirSync(projectDir, { recursive: true });
+    writeStateFile(projectDir, `
+milestone: v1.2.0
+milestone_name: Ship-Ready Hardening
+status: executing
+active_phase: null
+next_action: execute-phase
+next_phases: [43]
+progress:
+  completed_phases: 3
+  total_phases: 10
+  percent: 74
+`);
+
+    const output = runNodeOrThrow(HOOKS.statusline, {
+      input: JSON.stringify({
+        model: { display_name: 'Claude Sonnet' },
+        workspace: { current_dir: projectDir },
+        context_window: { remaining_percentage: 80 }
+      }),
+      encoding: 'utf8',
+      env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
+      timeout: 5000
+    });
+
+    expect(output).toContain('next execute-phase 43');
+  });
+
+  test('uses CLAUDE_CODE_AUTO_COMPACT_WINDOW for context scaling', () => {
+    const output = runNodeOrThrow(HOOKS.statusline, {
+      input: JSON.stringify({
+        model: { display_name: 'Claude Sonnet' },
+        workspace: { current_dir: tempHome },
+        context_window: {
+          remaining_percentage: 75,
+          total_tokens: 100
+        }
+      }),
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        HOME: tempHome,
+        USERPROFILE: tempHome,
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: '50'
+      },
+      timeout: 5000
+    });
+
+    expect(output).toContain('50%');
+  });
 });
 
 describe('overlay/hooks/gsd-statusline.js (maintainer notification)', () => {
@@ -955,7 +1049,7 @@ describe('overlay/hooks/gsd-statusline.js (maintainer notification)', () => {
     tempHome = temp.path;
     cleanup = temp.cleanup;
     // Create cache directory for writing test cache files
-    fs.mkdirSync(path.join(tempHome, '.claude', 'cache'), { recursive: true });
+    fs.mkdirSync(checkUpdateCacheDir(tempHome), { recursive: true });
   });
 
   afterEach(() => {
@@ -963,8 +1057,11 @@ describe('overlay/hooks/gsd-statusline.js (maintainer notification)', () => {
   });
 
   function writeMockCache(tempHome, cacheData) {
-    const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
-    fs.writeFileSync(cacheFile, JSON.stringify(cacheData));
+    const cacheFile = checkUpdateCacheFile(tempHome);
+    fs.writeFileSync(cacheFile, JSON.stringify({
+      package_name: '@chude/get-stuff-done',
+      ...cacheData
+    }));
     return cacheFile;
   }
 
@@ -1521,6 +1618,18 @@ describe('overlay/hooks/gsd-check-update.js (timeout and paths)', () => {
 });
 
 describe('overlay/hooks/gsd-statusline.js (timeout and paths)', () => {
+  test('declares phase lifecycle and autocompact env-var seams', () => {
+    const src = fs.readFileSync(HOOKS.statusline, 'utf8');
+    expect(src).toContain('active_phase');
+    expect(src).toContain('next_action');
+    expect(src).toContain('next_phases');
+    expect(src).toContain('completed_phases');
+    expect(src).toContain('total_phases');
+    expect(src).toContain('percent');
+    expect(src).toContain('CLAUDE_CODE_AUTO_COMPACT_WINDOW');
+    expect(src).toContain('gsd.role');
+  });
+
   test('has stdin timeout guard (3s safety net per D-08)', () => {
     const src = fs.readFileSync(HOOKS.statusline, 'utf8');
     expect(src).toContain('stdinTimeout');

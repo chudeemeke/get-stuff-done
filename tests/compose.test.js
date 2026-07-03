@@ -53,6 +53,7 @@ const {
   FEATURES_SCHEMA,
   CATEGORY_DIR_MAP,
 } = require('../scripts/compose');
+const { HOOKS_NEEDING_BUNDLE } = require('../scripts/finalize-dist');
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -152,6 +153,17 @@ describe('pipeline stage exports (COMP-10)', () => {
 
   test('compose is an exported function', () => {
     expect(typeof compose).toBe('function');
+  });
+});
+
+describe('finalize-dist hook packaging', () => {
+  test('bundled hook list includes check-update worker when worker source exists', () => {
+    const workerSource = path.join(PROJECT_ROOT, 'overrides', 'hooks', 'gsd-check-update-worker.js');
+    if (!fs.existsSync(workerSource)) return;
+
+    expect(HOOKS_NEEDING_BUNDLE).toContain('gsd-check-update.js');
+    expect(HOOKS_NEEDING_BUNDLE).toContain('gsd-statusline.js');
+    expect(HOOKS_NEEDING_BUNDLE).toContain('gsd-check-update-worker.js');
   });
 });
 

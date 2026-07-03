@@ -144,7 +144,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A cousin-test CI job cold-installs public `@chude/get-stuff-done` on fresh ubuntu-latest + macos-15 + windows-latest x Node 20+22 x bun/npm/pnpm, supports an optional read-only registry token, runs `gsd --version --json`, and asserts the fork+upstream+overlay manifest hash are present in the output.
   6. `INSTALL.md` documents the cousin-test scenario; lychee + markdownlint-cli2 run on every PR against tracked markdown and fail on broken links or markdown-lint violations without scanning ignored generated/dependency copies.
 **Plans**:
-- [ ] 42-01-PLAN.md -- Wave 1: Perf budget comparison and CI enforcement
+- [x] 42-01-PLAN.md -- Wave 1: Perf budget comparison and CI enforcement
 - [ ] 42-02-PLAN.md -- Wave 1: Non-interactive launcher provenance output
 - [ ] 42-04-PLAN.md -- Wave 1: Evidence-before-claim oversight principle and probes
 - [ ] 42-03-PLAN.md -- Wave 2: Cousin cold-install workflow and INSTALL.md
@@ -188,7 +188,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.5 | v1.2.0 | 4/5 evidence | Partial; Wave 5 legacy filing path retired by Phase 40.6 | - |
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
-| 42 | v1.2.0 | 0/5 | Planned | - |
+| 42 | v1.2.0 | 1/5 | In Progress | - |
 | 43 | v1.2.0 | 0/TBD | Not started | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 

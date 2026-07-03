@@ -74,6 +74,7 @@
     "prepublishOnly": "bun run dist",
     "audit:ci": "node scripts/audit-check.js",
     "bench": "node scripts/bench.js",
+    "perf:check": "node scripts/check-perf.js",
     "bench:test-timing": "node scripts/bench-test-timing.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

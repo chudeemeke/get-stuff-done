@@ -244,3 +244,33 @@ describe('Phase 43 upgrade verifier workflow', () => {
     expect(workflow).toContain('upgrade-report.json');
   });
 });
+
+describe('Phase 43 compat matrix workflow', () => {
+  test('compat matrix validates vetted pins, runs report-only matrix, and uploads evidence', () => {
+    const workflow = readWorkflow('compat-matrix.yml');
+
+    expect(workflow).toContain('schedule:');
+    expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).toContain('pull_request:');
+    expect(workflow).toContain('.planning/vetted-upstream-versions.json');
+    expect(workflow).toContain('.planning/upstream-authority.json');
+    expect(workflow).toContain('package.json');
+    expect(workflow).toContain('bun.lock');
+    expect(workflow).toContain('scripts/run-compat-matrix.js');
+    expect(workflow).toContain('scripts/run-upstream-compat*.js');
+    expect(workflow).toContain('overlay/**');
+    expect(workflow).toContain('overrides/**');
+    expect(workflow).toContain('actions/setup-node@v6');
+    expect(workflow).toContain('node-version: "22"');
+    expect(workflow).toContain('oven-sh/setup-bun@v2');
+    expect(workflow).toContain('bun install --frozen-lockfile --ignore-scripts');
+    expect(workflow).toContain('node scripts/vetted-upstream-versions.js --validate');
+    expect(workflow).toContain('node scripts/run-compat-matrix.js --manifest .planning/vetted-upstream-versions.json --json --report compat-matrix-report.json');
+    expect(workflow).toContain('Compatibility matrix reported blocking drift; workflow remains informational per AF-7.');
+    expect(workflow).toContain('exit 0');
+    expect(workflow).not.toContain('continue-on-error: true');
+    expect(workflow).toContain('actions/upload-artifact@v7');
+    expect(workflow).toContain('compat-matrix-report.json');
+    expect(workflow).toContain('if-no-files-found: error');
+  });
+});

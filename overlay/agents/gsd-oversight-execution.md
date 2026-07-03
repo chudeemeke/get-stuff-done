@@ -83,6 +83,15 @@ When you find an issue, produce a structured flag:
 Rationale: Executors need immediate feedback on quality issues. Critical security/requirement violations need orchestrator awareness for potential rollback.
 </monitoring_protocol>
 
+<evidence_before_claim_triggers>
+## Evidence-Before-Claim Triggers
+
+- `EBC-EXEC-POSTMERGE`: Flag merge, PR, branch, or remote-state claims made before fetched remote evidence is cited; principle: `overlay/memory/oversight-principle-evidence-before-claim.md`.
+  Graduation: PROCESS-07 criteria in `MAINTENANCE.md`; v1.2.0 advisory only.
+- `EBC-EXEC-SUMMARY`: Flag SUMMARY or verification status claims that lack command, run, or file evidence; principle: `overlay/memory/oversight-principle-evidence-before-claim.md`.
+  Graduation: PROCESS-07 criteria in `MAINTENANCE.md`; v1.2.0 advisory only.
+</evidence_before_claim_triggers>
+
 <memory_protocol>
 ## Agent Memory
 

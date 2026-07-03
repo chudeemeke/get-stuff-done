@@ -141,3 +141,21 @@ describe('Phase 42 perf budget workflow', () => {
     expect(perfJob).toContain('node scripts/check-perf.js --baseline perf-baseline.json --current perf-current.json --platform ${{ matrix.platform }} --warn-ratio 1.10 --fail-ratio 1.25');
   });
 });
+
+describe('Phase 42 oversight probes workflow', () => {
+  test('oversight probes run on schedule, manual dispatch, and relevant pull request paths', () => {
+    const workflow = readWorkflow('oversight-probes.yml');
+
+    expect(workflow).toContain('schedule:');
+    expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).toContain('pull_request:');
+    expect(workflow).toContain('overlay/memory/oversight-principle-evidence-before-claim.md');
+    expect(workflow).toContain('overlay/agents/gsd-oversight-execution.md');
+    expect(workflow).toContain('overlay/agents/gsd-oversight-verification.md');
+    expect(workflow).toContain('overlay/agents/gsd-oversight-planning.md');
+    expect(workflow).toContain('scripts/verify-oversight-probes.js');
+    expect(workflow).toContain('tests/verify-oversight-probes.test.js');
+    expect(workflow).toContain('uses: oven-sh/setup-bun@v2');
+    expect(workflow).toContain('node scripts/verify-oversight-probes.js');
+  });
+});

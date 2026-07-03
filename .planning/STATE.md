@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 42 EXECUTING. Plan 02 runtime package provenance complete; Plan 04 oversight probes are next, and Plan 03 cousin CI is now unblocked."
-stopped_at: "2026-07-03 Completed 42-02-PLAN.md with non-interactive `gsd --version --json` runtime package provenance derived from package.json, upstream authority, dist metadata, and dist overlay manifest hash. Continue with 42-04 next per Wave 1, then 42-03 cousin cold-install workflow."
-last_updated: "2026-07-03T07:37:00Z"
-last_activity: 2026-07-03 -- Phase 42 Plan 02 complete
+status: "Phase 42 EXECUTING. Plans 01, 02, and 04 are complete; Plan 03 cousin cold-install CI is next, then Plan 05 docs gates."
+stopped_at: "2026-07-03 Completed 42-04-PLAN.md with evidence-before-claim principle, four compact advisory triggers, deterministic probe harness, weekly PR workflow, and PROCESS-07 graduation criteria. Continue with 42-03 cousin cold-install workflow."
+last_updated: "2026-07-03T08:08:26Z"
+last_activity: 2026-07-03 -- Phase 42 Plan 04 complete
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 21
-  completed_plans: 13
-  planned_plans: 3
-  percent: 62
+  completed_plans: 14
+  planned_plans: 2
+  percent: 67
 ---
 
 # Project State
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: Phase 42 (executing) -- Budget Enforcement, Process Hardening, Cousin-Test
-Plan: 2/5 complete; next is 42-04 evidence-before-claim oversight principle and probes
-Status: Plans 01 and 02 complete from Phase 41 baselines and external-review-corrected Phase 42 plan; Plan 03 cousin CI is unblocked but Wave 1 still has Plan 04 open
-Last activity: 2026-07-03 -- Plan 02 runtime package provenance completed
+Plan: 3/5 complete; next is 42-03 cousin cold-install workflow
+Status: Plans 01, 02, and 04 are complete from the external-review-corrected Phase 42 plan; Plan 03 cousin CI is unblocked and owns the cold-install matrix
+Last activity: 2026-07-03 -- Plan 04 evidence-before-claim oversight probes completed
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -74,6 +74,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-03 Phase 42 Plan 01 decision: `acceptedRegressions[]` entries must include reviewed metadata plus either `platform` + `metric` or explicit `scope: "global"`; missing targets are not wildcard approvals.
 - 2026-07-03 Phase 42 Plan 02 decision: `gsd --version` and `gsd --version --json` exit before config migration, startup banner, or `claude` spawn; runtime package provenance is a non-interactive trust surface for cousin CI.
 - 2026-07-03 Phase 42 Plan 02 decision: runtime package provenance derives fork name/version from package.json, upstream package from the upstream-authority helper, upstream version from `dist/.install-meta.json` when available, and overlay manifest identity from the SHA-256 of `dist/.overlay-manifest.json`.
+- 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
 
@@ -92,7 +93,8 @@ v1.2.0 roadmap decisions:
 - Phase 41 Plan 04 implemented perf schemas, scripts, package commands, and a `workflow_dispatch` manual capture workflow. Real Linux/macOS/Windows artifacts from run `28638612289` generated `perf-baseline.json` and `.planning/perf/test-timing.json` after the bench script was corrected to use Bun's supported `--cwd` flag instead of unsupported `hyperfine --working-directory`.
 - Phase 41 Plan 07 implemented the `workflow_dispatch` 10x validation gate, weekly flake issue maintenance, and D-11/REL-03 maintenance-log discipline. Post-registration run `28639808289` passed on ubuntu-latest, macos-15, and windows-latest.
 - Phase 42 planning created five executable plans: 42-01 perf budget enforcement, 42-02 non-interactive runtime package provenance, 42-03 cousin cold-install workflow and INSTALL.md, 42-04 oversight principle/probes, and 42-05 markdown/link docs gates. Planning refresh found `markdownlint-cli2` latest `0.23.0`, `lycheeverse/lychee-action` v2 latest `v2.8.0`, and `@chude/get-stuff-done` npm latest `3.0.2`. External plan review found no blockers; accepted findings were incorporated; second-pass review found no blockers/high/medium findings. Review evidence is recorded in `.planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-PLAN-REVIEW.md`.
-- Phase 42 Plan 02 PR #18 first CI run `28645820292` exposed macOS install perf-budget variance: current 176ms vs baseline 134ms, ratio 1.31, but delta 42ms remained within baseline stddev 45ms. `perf-baseline.json` now contains a targeted accepted regression for `macos` + `install`, maxRatio 1.4, expiring 2026-07-10. Replace with rebaseline or variance-aware policy if it recurs.
+- Phase 42 Plan 02 PR #18 first CI run `28645820292` exposed macOS install perf-budget variance: current 176ms vs baseline 134ms, ratio 1.31, but delta 42ms remained within baseline stddev 45ms. Phase 42 Plan 04 PR #19 run `28647664953` recurred at 228ms vs 134ms, ratio 1.70, on macos-15-arm64 runner image `20260623.0190`. `perf-baseline.json` now contains targeted accepted regressions for `macos` + `install`, maxRatio 1.4 for PR #18 and maxRatio 1.8 for PR #19, both expiring 2026-07-10. Replace with rebaseline or variance-aware policy if it recurs.
+- Phase 42 Plan 04 completed PROCESS-01 through PROCESS-07: four advisory triggers (`EBC-EXEC-POSTMERGE`, `EBC-EXEC-SUMMARY`, `EBC-VERIFY-CI-BEFORE-MEASURE`, `EBC-PLAN-METRIC-COMPAT`) are mechanically probed by `scripts/verify-oversight-probes.js` and `.github/workflows/oversight-probes.yml`.
 - 2026-07-01 inbox triage fix closed the confirmed authkey `roadmap update-plan-progress` wrong-checkbox/CRLF issue and medesine-rx false-100% progress issue in code and tests. Memory-nexus v5/decimal roadmap drift is partially fixed in code and tests: `init execute-phase 42` now reports `v5.0`, `roadmap analyze` scopes to v5 phases only, and no v4 Phase 30/32.6 leakage remains. Memory-nexus Codex no-frontmatter installer crash is fixed/tested as of 2026-07-03; installer transaction/preflight/rollback, VERSION mapping clarity, config-schema drift, and grouped stale-STATE health diagnostics remain open. Plan 06 completed the remaining real test subprocess migration and added Windows flake telemetry; no active REL-03 skips exist.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
@@ -108,7 +110,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03 (Phase 42 Plan 02 completed after Plan 01 merged. Launcher now exposes non-interactive `gsd --version --json` runtime package provenance with packageName, version, upstreamPackage, upstreamVersion, and overlayManifestSha256. Phase 42 Plan 01 perf-budget CI was merged in PR #17.)
+Last session: 2026-07-03 (Phase 42 Plan 04 completed after Plans 01 and 02 merged. PROCESS-01 through PROCESS-07 are complete locally; next is Plan 03 cousin cold-install workflow.)
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Completed 42-02-PLAN.md locally; PR validation/merge should finish, then continue Phase 42 Plan 04 before Phase 42 Plan 03 unless replanned.
-Resume file: .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-04-PLAN.md
+Stopped at: Completed 42-04-PLAN.md locally; validate PR/CI/merge, then continue Phase 42 Plan 03 unless replanned.
+Resume file: .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-03-PLAN.md

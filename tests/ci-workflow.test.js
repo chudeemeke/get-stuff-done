@@ -191,3 +191,28 @@ describe('Phase 42 cousin install workflow', () => {
     expect(workflow).toContain('--version --json');
   });
 });
+
+describe('Phase 42 docs gates workflow', () => {
+  test('docs gate lints and link-checks tracked markdown with narrow exclusions', () => {
+    const workflow = readCiWorkflow();
+    const docsJobStart = workflow.indexOf('docs-gates:');
+    const nextJobStart = workflow.indexOf('\n  osv-scanner:', docsJobStart);
+    const docsJob = workflow.slice(docsJobStart, nextJobStart);
+
+    expect(docsJobStart).toBeGreaterThan(-1);
+    expect(docsJob).toContain('name: Docs Gates');
+    expect(docsJob).toContain('uses: oven-sh/setup-bun@v2');
+    expect(docsJob).toContain('bun install --frozen-lockfile --ignore-scripts');
+    expect(docsJob).toContain('bun run lint:docs');
+    expect(docsJob).toContain('lycheeverse/lychee-action@v2');
+    expect(docsJob).toContain('--files-from .lychee-targets');
+    expect(docsJob).toContain('ls-files "*.md"');
+    expect(docsJob).not.toContain('**/*.md');
+    expect(docsJob).toContain('node_modules/');
+    expect(docsJob).toContain('dist/');
+    expect(docsJob).toContain('.upstream/');
+    expect(docsJob).toContain('overlay/get-shit-done/');
+    expect(docsJob).not.toContain('.planning/');
+    expect(docsJob).not.toContain('docs/');
+  });
+});

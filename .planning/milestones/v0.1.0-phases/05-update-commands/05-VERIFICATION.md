@@ -73,7 +73,7 @@ None identified. The implementation is clean with proper error handling, retry l
 #### 1. Update Workflow End-to-End
 
 **Test:** Run /gsd:update in a test environment
-**Expected:** 
+**Expected:**
 - Checks installed version from ~/.claude/get-stuff-done/VERSION
 - Fetches latest version from npm registry
 - Shows changelog diff

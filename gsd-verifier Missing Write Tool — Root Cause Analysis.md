@@ -1,5 +1,5 @@
 Research: gsd-verifier Missing Write Tool — Root Cause Analysis
-                                                          
+
  Finding: Day-One Bug, NOT a v1.17.0 → v1.18.0 Regression
 
 The Write tool was never present in gsd-verifier.md. The diff between v1.17.0 and v1.18.0 shows zero changes to this file. Both versions have identical frontmatter:

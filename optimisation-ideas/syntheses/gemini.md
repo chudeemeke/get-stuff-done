@@ -9,7 +9,7 @@ In LLM systems, **Context is Noise**. Every irrelevant line of TDD instruction l
 ## 2. Structural Synthesis: The Three Pillars
 
 ### Pillar I: The "Railroad" Spine (Deterministic Logic)
-We will move workflow management out of the LLM's head and into `gsd-tools.js`. 
+We will move workflow management out of the LLM's head and into `gsd-tools.js`.
 - **The Shift:** Instead of an Agent reading a 300-line `execute-phase.md` to figure out what to do next, it calls `gsd-tools next-step`.
 - **The Result:** The LLM's context window is freed from "Process Overhead" and reserved entirely for "Task Logic."
 
@@ -30,7 +30,7 @@ We will move away from monolithic sessions.
 *Example: Running `gsd execute-phase`*
 
 1.  **State Check:** `gsd-tools` reads `.planning/state.json`.
-2.  **Context Assembly:** 
+2.  **Context Assembly:**
     - Loads `gsd-executor-core.md` (Base identity).
     - Detects "TDD" flag in task: Injects `references/tdd.md`.
     - Detects "API" change: Injects `history-digest.json` filtered for "API" tags.
@@ -67,6 +67,6 @@ We will move away from monolithic sessions.
 ---
 
 ## 5. Risk Assessment: "The Instruction Guardrail"
-You noted that **instructional content is crucial**. 
-- **Mitigation:** We do not "slim" the instructions; we **modularize** them. 
+You noted that **instructional content is crucial**.
+- **Mitigation:** We do not "slim" the instructions; we **modularize** them.
 - **Example:** The TDD protocol remains exactly as detailed as it is today, but it simply *does not exist* in the LLM's mind when it is renaming a file or updating a README. This actually **improves** TDD fidelity because the LLM isn't distracted by other protocols.

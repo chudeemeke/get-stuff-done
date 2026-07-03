@@ -56,6 +56,31 @@ jobs:
       - run: npm install --package-lock-only --ignore-scripts
       - run: bun run audit:ci
 
+  docs-gates:
+    name: Docs Gates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun run lint:docs
+      - name: Collect tracked markdown link targets
+        shell: bash
+        run: |
+          git -c core.quotePath=false ls-files "*.md" |
+            grep -Ev '^(node_modules/|dist/|\.upstream/|overlay/get-shit-done/)' > .lychee-targets
+          test -s .lychee-targets
+      - name: Check markdown links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --config lychee.toml --files-from .lychee-targets --no-progress --verbose
+          fail: "true"
+          failIfEmpty: "true"
+
   osv-scanner:
     name: OSV Scanner
     runs-on: ubuntu-latest

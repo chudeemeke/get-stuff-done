@@ -1,7 +1,7 @@
 # GSD Repository Deep Dive Analysis
 
 ## Repository Info
-- **URL:** https://github.com/glittercowboy/get-stuff-done
+- **URL:** https://github.com/gsd-build/get-shit-done
 - **Version:** v1.9.11 (latest release as of January 23, 2026)
 - **Date analyzed:** January 25, 2026
 - **Stars:** 7.2k
@@ -904,8 +904,8 @@ export async function createUser(data: FormData) {
 
 ## Sources
 
-- [Source 1](url) - HIGH confidence
-- [Source 2](url) - MEDIUM confidence
+- Source 1 (url) - HIGH confidence
+- Source 2 (url) - MEDIUM confidence
 ```
 
 ---
@@ -1516,21 +1516,21 @@ hij789k feat(08-02): implement password hashing
 
 ## Sources
 
-- [GitHub - glittercowboy/get-stuff-done](https://github.com/glittercowboy/get-stuff-done)
-- [get-stuff-done README.md](https://github.com/glittercowboy/get-stuff-done/blob/main/README.md)
-- [GSD-STYLE.md](https://github.com/glittercowboy/get-stuff-done/blob/main/GSD-STYLE.md)
-- [gsd-executor.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-executor.md)
-- [gsd-planner.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-planner.md)
-- [gsd-phase-researcher.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-phase-researcher.md)
-- [gsd-project-researcher.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-project-researcher.md)
-- [gsd-verifier.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-verifier.md)
-- [gsd-plan-checker.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-plan-checker.md)
-- [gsd-debugger.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-debugger.md)
-- [gsd-roadmapper.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-roadmapper.md)
-- [gsd-codebase-mapper.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-codebase-mapper.md)
-- [gsd-integration-checker.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-integration-checker.md)
-- [gsd-research-synthesizer.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/agents/gsd-research-synthesizer.md)
-- [gsd-statusline.js](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/hooks/gsd-statusline.js)
-- [new-project.md](https://raw.githubusercontent.com/glittercowboy/get-stuff-done/main/commands/gsd/new-project.md)
-- [Adaptive Model Selection Issue #210](https://github.com/glittercowboy/get-stuff-done/issues/210)
-- [Enhanced statusline Issue #212](https://github.com/glittercowboy/get-stuff-done/issues/212)
+- [GitHub - gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done)
+- [get-shit-done README.md](https://github.com/gsd-build/get-shit-done/blob/main/README.md)
+- [GSD-STYLE.md](../.upstream/GSD-STYLE.md)
+- [gsd-executor.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-executor.md)
+- [gsd-planner.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-planner.md)
+- [gsd-phase-researcher.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-phase-researcher.md)
+- [gsd-project-researcher.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-project-researcher.md)
+- [gsd-verifier.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-verifier.md)
+- [gsd-plan-checker.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-plan-checker.md)
+- [gsd-debugger.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-debugger.md)
+- [gsd-roadmapper.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-roadmapper.md)
+- [gsd-codebase-mapper.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-codebase-mapper.md)
+- [gsd-integration-checker.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-integration-checker.md)
+- [gsd-research-synthesizer.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/agents/gsd-research-synthesizer.md)
+- [gsd-statusline.js](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/hooks/gsd-statusline.js)
+- [new-project.md](https://raw.githubusercontent.com/gsd-build/get-shit-done/main/commands/gsd/new-project.md)
+- [Adaptive Model Selection Issue #210](https://github.com/gsd-build/get-shit-done/issues/210)
+- [Enhanced statusline Issue #212](https://github.com/gsd-build/get-shit-done/issues/212)

@@ -739,7 +739,6 @@ This removes all GSD commands, agents, hooks, and settings while preserving your
 | Project | Platform | Description |
 |---------|----------|-------------|
 | [gsd-opencode](https://github.com/rokicool/gsd-opencode) | OpenCode | GSD adapted for OpenCode CLI |
-| [gsd-gemini](https://github.com/uberfuzzy/gsd-gemini) | Gemini CLI | GSD adapted for Google's Gemini CLI |
 
 ---
 

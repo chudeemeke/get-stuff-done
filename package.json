@@ -57,6 +57,7 @@
     "minimatch": "3.1.5"
   },
   "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "4.2.1",
     "@opengsd/gsd-core": "1.5.0",
     "acorn": "8.17.0",
     "audit-ci": "7.1.0",
@@ -73,7 +74,8 @@
     "build": "node scripts/build.js",
     "compose": "node scripts/compose.js",
     "finalize-dist": "node scripts/finalize-dist.js",
-    "dist": "bun run compose && bun run build && bun run finalize-dist",
+    "sbom": "node scripts/generate-sbom.js",
+    "dist": "bun run compose && bun run build && bun run sbom && bun run finalize-dist",
     "prepublishOnly": "bun run dist",
     "audit:ci": "node scripts/audit-check.js",
     "bench": "node scripts/bench.js",

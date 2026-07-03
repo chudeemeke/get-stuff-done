@@ -21,18 +21,29 @@
  * these tests catch it before copy-mode installs fail in production.
  */
 
-const { describe, test, expect, beforeEach, afterEach, beforeAll } = require('bun:test');
-const { execFileSync } = require('child_process');
+const { describe, test: bunTest, expect, beforeEach, afterEach, beforeAll } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const { createTempDir, createTempFile, createMockPlanningDir, runWithTimeout, SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers');
+
+function test(name, optionsOrFn, maybeFn) {
+  if (typeof optionsOrFn === 'function') {
+    return bunTest(name, { timeout: SUBPROCESS_TIMEOUT }, optionsOrFn);
+  }
+  return bunTest(name, { timeout: SUBPROCESS_TIMEOUT, ...optionsOrFn }, maybeFn);
+}
 
 function runGit(cwd, args) {
   runWithTimeout('git', args, {
     cwd: cwd || undefined,
     stdio: 'pipe',
     throwOnError: true,
+    timeout: SUBPROCESS_TIMEOUT,
   });
+}
+
+function isolateGitHooks(cwd) {
+  runGit(cwd, ['config', 'core.hooksPath', '.git/hooks']);
 }
 
 function runNodeOrThrow(scriptPath, options = {}) {
@@ -56,10 +67,9 @@ function createGitRepoWithUpstream(commitCount = 2) {
   const localDir = tempA.path;
   const upstreamDir = tempB.path;
 
-  const gitOpts = { stdio: 'pipe' };
-
   // Initialize upstream repo
   runGit(upstreamDir, ['init']);
+  isolateGitHooks(upstreamDir);
   runGit(upstreamDir, ['config', 'user.email', 'upstream@test.com']);
   runGit(upstreamDir, ['config', 'user.name', 'Upstream']);
   // Set default branch name to 'main' before first commit
@@ -71,10 +81,11 @@ function createGitRepoWithUpstream(commitCount = 2) {
   } catch (e) { /* already on main */ }
   fs.writeFileSync(path.join(upstreamDir, 'base.txt'), 'base');
   runGit(upstreamDir, ['add', '.']);
-  execFileSync('git', ['commit', '-m', 'chore: init'], { cwd: upstreamDir, ...gitOpts });
+  runGit(upstreamDir, ['commit', '-m', 'chore: init']);
 
   // Initialize local repo cloned from upstream
   runGit(null, ['clone', upstreamDir, localDir]);
+  isolateGitHooks(localDir);
   runGit(localDir, ['config', 'user.email', 'local@test.com']);
   runGit(localDir, ['config', 'user.name', 'Local']);
   runGit(localDir, ['remote', 'add', 'upstream', upstreamDir]);
@@ -91,7 +102,7 @@ function createGitRepoWithUpstream(commitCount = 2) {
     const msg = commitMessages[i % commitMessages.length];
     fs.writeFileSync(path.join(upstreamDir, `upstream-${i}.txt`), `upstream commit ${i}`);
     runGit(upstreamDir, ['add', '.']);
-    execFileSync('git', ['commit', '-m', msg], { cwd: upstreamDir, ...gitOpts });
+    runGit(upstreamDir, ['commit', '-m', msg]);
   }
 
   const cleanup = () => {
@@ -116,6 +127,68 @@ function waitForFile(filePath, maxMs = 5000) {
     waitMs(100);
   }
   return false;
+}
+
+function waitForJsonFile(filePath, predicate, maxMs = SUBPROCESS_TIMEOUT) {
+  const start = Date.now();
+  let lastContent = null;
+  while (Date.now() - start < maxMs) {
+    if (fs.existsSync(filePath)) {
+      try {
+        lastContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        if (!predicate || predicate(lastContent)) return lastContent;
+      } catch (e) {
+        // File may be mid-write; keep polling until timeout.
+      }
+    }
+    waitMs(250);
+  }
+  return lastContent;
+}
+
+function createMockNpmBin(version = '2.4.0') {
+  const temp = createTempDir();
+  const commandName = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const commandPath = path.join(temp.path, commandName);
+
+  if (process.platform === 'win32') {
+    fs.writeFileSync(commandPath, [
+      '@echo off',
+      'if "%1"=="view" (',
+      `  echo ${version}`,
+      '  exit /b 0',
+      ')',
+      'echo unsupported npm command 1>&2',
+      'exit /b 1',
+      ''
+    ].join('\r\n'));
+  } else {
+    fs.writeFileSync(commandPath, [
+      '#!/bin/sh',
+      'if [ "$1" = "view" ]; then',
+      `  printf '%s\\n' '${version}'`,
+      '  exit 0',
+      'fi',
+      'echo unsupported npm command >&2',
+      'exit 1',
+      ''
+    ].join('\n'));
+    fs.chmodSync(commandPath, 0o755);
+  }
+
+  return {
+    binDir: temp.path,
+    cleanup: temp.cleanup
+  };
+}
+
+function envWithMockNpm(tempHome, mockNpmBinDir) {
+  return {
+    ...process.env,
+    HOME: tempHome,
+    USERPROFILE: tempHome,
+    PATH: `${mockNpmBinDir}${path.delimiter}${process.env.PATH || ''}`
+  };
 }
 
 // Hook paths derived from the SSOT manifest (hooks/index.js + ADR-0001).
@@ -243,14 +316,14 @@ describe('overrides/hooks/gsd-check-update.js', () => {
     }
   });
 
-  test('writes cache with timestamp', () => {
+  test('writes cache with timestamp', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
 
     // Run hook
     try {
       runNodeOrThrow(HOOKS.checkUpdate, {
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
-        timeout: 3000,
+        timeout: SUBPROCESS_TIMEOUT,
         stdio: 'ignore'
       });
     } catch (e) {
@@ -625,6 +698,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     test('background process performs full check when cache is 8 days old', { timeout: SUBPROCESS_TIMEOUT }, () => {
       const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
       const EIGHT_DAYS_AGO = Math.floor(Date.now() / 1000) - (8 * 24 * 60 * 60);
+      const mockNpm = createMockNpmBin();
 
       // Write cache that is 8 days old (>7d so throttle allows network check)
       const oldCache = {
@@ -637,8 +711,8 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
 
       try {
         runNodeOrThrow(HOOKS.checkUpdate, {
-          env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
-          timeout: 10000,
+          env: envWithMockNpm(tempHome, mockNpm.binDir),
+          timeout: SUBPROCESS_TIMEOUT,
           stdio: 'ignore'
         });
       } catch (e) {
@@ -646,32 +720,32 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       }
 
       // Wait for background process to complete and update the cache
-      const start = Date.now();
-      let cacheContent;
-      while (Date.now() - start < 8000) {
-        cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
-        if (cacheContent.checked !== EIGHT_DAYS_AGO) break;
-        waitMs(500);
-      }
-      cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+      const cacheContent = waitForJsonFile(
+        cacheFile,
+        cache => cache.checked !== EIGHT_DAYS_AGO,
+        SUBPROCESS_TIMEOUT
+      );
+      mockNpm.cleanup();
 
       // After 7+ days, the background process should have performed a full check
       // and updated cache.checked to approximately now
       const nowSecs = Math.floor(Date.now() / 1000);
+      expect(cacheContent).not.toBeNull();
       expect(cacheContent.checked).not.toBe(EIGHT_DAYS_AGO);
       expect(cacheContent.checked).toBeGreaterThan(nowSecs - 30);
     });
 
     test('background process performs full check when no cache exists', { timeout: SUBPROCESS_TIMEOUT }, () => {
       const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+      const mockNpm = createMockNpmBin();
 
       // Ensure no cache file exists
       if (fs.existsSync(cacheFile)) fs.unlinkSync(cacheFile);
 
       try {
         runNodeOrThrow(HOOKS.checkUpdate, {
-          env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
-          timeout: 10000,
+          env: envWithMockNpm(tempHome, mockNpm.binDir),
+          timeout: SUBPROCESS_TIMEOUT,
           stdio: 'ignore'
         });
       } catch (e) {
@@ -679,16 +753,17 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       }
 
       // Wait for background process to create the cache
-      const start = Date.now();
-      while (Date.now() - start < 8000) {
-        if (fs.existsSync(cacheFile)) break;
-        waitMs(500);
-      }
+      const cacheContent = waitForJsonFile(
+        cacheFile,
+        cache => typeof cache.checked === 'number',
+        SUBPROCESS_TIMEOUT
+      );
+      mockNpm.cleanup();
 
       // Cache file should have been created with a recent timestamp
       expect(fs.existsSync(cacheFile)).toBe(true);
-      const cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
       const nowSecs = Math.floor(Date.now() / 1000);
+      expect(cacheContent).not.toBeNull();
       expect(cacheContent.checked).toBeGreaterThan(nowSecs - 30);
     });
   });

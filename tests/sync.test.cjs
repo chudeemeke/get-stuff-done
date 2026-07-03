@@ -10,16 +10,16 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { execFileSync } = require('child_process');
 const { runGsdTools, createTempProject, cleanup, runWithTimeout } = require('./helpers.cjs');
 const { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
+const FIXTURE_HOOK_TIMEOUT = { timeout: SUBPROCESS_TIMEOUT };
 
 function gitAddAll(cwd) {
-  execFileSync('git', ['add', '.'], { cwd, stdio: 'pipe' });
+  gitRun(cwd, ['add', '.']);
 }
 
 function gitCommit(cwd, message) {
-  execFileSync('git', ['commit', '-m', message], { cwd, stdio: 'pipe' });
+  gitRun(cwd, ['commit', '-m', message]);
 }
 
 function gitRun(cwd, args) {
@@ -114,6 +114,7 @@ const {
 function createTempGitProject() {
   const tmpDir = createTempProject();
   gitRun(tmpDir, ['init']);
+  gitRun(tmpDir, ['config', 'core.hooksPath', '.git/hooks']);
   gitRun(tmpDir, ['config', 'user.email', 'test@test.com']);
   gitRun(tmpDir, ['config', 'user.name', 'Test']);
   fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'init');
@@ -122,99 +123,100 @@ function createTempGitProject() {
   return tmpDir;
 }
 
+function withTempGitProject(fn) {
+  const tmpDir = createTempGitProject();
+  try {
+    return fn(tmpDir);
+  } finally {
+    cleanup(tmpDir);
+  }
+}
+
 // ─── getCommitsInRange ─────────────────────────────────────────────────────────
 
 describe('getCommitsInRange', () => {
-  let tmpDir;
-
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
-  });
-
-  afterEach(() => {
-    cleanup(tmpDir);
-  });
-
   test('returns empty array when range has no commits', { timeout: SUBPROCESS_TIMEOUT }, () => {
-    // HEAD..HEAD is empty (HEAD is both base and target)
-    const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
-    const commits = getCommitsInRange(tmpDir, headSha, headSha);
-    assert.deepStrictEqual(commits, [], 'Should return empty array for empty range');
+    withTempGitProject(tmpDir => {
+      // HEAD..HEAD is empty (HEAD is both base and target)
+      const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
+      const commits = getCommitsInRange(tmpDir, headSha, headSha);
+      assert.deepStrictEqual(commits, [], 'Should return empty array for empty range');
+    });
   });
 
   test('returns commits in range as structured objects', { timeout: SUBPROCESS_TIMEOUT }, () => {
-    // Add a second commit so we have a range
-    fs.writeFileSync(path.join(tmpDir, 'file2.txt'), 'content');
-    gitAddAll(tmpDir);
-    gitCommit(tmpDir, "second commit");
+    withTempGitProject(tmpDir => {
+      // Add a second commit so we have a range
+      fs.writeFileSync(path.join(tmpDir, 'file2.txt'), 'content');
+      gitAddAll(tmpDir);
+      gitCommit(tmpDir, "second commit");
 
-    const firstSha = gitOutput(tmpDir, ['rev-parse', 'HEAD~1']);
-    const lastSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
+      const firstSha = gitOutput(tmpDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
 
-    const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
-    assert.strictEqual(commits.length, 1, 'Should return one commit');
-    assert.ok(commits[0].hash, 'Should have hash field');
-    assert.ok(commits[0].hashShort, 'Should have hashShort field');
-    assert.ok(commits[0].subject, 'Should have subject field');
-    assert.ok(commits[0].date, 'Should have date field');
-    assert.ok(commits[0].author, 'Should have author field');
-    assert.strictEqual(commits[0].subject, 'second commit', 'Subject should match commit message');
+      const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
+      assert.strictEqual(commits.length, 1, 'Should return one commit');
+      assert.ok(commits[0].hash, 'Should have hash field');
+      assert.ok(commits[0].hashShort, 'Should have hashShort field');
+      assert.ok(commits[0].subject, 'Should have subject field');
+      assert.ok(commits[0].date, 'Should have date field');
+      assert.ok(commits[0].author, 'Should have author field');
+      assert.strictEqual(commits[0].subject, 'second commit', 'Subject should match commit message');
+    });
   });
 
   test('handles subjects containing special characters', { timeout: SUBPROCESS_TIMEOUT }, () => {
-    // Create commit with a subject containing special chars (colon, ampersand, etc.)
-    fs.writeFileSync(path.join(tmpDir, 'file3.txt'), 'content');
-    gitAddAll(tmpDir);
-    gitCommit(tmpDir, "fix: handle edge case & special chars");
+    withTempGitProject(tmpDir => {
+      // Create commit with a subject containing special chars (colon, ampersand, etc.)
+      fs.writeFileSync(path.join(tmpDir, 'file3.txt'), 'content');
+      gitAddAll(tmpDir);
+      gitCommit(tmpDir, "fix: handle edge case & special chars");
 
-    const firstSha = gitOutput(tmpDir, ['rev-parse', 'HEAD~1']);
-    const lastSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
+      const firstSha = gitOutput(tmpDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
 
-    const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
-    assert.strictEqual(commits.length, 1, 'Should return one commit');
-    assert.strictEqual(commits[0].subject, 'fix: handle edge case & special chars');
+      const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
+      assert.strictEqual(commits.length, 1, 'Should return one commit');
+      assert.strictEqual(commits[0].subject, 'fix: handle edge case & special chars');
+    });
   });
 });
 
 // ─── getFilesForCommit ─────────────────────────────────────────────────────────
 
 describe('getFilesForCommit', () => {
-  let tmpDir;
-
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
+  test('returns empty array for non-existent SHA', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const files = getFilesForCommit(tmpDir, 'deadbeef1234567890abcdef1234567890abcdef');
+      assert.deepStrictEqual(files, [], 'Should return empty array for missing SHA');
+    });
   });
 
-  afterEach(() => {
-    cleanup(tmpDir);
+  test('returns files changed in commit as structured objects', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
+      const files = getFilesForCommit(tmpDir, headSha);
+
+      assert.ok(Array.isArray(files), 'Should return an array');
+      assert.ok(files.length > 0, 'Should have at least one file');
+
+      for (const f of files) {
+        assert.ok(f.status, 'Each file should have a status field');
+        assert.ok(f.path, 'Each file should have a path field');
+      }
+    });
   });
 
-  test('returns empty array for non-existent SHA', () => {
-    const files = getFilesForCommit(tmpDir, 'deadbeef1234567890abcdef1234567890abcdef');
-    assert.deepStrictEqual(files, [], 'Should return empty array for missing SHA');
-  });
+  test('returns added file with A status', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
+      const files = getFilesForCommit(tmpDir, headSha);
 
-  test('returns files changed in commit as structured objects', () => {
-    const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
-    const files = getFilesForCommit(tmpDir, headSha);
-
-    assert.ok(Array.isArray(files), 'Should return an array');
-    assert.ok(files.length > 0, 'Should have at least one file');
-
-    for (const f of files) {
-      assert.ok(f.status, 'Each file should have a status field');
-      assert.ok(f.path, 'Each file should have a path field');
-    }
-  });
-
-  test('returns added file with A status', () => {
-    const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
-    const files = getFilesForCommit(tmpDir, headSha);
-
-    // The initial commit added init.txt
-    const initFile = files.find(f => f.path === 'init.txt');
-    assert.ok(initFile, 'Should find init.txt in the initial commit');
-    assert.strictEqual(initFile.status, 'A', 'New file should have status A');
+      // The initial commit added init.txt
+      const initFile = files.find(f => f.path === 'init.txt');
+      assert.ok(initFile, 'Should find init.txt in the initial commit');
+      assert.strictEqual(initFile.status, 'A', 'New file should have status A');
+    });
   });
 });
 
@@ -225,11 +227,11 @@ describe('loadProtectedPaths', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('returns empty array when branding-map.json does not exist', () => {
     const paths = loadProtectedPaths(tmpDir);
@@ -339,40 +341,36 @@ describe('isSensitivePath', () => {
 // ─── assessConflictRiskByOverlap ──────────────────────────────────────────────
 
 describe('assessConflictRiskByOverlap', () => {
-  let tmpDir;
-
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
+  test('returns none when working tree is clean', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      // tmpDir is clean after initial commit
+      const commitFiles = [{ path: 'some-file.txt' }];
+      const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
+      assert.strictEqual(risk, 'none', 'Should return none for clean working tree');
+    });
   });
 
-  afterEach(() => {
-    cleanup(tmpDir);
+  test('returns overlap when commit files overlap with dirty working tree', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      // Modify a file to make it dirty
+      fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'modified content');
+
+      const commitFiles = [{ path: 'init.txt' }];
+      const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
+      assert.strictEqual(risk, 'overlap', 'Should return overlap when commit touches dirty file');
+    });
   });
 
-  test('returns none when working tree is clean', () => {
-    // tmpDir is clean after initial commit
-    const commitFiles = [{ path: 'some-file.txt' }];
-    const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
-    assert.strictEqual(risk, 'none', 'Should return none for clean working tree');
-  });
+  test('returns none when dirty files do not overlap with commit files', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      // Modify a file
+      fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'modified content');
 
-  test('returns overlap when commit files overlap with dirty working tree', () => {
-    // Modify a file to make it dirty
-    fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'modified content');
-
-    const commitFiles = [{ path: 'init.txt' }];
-    const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
-    assert.strictEqual(risk, 'overlap', 'Should return overlap when commit touches dirty file');
-  });
-
-  test('returns none when dirty files do not overlap with commit files', () => {
-    // Modify a file
-    fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'modified content');
-
-    // But commit only touches a different file
-    const commitFiles = [{ path: 'other-file.txt' }];
-    const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
-    assert.strictEqual(risk, 'none', 'Should return none when no overlap with dirty files');
+      // But commit only touches a different file
+      const commitFiles = [{ path: 'other-file.txt' }];
+      const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
+      assert.strictEqual(risk, 'none', 'Should return none when no overlap with dirty files');
+    });
   });
 });
 
@@ -383,11 +381,11 @@ describe('computeEffortEstimate', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('returns null fields when sync-manifest.json does not exist', () => {
     const estimate = computeEffortEstimate(tmpDir, 10);
@@ -564,11 +562,11 @@ describe('sync-preview command', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('errors on missing range argument', () => {
     const result = runGsdTools('sync-preview', tmpDir);
@@ -1000,11 +998,11 @@ describe('loadKnownAuthors', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('returns empty Set when cache file does not exist', () => {
     const result = loadKnownAuthors(tmpDir);
@@ -1035,11 +1033,11 @@ describe('saveKnownAuthors', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('writes correct JSON structure to cache file', () => {
     const authors = new Set(['Alice <alice@example.com>', 'Bob <bob@example.com>']);
@@ -1063,36 +1061,37 @@ describe('saveKnownAuthors', () => {
 });
 
 describe('seedKnownAuthors', () => {
-  let tmpDir;
-  let cacheDir;
-
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
-    cacheDir = createTempProject();
+  test('populates known authors from git log on first run', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const cacheDir = createTempProject();
+      try {
+        // The tmpDir already has a commit with author "Test <test@test.com>"
+        const authors = seedKnownAuthors(tmpDir, cacheDir);
+        assert.ok(authors instanceof Set, 'Should return a Set');
+        assert.ok(authors.size > 0, 'Should have at least one author from git log');
+        // Should contain the test author
+        const hasTestAuthor = [...authors].some(a => a.includes('Test'));
+        assert.ok(hasTestAuthor, 'Should include test author from git log');
+      } finally {
+        cleanup(cacheDir);
+      }
+    });
   });
 
-  afterEach(() => {
-    cleanup(tmpDir);
-    cleanup(cacheDir);
-  });
-
-  test('populates known authors from git log on first run', () => {
-    // The tmpDir already has a commit with author "Test <test@test.com>"
-    const authors = seedKnownAuthors(tmpDir, cacheDir);
-    assert.ok(authors instanceof Set, 'Should return a Set');
-    assert.ok(authors.size > 0, 'Should have at least one author from git log');
-    // Should contain the test author
-    const hasTestAuthor = [...authors].some(a => a.includes('Test'));
-    assert.ok(hasTestAuthor, 'Should include test author from git log');
-  });
-
-  test('saves the seeded authors to cache file', () => {
-    seedKnownAuthors(tmpDir, cacheDir);
-    const cacheFile = path.join(cacheDir, 'gsd-upstream-authors.json');
-    assert.ok(fs.existsSync(cacheFile), 'Cache file should exist after seeding');
-    const data = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
-    assert.ok(Array.isArray(data.authors), 'Cache should have authors array');
-    assert.ok(data.authors.length > 0, 'Cache should have at least one author');
+  test('saves the seeded authors to cache file', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const cacheDir = createTempProject();
+      try {
+        seedKnownAuthors(tmpDir, cacheDir);
+        const cacheFile = path.join(cacheDir, 'gsd-upstream-authors.json');
+        assert.ok(fs.existsSync(cacheFile), 'Cache file should exist after seeding');
+        const data = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
+        assert.ok(Array.isArray(data.authors), 'Cache should have authors array');
+        assert.ok(data.authors.length > 0, 'Cache should have at least one author');
+      } finally {
+        cleanup(cacheDir);
+      }
+    });
   });
 });
 
@@ -1219,88 +1218,99 @@ describe('sync-preview supply chain integration', () => {
 // ─── sync-checkpoint CLI integration ──────────────────────────────────────────
 
 describe('sync-checkpoint command', () => {
-  let tmpDir;
+  function withTempCheckpointRepo(fn) {
+    const tmpDir = createTempGitProject();
+    try {
+      fn(tmpDir);
+    } finally {
+      cleanup(tmpDir);
+    }
+  }
 
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
+  test('sync-checkpoint list returns empty when no checkpoint tags exist', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      const result = runGsdTools('sync-checkpoint list', tmpDir);
+      assert.ok(result.success, `sync-checkpoint list failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      assert.deepStrictEqual(data.checkpoints, [], 'Should return empty checkpoints array');
+      assert.strictEqual(data.count, 0, 'Count should be 0');
+    });
   });
 
-  afterEach(() => {
-    cleanup(tmpDir);
+  test('sync-checkpoint create requires batchId argument', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      const result = runGsdTools('sync-checkpoint create', tmpDir);
+      assert.strictEqual(result.success, false, 'Should fail without batchId');
+      assert.ok(
+        result.error.includes('batchId required') || result.error.includes('Error'),
+        'Should indicate batchId is required'
+      );
+    });
   });
 
-  test('sync-checkpoint list returns empty when no checkpoint tags exist', () => {
-    const result = runGsdTools('sync-checkpoint list', tmpDir);
-    assert.ok(result.success, `sync-checkpoint list failed: ${result.error}`);
+  test('sync-checkpoint create creates annotated tag at HEAD', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      const result = runGsdTools('sync-checkpoint create test-batch-01', tmpDir);
+      assert.ok(result.success, `sync-checkpoint create failed: ${result.error}`);
 
-    const data = JSON.parse(result.output);
-    assert.deepStrictEqual(data.checkpoints, [], 'Should return empty checkpoints array');
-    assert.strictEqual(data.count, 0, 'Count should be 0');
+      const data = JSON.parse(result.output);
+      assert.strictEqual(data.tag, 'sync-checkpoint-test-batch-01', 'Tag name should have correct prefix');
+      assert.ok(data.sha, 'Should have SHA');
+      assert.ok(data.created, 'Should have created timestamp');
+
+      // Verify the tag was actually created in git
+      const tagsResult = gitOutput(tmpDir, ['tag', '-l', 'sync-checkpoint-*']).trim();
+      assert.strictEqual(tagsResult, 'sync-checkpoint-test-batch-01', 'Tag should exist in git');
+    });
   });
 
-  test('sync-checkpoint create requires batchId argument', () => {
-    const result = runGsdTools('sync-checkpoint create', tmpDir);
-    assert.strictEqual(result.success, false, 'Should fail without batchId');
-    assert.ok(
-      result.error.includes('batchId required') || result.error.includes('Error'),
-      'Should indicate batchId is required'
-    );
+  test('sync-checkpoint list returns tags after create', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      // Create a checkpoint
+      runGsdTools('sync-checkpoint create batch-02', tmpDir);
+
+      const result = runGsdTools('sync-checkpoint list', tmpDir);
+      assert.ok(result.success, `sync-checkpoint list failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      assert.strictEqual(data.count, 1, 'Should have 1 checkpoint');
+      assert.strictEqual(data.checkpoints[0].tag, 'sync-checkpoint-batch-02');
+      assert.ok(data.checkpoints[0].sha, 'Checkpoint should have SHA');
+    });
   });
 
-  test('sync-checkpoint create creates annotated tag at HEAD', () => {
-    const result = runGsdTools('sync-checkpoint create test-batch-01', tmpDir);
-    assert.ok(result.success, `sync-checkpoint create failed: ${result.error}`);
+  test('sync-checkpoint cleanup deletes all checkpoint tags', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      // Create multiple checkpoints
+      runGsdTools('sync-checkpoint create batch-a', tmpDir);
+      runGsdTools('sync-checkpoint create batch-b', tmpDir);
 
-    const data = JSON.parse(result.output);
-    assert.strictEqual(data.tag, 'sync-checkpoint-test-batch-01', 'Tag name should have correct prefix');
-    assert.ok(data.sha, 'Should have SHA');
-    assert.ok(data.created, 'Should have created timestamp');
+      const cleanupResult = runGsdTools('sync-checkpoint cleanup', tmpDir);
+      assert.ok(cleanupResult.success, `sync-checkpoint cleanup failed: ${cleanupResult.error}`);
 
-    // Verify the tag was actually created in git
-    const tagsResult = gitOutput(tmpDir, ['tag', '-l', 'sync-checkpoint-*']).trim();
-    assert.strictEqual(tagsResult, 'sync-checkpoint-test-batch-01', 'Tag should exist in git');
+      const cleanupData = JSON.parse(cleanupResult.output);
+      assert.strictEqual(cleanupData.count, 2, 'Should have deleted 2 tags');
+      assert.strictEqual(cleanupData.deleted.length, 2, 'deleted array should have 2 entries');
+      assert.strictEqual(cleanupData.failed.length, 0, 'failed array should be empty');
+
+      // Verify tags are gone
+      const listResult = runGsdTools('sync-checkpoint list', tmpDir);
+      const listData = JSON.parse(listResult.output);
+      assert.strictEqual(listData.count, 0, 'No checkpoints should remain after cleanup');
+    });
   });
 
-  test('sync-checkpoint list returns tags after create', () => {
-    // Create a checkpoint
-    runGsdTools('sync-checkpoint create batch-02', tmpDir);
+  test('sync-checkpoint cleanup succeeds when no tags exist (idempotent)', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      const result = runGsdTools('sync-checkpoint cleanup', tmpDir);
+      assert.ok(result.success, `sync-checkpoint cleanup should succeed even with no tags: ${result.error}`);
 
-    const result = runGsdTools('sync-checkpoint list', tmpDir);
-    assert.ok(result.success, `sync-checkpoint list failed: ${result.error}`);
-
-    const data = JSON.parse(result.output);
-    assert.strictEqual(data.count, 1, 'Should have 1 checkpoint');
-    assert.strictEqual(data.checkpoints[0].tag, 'sync-checkpoint-batch-02');
-    assert.ok(data.checkpoints[0].sha, 'Checkpoint should have SHA');
-  });
-
-  test('sync-checkpoint cleanup deletes all checkpoint tags', () => {
-    // Create multiple checkpoints
-    runGsdTools('sync-checkpoint create batch-a', tmpDir);
-    runGsdTools('sync-checkpoint create batch-b', tmpDir);
-
-    const cleanupResult = runGsdTools('sync-checkpoint cleanup', tmpDir);
-    assert.ok(cleanupResult.success, `sync-checkpoint cleanup failed: ${cleanupResult.error}`);
-
-    const cleanupData = JSON.parse(cleanupResult.output);
-    assert.strictEqual(cleanupData.count, 2, 'Should have deleted 2 tags');
-    assert.strictEqual(cleanupData.deleted.length, 2, 'deleted array should have 2 entries');
-    assert.strictEqual(cleanupData.failed.length, 0, 'failed array should be empty');
-
-    // Verify tags are gone
-    const listResult = runGsdTools('sync-checkpoint list', tmpDir);
-    const listData = JSON.parse(listResult.output);
-    assert.strictEqual(listData.count, 0, 'No checkpoints should remain after cleanup');
-  });
-
-  test('sync-checkpoint cleanup succeeds when no tags exist (idempotent)', () => {
-    const result = runGsdTools('sync-checkpoint cleanup', tmpDir);
-    assert.ok(result.success, `sync-checkpoint cleanup should succeed even with no tags: ${result.error}`);
-
-    const data = JSON.parse(result.output);
-    assert.strictEqual(data.count, 0, 'Should report 0 deleted');
-    assert.deepStrictEqual(data.deleted, [], 'deleted should be empty array');
-    assert.deepStrictEqual(data.failed, [], 'failed should be empty array');
+      const data = JSON.parse(result.output);
+      assert.strictEqual(data.count, 0, 'Should report 0 deleted');
+      assert.deepStrictEqual(data.deleted, [], 'deleted should be empty array');
+      assert.deepStrictEqual(data.failed, [], 'failed should be empty array');
+    });
   });
 });
 
@@ -1644,11 +1654,11 @@ describe('loadProtectedPaths flat sections', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('extracts string entries from package_json_protected_fields', () => {
     const syncDir = path.join(tmpDir, '.planning', 'sync');
@@ -1823,7 +1833,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     assert.ok(stderr.includes('both baseRef and targetRef required'), 'Should mention both refs required');
   });
 
-  test('errors when base SHA does not exist', () => {
+  test('errors when base SHA does not exist', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const tmpDir = createTempGitProject();
     try {
       const { exitCode, stderr } = captureCmd(cmdSyncPreview, [tmpDir, 'deadbeef..HEAD', {}, false]);

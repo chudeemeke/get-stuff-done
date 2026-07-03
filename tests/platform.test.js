@@ -7,7 +7,16 @@
  * - detectTerminal: color support, Unicode, dimensions
  */
 
-const { describe, test, expect, beforeEach, afterEach } = require('bun:test');
+const { describe, test: bunTest, expect, beforeEach, afterEach } = require('bun:test');
+const { SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
+
+function test(name, optionsOrFn, maybeFn) {
+  if (typeof optionsOrFn === 'function') {
+    return bunTest(name, { timeout: SUBPROCESS_TIMEOUT }, optionsOrFn);
+  }
+  return bunTest(name, { timeout: SUBPROCESS_TIMEOUT, ...optionsOrFn }, maybeFn);
+}
+
 const {
   detectPlatform,
   clearCache: clearPlatformCache,
@@ -55,7 +64,7 @@ describe('detectPlatform', () => {
       expect(first).toBe(second);
     });
 
-    test('clearCache() makes next call re-detect', () => {
+    test('clearCache() makes next call re-detect', { timeout: SUBPROCESS_TIMEOUT }, () => {
       const first = detectPlatform();
       clearPlatformCache();
       const second = detectPlatform();

@@ -172,7 +172,7 @@ describe('resolve()', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -745,7 +745,7 @@ describe('CLI flags (COMP-09)', () => {
     return result;
   }
 
-  test('--dry-run exits 0 and outputs summary without writing dist/', () => {
+  test('--dry-run exits 0 and outputs summary without writing dist/', { timeout: 90000 }, () => {
     // Check if dist/ exists before
     const distBefore = fs.existsSync(path.join(PROJECT_ROOT, 'dist'));
     const result = runComposeCLI(['--dry-run']);
@@ -758,14 +758,14 @@ describe('CLI flags (COMP-09)', () => {
     }
   });
 
-  test('--dry-run output contains file count', () => {
+  test('--dry-run output contains file count', { timeout: 90000 }, () => {
     const result = runComposeCLI(['--dry-run']);
     expect(result.status).toBe(0);
     // Should show something like "files: 225" or "225 files"
     expect(result.stdout).toMatch(/\d+/);
   });
 
-  test('--diff exits 0', () => {
+  test('--diff exits 0', { timeout: 90000 }, () => {
     const result = runComposeCLI(['--diff']);
     expect(result.status).toBe(0);
   });
@@ -816,7 +816,7 @@ describe('features.json schema validation (FEAT-04)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -936,7 +936,7 @@ describe('filter() category exclusion (FEAT-01)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -1186,7 +1186,7 @@ describe('filter() cross-category isolation and warnings', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -1318,7 +1318,7 @@ describe('override() file replacement (OVER-01)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -1445,7 +1445,7 @@ describe('override() REASON.md enforcement (OVER-02)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -1545,7 +1545,7 @@ describe('override() zero overrides day one (OVER-04)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -1648,7 +1648,7 @@ describe('CLI entry block', () => {
     expect(result.stdout).toContain('branding_rules');
   });
 
-  test('--diff output contains added/modified/removed/unchanged counts', () => {
+  test('--diff output contains added/modified/removed/unchanged counts', { timeout: 30000 }, () => {
     const result = runComposeCLI(['--diff']);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('added:');
@@ -1727,7 +1727,7 @@ describe('resolve() additional error paths', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 

@@ -665,6 +665,7 @@ describe('validation wiring', () => {
   test('commit command rejects file paths outside project root (path traversal)', () => {
     // Initialize a real git repo so cmdCommit can function
     runGit(tmpDir, ['init']);
+    runGit(tmpDir, ['config', 'core.hooksPath', '.git/hooks']);
     runGit(tmpDir, ['config', 'user.email', 'test@test.com']);
     runGit(tmpDir, ['config', 'user.name', 'Test']);
 

@@ -12,27 +12,27 @@
  * SAFETY: All tests install to temporary directories. Real ~/.claude is never touched.
  */
 
-const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
+const { test, describe, beforeAll, afterAll, beforeEach, afterEach, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 
 const { createTempDir, runWithTimeout } = require('./helpers');
-
-// Path to the upstream package installed as devDependency
-const UPSTREAM_PKG = path.join(__dirname, '..', 'node_modules', '@opengsd', 'gsd-core');
+const { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
+const { compose } = require('../scripts/compose');
 
 /**
- * Sets up a scratch directory that mirrors the upstream package structure.
- * The scratch directory is a copy of the upstream package root, so that
+ * Copies the shared composed package fixture into a per-test scratch directory.
+ * The scratch directory is a temp composed package root, so that
  * scratch/bin/install.js can reference scratch/commands/gsd/, scratch/gsd-core/, etc.
  * via its __dirname-relative resolution.
  *
  * @param {string} tmpDir - Base temp directory path
+ * @param {string} sourceDir - Shared composed package fixture
  * @returns {string} Path to the scratch directory (scratch/bin/install.js is the entry point)
  */
-function setupScratchDir(tmpDir) {
+function setupScratchDir(tmpDir, sourceDir) {
   const scratchDir = path.join(tmpDir, 'scratch');
-  fs.cpSync(UPSTREAM_PKG, scratchDir, { recursive: true });
+  fs.cpSync(sourceDir, scratchDir, { recursive: true });
   return scratchDir;
 }
 
@@ -52,7 +52,7 @@ function runUpstreamInstaller(scratchDir, targetDir, extraArgs = []) {
     encoding: 'utf-8',
     env: { ...process.env },
     stdio: ['pipe', 'pipe', 'pipe'],
-    timeout: 30000,
+    timeout: SUBPROCESS_TIMEOUT,
   });
 
   return {
@@ -130,8 +130,21 @@ function copyOverlayAdditions(targetDir) {
 }
 
 describe('Phase 29: Prototype Gate', () => {
+  let composedPackageDir;
+  let cleanupComposedPackage;
   let tmpDir;
   let cleanupTmp;
+
+  beforeAll(() => {
+    const tmp = createTempDir();
+    composedPackageDir = path.join(tmp.path, 'composed-package');
+    cleanupComposedPackage = tmp.cleanup;
+    compose({ distDir: composedPackageDir });
+  }, HEAVY_SUBPROCESS_TIMEOUT);
+
+  afterAll(() => {
+    cleanupComposedPackage();
+  }, SUBPROCESS_TIMEOUT);
 
   beforeEach(() => {
     const tmp = createTempDir();
@@ -143,9 +156,9 @@ describe('Phase 29: Prototype Gate', () => {
     cleanupTmp();
   });
 
-  test('PROTO-01: upstream install.js runs from composed dir preserving internal structure', { timeout: 15000 }, () => {
+  test('PROTO-01: upstream install.js runs from composed dir preserving internal structure', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     // Set up a scratch directory mirroring the upstream package
-    const scratchDir = setupScratchDir(tmpDir.path);
+    const scratchDir = setupScratchDir(tmpDir.path, composedPackageDir);
 
     // Create a target directory for the install
     const targetDir = path.join(tmpDir.path, 'target');
@@ -180,9 +193,9 @@ describe('Phase 29: Prototype Gate', () => {
     expect(gsdSubdirs.length).toBeGreaterThan(0);
   });
 
-  test('PROTO-02: surface branding does not break installation', { timeout: 15000 }, () => {
+  test('PROTO-02: surface branding does not break installation', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     // Set up scratch directory and apply branding
-    const scratchDir = setupScratchDir(tmpDir.path);
+    const scratchDir = setupScratchDir(tmpDir.path, composedPackageDir);
     applyBranding(scratchDir);
 
     // Pre-install branding verification
@@ -217,7 +230,7 @@ describe('Phase 29: Prototype Gate', () => {
     const helpResult = runWithTimeout(process.execPath, [installScript, '--help'], {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: 15000,
+      timeout: SUBPROCESS_TIMEOUT,
     });
     const helpOutput = helpResult.stdout;
     // Branded name should appear in help text (if help text references the package)
@@ -226,9 +239,9 @@ describe('Phase 29: Prototype Gate', () => {
     }
   });
 
-  test('PROTO-03: overlay additions can be copied after upstream install', { timeout: 15000 }, () => {
+  test('PROTO-03: overlay additions can be copied after upstream install', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     // Use branded version for the most realistic prototype scenario
-    const scratchDir = setupScratchDir(tmpDir.path);
+    const scratchDir = setupScratchDir(tmpDir.path, composedPackageDir);
     applyBranding(scratchDir);
 
     // Create target directory and run upstream installer

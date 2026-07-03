@@ -40,6 +40,7 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 const UPSTREAM_PKG = path.join(PROJECT_ROOT, 'node_modules', '@opengsd', 'gsd-core');
 const OVERLAY_DIR = path.join(PROJECT_ROOT, 'overlay');
 const COMPOSE_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'compose.js');
+const PACKAGE_JSON = path.join(PROJECT_ROOT, 'package.json');
 
 // Import the pipeline functions (COMP-10: each stage is importable)
 const {
@@ -164,6 +165,54 @@ describe('finalize-dist hook packaging', () => {
     expect(HOOKS_NEEDING_BUNDLE).toContain('gsd-check-update.js');
     expect(HOOKS_NEEDING_BUNDLE).toContain('gsd-statusline.js');
     expect(HOOKS_NEEDING_BUNDLE).toContain('gsd-check-update-worker.js');
+  });
+});
+
+describe('SBOM dist pipeline', () => {
+  function readPackageJson() {
+    return JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf-8'));
+  }
+
+  test('package pins CycloneDX npm SBOM generator to 4.2.1', () => {
+    const pkg = readPackageJson();
+
+    expect(pkg.devDependencies['@cyclonedx/cyclonedx-npm']).toBe('4.2.1');
+  });
+
+  test('package scripts generate SBOM after compose and before finalize-dist', () => {
+    const pkg = readPackageJson();
+    const distScript = pkg.scripts.dist;
+
+    expect(pkg.scripts.sbom).toBe('node scripts/generate-sbom.js');
+    expect(distScript).toContain('bun run compose');
+    expect(distScript).toContain('bun run sbom');
+    expect(distScript).toContain('bun run finalize-dist');
+    expect(distScript.indexOf('bun run compose')).toBeLessThan(distScript.indexOf('bun run sbom'));
+    expect(distScript.indexOf('bun run sbom')).toBeLessThan(distScript.indexOf('bun run finalize-dist'));
+  });
+
+  test('package files include dist so dist/bom.json is packed', () => {
+    const pkg = readPackageJson();
+
+    expect(pkg.files.includes('dist') || pkg.files.includes('dist/bom.json')).toBe(true);
+  });
+
+  test('bun run dist creates dist/bom.json', { timeout: 120000 }, () => {
+    const bomPath = path.join(PROJECT_ROOT, 'dist', 'bom.json');
+    if (fs.existsSync(bomPath)) {
+      fs.rmSync(bomPath);
+    }
+
+    const result = runWithTimeout('bun', ['run', 'dist'], {
+      cwd: PROJECT_ROOT,
+      timeout: 90000,
+    });
+
+    expect(result.status).toBe(0);
+    expect(fs.existsSync(bomPath)).toBe(true);
+
+    const bom = JSON.parse(fs.readFileSync(bomPath, 'utf-8'));
+    expect(bom.bomFormat).toBe('CycloneDX');
   });
 });
 

@@ -274,3 +274,13 @@ describe('Phase 43 compat matrix workflow', () => {
     expect(workflow).toContain('if-no-files-found: error');
   });
 });
+
+describe('Phase 43 SBOM evidence workflow', () => {
+  test('CI generates, verifies, and uploads dist/bom.json', () => {
+    const workflow = readCiWorkflow();
+
+    expect(workflow).toContain('bun run sbom');
+    expect(workflow).toContain('dist/bom.json');
+    expect(workflow).toContain('actions/upload-artifact@v7');
+  });
+});

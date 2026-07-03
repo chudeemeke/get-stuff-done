@@ -173,15 +173,29 @@ function normalizeHyperfineResults(raw, requiredKeys = ['install', 'compose']) {
   return normalized;
 }
 
+function quoteShellArg(value) {
+  return `"${String(value).replace(/"/g, '\\"')}"`;
+}
+
 function buildInstallHyperfineArgs({ scratchDir, outputFile, runs = DEFAULT_RUNS, warmup = DEFAULT_WARMUP }) {
-  const prepare = "node -e \"require('fs').rmSync('node_modules',{recursive:true,force:true})\"";
+  const scratchNodeModules = path.join(scratchDir, 'node_modules');
+  const prepare = [
+    'node',
+    '-e',
+    quoteShellArg("require('fs').rmSync(process.argv[1],{recursive:true,force:true})"),
+    quoteShellArg(scratchNodeModules),
+  ].join(' ');
+  const installCommand = [
+    'bun install --ignore-scripts --cwd',
+    quoteShellArg(scratchDir),
+  ].join(' ');
+
   return [
     '--warmup', String(warmup),
     '--runs', String(runs),
     '--export-json', outputFile,
-    '--working-directory', scratchDir,
     '--prepare', prepare,
-    'bun install --ignore-scripts',
+    installCommand,
   ];
 }
 
@@ -386,5 +400,6 @@ module.exports = {
   mergeBaselineArtifacts,
   normalizeHyperfineResults,
   parseArgs,
+  quoteShellArg,
   resolveInputFiles,
 };

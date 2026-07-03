@@ -66,17 +66,20 @@ describe('bench hyperfine normalization', () => {
     expect(normalized.install.mean_ms).toBe(1234);
   });
 
-  test('install benchmark uses scratch working directory and --ignore-scripts', () => {
+  test('install benchmark uses Bun cwd support and --ignore-scripts in scratch directory', () => {
+    const scratchDir = path.join(os.tmpdir(), 'gsd scratch dir');
     const args = buildInstallHyperfineArgs({
-      scratchDir: path.join(os.tmpdir(), 'gsd scratch dir'),
+      scratchDir,
       outputFile: path.join(os.tmpdir(), 'install.json'),
       runs: 5,
       warmup: 3,
     });
 
-    expect(args).toContain('--working-directory');
-    expect(args).toContain('bun install --ignore-scripts');
+    expect(args).not.toContain('--working-directory');
+    expect(args).toContain('--prepare');
     expect(args.join(' ')).toContain('node_modules');
+    expect(args[args.length - 1]).toContain('bun install --ignore-scripts --cwd');
+    expect(args[args.length - 1]).toContain(scratchDir);
   });
 });
 

@@ -164,7 +164,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 **Plans**: 12 plans (checker-verified 2026-07-03)
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
-- [ ] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
+- [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
 - [ ] 43-04-PLAN.md -- Wave 4: Compatibility matrix evidence and CI
 - [ ] 43-05-PLAN.md -- Wave 5: JavaScript semantic override staleness
 - [ ] 43-06-PLAN.md -- Wave 6: Check-update hook reconciliation

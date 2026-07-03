@@ -2,12 +2,17 @@
  * Tests for Hook Scripts
  *
  * Covers:
- * - overlay/hooks/gsd-check-update.js
- * - overlay/hooks/gsd-statusline.js
- * - overlay/hooks/pre-compact.js
- * - hooks/dist/gsd-check-update.js (bundled)
- * - hooks/dist/gsd-statusline.js (bundled)
- * - hooks/dist/pre-compact.js (bundled)
+ * - overrides/hooks/gsd-check-update.js  (fork override of upstream hook)
+ * - overrides/hooks/gsd-statusline.js    (fork override of upstream hook)
+ * - overlay/hooks/pre-compact.js         (fork-only hook, no upstream counterpart)
+ * - hooks/dist/gsd-check-update.js       (bundled)
+ * - hooks/dist/gsd-statusline.js         (bundled)
+ * - hooks/dist/pre-compact.js            (bundled)
+ *
+ * Hook source-tree convention (Phase 30 / v3.0.0 architecture):
+ * - overrides/ — files that REPLACE an upstream file at the same path
+ * - overlay/  — files that ADD a new path not present upstream
+ * Both flow into dist/ via scripts/compose.js.
  *
  * Testing strategy: Hooks are CLI scripts without module.exports.
  * Test via child process execution with controlled env/stdin/stdout.
@@ -16,11 +21,41 @@
  * these tests catch it before copy-mode installs fail in production.
  */
 
-const { describe, test, expect, beforeEach, afterEach, beforeAll } = require('bun:test');
-const { execSync } = require('child_process');
+const { describe, test: bunTest, expect, beforeEach, afterEach, beforeAll } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const { createTempDir, createTempFile, createMockPlanningDir, SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers');
+const { createTempDir, createTempFile, createMockPlanningDir, runWithTimeout, SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers');
+
+function test(name, optionsOrFn, maybeFn) {
+  if (typeof optionsOrFn === 'function') {
+    return bunTest(name, { timeout: SUBPROCESS_TIMEOUT }, optionsOrFn);
+  }
+  return bunTest(name, { timeout: SUBPROCESS_TIMEOUT, ...optionsOrFn }, maybeFn);
+}
+
+function runGit(cwd, args) {
+  runWithTimeout('git', args, {
+    cwd: cwd || undefined,
+    stdio: 'pipe',
+    throwOnError: true,
+    timeout: SUBPROCESS_TIMEOUT,
+  });
+}
+
+function isolateGitHooks(cwd) {
+  runGit(cwd, ['config', 'core.hooksPath', '.git/hooks']);
+}
+
+function runNodeOrThrow(scriptPath, options = {}) {
+  return runWithTimeout(process.execPath, [scriptPath], {
+    ...options,
+    throwOnError: true,
+  }).stdout;
+}
+
+function waitMs(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
 
 /**
  * Create a temp git repo with an upstream remote that has N commits ahead.
@@ -32,28 +67,28 @@ function createGitRepoWithUpstream(commitCount = 2) {
   const localDir = tempA.path;
   const upstreamDir = tempB.path;
 
-  const gitOpts = { stdio: 'pipe' };
-
   // Initialize upstream repo
-  execSync('git init', { cwd: upstreamDir, ...gitOpts });
-  execSync('git config user.email "upstream@test.com"', { cwd: upstreamDir, ...gitOpts });
-  execSync('git config user.name "Upstream"', { cwd: upstreamDir, ...gitOpts });
+  runGit(upstreamDir, ['init']);
+  isolateGitHooks(upstreamDir);
+  runGit(upstreamDir, ['config', 'user.email', 'upstream@test.com']);
+  runGit(upstreamDir, ['config', 'user.name', 'Upstream']);
   // Set default branch name to 'main' before first commit
   try {
-    execSync('git config init.defaultBranch main', { cwd: upstreamDir, ...gitOpts });
+    runGit(upstreamDir, ['config', 'init.defaultBranch', 'main']);
   } catch (e) { /* older git versions */ }
   try {
-    execSync('git checkout -b main', { cwd: upstreamDir, ...gitOpts });
+    runGit(upstreamDir, ['checkout', '-b', 'main']);
   } catch (e) { /* already on main */ }
   fs.writeFileSync(path.join(upstreamDir, 'base.txt'), 'base');
-  execSync('git add .', { cwd: upstreamDir, ...gitOpts });
-  execSync('git commit -m "chore: init"', { cwd: upstreamDir, ...gitOpts });
+  runGit(upstreamDir, ['add', '.']);
+  runGit(upstreamDir, ['commit', '-m', 'chore: init']);
 
   // Initialize local repo cloned from upstream
-  execSync(`git clone "${upstreamDir}" "${localDir}"`, { ...gitOpts });
-  execSync('git config user.email "local@test.com"', { cwd: localDir, ...gitOpts });
-  execSync('git config user.name "Local"', { cwd: localDir, ...gitOpts });
-  execSync(`git remote add upstream "${upstreamDir}"`, { cwd: localDir, ...gitOpts });
+  runGit(null, ['clone', upstreamDir, localDir]);
+  isolateGitHooks(localDir);
+  runGit(localDir, ['config', 'user.email', 'local@test.com']);
+  runGit(localDir, ['config', 'user.name', 'Local']);
+  runGit(localDir, ['remote', 'add', 'upstream', upstreamDir]);
 
   // Add commits to upstream
   const commitMessages = [
@@ -66,8 +101,8 @@ function createGitRepoWithUpstream(commitCount = 2) {
   for (let i = 0; i < commitCount; i++) {
     const msg = commitMessages[i % commitMessages.length];
     fs.writeFileSync(path.join(upstreamDir, `upstream-${i}.txt`), `upstream commit ${i}`);
-    execSync('git add .', { cwd: upstreamDir, ...gitOpts });
-    execSync(`git commit -m "${msg}"`, { cwd: upstreamDir, ...gitOpts });
+    runGit(upstreamDir, ['add', '.']);
+    runGit(upstreamDir, ['commit', '-m', msg]);
   }
 
   const cleanup = () => {
@@ -89,26 +124,101 @@ function waitForFile(filePath, maxMs = 5000) {
   const start = Date.now();
   while (Date.now() - start < maxMs) {
     if (fs.existsSync(filePath)) return true;
-    try { execSync('sleep 0.1', { stdio: 'ignore' }); } catch (e) { /* ignore */ }
+    waitMs(100);
   }
   return false;
 }
 
-// Project root (for finding hook scripts)
-const PROJECT_ROOT = path.join(__dirname, '..');
+function waitForJsonFile(filePath, predicate, maxMs = SUBPROCESS_TIMEOUT) {
+  const start = Date.now();
+  let lastContent = null;
+  while (Date.now() - start < maxMs) {
+    if (fs.existsSync(filePath)) {
+      try {
+        lastContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        if (!predicate || predicate(lastContent)) return lastContent;
+      } catch (e) {
+        // File may be mid-write; keep polling until timeout.
+      }
+    }
+    waitMs(250);
+  }
+  return lastContent;
+}
 
-// Hook script paths (source) -- fork hooks live in overlay/hooks/
-const HOOKS = {
-  checkUpdate: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'gsd-check-update.js'),
-  statusline: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'gsd-statusline.js'),
-  preCompact: path.join(PROJECT_ROOT, 'overlay', 'hooks', 'pre-compact.js')
+function createMockNpmBin(version = '2.4.0') {
+  const temp = createTempDir();
+  const commandName = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const commandPath = path.join(temp.path, commandName);
+
+  if (process.platform === 'win32') {
+    fs.writeFileSync(commandPath, [
+      '@echo off',
+      'if "%1"=="view" (',
+      `  echo ${version}`,
+      '  exit /b 0',
+      ')',
+      'echo unsupported npm command 1>&2',
+      'exit /b 1',
+      ''
+    ].join('\r\n'));
+  } else {
+    fs.writeFileSync(commandPath, [
+      '#!/bin/sh',
+      'if [ "$1" = "view" ]; then',
+      `  printf '%s\\n' '${version}'`,
+      '  exit 0',
+      'fi',
+      'echo unsupported npm command >&2',
+      'exit 1',
+      ''
+    ].join('\n'));
+    fs.chmodSync(commandPath, 0o755);
+  }
+
+  return {
+    binDir: temp.path,
+    cleanup: temp.cleanup
+  };
+}
+
+function envWithMockNpm(tempHome, mockNpmBinDir) {
+  return {
+    ...process.env,
+    HOME: tempHome,
+    USERPROFILE: tempHome,
+    PATH: `${mockNpmBinDir}${path.delimiter}${process.env.PATH || ''}`
+  };
+}
+
+// Hook paths derived from the SSOT manifest (hooks/index.js + ADR-0001).
+// Test code MUST NOT hardcode hook locations — that pattern caused a 50-day
+// CI redness during the v3.0.0 architecture transition. See 40.5-CI-DIAGNOSIS.md.
+const hooksManifest = require('../hooks');
+const PROJECT_ROOT = hooksManifest.PROJECT_ROOT;
+
+const _findHook = name => {
+  const hook = hooksManifest.findByName(name);
+  if (!hook) {
+    throw new Error(
+      `Hook '${name}' not in manifest. Add to hooks/index.js or fix the test reference.`
+    );
+  }
+  return hook;
 };
 
-// Hook script paths (bundled dist)
+// Hook script paths (source) — derived from manifest, never hardcoded
+const HOOKS = {
+  checkUpdate: hooksManifest.sourcePath(_findHook('gsd-check-update.js')),
+  statusline: hooksManifest.sourcePath(_findHook('gsd-statusline.js')),
+  preCompact: hooksManifest.sourcePath(_findHook('pre-compact.js'))
+};
+
+// Hook script paths (bundled dist) — derived from manifest
 const DIST_HOOKS = {
-  checkUpdate: path.join(PROJECT_ROOT, 'hooks', 'dist', 'gsd-check-update.js'),
-  statusline: path.join(PROJECT_ROOT, 'hooks', 'dist', 'gsd-statusline.js'),
-  preCompact: path.join(PROJECT_ROOT, 'hooks', 'dist', 'pre-compact.js')
+  checkUpdate: hooksManifest.distPath(_findHook('gsd-check-update.js')),
+  statusline: hooksManifest.distPath(_findHook('gsd-statusline.js')),
+  preCompact: hooksManifest.distPath(_findHook('pre-compact.js'))
 };
 
 // Ensure dist files exist before running dist tests
@@ -116,14 +226,15 @@ beforeAll(() => {
   const distDir = path.join(PROJECT_ROOT, 'hooks', 'dist');
   const distFilesExist = Object.values(DIST_HOOKS).every(f => fs.existsSync(f));
   if (!distFilesExist) {
-    execSync('node scripts/build.js', {
+    runWithTimeout(process.execPath, ['scripts/build.js'], {
       cwd: PROJECT_ROOT,
-      stdio: 'inherit'
+      stdio: 'inherit',
+      throwOnError: true,
     });
   }
 });
 
-describe('overlay/hooks/gsd-check-update.js', () => {
+describe('overrides/hooks/gsd-check-update.js', () => {
   let tempHome;
   let cleanup;
 
@@ -147,7 +258,7 @@ describe('overlay/hooks/gsd-check-update.js', () => {
 
     // Run hook with HOME pointing to directory without cache
     try {
-      execSync(`node "${HOOKS.checkUpdate}"`, {
+      runNodeOrThrow(HOOKS.checkUpdate, {
         env: { ...process.env, HOME: newTempHome, USERPROFILE: newTempHome },
         timeout: 3000,
         stdio: 'ignore'
@@ -164,7 +275,7 @@ describe('overlay/hooks/gsd-check-update.js', () => {
   test('handles missing VERSION file gracefully', () => {
     // Run hook without VERSION file - should not crash
     expect(() => {
-      execSync(`node "${HOOKS.checkUpdate}"`, {
+      runNodeOrThrow(HOOKS.checkUpdate, {
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
         timeout: 3000,
         stdio: 'ignore'
@@ -180,7 +291,7 @@ describe('overlay/hooks/gsd-check-update.js', () => {
 
     // Run hook
     try {
-      execSync(`node "${HOOKS.checkUpdate}"`, {
+      runNodeOrThrow(HOOKS.checkUpdate, {
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
         timeout: 3000,
         stdio: 'ignore'
@@ -193,7 +304,7 @@ describe('overlay/hooks/gsd-check-update.js', () => {
     const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
     let attempts = 0;
     while (!fs.existsSync(cacheFile) && attempts < 20) {
-      execSync('sleep 0.1', { stdio: 'ignore' });
+      waitMs(100);
       attempts++;
     }
 
@@ -205,14 +316,14 @@ describe('overlay/hooks/gsd-check-update.js', () => {
     }
   });
 
-  test('writes cache with timestamp', () => {
+  test('writes cache with timestamp', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
 
     // Run hook
     try {
-      execSync(`node "${HOOKS.checkUpdate}"`, {
+      runNodeOrThrow(HOOKS.checkUpdate, {
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
-        timeout: 3000,
+        timeout: SUBPROCESS_TIMEOUT,
         stdio: 'ignore'
       });
     } catch (e) {
@@ -222,7 +333,7 @@ describe('overlay/hooks/gsd-check-update.js', () => {
     // Wait for cache file (up to 2 seconds)
     let attempts = 0;
     while (!fs.existsSync(cacheFile) && attempts < 20) {
-      execSync('sleep 0.1', { stdio: 'ignore' });
+      waitMs(100);
       attempts++;
     }
 
@@ -257,7 +368,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
 
       try {
-        execSync(`node "${HOOKS.checkUpdate}"`, {
+        runNodeOrThrow(HOOKS.checkUpdate, {
           cwd: localDir,
           env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome, GSD_ROLE_OVERRIDE: 'maintainer' },
           timeout: SUBPROCESS_TIMEOUT,
@@ -295,11 +406,11 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(0);
     // Remove the upstream remote to force fetch failure
     try {
-      execSync('git remote remove upstream', { cwd: localDir, stdio: 'pipe' });
+      runGit(localDir, ['remote', 'remove', 'upstream']);
     } catch (e) { /* may already not exist */ }
 
     try {
-      execSync(`node "${HOOKS.checkUpdate}"`, {
+      runNodeOrThrow(HOOKS.checkUpdate, {
         cwd: localDir,
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
         timeout: SUBPROCESS_TIMEOUT,
@@ -329,7 +440,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     const before = fs.statSync(cacheFile).mtimeMs;
 
     try {
-      execSync(`node "${HOOKS.checkUpdate}"`, {
+      runNodeOrThrow(HOOKS.checkUpdate, {
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
         timeout: 3000,
         stdio: 'ignore'
@@ -355,7 +466,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
 
     // Run git fetch manually to set up upstream/main ref
     try {
-      execSync('git fetch upstream main', { cwd: localDir, stdio: 'pipe' });
+      runGit(localDir, ['fetch', 'upstream', 'main']);
     } catch (e) {
       try { repoCleanup(); } catch (_) {}
       try { scriptCleanup(); } catch (_) {}
@@ -414,7 +525,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
 
     let output;
     try {
-      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: SUBPROCESS_TIMEOUT });
+      output = runNodeOrThrow(scriptPath, { encoding: 'utf8', timeout: SUBPROCESS_TIMEOUT });
     } catch (e) {
       try { repoCleanup(); } catch (_) {}
       try { scriptCleanup(); } catch (_) {}
@@ -455,7 +566,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
 
     // Fetch upstream to set up the ref
     try {
-      execSync('git fetch upstream main', { cwd: localDir, stdio: 'pipe' });
+      runGit(localDir, ['fetch', 'upstream', 'main']);
     } catch (e) {
       try { repoCleanup(); } catch (_) {}
       try { scriptCleanup(); } catch (_) {}
@@ -481,7 +592,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
 
     let output;
     try {
-      output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: SUBPROCESS_TIMEOUT });
+      output = runNodeOrThrow(scriptPath, { encoding: 'utf8', timeout: SUBPROCESS_TIMEOUT });
       const cache = JSON.parse(output.trim());
       expect(cache.upstream_count).toBe(0);
       expect(cache.update_available).toBe(false);
@@ -524,7 +635,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     ].join('\n');
 
     fs.writeFileSync(scriptPath, scriptContent);
-    const output = execSync(`node "${scriptPath}"`, { encoding: 'utf8', timeout: 3000 });
+    const output = runNodeOrThrow(scriptPath, { encoding: 'utf8', timeout: 3000 });
 
     try { tmpCleanup(); } catch (e) { /* ignore */ }
 
@@ -559,7 +670,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       fs.writeFileSync(cacheFile, JSON.stringify(staleCache));
 
       try {
-        execSync(`node "${HOOKS.checkUpdate}"`, {
+        runNodeOrThrow(HOOKS.checkUpdate, {
           env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
           timeout: 10000,
           stdio: 'ignore'
@@ -575,7 +686,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
         cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
         // If checked was updated, break early (test will fail as expected in RED)
         if (cacheContent.checked !== FIVE_DAYS_AGO) break;
-        execSync('sleep 0.5', { stdio: 'ignore' });
+        waitMs(500);
       }
       cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
 
@@ -587,6 +698,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     test('background process performs full check when cache is 8 days old', { timeout: SUBPROCESS_TIMEOUT }, () => {
       const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
       const EIGHT_DAYS_AGO = Math.floor(Date.now() / 1000) - (8 * 24 * 60 * 60);
+      const mockNpm = createMockNpmBin();
 
       // Write cache that is 8 days old (>7d so throttle allows network check)
       const oldCache = {
@@ -598,9 +710,9 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       fs.writeFileSync(cacheFile, JSON.stringify(oldCache));
 
       try {
-        execSync(`node "${HOOKS.checkUpdate}"`, {
-          env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
-          timeout: 10000,
+        runNodeOrThrow(HOOKS.checkUpdate, {
+          env: envWithMockNpm(tempHome, mockNpm.binDir),
+          timeout: SUBPROCESS_TIMEOUT,
           stdio: 'ignore'
         });
       } catch (e) {
@@ -608,32 +720,32 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       }
 
       // Wait for background process to complete and update the cache
-      const start = Date.now();
-      let cacheContent;
-      while (Date.now() - start < 8000) {
-        cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
-        if (cacheContent.checked !== EIGHT_DAYS_AGO) break;
-        execSync('sleep 0.5', { stdio: 'ignore' });
-      }
-      cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+      const cacheContent = waitForJsonFile(
+        cacheFile,
+        cache => cache.checked !== EIGHT_DAYS_AGO,
+        SUBPROCESS_TIMEOUT
+      );
+      mockNpm.cleanup();
 
       // After 7+ days, the background process should have performed a full check
       // and updated cache.checked to approximately now
       const nowSecs = Math.floor(Date.now() / 1000);
+      expect(cacheContent).not.toBeNull();
       expect(cacheContent.checked).not.toBe(EIGHT_DAYS_AGO);
       expect(cacheContent.checked).toBeGreaterThan(nowSecs - 30);
     });
 
     test('background process performs full check when no cache exists', { timeout: SUBPROCESS_TIMEOUT }, () => {
       const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+      const mockNpm = createMockNpmBin();
 
       // Ensure no cache file exists
       if (fs.existsSync(cacheFile)) fs.unlinkSync(cacheFile);
 
       try {
-        execSync(`node "${HOOKS.checkUpdate}"`, {
-          env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
-          timeout: 10000,
+        runNodeOrThrow(HOOKS.checkUpdate, {
+          env: envWithMockNpm(tempHome, mockNpm.binDir),
+          timeout: SUBPROCESS_TIMEOUT,
           stdio: 'ignore'
         });
       } catch (e) {
@@ -641,22 +753,23 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
       }
 
       // Wait for background process to create the cache
-      const start = Date.now();
-      while (Date.now() - start < 8000) {
-        if (fs.existsSync(cacheFile)) break;
-        execSync('sleep 0.5', { stdio: 'ignore' });
-      }
+      const cacheContent = waitForJsonFile(
+        cacheFile,
+        cache => typeof cache.checked === 'number',
+        SUBPROCESS_TIMEOUT
+      );
+      mockNpm.cleanup();
 
       // Cache file should have been created with a recent timestamp
       expect(fs.existsSync(cacheFile)).toBe(true);
-      const cacheContent = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
       const nowSecs = Math.floor(Date.now() / 1000);
+      expect(cacheContent).not.toBeNull();
       expect(cacheContent.checked).toBeGreaterThan(nowSecs - 30);
     });
   });
 });
 
-describe('overlay/hooks/gsd-statusline.js', () => {
+describe('overrides/hooks/gsd-statusline.js', () => {
   let tempHome;
   let cleanup;
 
@@ -677,7 +790,7 @@ describe('overlay/hooks/gsd-statusline.js', () => {
       context_window: { remaining_percentage: 50 }
     });
 
-    const output = execSync(`node "${HOOKS.statusline}"`, {
+    const output = runNodeOrThrow(HOOKS.statusline, {
       input,
       encoding: 'utf8',
       env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
@@ -695,7 +808,7 @@ describe('overlay/hooks/gsd-statusline.js', () => {
       context_window: { remaining_percentage: 75 }
     });
 
-    const output = execSync(`node "${HOOKS.statusline}"`, {
+    const output = runNodeOrThrow(HOOKS.statusline, {
       input,
       encoding: 'utf8',
       env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
@@ -714,7 +827,7 @@ describe('overlay/hooks/gsd-statusline.js', () => {
 
     // Should not crash when .planning/ is missing
     expect(() => {
-      execSync(`node "${HOOKS.statusline}"`, {
+      runNodeOrThrow(HOOKS.statusline, {
         input,
         encoding: 'utf8',
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
@@ -730,7 +843,7 @@ describe('overlay/hooks/gsd-statusline.js', () => {
     });
 
     // Should use defaults when config missing
-    const output = execSync(`node "${HOOKS.statusline}"`, {
+    const output = runNodeOrThrow(HOOKS.statusline, {
       input,
       encoding: 'utf8',
       env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
@@ -741,7 +854,7 @@ describe('overlay/hooks/gsd-statusline.js', () => {
   });
 
   test('handles malformed JSON input gracefully', () => {
-    const output = execSync(`node "${HOOKS.statusline}"`, {
+    const output = runNodeOrThrow(HOOKS.statusline, {
       input: 'not valid json',
       encoding: 'utf8',
       env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
@@ -781,7 +894,7 @@ describe('overlay/hooks/gsd-statusline.js (maintainer notification)', () => {
       workspace: { current_dir: '/test/dir' },
       context_window: { remaining_percentage: 80 }
     });
-    return execSync(`node "${HOOKS.statusline}"`, {
+    return runNodeOrThrow(HOOKS.statusline, {
       input,
       encoding: 'utf8',
       env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
@@ -954,7 +1067,7 @@ describe('hooks/pre-compact.js', () => {
     const planningDir = createMockPlanningDir(tempDir);
     const input = JSON.stringify({ trigger: 'auto' });
 
-    const result = execSync(`node "${HOOKS.preCompact}"`, {
+    const result = runNodeOrThrow(HOOKS.preCompact, {
       input,
       encoding: 'utf8',
       cwd: tempDir,
@@ -971,7 +1084,7 @@ describe('hooks/pre-compact.js', () => {
 
     // Hook creates .planning/ if missing, should exit 0
     expect(() => {
-      execSync(`node "${HOOKS.preCompact}"`, {
+      runNodeOrThrow(HOOKS.preCompact, {
         input,
         encoding: 'utf8',
         cwd: tempDir,
@@ -987,7 +1100,7 @@ describe('hooks/pre-compact.js', () => {
     const planningDir = createMockPlanningDir(tempDir);
     const input = JSON.stringify({ trigger: 'auto' });
 
-    execSync(`node "${HOOKS.preCompact}"`, {
+    runNodeOrThrow(HOOKS.preCompact, {
       input,
       encoding: 'utf8',
       cwd: tempDir,
@@ -1007,7 +1120,7 @@ describe('hooks/pre-compact.js', () => {
     const planningDir = createMockPlanningDir(tempDir);
     const input = JSON.stringify({ trigger: 'manual' });
 
-    execSync(`node "${HOOKS.preCompact}"`, {
+    runNodeOrThrow(HOOKS.preCompact, {
       input,
       encoding: 'utf8',
       cwd: tempDir,
@@ -1027,9 +1140,9 @@ describe('hooks/pre-compact.js', () => {
     const planningDir = createMockPlanningDir(tempDir);
     const input = JSON.stringify({ trigger: 'auto' });
 
-    // execSync throws on non-zero exit
+    // runNodeOrThrow throws on non-zero exit
     expect(() => {
-      execSync(`node "${HOOKS.preCompact}"`, {
+      runNodeOrThrow(HOOKS.preCompact, {
         input,
         encoding: 'utf8',
         cwd: tempDir,
@@ -1043,7 +1156,7 @@ describe('hooks/pre-compact.js', () => {
     const planningDir = createMockPlanningDir(tempDir);
 
     expect(() => {
-      execSync(`node "${HOOKS.preCompact}"`, {
+      runNodeOrThrow(HOOKS.preCompact, {
         input: 'invalid json',
         encoding: 'utf8',
         cwd: tempDir,
@@ -1061,7 +1174,7 @@ describe('hooks/pre-compact.js', () => {
 
     const input = JSON.stringify({ trigger: 'auto' });
 
-    execSync(`node "${HOOKS.preCompact}"`, {
+    runNodeOrThrow(HOOKS.preCompact, {
       input,
       encoding: 'utf8',
       cwd: tempDir,
@@ -1134,7 +1247,7 @@ describe('hooks/dist/gsd-check-update.js (bundled)', () => {
     fs.mkdirSync(newTempHome, { recursive: true });
 
     try {
-      execSync(`node "${DIST_HOOKS.checkUpdate}"`, {
+      runNodeOrThrow(DIST_HOOKS.checkUpdate, {
         env: { ...process.env, HOME: newTempHome, USERPROFILE: newTempHome },
         timeout: 3000,
         stdio: 'ignore'
@@ -1149,7 +1262,7 @@ describe('hooks/dist/gsd-check-update.js (bundled)', () => {
 
   test('handles missing VERSION file gracefully', () => {
     expect(() => {
-      execSync(`node "${DIST_HOOKS.checkUpdate}"`, {
+      runNodeOrThrow(DIST_HOOKS.checkUpdate, {
         env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
         timeout: 3000,
         stdio: 'ignore'
@@ -1179,7 +1292,7 @@ describe('hooks/dist/gsd-statusline.js (bundled)', () => {
       context_window: { remaining_percentage: 50 }
     });
 
-    const output = execSync(`node "${DIST_HOOKS.statusline}"`, {
+    const output = runNodeOrThrow(DIST_HOOKS.statusline, {
       input,
       encoding: 'utf8',
       env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
@@ -1197,7 +1310,7 @@ describe('hooks/dist/gsd-statusline.js (bundled)', () => {
       workspace: { current_dir: tempHome }
     });
 
-    const output = execSync(`node "${DIST_HOOKS.statusline}"`, {
+    const output = runNodeOrThrow(DIST_HOOKS.statusline, {
       input,
       encoding: 'utf8',
       env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
@@ -1209,7 +1322,7 @@ describe('hooks/dist/gsd-statusline.js (bundled)', () => {
   });
 
   test('handles malformed JSON input gracefully', () => {
-    const output = execSync(`node "${DIST_HOOKS.statusline}"`, {
+    const output = runNodeOrThrow(DIST_HOOKS.statusline, {
       input: 'not valid json',
       encoding: 'utf8',
       env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
@@ -1239,7 +1352,7 @@ describe('hooks/dist/pre-compact.js (bundled)', () => {
     const planningDir = createMockPlanningDir(tempDir);
     const input = JSON.stringify({ trigger: 'auto' });
 
-    execSync(`node "${DIST_HOOKS.preCompact}"`, {
+    runNodeOrThrow(DIST_HOOKS.preCompact, {
       input,
       encoding: 'utf8',
       cwd: tempDir,
@@ -1259,7 +1372,7 @@ describe('hooks/dist/pre-compact.js (bundled)', () => {
     const planningDir = createMockPlanningDir(tempDir);
     const input = JSON.stringify({ trigger: 'manual' });
 
-    execSync(`node "${DIST_HOOKS.preCompact}"`, {
+    runNodeOrThrow(DIST_HOOKS.preCompact, {
       input,
       encoding: 'utf8',
       cwd: tempDir,
@@ -1280,7 +1393,7 @@ describe('hooks/dist/pre-compact.js (bundled)', () => {
     const input = JSON.stringify({ trigger: 'auto' });
 
     expect(() => {
-      execSync(`node "${DIST_HOOKS.preCompact}"`, {
+      runNodeOrThrow(DIST_HOOKS.preCompact, {
         input,
         encoding: 'utf8',
         cwd: tempDir,
@@ -1294,7 +1407,7 @@ describe('hooks/dist/pre-compact.js (bundled)', () => {
     const planningDir = createMockPlanningDir(tempDir);
 
     expect(() => {
-      execSync(`node "${DIST_HOOKS.preCompact}"`, {
+      runNodeOrThrow(DIST_HOOKS.preCompact, {
         input: 'invalid json',
         encoding: 'utf8',
         cwd: tempDir,
@@ -1342,16 +1455,38 @@ describe('overlay/hooks/gsd-statusline.js (timeout and paths)', () => {
   });
 });
 
-describe('build and parity scripts reference overlay/hooks/', () => {
-  test('build.js HOOKS_DIR points to overlay/hooks', () => {
+describe('build and parity scripts consume hooks manifest (SSOT)', () => {
+  // After the SSOT refactor (ADR-0001), build.js and check-parity.js MUST
+  // import hooks/index.js (the manifest) rather than hardcoding hook paths.
+  // These assertions enforce that contract — they catch any regression where
+  // a future edit reintroduces hardcoded hook-path duplication.
+
+  test('build.js imports the hooks manifest', () => {
     const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'build.js'), 'utf8');
-    expect(src).toMatch(/overlay.*hooks/);
-    expect(src).not.toMatch(/HOOKS_DIR\s*=\s*path\.join\(__dirname,\s*'\.\.'\s*,\s*'hooks'\s*\)/);
+    expect(src).toMatch(/require\(['"]\.\.\/hooks['"]\)/);
+    // No silent-skip on missing source
+    expect(src).toMatch(/throw new Error/);
   });
 
-  test('check-parity.js hookFiles uses overlay/hooks/ paths', () => {
+  test('build.js does NOT hardcode hook source directories', () => {
+    const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'build.js'), 'utf8');
+    // Specific hook names should NOT appear as string literals — they should
+    // come from the manifest. (Comments in the file are allowed to mention
+    // hook names; this assertion checks for `'name'` style string literals.)
+    expect(src).not.toMatch(/['"]gsd-check-update\.js['"]/);
+    expect(src).not.toMatch(/['"]gsd-statusline\.js['"]/);
+    expect(src).not.toMatch(/['"]pre-compact\.js['"]/);
+  });
+
+  test('check-parity.js imports the hooks manifest', () => {
     const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'check-parity.js'), 'utf8');
-    expect(src).toContain('overlay/hooks/gsd-statusline.js');
-    expect(src).toContain('overlay/hooks/gsd-check-update.js');
+    expect(src).toMatch(/require\(['"]\.\.\/hooks['"]\)/);
+  });
+
+  test('check-parity.js does NOT hardcode hook file paths', () => {
+    const src = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts', 'check-parity.js'), 'utf8');
+    // Hook source-dir + name combos should NOT appear as string literals
+    expect(src).not.toMatch(/['"]overrides\/hooks\/gsd-/);
+    expect(src).not.toMatch(/['"]overlay\/hooks\/pre-compact\.js['"]/);
   });
 });

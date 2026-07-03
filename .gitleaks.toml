@@ -1,0 +1,35 @@
+# gitleaks configuration for chudeemeke/get-stuff-done
+#
+# Phase 41 keeps secret scanning blocking while limiting exemptions to exact
+# fake-secret fixtures and historical scanner examples. Do not add source-tree
+# or whole-fixture-directory allowlists.
+#
+# Author: Chude <chude@emeke.org>
+
+[extend]
+useDefault = true
+
+# Every allowlist entry below has a local fixture rationale. If a future finding
+# needs suppression, prefer moving the fake value into tests/fixtures/<scope>/
+# and allowlisting that exact fixture path.
+
+[[allowlists]]
+description = "Historical upstream fake-secret scanner tests; issue: Phase 41 D-07 allowlist audit"
+# reason: inherited full-history test fixtures intentionally contained scanner
+# bait strings to prove prompt-injection and secret-detection behavior.
+paths = [
+  '''^tests/security-scan\.test\.(cjs|js|ts)$''',
+  '''^tests/prompt-injection-scan\.test\.(cjs|js|ts)$''',
+]
+
+[[allowlists]]
+description = "Historical upstream fake-secret example allowlist files; issue: Phase 41 D-07 allowlist audit"
+# reason: inherited full-history scanner example files documented fake
+# secret-like patterns. These exact root filenames are retained for full-history
+# scans only; this is not a repository-root wildcard.
+paths = [
+  '''^\.secretscanignore$''',
+  '''^\.base64scanignore$''',
+]
+
+stopwords = []

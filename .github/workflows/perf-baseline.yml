@@ -1,0 +1,86 @@
+name: Perf Baseline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  capture:
+    name: Capture (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: macos-15
+            platform: macos
+          - os: windows-latest
+            platform: windows
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+      - name: Install hyperfine (Linux)
+        if: ${{ matrix.platform == 'linux' }}
+        run: |
+          if ! command -v hyperfine >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y hyperfine
+          fi
+      - name: Install hyperfine (macOS)
+        if: ${{ matrix.platform == 'macos' }}
+        run: |
+          if ! command -v hyperfine >/dev/null 2>&1; then
+            brew install hyperfine
+          fi
+      - name: Install hyperfine (Windows)
+        if: ${{ matrix.platform == 'windows' }}
+        shell: powershell
+        run: |
+          if (-not (Get-Command hyperfine -ErrorAction SilentlyContinue)) {
+            choco install hyperfine -y --no-progress
+          }
+      - name: Capture install and compose baseline
+        run: node scripts/bench.js --platform ${{ matrix.platform }} --out perf-${{ matrix.platform }}.json
+      - name: Capture test timing baseline
+        run: node scripts/bench-test-timing.js --platform ${{ matrix.platform }} --runs 5 --out test-timing-${{ matrix.platform }}.json
+      - name: Upload platform perf artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: perf-${{ matrix.platform }}
+          path: |
+            perf-${{ matrix.platform }}.json
+            test-timing-${{ matrix.platform }}.json
+          retention-days: 30
+
+  merge:
+    name: Merge Baseline Artifacts
+    runs-on: ubuntu-latest
+    needs: capture
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+      # First-run protocol:
+      # 1. Register this workflow on the default branch.
+      # 2. Run: gh workflow run perf-baseline.yml --ref <phase-41-ref>.
+      # 3. Download artifacts from the workflow run.
+      # 4. Commit only merged real linux/macos/windows outputs.
+      - name: Merge install and compose baseline
+        run: node scripts/bench.js --merge artifacts --require-platforms linux,macos,windows --out perf-baseline.json
+      - name: Merge test timing baseline
+        run: node scripts/bench-test-timing.js --merge artifacts --require-platforms linux,macos,windows --out .planning/perf/test-timing.json
+      - name: Upload merged baseline artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: perf-baseline-merged
+          path: |
+            perf-baseline.json
+            .planning/perf/test-timing.json
+          retention-days: 30

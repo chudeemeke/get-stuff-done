@@ -10,9 +10,35 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { runGsdTools, createTempProject, cleanup, runWithTimeout } = require('./helpers.cjs');
 const { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
+const FIXTURE_HOOK_TIMEOUT = { timeout: SUBPROCESS_TIMEOUT };
+
+function gitAddAll(cwd) {
+  gitRun(cwd, ['add', '.']);
+}
+
+function gitCommit(cwd, message) {
+  gitRun(cwd, ['commit', '-m', message]);
+}
+
+function gitRun(cwd, args) {
+  runWithTimeout('git', args, {
+    cwd,
+    stdio: 'pipe',
+    throwOnError: true,
+  });
+}
+
+function gitOutput(cwd, args) {
+  return runWithTimeout('git', args, {
+    cwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+    throwOnError: true,
+  }).stdout.trim();
+}
+
 
 // ─── Symlink Shim ──────────────────────────────────────────────────────────────
 //
@@ -22,7 +48,7 @@ const { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test
 // import resolves without modifying production code.
 //
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const SHIM_PATH = path.join(PROJECT_ROOT, 'overlay', 'get-shit-done');
+const SHIM_PATH = path.join(PROJECT_ROOT, 'overlay', 'get-shit-done'); // meta-test:skip — runtime-created symlink (created below at module load)
 const SHIM_TARGET = path.join(PROJECT_ROOT, 'get-stuff-done');
 let shimCreated = false;
 
@@ -87,108 +113,110 @@ const {
  */
 function createTempGitProject() {
   const tmpDir = createTempProject();
-  execSync('git init', { cwd: tmpDir, stdio: 'pipe' });
-  execSync('git config user.email "test@test.com"', { cwd: tmpDir, stdio: 'pipe' });
-  execSync('git config user.name "Test"', { cwd: tmpDir, stdio: 'pipe' });
+  gitRun(tmpDir, ['init']);
+  gitRun(tmpDir, ['config', 'core.hooksPath', '.git/hooks']);
+  gitRun(tmpDir, ['config', 'user.email', 'test@test.com']);
+  gitRun(tmpDir, ['config', 'user.name', 'Test']);
   fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'init');
-  execSync('git add .', { cwd: tmpDir, stdio: 'pipe' });
-  execSync('git commit -m "init"', { cwd: tmpDir, stdio: 'pipe' });
+  gitAddAll(tmpDir);
+  gitCommit(tmpDir, "init");
   return tmpDir;
+}
+
+function withTempGitProject(fn) {
+  const tmpDir = createTempGitProject();
+  try {
+    return fn(tmpDir);
+  } finally {
+    cleanup(tmpDir);
+  }
 }
 
 // ─── getCommitsInRange ─────────────────────────────────────────────────────────
 
 describe('getCommitsInRange', () => {
-  let tmpDir;
-
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
-  });
-
-  afterEach(() => {
-    cleanup(tmpDir);
-  });
-
-  test('returns empty array when range has no commits', () => {
-    // HEAD..HEAD is empty (HEAD is both base and target)
-    const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
-    const commits = getCommitsInRange(tmpDir, headSha, headSha);
-    assert.deepStrictEqual(commits, [], 'Should return empty array for empty range');
+  test('returns empty array when range has no commits', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      // HEAD..HEAD is empty (HEAD is both base and target)
+      const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
+      const commits = getCommitsInRange(tmpDir, headSha, headSha);
+      assert.deepStrictEqual(commits, [], 'Should return empty array for empty range');
+    });
   });
 
   test('returns commits in range as structured objects', { timeout: SUBPROCESS_TIMEOUT }, () => {
-    // Add a second commit so we have a range
-    fs.writeFileSync(path.join(tmpDir, 'file2.txt'), 'content');
-    execSync('git add .', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "second commit"', { cwd: tmpDir, stdio: 'pipe' });
+    withTempGitProject(tmpDir => {
+      // Add a second commit so we have a range
+      fs.writeFileSync(path.join(tmpDir, 'file2.txt'), 'content');
+      gitAddAll(tmpDir);
+      gitCommit(tmpDir, "second commit");
 
-    const firstSha = execSync('git rev-parse HEAD~1', { cwd: tmpDir, encoding: 'utf-8' }).trim();
-    const lastSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(tmpDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
 
-    const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
-    assert.strictEqual(commits.length, 1, 'Should return one commit');
-    assert.ok(commits[0].hash, 'Should have hash field');
-    assert.ok(commits[0].hashShort, 'Should have hashShort field');
-    assert.ok(commits[0].subject, 'Should have subject field');
-    assert.ok(commits[0].date, 'Should have date field');
-    assert.ok(commits[0].author, 'Should have author field');
-    assert.strictEqual(commits[0].subject, 'second commit', 'Subject should match commit message');
+      const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
+      assert.strictEqual(commits.length, 1, 'Should return one commit');
+      assert.ok(commits[0].hash, 'Should have hash field');
+      assert.ok(commits[0].hashShort, 'Should have hashShort field');
+      assert.ok(commits[0].subject, 'Should have subject field');
+      assert.ok(commits[0].date, 'Should have date field');
+      assert.ok(commits[0].author, 'Should have author field');
+      assert.strictEqual(commits[0].subject, 'second commit', 'Subject should match commit message');
+    });
   });
 
-  test('handles subjects containing special characters', () => {
-    // Create commit with a subject containing special chars (colon, ampersand, etc.)
-    fs.writeFileSync(path.join(tmpDir, 'file3.txt'), 'content');
-    execSync('git add .', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "fix: handle edge case & special chars"', { cwd: tmpDir, stdio: 'pipe' });
+  test('handles subjects containing special characters', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      // Create commit with a subject containing special chars (colon, ampersand, etc.)
+      fs.writeFileSync(path.join(tmpDir, 'file3.txt'), 'content');
+      gitAddAll(tmpDir);
+      gitCommit(tmpDir, "fix: handle edge case & special chars");
 
-    const firstSha = execSync('git rev-parse HEAD~1', { cwd: tmpDir, encoding: 'utf-8' }).trim();
-    const lastSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(tmpDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
 
-    const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
-    assert.strictEqual(commits.length, 1, 'Should return one commit');
-    assert.strictEqual(commits[0].subject, 'fix: handle edge case & special chars');
+      const commits = getCommitsInRange(tmpDir, firstSha, lastSha);
+      assert.strictEqual(commits.length, 1, 'Should return one commit');
+      assert.strictEqual(commits[0].subject, 'fix: handle edge case & special chars');
+    });
   });
 });
 
 // ─── getFilesForCommit ─────────────────────────────────────────────────────────
 
 describe('getFilesForCommit', () => {
-  let tmpDir;
-
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
+  test('returns empty array for non-existent SHA', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const files = getFilesForCommit(tmpDir, 'deadbeef1234567890abcdef1234567890abcdef');
+      assert.deepStrictEqual(files, [], 'Should return empty array for missing SHA');
+    });
   });
 
-  afterEach(() => {
-    cleanup(tmpDir);
+  test('returns files changed in commit as structured objects', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
+      const files = getFilesForCommit(tmpDir, headSha);
+
+      assert.ok(Array.isArray(files), 'Should return an array');
+      assert.ok(files.length > 0, 'Should have at least one file');
+
+      for (const f of files) {
+        assert.ok(f.status, 'Each file should have a status field');
+        assert.ok(f.path, 'Each file should have a path field');
+      }
+    });
   });
 
-  test('returns empty array for non-existent SHA', () => {
-    const files = getFilesForCommit(tmpDir, 'deadbeef1234567890abcdef1234567890abcdef');
-    assert.deepStrictEqual(files, [], 'Should return empty array for missing SHA');
-  });
+  test('returns added file with A status', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
+      const files = getFilesForCommit(tmpDir, headSha);
 
-  test('returns files changed in commit as structured objects', () => {
-    const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
-    const files = getFilesForCommit(tmpDir, headSha);
-
-    assert.ok(Array.isArray(files), 'Should return an array');
-    assert.ok(files.length > 0, 'Should have at least one file');
-
-    for (const f of files) {
-      assert.ok(f.status, 'Each file should have a status field');
-      assert.ok(f.path, 'Each file should have a path field');
-    }
-  });
-
-  test('returns added file with A status', () => {
-    const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
-    const files = getFilesForCommit(tmpDir, headSha);
-
-    // The initial commit added init.txt
-    const initFile = files.find(f => f.path === 'init.txt');
-    assert.ok(initFile, 'Should find init.txt in the initial commit');
-    assert.strictEqual(initFile.status, 'A', 'New file should have status A');
+      // The initial commit added init.txt
+      const initFile = files.find(f => f.path === 'init.txt');
+      assert.ok(initFile, 'Should find init.txt in the initial commit');
+      assert.strictEqual(initFile.status, 'A', 'New file should have status A');
+    });
   });
 });
 
@@ -199,11 +227,11 @@ describe('loadProtectedPaths', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('returns empty array when branding-map.json does not exist', () => {
     const paths = loadProtectedPaths(tmpDir);
@@ -242,10 +270,10 @@ describe('loadProtectedPaths', () => {
       path.join(syncDir, 'branding-map.json'),
       JSON.stringify({
         npm_patterns: [
-          { upstream: 'get-shit-done-cc', fork: '@chude/get-stuff-done' },
+          { upstream: '@opengsd/gsd-core', fork: '@chude/get-stuff-done' },
         ],
         github_patterns: [
-          { upstream: 'glittercowboy/get-shit-done', fork: 'chudeemeke/get-stuff-done' },
+          { upstream: 'open-gsd/gsd-core', fork: 'chudeemeke/get-stuff-done' },
         ],
       })
     );
@@ -313,40 +341,36 @@ describe('isSensitivePath', () => {
 // ─── assessConflictRiskByOverlap ──────────────────────────────────────────────
 
 describe('assessConflictRiskByOverlap', () => {
-  let tmpDir;
-
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
+  test('returns none when working tree is clean', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      // tmpDir is clean after initial commit
+      const commitFiles = [{ path: 'some-file.txt' }];
+      const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
+      assert.strictEqual(risk, 'none', 'Should return none for clean working tree');
+    });
   });
 
-  afterEach(() => {
-    cleanup(tmpDir);
+  test('returns overlap when commit files overlap with dirty working tree', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      // Modify a file to make it dirty
+      fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'modified content');
+
+      const commitFiles = [{ path: 'init.txt' }];
+      const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
+      assert.strictEqual(risk, 'overlap', 'Should return overlap when commit touches dirty file');
+    });
   });
 
-  test('returns none when working tree is clean', () => {
-    // tmpDir is clean after initial commit
-    const commitFiles = [{ path: 'some-file.txt' }];
-    const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
-    assert.strictEqual(risk, 'none', 'Should return none for clean working tree');
-  });
+  test('returns none when dirty files do not overlap with commit files', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      // Modify a file
+      fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'modified content');
 
-  test('returns overlap when commit files overlap with dirty working tree', () => {
-    // Modify a file to make it dirty
-    fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'modified content');
-
-    const commitFiles = [{ path: 'init.txt' }];
-    const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
-    assert.strictEqual(risk, 'overlap', 'Should return overlap when commit touches dirty file');
-  });
-
-  test('returns none when dirty files do not overlap with commit files', () => {
-    // Modify a file
-    fs.writeFileSync(path.join(tmpDir, 'init.txt'), 'modified content');
-
-    // But commit only touches a different file
-    const commitFiles = [{ path: 'other-file.txt' }];
-    const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
-    assert.strictEqual(risk, 'none', 'Should return none when no overlap with dirty files');
+      // But commit only touches a different file
+      const commitFiles = [{ path: 'other-file.txt' }];
+      const risk = assessConflictRiskByOverlap(tmpDir, commitFiles);
+      assert.strictEqual(risk, 'none', 'Should return none when no overlap with dirty files');
+    });
   });
 });
 
@@ -357,11 +381,11 @@ describe('computeEffortEstimate', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('returns null fields when sync-manifest.json does not exist', () => {
     const estimate = computeEffortEstimate(tmpDir, 10);
@@ -538,11 +562,11 @@ describe('sync-preview command', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('errors on missing range argument', () => {
     const result = runGsdTools('sync-preview', tmpDir);
@@ -568,13 +592,14 @@ describe('sync-preview command', () => {
     try {
       // Add a second commit for a valid range
       fs.writeFileSync(path.join(repoDir, 'file2.txt'), 'content');
-      execSync('git add . && git commit -m "second"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "second");
 
       // Dirty the working tree
       fs.writeFileSync(path.join(repoDir, 'file2.txt'), 'modified');
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.strictEqual(result.success, true, 'Should succeed despite dirty working tree');
@@ -593,16 +618,8 @@ describe('sync-preview command', () => {
     // Get two consecutive commits from git log
     let firstSha, lastSha;
     try {
-      lastSha = execSync('git rev-parse HEAD', {
-        cwd: repoDir,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-      }).trim();
-      firstSha = execSync('git rev-parse HEAD~1', {
-        cwd: repoDir,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-      }).trim();
+      lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
+      firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
     } catch {
       // Skip test if we can't get valid SHAs
       return;
@@ -631,15 +648,15 @@ describe('sync-preview command', () => {
     try {
       // Add commits with conventional prefixes so classification is deterministic
       fs.writeFileSync(path.join(repoDir, 'feature.txt'), 'new feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add new feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add new feature");
 
       fs.writeFileSync(path.join(repoDir, 'bugfix.txt'), 'bug fix');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: resolve issue"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: resolve issue");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview failed: ${result.error}`);
@@ -675,19 +692,19 @@ describe('sync-preview command', () => {
     try {
       // Add 3 commits: 1 feat, 1 fix, 1 chore
       fs.writeFileSync(path.join(repoDir, 'a.txt'), 'a');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature a"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature a");
 
       fs.writeFileSync(path.join(repoDir, 'b.txt'), 'b');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: fix bug b"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: fix bug b");
 
       fs.writeFileSync(path.join(repoDir, 'c.txt'), 'c');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: update deps"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: update deps");
 
-      const firstSha = execSync('git rev-parse HEAD~3', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~3']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview failed: ${result.error}`);
@@ -981,11 +998,11 @@ describe('loadKnownAuthors', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('returns empty Set when cache file does not exist', () => {
     const result = loadKnownAuthors(tmpDir);
@@ -1016,11 +1033,11 @@ describe('saveKnownAuthors', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('writes correct JSON structure to cache file', () => {
     const authors = new Set(['Alice <alice@example.com>', 'Bob <bob@example.com>']);
@@ -1044,36 +1061,37 @@ describe('saveKnownAuthors', () => {
 });
 
 describe('seedKnownAuthors', () => {
-  let tmpDir;
-  let cacheDir;
-
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
-    cacheDir = createTempProject();
+  test('populates known authors from git log on first run', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const cacheDir = createTempProject();
+      try {
+        // The tmpDir already has a commit with author "Test <test@test.com>"
+        const authors = seedKnownAuthors(tmpDir, cacheDir);
+        assert.ok(authors instanceof Set, 'Should return a Set');
+        assert.ok(authors.size > 0, 'Should have at least one author from git log');
+        // Should contain the test author
+        const hasTestAuthor = [...authors].some(a => a.includes('Test'));
+        assert.ok(hasTestAuthor, 'Should include test author from git log');
+      } finally {
+        cleanup(cacheDir);
+      }
+    });
   });
 
-  afterEach(() => {
-    cleanup(tmpDir);
-    cleanup(cacheDir);
-  });
-
-  test('populates known authors from git log on first run', () => {
-    // The tmpDir already has a commit with author "Test <test@test.com>"
-    const authors = seedKnownAuthors(tmpDir, cacheDir);
-    assert.ok(authors instanceof Set, 'Should return a Set');
-    assert.ok(authors.size > 0, 'Should have at least one author from git log');
-    // Should contain the test author
-    const hasTestAuthor = [...authors].some(a => a.includes('Test'));
-    assert.ok(hasTestAuthor, 'Should include test author from git log');
-  });
-
-  test('saves the seeded authors to cache file', () => {
-    seedKnownAuthors(tmpDir, cacheDir);
-    const cacheFile = path.join(cacheDir, 'gsd-upstream-authors.json');
-    assert.ok(fs.existsSync(cacheFile), 'Cache file should exist after seeding');
-    const data = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
-    assert.ok(Array.isArray(data.authors), 'Cache should have authors array');
-    assert.ok(data.authors.length > 0, 'Cache should have at least one author');
+  test('saves the seeded authors to cache file', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempGitProject(tmpDir => {
+      const cacheDir = createTempProject();
+      try {
+        seedKnownAuthors(tmpDir, cacheDir);
+        const cacheFile = path.join(cacheDir, 'gsd-upstream-authors.json');
+        assert.ok(fs.existsSync(cacheFile), 'Cache file should exist after seeding');
+        const data = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
+        assert.ok(Array.isArray(data.authors), 'Cache should have authors array');
+        assert.ok(data.authors.length > 0, 'Cache should have at least one author');
+      } finally {
+        cleanup(cacheDir);
+      }
+    });
   });
 });
 
@@ -1152,11 +1170,11 @@ describe('sync-preview supply chain integration', () => {
       // We can't override os.homedir() easily, so we rely on the real cache path.
       // Instead, test that supplyChainRisks is present in each commit.
       fs.writeFileSync(path.join(repoDir, 'feature.txt'), 'new feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview failed: ${result.error}`);
@@ -1179,11 +1197,11 @@ describe('sync-preview supply chain integration', () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'a.txt'), 'content');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: update"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: update");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${firstSha}..${lastSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview failed: ${result.error}`);
@@ -1200,92 +1218,99 @@ describe('sync-preview supply chain integration', () => {
 // ─── sync-checkpoint CLI integration ──────────────────────────────────────────
 
 describe('sync-checkpoint command', () => {
-  let tmpDir;
+  function withTempCheckpointRepo(fn) {
+    const tmpDir = createTempGitProject();
+    try {
+      fn(tmpDir);
+    } finally {
+      cleanup(tmpDir);
+    }
+  }
 
-  beforeEach(() => {
-    tmpDir = createTempGitProject();
+  test('sync-checkpoint list returns empty when no checkpoint tags exist', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      const result = runGsdTools('sync-checkpoint list', tmpDir);
+      assert.ok(result.success, `sync-checkpoint list failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      assert.deepStrictEqual(data.checkpoints, [], 'Should return empty checkpoints array');
+      assert.strictEqual(data.count, 0, 'Count should be 0');
+    });
   });
 
-  afterEach(() => {
-    cleanup(tmpDir);
+  test('sync-checkpoint create requires batchId argument', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      const result = runGsdTools('sync-checkpoint create', tmpDir);
+      assert.strictEqual(result.success, false, 'Should fail without batchId');
+      assert.ok(
+        result.error.includes('batchId required') || result.error.includes('Error'),
+        'Should indicate batchId is required'
+      );
+    });
   });
 
-  test('sync-checkpoint list returns empty when no checkpoint tags exist', () => {
-    const result = runGsdTools('sync-checkpoint list', tmpDir);
-    assert.ok(result.success, `sync-checkpoint list failed: ${result.error}`);
+  test('sync-checkpoint create creates annotated tag at HEAD', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      const result = runGsdTools('sync-checkpoint create test-batch-01', tmpDir);
+      assert.ok(result.success, `sync-checkpoint create failed: ${result.error}`);
 
-    const data = JSON.parse(result.output);
-    assert.deepStrictEqual(data.checkpoints, [], 'Should return empty checkpoints array');
-    assert.strictEqual(data.count, 0, 'Count should be 0');
+      const data = JSON.parse(result.output);
+      assert.strictEqual(data.tag, 'sync-checkpoint-test-batch-01', 'Tag name should have correct prefix');
+      assert.ok(data.sha, 'Should have SHA');
+      assert.ok(data.created, 'Should have created timestamp');
+
+      // Verify the tag was actually created in git
+      const tagsResult = gitOutput(tmpDir, ['tag', '-l', 'sync-checkpoint-*']).trim();
+      assert.strictEqual(tagsResult, 'sync-checkpoint-test-batch-01', 'Tag should exist in git');
+    });
   });
 
-  test('sync-checkpoint create requires batchId argument', () => {
-    const result = runGsdTools('sync-checkpoint create', tmpDir);
-    assert.strictEqual(result.success, false, 'Should fail without batchId');
-    assert.ok(
-      result.error.includes('batchId required') || result.error.includes('Error'),
-      'Should indicate batchId is required'
-    );
+  test('sync-checkpoint list returns tags after create', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      // Create a checkpoint
+      runGsdTools('sync-checkpoint create batch-02', tmpDir);
+
+      const result = runGsdTools('sync-checkpoint list', tmpDir);
+      assert.ok(result.success, `sync-checkpoint list failed: ${result.error}`);
+
+      const data = JSON.parse(result.output);
+      assert.strictEqual(data.count, 1, 'Should have 1 checkpoint');
+      assert.strictEqual(data.checkpoints[0].tag, 'sync-checkpoint-batch-02');
+      assert.ok(data.checkpoints[0].sha, 'Checkpoint should have SHA');
+    });
   });
 
-  test('sync-checkpoint create creates annotated tag at HEAD', () => {
-    const result = runGsdTools('sync-checkpoint create test-batch-01', tmpDir);
-    assert.ok(result.success, `sync-checkpoint create failed: ${result.error}`);
+  test('sync-checkpoint cleanup deletes all checkpoint tags', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      // Create multiple checkpoints
+      runGsdTools('sync-checkpoint create batch-a', tmpDir);
+      runGsdTools('sync-checkpoint create batch-b', tmpDir);
 
-    const data = JSON.parse(result.output);
-    assert.strictEqual(data.tag, 'sync-checkpoint-test-batch-01', 'Tag name should have correct prefix');
-    assert.ok(data.sha, 'Should have SHA');
-    assert.ok(data.created, 'Should have created timestamp');
+      const cleanupResult = runGsdTools('sync-checkpoint cleanup', tmpDir);
+      assert.ok(cleanupResult.success, `sync-checkpoint cleanup failed: ${cleanupResult.error}`);
 
-    // Verify the tag was actually created in git
-    const tagsResult = execSync('git tag -l "sync-checkpoint-*"', {
-      cwd: tmpDir,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    assert.strictEqual(tagsResult, 'sync-checkpoint-test-batch-01', 'Tag should exist in git');
+      const cleanupData = JSON.parse(cleanupResult.output);
+      assert.strictEqual(cleanupData.count, 2, 'Should have deleted 2 tags');
+      assert.strictEqual(cleanupData.deleted.length, 2, 'deleted array should have 2 entries');
+      assert.strictEqual(cleanupData.failed.length, 0, 'failed array should be empty');
+
+      // Verify tags are gone
+      const listResult = runGsdTools('sync-checkpoint list', tmpDir);
+      const listData = JSON.parse(listResult.output);
+      assert.strictEqual(listData.count, 0, 'No checkpoints should remain after cleanup');
+    });
   });
 
-  test('sync-checkpoint list returns tags after create', () => {
-    // Create a checkpoint
-    runGsdTools('sync-checkpoint create batch-02', tmpDir);
+  test('sync-checkpoint cleanup succeeds when no tags exist (idempotent)', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    withTempCheckpointRepo(tmpDir => {
+      const result = runGsdTools('sync-checkpoint cleanup', tmpDir);
+      assert.ok(result.success, `sync-checkpoint cleanup should succeed even with no tags: ${result.error}`);
 
-    const result = runGsdTools('sync-checkpoint list', tmpDir);
-    assert.ok(result.success, `sync-checkpoint list failed: ${result.error}`);
-
-    const data = JSON.parse(result.output);
-    assert.strictEqual(data.count, 1, 'Should have 1 checkpoint');
-    assert.strictEqual(data.checkpoints[0].tag, 'sync-checkpoint-batch-02');
-    assert.ok(data.checkpoints[0].sha, 'Checkpoint should have SHA');
-  });
-
-  test('sync-checkpoint cleanup deletes all checkpoint tags', () => {
-    // Create multiple checkpoints
-    runGsdTools('sync-checkpoint create batch-a', tmpDir);
-    runGsdTools('sync-checkpoint create batch-b', tmpDir);
-
-    const cleanupResult = runGsdTools('sync-checkpoint cleanup', tmpDir);
-    assert.ok(cleanupResult.success, `sync-checkpoint cleanup failed: ${cleanupResult.error}`);
-
-    const cleanupData = JSON.parse(cleanupResult.output);
-    assert.strictEqual(cleanupData.count, 2, 'Should have deleted 2 tags');
-    assert.strictEqual(cleanupData.deleted.length, 2, 'deleted array should have 2 entries');
-    assert.strictEqual(cleanupData.failed.length, 0, 'failed array should be empty');
-
-    // Verify tags are gone
-    const listResult = runGsdTools('sync-checkpoint list', tmpDir);
-    const listData = JSON.parse(listResult.output);
-    assert.strictEqual(listData.count, 0, 'No checkpoints should remain after cleanup');
-  });
-
-  test('sync-checkpoint cleanup succeeds when no tags exist (idempotent)', () => {
-    const result = runGsdTools('sync-checkpoint cleanup', tmpDir);
-    assert.ok(result.success, `sync-checkpoint cleanup should succeed even with no tags: ${result.error}`);
-
-    const data = JSON.parse(result.output);
-    assert.strictEqual(data.count, 0, 'Should report 0 deleted');
-    assert.deepStrictEqual(data.deleted, [], 'deleted should be empty array');
-    assert.deepStrictEqual(data.failed, [], 'failed should be empty array');
+      const data = JSON.parse(result.output);
+      assert.strictEqual(data.count, 0, 'Should report 0 deleted');
+      assert.deepStrictEqual(data.deleted, [], 'deleted should be empty array');
+      assert.deepStrictEqual(data.failed, [], 'failed should be empty array');
+    });
   });
 });
 
@@ -1496,24 +1521,24 @@ describe('detectFileOverlapDeps', () => {
 // ─── sync-preview selective filtering CLI integration ─────────────────────────
 
 describe('sync-preview selective filtering CLI', () => {
-  test('--category flag filters output correctly', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('--category flag filters output correctly', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create commits with different conventional prefixes
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
       fs.writeFileSync(path.join(repoDir, 'fix.txt'), 'fix');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: resolve bug"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: resolve bug");
 
       fs.writeFileSync(path.join(repoDir, 'refactor.txt'), 'refactor');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "refactor: cleanup code"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "refactor: cleanup code");
 
-      const baseSha = execSync('git rev-parse HEAD~3', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const baseSha = gitOutput(repoDir, ['rev-parse', 'HEAD~3']);
+      const headSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       // Filter to only feat commits
       const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json --category feat`, repoDir);
@@ -1533,19 +1558,19 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('--exclude flag removes category from output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('--exclude flag removes category from output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
       fs.writeFileSync(path.join(repoDir, 'refactor.txt'), 'refactor');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "refactor: cleanup code"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "refactor: cleanup code");
 
-      const baseSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const baseSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const headSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json --exclude refactor`, repoDir);
       assert.ok(result.success, `sync-preview --exclude failed: ${result.error}`);
@@ -1561,15 +1586,15 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('without filter flags produces unchanged output (backward compat)', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('without filter flags produces unchanged output (backward compat)', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'feat.txt'), 'feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
-      const baseSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const baseSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const headSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json`, repoDir);
       assert.ok(result.success, `sync-preview without filters failed: ${result.error}`);
@@ -1589,20 +1614,20 @@ describe('sync-preview selective filtering CLI', () => {
     }
   });
 
-  test('--json with filters includes dependencies fields with semantic placeholder', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('--json with filters includes dependencies fields with semantic placeholder', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create 2 commits touching the same file (creates file-overlap dependency)
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'version1');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: first change to shared"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: first change to shared");
 
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'version2');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: second change to shared"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: second change to shared");
 
-      const baseSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const headSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const baseSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const headSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const result = runGsdTools(`sync-preview ${baseSha}..${headSha} --json --category feat`, repoDir);
       assert.ok(result.success, `sync-preview --json --category failed: ${result.error}`);
@@ -1629,11 +1654,11 @@ describe('loadProtectedPaths flat sections', () => {
 
   beforeEach(() => {
     tmpDir = createTempProject();
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   afterEach(() => {
     cleanup(tmpDir);
-  });
+  }, FIXTURE_HOOK_TIMEOUT);
 
   test('extracts string entries from package_json_protected_fields', () => {
     const syncDir = path.join(tmpDir, '.planning', 'sync');
@@ -1808,7 +1833,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     assert.ok(stderr.includes('both baseRef and targetRef required'), 'Should mention both refs required');
   });
 
-  test('errors when base SHA does not exist', () => {
+  test('errors when base SHA does not exist', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const tmpDir = createTempGitProject();
     try {
       const { exitCode, stderr } = captureCmd(cmdSyncPreview, [tmpDir, 'deadbeef..HEAD', {}, false]);
@@ -1819,16 +1844,16 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces JSON output for valid range', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('produces JSON output for valid range', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create a second commit for a valid range
       fs.writeFileSync(path.join(repoDir, 'feature.txt'), 'new feature');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add feature"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add feature");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, { json: true }, false,
@@ -1843,15 +1868,15 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces human-readable output for valid range', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('produces human-readable output for valid range', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'readme.md'), 'docs');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "docs: add readme"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "docs: add readme");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, {}, true,
@@ -1864,19 +1889,19 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces filtered output with category flag', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('produces filtered output with category flag', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'a.txt'), 'feat');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add a"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add a");
 
       fs.writeFileSync(path.join(repoDir, 'b.txt'), 'fix');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: fix b"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: fix b");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, { json: true, categories: ['feat'] }, false,
@@ -1891,19 +1916,19 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('produces filtered human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('produces filtered human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'c.txt'), 'content');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add c"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add c");
 
       fs.writeFileSync(path.join(repoDir, 'd.txt'), 'content');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: add d"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: add d");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, { categories: ['feat'] }, true,
@@ -1916,10 +1941,10 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('errors when target SHA does not exist', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('errors when target SHA does not exist', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const tmpDir = createTempGitProject();
     try {
-      const headSha = execSync('git rev-parse HEAD', { cwd: tmpDir, encoding: 'utf-8' }).trim();
+      const headSha = gitOutput(tmpDir, ['rev-parse', 'HEAD']);
       const { exitCode, stderr } = captureCmd(cmdSyncPreview, [tmpDir, `${headSha}..deadbeef`, {}, false]);
       assert.strictEqual(exitCode, 1, 'Should exit with code 1');
       assert.ok(stderr.includes('SHA not found'), 'Should mention SHA not found for target');
@@ -1928,7 +1953,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders supply chain risk badges in human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders supply chain risk badges in human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create a commit that modifies package.json (triggers dependency-diff supply chain check)
@@ -1936,11 +1961,11 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
         name: 'test-pkg',
         dependencies: { 'new-dep': '^1.0.0' },
       }, null, 2));
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add dependency"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add dependency");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, {}, true,
@@ -1953,7 +1978,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders sensitive path markers in human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders sensitive path markers in human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Set up a branding map so isSensitivePath triggers
@@ -1963,16 +1988,16 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
         path.join(syncDir, 'branding-map.json'),
         JSON.stringify({ path_patterns: [{ upstream: 'pkg', fork: 'package.json' }] })
       );
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: add branding map"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: add branding map");
 
       // Now commit a change to the sensitive path
       fs.writeFileSync(path.join(repoDir, 'package.json'), '{"name":"test"}');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add package.json"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add package.json");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, {}, true,
@@ -1984,20 +2009,20 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('cross-boundary dep warnings in filtered JSON output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('cross-boundary dep warnings in filtered JSON output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create two commits touching the same file but different categories
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'v1');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: initial shared"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: initial shared");
 
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'v2');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: update shared"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: update shared");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       // Select only 'fix', exclude 'feat' -- creates cross-boundary dependency
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
@@ -2017,19 +2042,19 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders cross-boundary dep warnings in filtered human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders cross-boundary dep warnings in filtered human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       fs.writeFileSync(path.join(repoDir, 'overlap.txt'), 'a');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add overlap"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add overlap");
 
       fs.writeFileSync(path.join(repoDir, 'overlap.txt'), 'b');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "fix: update overlap"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "fix: update overlap");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
         repoDir, `${firstSha}..${lastSha}`, { categories: ['fix'] }, true,
@@ -2042,7 +2067,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders supply chain risks in filtered human-readable output', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders supply chain risks in filtered human-readable output', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Commit with package.json change (triggers supply chain) plus a non-feat commit
@@ -2050,15 +2075,15 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
         name: 'risky',
         dependencies: { 'suspicious-pkg': '^1.0.0' },
       }, null, 2));
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "feat: add risky dep"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "feat: add risky dep");
 
       fs.writeFileSync(path.join(repoDir, 'docs.md'), 'docs');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "docs: add docs"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "docs: add docs");
 
-      const firstSha = execSync('git rev-parse HEAD~2', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~2']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       // Filter to feat only -- triggers filtered rendering path with supply chain badges
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
@@ -2072,7 +2097,7 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
     }
   });
 
-  test('renders unfiltered output with sensitive path markers', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('renders unfiltered output with sensitive path markers', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       const syncDir = path.join(repoDir, '.planning', 'sync');
@@ -2081,15 +2106,15 @@ describe('cmdSyncPreview direct (overlay coverage)', () => {
         path.join(syncDir, 'branding-map.json'),
         JSON.stringify({ path_patterns: [{ upstream: 'readme', fork: 'readme.md' }] })
       );
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "chore: branding map"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "chore: branding map");
 
       fs.writeFileSync(path.join(repoDir, 'readme.md'), 'content');
-      execSync('git add .', { cwd: repoDir, stdio: 'pipe' });
-      execSync('git commit -m "docs: update readme"', { cwd: repoDir, stdio: 'pipe' });
+      gitAddAll(repoDir);
+      gitCommit(repoDir, "docs: update readme");
 
-      const firstSha = execSync('git rev-parse HEAD~1', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      const lastSha = execSync('git rev-parse HEAD', { cwd: repoDir, encoding: 'utf-8' }).trim();
+      const firstSha = gitOutput(repoDir, ['rev-parse', 'HEAD~1']);
+      const lastSha = gitOutput(repoDir, ['rev-parse', 'HEAD']);
 
       // Unfiltered human-readable output with sensitive path
       const { exitCode, stdout } = captureCmd(cmdSyncPreview, [
@@ -2110,7 +2135,7 @@ describe('cmdSyncCheckpointCreate direct (overlay coverage)', () => {
     assert.ok(stderr.includes('batchId required'), 'Should mention batchId required');
   });
 
-  test('creates checkpoint tag in git repo', () => {
+  test('creates checkpoint tag in git repo', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       const { exitCode, stdout } = captureCmd(cmdSyncCheckpointCreate, [repoDir, 'test-batch-1', false]);
@@ -2121,7 +2146,7 @@ describe('cmdSyncCheckpointCreate direct (overlay coverage)', () => {
       assert.ok(data.created, 'Should include created timestamp');
 
       // Verify tag exists
-      const tagCheck = execSync('git tag -l sync-checkpoint-test-batch-1', { cwd: repoDir, encoding: 'utf-8' });
+      const tagCheck = gitOutput(repoDir, ['tag', '-l', 'sync-checkpoint-test-batch-1']);
       assert.ok(tagCheck.includes('sync-checkpoint-test-batch-1'), 'Tag should exist in repo');
     } finally {
       cleanup(repoDir);
@@ -2130,7 +2155,7 @@ describe('cmdSyncCheckpointCreate direct (overlay coverage)', () => {
 });
 
 describe('cmdSyncCheckpointList direct (overlay coverage)', () => {
-  test('lists empty checkpoints for repo with no checkpoint tags', () => {
+  test('lists empty checkpoints for repo with no checkpoint tags', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       const { exitCode, stdout } = captureCmd(cmdSyncCheckpointList, [repoDir, false]);
@@ -2143,7 +2168,7 @@ describe('cmdSyncCheckpointList direct (overlay coverage)', () => {
     }
   });
 
-  test('lists existing checkpoint tags', () => {
+  test('lists existing checkpoint tags', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create a checkpoint first
@@ -2161,7 +2186,7 @@ describe('cmdSyncCheckpointList direct (overlay coverage)', () => {
 });
 
 describe('cmdSyncCheckpointCleanup direct (overlay coverage)', () => {
-  test('no-op cleanup when no checkpoints exist', () => {
+  test('no-op cleanup when no checkpoints exist', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       const { exitCode, stdout } = captureCmd(cmdSyncCheckpointCleanup, [repoDir, false]);
@@ -2174,7 +2199,7 @@ describe('cmdSyncCheckpointCleanup direct (overlay coverage)', () => {
     }
   });
 
-  test('deletes existing checkpoint tags', () => {
+  test('deletes existing checkpoint tags', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     const repoDir = createTempGitProject();
     try {
       // Create checkpoints
@@ -2189,7 +2214,7 @@ describe('cmdSyncCheckpointCleanup direct (overlay coverage)', () => {
       assert.ok(data.deleted.includes('sync-checkpoint-cleanup-2'), 'Should include second tag');
 
       // Verify tags are gone
-      const tagCheck = execSync('git tag -l sync-checkpoint-*', { cwd: repoDir, encoding: 'utf-8' });
+      const tagCheck = gitOutput(repoDir, ['tag', '-l', 'sync-checkpoint-*']);
       assert.strictEqual(tagCheck.trim(), '', 'No checkpoint tags should remain');
     } finally {
       cleanup(repoDir);

@@ -1037,7 +1037,7 @@ Update cache and show summary.
    ```
    ## SYNC COMPLETE
 
-   **Synced:** {N} commits from upstream (glittercowboy/get-shit-done)
+   **Synced:** {N} commits from upstream (open-gsd/gsd-core)
    **Published:** v{version} to {registry}
    **Cache updated:** last_sync.sha = {sha_short}
 

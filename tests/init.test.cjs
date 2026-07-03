@@ -65,6 +65,73 @@ describe('init commands', () => {
     assert.strictEqual(output.config_path, '.planning/config.json');
   });
 
+  test('init progress prefers STATE current phase over older in-progress phase directories', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# Session State
+
+## Current Position
+
+Phase: Phase 41 (executing) -- Foundation
+Status: In progress
+`
+    );
+
+    const older = path.join(tmpDir, '.planning', 'phases', '40.5-older-work');
+    fs.mkdirSync(older, { recursive: true });
+    fs.writeFileSync(path.join(older, '40.5-01-PLAN.md'), '# Plan');
+
+    const current = path.join(tmpDir, '.planning', 'phases', '41-foundation');
+    fs.mkdirSync(current, { recursive: true });
+    fs.writeFileSync(path.join(current, '41-01-PLAN.md'), '# Plan');
+
+    const result = runGsdTools('init progress', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.state_current_phase, '41', 'STATE current phase is surfaced');
+    assert.strictEqual(output.current_phase.number, '41', 'STATE current phase should drive init progress');
+  });
+
+  test('init progress includes ROADMAP-only phases when selecting next phase', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 41: Current Work
+**Plans:** 1 plan
+
+### Phase 42: Next Roadmap Phase
+**Plans:** 0 plans
+
+### Phase 999.1: Backlog
+**Plans:** 0 plans
+`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# Session State
+
+Phase: Phase 41 (executing) -- Current Work
+`
+    );
+
+    const current = path.join(tmpDir, '.planning', 'phases', '41-current-work');
+    fs.mkdirSync(current, { recursive: true });
+    fs.writeFileSync(path.join(current, '41-01-PLAN.md'), '# Plan');
+
+    const backlog = path.join(tmpDir, '.planning', 'phases', '999.1-backlog');
+    fs.mkdirSync(backlog, { recursive: true });
+
+    const result = runGsdTools('init progress', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.current_phase.number, '41');
+    assert.strictEqual(output.next_phase.number, '42', 'roadmap phase should beat later backlog directory');
+    assert.ok(output.phases.some(phase => phase.number === '42'), 'ROADMAP-only phase should be included');
+  });
+
   test('init phase-op returns core and optional phase file paths', () => {
     const phaseDir = path.join(tmpDir, '.planning', 'phases', '03-api');
     fs.mkdirSync(phaseDir, { recursive: true });

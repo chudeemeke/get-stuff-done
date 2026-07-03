@@ -2,7 +2,7 @@ const security = require('eslint-plugin-security');
 
 module.exports = [
   {
-    ignores: ['node_modules/**', '.upstream/**', 'hooks/dist/**', 'assets/.backup/**']
+    ignores: ['node_modules/**', '.upstream/**', 'dist/**', 'hooks/dist/**', 'assets/.backup/**']
   },
   {
     files: ['**/*.js'],
@@ -59,6 +59,8 @@ module.exports = [
       }
     },
     rules: {
+      // Test fixtures intentionally use dynamic paths, subprocesses, and object
+      // probes. Production JavaScript above keeps eslint-plugin-security active.
       'security/detect-non-literal-fs-filename': 'off',
       'security/detect-non-literal-require': 'off',
       'security/detect-child-process': 'off',

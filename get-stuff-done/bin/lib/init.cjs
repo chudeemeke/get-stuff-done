@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { loadConfig, resolveModelInternal, findPhaseInternal, getRoadmapPhaseInternal, pathExistsInternal, generateSlugInternal, getMilestoneInfo, normalizePhaseName, comparePhaseNum, output, error } = require('./core.cjs');
+const { loadConfig, resolveModelInternal, findPhaseInternal, getRoadmapPhaseInternal, pathExistsInternal, generateSlugInternal, getMilestoneInfo, getStateCurrentPhase, normalizePhaseName, comparePhaseNum, output, error } = require('./core.cjs');
 
 function cmdInitExecutePhase(cwd, phase, raw) {
   if (!phase) {
@@ -637,16 +637,42 @@ function cmdInitProgress(cwd, raw) {
       };
 
       phases.push(phaseInfo);
-
-      // Find current (first incomplete with plans) and next (first pending)
-      if (!currentPhase && (status === 'in_progress' || status === 'researched')) {
-        currentPhase = phaseInfo;
-      }
-      if (!nextPhase && status === 'pending') {
-        nextPhase = phaseInfo;
-      }
     }
   } catch {}
+
+  try {
+    const roadmap = fs.readFileSync(path.join(cwd, '.planning', 'ROADMAP.md'), 'utf-8');
+    const phasePattern = /#{2,4}\s*Phase\s+(\d+[A-Z]?(?:\.\d+)*)\s*:\s*([^\r\n]+)/gi;
+    let match;
+    while ((match = phasePattern.exec(roadmap)) !== null) {
+      const phaseNumber = match[1];
+      const hasPhase = phases.some(p => normalizePhaseName(p.number) === normalizePhaseName(phaseNumber));
+      if (hasPhase) continue;
+
+      phases.push({
+        number: phaseNumber,
+        name: generateSlugInternal(match[2].replace(/\(INSERTED\)/i, '').trim()),
+        directory: null,
+        status: 'pending',
+        plan_count: 0,
+        summary_count: 0,
+        has_research: false,
+      });
+    }
+    phases.sort((a, b) => comparePhaseNum(a.number, b.number));
+  } catch {}
+
+  const stateCurrentPhase = getStateCurrentPhase(cwd);
+  if (stateCurrentPhase) {
+    const statePhase = phases.find(p => normalizePhaseName(p.number) === normalizePhaseName(stateCurrentPhase));
+    if (statePhase && statePhase.status !== 'complete') {
+      currentPhase = statePhase;
+    }
+  }
+  if (!currentPhase) {
+    currentPhase = phases.find(p => p.status === 'in_progress' || p.status === 'researched') || null;
+  }
+  nextPhase = phases.find(p => p.status === 'pending') || null;
 
   // Check for paused work
   let pausedAt = null;
@@ -675,6 +701,7 @@ function cmdInitProgress(cwd, raw) {
     in_progress_count: phases.filter(p => p.status === 'in_progress').length,
 
     // Current state
+    state_current_phase: stateCurrentPhase,
     current_phase: currentPhase,
     next_phase: nextPhase,
     paused_at: pausedAt,

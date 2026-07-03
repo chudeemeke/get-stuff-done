@@ -2,11 +2,20 @@
  * GSD Tools Tests - Commands
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
+const { test: nodeTest, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
+
+function test(name, optionsOrFn, maybeFn) {
+  if (typeof optionsOrFn === 'function') {
+    return nodeTest(name, { timeout: SUBPROCESS_TIMEOUT }, optionsOrFn);
+  }
+
+  return nodeTest(name, { timeout: SUBPROCESS_TIMEOUT, ...optionsOrFn }, maybeFn);
+}
 
 describe('history-digest command', () => {
   let tmpDir;
@@ -482,7 +491,7 @@ describe('progress command', () => {
     assert.ok(result.output.includes('foundation'), 'should include phase name');
   });
 
-  test('does not crash when summaries exceed plans (orphaned SUMMARY.md)', () => {
+  test('does not crash when summaries exceed plans (orphaned SUMMARY.md)', { timeout: SUBPROCESS_TIMEOUT }, () => {
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'ROADMAP.md'),
       `# Roadmap v1.0 MVP\n`

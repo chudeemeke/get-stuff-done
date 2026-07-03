@@ -8,8 +8,7 @@
 const { test, describe, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
-const { SUBPROCESS_TIMEOUT } = require('./helpers');
+const { runWithTimeout, SUBPROCESS_TIMEOUT } = require('./helpers');
 
 describe('bin/install.js module exports', { timeout: SUBPROCESS_TIMEOUT }, () => {
   test('exports all 10 safety functions + uninstall', () => {
@@ -38,24 +37,13 @@ describe('bin/install.js module exports', { timeout: SUBPROCESS_TIMEOUT }, () =>
   });
 
   test('require() produces no stdout or stderr output', () => {
-    const { execSync } = require('child_process');
-    // Redirect stderr to a temp file so we can capture it separately
-    const tmpStderr = path.join(os.tmpdir(), `gsd-stderr-${Date.now()}.txt`);
-    try {
-      const stdout = execSync(
-        `node -e "require('./bin/install.js')" 2>"${tmpStderr}"`,
-        {
-          cwd: path.join(__dirname, '..'),
-          encoding: 'utf-8',
-          timeout: 10000,
-        }
-      );
-      const stderr = fs.readFileSync(tmpStderr, 'utf-8');
-      expect(stdout).toBe('');
-      expect(stderr).toBe('');
-    } finally {
-      try { fs.unlinkSync(tmpStderr); } catch { /* ignore cleanup errors */ }
-    }
+    const result = runWithTimeout(process.execPath, ['-e', "require('./bin/install.js')"], {
+      cwd: path.join(__dirname, '..'),
+      encoding: 'utf-8',
+      timeout: 10000,
+    });
+    expect(result.stdout).toBe('');
+    expect(result.stderr).toBe('');
   });
 
   test('stale src/ fingerprint test is removed from installer-v3.test.js', () => {

@@ -7,8 +7,8 @@
  * against the composed dist/ output to validate behavioral correctness.
  *
  * Approach: Creates a temp directory with a symlink/junction that redirects
- * `get-stuff-done/` to `dist/get-shit-done/`, copies test files there,
- * and runs them with `node --test`.
+ * `get-stuff-done/` to the composed active package root under dist/, copies
+ * test files there, and runs them with `node --test`.
  *
  * Usage:
  *   node scripts/run-upstream-compat.js
@@ -23,13 +23,14 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { execFileSync, execSync } = require('child_process');
+const { getAuthorityPathRelative } = require('./lib/upstream-source');
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const PROJECT_ROOT = path.join(__dirname, '..');
-const DIST_DIR = path.join(PROJECT_ROOT, 'dist', 'get-shit-done');
+const DIST_ROOT = path.join(PROJECT_ROOT, 'dist');
 const TESTS_DIR = path.join(PROJECT_ROOT, 'tests');
 
 /**
@@ -56,13 +57,35 @@ function discoverTestFiles() {
 }
 
 /**
- * Create the symlink/junction from get-stuff-done/ to dist/get-shit-done/.
+ * Resolve the composed active package root used by compatibility tests.
+ *
+ * The copied upstream tests import through get-stuff-done/bin/*. The active
+ * authority may place that bin path under a package subdirectory in dist/
+ * (currently gsd-core/bin/gsd-tools.cjs), so derive the symlink target from
+ * the authority contract instead of hardcoding a legacy package name.
+ *
+ * @param {object} [opts]
+ * @param {string} [opts.distRoot]  Absolute or relative dist root
+ * @returns {string} Directory that should be exposed as get-stuff-done/
+ */
+function getCompatPackageRoot(opts = {}) {
+  const distRoot = opts.distRoot || DIST_ROOT;
+  const gsdToolsRel = getAuthorityPathRelative('gsdTools', opts);
+  const parts = gsdToolsRel.split('/').filter(Boolean);
+  const binIndex = parts.indexOf('bin');
+  const packageRootParts = binIndex > 0 ? parts.slice(0, binIndex) : [];
+
+  return path.join(distRoot, ...packageRootParts);
+}
+
+/**
+ * Create the symlink/junction from get-stuff-done/ to the composed package root.
  *
  * On Windows, uses 'junction' type (no admin privileges required).
  * On Unix, uses 'dir' type (standard directory symlink).
  *
  * @param {string} linkPath  Where the symlink/junction will be created
- * @param {string} target    Where it points to (dist/get-shit-done/)
+ * @param {string} target    Where it points to under dist/
  */
 function createLink(linkPath, target) {
   const type = process.platform === 'win32' ? 'junction' : 'dir';
@@ -75,9 +98,9 @@ function createLink(linkPath, target) {
  * The original helpers.cjs TOOLS_PATH points to:
  *   path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs')
  *
- * In the temp dir, `get-stuff-done/` is a symlink to dist/get-shit-done/,
- * so this path resolves correctly without patching. However, the helpers/
- * directory import needs special handling.
+ * In the temp dir, `get-stuff-done/` is a symlink to the composed active
+ * package root, so this path resolves correctly without patching. However, the
+ * helpers/ directory import needs special handling.
  *
  * @param {string} originalContent  The original helpers.cjs content
  * @param {string} projectRoot      Absolute path to the project root
@@ -114,15 +137,18 @@ function runUpstreamCompat(opts = {}) {
     console.log('');
   }
 
-  // Verify dist/ exists
-  if (!fs.existsSync(DIST_DIR)) {
+  const distDir = opts.distDir || getCompatPackageRoot(opts);
+  const distRel = path.relative(PROJECT_ROOT, distDir).replace(/\\/g, '/');
+
+  // Verify dist package root exists
+  if (!fs.existsSync(distDir)) {
     return {
       ok: false,
       passed: 0,
       failed: 0,
       skipped: 0,
       excluded: [...EXCLUDED_TESTS],
-      errors: ['dist/get-shit-done/ does not exist. Run `bun run compose` first.'],
+      errors: [`${distRel}/ does not exist. Run \`bun run compose\` first.`],
     };
   }
 
@@ -135,9 +161,9 @@ function runUpstreamCompat(opts = {}) {
     // Create temp directory
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-compat-'));
 
-    // Create symlink: {tmpDir}/get-stuff-done/ -> dist/get-shit-done/
+    // Create symlink: {tmpDir}/get-stuff-done/ -> active package root under dist/
     const linkPath = path.join(tmpDir, 'get-stuff-done');
-    createLink(linkPath, DIST_DIR);
+    createLink(linkPath, distDir);
 
     // Create tests/ directory in temp
     const tmpTestsDir = path.join(tmpDir, 'tests');
@@ -331,4 +357,4 @@ if (require.main === module) {
 // Module exports
 // ---------------------------------------------------------------------------
 
-module.exports = { runUpstreamCompat, parseTestOutput, formatReport };
+module.exports = { getCompatPackageRoot, runUpstreamCompat, parseTestOutput, formatReport };

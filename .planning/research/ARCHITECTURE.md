@@ -1,849 +1,515 @@
-# Architecture Patterns: GSD v0.2.0 Hardening
-
-**Domain:** Meta-prompting and spec-driven development system for Claude Code
-**Researched:** 2026-02-07
-**Focus:** Integration architecture for hardening, platform support, and upstream sync enhancements
-
-## Executive Summary
-
-GSD v0.2.0 adds security hardening, cross-platform support, auto-update checks, diff preview, rollback, and Claude Code capability adoption to the existing v0.1.0 architecture. The existing architecture is a hybrid system combining:
-
-1. **Node.js CLI tooling** (installer, hooks, configuration)
-2. **Shell-based workflows** (orchestrated through Claude Code's Bash tool)
-3. **Markdown-based context system** (templates, references, commands read by Claude)
-4. **Git operations** (via bash commands for upstream sync)
-
-New features integrate at multiple layers: installer enhancements (cross-platform detection), config system extensions (security settings), workflow enhancements (rollback, diff preview), and statusline improvements (update notifications).
-
-## Existing Architecture (v0.1.0 Baseline)
-
-### Component Inventory
-
-| Component | Type | Location | Purpose |
-|-----------|------|----------|---------|
-| **Installer** | Node.js script | `bin/install.js` | Copy/link files to ~/.claude/ |
-| **ConfigLoader** | Node.js module | `src/config/ConfigLoader.js` | JSON5 config with AJV validation |
-| **ConfigSchema** | JSON Schema | `src/config/ConfigSchema.js` | Schema validation rules |
-| **Theme System** | Node.js modules | `src/theme/` | ANSI styling (Style Composer pattern) |
-| **Statusline Hook** | Node.js script | `hooks/gsd-statusline.js` | Runs on every prompt |
-| **Update Check Hook** | Node.js script | `hooks/gsd-check-update.js` | Runs on SessionStart |
-| **Upstream Sync** | Markdown workflow | `get-stuff-done/workflows/upstream-sync.md` | 7-stage git workflow |
-| **Commands** | Markdown files | `commands/gsd/*.md` | Slash command definitions |
-| **Agents** | Markdown files | `agents/gsd-*.md` | Subagent behavior specs |
-| **Workflows** | Markdown files | `get-stuff-done/workflows/*.md` | Orchestration logic |
-
-### Data Flow Patterns
-
-**Installation Flow:**
-```
-npm install @chude/get-stuff-done
-  → bin/install.js
-  → Detect platform (Windows/Unix)
-  → Copy/link files to ~/.claude/
-  → Register hooks in settings.json
-  → Write VERSION file
-```
-
-**Configuration Flow:**
-```
-Hook execution
-  → Require src/config/ConfigLoader.js
-  → Read ~/.gsd/config.json
-  → Parse JSON5
-  → Validate with AJV schema
-  → Return config object
-```
-
-**Upstream Sync Flow:**
-```
-/gsd:upstream command
-  → Pre-flight checks (git clean, auth)
-  → Spawn Task with upstream-sync.md workflow
-  → 7 stages (FETCH → PRESENT → PLAN → EXECUTE → VERIFY → PUBLISH → FINALIZE)
-  → Checkpoints return to orchestrator
-  → User input → Resume with continuation
-  → Update cache.json on success
-```
-
-**Update Check Flow:**
-```
-SessionStart hook
-  → hooks/gsd-check-update.js
-  → Spawn detached child process
-  → Read VERSION file
-  → npm view @chude/get-stuff-done version
-  → Write ~/.claude/cache/gsd-update-check.json
-  → Statusline reads cache and displays notification
-```
-
-## Integration Points for v0.2.0 Features
-
-### 1. Security Hardening
-
-**Where:** ConfigSchema.js, installer validation, workflow scripts
-
-**Integration approach:**
-
-```javascript
-// ConfigSchema.js extension
-security: {
-  type: 'object',
-  properties: {
-    validate_npm_packages: { type: 'boolean', default: true },
-    require_signed_commits: { type: 'boolean', default: false },
-    allowed_registries: {
-      type: 'array',
-      items: { type: 'string', format: 'uri' },
-      default: ['https://registry.npmjs.org/']
-    },
-    scan_for_secrets: { type: 'boolean', default: true }
-  }
-}
-```
-
-**New component needed:**
-- **SecurityValidator module** (`src/security/SecurityValidator.js`)
-  - Input sanitization for shell commands
-  - Registry whitelist validation
-  - Secret pattern detection (regex for common secret formats)
-  - Package signature verification hooks
-
-**Modified components:**
-- `upstream-sync.md` workflow: Add validation stage before publish
-- `bin/install.js`: Validate source integrity before copy/link
-- `src/config/ConfigLoader.js`: Sanitize config paths, validate registry URLs
-
-**Architecture consideration:**
-Security validation should be non-blocking with warnings for most checks, blocking only for critical issues (malformed commands, known malicious patterns). This preserves the "fast by default" philosophy while adding safety nets.
-
-### 2. Cross-Platform Support
-
-**Where:** Installer, path handling throughout
-
-**Current state:** Installer already has some Windows support (junctions vs symlinks, path.sep usage)
-
-**Integration approach:**
-
-```javascript
-// New cross-platform module: src/platform/PlatformUtils.js
-const path = require('path');
-
-function normalizePath(filePath) {
-  // Always use forward slashes for Node.js compatibility
-  return filePath.replace(/\\/g, '/');
-}
-
-function getShellCommand(command, args) {
-  if (process.platform === 'win32') {
-    // PowerShell-compatible command escaping
-    return `powershell -Command "${command} ${args.join(' ')}"`;
-  }
-  return `${command} ${args.join(' ')}`;
-}
-
-function getSeparator() {
-  return process.platform === 'win32' ? ';' : ':';
-}
-
-module.exports = { normalizePath, getShellCommand, getSeparator };
-```
-
-**Modified components:**
-- `bin/install.js`: Already uses `path.sep`, `process.platform` checks
-  - Add: Registry validation with platform-specific paths
-  - Add: Shell script execution compatibility layer
-- `hooks/gsd-statusline.js`: Unicode detection already present
-  - Add: Windows Console Host emoji fallback
-- `upstream-sync.md` workflow: Git commands work cross-platform
-  - Add: PowerShell escaping for Windows paths with spaces
-
-**Cross-platform testing matrix:**
-| Platform | Shell | Path Separator | Symlink Support | Notes |
-|----------|-------|----------------|-----------------|-------|
-| macOS | bash/zsh | / | Yes | Primary dev platform |
-| Linux | bash | / | Yes | CI/CD target |
-| Windows 10+ | PowerShell | \\ | Junctions only | ConEmu/Windows Terminal |
-| WSL2 | bash | / | Yes | Hybrid path handling |
-
-**Architecture consideration:**
-Use Node.js `path` module exclusively for path operations (never string concatenation). Prefer `path.posix` for internal paths, `path.normalize()` only when outputting to terminal. Store paths in forward-slash format internally, convert on display.
-
-### 3. Auto-Update Check Enhancement
-
-**Where:** Existing update check hook, statusline display
-
-**Current state:** Basic version check with npm registry, cache file, statusline notification
-
-**Integration approach:**
-
-**Enhanced cache structure:**
-```json
-{
-  "update_available": true,
-  "installed": "2.1.1",
-  "latest": "2.2.0",
-  "checked": 1707331200,
-  "changelog_url": "https://github.com/chudeemeke/get-stuff-done/blob/main/CHANGELOG.md#220",
-  "security_fixes": true,
-  "breaking_changes": false,
-  "check_interval": 86400
-}
-```
-
-**New component:**
-- **UpdateManager module** (`src/update/UpdateManager.js`)
-  - Fetch npm package metadata (not just version)
-  - Parse CHANGELOG.md for security/breaking markers
-  - Respect check_interval config setting
-  - Handle registry failures gracefully
-
-**Modified components:**
-- `hooks/gsd-check-update.js`: Enhanced to fetch package metadata
-- `hooks/gsd-statusline.js`: Display severity indicators (security icon, breaking change warning)
-- Config schema: Add `updates.check_interval`, `updates.auto_check` settings
-
-**Architecture consideration:**
-Use background spawn with `detached: true`, `stdio: 'ignore'`, and `child.unref()` to avoid blocking SessionStart. Cache TTL prevents excessive registry checks. Display priority: security > breaking > feature updates.
-
-### 4. Diff Preview
-
-**Where:** New component integrated with upstream sync workflow
-
-**Integration approach:**
-
-**New component:**
-- **DiffRenderer module** (`src/diff/DiffRenderer.js`)
-  - Parse git diff output
-  - Apply ANSI color codes (using existing theme system)
-  - Handle word-level diffs with `--word-diff`
-  - Respect terminal width for wrapping
-
-```javascript
-// src/diff/DiffRenderer.js
-const { getTheme } = require('../theme');
-const theme = getTheme();
-
-class DiffRenderer {
-  constructor(options = {}) {
-    this.context = options.context || 3;
-    this.wordDiff = options.wordDiff || false;
-    this.colorMoved = options.colorMoved || true;
-  }
-
-  render(diffOutput) {
-    const lines = diffOutput.split('\n');
-    return lines.map(line => {
-      if (line.startsWith('+')) {
-        return theme.diff.added.render(line);
-      } else if (line.startsWith('-')) {
-        return theme.diff.removed.render(line);
-      } else if (line.startsWith('@@')) {
-        return theme.diff.hunk.render(line);
-      }
-      return line;
-    }).join('\n');
-  }
-}
-
-module.exports = DiffRenderer;
-```
-
-**Modified components:**
-- `upstream-sync.md` workflow: Add Stage 2b - DIFF_PREVIEW checkpoint
-  - After user selects commits (Stage 2)
-  - Before execution (Stage 3)
-  - Show colorized diff of all selected commits
-  - Prompt: "Review diff? [yes/no/abort]"
-- Theme system: Add `theme.diff.*` styles (added, removed, hunk, context)
-
-**New command:**
-- `/gsd:preview-diff` - Standalone diff viewer for any git range
-  - Arguments: `<commit-range>` (e.g., "HEAD~5..HEAD")
-  - Output: Colorized diff with file tree summary
-
-**Architecture consideration:**
-Diff rendering happens on-demand, not cached (diffs can be large). Use streaming for large diffs to avoid memory pressure. Terminal width detection using `process.stdout.columns` with 80-column fallback.
-
-### 5. Rollback Capability
-
-**Where:** New component integrated with update and sync workflows
-
-**Integration approach:**
-
-**New component:**
-- **RollbackManager module** (`src/rollback/RollbackManager.js`)
-  - Maintain rollback history in `.planning/rollback/history.json`
-  - Create snapshots before updates/syncs
-  - Git-based rollback (tags, commit SHAs)
-  - npm version downgrade support
-
-```javascript
-// src/rollback/RollbackManager.js
-class RollbackManager {
-  constructor(historyPath = '.planning/rollback/history.json') {
-    this.historyPath = historyPath;
-  }
-
-  createSnapshot(label, metadata) {
-    const snapshot = {
-      id: Date.now(),
-      label,
-      timestamp: new Date().toISOString(),
-      git_sha: this.getGitSha(),
-      package_version: this.getPackageVersion(),
-      metadata
-    };
-    this.appendHistory(snapshot);
-    return snapshot.id;
-  }
-
-  rollbackTo(snapshotId) {
-    const snapshot = this.getSnapshot(snapshotId);
-    // 1. Git reset to SHA
-    execSync(`git reset --hard ${snapshot.git_sha}`);
-    // 2. npm install pinned version
-    execSync(`npm install @chude/get-stuff-done@${snapshot.package_version}`);
-    // 3. Run installer to restore files
-    // ...
-  }
-}
-```
-
-**Modified components:**
-- `upstream-sync.md` workflow: Create snapshot in Stage 6a (before publish)
-- `/gsd:update` command: Create snapshot before npm install
-- New command: `/gsd:rollback [snapshot-id]` - Interactive rollback UI
-
-**Rollback scenarios:**
-| Scenario | Rollback Strategy | Risk |
-|----------|------------------|------|
-| Update broke workflow | Git reset + npm install @version | LOW - git protects state |
-| Sync introduced bugs | Git revert commits + npm publish | MEDIUM - new version needed |
-| Config corruption | Restore config from snapshot | LOW - file-level restore |
-| Hooks broken | Re-run installer from old version | LOW - reinstall previous |
-
-**Architecture consideration:**
-Rollback is destructive. Always require confirmation with clear explanation of what will be reset. Create automatic snapshot before any publish/update operation. Limit history to last 10 snapshots to prevent unbounded growth.
-
-### 6. Claude Code Capability Adoption
-
-**Where:** Commands, workflows, skill usage patterns
-
-**Current state:** Uses Task tool, AskUserQuestion, SlashCommand, standard file operations
-
-**Claude Code capabilities to adopt:**
-
-| Capability | Current Usage | Enhancement Opportunity |
-|------------|---------------|------------------------|
-| **Task tool** | Subagent spawning | Already well-used, no changes needed |
-| **AskUserQuestion** | User prompts | Replace inline questions with tool calls |
-| **Glob/Grep** | File search | Replace `find` + `grep` bash commands |
-| **Edit tool** | File modifications | Replace sed/awk with Edit tool |
-| **WebFetch** | External docs | Add for fetching npm package info |
-
-**Integration approach:**
-
-**Phase-by-phase adoption:**
-1. **Audit current bash commands** in workflows
-   - Find: `find . -name "*.js"` → Glob pattern
-   - Grep: `grep -r "pattern" .` → Grep tool
-   - Sed: `sed 's/old/new/'` → Edit tool
-
-2. **Replace in upstream-sync.md workflow:**
-   ```markdown
-   <!-- OLD: Bash approach -->
-   git diff --name-only HEAD~${N}..HEAD
-
-   <!-- NEW: Glob approach -->
-   Use Glob tool with changed files from git diff output
-   (Git operations remain bash - Glob for filtering/searching)
-   ```
-
-3. **Standardize in command templates:**
-   - All `/gsd:*` commands should prefer Claude tools over bash
-   - Exception: Git operations (no native git tool, bash is appropriate)
-   - Exception: npm/bun operations (package manager CLI, not file operations)
-
-**Modified components:**
-- `upstream-sync.md`: Replace file search bash commands with Glob
-- `commands/gsd/*.md`: Audit for inline questions, use AskUserQuestion
-- New reference doc: `references/claude-code-tools.md` - Tool usage guide
-
-**Architecture consideration:**
-Claude Code tools are more reliable than bash (no shell quoting issues, better error handling, work in all Claude Code environments). Prefer tools for file operations, use bash only when no tool alternative exists (git, npm, platform-specific commands).
-
-## Component Dependencies
-
-### Existing Dependencies (from package.json)
-```json
-{
-  "ajv": "^8.17.1",        // Config validation
-  "json5": "^2.2.3"        // Config parsing
-}
-```
-
-### New Dependencies Needed
-
-**Security hardening:**
-- None (use built-in Node.js APIs: `crypto`, `path.resolve`)
-
-**Cross-platform support:**
-- None (Node.js `path`, `os`, `process.platform` sufficient)
-
-**Diff rendering:**
-- None (parse git output, use existing theme system)
-
-**Rollback:**
-- None (git CLI, npm CLI, fs operations)
-
-**Architecture principle:** Minimize dependencies. GSD is developer tooling - lean is better. Use Node.js built-ins and CLI tools over npm packages.
-
-## Build Order and Dependencies
-
-### Phase Structure Recommendation
-
-**Phase 1: Foundation (Security + Platform)**
-- **1.1:** Security validator module
-  - No dependencies
-  - Used by: Installer, config loader, workflows
-- **1.2:** Cross-platform utilities
-  - No dependencies
-  - Used by: Installer, all path operations
-- **1.3:** Config schema extensions
-  - Depends on: 1.1 (security settings)
-  - Used by: All hooks, workflows
-
-**Phase 2: Update System Enhancement**
-- **2.1:** UpdateManager module
-  - Depends on: 1.1 (validate registry), 1.2 (paths)
-  - Used by: Update check hook, statusline
-- **2.2:** Enhanced statusline display
-  - Depends on: 2.1 (enhanced cache format)
-  - Modifies: Existing statusline hook
-
-**Phase 3: Diff + Rollback**
-- **3.1:** DiffRenderer module
-  - Depends on: Theme system (existing)
-  - Used by: Upstream sync workflow, new preview command
-- **3.2:** RollbackManager module
-  - Depends on: 1.1 (validation), 1.2 (paths)
-  - Used by: Upstream sync, update command, new rollback command
-- **3.3:** Workflow integration
-  - Depends on: 3.1 (diff), 3.2 (rollback)
-  - Modifies: upstream-sync.md, update.md
-
-**Phase 4: Claude Code Tool Migration**
-- **4.1:** Tool usage audit
-  - No dependencies
-  - Produces: Migration checklist
-- **4.2:** Command migrations
-  - No dependencies
-  - Modifies: All commands with bash file operations
-- **4.3:** Workflow migrations
-  - No dependencies
-  - Modifies: Workflows with bash file operations
-
-**Critical path:** 1.1 → 1.2 → 1.3 (foundation) must complete before all other phases. Phases 2-4 can proceed in parallel after Phase 1.
-
-## Cross-Platform Architectural Concerns
-
-### Path Handling Strategy
-
-**Rule:** Use forward slashes internally, convert only on display/execution.
-
-```javascript
-// GOOD: Cross-platform path construction
-const configPath = path.join(os.homedir(), '.gsd', 'config.json');
-// Result on Unix: /home/user/.gsd/config.json
-// Result on Windows: C:\Users\user\.gsd\config.json
-
-// GOOD: Normalize for display
-console.log(path.normalize(configPath));
-
-// BAD: String concatenation
-const configPath = os.homedir() + '/.gsd/config.json'; // Breaks on Windows
-```
-
-### Shell Command Execution
-
-**Problem:** Windows PowerShell vs Unix bash have different escaping rules.
-
-**Solution:** Abstract shell commands through platform utility.
-
-```javascript
-// src/platform/ShellCommand.js
-class ShellCommand {
-  static git(args) {
-    // Git works the same on all platforms
-    return `git ${args.join(' ')}`;
-  }
-
-  static npm(args) {
-    // npm works the same on all platforms
-    return `npm ${args.join(' ')}`;
-  }
-
-  static node(scriptPath, args = []) {
-    // Use Node.js for scripting (most portable)
-    if (process.platform === 'win32') {
-      return `node "${scriptPath}" ${args.join(' ')}`;
-    }
-    return `node "${scriptPath}" ${args.join(' ')}`;
-  }
-}
-```
-
-### Symlink Handling
-
-**Current implementation:**
-- Unix: `fs.symlinkSync(target, link, 'dir')`
-- Windows: `fs.symlinkSync(target, link, 'junction')`
-
-**Enhancement needed:**
-- Detect if user has symlink permissions (Windows requires admin or Developer Mode)
-- Fallback to copy mode if symlink fails
-- Update `.install-meta.json` with actual installation type
-
-### Hook Execution
-
-**Current implementation:**
-- Hooks specified as: `node ~/.claude/hooks/gsd-statusline.js`
-- Works cross-platform because Node.js path handling normalizes
-
-**No changes needed:** Node.js abstracts platform differences.
-
-## Data Flow Changes
-
-### Before v0.2.0
-```
-SessionStart → gsd-check-update.js → npm view → cache.json
-                                                    ↓
-Prompt → gsd-statusline.js → read cache → display version
-```
-
-### After v0.2.0
-```
-SessionStart → gsd-check-update.js → UpdateManager
-                                          ↓
-                                    npm view (metadata)
-                                          ↓
-                                    parse changelog
-                                          ↓
-                                    enhanced-cache.json
-                                          ↓
-Prompt → gsd-statusline.js → read cache → DiffRenderer (if diff requested)
-                                    ↓
-                              display version + severity
-```
-
-### Rollback Flow (New)
-```
-/gsd:upstream (before publish)
-    ↓
-RollbackManager.createSnapshot()
-    ↓
-.planning/rollback/history.json (append)
-    ↓
-[publish proceeds]
-
-/gsd:rollback [id]
-    ↓
-RollbackManager.rollbackTo(id)
-    ↓
-git reset --hard SHA
-    ↓
-npm install @chude/get-stuff-done@VERSION
-    ↓
-re-run installer
-    ↓
-verify installation
-```
-
-## Error Handling Strategy
-
-### Graceful Degradation
-
-**Principle:** Features should fail gracefully without breaking core functionality.
-
-```javascript
-// Example: Security validation
-try {
-  SecurityValidator.checkRegistry(registryUrl);
-} catch (err) {
-  console.warn(`Warning: Registry validation failed: ${err.message}`);
-  console.warn(`Proceeding anyway. To block invalid registries, enable strict mode.`);
-  // Continue execution
-}
-```
-
-### Error Categories
-
-| Category | Example | Handling Strategy | Block Execution? |
-|----------|---------|------------------|------------------|
-| **Critical** | Config parse error | Show error, exit | YES |
-| **Security** | Unknown registry | Warn, ask user | CONFIGURABLE |
-| **Network** | npm registry down | Retry 3x, then skip | NO |
-| **Platform** | Symlink permission denied | Fall back to copy | NO |
-| **User Error** | Invalid rollback ID | Show error, list valid IDs | YES (for that command) |
-
-### Retry Logic
-
-**Pattern:** Exponential backoff with max attempts.
-
-```javascript
-async function retryOperation(operation, maxAttempts = 3) {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await operation();
-    } catch (err) {
-      if (attempt === maxAttempts) throw err;
-      const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
-      await sleep(delay);
-    }
-  }
-}
-```
-
-**Apply to:**
-- npm registry checks
-- Git remote operations (fetch, push)
-- File system operations (rare, but possible on network drives)
-
-## Security Architecture
-
-### Threat Model
-
-**Trust boundaries:**
-1. **User's machine:** TRUSTED (user controls git repo, file system)
-2. **npm registry:** SEMI-TRUSTED (check package signatures, validate URLs)
-3. **Upstream git repo:** SEMI-TRUSTED (verify commits before cherry-pick)
-4. **User input:** UNTRUSTED (validate/sanitize all input)
-
-**Attack vectors:**
-| Vector | Risk | Mitigation |
-|--------|------|------------|
-| Malicious config | MEDIUM | Schema validation, path sanitization |
-| Command injection | HIGH | No eval, parameterized commands, shell escaping |
-| Registry hijacking | MEDIUM | Whitelist registries, validate URLs |
-| Commit injection | LOW | Git's built-in signature checking |
-| Path traversal | MEDIUM | Validate paths, reject ../.. patterns |
-
-### Input Validation Rules
-
-```javascript
-// src/security/Validators.js
-
-class Validators {
-  static isValidPath(userPath) {
-    // Reject path traversal attempts
-    const normalized = path.normalize(userPath);
-    if (normalized.includes('..')) {
-      throw new Error('Path traversal detected');
-    }
-    return normalized;
-  }
-
-  static isValidRegistryUrl(url) {
-    try {
-      const parsed = new URL(url);
-      if (!['https:', 'http:'].includes(parsed.protocol)) {
-        throw new Error('Registry must use HTTP(S)');
-      }
-      return parsed.href;
-    } catch (err) {
-      throw new Error(`Invalid registry URL: ${err.message}`);
-    }
-  }
-
-  static sanitizeShellArg(arg) {
-    // Remove shell metacharacters
-    return arg.replace(/[;&|`$()]/g, '');
-  }
-}
-```
-
-### Config Security
-
-**Risk:** User-provided paths could point to malicious scripts.
-
-**Mitigation:**
-```javascript
-// ConfigLoader.js enhancement
-function validateConfigSecurity(config) {
-  // Validate all paths are absolute and within expected directories
-  const allowedDirs = [
-    path.join(os.homedir(), '.gsd'),
-    path.join(os.homedir(), '.claude'),
-    process.cwd() // Current project
-  ];
-
-  // Check registry URLs
-  if (config.security?.allowed_registries) {
-    for (const reg of config.security.allowed_registries) {
-      Validators.isValidRegistryUrl(reg);
-    }
-  }
-}
-```
-
-## Performance Considerations
-
-### Hook Execution Time Budget
-
-**Constraint:** Statusline hook must complete in <100ms (runs on every prompt).
-
-**Current performance:**
-- Read cache file: ~5ms
-- Parse JSON: ~1ms
-- Theme rendering: ~5ms
-- **Total: ~11ms** ✓ Well within budget
-
-**v0.2.0 additions:**
-- Enhanced cache parsing: ~2ms (larger JSON)
-- Diff rendering: N/A (only on explicit preview, not in statusline)
-- **Estimated total: ~13ms** ✓ Still within budget
-
-### Background Process Pattern
-
-**Pattern:** Spawn detached processes for slow operations.
-
-```javascript
-// hooks/gsd-check-update.js (existing pattern, well-designed)
-const child = spawn(process.execPath, ['-e', scriptSource], {
-  stdio: 'ignore',        // Don't inherit stdin/stdout/stderr
-  windowsHide: true,      // Windows: Don't flash console
-  detached: true          // Don't keep parent alive
-});
-child.unref();            // Allow parent to exit
-```
-
-**Apply to:**
-- Update checks (already implemented)
-- Security scans (new in v0.2.0)
-- Diff generation (if caching enabled)
-
-### File System Operations
-
-**Optimization:** Batch file operations, minimize stat() calls.
-
-```javascript
-// GOOD: Read once, cache result
-const files = await fs.promises.readdir(dir);
-for (const file of files) {
-  // Use files array, don't re-read dir
-}
-
-// BAD: Multiple readdir calls
-if (fs.existsSync(path.join(dir, 'file1.js'))) { }
-if (fs.existsSync(path.join(dir, 'file2.js'))) { }
-```
-
-## Integration Testing Strategy
-
-### Test Environments
-
-| Environment | Purpose | Coverage |
-|-------------|---------|----------|
-| **macOS local** | Primary development | All features |
-| **WSL2** | Windows + Unix hybrid | Path handling, symlinks |
-| **Windows PowerShell** | Native Windows | Junctions, escaping |
-| **Linux VM** | CI/CD target | Automation, no TTY |
-
-### Test Scenarios
-
-**Cross-platform installer:**
-- [ ] Copy mode on Windows without admin
-- [ ] Junction mode on Windows with admin
-- [ ] Symlink mode on macOS/Linux
-- [ ] Detection of existing installation (all modes)
-- [ ] Upgrade from copy to link mode
-- [ ] Upgrade from link to copy mode
-
-**Security validation:**
-- [ ] Reject config with path traversal
-- [ ] Warn on unknown registry URL
-- [ ] Block shell metacharacters in input
-- [ ] Accept valid HTTPS registry
-- [ ] Accept valid config paths
-
-**Rollback:**
-- [ ] Create snapshot before sync
-- [ ] List available snapshots
-- [ ] Rollback to previous version
-- [ ] Rollback fails if working directory dirty
-- [ ] Snapshot history pruning (keep last 10)
-
-**Diff preview:**
-- [ ] Colorized diff output
-- [ ] Word-level diff
-- [ ] File tree summary
-- [ ] Large diff streaming (no memory issues)
-- [ ] Terminal width detection and wrapping
-
-## Migration Path from v0.1.0
-
-### Backward Compatibility
-
-**Principle:** v0.2.0 must work for existing v0.1.0 users without breaking changes.
-
-**Config migration:**
-```javascript
-// ConfigLoader.js enhancement
-function migrateConfig(config) {
-  // v0.1.0 config (no security section)
-  if (!config.security) {
-    config.security = {
-      validate_npm_packages: true,
-      allowed_registries: ['https://registry.npmjs.org/']
-    };
-  }
-  return config;
-}
-```
-
-**Cache migration:**
-```javascript
-// UpdateManager.js
-function migrateCacheFormat(oldCache) {
-  // v0.1.0 format: { update_available, installed, latest, checked }
-  // v0.2.0 format: adds changelog_url, security_fixes, breaking_changes
-  return {
-    ...oldCache,
-    changelog_url: buildChangelogUrl(oldCache.latest),
-    security_fixes: false,  // Unknown for old cache
-    breaking_changes: false
-  };
-}
-```
-
-**Installation migration:**
-- Existing installations remain functional
-- Next `npx @chude/get-stuff-done` upgrades in place
-- Installer detects existing mode (copy/link) and preserves
-- New features available immediately after upgrade
-
-## Sources
-
-**Cross-platform Node.js:**
-- [Cross-platform Node.js File Paths Guide](https://github.com/ehmicky/cross-platform-node-guide/blob/main/docs/3_filesystem/file_paths.md)
-- [Writing Cross-platform Node.js](https://shapeshed.com/writing-cross-platform-node/)
-- [Node.js Path Module](https://www.w3schools.com/nodejs/nodejs_path.asp)
-
-**Security:**
-- [NPM Security Best Practices - OWASP](https://cheatsheetseries.owasp.org/cheatsheets/NPM_Security_Cheat_Sheet.html)
-- [Hardening Node.js Apps in Production](https://www.sitepoint.com/hardening-node-js-apps-in-production/)
-- [Awesome Node.js Security Resources](https://github.com/lirantal/awesome-nodejs-security)
-- [Malicious NPM Hash Validation Packages - 2026](https://www.getsafety.com/blog-posts/malicious-hash-validation-packages)
-
-**Background processes:**
-- [Node.js Child Process Documentation](https://nodejs.org/api/child_process.html)
-- [Node.js Child Processes Guide](https://www.freecodecamp.org/news/node-js-child-processes-everything-you-need-to-know-e69498fe970a/)
-
-**Git diff and rollback:**
-- [Git Diff Documentation](https://git-scm.com/docs/git-diff)
-- [diff-so-fancy - Better Git Diffs](https://github.com/so-fancy/diff-so-fancy)
-- [How to Rollback an npm Package](https://omribarzik.medium.com/how-to-rollback-an-npm-package-d1152b6b7c35)
+# Architecture Research: v1.2.0 Ship-Ready Hardening
+
+**Domain:** Overlay fork of an OSS CLI tool (npm-distributed composition pipeline + delegation installer)
+**Researched:** 2026-04-19
+**Focus:** Integrating six hardening mechanisms into the existing overlay architecture without breaking its layered design
+**Confidence:** HIGH
 
 ---
 
-*Architecture research: 2026-02-07*
+## Executive Summary
+
+The v1.2.0 milestone adds six hardening mechanisms to an architecture whose defining invariant is **skin over OS** -- upstream is consumed as an npm dependency, never modified, and the fork expresses itself only through:
+
+1. **`overlay/`** -- additive files composed on top of upstream
+2. **`overrides/`** -- SHA-256 pinned replacements with mandatory `REASON.md`
+3. **`scripts/compose.js`** -- the 5-stage pipeline that produces `dist/` (resolve -> filter -> override -> brand -> merge)
+4. **`bin/install.js`** -- a delegation installer that spawns upstream's installer and layers overlay files after
+
+Every hardening mechanism proposed below preserves this invariant. New scripts go in `scripts/` (alongside the existing 8), orchestration reuses `compose.js` where possible, new CI jobs extend `.github/workflows/ci.yml` without breaking the existing 5-job matrix, and oversight enhancements land as structured check-lists inside the existing `overlay/agents/gsd-oversight-*.md` files.
+
+**Non-negotiable:** no new top-level directory proliferation. `scripts/`, `tests/`, `overlay/`, `overrides/`, `.github/workflows/`, and `bin/` are the surface. Everything else is a structural defect.
+
+---
+
+## Current State (for integration grounding)
+
+### Existing layered surfaces
+
+```
++---------------------------------------------------------------+
+|  CONSUMER SURFACE (npm install @chude/get-stuff-done)         |
+|  - bin/install.js       <- delegation installer               |
+|  - bin/gsd.js           <- fork launcher                      |
+|  - dist/                <- composed output (published only)   |
++---------------------------------------------------------------+
+|  COMPOSITION LAYER (scripts/compose.js orchestrates)          |
+|                                                               |
+|   resolve() -> filter() -> override() -> brand() -> merge()   |
+|       ^          ^            ^            ^          ^       |
+|       |          |            |            |          |       |
+|   overlay/   features.json  overrides/ branding.json  dist/   |
++---------------------------------------------------------------+
+|  SOURCE LAYER (git repo)                                      |
+|  - overlay/    additive fork content (~2,510 lines)           |
+|  - overrides/  upstream replacements (with REASON.md + SHA)   |
+|  - scripts/    pipeline + health checks                       |
+|  - tests/      fork + upstream-compat test files              |
+|  - node_modules/get-shit-done-cc/   upstream as devDependency |
++---------------------------------------------------------------+
+|  VERIFICATION LAYER (.github/workflows/ci.yml -- 5 jobs)      |
+|  - lint             (blocking, Ubuntu)                        |
+|  - test             (blocking, 3-OS matrix)                   |
+|  - parity           (blocking, Ubuntu)                        |
+|  - upstream-compat  (informational, 3-OS matrix)              |
+|  - boundary+override (informational, Ubuntu)                  |
++---------------------------------------------------------------+
+```
+
+### Existing `scripts/` inventory (baseline for new additions)
+
+| Script | Role | Exit code semantics |
+|--------|------|---------------------|
+| `compose.js` | 5-stage pipeline (canonical entry point) | 0 ok / 1 error |
+| `build.js` | esbuild bundling of hooks/tools | 0 ok / 1 error |
+| `finalize-dist.js` | Post-compose tidying | 0 ok / 1 error |
+| `preview-update.js` | Read-only upstream bump preview | 0 ok / 1 npm failure |
+| `check-boundary.js` | Informational: structural boundary | 0 clean / 1 violations |
+| `check-overrides.js` | Informational today, needs blocking mode | 0 clean / 1 stale |
+| `check-parity.js` | Source-to-installed parity | 0 ok / 1 drift |
+| `run-upstream-compat.js` | Upstream tests vs composed `dist/` | 0 pass / 1 fail |
+
+Every new script must follow this shape: exports a pure function for programmatic callers, a CLI entry under `if (require.main === module)`, documented exit codes, and a `scripts/*.test.js` peer. No exceptions.
+
+---
+
+## Integration Proposals -- Six Hardening Mechanisms
+
+### 1. Automated Upgrade Test
+
+**Question:** `scripts/` vs `tests/upgrade/` vs `bin/verify-upgrade.cjs`? Canonical entry? Composition with `compose.js` + `preview-update.js`?
+
+**Recommendation:** New script **`scripts/verify-upgrade.js`**, invoked as `bun run verify-upgrade`, with a new `tests/upgrade/` fixture directory for temp workspaces.
+
+**Why not the alternatives:**
+- `bin/verify-upgrade.cjs` is wrong -- `bin/` is reserved for end-user entry points (installer, launcher). Upgrade verification is a maintainer/CI tool.
+- `tests/upgrade/` alone is wrong -- the *test harness* is a script (imperative orchestrator), the *fixtures* are tests. Separate concerns.
+- A standalone module duplicates the script/CLI convention already established 8 times over.
+
+**Canonical flow:**
+
+```
+bun run verify-upgrade --from 1.34.2 --to <latest>
+           |
+           v
+scripts/verify-upgrade.js
+   1. snapshot current dist/              (reuse compose.js programmatically)
+   2. npm install get-shit-done-cc@<to>   (scoped to temp workspace)
+   3. run compose() against new upstream
+   4. diff overlay manifest vs upstream inventory (reuse resolve()/override())
+   5. run check-overrides.js programmatically
+   6. run check-boundary.js programmatically
+   7. run install to temp dir, assert manifest integrity
+   8. emit structured JSON report + human-readable summary
+```
+
+**New vs modified:**
+- **NEW:** `scripts/verify-upgrade.js` (~300 lines, orchestrator)
+- **NEW:** `tests/upgrade/verify-upgrade.test.js` (unit tests for the orchestrator)
+- **NEW:** `tests/upgrade/fixtures/` (synthetic minimal upstream snapshots for fast unit tests)
+- **MODIFIED:** `package.json` scripts -> add `"verify-upgrade": "node scripts/verify-upgrade.js"`
+- **MODIFIED:** `compose.js` exports -- expose `compose({ upstreamDir, overlayDir, distDir })` cleanly as a programmatic entry (likely already exported; confirm in build order step 1)
+- **MODIFIED:** `preview-update.js` -- expose `getVersionDelta()` for reuse (already exported per lines 40-48)
+
+**Composition with existing tools:**
+- `preview-update.js` answers "what WOULD change?" (read-only, consumer-facing).
+- `verify-upgrade.js` answers "does the change actually work end-to-end?" (destructive to temp dirs, maintainer-facing).
+- Both call `compose()` and `checkOverrides()` -- no duplication.
+
+**Data flow:**
+
+```
+package.json.devDependencies["get-shit-done-cc"]
+     |
+     v
+[verify-upgrade.js]
+     |
+     |-- reads current version via preview-update.js::readPinnedVersion()
+     |-- spawns: npm install get-shit-done-cc@<target> --prefix=<tempdir>
+     |-- calls: compose({ upstreamDir: <tempdir>/node_modules/get-shit-done-cc })
+     |-- calls: checkOverrides({ upstreamDir: <tempdir>/node_modules/get-shit-done-cc })
+     |-- spawns: node bin/install.js --config-dir=<tempdir>/.claude (dist from above)
+     |-- reads: <tempdir>/.claude/gsd-file-manifest.json
+     |-- asserts: overlay files present, upstream files present, no duplicates
+     v
+JSON report { from, to, composeOk, overridesOk, boundaryOk, installOk, warnings[] }
+```
+
+---
+
+### 2. Cross-Version Compat Matrix
+
+**Question:** Where to stage multiple upstream versions? GitHub Actions matrix vs npm-pack tarballs vs git submodules?
+
+**Recommendation:** **GitHub Actions matrix** with `npm install` to a temp `--prefix`, **not** submodules, **not** persistent tarballs.
+
+**Why this decision:**
+
+| Option | Pollution risk | Maintenance cost | Speed | Verdict |
+|--------|----------------|------------------|-------|---------|
+| GHA matrix + `npm install --prefix=$TMP` | Zero (scoped to temp) | Zero (versions in workflow yaml) | Fast (cached bun store) | Choose |
+| Local `npm pack` tarballs in repo | Bloats repo; each vetted version ~500KB-2MB | Manual updates | Faster CI | Reject |
+| Git submodules pinned to upstream tags | Low | High (submodule sync, auth) | Slow (clone per matrix cell) | Reject |
+
+Submodules fight the architectural principle: upstream is a **dependency**, not a source. The entire fork design rests on that boundary. Submodules would re-couple us to upstream history.
+
+**Vetted version list:** commit a small JSON file `.planning/vetted-upstream-versions.json` enumerating known-good versions. CI reads this file and expands the matrix dynamically. When a new upstream version is approved (after running `verify-upgrade`), add it to the list in the same PR that bumps `package.json`.
+
+**Interaction with existing informational CI:**
+- Today: `upstream-compat` job tests only against the pinned version.
+- After v1.2.0: add `compat-matrix` job that runs `verify-upgrade.js` across N vetted versions -- informational on historical versions, blocking on current pinned.
+- `boundary` remains informational (structural).
+- `override-staleness` goes blocking (see item 3).
+
+**New vs modified:**
+- **NEW:** `.planning/vetted-upstream-versions.json` (JSON array; source of truth)
+- **NEW:** CI job `compat-matrix` in `.github/workflows/ci.yml`, dynamic matrix from the JSON file via a setup step
+- **MODIFIED:** `verify-upgrade.js` -- accept `--target <version>` to support per-matrix-cell execution
+- **MODIFIED:** `scripts/check-overrides.js` -- accept `--upstream-dir <path>` (already supported per lines 309-321)
+
+**Data flow:**
+
+```
+CI trigger (push or PR)
+     |
+     v
+setup job: read vetted-upstream-versions.json -> output matrix JSON
+     |
+     v
+compat-matrix job (matrix: os x version, continue-on-error: true except for pinned)
+     |
+     v
+for each (os, version):
+   1. npm install get-shit-done-cc@<version> --prefix=$RUNNER_TEMP/upstream
+   2. node scripts/verify-upgrade.js --from <pinned> --to <version> \
+        --upstream-dir $RUNNER_TEMP/upstream/node_modules/get-shit-done-cc
+   3. upload artifact: verify-upgrade-report-<os>-<version>.json
+```
+
+---
+
+### 3. Override Staleness as Blocking CI
+
+**Question:** `--strict` flag vs new CI job vs refactor to advisory+strict modes?
+
+**Recommendation:** **Option (c) with caveats** -- keep the script single-mode (exits 1 on any stale/missing-reason), and promote the existing informational CI job to blocking. The script today (`scripts/check-overrides.js:327-332`) already exits 1 on staleness. The "informational" behavior is purely a `continue-on-error: true` flag in CI (ci.yml:89).
+
+**Why this is the cleanest change:**
+- The script already has the right exit semantics -- no code change needed for the core mechanism.
+- Adding `--strict` would imply a `--advisory` mode, doubling the API surface for no reason.
+- Splitting boundary and override checks into separate jobs is architecturally cleaner -- they have different semantics (boundary = structural debt tolerated indefinitely; overrides = transient state requiring review).
+
+**Concrete change:** Split the existing `boundary-override-check` job into two jobs. Boundary stays informational (tech debt tolerated per PROJECT.md current state: 48 violations). Override staleness becomes blocking.
+
+**Precedent:** This is the same pattern ESLint uses -- `--fix` doesn't split the binary, it's a flag; but warnings-vs-errors is controlled at the config/caller level. Our "informational" is a CI-level policy, not a script-level policy. Keep the policy where it belongs.
+
+**New vs modified:**
+- **MODIFIED:** `.github/workflows/ci.yml` -- split `boundary-override-check` into:
+  - `boundary-check` (Ubuntu, `continue-on-error: true`)
+  - `override-check` (Ubuntu, no `continue-on-error`, i.e., blocking)
+- **MODIFIED:** `scripts/check-overrides.js` -- no code change; add a comment documenting "exit 1 is now blocking in CI as of v1.2.0"
+- **NEW:** Small migration note in `MAINTENANCE.md` (from the v1.2.0 docs requirement) explaining that stale overrides now block PRs.
+
+**Risk mitigation:** Before flipping the gate, run `check-overrides.js` locally against `main`. If it passes today, the flip is safe. If it fails, fix first then flip -- never flip with known violations, or you create a permanent red build until someone fixes them.
+
+---
+
+### 4. Oversight Agent Enhancements (PROCESS-01 through PROCESS-04)
+
+**Question:** How do we make oversight watches structured enough to be verifiable without turning them into rigid rules? OPA/Semgrep-style policies?
+
+**Recommendation:** **Hybrid -- structured watch-items with deterministic probes, prose reasoning kept.** Do NOT port to OPA/Semgrep; those are overkill and introduce dependencies. Instead, formalize the *watch-items* inside each `overlay/agents/gsd-oversight-*.md` as a YAML-fronted table of "watch IDs" with machine-verifiable probes.
+
+**Why not OPA/Semgrep:**
+- OPA is for policy-as-code evaluated at runtime against data; our checks are episodic (triggered by plan events), not request-time.
+- Semgrep pattern-matches source code; most of PROCESS-01..04 are about *workflow state* (did a verification step happen?), not source patterns.
+- Both add dependencies (Rego DSL or Semgrep binary) to a repo that prides itself on minimal surface (4 prod deps per `package.json`).
+
+**Recommended structure inside each agent MD file:**
+
+```markdown
+## Structured Watches (machine-verifiable)
+
+| Watch ID   | Trigger                              | Probe (deterministic)                                             | Severity | Prose basis |
+|------------|--------------------------------------|-------------------------------------------------------------------|----------|-------------|
+| EXEC-01    | SUMMARY.md produced post-merge       | grep for unverified claims; check git log post-merge-commit exists| WARNING  | see 4.1     |
+| EXEC-02    | CI green claimed                     | gh pr checks <pr> shows all required checks SUCCESS               | WARNING  | see 4.2     |
+| VERIFY-03  | Coverage gate raised in CI yml diff  | git diff HEAD~1 -- ci.yml shows threshold increase                | WARNING  | see 4.3     |
+| PLAN-04    | Test file references metric          | grep metric-target-compatibility.md referenced in plan            | INFO     | see 4.4     |
+
+## Prose Basis
+
+### 4.1 EXEC-01 -- Post-merge state verification
+[existing prose remains, now linked from the table]
+```
+
+**Why this works:**
+- The table gives a deterministic test for whether the agent fired when it should have (retrospective verification: replay the git/gh state at flag time, run the probe, confirm it's true).
+- The prose stays -- the agent still reasons. Probes are *necessary conditions for flagging*, not sufficient conditions. A probe being true doesn't force a flag; it just makes "should have flagged but didn't" falsifiable.
+- Watch IDs map 1:1 to PROCESS-01..04 requirements for traceability in `REQUIREMENTS.md`.
+- Probes are shell-invocable (`grep`, `gh`, `git diff`, `node scripts/X`). No new runtime.
+
+**Retrospective verification harness:**
+New script `scripts/verify-oversight-probes.js` that parses each agent's structured table, reconstructs git/gh state at claimed flag events (stored in `.planning/memory/gsd-oversight-*.md`), and asserts probe truth. Runs in CI once per week, not per PR.
+
+**New vs modified:**
+- **MODIFIED:** All 4 `overlay/agents/gsd-oversight-*.md` files -- add the structured watches table and cross-link prose
+- **NEW:** `scripts/verify-oversight-probes.js` (~200 lines)
+- **NEW:** `tests/verify-oversight-probes.test.js`
+- **NEW:** CI job `oversight-verify` (weekly `schedule:` trigger, not per-PR)
+- **NO NEW:** agent memory files -- the existing `.planning/memory/gsd-oversight-*.md` pattern is preserved
+
+---
+
+### 5. Performance Baseline Storage + CI Budget
+
+**Question:** Where does the baseline live? CI comparison? Handling legitimate regressions?
+
+**Recommendation:** **Committed JSON file (`perf-baseline.json` at repo root) + `github-action-benchmark` for historical dashboard.** Regressions handled via an `acceptedRegressions` section in the baseline file, with mandatory REASON comment.
+
+**Baseline storage trade-offs:**
+
+| Option | Traceability | Ease of review | CI complexity | Verdict |
+|--------|--------------|----------------|---------------|---------|
+| Committed JSON | PR diff shows perf changes | HIGH (diff on PR) | LOW | **Choose as primary** |
+| CI artifact only | Not reviewable | LOW | MEDIUM | Reject -- review is critical |
+| External service | Historical dashboards | LOW (off-site) | HIGH | Secondary (dashboard only) |
+| gh-pages branch (action-benchmark default) | Dashboards | MEDIUM | LOW | Secondary -- complements committed JSON |
+
+The committed file is the **contract**. The dashboard is the **history**. You review the contract on every PR; you consult the dashboard when investigating trends.
+
+**Schema for `perf-baseline.json`:**
+
+```json
+{
+  "version": 1,
+  "measuredAt": "2026-04-19",
+  "measuredCommit": "abc123",
+  "environment": { "os": "ubuntu-latest", "bun": "1.x.y", "node": "20.x" },
+  "benchmarks": {
+    "compose.full": { "p50_ms": 1200, "p95_ms": 1800, "budget_ms": 2500 },
+    "install.delegate": { "p50_ms": 3200, "p95_ms": 4500, "budget_ms": 6000 },
+    "check-overrides": { "p50_ms": 50, "p95_ms": 120, "budget_ms": 250 }
+  },
+  "acceptedRegressions": [
+    {
+      "benchmark": "compose.full",
+      "acceptedOn": "2026-04-XX",
+      "commit": "<sha>",
+      "reason": "Added SHA-256 override staleness check -- +200ms for correctness is acceptable",
+      "oldBudget_ms": 2200,
+      "newBudget_ms": 2500
+    }
+  ]
+}
+```
+
+**Handling legitimate regressions:** Two-key edit. (1) Bump the `budget_ms` in the same PR that causes the regression. (2) Add an entry to `acceptedRegressions`. CI script `scripts/check-perf.js` fails if a benchmark exceeds its budget AND no accepted-regression entry explains it at the current commit. Reviewer sees both in the diff.
+
+**Precedents:**
+- **ESLint perf suite** -- committed benchmarks, runs locally, not in CI by default (we will run in CI; our fork is lower-volume).
+- **Next.js turbo benchmarks** -- dashboard-only; no budget gates. We are stricter.
+- **V8 crossbench** -- external service + thresholds. Overkill for us.
+- **github-action-benchmark** -- active, well-maintained, default comparison threshold 200% (we'll tighten to 150% with explicit budgets).
+
+**New vs modified:**
+- **NEW:** `perf-baseline.json` (repo root, committed)
+- **NEW:** `scripts/bench.js` -- runs the 3 benchmarks, emits JSON to stdout
+- **NEW:** `scripts/check-perf.js` -- compares `bench.js` output against `perf-baseline.json`, exits 1 on budget breach without accepted-regression entry
+- **NEW:** CI job `perf-budget` (Ubuntu only; cross-OS perf baselines are a rabbit hole not worth it for v1.2.0)
+- **OPTIONAL NEW:** `benchmark-action/github-action-benchmark@v1` step publishing to gh-pages for dashboards
+
+---
+
+### 6. Security Audit Integration
+
+**Question:** How do npm audit / secrets / OWASP lint outputs flow into architecture? New `audits/` directory? Integrate into existing jobs? Triage flow?
+
+**Recommendation:** **No new `audits/` directory at repo root.** Findings live in `.planning/audits/<date>-<tool>.json` (ephemeral evidence) and issues live in GitHub Issues with `security/critical|major|minor` labels. CI runs the tools; triage happens off-CI in structured issues.
+
+**Why not a committed `audits/` directory:**
+- Security findings are time-stamped snapshots, not durable source. Committing them pollutes the repo with noise on every scan.
+- GitHub's native `security` tab + Issues are the correct home.
+- `.planning/audits/` is gitignored-candidate or scoped to `.planning/` which is already outside the published `files` in `package.json`.
+
+**Tool mapping to existing CI structure:**
+
+| Tool | Integrates into | Blocking? | Artifact |
+|------|-----------------|-----------|----------|
+| `npm audit` (via `bun audit` when available, else `npm audit --json`) | `lint` job (add step) | Yes on HIGH/CRITICAL | `.planning/audits/<date>-npm-audit.json` |
+| `gitleaks` or `trufflehog` secret scan | New job `secret-scan` | Yes on any finding | inline annotations |
+| `eslint-plugin-security` (already in devDeps per package.json:52) | Existing `lint` job | Yes (already is) | inline |
+| OWASP ZAP / dep-check | Out of scope -- we are not a web app | N/A | N/A |
+| Manual override-code-review | Documented workflow in MAINTENANCE.md | Human gate | PR template checkbox |
+
+Note `eslint-plugin-security@^3.0.1` is already in devDependencies; confirm its rules are enabled in `.eslintrc` during Phase 1 of v1.2.0. If not, enabling is a 5-line change.
+
+**Triage flow (CI finding -> v1.2.0 backlog):**
+
+```
+CI job (npm-audit or secret-scan)
+     |
+     | exit 1 on finding
+     v
+PR blocked until finding triaged
+     |
+     v
+Triage decision (per requirements-phase rule in PROJECT.md:74):
+     |-- critical -> open issue "security/critical", add to v1.2.0 REQUIREMENTS.md
+     |-- major    -> open issue "security/major", add to v1.3.0 MILESTONES.md target
+     |-- minor    -> open issue "security/minor", backlog label
+     |
+     v
+For critical path: add suppression (audit-level=<n>) with EXPIRY date + justification
+     |
+     v
+CI re-runs green; PR unblocks
+```
+
+**Suppression file:** `.planning/audits/suppressions.json` -- list of CVEs/findings with `{ id, severity, expires, reason, ticket }`. Tool-specific (npm audit: `--audit-level high` + `overrides` in package.json; gitleaks: `.gitleaksignore`). Suppressions expire; CI warns 14 days before expiry.
+
+**New vs modified:**
+- **NEW:** CI job `secret-scan` (gitleaks GitHub Action)
+- **MODIFIED:** `lint` CI job -- add `bun audit` or `npm audit --audit-level high` step
+- **NEW:** `.planning/audits/suppressions.json` (starts empty)
+- **NEW:** `scripts/check-audit-suppressions.js` -- warns on upcoming expirations, runs weekly via `schedule:` trigger
+- **NEW:** `MAINTENANCE.md` section "Security Triage" documenting the severity->milestone mapping
+- **CONFIRMED:** `eslint-plugin-security` config enables recommended ruleset -- audit during Phase 1, fix if off
+
+---
+
+## Build Order (with dependency rationale)
+
+The six items have dependencies. Build them in this order:
+
+```
+Phase 1 (foundation -- no dependencies)
+  A. Item 3: Override staleness blocking flip        (1 line CI change)
+  B. Item 6: Security audit CI integration           (new jobs, existing tools)
+  C. Item 5 (part 1): perf-baseline.json + bench.js  (no CI enforcement yet)
+
+Phase 2 (builds on Phase 1)
+  D. Item 5 (part 2): check-perf.js + CI gate       (needs baseline from 1C)
+  E. Item 1: verify-upgrade.js                      (reuses check-overrides.js strict mode from 1A)
+
+Phase 3 (builds on Phase 2)
+  F. Item 2: cross-version compat matrix            (calls verify-upgrade.js from 2E)
+
+Phase 4 (parallel to 3)
+  G. Item 4: oversight agent structured watches     (independent; can run any time after Phase 1)
+```
+
+**Dependency rationale:**
+1. **Item 3 first** -- flipping the override gate is a one-line CI change. Doing it first establishes the policy baseline before piling more gates on.
+2. **Item 6 early** -- security is foundational; if the audit finds a CVE, the entire v1.2.0 re-plans around fixing it. Better to know in Phase 1.
+3. **Item 5 split** -- collect baseline before enforcing budget. A budget set before measurement is guessed; a budget set from measurement is calibrated.
+4. **Item 1 before Item 2** -- the matrix (Item 2) is a multiplication of the single upgrade test (Item 1). Build the thing, then run the thing N times.
+5. **Item 4 parallel** -- oversight agent enhancements touch markdown + one new script. No dependency on other items. Slot wherever bandwidth allows.
+
+---
+
+## Integration Points (file/function level)
+
+| Hardening Item | Touches file | Function / symbol |
+|----------------|--------------|-------------------|
+| Item 1 | `scripts/verify-upgrade.js` (NEW) | `verifyUpgrade({ from, to, upstreamDir })` |
+| Item 1 | `scripts/compose.js` | `compose()` -- confirm programmatic API |
+| Item 1 | `scripts/preview-update.js:40-48` | reuses `getVersionDelta()`, `readPinnedVersion()` |
+| Item 1 | `scripts/check-overrides.js:154-213` | reuses `checkOverrides({ overridesDir, upstreamDir })` |
+| Item 1 | `bin/install.js` | spawned as subprocess against temp dir |
+| Item 2 | `.github/workflows/ci.yml` | new `compat-matrix` job |
+| Item 2 | `.planning/vetted-upstream-versions.json` (NEW) | JSON array source for matrix |
+| Item 3 | `.github/workflows/ci.yml:85-100` | split `boundary-override-check` into two jobs |
+| Item 3 | `scripts/check-overrides.js:327-332` | no code change; CLI exit code already correct |
+| Item 4 | `overlay/agents/gsd-oversight-execution.md` | add structured watches table |
+| Item 4 | `overlay/agents/gsd-oversight-planning.md` | add structured watches table |
+| Item 4 | `overlay/agents/gsd-oversight-verification.md` | add structured watches table |
+| Item 4 | `overlay/agents/gsd-oversight-sync.md` | add structured watches table |
+| Item 4 | `scripts/verify-oversight-probes.js` (NEW) | weekly CI harness |
+| Item 5 | `perf-baseline.json` (NEW, repo root) | committed baseline contract |
+| Item 5 | `scripts/bench.js` (NEW) | `runBenchmarks()` emits JSON |
+| Item 5 | `scripts/check-perf.js` (NEW) | `checkPerf(bench, baseline)` compares |
+| Item 5 | `.github/workflows/ci.yml` | new `perf-budget` job |
+| Item 6 | `.github/workflows/ci.yml:10-20` | add `bun audit` step to `lint` job |
+| Item 6 | `.github/workflows/ci.yml` | new `secret-scan` job (gitleaks) |
+| Item 6 | `.planning/audits/suppressions.json` (NEW) | CVE suppression list |
+| Item 6 | `scripts/check-audit-suppressions.js` (NEW) | expiry warning harness |
+
+---
+
+## Architectural Invariants Preserved
+
+Cross-check every proposal against PROJECT.md's Key Decisions. Each item is reviewed below:
+
+| Invariant (from PROJECT.md:155-198) | Preserved by | Notes |
+|-------------------------------------|--------------|-------|
+| Overlay architecture -- don't modify upstream | All 6 items | No proposal touches `node_modules/get-shit-done-cc/` |
+| Surface-only branding | All 6 items | No internal path renames |
+| Publish-time composition | Items 1, 2 | verify-upgrade invokes compose, doesn't bypass it |
+| Exact version pinning | Item 2 | Matrix reads vetted list; does not auto-bump package.json |
+| No runtime filtering v3.0 | All 6 items | All checks are build/CI-time, not install-time |
+| 5-stage pipeline SRP | Item 1 | verify-upgrade reuses pipeline stages, adds none |
+| Delegation installer | Item 1 | verify-upgrade spawns bin/install.js unchanged |
+| continue-on-error for informational CI | Item 3 | Boundary stays informational; override flips to blocking |
+| Atomic writes | Items 5, 6 | New JSON files use temp-file+rename pattern |
+| Central timeout constants | Items 1, 5 | Subprocess tests reuse SUBPROCESS_TIMEOUT / HEAVY_SUBPROCESS_TIMEOUT |
+| Manifest-driven uninstall | Item 1 | verify-upgrade reads gsd-file-manifest.json; does not bypass |
+
+No invariant violations identified. Every new script follows the `scripts/*.js` convention. Every new CI job follows the existing `continue-on-error`-for-informational pattern. No new top-level directories.
+
+---
+
+## Anti-Patterns to Avoid
+
+### Anti-Pattern 1: Adding an `audits/` directory at repo root
+**Why wrong:** Committed security scan output is noise; findings are time-stamped not durable.
+**Instead:** `.planning/audits/` for ephemeral evidence; GitHub Issues for tracked findings.
+
+### Anti-Pattern 2: Implementing oversight checks as OPA policies
+**Why wrong:** Adds a DSL dependency for checks that are essentially shell probes. Overkill for 4 agents.
+**Instead:** Structured markdown tables + deterministic probe scripts.
+
+### Anti-Pattern 3: Committing multiple upstream versions as tarballs
+**Why wrong:** Repo bloat; fights the "upstream is a dependency, not source" principle.
+**Instead:** GHA matrix + `npm install --prefix=$TMP`.
+
+### Anti-Pattern 4: Setting a perf budget before measuring
+**Why wrong:** Guessed budgets cause false positives or false negatives.
+**Instead:** Measure first (Phase 1), enforce second (Phase 2).
+
+### Anti-Pattern 5: Running all 6 items in parallel in v1.2.0 Phase 1
+**Why wrong:** Ordering dependencies matter; parallel execution of dependent items creates rework.
+**Instead:** Follow the 4-phase build order above.
+
+### Anti-Pattern 6: Adding `--strict` flag to `check-overrides.js` to toggle blocking behavior
+**Why wrong:** The script already exits 1 on violations. Adding a flag adds API surface for no new capability.
+**Instead:** Control blocking at the CI-policy level via `continue-on-error`.
+
+---
+
+## Open Questions for Implementation Phase
+
+1. **Perf benchmark harness** -- bun's built-in benchmark support vs a third-party tool? Low-risk decision; can defer to Phase 2.
+2. **Vetted upstream versions count** -- how many historical versions to keep in the matrix? Recommend 3-5 (current + 2-4 prior). More is diminishing returns.
+3. **gitleaks vs trufflehog** -- gitleaks has a lighter install and clearer GHA integration. Recommend gitleaks unless trufflehog's accuracy advantage matters for this repo.
+4. **Oversight probe retrospective frequency** -- weekly is proposed; could be monthly. Depends on how often oversight flags are triggered in practice (check `.planning/memory/gsd-oversight-*.md` volume at Phase 1 start).
+
+None of these block the Phase 1 kickoff.
+
+---
+
+## Sources
+
+- [github-action-benchmark](https://github.com/benchmark-action/github-action-benchmark) -- precedent for CI benchmark storage via gh-pages
+- [Kalibra](https://github.com/khan5v/kalibra) -- statistical regression detection via bootstrap CIs
+- [actions/setup-node matrix docs](https://github.com/actions/setup-node) -- reference for matrix expansion
+- [Testing npm packages against multiple peer dep versions](https://dev.to/joshx/test-your-npm-package-against-multiple-versions-of-its-peer-dependency-34j4) -- npm-prefix pattern for version isolation
+- Internal: `scripts/compose.js`, `scripts/check-overrides.js`, `.github/workflows/ci.yml`, `overlay/agents/gsd-oversight-*.md`
+- Internal: `.planning/PROJECT.md` Key Decisions section
+- Internal: `package.json` (script conventions, devDependencies)
+
+---
+
+*Architecture research for v1.2.0 Ship-Ready Hardening*
+*Researched: 2026-04-19*
+*Confidence: HIGH (all integration points verified against existing files)*

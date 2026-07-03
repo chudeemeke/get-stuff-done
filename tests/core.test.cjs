@@ -10,8 +10,9 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { execSync, execFileSync } = require('child_process');
-const { createTempProject, cleanup } = require('./helpers.cjs');
+const { execFileSync } = require('child_process');
+const { createTempProject, cleanup, runWithTimeout } = require('./helpers.cjs');
+const { SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
 
 const CORE_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'lib', 'core.cjs');
 const core = require(CORE_PATH);
@@ -64,6 +65,15 @@ function runCoreScript(scriptBody) {
   } finally {
     try { fs.unlinkSync(tmpScript); } catch {}
   }
+}
+
+function runGit(cwd, args) {
+  runWithTimeout('git', args, {
+    cwd,
+    stdio: 'pipe',
+    throwOnError: true,
+    timeout: SUBPROCESS_TIMEOUT,
+  });
 }
 
 /**
@@ -125,57 +135,57 @@ describe('MODEL_PROFILES', () => {
 // ---- output() and error() ----
 
 describe('output()', () => {
-  test('outputs JSON to stdout and exits 0', () => {
+  test('outputs JSON to stdout and exits 0', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript("core.output({ hello: 'world' }, false);");
     assert.strictEqual(res.exitCode, 0);
     const parsed = JSON.parse(res.stdout);
     assert.deepStrictEqual(parsed, { hello: 'world' });
   });
 
-  test('outputs raw value when raw=true and rawValue provided', () => {
+  test('outputs raw value when raw=true and rawValue provided', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript("core.output({ hello: 'world' }, true, 'my-raw-value');");
     assert.strictEqual(res.exitCode, 0);
     assert.strictEqual(res.stdout, 'my-raw-value');
   });
 
-  test('outputs JSON even when raw=true but rawValue is undefined', () => {
+  test('outputs JSON even when raw=true but rawValue is undefined', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript("core.output({ key: 'val' }, true);");
     assert.strictEqual(res.exitCode, 0);
     const parsed = JSON.parse(res.stdout);
     assert.deepStrictEqual(parsed, { key: 'val' });
   });
 
-  test('handles string result', () => {
+  test('handles string result', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript("core.output('just a string', false);");
     assert.strictEqual(res.exitCode, 0);
     assert.strictEqual(JSON.parse(res.stdout), 'just a string');
   });
 
-  test('handles array result', () => {
+  test('handles array result', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript("core.output([1, 2, 3], false);");
     assert.strictEqual(res.exitCode, 0);
     assert.deepStrictEqual(JSON.parse(res.stdout), [1, 2, 3]);
   });
 
-  test('handles number result', () => {
+  test('handles number result', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript('core.output(42, false);');
     assert.strictEqual(res.exitCode, 0);
     assert.strictEqual(JSON.parse(res.stdout), 42);
   });
 
-  test('handles boolean result', () => {
+  test('handles boolean result', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript('core.output(true, false);');
     assert.strictEqual(res.exitCode, 0);
     assert.strictEqual(JSON.parse(res.stdout), true);
   });
 
-  test('handles null result', () => {
+  test('handles null result', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript('core.output(null, false);');
     assert.strictEqual(res.exitCode, 0);
     assert.strictEqual(JSON.parse(res.stdout), null);
   });
 
-  test('large payload (>50KB) writes to tmpfile with @file: prefix', () => {
+  test('large payload (>50KB) writes to tmpfile with @file: prefix', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript("const bigObj = { data: 'x'.repeat(60000) };\ncore.output(bigObj, false);");
     assert.strictEqual(res.exitCode, 0);
     assert.ok(res.stdout.startsWith('@file:'), 'should start with @file: prefix');
@@ -187,7 +197,7 @@ describe('output()', () => {
     fs.unlinkSync(tmpPath);
   });
 
-  test('raw value with numeric rawValue', () => {
+  test('raw value with numeric rawValue', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript('core.output({}, true, 12345);');
     assert.strictEqual(res.exitCode, 0);
     assert.strictEqual(res.stdout, '12345');
@@ -243,13 +253,13 @@ describe('output() in-process coverage', () => {
 });
 
 describe('error()', () => {
-  test('writes error to stderr and exits with code 1', () => {
+  test('writes error to stderr and exits with code 1', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript("core.error('something went wrong');");
     assert.strictEqual(res.exitCode, 1);
     assert.ok(res.stderr.includes('Error: something went wrong'));
   });
 
-  test('formats error message with Error: prefix', () => {
+  test('formats error message with Error: prefix', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript("core.error('test message');");
     assert.ok(res.stderr.includes('Error: test message\n'));
   });
@@ -280,7 +290,7 @@ describe('requireValid()', () => {
     assert.strictEqual(result, undefined);
   });
 
-  test('exits with error when result is not ok', () => {
+  test('exits with error when result is not ok', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const res = runCoreScript("core.requireValid({ ok: false, error: 'validation failed' });");
     assert.strictEqual(res.exitCode, 1);
     assert.ok(res.stderr.includes('Error: validation failed'));
@@ -483,7 +493,8 @@ describe('isGitIgnored()', () => {
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-gitignore-'));
-    execSync('git init', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['init']);
+    runGit(tmpDir, ['config', 'core.hooksPath', '.git/hooks']);
     fs.writeFileSync(path.join(tmpDir, '.gitignore'), 'ignored.txt\n*.log\n');
   });
 
@@ -520,61 +531,62 @@ describe('execGit()', () => {
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-execgit-'));
-    execSync('git init', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git config user.email "test@test.com"', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git config user.name "Test"', { cwd: tmpDir, stdio: 'pipe' });
-  });
+    runGit(tmpDir, ['init']);
+    runGit(tmpDir, ['config', 'core.hooksPath', '.git/hooks']);
+    runGit(tmpDir, ['config', 'user.email', 'test@test.com']);
+    runGit(tmpDir, ['config', 'user.name', 'Test']);
+  }, { timeout: SUBPROCESS_TIMEOUT });
 
   afterEach(() => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
-  });
+  }, { timeout: SUBPROCESS_TIMEOUT });
 
-  test('executes git command and returns stdout', () => {
+  test('executes git command and returns stdout', { timeout: SUBPROCESS_TIMEOUT }, () => {
     fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
-    execSync('git add file.txt', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "initial"', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['add', 'file.txt']);
+    runGit(tmpDir, ['commit', '-m', 'initial']);
     const result = execGit(tmpDir, ['log', '--oneline']);
     assert.strictEqual(result.exitCode, 0);
     assert.ok(result.stdout.includes('initial'));
   });
 
-  test('returns non-zero exit code on failure', () => {
+  test('returns non-zero exit code on failure', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // git log on empty repo fails
     const result = execGit(tmpDir, ['log', '--oneline']);
     assert.ok(result.exitCode !== 0);
   });
 
-  test('returns empty stderr on success', () => {
+  test('returns empty stderr on success', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const result = execGit(tmpDir, ['status']);
     assert.strictEqual(result.exitCode, 0);
     assert.strictEqual(result.stderr, '');
   });
 
-  test('returns stderr content on failure', () => {
+  test('returns stderr content on failure', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const result = execGit(tmpDir, ['checkout', 'nonexistent-branch']);
     assert.ok(result.exitCode !== 0);
     assert.ok(result.stderr.length > 0);
   });
 
-  test('escapes safe args without quotes', () => {
+  test('escapes safe args without quotes', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const result = execGit(tmpDir, ['status']);
     assert.strictEqual(result.exitCode, 0);
   });
 
-  test('handles rev-parse command', () => {
+  test('handles rev-parse command', { timeout: SUBPROCESS_TIMEOUT }, () => {
     fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
-    execSync('git add file.txt', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "test commit"', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['add', 'file.txt']);
+    runGit(tmpDir, ['commit', '-m', 'test commit']);
     const result = execGit(tmpDir, ['rev-parse', 'HEAD']);
     assert.strictEqual(result.exitCode, 0);
     assert.ok(/^[a-f0-9]{40}$/.test(result.stdout));
   });
 
-  test('wraps args containing special characters in single quotes', () => {
+  test('wraps args containing special characters in single quotes', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // Args with spaces trigger single-quote wrapping in execGit
     fs.writeFileSync(path.join(tmpDir, 'file.txt'), 'content');
-    execSync('git add file.txt', { cwd: tmpDir, stdio: 'pipe' });
-    execSync('git commit -m "test commit"', { cwd: tmpDir, stdio: 'pipe' });
+    runGit(tmpDir, ['add', 'file.txt']);
+    runGit(tmpDir, ['commit', '-m', 'test commit']);
     // 'test commit' contains a space, triggers the quote branch
     const result = execGit(tmpDir, ['log', '--format=%s', '-1']);
     // Even if the format arg triggers quoting, the command may succeed or fail
@@ -1251,6 +1263,45 @@ describe('getMilestoneInfo()', () => {
     const result = getMilestoneInfo(tmpDir);
     assert.strictEqual(result.version, 'v0.4');
     assert.strictEqual(result.name, 'Quality and Polish');
+  });
+
+  test('prefers active milestone over older historical versions', () => {
+    const roadmapContent = `# Roadmap
+
+## Milestones
+
+- [x] **v0.1.0 Initial Fork** - shipped
+- [x] **v1.1.0 Installer Hardening** - shipped
+- [ ] **v1.2.0 Ship-Ready Hardening** - active
+
+## Phases
+
+### v1.2.0 Ship-Ready Hardening (Phases 41-44) -- ACTIVE
+`;
+    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), roadmapContent);
+
+    const result = getMilestoneInfo(tmpDir);
+    assert.strictEqual(result.version, 'v1.2');
+    assert.strictEqual(result.name, 'Ship-Ready Hardening');
+  });
+
+  test('prefers in-progress milestone over shipped historical versions', () => {
+    const roadmapContent = `# Roadmap
+
+## Milestones
+
+- SHIPPED **v4.0 Intelligence Layer**
+- IN PROGRESS **v5.0 Market-Leader Memory Platform**
+
+### v4.0 Intelligence Layer (Phases 30-37)
+
+### v5.0 Market-Leader Memory Platform (Phases 38-44)
+`;
+    fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), roadmapContent);
+
+    const result = getMilestoneInfo(tmpDir);
+    assert.strictEqual(result.version, 'v5.0');
+    assert.strictEqual(result.name, 'Market-Leader Memory Platform');
   });
 
   test('returns defaults when ROADMAP.md does not exist', () => {

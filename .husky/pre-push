@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+# Pre-push hook — local-CI parity (Phase 40.5 Wave 1.8 Task 1.8-01).
+#
+# Runs the same checks CI runs on every push, locally, before any bytes
+# leave the laptop. Catches CI failures here rather than burning CI minutes
+# and round-trip latency on what would have been a trivial local catch.
+#
+# Skip in emergencies: `git push --no-verify`
+
+echo ">> Pre-push: running CI parity check. Skip with --no-verify."
+
+set -e
+# Git exports repository-local env vars into hooks. The test suite creates
+# temporary Git repos, so clear those vars before any child Git process runs.
+unset $(git rev-parse --local-env-vars)
+bun install --frozen-lockfile --ignore-scripts
+bun run compose
+bun run lint
+bun test
+
+echo ">> Pre-push: CI parity check passed."

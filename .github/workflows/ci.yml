@@ -7,11 +7,167 @@ on:
     branches: [main]
 
 jobs:
+  workflow-lint:
+    name: Workflow Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run actionlint
+        run: bash scripts/lint-workflows.sh
+
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v6
+        with:
+          # Full history is required so gitleaks scans every commit, not just HEAD.
+          fetch-depth: 0
+      - name: Run gitleaks scan
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+          GITLEAKS_ENABLE_SUMMARY: "true"
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
+
+  audit-ci:
+    name: Audit CI (blocking HIGH/CRITICAL)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: npm install --package-lock-only --ignore-scripts
+      - run: bun run audit:ci
+
+  osv-scanner:
+    name: OSV Scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile --ignore-scripts
+      # Direct action usage is intentional. OSV's reusable workflow is the
+      # general recommendation, but this job needs same-job harden-runner
+      # telemetry plus local medium/low triage.
+      - name: Run OSV scanner against bun.lock
+        continue-on-error: true
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
+        with:
+          scan-args: |-
+            scan
+            source
+            --lockfile=bun.lock
+            --format=json
+            --output-file=osv-results.json
+      - name: Triage OSV findings
+        run: node scripts/osv-triage.js --input osv-results.json --output osv-triage.json --fail-on high,critical
+      - name: Upload OSV triage artifacts
+        if: ${{ always() && hashFiles('osv-triage.json') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: osv-triage
+          path: |
+            osv-results.json
+            osv-triage.json
+          retention-days: 30
+      - name: Upsert medium and low OSV issues
+        if: ${{ always() && hashFiles('osv-triage.json') != '' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+
+            const findings = JSON.parse(fs.readFileSync('osv-triage.json', 'utf8'))
+              .filter(finding => ['medium', 'low'].includes(finding.severity));
+
+            if (findings.length === 0) {
+              core.info('No medium or low OSV findings to route.');
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const labelColors = {
+              security: 'd73a4a',
+              'security-moderate': 'fbca04',
+              'security-low': '0e8a16',
+              osv: '5319e7',
+              dependency: '0366d6',
+            };
+
+            for (const label of new Set(findings.flatMap(finding => finding.labels))) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: label });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({
+                  owner,
+                  repo,
+                  name: label,
+                  color: labelColors[label] || 'ededed',
+                });
+              }
+            }
+
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'osv',
+              per_page: 100,
+            });
+
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+            for (const finding of findings) {
+              const existing = openIssues.find(issue => !issue.pull_request && issue.title === finding.title);
+              if (existing) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: existing.number,
+                  body: `Observed again in ${runUrl}.`,
+                });
+              } else {
+                await github.rest.issues.create({
+                  owner,
+                  repo,
+                  title: finding.title,
+                  body: `${finding.body}\n\nFirst observed in ${runUrl}.`,
+                  labels: finding.labels,
+                });
+              }
+            }
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -28,14 +184,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-15, windows-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - name: Cache bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -43,13 +199,15 @@ jobs:
             ${{ runner.os }}-bun-
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
+      - name: Guard against test files in dist/
+        run: node scripts/check-no-test-files-in-dist.js
       - run: bun test --coverage
 
   parity:
     name: Source Parity Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -60,19 +218,18 @@ jobs:
   upstream-compat:
     name: Upstream Compat (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    # Informational -- ~130 branding-caused test differences expected
-    continue-on-error: true
+    # Informational: branding-caused upstream test differences are expected.
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-15, windows-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - name: Cache bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -80,21 +237,37 @@ jobs:
             ${{ runner.os }}-bun-
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
-      - run: node scripts/run-upstream-compat.js
+      - run: node scripts/run-upstream-compat-ci.js
 
-  boundary-override-check:
-    name: Boundary & Override Check
+  boundary-check:
+    name: Boundary Check (informational)
     runs-on: ubuntu-latest
-    # Informational -- 48 structural boundary violations expected in overlay architecture
-    continue-on-error: true
+    # Known structural root-mirror debt remains informational. The ratchet gate
+    # is blocking so existing debt cannot increase silently.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
       - name: Check boundary violations
-        run: node scripts/check-boundary.js
+        # Report-only: 41 structural boundary violations are expected in the
+        # overlay architecture per AF-7. The following ratchet step remains
+        # blocking so the known debt cannot increase silently.
+        run: node scripts/check-boundary.js --report-only
+      - name: Ratchet gate (debt-baseline.json)
+        run: node scripts/check-debt-ratchet.cjs --no-compose
+
+  override-check:
+    name: Override Staleness Check (blocking)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun run compose
       - name: Check override staleness
         run: node scripts/check-overrides.js

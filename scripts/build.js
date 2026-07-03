@@ -10,26 +10,22 @@
  * dependencies must be bundled at build time.
  *
  * Targets:
- *   - overlay/hooks/*.js -> hooks/dist/ (3 hooks)
+ *   - All hooks declared in hooks/index.js (the SSOT manifest) -> hooks/dist/
  *   - get-stuff-done/bin/gsd-tools.cjs -> get-stuff-done/bin/dist/ (1 tool)
+ *
+ * Hook list comes from hooks/index.js — see that module + ADR-0001 for
+ * the SSOT pattern rationale. Adding/moving a hook requires NO changes
+ * to this script; edit hooks/index.js instead.
  */
 
 const fs = require('fs');
 const path = require('path');
 const esbuild = require('esbuild');
+const hooksManifest = require('../hooks');
 
-const HOOKS_DIR = path.join(__dirname, '..', 'overlay', 'hooks');
-const DIST_DIR = path.join(__dirname, '..', 'hooks', 'dist');
-
-const GSD_BIN_DIR = path.join(__dirname, '..', 'get-stuff-done', 'bin');
+const PROJECT_ROOT = hooksManifest.PROJECT_ROOT;
+const GSD_BIN_DIR = path.join(PROJECT_ROOT, 'get-stuff-done', 'bin');
 const GSD_DIST_DIR = path.join(GSD_BIN_DIR, 'dist');
-
-// Hooks to bundle (all hooks, including those without src/ imports, for consistency)
-const HOOKS_TO_BUNDLE = [
-  'gsd-check-update.js',
-  'gsd-statusline.js',
-  'pre-compact.js'
-];
 
 // Shared esbuild config: inline all deps for copy-mode install compatibility
 const ESBUILD_BASE = {
@@ -49,22 +45,35 @@ function formatSize(bytes) {
 }
 
 function buildHooks() {
-  // Ensure dist directory exists
-  if (!fs.existsSync(DIST_DIR)) {
-    fs.mkdirSync(DIST_DIR, { recursive: true });
+  // Ensure dist directory exists (parent of all per-hook dist paths)
+  const distDir = path.join(PROJECT_ROOT, 'hooks', 'dist');
+  if (!fs.existsSync(distDir)) {
+    fs.mkdirSync(distDir, { recursive: true });
   }
 
-  // Bundle hooks via esbuild (inlines all src/ dependencies)
-  for (const hookFile of HOOKS_TO_BUNDLE) {
-    const src = path.join(HOOKS_DIR, hookFile);
-    const dest = path.join(DIST_DIR, hookFile);
+  // Iterate the SSOT manifest. Adding/moving hooks is a hooks/index.js edit;
+  // this loop body is intentionally agnostic to specific hook names.
+  for (const hook of hooksManifest.HOOKS) {
+    const src = hooksManifest.sourcePath(hook);
+    const dest = hooksManifest.distPath(hook);
+    const sourceRel = `${hook.source}/${hook.name}`;
 
     if (!fs.existsSync(src)) {
-      console.warn(`Warning: ${hookFile} not found, skipping`);
-      continue;
+      // FAIL LOUD. Manifest says this file should exist; if it doesn't,
+      // either the file moved (update hooks/index.js) or was deleted
+      // (remove the manifest entry). Silently skipping was the v3.0.0-era
+      // bug that left hooks/dist/ stale for ~50 days. The
+      // tests/hooks-manifest.test.js invariant test will also fail in this
+      // case at test time. See 40.5-CI-DIAGNOSIS.md and ADR-0001.
+      throw new Error(
+        `Hook source not found: ${sourceRel}\n` +
+        `  Expected at: ${src}\n` +
+        `  Manifest entry: hooks/index.js (kind=${hook.kind})\n` +
+        `  Either the file moved (update manifest) or was deleted (remove entry).`
+      );
     }
 
-    process.stdout.write(`Bundling overlay/hooks/${hookFile}... `);
+    process.stdout.write(`Bundling ${sourceRel}... `);
 
     esbuild.buildSync({
       ...ESBUILD_BASE,

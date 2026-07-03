@@ -29,18 +29,24 @@
 const fs = require('fs');
 const path = require('path');
 const Ajv = require('ajv');
+const {
+  getActivePackageName,
+  getCategoryDirMap,
+  getPackageDir,
+  getRequiredUpstreamDirs,
+} = require('./lib/upstream-source');
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const PROJECT_ROOT = path.join(__dirname, '..');
-const DEFAULT_UPSTREAM_DIR = path.join(PROJECT_ROOT, 'node_modules', 'get-shit-done-cc');
+const DEFAULT_UPSTREAM_DIR = getPackageDir({ projectRoot: PROJECT_ROOT });
 const DEFAULT_OVERLAY_DIR = path.join(PROJECT_ROOT, 'overlay');
 const DEFAULT_DIST_DIR = path.join(PROJECT_ROOT, 'dist');
 
 // Required top-level entries in the upstream package (COMP-02)
-const REQUIRED_UPSTREAM_DIRS = ['agents', 'bin', 'commands', 'get-shit-done', 'hooks', 'scripts'];
+const REQUIRED_UPSTREAM_DIRS = getRequiredUpstreamDirs();
 
 // Overlay metadata files that are never treated as additive content
 const OVERLAY_METADATA = new Set(['branding.json', 'features.json', '.gitkeep', '.overlay-manifest.json']);
@@ -123,12 +129,7 @@ const FEATURES_SCHEMA = {
 };
 
 // Category-to-directory mapping for filter() basename matching (FEAT-01)
-const CATEGORY_DIR_MAP = {
-  workflows: 'get-shit-done/workflows/',
-  commands:  'commands/gsd/',
-  agents:    'agents/',
-  hooks:     'hooks/dist/',
-};
+const CATEGORY_DIR_MAP = getCategoryDirMap();
 
 // AJV instance with strict mode
 const ajv = new Ajv({ allErrors: true, strict: true });
@@ -268,10 +269,10 @@ function generateCredits(preserveUpstreamCredit) {
   return [
     '# Credits',
     '',
-    'This software is based on [GSD (Get Shit Done)](https://github.com/glittercowboy/get-shit-done) by TACHES.',
+    'This software is based on [Open GSD](https://github.com/open-gsd/gsd-core), a community continuation of GSD originally created by TACHES.',
     '',
-    'The original GSD system is licensed under the MIT License.',
-    'See the LICENSE file for the original license text.',
+    'Open GSD and original GSD components are licensed under the MIT License.',
+    'See the LICENSE file for the upstream license text.',
     '',
     '## Fork',
     '',
@@ -348,7 +349,7 @@ function resolve(opts) {
   if (!fs.existsSync(upstreamDir)) {
     throw new Error(
       `Upstream directory not found: ${upstreamDir}\n` +
-      `Hint: run 'bun install' to install upstream, or 'bun run preview-update' to check for updates.`
+      `Hint: run 'bun install' to install ${getActivePackageName()}, or 'bun run preview-update' to check for updates.`
     );
   }
 
@@ -418,7 +419,27 @@ function resolve(opts) {
   }
 
   // Walk upstream directory to build manifest
-  const upstreamFiles = walkDir(upstreamDir, '');
+  const upstreamFilesRaw = walkDir(upstreamDir, '');
+
+  // Filter out upstream-internal test files. Upstream packages may bundle
+  // .test.ts/.test.js/.test.cjs files inside their published tarball
+  // (observed in legacy upstream releases that shipped bundled test files in
+  // sdk/src/...). Keeping them in dist/ causes bun-test to discover and run
+  // them in fork context, where they fail because they need upstream's
+  // fixtures and module-resolution paths. The fork's CI uses tests/*.test.cjs
+  // (in repo root, not dist/) for upstream-compatibility testing — bundled
+  // upstream tests are noise from the fork's perspective.
+  //
+  // Defense-in-depth: bunfig.toml [test].exclude includes "**/dist/**" which
+  // prevents discovery; this filter prevents the files from existing in dist/
+  // at all. Both layers must be preserved.
+  //
+  // See tests/test-config-hygiene.test.js for the meta-test that asserts
+  // zero test files in dist/ at test time.
+  const upstreamFiles = upstreamFilesRaw.filter(relPath => {
+    const baseName = relPath.split(/[\\/]/).pop();
+    return !/\.(test|spec)\.(js|ts|cjs|mjs)$/.test(baseName);
+  });
 
   // Build manifest entries
   const manifest = upstreamFiles.map(relPath => ({

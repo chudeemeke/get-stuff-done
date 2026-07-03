@@ -13,7 +13,10 @@
     "dist",
     "bin",
     "overlay/branding.json",
-    "overlay/features.json"
+    "overlay/features.json",
+    "scripts/check-overrides.js",
+    "scripts/lib/upstream-source.js",
+    "scripts/preview-update.js"
   ],
   "keywords": [
     "claude",
@@ -41,26 +44,37 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@anthropic-ai/claude-code": "^2.1.42",
+    "@anthropic-ai/claude-code": "^2.1.197",
     "ajv": "^8.17.1",
     "json5": "^2.2.3",
     "pathe": "^2.0.3"
+  },
+  "overrides": {
+    "fast-uri": "3.1.3",
+    "flatted": "3.4.2",
+    "hono": "4.12.27",
+    "minimatch": "3.1.5"
   },
   "devDependencies": {
     "esbuild": "^0.24.0",
     "eslint": "^9.0.0",
     "eslint-plugin-security": "^3.0.1",
-    "get-shit-done-cc": "1.32.0",
-    "sharp": "^0.34.5",
-    "svgexport": "^0.4.2"
+    "@opengsd/gsd-core": "1.5.0",
+    "audit-ci": "7.1.0",
+    "husky": "^9.1.7",
+    "sharp": "^0.34.5"
   },
   "scripts": {
+    "prepare": "husky",
     "install": "node bin/install.js",
     "build": "node scripts/build.js",
     "compose": "node scripts/compose.js",
     "finalize-dist": "node scripts/finalize-dist.js",
     "dist": "bun run compose && bun run build && bun run finalize-dist",
     "prepublishOnly": "bun run dist",
+    "audit:ci": "node scripts/audit-check.js",
+    "bench": "node scripts/bench.js",
+    "bench:test-timing": "node scripts/bench-test-timing.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "bun test",

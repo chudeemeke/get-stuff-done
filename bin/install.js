@@ -145,6 +145,27 @@ function readInstalledManifest(targetDir) {
 }
 
 /**
+ * Read the overlay provenance manifest from a previous GSD installation.
+ *
+ * @param {string} targetDir
+ * @returns {string[]} Relative paths of overlay-installed files, empty if no manifest
+ */
+function readOverlayManifest(targetDir) {
+  const manifestPath = path.join(targetDir, '.overlay-manifest.json');
+  if (!fs.existsSync(manifestPath)) return [];
+
+  try {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    if (Array.isArray(manifest)) {
+      return manifest.filter(entry => typeof entry === 'string' && entry.length > 0);
+    }
+  } catch {
+    // Corrupt overlay manifest -- return empty and let metadata cleanup continue.
+  }
+  return [];
+}
+
+/**
  * Remove only GSD-owned files from the target directory.
  *
  * Strategy (in priority order):
@@ -159,7 +180,10 @@ function readInstalledManifest(targetDir) {
  * @returns {{ removed: number, strategy: string }}
  */
 function removeGsdFiles(targetDir, quiet) {
-  const manifestFiles = readInstalledManifest(targetDir);
+  const manifestFiles = [...new Set([
+    ...readInstalledManifest(targetDir),
+    ...readOverlayManifest(targetDir),
+  ])];
   let removed = 0;
   let skipped = 0;
   let strategy;
@@ -217,6 +241,7 @@ function removeGsdFiles(targetDir, quiet) {
     const v2Paths = [
       'get-stuff-done',   // v2.x directory name
       'get-shit-done',    // v3.0 upstream directory
+      'gsd-core',         // Open GSD upstream directory
     ];
 
     for (const relPath of v2Paths) {
@@ -229,11 +254,45 @@ function removeGsdFiles(targetDir, quiet) {
   }
 
   // Always clean GSD metadata files
-  for (const meta of [INSTALLED_MANIFEST_NAME, '.install-meta.json', 'CREDITS.md', 'package.json']) {
+  for (const meta of [
+    INSTALLED_MANIFEST_NAME,
+    '.install-meta.json',
+    '.overlay-manifest.json',
+    '.gsd-profile',
+    'CREDITS.md',
+    'gsd-install-state.json',
+    'package.json',
+  ]) {
     const fullPath = path.join(targetDir, meta);
     if (fs.existsSync(fullPath)) {
       fs.rmSync(fullPath, { force: true });
       removed++;
+    }
+  }
+
+  for (const relPath of ['scripts/changeset', 'scripts/lib']) {
+    const fullPath = path.join(targetDir, relPath);
+    const resolvedFull = path.resolve(fullPath);
+    if (!resolvedFull.startsWith(resolvedTarget)) {
+      skipped++;
+      continue;
+    }
+    if (fs.existsSync(fullPath) && fs.lstatSync(fullPath).isDirectory()) {
+      fs.rmSync(fullPath, { recursive: true, force: true });
+      removed++;
+    }
+  }
+
+  for (const relPath of ['scripts']) {
+    const fullPath = path.join(targetDir, relPath);
+    const resolvedFull = path.resolve(fullPath);
+    if (!resolvedFull.startsWith(resolvedTarget)) continue;
+    try {
+      if (fs.existsSync(fullPath) && fs.readdirSync(fullPath).length === 0) {
+        fs.rmdirSync(fullPath);
+      }
+    } catch {
+      // Directory already gone or not empty -- fine
     }
   }
 
@@ -253,7 +312,7 @@ function removeGsdFiles(targetDir, quiet) {
  * Detect v2.x installation in the target directory.
  * Two signals checked in priority order:
  *   1. Meta file at get-stuff-done/.install-meta.json (v2.x location)
- *   2. get-stuff-done/ exists without get-shit-done/ (v2.x dir name)
+ *   2. get-stuff-done/ exists without gsd-core/ (v2.x dir name)
  *
  * Note: src/ directory presence is NOT a v2.x signal. v3.0 overlay installs
  * src/ files, and other tools may create src/ directories inside the target.
@@ -289,10 +348,10 @@ function detectV2(targetDir) {
     }
   }
 
-  // Signal 2: get-stuff-done/ exists without get-shit-done/ (v2.x dir name)
+  // Signal 2: get-stuff-done/ exists without gsd-core/ (v2.x dir name)
   if (
     fs.existsSync(path.join(targetDir, 'get-stuff-done')) &&
-    !fs.existsSync(path.join(targetDir, 'get-shit-done'))
+    !fs.existsSync(path.join(targetDir, 'gsd-core'))
   ) {
     return { isV2: true, signal: 'directory-name' };
   }
@@ -410,12 +469,11 @@ function copyOverlayFiles(distDir, targetDir) {
 // ---------------------------------------------------------------------------
 
 /**
- * Copy .overlay-manifest.json to the target directory (inside get-shit-done/).
+ * Copy .overlay-manifest.json to the target directory.
  * This records which installed files came from the overlay vs upstream,
  * enabling provenance auditing at the installed location.
  *
- * Gracefully skips if either the source manifest or get-shit-done/ target
- * directory doesn't exist (partial install state).
+ * Gracefully skips if the source manifest does not exist.
  *
  * @param {string} distDir - Source dist directory
  * @param {string} targetDir - Installation target
@@ -423,11 +481,10 @@ function copyOverlayFiles(distDir, targetDir) {
  */
 function copyOverlayManifest(distDir, targetDir) {
   const srcManifest = path.join(distDir, '.overlay-manifest.json');
-  const gsdDir = path.join(targetDir, 'get-shit-done');
 
-  if (!fs.existsSync(srcManifest) || !fs.existsSync(gsdDir)) return false;
+  if (!fs.existsSync(srcManifest)) return false;
 
-  fs.copyFileSync(srcManifest, path.join(gsdDir, '.overlay-manifest.json'));
+  fs.copyFileSync(srcManifest, path.join(targetDir, '.overlay-manifest.json'));
   return true;
 }
 
@@ -474,7 +531,7 @@ function cleanOrphanedPaths(targetDir) {
 // ---------------------------------------------------------------------------
 
 /**
- * Write .install-meta.json to the target directory (inside get-shit-done/).
+ * Write .install-meta.json to the target directory.
  *
  * @param {string} targetDir - Installation target
  */
@@ -490,14 +547,11 @@ function writeInstallMeta(targetDir) {
     overrides_applied: distMeta.overrides_applied || [],
   };
 
-  const gsdDir = path.join(targetDir, 'get-shit-done');
-  if (fs.existsSync(gsdDir)) {
-    fs.writeFileSync(
-      path.join(gsdDir, '.install-meta.json'),
-      JSON.stringify(meta, null, 2),
-      'utf-8'
-    );
-  }
+  fs.writeFileSync(
+    path.join(targetDir, '.install-meta.json'),
+    JSON.stringify(meta, null, 2),
+    'utf-8'
+  );
 }
 
 // ---------------------------------------------------------------------------

@@ -1,5 +1,3 @@
-# gsd-oversight-planning
-
 ---
 name: gsd-oversight-planning
 description: Watches plan creation for requirement coverage gaps, scope creep, dependency errors, and CONTEXT.md decision violations. Flags without blocking.

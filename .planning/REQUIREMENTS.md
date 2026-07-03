@@ -63,14 +63,14 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 
 ### RELIABILITY (SLO as phase completion criterion)
 
-- [ ] **REL-01**: 100% test pass on Linux + macOS + Windows platforms as a phase completion criterion (not aspirational); fix-flakiness treated as mandatory
-- [ ] **REL-02**: Windows subprocess flakiness root-caused: raw subprocess test call sites migrate to the central timeout helper where applicable; central timeout constants are applied; per-test flake rate is tracked over CI runs
-- [ ] **REL-03**: Escape hatch defined with friction: if root-cause genuinely exceeds timebox, per-test skip is allowed only with issue link + explicit deadline; skip is flagged-on-use in CI output; MAINTENANCE.md tracks deadline
+- [x] **REL-01**: 100% test pass on Linux + macOS + Windows platforms as a phase completion criterion (not aspirational); 10x validation run `28639808289` passed on all three platforms.
+- [x] **REL-02**: Windows subprocess flakiness root-caused: raw subprocess test call sites migrated to the central timeout helper where applicable; central timeout constants are applied; per-test flake rate is tracked over CI runs.
+- [x] **REL-03**: Escape hatch defined with friction: if root-cause genuinely exceeds timebox, per-test skip is allowed only with issue link + explicit deadline; skip is flagged-on-use in CI output; MAINTENANCE.md tracks deadline. No active REL-03 skips exist at Phase 41 closure.
 
 ### PERF (performance baselining + budget enforcement)
 
-- [ ] **PERF-01**: `scripts/bench.js` measures install time, compose time, test runtime across all 3 platforms via `hyperfine` (JSON export). Partial 2026-07-01: schemas, scripts, and manual workflow implemented; real linux/macos/windows capture still pending default-branch workflow registration.
-- [ ] **PERF-02**: `perf-baseline.json` committed with per-platform baselines captured from PERF-01. Blocked until real workflow artifacts are merged; placeholders are prohibited.
+- [x] **PERF-01**: `scripts/bench.js` measures install time and compose time, and `scripts/bench-test-timing.js` measures test runtime across all 3 platforms via real workflow artifacts from run `28638612289`.
+- [x] **PERF-02**: `perf-baseline.json` committed with per-platform baselines captured from PERF-01. `.planning/perf/test-timing.json` stores the separate test-suite timing baseline.
 - [ ] **PERF-03**: `scripts/check-perf.js` compares current run against baseline with configurable tolerance
 - [ ] **PERF-04**: `perf-budget` CI job enforces: warn at 1.1x baseline, fail at 1.25x baseline, per-platform budgets
 - [ ] **PERF-05**: `acceptedRegressions[]` escape hatch in perf-baseline.json allows reviewed regressions with required `{reason, reviewer, reviewedDate, ticket}` fields
@@ -152,11 +152,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DOCS-06 | Phase 42 | Pending |
 | DOCS-07 | Phase 44 | Pending |
 | DOCS-08 | Phase 44 | Pending |
-| REL-01 | Phase 41 | Pending |
-| REL-02 | Phase 41 | Pending |
-| REL-03 | Phase 41 | Pending |
-| PERF-01 | Phase 41 | Partial; pending three-platform capture |
-| PERF-02 | Phase 41 | Pending; blocked on real baseline artifacts |
+| REL-01 | Phase 41 | Complete |
+| REL-02 | Phase 41 | Complete |
+| REL-03 | Phase 41 | Complete |
+| PERF-01 | Phase 41 | Complete |
+| PERF-02 | Phase 41 | Complete |
 | PERF-03 | Phase 42 | Pending |
 | PERF-04 | Phase 42 | Pending |
 | PERF-05 | Phase 42 | Pending |
@@ -176,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-07-01 -- Phase 41 Plan 04 local harness/workflow implemented; PERF-01/PERF-02 remain pending until default-branch workflow registration and real linux/macos/windows artifacts*
+*Last updated: 2026-07-03 -- Phase 41 closed after real perf baseline capture and 10x Linux/macOS/Windows validation*

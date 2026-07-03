@@ -72,7 +72,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 
 - [ ] **Phase 40.5: Upstream Bump & Phase 41 Decision Re-verification** — (INSERTED 2026-04-22) Pre-Phase-41 currency bump. Bump upstream pin from 1.34.2 to 1.38.2 (312 commits / 566 files drift), refresh override SHA-256 snapshots, audit for compose collisions, re-verify all Phase 41 CONTEXT.md decisions against fresh upstream state, and amend CONTEXT.md if any decision changes. Enables Phase 41 planning against current upstream. Distinct from Phase 43's UPGRADE-05 dogfood bump.
 - [x] **Phase 40.6: Upstream Authority Migration** -- (COMPLETED 2026-06-23) Replaced legacy upstream authority (`get-shit-done-cc` / `gsd-build/get-shit-done`) with active Open GSD authority (`@opengsd/gsd-core` / `open-gsd/gsd-core`) before Phase 41. Pinned vetted Open GSD stable version `1.5.0`, rebased compose/override/update/package tooling on the new package layout, preserved fork identity, and retired Phase 40.5's legacy filing path.
-- [ ] **Phase 41: Foundation — Flip Gate, Install Audit Surface, Windows SLO** — Blocking override-staleness gate, supply-chain audit surface, perf baseline capture, and Windows flake root-cause so later gates compose on a clean, trustworthy baseline.
+- [x] **Phase 41: Foundation — Flip Gate, Install Audit Surface, Windows SLO** — (COMPLETED 2026-07-03) Blocking override-staleness gate, supply-chain audit surface, real perf baseline capture, Windows flake hardening, and 10x Linux/macOS/Windows validation are complete.
 - [ ] **Phase 42: Budget Enforcement, Process Hardening, Cousin-Test** — Perf budget enforcement against the baseline, consolidated oversight triggers (1 principle + 4 triggers + probes), cold-install CI + INSTALL.md, and markdown/link gates for docs.
 - [ ] **Phase 43: Upgrade Resilience — Verify, Matrix, Dogfood** — End-to-end upgrade simulation via Verdaccio, N=3 historical compat matrix, live dogfood upstream bump, override-churn changelog automation, and SBOM in the compose pipeline.
 - [ ] **Phase 44: Ship Polish — Publish Flow, Provenance, Docs** — Pre-publish hard-gate chain with publint, OIDC-only provenance, workflow static analysis, reproducible-build verification, MAINTENANCE.md with all runbooks, and README/CHANGELOG polish.
@@ -128,9 +128,9 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 41-02-PLAN.md -- Wave 1: Audit suppressions, security policy, and maintenance sections
 - [x] 41-05-PLAN.md -- Wave 1: Subprocess timeout helper and high-volume Windows-prone test migration
 - [x] 41-03-PLAN.md -- Wave 2: Security scanner CI surface and OSV triage
-- [ ] 41-04-PLAN.md -- Wave 2: Perf baseline harness, schemas, workflow, and real three-platform capture protocol (local harness/workflow committed; blocked on default-branch workflow registration for real artifacts)
-- [ ] 41-06-PLAN.md -- Wave 3: Remaining subprocess migration and Windows flake telemetry
-- [ ] 41-07-PLAN.md -- Wave 4: 10x validation, flake maintenance, and D-11/REL-03 closure discipline
+- [x] 41-04-PLAN.md -- Wave 2: Perf baseline harness, schemas, workflow, and real three-platform baseline artifacts
+- [x] 41-06-PLAN.md -- Wave 3: Remaining subprocess migration and Windows flake telemetry
+- [x] 41-07-PLAN.md -- Wave 4: 10x validation, flake maintenance, and D-11/REL-03 closure discipline
 
 ### Phase 42: Budget Enforcement, Process Hardening, Cousin-Test
 **Goal**: Enforce the perf budget against the Phase 41 baseline, land consolidated oversight triggers backed by deterministic probes, and verify that a cousin (never-touched-this-repo) can cold-install `@chude/get-stuff-done` on every supported OS and package manager.
@@ -182,7 +182,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 37-40 | v1.1.0 | 8/8 | Complete | 2026-04-04 |
 | 40.5 | v1.2.0 | 4/5 evidence | Partial; Wave 5 legacy filing path retired by Phase 40.6 | - |
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
-| 41 | v1.2.0 | 4/7 | In Progress; Wave 2 active; Plan 04 local implementation committed, blocked on real baseline capture | - |
+| 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 0/TBD | Not started | - |
 | 43 | v1.2.0 | 0/TBD | Not started | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |

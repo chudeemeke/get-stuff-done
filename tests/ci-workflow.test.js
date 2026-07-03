@@ -159,3 +159,35 @@ describe('Phase 42 oversight probes workflow', () => {
     expect(workflow).toContain('node scripts/verify-oversight-probes.js');
   });
 });
+
+describe('Phase 42 cousin install workflow', () => {
+  test('cousin install covers OS, Node, and package-manager matrix axes', () => {
+    const workflow = readWorkflow('cousin-install.yml');
+
+    expect(workflow).toContain('schedule:');
+    expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).toContain('pull_request:');
+    expect(workflow).toContain('os: [ubuntu-latest, macos-15, windows-latest]');
+    expect(workflow).not.toContain('macos-latest');
+    expect(workflow).toContain('node-version: [20, 22]');
+    expect(workflow).toContain('package-manager: [npm, pnpm, bun]');
+    expect(workflow).toContain('actions/setup-node@v6');
+    expect(workflow).toContain('node-version: ${{ matrix.node-version }}');
+    expect(workflow).toContain('corepack enable');
+    expect(workflow).toContain('PNPM_VERSION: 10.17.1');
+    expect(workflow).toContain('corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate');
+  });
+
+  test('cousin install tests packed PR artifacts and published scheduled artifacts', () => {
+    const workflow = readWorkflow('cousin-install.yml');
+
+    expect(workflow).toContain('bun run dist');
+    expect(workflow).toContain('npm pack --pack-destination "$RUNNER_TEMP"');
+    expect(workflow).toContain('@chude/get-stuff-done@latest');
+    expect(workflow).toContain('NODE_AUTH_TOKEN: ${{ secrets.NPM_READONLY_TOKEN }}');
+    expect(workflow).toContain('scripts/cousin-smoke.js');
+    expect(workflow).toContain('--package-manager "${{ matrix.package-manager }}"');
+    expect(workflow).toContain('--temp-root "${{ runner.temp }}"');
+    expect(workflow).toContain('--version --json');
+  });
+});

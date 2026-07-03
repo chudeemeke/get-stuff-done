@@ -337,6 +337,53 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           node scripts/flake-triage.js --validate-rel03-wrappers
 
+  perf-budget:
+    name: Perf Budget (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: macos-15
+            platform: macos
+          - os: windows-latest
+            platform: windows
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - name: Install hyperfine (Linux)
+        if: ${{ matrix.platform == 'linux' }}
+        run: |
+          if ! command -v hyperfine >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y hyperfine
+          fi
+      - name: Install hyperfine (macOS)
+        if: ${{ matrix.platform == 'macos' }}
+        run: |
+          if ! command -v hyperfine >/dev/null 2>&1; then
+            brew install hyperfine
+          fi
+      - name: Install hyperfine (Windows)
+        if: ${{ matrix.platform == 'windows' }}
+        shell: powershell
+        run: |
+          if (-not (Get-Command hyperfine -ErrorAction SilentlyContinue)) {
+            choco install hyperfine -y --no-progress
+          }
+      - name: Capture current install and compose metrics
+        run: node scripts/bench.js --platform ${{ matrix.platform }} --runs 3 --warmup 1 --out perf-current.json
+      - name: Enforce perf budget
+        run: node scripts/check-perf.js --baseline perf-baseline.json --current perf-current.json --platform ${{ matrix.platform }} --warn-ratio 1.10 --fail-ratio 1.25
+
   parity:
     name: Source Parity Check
     runs-on: ubuntu-latest

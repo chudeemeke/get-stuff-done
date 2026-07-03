@@ -111,7 +111,7 @@ describe('vetted upstream versions manifest', () => {
     expect(() => validateVettedManifest(baseManifest({
       versions: [
         candidate('1.5.0', { role: 'current', blocking: true }),
-        candidate('1.6.0', { vettedAt: '2026-07-03T21:00:00Z', evidence: {} }),
+        candidate('1.6.0', { vettedAt: '2026-07-03', evidence: {} }),
         candidate('1.6.1'),
       ],
     }), AUTHORITY)).toThrow('matrixReport');

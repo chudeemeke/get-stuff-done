@@ -13,22 +13,31 @@
       "version": "1.5.0",
       "role": "current",
       "blocking": true,
-      "vettedAt": null,
-      "evidence": {}
+      "vettedAt": "2026-07-03",
+      "evidence": {
+        "matrixReport": "compat-matrix-report.json",
+        "status": "failed"
+      }
     },
     {
       "version": "1.6.0",
       "role": "historical-candidate",
       "blocking": false,
-      "vettedAt": null,
-      "evidence": {}
+      "vettedAt": "2026-07-03",
+      "evidence": {
+        "matrixReport": "compat-matrix-report.json",
+        "status": "failed"
+      }
     },
     {
       "version": "1.6.1",
       "role": "latest-stable-candidate",
       "blocking": false,
-      "vettedAt": null,
-      "evidence": {}
+      "vettedAt": "2026-07-03",
+      "evidence": {
+        "matrixReport": "compat-matrix-report.json",
+        "status": "failed"
+      }
     }
   ]
 }

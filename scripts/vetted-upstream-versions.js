@@ -81,7 +81,7 @@ function validateVettedManifest(manifest, authority = readAuthorityContract({ au
       throw new Error(`Invalid vetted upstream role: ${entry.role}`);
     }
     if (entry.vettedAt !== null && typeof entry.vettedAt !== 'string') {
-      throw new Error(`vettedAt must be null or a date-time string for ${entry.version}`);
+      throw new Error(`vettedAt must be null or a date string for ${entry.version}`);
     }
     if (entry.vettedAt && (!entry.evidence || typeof entry.evidence.matrixReport !== 'string' || entry.evidence.matrixReport.length === 0)) {
       throw new Error(`vettedAt requires non-empty evidence.matrixReport for ${entry.version}`);

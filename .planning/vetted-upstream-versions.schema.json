@@ -62,7 +62,7 @@
           },
           "vettedAt": {
             "type": ["string", "null"],
-            "format": "date-time"
+            "format": "date"
           },
           "evidence": {
             "type": "object",

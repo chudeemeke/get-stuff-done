@@ -1,0 +1,52 @@
+name: Phase 41 10x Validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: 10x Validation (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      BUN_TEST_TIMEOUT: 30000
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15, windows-latest]
+    steps:
+      # This workflow must exist on the default branch before GitHub can
+      # manually dispatch it. Use it as a post-registration Phase 41 gate.
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Cache bun dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun run compose
+      - name: Run full suite ten times
+        shell: bash
+        run: |
+          set -euo pipefail
+          for run_number in 1 2 3 4 5 6 7 8 9 10; do
+            echo "10x validation run ${run_number}/10"
+            bun test --coverage
+          done
+      - name: Record Phase 41 closure reminder
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          {
+            echo "### Phase 41 10x validation"
+            echo ""
+            echo "Phase 41 remains open unless all 30 matrix iterations are green."
+          } >> "$GITHUB_STEP_SUMMARY"

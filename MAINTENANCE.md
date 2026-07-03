@@ -66,6 +66,11 @@ REL-03 is a friction-heavy escape hatch, not a way to hide unreliable tests. Use
 this table only after the Phase 41 Windows root-cause timebox has been spent and
 the remaining flake is tied to a concrete issue.
 
+Phase 41 Windows root-cause work is timeboxed to 2 working days. After that
+timebox, any remaining flake must move to REL-03 with an issue link, concrete
+deadline, reviewer, CI job-summary visibility, and this table row before Phase
+41 can close. Use IDs in the form `REL-03-N`.
+
 Required surfaces for every active escape hatch:
 
 1. A visible in-test skip reason with the REL-03 id, issue link, and deadline.
@@ -79,4 +84,4 @@ Required surfaces for every active escape hatch:
 
 | ID | test-path | platform | issue | deadline | reviewer | status |
 |----|-----------|----------|-------|----------|----------|--------|
-| N/A | N/A | N/A | N/A | N/A | N/A | none active |
+| N/A | N/A | all | N/A | N/A | N/A | No active REL-03 skips |

@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 42 PLANNED and externally reviewed with no remaining blockers. Ready to execute Plan 01: Perf budget comparison and CI enforcement."
-stopped_at: "2026-07-03 Phase 42 planning created context, research refresh, validation strategy, five executable plans, incorporated external plan-review findings, and passed second-pass review with no blockers/high/medium findings. Execute 42-01 first; backlog 999.x items remain unpromoted unless explicitly selected."
-last_updated: "2026-07-03T07:23:08+01:00"
-last_activity: 2026-07-03 -- Phase 42 plan review incorporated
+status: "Phase 42 EXECUTING. Plan 01 perf budget enforcement complete; Plan 02 runtime package provenance is next."
+stopped_at: "2026-07-03 Completed 42-01-PLAN.md with perf comparator, accepted-regression schema, and blocking perf-budget CI wiring. Continue with 42-02 runtime package provenance next; 42-04 can also proceed in Wave 1 after this PR lands."
+last_updated: "2026-07-03T06:44:01Z"
+last_activity: 2026-07-03 -- Phase 42 Plan 01 complete
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 21
-  completed_plans: 11
-  planned_plans: 5
-  percent: 52
+  completed_plans: 12
+  planned_plans: 4
+  percent: 57
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 
 ## Current Position
 
-Phase: Phase 42 (next) -- Budget Enforcement, Process Hardening, Cousin-Test
-Plan: 5 planned; execute 42-01 first
-Status: Ready to execute Phase 42 from the Phase 41 baselines, closure evidence, and incorporated external plan-review corrections; second-pass review found no blockers/high/medium findings. Do not auto-promote backlog 999.x items without an explicit GSD planning decision
-Last activity: 2026-07-03 -- Phase 42 planned from durable repo artifacts and external review findings incorporated
+Phase: Phase 42 (executing) -- Budget Enforcement, Process Hardening, Cousin-Test
+Plan: 1/5 complete; next is 42-02 runtime package provenance
+Status: Plan 01 complete from Phase 41 baselines and external-review-corrected plan; continue Wave 1 without auto-promoting backlog 999.x items
+Last activity: 2026-07-03 -- Plan 01 perf budget enforcement completed
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -70,6 +70,8 @@ v1.2.0 roadmap decisions:
 - 2026-07-03 Phase 42 plan-review decision: runtime package provenance must read fork version from `package.json` and upstream identity from the upstream-authority helper, not hardcoded literal package/version values.
 - 2026-07-03 Phase 42 plan-review decision: docs gates target tracked markdown discovered with `git ls-files` semantics; recursive `**/*.md` globs are not sufficient because ignored generated/dependency copies can pollute the signal.
 - 2026-07-03 Phase 42 plan-review decision: perf budget thresholds are strict greater-than boundaries; exact `1.10` does not warn and exact `1.25` does not hard-fail.
+- 2026-07-03 Phase 42 Plan 01 decision: `scripts/bench.js` remains measurement-only; `scripts/check-perf.js` owns merge policy, annotations, and accepted-regression handling.
+- 2026-07-03 Phase 42 Plan 01 decision: `acceptedRegressions[]` entries must include reviewed metadata plus either `platform` + `metric` or explicit `scope: "global"`; missing targets are not wildcard approvals.
 
 ### Roadmap Evolution
 
@@ -103,7 +105,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03 (Phase 42 planning and external plan-review corrections completed after Phase 41 closure; Phase 41 closed after 10x validation run 28639808289; Plan 07 closure workflows completed and merged; Plan 04 real perf baselines completed from workflow run 28638612289; Plan 06 subprocess hardening and Windows flake telemetry merged; Codex no-frontmatter installer crash fixed/tested; GSD routing/progress-accounting and memory-nexus milestone-scope hotfixes verified; CI repair and hygiene cleanup remote-verified).
+Last session: 2026-07-03 (Phase 42 Plan 01 completed after externally reviewed Phase 42 planning; perf comparator, accepted-regression schema, and perf-budget CI wiring implemented and locally verified. Phase 41 closed after 10x validation run 28639808289; Plan 04 real perf baselines came from workflow run 28638612289.)
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Phase 42 is planned, external review findings are incorporated, and second-pass review found no blockers/high/medium findings. Next up is executing 42-01-PLAN.md on a fresh implementation branch, then 42-02 and 42-04 can proceed in wave 1. Do not resume backlog 999.x as the next path unless the user explicitly promotes it.
-Resume file: .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-CONTEXT.md and .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-PLAN-REVIEW.md
+Stopped at: Completed 42-01-PLAN.md; Phase 42 Plan 02 runtime package provenance is next on this branch or a fresh Wave 1 branch. Phase 42 Plan 04 can also proceed in Wave 1 after this PR lands.
+Resume file: .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-02-PLAN.md

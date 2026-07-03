@@ -71,9 +71,9 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 
 - [x] **PERF-01**: `scripts/bench.js` measures install time and compose time, and `scripts/bench-test-timing.js` measures test runtime across all 3 platforms via real workflow artifacts from run `28638612289`.
 - [x] **PERF-02**: `perf-baseline.json` committed with per-platform baselines captured from PERF-01. `.planning/perf/test-timing.json` stores the separate test-suite timing baseline.
-- [ ] **PERF-03**: `scripts/check-perf.js` compares current run against baseline with configurable tolerance
-- [ ] **PERF-04**: `perf-budget` CI job enforces: warn at 1.1x baseline, fail at 1.25x baseline, per-platform budgets
-- [ ] **PERF-05**: `acceptedRegressions[]` escape hatch in perf-baseline.json allows reviewed regressions with required `{reason, reviewer, reviewedDate, ticket}` fields
+- [x] **PERF-03**: `scripts/check-perf.js` compares current run against baseline with configurable tolerance
+- [x] **PERF-04**: `perf-budget` CI job enforces: warn at 1.1x baseline, fail at 1.25x baseline, per-platform budgets
+- [x] **PERF-05**: `acceptedRegressions[]` escape hatch in perf-baseline.json allows reviewed regressions with required `{reason, reviewer, reviewedDate, ticket}` fields
 
 ## Future Requirements (v1.3.0+)
 
@@ -157,9 +157,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | REL-03 | Phase 41 | Complete |
 | PERF-01 | Phase 41 | Complete |
 | PERF-02 | Phase 41 | Complete |
-| PERF-03 | Phase 42 | Pending |
-| PERF-04 | Phase 42 | Pending |
-| PERF-05 | Phase 42 | Pending |
+| PERF-03 | Phase 42 | Complete |
+| PERF-04 | Phase 42 | Complete |
+| PERF-05 | Phase 42 | Complete |
 
 **Coverage:**
 - v1.2.0 requirements: 47 total (45 original + UPGRADE-10 added 2026-04-22 with Phase 40.5 insertion + UPGRADE-11 added 2026-06-22 with Phase 40.6 insertion)

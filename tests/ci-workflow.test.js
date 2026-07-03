@@ -119,3 +119,25 @@ describe('Phase 41 validation workflows', () => {
     expect(maintenance).toContain('| ID | test-path | platform | issue | deadline | reviewer | status |');
   });
 });
+
+describe('Phase 42 perf budget workflow', () => {
+  test('perf-budget job compares fresh metrics against committed thresholds on pinned runners', () => {
+    const workflow = readCiWorkflow();
+    const perfJobStart = workflow.indexOf('perf-budget:');
+    const parityJobStart = workflow.indexOf('\n  parity:', perfJobStart);
+    const perfJob = workflow.slice(perfJobStart, parityJobStart);
+
+    expect(perfJobStart).toBeGreaterThan(-1);
+    expect(perfJob).toContain('name: Perf Budget (${{ matrix.platform }})');
+    expect(perfJob).toContain('runs-on: ${{ matrix.os }}');
+    expect(perfJob).toContain('os: ubuntu-latest');
+    expect(perfJob).toContain('platform: linux');
+    expect(perfJob).toContain('os: macos-15');
+    expect(perfJob).toContain('platform: macos');
+    expect(perfJob).toContain('os: windows-latest');
+    expect(perfJob).toContain('platform: windows');
+    expect(perfJob).not.toContain('macos-latest');
+    expect(perfJob).toContain('node scripts/bench.js --platform ${{ matrix.platform }} --runs 3 --warmup 1 --out perf-current.json');
+    expect(perfJob).toContain('node scripts/check-perf.js --baseline perf-baseline.json --current perf-current.json --platform ${{ matrix.platform }} --warn-ratio 1.10 --fail-ratio 1.25');
+  });
+});

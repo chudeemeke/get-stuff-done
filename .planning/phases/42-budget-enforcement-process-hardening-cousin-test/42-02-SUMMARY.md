@@ -119,6 +119,7 @@ None.
 ## Issues Encountered
 
 - A verification run failed when `bun run compose` and launcher tests ran concurrently, because compose rewrites `dist/.overlay-manifest.json` while the helper reads it. Sequential verification passed. Treat compose and version probes as ordered steps.
+- PR #18 remote CI surfaced a macOS install perf-budget false positive: run `28645820292` measured 176ms against a 134ms baseline (1.31x), but the 42ms delta was within the baseline 45ms standard deviation. Added a targeted accepted regression for `macos` + `install`, maxRatio `1.4`, expiring `2026-07-10`.
 
 ## Verification
 
@@ -130,6 +131,7 @@ None.
 - `bun run lint` - passed with the repository's existing warning-only lint surface.
 - `git diff --check` - passed.
 - `Get-ChildItem $env:TEMP -Directory | Where-Object { $_.Name -like 'gsd-*' }` - no remaining temp directories.
+- Remote CI run `28645820292` - initially failed `Perf Budget (macos)` due the temporary macOS install variance above; rerun required after the targeted exception commit.
 
 ## User Setup Required
 

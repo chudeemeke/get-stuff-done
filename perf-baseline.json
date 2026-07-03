@@ -57,5 +57,16 @@
       }
     }
   },
-  "acceptedRegressions": []
+  "acceptedRegressions": [
+    {
+      "reason": "macos-15-arm64 install benchmark variance in PR #18 run 28645820292 measured 176ms vs 134ms baseline (1.31x), while the 42ms delta remained within the 45ms baseline stddev. Rebaseline or variance-aware policy should replace this temporary exception if it recurs.",
+      "reviewer": "Chude",
+      "reviewedDate": "2026-07-03",
+      "ticket": "PR-18/run-28645820292",
+      "platform": "macos",
+      "metric": "install",
+      "maxRatio": 1.4,
+      "expiresOn": "2026-07-10"
+    }
+  ]
 }

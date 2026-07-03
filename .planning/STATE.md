@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Completed 43-07-PLAN.md
-last_updated: "2026-07-04T00:04:30.470Z"
+stopped_at: Completed 43-08-PLAN.md
+last_updated: "2026-07-04T00:20:00.000+01:00"
 last_activity: 2026-07-04
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 34
-  completed_plans: 26
-  percent: 76
+  completed_plans: 27
+  percent: 79
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
-Plan: 8 of 12
+Plan: 9 of 12
 Status: Ready to execute
-Last activity: 2026-07-03
+Last activity: 2026-07-04
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -80,6 +80,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-03 Phase 43 Plan 05 decision: semantic override staleness is limited to parsed `.js` overrides with recorded `Semantic SHA-256`; Acorn parse failures, missing semantic hashes, and non-JS overrides preserve byte-hash blocking behavior. Markdown semantic diff remains deferred to v1.3.0.
 - 2026-07-03 Phase 43 Plan 06 decision: check-update adopted the upstream parent/worker split, `detectConfigDir`, shared `$HOME/.cache/gsd` cache, and stale installed hook detection while preserving `@chude/get-stuff-done`, `gsd.role`, maintainer commit classification, and exact 4-hour/7-day throttles. Active `@opengsd/gsd-core@1.5.0` already ships `hooks/gsd-check-update-worker.js`, so the fork worker is an override, not an overlay.
 - 2026-07-04 Phase 43 Plan 07 decision: statusline now consumes the same shared package-lineage cache as check-update, parses `active_phase`, `next_action`, `next_phases`, `completed_phases`, `total_phases`, and `percent` from STATE frontmatter, and uses `CLAUDE_CODE_AUTO_COMPACT_WINDOW` for context scaling while preserving fork branding and `gsd.role` update display. `scripts/finalize-dist.js` now finalizes `gsd-check-update-worker.js` with the other bundled hooks.
+- 2026-07-04 Phase 43 Plan 08 decision: override churn is generated from filesystem evidence by comparing current override paths across previous and target upstream trees. CHANGELOG writes are constrained to the `override-churn` marker block under `Unreleased`, while real bump execution in Plans 10-11 supplies the actual upstream directory pair.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -106,6 +107,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-01 inbox triage fix closed the confirmed authkey `roadmap update-plan-progress` wrong-checkbox/CRLF issue and medesine-rx false-100% progress issue in code and tests. Memory-nexus v5/decimal roadmap drift is partially fixed in code and tests: `init execute-phase 42` now reports `v5.0`, `roadmap analyze` scopes to v5 phases only, and no v4 Phase 30/32.6 leakage remains. Memory-nexus Codex no-frontmatter installer crash is fixed/tested as of 2026-07-03; Phase 43 Plan 02 closed the related installer transaction/preflight/rollback and VERSION mapping clarity items for this repo. Config-schema drift and grouped stale-STATE health diagnostics remain open. Plan 06 completed the remaining real test subprocess migration and added Windows flake telemetry; no active REL-03 skips exist.
 - Phase 43 Plan 02 resolved the Plan 01 post-wave `tests/installer-v3.test.js` Windows timeout/hang by finalizing upstream delegation on `exit` and adding rollback-aware post-upstream handling. Hook test timeout debt remains intentionally routed to Phase 43 Plans 06-07.
 - Phase 43 Plans 06-07 resolved the coupled check-update/statusline hook reconciliation debt with shared `$HOME/.cache/gsd` cache semantics, package-lineage guards, worker packaging, phase-lifecycle display, and focused hook/compose tests.
+- Phase 43 Plan 08 observed that direct `bash .changelog-conflict-check.sh CHANGELOG.md` fails on existing published-release bullets even though the required synthetic `--self-test` passes. Before wiring that script as a full-file gate, clarify whether it is fixture-only or update its awk state handling to ignore normal subsection bullets.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
 - Codex `extractFrontmatterField` crash (RESOLVED -- fork-specific, 4 oversight agents had heading before frontmatter)
@@ -120,7 +122,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-04T00:04:30.470Z
+Last session: 2026-07-04T00:20:00.000+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Completed 43-07-PLAN.md
+Stopped at: Completed 43-08-PLAN.md
 Resume file: None

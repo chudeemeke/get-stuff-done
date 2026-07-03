@@ -17,7 +17,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [x] **UPGRADE-06**: `.changelog-conflict-check.sh` detects the known CHANGELOG merge pattern (entry placed inside published release section) and is wired into the bump runbook
 - [x] **UPGRADE-07**: Upstream hook improvements merged into `overrides/hooks/gsd-check-update.js` (isNewer, detectConfigDir, stale hook detection, shared cache) with atomic coupling to `gsd-statusline.js`; fork-specific behavior preserved (package name, role routing, commit classification, 4h/7d throttle)
 - [x] **UPGRADE-08**: Semantic override staleness -- comment-only/whitespace-only upstream changes to override source files do NOT trigger false-positive staleness alerts (D-1; scope: `.js` files initially via AST-diff; `.md` deferred with documented reason)
-- [ ] **UPGRADE-09**: Override churn section auto-generated in CHANGELOG on each upstream bump, listing overrides whose upstream source changed (D-8)
+- [x] **UPGRADE-09**: Override churn section auto-generated in CHANGELOG on each upstream bump, listing overrides whose upstream source changed (D-8)
 - [ ] **UPGRADE-10**: Pre-Phase-41 upstream currency bump — bump upstream pin from 1.34.2 to 1.38.2 (or latest stable at execution time) BEFORE Phase 41 planning completes, refresh override SHA-256 snapshots, audit for compose collisions, and re-verify all Phase 41 CONTEXT.md decisions against fresh upstream state (amending CONTEXT.md if any decision changes). Ensures Phase 41 planning targets current upstream rather than stale assumptions. Distinct from UPGRADE-05 (the Phase 43 dogfood bump) — UPGRADE-10 establishes currency, UPGRADE-05 dogfoods the bump process against new Phase 41/42 work. (Inserted 2026-04-22 with Phase 40.5.)
 - [x] **UPGRADE-11**: Upstream authority migration -- migrated the overlay's active upstream from legacy `get-shit-done-cc` / `gsd-build/get-shit-done` to Open GSD `@opengsd/gsd-core@1.5.0` / `open-gsd/gsd-core` before Phase 41, pinned a vetted stable Open GSD version, centralized upstream identity in a machine-readable manifest/helper with packaged fallback, updated compose/override/boundary/update/package tooling to the new package layout, and explicitly retired legacy upstream filing paths. (Completed 2026-06-23 in Phase 40.6.)
 
@@ -121,7 +121,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | UPGRADE-06 | Phase 41 | Complete |
 | UPGRADE-07 | Phase 43 | Complete |
 | UPGRADE-08 | Phase 43 | Pending |
-| UPGRADE-09 | Phase 43 | Pending |
+| UPGRADE-09 | Phase 43 | Complete |
 | UPGRADE-10 | Phase 40.5 | Pending |
 | UPGRADE-11 | Phase 40.6 | Complete |
 | PROCESS-01 | Phase 42 | Complete |
@@ -176,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-07-03 -- Phase 42 Plan 05 completed DOCS-05 and DOCS-06 markdown/link docs gates*
+*Last updated: 2026-07-04 -- Phase 43 Plan 08 completed UPGRADE-09 override churn generation*

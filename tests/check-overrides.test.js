@@ -15,10 +15,17 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
-const { spawnSync } = require('child_process');
+const { runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const CHECK_OVERRIDES_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'check-overrides.js');
+
+function runCheckOverridesCli(args = [], options = {}) {
+  return runWithTimeout(process.execPath, [CHECK_OVERRIDES_SCRIPT, ...args], {
+    cwd: options.cwd,
+    encoding: 'utf-8',
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -774,11 +781,7 @@ describe('CLI exit codes', () => {
     const fixture = createFixture({ upstreamFiles: [] });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.status).toBe(0);
   });
 
@@ -789,11 +792,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.status).toBe(0);
   });
 
@@ -811,11 +810,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.status).toBe(1);
   });
 
@@ -833,11 +828,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     const output = `${result.stdout}\n${result.stderr}`;
 
     expect(result.status).toBe(1);
@@ -860,11 +851,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.status).toBe(1);
   });
 
@@ -881,11 +868,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     const output = `${result.stdout}\n${result.stderr}`;
 
     expect(result.status).toBe(1);
@@ -898,11 +881,7 @@ describe('CLI exit codes', () => {
     const fixture = createFixture({ upstreamFiles: [] });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.stdout).toContain('Override staleness report');
   });
 });
@@ -1162,11 +1141,7 @@ describe('CLI entry: default args', () => {
 
   test('node scripts/check-overrides.js with default dirs exits 0 (zero overrides)', () => {
     // Default overrides/ dir in the repo has only .gitkeep
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT],
-      { encoding: 'utf-8', cwd: PROJECT_ROOT }
-    );
+    const result = runCheckOverridesCli([], { cwd: PROJECT_ROOT });
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('Override staleness report');
   });
@@ -1185,15 +1160,12 @@ describe('CLI entry: default args', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [
-        CHECK_OVERRIDES_SCRIPT,
-        '--overrides-dir', fixture.overridesDir,
-        '--upstream-dir', fixture.upstreamDir,
-      ],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli([
+      '--overrides-dir',
+      fixture.overridesDir,
+      '--upstream-dir',
+      fixture.upstreamDir,
+    ]);
     expect(result.status).toBe(1);
     expect(result.stdout).toContain('STALE');
   });
@@ -1211,15 +1183,12 @@ describe('CLI entry: default args', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [
-        CHECK_OVERRIDES_SCRIPT,
-        '--overrides-dir', fixture.overridesDir,
-        '--upstream-dir', fixture.upstreamDir,
-      ],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli([
+      '--overrides-dir',
+      fixture.overridesDir,
+      '--upstream-dir',
+      fixture.upstreamDir,
+    ]);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('OK');
   });

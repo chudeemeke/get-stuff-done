@@ -21,7 +21,7 @@ const { describe, test, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { spawnSync } = require('child_process');
+const { runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const SCRIPT_PATH = path.join(PROJECT_ROOT, 'scripts', 'preview-update.js');
@@ -392,12 +392,16 @@ describe('runPreviewScan() with explicit file list', () => {
 describe('CLI entry subprocess', () => {
   const CLI_PATH = path.join(PROJECT_ROOT, 'bin', 'preview-update-cli.js');
 
+  function runPreviewUpdateCli() {
+    return runWithTimeout(process.execPath, [CLI_PATH], {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      timeout: 20000,
+    });
+  }
+
   test('CLI wrapper runs and produces output (may succeed or fail based on network)', () => {
-    const result = spawnSync(
-      process.execPath,
-      [CLI_PATH],
-      { cwd: PROJECT_ROOT, encoding: 'utf-8', timeout: 20000 }
-    );
+    const result = runPreviewUpdateCli();
     // Should exit 0 or 1 (0 if no update, 1 if npm view fails)
     expect([0, 1]).toContain(result.status);
     // Should produce some output on stdout or stderr
@@ -406,11 +410,7 @@ describe('CLI entry subprocess', () => {
   }, 25000);
 
   test('CLI wrapper outputs "preview-update" prefix in output', () => {
-    const result = spawnSync(
-      process.execPath,
-      [CLI_PATH],
-      { cwd: PROJECT_ROOT, encoding: 'utf-8', timeout: 20000 }
-    );
+    const result = runPreviewUpdateCli();
     // Output may be on stdout (success) or stderr (npm failure)
     const output = (result.stdout || '') + (result.stderr || '');
     expect(output).toMatch(/preview-update/);
@@ -622,7 +622,7 @@ describe('bin/preview-update-cli.js (SRP extraction)', () => {
 
   test('CLI wrapper executes without error (subprocess)', () => {
     const cliPath = path.join(PROJECT_ROOT, 'bin', 'preview-update-cli.js');
-    const result = spawnSync('node', [cliPath], {
+    const result = runWithTimeout(process.execPath, [cliPath], {
       cwd: PROJECT_ROOT,
       timeout: 20000,
       encoding: 'utf-8',

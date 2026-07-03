@@ -33,8 +33,8 @@
 const { describe, test, expect, beforeAll, afterAll, beforeEach, afterEach } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const { execSync, spawnSync } = require('child_process');
 const os = require('os');
+const { runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const UPSTREAM_PKG = path.join(PROJECT_ROOT, 'node_modules', '@opengsd', 'gsd-core');
@@ -737,12 +737,11 @@ describe('computeDelta additive outputs', () => {
 
 describe('CLI flags (COMP-09)', () => {
   function runComposeCLI(args = []) {
-    const result = spawnSync(
-      process.execPath,
-      [COMPOSE_SCRIPT, ...args],
-      { encoding: 'utf-8', timeout: 90000, cwd: PROJECT_ROOT }
-    );
-    return result;
+    return runWithTimeout(process.execPath, [COMPOSE_SCRIPT, ...args], {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      timeout: 90000,
+    });
   }
 
   test('--dry-run exits 0 and outputs summary without writing dist/', { timeout: 90000 }, () => {
@@ -1627,20 +1626,20 @@ describe('override() cross-platform path normalisation', () => {
 
 describe('CLI entry block', () => {
   function runComposeCLI(args = [], opts = {}) {
-    return spawnSync(
-      process.execPath,
-      [COMPOSE_SCRIPT, ...args],
-      { encoding: 'utf-8', timeout: opts.timeout || 30000, cwd: PROJECT_ROOT }
-    );
+    return runWithTimeout(process.execPath, [COMPOSE_SCRIPT, ...args], {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      timeout: opts.timeout || 30000,
+    });
   }
 
-  test('--dry-run output contains overlay_version field', () => {
+  test('--dry-run output contains overlay_version field', { timeout: 30000 }, () => {
     const result = runComposeCLI(['--dry-run']);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('overlay_version');
   });
 
-  test('--dry-run output contains upstream_version and files_would_write', () => {
+  test('--dry-run output contains upstream_version and files_would_write', { timeout: 30000 }, () => {
     const result = runComposeCLI(['--dry-run']);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('upstream_version');
@@ -1665,7 +1664,7 @@ describe('CLI entry block', () => {
 
   test('CLI error path: exits 1 and writes to stderr when compose fails', () => {
     // Simulate the CLI error path by calling compose() with a non-existent upstream dir
-    const result = spawnSync(
+    const result = runWithTimeout(
       process.execPath,
       [
         '-e',
@@ -1688,7 +1687,7 @@ describe('CLI entry block', () => {
   });
 
   test('CLI error path: compose with missing overlay throws with descriptive message', () => {
-    const result = spawnSync(
+    const result = runWithTimeout(
       process.execPath,
       [
         '-e',

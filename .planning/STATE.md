@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 41 EXECUTING. Wave 2 active: PR CI is green; GSD routing/progress-accounting, memory-nexus milestone-scope, and Codex no-frontmatter installer crash fixes are locally verified; Plan 04 real perf artifacts remain blocked on default-branch workflow registration."
-stopped_at: "2026-07-03 Codex no-frontmatter installer crash fixed/tested in an Open GSD 1.5.0 installer override; Phase 41 Plan 04 still needs a decision on default-branch workflow registration, dispatch against the Phase 41 ref, and merge/commit of real perf artifacts."
-last_updated: "2026-07-03T02:21:54+01:00"
-last_activity: 2026-07-03 -- Codex no-frontmatter installer crash fixed/tested; transactional install, VERSION mapping, teams schema reconciliation, and Plan 04 perf artifact capture still blocked/open
+status: "Phase 41 EXECUTING. Wave 3 active: Plan 06 subprocess migration and Windows flake telemetry are locally verified; Plan 04 real perf artifacts remain blocked on default-branch workflow registration; Plan 07 remains for 10x validation closure."
+stopped_at: "2026-07-03 Phase 41 Plan 06 completed locally: remaining real test subprocess calls migrated to shared timeout helper, Windows JUnit flake collector wired, REL-03 summary/validation added; Plan 04 perf artifact capture and Plan 07 10x validation remain open."
+last_updated: "2026-07-03T03:42:00+01:00"
+last_activity: 2026-07-03 -- Phase 41 Plan 06 completed locally; transactional install, VERSION mapping, teams schema reconciliation, Plan 04 perf artifact capture, and Plan 07 10x validation remain blocked/open
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 16
-  completed_plans: 8
+  completed_plans: 9
   planned_plans: 3
-  percent: 50
+  percent: 56
 ---
 
 # Project State
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: Phase 41 (executing) -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
-Plan: 4 of 7 complete; Wave 2 active; CI repair and hygiene cleanup remote-verified; GSD routing/progress-accounting, memory-nexus milestone-scope, and Codex no-frontmatter installer hotfixes verified; 41-04 is blocked at real baseline capture
-Status: Continue Wave 2 against Open GSD authority; resolve Plan 04 workflow-registration blocker before marking PERF-01/PERF-02 complete
-Last activity: 2026-07-03 -- Codex no-frontmatter installer crash fixed/tested; Plan 04 perf artifact capture still blocked
+Plan: 5 of 7 complete; Wave 3 active; CI repair and hygiene cleanup remote-verified; GSD routing/progress-accounting, memory-nexus milestone-scope, Codex no-frontmatter installer hotfixes, and Plan 06 subprocess/flake telemetry are verified; 41-04 is blocked at real baseline capture
+Status: Continue Wave 3 against Open GSD authority; resolve Plan 04 workflow-registration blocker before marking PERF-01/PERF-02 complete and execute Plan 07 before Phase 41 closure
+Last activity: 2026-07-03 -- Phase 41 Plan 06 completed locally; Plan 04 perf artifact capture and Plan 07 10x validation remain open
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -76,11 +76,11 @@ v1.2.0 roadmap decisions:
 - Historical ~130 upstream compat failures (branding diffs, informational CI). After active-authority repair, local Windows compat runner reports 11 failures; keep linux/macos/windows baseline thresholds unchanged until PR matrix evidence exists.
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
-- Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plan 05; remaining subprocess surface and telemetry targeted by Plans 06-07 via REL-02/REL-01)
+- Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plan 05; Plan 06 completed remaining real test subprocess migration and Windows flake telemetry; Plan 07 still owns 10x validation closure via REL-01)
 - First GitHub Actions run showed `gitleaks/gitleaks-action@v2` needs `GITHUB_TOKEN` for pull_request scans and OSV `@v2` is not a resolvable tag. The repaired PR run `28533068807` passed all CI jobs. Boundary report-only cleanup was remote-verified by run `28534255286`; first-party action/runtime and `macos-latest` annotation cleanup was remote-verified by run `28534944081`. The docs reconciliation run `28535445005` passed but surfaced the remaining `gitleaks/gitleaks-action@v2` Node 20 annotation; `gitleaks/gitleaks-action@v3` cleanup was remote-verified by run `28536087964`.
 - Aggregate coverage remains below the user's 95% per-metric standard even though the current repo command exits 0 (`bun test --coverage`: 94.86% functions, 93.08% lines on 2026-07-01).
 - Phase 41 Plan 04 implemented perf schemas, scripts, package commands, and a `workflow_dispatch` manual capture workflow, but `perf-baseline.json` and `.planning/perf/test-timing.json` remain intentionally absent until real Linux/macOS/Windows artifacts are captured from the registered default-branch workflow.
-- 2026-07-01 inbox triage fix closed the confirmed authkey `roadmap update-plan-progress` wrong-checkbox/CRLF issue and medesine-rx false-100% progress issue in code and tests. Memory-nexus v5/decimal roadmap drift is partially fixed in code and tests: `init execute-phase 42` now reports `v5.0`, `roadmap analyze` scopes to v5 phases only, and no v4 Phase 30/32.6 leakage remains. Memory-nexus Codex no-frontmatter installer crash is fixed/tested as of 2026-07-03; installer transaction/preflight/rollback, VERSION mapping clarity, config-schema drift, and grouped stale-STATE health diagnostics remain open.
+- 2026-07-01 inbox triage fix closed the confirmed authkey `roadmap update-plan-progress` wrong-checkbox/CRLF issue and medesine-rx false-100% progress issue in code and tests. Memory-nexus v5/decimal roadmap drift is partially fixed in code and tests: `init execute-phase 42` now reports `v5.0`, `roadmap analyze` scopes to v5 phases only, and no v4 Phase 30/32.6 leakage remains. Memory-nexus Codex no-frontmatter installer crash is fixed/tested as of 2026-07-03; installer transaction/preflight/rollback, VERSION mapping clarity, config-schema drift, and grouped stale-STATE health diagnostics remain open. Plan 06 completed the remaining real test subprocess migration and added Windows flake telemetry; no active REL-03 skips exist.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
 - Codex `extractFrontmatterField` crash (RESOLVED -- fork-specific, 4 oversight agents had heading before frontmatter)
@@ -95,7 +95,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03 (Codex no-frontmatter installer crash fixed/tested; GSD routing/progress-accounting and memory-nexus milestone-scope hotfixes verified; CI repair and hygiene cleanup remote-verified; Plan 04 artifact capture still blocked).
+Last session: 2026-07-03 (Plan 06 subprocess hardening and Windows flake telemetry completed locally; Codex no-frontmatter installer crash fixed/tested; GSD routing/progress-accounting and memory-nexus milestone-scope hotfixes verified; CI repair and hygiene cleanup remote-verified; Plan 04 artifact capture still blocked).
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Codex no-frontmatter installer crash, GSD self-routing/progress-accounting, and memory-nexus milestone-scope hotfixes are verified locally; Phase 41 Plan 04 remains blocked at default-branch workflow registration and real artifact capture.
+Stopped at: Phase 41 Plan 06 is verified locally; Codex no-frontmatter installer crash, GSD self-routing/progress-accounting, and memory-nexus milestone-scope hotfixes are verified; Phase 41 Plan 04 remains blocked at default-branch workflow registration and real artifact capture, and Plan 07 remains open for 10x validation closure.
 Resume file: .planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-CONTEXT.md

@@ -145,7 +145,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   6. `INSTALL.md` documents the cousin-test scenario; lychee + markdownlint-cli2 run on every PR against tracked markdown and fail on broken links or markdown-lint violations without scanning ignored generated/dependency copies.
 **Plans**:
 - [x] 42-01-PLAN.md -- Wave 1: Perf budget comparison and CI enforcement
-- [ ] 42-02-PLAN.md -- Wave 1: Non-interactive launcher provenance output
+- [x] 42-02-PLAN.md -- Wave 1: Non-interactive launcher provenance output
 - [ ] 42-04-PLAN.md -- Wave 1: Evidence-before-claim oversight principle and probes
 - [ ] 42-03-PLAN.md -- Wave 2: Cousin cold-install workflow and INSTALL.md
 - [ ] 42-05-PLAN.md -- Wave 3: Markdown and link-check docs gates

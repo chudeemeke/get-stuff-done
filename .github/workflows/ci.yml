@@ -179,6 +179,9 @@ jobs:
     name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
     env:
       BUN_TEST_TIMEOUT: 30000
     strategy:
@@ -201,7 +204,138 @@ jobs:
       - run: bun run compose
       - name: Guard against test files in dist/
         run: node scripts/check-no-test-files-in-dist.js
-      - run: bun test --coverage
+      - name: Run tests with coverage and JUnit output
+        run: bun test --coverage --reporter=junit --reporter-outfile test-results.xml
+      - name: Upload test results on failure
+        if: ${{ failure() && hashFiles('test-results.xml') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-${{ matrix.os }}
+          path: test-results.xml
+          retention-days: 14
+      - name: Build Windows flake events
+        if: ${{ failure() && matrix.os == 'windows-latest' && hashFiles('test-results.xml') != '' }}
+        run: >-
+          node scripts/flake-triage.js
+          --junit test-results.xml
+          --platform windows
+          --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          --commit "${{ github.sha }}"
+          --output flake-events.json
+      - name: Upsert Windows flake issues
+        if: ${{ failure() && matrix.os == 'windows-latest' && hashFiles('flake-events.json') != '' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const { execSync } = require('child_process');
+
+            const events = JSON.parse(fs.readFileSync('flake-events.json', 'utf8'));
+            if (events.length === 0) {
+              core.info('No JUnit failure events found for flake triage.');
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const bunVersion = execSync('bun --version', { encoding: 'utf8' }).trim();
+            const nodeVersion = process.version;
+            const labelColors = {
+              'flake-report': 'd876e3',
+              'flake-platform-windows': '0078d4',
+              'rel-03-candidate': 'fbca04',
+            };
+
+            async function ensureLabel(label) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: label });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({
+                  owner,
+                  repo,
+                  name: label,
+                  color: labelColors[label] || 'ededed',
+                });
+              }
+            }
+
+            async function recentHitCount(issueNumber) {
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner,
+                repo,
+                issue_number: issueNumber,
+                per_page: 100,
+              });
+              const cutoff = Date.now() - (14 * 24 * 60 * 60 * 1000);
+              return comments.filter(comment =>
+                comment.created_at &&
+                Date.parse(comment.created_at) >= cutoff &&
+                comment.body.includes('Observed in')
+              ).length + 1;
+            }
+
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'flake-report',
+              per_page: 100,
+            });
+
+            for (const event of events) {
+              const existing = openIssues.find(issue => !issue.pull_request && issue.title === event.title);
+              const labels = new Set(event.labels);
+              if (existing && await recentHitCount(existing.number) >= 3) {
+                labels.add('rel-03-candidate');
+              }
+
+              for (const label of labels) {
+                await ensureLabel(label);
+              }
+
+              const body = [
+                `Observed in ${event.runUrl}.`,
+                `Commit: ${event.commit}`,
+                `Bun: ${bunVersion}`,
+                `Node: ${nodeVersion}`,
+                `Failure: ${event.failureMessage || '(no failure message)'}`,
+              ].join('\n');
+
+              if (existing) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: existing.number,
+                  body,
+                });
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number: existing.number,
+                  labels: [...labels],
+                });
+              } else {
+                await github.rest.issues.create({
+                  owner,
+                  repo,
+                  title: event.title,
+                  body: `${body}\n\nDedup key: ${event.key}`,
+                  labels: [...labels],
+                });
+              }
+            }
+      - name: Append Windows Active REL-03 skips summary
+        if: ${{ always() && matrix.os == 'windows-latest' }}
+        shell: bash
+        run: |
+          node scripts/flake-triage.js --scan-rel03 --output-summary rel03-summary.md
+          {
+            cat rel03-summary.md
+            echo ""
+            echo "Interim flake collector scope cap: more than 5 flaky files/week requires Tailscale collector planning."
+          } >> "$GITHUB_STEP_SUMMARY"
+          node scripts/flake-triage.js --validate-rel03-wrappers
 
   parity:
     name: Source Parity Check

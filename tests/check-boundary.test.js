@@ -12,10 +12,16 @@ const { describe, test, expect, afterEach } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { spawnSync } = require('child_process');
+const { runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const CHECK_BOUNDARY_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'check-boundary.js');
+
+function runBoundaryCli(args) {
+  return runWithTimeout(process.execPath, [CHECK_BOUNDARY_SCRIPT, ...args], {
+    encoding: 'utf-8',
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -320,11 +326,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_BOUNDARY_SCRIPT, '--upstream-dir', fixture.upstreamDir, '--project-dir', fixture.projectDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runBoundaryCli(['--upstream-dir', fixture.upstreamDir, '--project-dir', fixture.projectDir]);
     expect(result.status).toBe(0);
   });
 
@@ -335,11 +337,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_BOUNDARY_SCRIPT, '--upstream-dir', fixture.upstreamDir, '--project-dir', fixture.projectDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runBoundaryCli(['--upstream-dir', fixture.upstreamDir, '--project-dir', fixture.projectDir]);
     expect(result.status).toBe(1);
   });
 
@@ -350,18 +348,13 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [
-        CHECK_BOUNDARY_SCRIPT,
-        '--report-only',
-        '--upstream-dir',
-        fixture.upstreamDir,
-        '--project-dir',
-        fixture.projectDir,
-      ],
-      { encoding: 'utf-8' }
-    );
+    const result = runBoundaryCli([
+      '--report-only',
+      '--upstream-dir',
+      fixture.upstreamDir,
+      '--project-dir',
+      fixture.projectDir,
+    ]);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('bin/tool.cjs');
   });
@@ -373,11 +366,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_BOUNDARY_SCRIPT, '--upstream-dir', fixture.upstreamDir, '--project-dir', fixture.projectDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runBoundaryCli(['--upstream-dir', fixture.upstreamDir, '--project-dir', fixture.projectDir]);
     expect(result.stdout).toContain('bin/tool.cjs');
   });
 
@@ -388,11 +377,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_BOUNDARY_SCRIPT, '--upstream-dir', fixture.upstreamDir, '--project-dir', fixture.projectDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runBoundaryCli(['--upstream-dir', fixture.upstreamDir, '--project-dir', fixture.projectDir]);
     expect(result.stdout).toContain('No boundary violations');
   });
 });

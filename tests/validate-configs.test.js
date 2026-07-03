@@ -16,9 +16,8 @@
 const { describe, test, expect, beforeEach, afterEach } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 const { validatePlanningConfig, planningConfigSchema } = require('../overlay/src/config/schema');
-const { createTempDir, createTempFile } = require('./helpers');
+const { createTempDir, createTempFile, runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const VALIDATE_SCRIPT = path.join(PROJECT_ROOT, 'bin', 'validate-configs.js');
@@ -233,44 +232,19 @@ describe('schema-config parity', () => {
 describe('validate-configs.js script', () => {
   describe('SKIP_CONFIG_VALIDATION escape hatch', () => {
     test('exits 0 with warning to stderr when SKIP_CONFIG_VALIDATION=1', () => {
-      let output = '';
-      let exitCode = 0;
-      try {
-        output = execSync(
-          `node "${VALIDATE_SCRIPT}"`,
-          {
-            env: { ...process.env, SKIP_CONFIG_VALIDATION: '1' },
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'pipe']
-          }
-        );
-      } catch (err) {
-        exitCode = err.status || 1;
-        output = err.stderr || '';
-      }
-      expect(exitCode).toBe(0);
-      // The warning goes to stderr -- check the error object's stderr
+      const result = runWithTimeout(process.execPath, [VALIDATE_SCRIPT], {
+        env: { ...process.env, SKIP_CONFIG_VALIDATION: '1' },
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      expect(result.status).toBe(0);
+      expect(result.stderr).toContain('SKIP_CONFIG_VALIDATION');
     });
 
     test('warning message goes to stderr', () => {
-      let stderrOutput = '';
-      try {
-        execSync(
-          `node "${VALIDATE_SCRIPT}"`,
-          {
-            env: { ...process.env, SKIP_CONFIG_VALIDATION: '1' },
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'pipe']
-          }
-        );
-      } catch (_err) {
-        stderrOutput = _err.stderr || '';
-      }
-      // Also check via explicit stderr capture on success path
-      const { spawnSync } = require('child_process');
-      const result = spawnSync('node', [VALIDATE_SCRIPT], {
+      const result = runWithTimeout(process.execPath, [VALIDATE_SCRIPT], {
         env: { ...process.env, SKIP_CONFIG_VALIDATION: '1' },
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       });
       expect(result.stderr).toContain('SKIP_CONFIG_VALIDATION');
       expect(result.status).toBe(0);
@@ -379,30 +353,27 @@ Progress bar here.
 
   describe('full script run against real project', () => {
     test('exits 0 when run against real project files', () => {
-      const { spawnSync } = require('child_process');
-      const result = spawnSync('node', [VALIDATE_SCRIPT], {
+      const result = runWithTimeout(process.execPath, [VALIDATE_SCRIPT], {
         cwd: PROJECT_ROOT,
         encoding: 'utf-8',
-        env: { ...process.env, SKIP_CONFIG_VALIDATION: undefined }
+        env: { ...process.env, SKIP_CONFIG_VALIDATION: undefined },
       });
       expect(result.status).toBe(0);
     });
 
     test('reports all required files as passed with no failures', () => {
-      const { spawnSync } = require('child_process');
-      const result = spawnSync('node', [VALIDATE_SCRIPT], {
+      const result = runWithTimeout(process.execPath, [VALIDATE_SCRIPT], {
         cwd: PROJECT_ROOT,
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       });
       expect(result.stdout).toContain('passed');
       expect(result.stdout).not.toContain('failed');
     });
 
     test('--quiet flag suppresses PASS lines but shows summary', () => {
-      const { spawnSync } = require('child_process');
-      const result = spawnSync('node', [VALIDATE_SCRIPT, '--quiet'], {
+      const result = runWithTimeout(process.execPath, [VALIDATE_SCRIPT, '--quiet'], {
         cwd: PROJECT_ROOT,
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       });
       expect(result.status).toBe(0);
       expect(result.stdout).not.toContain('PASS');

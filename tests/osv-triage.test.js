@@ -4,7 +4,7 @@ const { describe, test, expect, afterEach } = require('bun:test');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const { runWithTimeout } = require('./helpers');
 
 const { main, normalizeOsvResults } = require('../scripts/osv-triage');
 
@@ -137,7 +137,7 @@ describe('OSV triage CLI', () => {
 
   test('exits non-zero when --fail-on matches high or critical findings', () => {
     const outputPath = tempOutputPath();
-    const result = spawnSync(
+    const result = runWithTimeout(
       process.execPath,
       [
         'scripts/osv-triage.js',

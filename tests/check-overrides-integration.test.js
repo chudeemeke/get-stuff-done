@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
-const { spawnSync } = require('child_process');
+const { runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const CHECK_OVERRIDES_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'check-overrides.js');
@@ -71,7 +71,7 @@ describe('check-overrides subprocess integration', () => {
       'utf-8'
     );
 
-    const result = spawnSync(
+    const result = runWithTimeout(
       process.execPath,
       [
         CHECK_OVERRIDES_SCRIPT,

@@ -48,16 +48,16 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [ ] **SHIP-04**: npm `--provenance` via GHA OIDC Trusted Publishing; no long-lived NPM_TOKEN alongside OIDC (Axios incident pattern)
 - [ ] **SHIP-05**: `zizmor-action@v0` static analysis of GHA workflow YAML runs in CI
 - [ ] **SHIP-06**: Reproducible builds verified: `bun run compose` twice produces byte-identical output; verified in CI
-- [ ] **SHIP-07**: Cousin-test cold-install CI job: fresh OS (ubuntu-latest + macos-latest + windows-latest) x Node 20+22 x bun/npm/pnpm matrix installs `@chude/get-stuff-done` from minimal-scope token and runs smoke test
+- [ ] **SHIP-07**: Cousin-test cold-install CI job: fresh OS (ubuntu-latest + macos-15 + windows-latest) x Node 20+22 x bun/npm/pnpm matrix installs public `@chude/get-stuff-done`, supports an optional read-only registry token, and runs non-interactive provenance smoke test
 
 ### DOCS (documentation completeness)
 
 - [ ] **DOCS-01**: `MAINTENANCE.md` complete with required sections: Upgrade Process, Override Conflict Handling, CI Staleness Response, Release Cadence, Bump Runbook (prohibiting `--theirs`/`--ours`), Security Triage, Perf Budget, Escape-Hatch Decisions Log. Per-section acceptance: (a) at least one executable example (script path, command line, or code snippet) per section; (b) minimum 15 lines of substantive content per section (no placeholder-only); (c) every link validated by lychee in CI; (d) the Ship Polish phase CI check extracts at least one example per section and runs it end-to-end, failing if any example is broken or missing. Sections defined as anti-slop contract; plan authors must map each section to concrete artifacts, not prose alone.
 - [ ] **DOCS-02**: Upgrade guide (consumer-facing) documents the preview-update + aidev release workflow
 - [ ] **DOCS-03**: Override policy documents when to override, REASON.md template, SHA snapshot capture process, re-review triggers
-- [ ] **DOCS-04**: `INSTALL.md` covers the cousin-test scenario (fresh install from private-scope token, PATH setup, version verification)
-- [ ] **DOCS-05**: `lychee-action@v2` link checker runs in CI on all `.md` files
-- [ ] **DOCS-06**: `markdownlint-cli2@0.22.0` runs in CI enforcing consistent markdown structure
+- [ ] **DOCS-04**: `INSTALL.md` covers the cousin-test scenario (fresh public install, optional read-only registry token, PATH setup, version verification)
+- [ ] **DOCS-05**: `lychee-action@v2` link checker runs in CI on tracked markdown files, excluding generated/dependency copies only by narrow path
+- [ ] **DOCS-06**: `markdownlint-cli2@0.23.0` runs in CI enforcing consistent markdown structure
 - [ ] **DOCS-07**: README polished for ship-ready state: clear value proposition, install instructions, feature list, link to MAINTENANCE.md
 - [ ] **DOCS-08**: Keep-a-Changelog and SemVer compliance audited; CHANGELOG.md follows the published spec
 

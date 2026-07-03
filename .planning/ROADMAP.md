@@ -141,9 +141,14 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   2. `overlay/memory/oversight-principle-evidence-before-claim.md` exists as the single source of truth for evidence-before-claim; the 4 oversight agents (execution x2, verification, planning) reference it via 2-3 line triggers rather than restating the principle.
   3. `scripts/verify-oversight-probes.js` runs weekly in CI and asserts each trigger would fire against a curated synthetic-violation fixture; probe failures fail the job with the specific trigger ID.
   4. PROCESS-07 graduation criteria (minimum N PRs observed, max false-positive rate, explicit promotion ceremony) are committed and referenced from each trigger; no trigger is promoted to blocking in v1.2.0.
-  5. A cousin-test CI job cold-installs `@chude/get-stuff-done` on fresh ubuntu-latest + macos-latest + windows-latest x Node 20+22 x bun/npm/pnpm using a minimal-scope token, runs `gsd --version`, and asserts the fork+upstream+overlay manifest hash are present in the output.
-  6. `INSTALL.md` documents the cousin-test scenario; lychee + markdownlint-cli2 run on every PR and fail on broken links or markdown-lint violations across all `.md` files in the repo.
-**Plans**: TBD
+  5. A cousin-test CI job cold-installs public `@chude/get-stuff-done` on fresh ubuntu-latest + macos-15 + windows-latest x Node 20+22 x bun/npm/pnpm, supports an optional read-only registry token, runs `gsd --version --json`, and asserts the fork+upstream+overlay manifest hash are present in the output.
+  6. `INSTALL.md` documents the cousin-test scenario; lychee + markdownlint-cli2 run on every PR against tracked markdown and fail on broken links or markdown-lint violations without scanning ignored generated/dependency copies.
+**Plans**:
+- [ ] 42-01-PLAN.md -- Wave 1: Perf budget comparison and CI enforcement
+- [ ] 42-02-PLAN.md -- Wave 1: Non-interactive launcher provenance output
+- [ ] 42-04-PLAN.md -- Wave 1: Evidence-before-claim oversight principle and probes
+- [ ] 42-03-PLAN.md -- Wave 2: Cousin cold-install workflow and INSTALL.md
+- [ ] 42-05-PLAN.md -- Wave 3: Markdown and link-check docs gates
 
 ### Phase 43: Upgrade Resilience — Verify, Matrix, Dogfood
 **Goal**: Prove the overlay survives a real upstream bump end-to-end — via a Verdaccio-simulated full upgrade, an N=3 historical compat matrix, and a live dogfood bump recorded in MAINTENANCE.md.
@@ -183,7 +188,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.5 | v1.2.0 | 4/5 evidence | Partial; Wave 5 legacy filing path retired by Phase 40.6 | - |
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
-| 42 | v1.2.0 | 0/TBD | Not started | - |
+| 42 | v1.2.0 | 0/5 | Planned | - |
 | 43 | v1.2.0 | 0/TBD | Not started | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 

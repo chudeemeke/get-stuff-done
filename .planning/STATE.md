@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 42 COMPLETE and merged. Current slice is inbox-risk reconciliation before Phase 43 upgrade resilience planning/execution."
-stopped_at: "2026-07-03 PR #21 merged after green CI rerun. Reconcile root-local inbox handoffs into tracked terminal records, then continue Phase 43 planning/execution."
-last_updated: "2026-07-03T17:19:30Z"
-last_activity: 2026-07-03 -- Phase 42 Plan 05 merged; inbox reconciliation underway
+status: "Phase 42 COMPLETE and merged. Inbox reconciliation complete. Current slice is Phase 43 upgrade resilience planning."
+stopped_at: "Phase 43 context gathered; proceed to Phase 43 planning"
+last_updated: "2026-07-03T17:54:47.751Z"
+last_activity: "2026-07-03 -- PR #22 merged after inbox reconciliation; Phase 43 context gathered for upgrade resilience planning"
 progress:
   total_phases: 6
   completed_phases: 3
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 
 ## Current Position
 
-Phase: Phase 42 (complete) -- Budget Enforcement, Process Hardening, Cousin-Test
-Plan: 5/5 complete and merged; current interphase slice is inbox-risk reconciliation
-Status: Plans 01, 02, 03, 04, and 05 are complete from the external-review-corrected Phase 42 plan; Phase 42 owns perf budgets, oversight probes, cousin cold-install CI, install docs, and tracked markdown/link gates
-Last activity: 2026-07-03 -- PR #21 merged after green CI rerun; root-local inbox handoffs are being reconciled before Phase 43
+Phase: Phase 43 (context gathered) -- Upgrade Resilience, Verify, Matrix, Dogfood
+Plan: TBD; Phase 43 planning is next
+Status: Phase 42 Plans 01, 02, 03, 04, and 05 are complete and merged; root-local inbox handoffs were reconciled into tracked terminal records in PR #22; Phase 43 context captures upgrade-verifier, compat-matrix, semantic-staleness, hook-reconciliation, dogfood, churn, and SBOM decisions for planning.
+Last activity: 2026-07-03 -- PR #22 merged after inbox reconciliation; Phase 43 context gathered for upgrade resilience planning.
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -112,7 +112,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03 (Phase 42 Plans 01, 02, 03, 04, and 05 completed and PR #21 merged. SHIP-07, DOCS-04 through DOCS-06, PERF-03 through PERF-05, and PROCESS-01 through PROCESS-07 are complete; current slice reconciles inbox risk, then Phase 43.)
+Last session: 2026-07-03 (PR #22 merged; root-local inbox handoffs reconciled; Phase 43 context gathered for planning.)
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: PR #21 merged; reconcile root-local inbox terminal records, then continue Phase 43 unless replanned.
-Resume file: .planning/ROADMAP.md
+Stopped at: Phase 43 context gathered; proceed to Phase 43 planning
+Resume file: .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-CONTEXT.md

@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 42 EXECUTING. Plan 01 perf budget enforcement complete; Plan 02 runtime package provenance is next."
-stopped_at: "2026-07-03 Completed 42-01-PLAN.md with perf comparator, accepted-regression schema, and blocking perf-budget CI wiring. Continue with 42-02 runtime package provenance next; 42-04 can also proceed in Wave 1 after this PR lands."
-last_updated: "2026-07-03T06:44:01Z"
-last_activity: 2026-07-03 -- Phase 42 Plan 01 complete
+status: "Phase 42 EXECUTING. Plan 02 runtime package provenance complete; Plan 04 oversight probes are next, and Plan 03 cousin CI is now unblocked."
+stopped_at: "2026-07-03 Completed 42-02-PLAN.md with non-interactive `gsd --version --json` runtime package provenance derived from package.json, upstream authority, dist metadata, and dist overlay manifest hash. Continue with 42-04 next per Wave 1, then 42-03 cousin cold-install workflow."
+last_updated: "2026-07-03T07:37:00Z"
+last_activity: 2026-07-03 -- Phase 42 Plan 02 complete
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 21
-  completed_plans: 12
-  planned_plans: 4
-  percent: 57
+  completed_plans: 13
+  planned_plans: 3
+  percent: 62
 ---
 
 # Project State
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: Phase 42 (executing) -- Budget Enforcement, Process Hardening, Cousin-Test
-Plan: 1/5 complete; next is 42-02 runtime package provenance
-Status: Plan 01 complete from Phase 41 baselines and external-review-corrected plan; continue Wave 1 without auto-promoting backlog 999.x items
-Last activity: 2026-07-03 -- Plan 01 perf budget enforcement completed
+Plan: 2/5 complete; next is 42-04 evidence-before-claim oversight principle and probes
+Status: Plans 01 and 02 complete from Phase 41 baselines and external-review-corrected Phase 42 plan; Plan 03 cousin CI is unblocked but Wave 1 still has Plan 04 open
+Last activity: 2026-07-03 -- Plan 02 runtime package provenance completed
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -72,6 +72,8 @@ v1.2.0 roadmap decisions:
 - 2026-07-03 Phase 42 plan-review decision: perf budget thresholds are strict greater-than boundaries; exact `1.10` does not warn and exact `1.25` does not hard-fail.
 - 2026-07-03 Phase 42 Plan 01 decision: `scripts/bench.js` remains measurement-only; `scripts/check-perf.js` owns merge policy, annotations, and accepted-regression handling.
 - 2026-07-03 Phase 42 Plan 01 decision: `acceptedRegressions[]` entries must include reviewed metadata plus either `platform` + `metric` or explicit `scope: "global"`; missing targets are not wildcard approvals.
+- 2026-07-03 Phase 42 Plan 02 decision: `gsd --version` and `gsd --version --json` exit before config migration, startup banner, or `claude` spawn; runtime package provenance is a non-interactive trust surface for cousin CI.
+- 2026-07-03 Phase 42 Plan 02 decision: runtime package provenance derives fork name/version from package.json, upstream package from the upstream-authority helper, upstream version from `dist/.install-meta.json` when available, and overlay manifest identity from the SHA-256 of `dist/.overlay-manifest.json`.
 
 ### Roadmap Evolution
 
@@ -105,7 +107,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03 (Phase 42 Plan 01 completed after externally reviewed Phase 42 planning; perf comparator, accepted-regression schema, and perf-budget CI wiring implemented and locally verified. Phase 41 closed after 10x validation run 28639808289; Plan 04 real perf baselines came from workflow run 28638612289.)
+Last session: 2026-07-03 (Phase 42 Plan 02 completed after Plan 01 merged. Launcher now exposes non-interactive `gsd --version --json` runtime package provenance with packageName, version, upstreamPackage, upstreamVersion, and overlayManifestSha256. Phase 42 Plan 01 perf-budget CI was merged in PR #17.)
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Completed 42-01-PLAN.md; Phase 42 Plan 02 runtime package provenance is next on this branch or a fresh Wave 1 branch. Phase 42 Plan 04 can also proceed in Wave 1 after this PR lands.
-Resume file: .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-02-PLAN.md
+Stopped at: Completed 42-02-PLAN.md locally; PR validation/merge should finish, then continue Phase 42 Plan 04 before Phase 42 Plan 03 unless replanned.
+Resume file: .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-04-PLAN.md

@@ -48,7 +48,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [ ] **SHIP-04**: npm `--provenance` via GHA OIDC Trusted Publishing; no long-lived NPM_TOKEN alongside OIDC (Axios incident pattern)
 - [ ] **SHIP-05**: `zizmor-action@v0` static analysis of GHA workflow YAML runs in CI
 - [ ] **SHIP-06**: Reproducible builds verified: `bun run compose` twice produces byte-identical output; verified in CI
-- [ ] **SHIP-07**: Cousin-test cold-install CI job: fresh OS (ubuntu-latest + macos-15 + windows-latest) x Node 20+22 x bun/npm/pnpm matrix installs public `@chude/get-stuff-done`, supports an optional read-only registry token, and runs non-interactive provenance smoke test
+- [ ] **SHIP-07**: Cousin-test cold-install CI job: fresh OS (ubuntu-latest + macos-15 + windows-latest) x Node 20+22 x bun/npm/pnpm matrix installs public `@chude/get-stuff-done`, supports an optional read-only registry token, and runs non-interactive provenance smoke test. Partial 2026-07-03: 42-02 completed the non-interactive `gsd --version --json` provenance surface; 42-03 still owns the cold-install matrix and optional token path.
 
 ### DOCS (documentation completeness)
 
@@ -143,7 +143,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SHIP-04 | Phase 44 | Pending |
 | SHIP-05 | Phase 44 | Pending |
 | SHIP-06 | Phase 44 | Pending |
-| SHIP-07 | Phase 42 | Pending |
+| SHIP-07 | Phase 42 | In Progress |
 | DOCS-01 | Phase 44 | Pending |
 | DOCS-02 | Phase 44 | Pending |
 | DOCS-03 | Phase 44 | Pending |

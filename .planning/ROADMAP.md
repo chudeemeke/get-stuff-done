@@ -161,7 +161,19 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   4. `overrides/hooks/gsd-check-update.js` incorporates upstream's hook improvements (isNewer, detectConfigDir, stale hook detection, shared cache) while preserving fork-specific behavior (package name, role routing, commit classification, 4h/7d throttle); the corresponding `gsd-statusline.js` changes are committed atomically in the same PR.
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist, included in both the tarball and the GitHub release artifact.
-**Plans**: TBD
+**Plans**: 12 plans (checker-verified 2026-07-03)
+- [ ] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
+- [ ] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
+- [ ] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
+- [ ] 43-04-PLAN.md -- Wave 4: Compatibility matrix evidence and CI
+- [ ] 43-05-PLAN.md -- Wave 5: JavaScript semantic override staleness
+- [ ] 43-06-PLAN.md -- Wave 6: Check-update hook reconciliation
+- [ ] 43-07-PLAN.md -- Wave 7: Statusline reconciliation and hook packaging
+- [ ] 43-08-PLAN.md -- Wave 8: Override churn generator
+- [ ] 43-09-PLAN.md -- Wave 9: CycloneDX SBOM pipeline
+- [ ] 43-10-PLAN.md -- Wave 10: Live target reverify and authority bump
+- [ ] 43-11-PLAN.md -- Wave 11: Post-bump snapshots, churn, SBOM, and gates
+- [ ] 43-12-PLAN.md -- Wave 12: D-7 maintenance evidence and verification closeout
 
 ### Phase 44: Ship Polish — Publish Flow, Provenance, Docs
 **Goal**: Wire every gate built in Phases 41-43 into the `aidev release` / `aidev publish` flow with OIDC provenance, verify reproducibility, and land a complete MAINTENANCE.md that documents processes that now actually exist.
@@ -189,7 +201,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 0/TBD | Not started | - |
+| 43 | v1.2.0 | 0/12 | Planned; checker verified | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog

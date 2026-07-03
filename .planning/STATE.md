@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 42 COMPLETE and merged. Inbox reconciliation complete. Current slice is Phase 43 upgrade resilience planning."
-stopped_at: "Phase 43 context gathered; proceed to Phase 43 planning"
-last_updated: "2026-07-03T17:54:47.751Z"
-last_activity: "2026-07-03 -- PR #22 merged after inbox reconciliation; Phase 43 context gathered for upgrade resilience planning"
+status: "Phase 43 planned and checker-verified; ready to execute twelve serialized plans."
+stopped_at: "Phase 43 planning complete; proceed to execution"
+last_updated: "2026-07-03T19:57:07.2708047+01:00"
+last_activity: "2026-07-03 -- Phase 43 checker passed after plan set split into twelve execution units"
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 21
+  total_plans: 33
   completed_plans: 16
-  planned_plans: 0
-  percent: 76
+  planned_plans: 12
+  percent: 48
 ---
 
 # Project State
@@ -22,14 +22,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-20)
 
 **Core value:** Get upstream improvements automatically while preserving fork identity and additions
-**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 42 Budget Enforcement, Process Hardening, Cousin-Test
+**Current focus:** v1.2.0 Ship-Ready Hardening -- Phase 43 Upgrade Resilience, Verify, Matrix, Dogfood
 
 ## Current Position
 
-Phase: Phase 43 (context gathered) -- Upgrade Resilience, Verify, Matrix, Dogfood
-Plan: TBD; Phase 43 planning is next
-Status: Phase 42 Plans 01, 02, 03, 04, and 05 are complete and merged; root-local inbox handoffs were reconciled into tracked terminal records in PR #22; Phase 43 context captures upgrade-verifier, compat-matrix, semantic-staleness, hook-reconciliation, dogfood, churn, and SBOM decisions for planning.
-Last activity: 2026-07-03 -- PR #22 merged after inbox reconciliation; Phase 43 context gathered for upgrade resilience planning.
+Phase: Phase 43 (planned) -- Upgrade Resilience, Verify, Matrix, Dogfood
+Plan: 12 executable plans pending (43-01 through 43-12)
+Status: Phase 43 planned and checker-verified; ready to execute twelve serialized plans.
+Last activity: 2026-07-03 -- Phase 43 checker passed after plan set split into twelve execution units.
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -37,7 +37,7 @@ Last activity: 2026-07-03 -- PR #22 merged after inbox reconciliation; Phase 43 
 
 **Velocity:**
 
-- Total plans completed: 97 (across v0.1.0-v1.2.0 through Phase 41)
+- Total plans completed: 102 (across v0.1.0-v1.2.0 through Phase 42)
 - v0.1.0: 12 plans, 1.38 hours
 - v0.2.0: 32 plans, 4.45 hours
 - v0.3.0: 17 plans, 15.0 hours

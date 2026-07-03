@@ -81,4 +81,58 @@ describe('perf-baseline schema', () => {
     expect(validate(baseline)).toBe(false);
     expect(JSON.stringify(validate.errors)).toContain('samples');
   });
+
+  test('accepts an accepted regression scoped to platform and metric', () => {
+    const validate = compileSchema();
+    const baseline = validBaseline({
+      acceptedRegressions: [{
+        reason: 'Reviewed Linux compose runner migration',
+        reviewer: 'Chude',
+        reviewedDate: '2026-07-03',
+        ticket: 'PERF-05',
+        platform: 'linux',
+        metric: 'compose',
+      }],
+    });
+
+    expect(validate(baseline)).toBe(true);
+  });
+
+  test('accepts an accepted regression with explicit global scope', () => {
+    const validate = compileSchema();
+    const baseline = validBaseline({
+      acceptedRegressions: [{
+        reason: 'Reviewed temporary platform-wide runner migration',
+        reviewer: 'Chude',
+        reviewedDate: '2026-07-03',
+        ticket: 'PERF-05',
+        scope: 'global',
+      }],
+    });
+
+    expect(validate(baseline)).toBe(true);
+  });
+
+  test('rejects accepted regressions without target fields or required review metadata', () => {
+    const validate = compileSchema();
+
+    expect(validate(validBaseline({
+      acceptedRegressions: [{
+        reason: 'Missing target',
+        reviewer: 'Chude',
+        reviewedDate: '2026-07-03',
+        ticket: 'PERF-05',
+      }],
+    }))).toBe(false);
+
+    expect(validate(validBaseline({
+      acceptedRegressions: [{
+        reviewer: 'Chude',
+        reviewedDate: '2026-07-03',
+        ticket: 'PERF-05',
+        platform: 'linux',
+        metric: 'compose',
+      }],
+    }))).toBe(false);
+  });
 });

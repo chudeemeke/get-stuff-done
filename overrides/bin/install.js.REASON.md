@@ -6,6 +6,7 @@ Memory-nexus recovery exposed a Codex global install crash after upstream copied
 ## Upstream snapshot
 - Version: 1.5.0
 - SHA-256: 054a9051ee6bf07d1783fabf63faa91e4278f9a86dce1b8f7bb4ab476f361823
+- Semantic SHA-256: fedaac1f39c85f704272b678752b2dd2f4dc813fc518bd96a3100dba38ee5a65
 
 ## What's different
 - Treats missing or malformed YAML frontmatter as an absent field in `extractFrontmatterField`.

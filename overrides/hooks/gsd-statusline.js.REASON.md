@@ -6,6 +6,7 @@ Enhanced context usage bar with autocompact-relative scaling. Our version comput
 ## Upstream snapshot
 - Version: 1.5.0
 - SHA-256: 81059a0f3e0013c18da874d25850d7f2aec0c7cf6b14804246d4bacafea9d0a8
+- Semantic SHA-256: ea9f9f78affbc22087cc511df3179feb1f99147c6e1935ae38e0f85caa5410cd
 
 ## What's different
 - Autocompact-relative context bar (0% = fresh, 100% = compaction imminent)

@@ -6,6 +6,7 @@ Fork-branded version check. Our hook checks `@chude/get-stuff-done` on npm inste
 ## Upstream snapshot
 - Version: 1.5.0
 - SHA-256: 95bbd1c7ca11246828eb85b0b7b3718771d08d186e8d3b103426749cc9bb5415
+- Semantic SHA-256: 8cd427939dd8c8c9d61a602d7a766ddcfdfc1b317f11bdae592d9ddc872eea40
 
 ## What's different
 - Checks `@chude/get-stuff-done` package instead of `@opengsd/gsd-core`

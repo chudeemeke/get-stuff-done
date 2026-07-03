@@ -85,6 +85,7 @@
     "test:coverage": "bun test --coverage",
     "test:upstream": "node --test tests/*.test.cjs",
     "preview-update": "node bin/preview-update-cli.js",
-    "verify-upgrade": "node scripts/verify-upgrade.js"
+    "verify-upgrade": "node scripts/verify-upgrade.js",
+    "vetted-upstream:validate": "node scripts/vetted-upstream-versions.js --validate"
   }
 }

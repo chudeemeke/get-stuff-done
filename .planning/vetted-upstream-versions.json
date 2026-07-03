@@ -1,0 +1,34 @@
+{
+  "$schema": "./vetted-upstream-versions.schema.json",
+  "schemaVersion": 1,
+  "packageName": "@opengsd/gsd-core",
+  "policy": {
+    "maxVersions": 3,
+    "prune": "oldest-on-successful-bump",
+    "evidenceRequiredForVetted": true,
+    "notes": "Plan 04 fills vettedAt only after matrix execution produces evidence.matrixReport."
+  },
+  "versions": [
+    {
+      "version": "1.5.0",
+      "role": "current",
+      "blocking": true,
+      "vettedAt": null,
+      "evidence": {}
+    },
+    {
+      "version": "1.6.0",
+      "role": "historical-candidate",
+      "blocking": false,
+      "vettedAt": null,
+      "evidence": {}
+    },
+    {
+      "version": "1.6.1",
+      "role": "latest-stable-candidate",
+      "blocking": false,
+      "vettedAt": null,
+      "evidence": {}
+    }
+  ]
+}

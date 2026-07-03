@@ -170,7 +170,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-06-PLAN.md -- Wave 6: Check-update hook reconciliation
 - [x] 43-07-PLAN.md -- Wave 7: Statusline reconciliation and hook packaging
 - [x] 43-08-PLAN.md -- Wave 8: Override churn generator
-- [ ] 43-09-PLAN.md -- Wave 9: CycloneDX SBOM pipeline
+- [x] 43-09-PLAN.md -- Wave 9: CycloneDX SBOM pipeline
 - [ ] 43-10-PLAN.md -- Wave 10: Live target reverify and authority bump
 - [ ] 43-11-PLAN.md -- Wave 11: Post-bump snapshots, churn, SBOM, and gates
 - [ ] 43-12-PLAN.md -- Wave 12: D-7 maintenance evidence and verification closeout

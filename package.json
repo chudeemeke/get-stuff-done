@@ -57,12 +57,13 @@
     "minimatch": "3.1.5"
   },
   "devDependencies": {
+    "@opengsd/gsd-core": "1.5.0",
+    "audit-ci": "7.1.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.0.0",
     "eslint-plugin-security": "^3.0.1",
-    "@opengsd/gsd-core": "1.5.0",
-    "audit-ci": "7.1.0",
     "husky": "^9.1.7",
+    "markdownlint-cli2": "0.23.0",
     "sharp": "^0.34.5"
   },
   "scripts": {
@@ -77,6 +78,7 @@
     "bench": "node scripts/bench.js",
     "perf:check": "node scripts/check-perf.js",
     "bench:test-timing": "node scripts/bench-test-timing.js",
+    "lint:docs": "node scripts/lint-docs.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "bun test",

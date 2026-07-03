@@ -670,7 +670,7 @@ Things that couldn't be fully resolved:
 - [GitHub: Best Practices for Keeping Fork Updated](https://github.com/orgs/community/discussions/153608) - Community discussion
 - [GitHub: Sync Fork via Rebase Discussion](https://github.com/orgs/community/discussions/48935) - Rebase vs merge strategies
 - [Ardalis: Detect Git Conflict Markers](https://ardalis.com/detect-git-conflict-markers/) - Conflict marker detection
-- [Slant: Best Diff Tools for Git](https://www.slant.co/topics/1324/~best-diff-tools-for-git) - Diff tool comparison (delta, diff-so-fancy)
+- Slant: Best Diff Tools for Git - legacy diff tool comparison source; unavailable during 2026-07 docs gate setup
 - [GitHub: delta](https://github.com/dandavison/delta) - Syntax-highlighting pager for git
 - [GitHub: diff-so-fancy](https://github.com/so-fancy/diff-so-fancy) - Pretty git diffs
 

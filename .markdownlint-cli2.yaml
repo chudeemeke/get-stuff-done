@@ -1,0 +1,34 @@
+# markdownlint runs against tracked markdown discovered by scripts/lint-docs.js.
+config:
+  # The first repository-wide gate applies non-controversial syntax and spacing
+  # rules to every tracked markdown file. Rules that would rewrite historical
+  # planning evidence stay disabled until those archives are intentionally pruned.
+  default: false
+  MD009: true
+  MD010: true
+  MD011: true
+  MD013: false
+  MD014: true
+  MD018: true
+  MD019: true
+  MD020: true
+  MD021: true
+  MD023: true
+  MD027: true
+  # Historical planning and research notes use multiple list-spacing conventions.
+  MD030: false
+  # Historical logs include command fragments that look like spaced emphasis.
+  MD037: false
+  MD039: true
+  MD042: true
+  MD047: true
+  # Historical logs contain both underscore and asterisk emphasis styles.
+  MD049: false
+  # Historical logs contain both underscore and asterisk strong styles.
+  MD050: false
+globs: []
+ignores:
+  - "node_modules/**"
+  - "dist/**"
+  - ".upstream/**"
+  - "overlay/get-shit-done/**"

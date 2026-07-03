@@ -148,7 +148,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 42-02-PLAN.md -- Wave 1: Non-interactive launcher provenance output
 - [x] 42-04-PLAN.md -- Wave 1: Evidence-before-claim oversight principle and probes
 - [x] 42-03-PLAN.md -- Wave 2: Cousin cold-install workflow and INSTALL.md
-- [ ] 42-05-PLAN.md -- Wave 3: Markdown and link-check docs gates
+- [x] 42-05-PLAN.md -- Wave 3: Markdown and link-check docs gates
 
 ### Phase 43: Upgrade Resilience — Verify, Matrix, Dogfood
 **Goal**: Prove the overlay survives a real upstream bump end-to-end — via a Verdaccio-simulated full upgrade, an N=3 historical compat matrix, and a live dogfood bump recorded in MAINTENANCE.md.
@@ -188,7 +188,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.5 | v1.2.0 | 4/5 evidence | Partial; Wave 5 legacy filing path retired by Phase 40.6 | - |
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
-| 42 | v1.2.0 | 4/5 | In Progress | - |
+| 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
 | 43 | v1.2.0 | 0/TBD | Not started | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 

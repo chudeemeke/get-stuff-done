@@ -1356,7 +1356,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [1.12.1]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.12.1
 [1.12.0]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.12.0
 [1.11.2]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.11.2
-[1.11.1]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.11.0
+[1.11.1]: https://github.com/chudeemeke/get-stuff-done/tree/v1.11.1
 [1.10.1]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.10.1
 [1.10.0]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.10.0
 [1.9.12]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.9.12
@@ -1469,11 +1469,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [1.3.7]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.3.7
 [1.3.6]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.3.6
 [1.3.5]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.3.5
-[1.3.4]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.3.4
-[1.3.3]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.3.3
-[1.3.2]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.3.2
-[1.3.1]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.3.1
-[1.3.0]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.3.0
+[1.3.4]: #134---2025-12-17
+[1.3.3]: #133---2025-12-17
+[1.3.2]: #132---2025-12-17
+[1.3.1]: #131---2025-12-17
+[1.3.0]: #130---2025-12-17
 [1.2.13]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.2.13
 [1.2.12]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.2.12
 [1.2.11]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.2.11
@@ -1497,7 +1497,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [1.0.8]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.0.8
 [1.0.7]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.0.7
 [1.0.6]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.0.6
-[1.0.5]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.0.5
+[1.0.5]: #105---2025-12-15
 [1.0.4]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.0.4
 [1.0.3]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.0.3
 [1.0.2]: https://github.com/chudeemeke/get-stuff-done/releases/tag/v1.0.2

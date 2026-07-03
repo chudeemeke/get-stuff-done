@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: "Phase 42 EXECUTING. Plans 01, 02, 03, and 04 are complete; Plan 05 docs gates are next after PR #20 validation/merge."
-stopped_at: "2026-07-03 Completed 42-03-PLAN.md with cousin cold-install CI, smoke helper, INSTALL.md, and scoped macOS compose perf variance handling. Continue with 42-05 markdown/link docs gates after PR validation."
-last_updated: "2026-07-03T10:31:15Z"
-last_activity: 2026-07-03 -- Phase 42 Plan 03 complete
+status: "Phase 42 COMPLETE after Plan 05 docs gates. Next phase is Phase 43 upgrade resilience after PR validation/merge."
+stopped_at: "2026-07-03 Completed 42-05-PLAN.md with markdownlint-cli2 tracked-doc lint, lychee tracked-link CI, and repaired tracked markdown/link debt. Continue with PR validation/merge, then Phase 43 planning/execution."
+last_updated: "2026-07-03T10:30:05Z"
+last_activity: 2026-07-03 -- Phase 42 Plan 05 complete
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 21
-  completed_plans: 15
-  planned_plans: 1
-  percent: 71
+  completed_plans: 16
+  planned_plans: 0
+  percent: 76
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 
 ## Current Position
 
-Phase: Phase 42 (executing) -- Budget Enforcement, Process Hardening, Cousin-Test
-Plan: 4/5 complete; next is 42-05 markdown/link docs gates
-Status: Plans 01, 02, 03, and 04 are complete from the external-review-corrected Phase 42 plan; Plan 05 owns tracked-markdown lint and link checks
-Last activity: 2026-07-03 -- Plan 03 cousin cold-install workflow completed
+Phase: Phase 42 (complete) -- Budget Enforcement, Process Hardening, Cousin-Test
+Plan: 5/5 complete; next is Phase 43 upgrade resilience after PR validation/merge
+Status: Plans 01, 02, 03, 04, and 05 are complete from the external-review-corrected Phase 42 plan; Phase 42 owns perf budgets, oversight probes, cousin cold-install CI, install docs, and tracked markdown/link gates
+Last activity: 2026-07-03 -- Plan 05 markdown/link docs gates completed
 
 **Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
 
@@ -96,6 +96,7 @@ v1.2.0 roadmap decisions:
 - Phase 42 Plan 02 PR #18 first CI run `28645820292` exposed macOS install perf-budget variance: current 176ms vs baseline 134ms, ratio 1.31, but delta 42ms remained within baseline stddev 45ms. Phase 42 Plan 04 PR #19 run `28647664953` recurred at 228ms vs 134ms, ratio 1.70, on macos-15-arm64 runner image `20260623.0190`. Phase 42 Plan 03 PR #20 run `28651494074` recurred on macOS compose at 499ms vs 370ms, ratio 1.35, on runner image `20260630.0202.1` with 96.6ms stddev. `perf-baseline.json` now contains targeted accepted regressions for `macos` + `install`, maxRatio 1.4 for PR #18 and maxRatio 1.8 for PR #19, and `macos` + `compose`, maxRatio 1.5 for PR #20, all expiring 2026-07-10. Replace with rebaseline or variance-aware policy before adding further macOS perf exceptions.
 - Phase 42 Plan 04 completed PROCESS-01 through PROCESS-07: four advisory triggers (`EBC-EXEC-POSTMERGE`, `EBC-EXEC-SUMMARY`, `EBC-VERIFY-CI-BEFORE-MEASURE`, `EBC-PLAN-METRIC-COMPAT`) are mechanically probed by `scripts/verify-oversight-probes.js` and `.github/workflows/oversight-probes.yml`.
 - Phase 42 Plan 03 completed SHIP-07 and DOCS-04: `scripts/cousin-smoke.js` verifies cold installs through `gsd --version --json`, `.github/workflows/cousin-install.yml` covers ubuntu-latest/macos-15/windows-latest x Node 20/22 x npm/pnpm/bun, and `INSTALL.md` documents public install plus optional read-only token usage.
+- Phase 42 Plan 05 completed DOCS-05 and DOCS-06: `scripts/lint-docs.js` runs `markdownlint-cli2@0.23.0` against tracked markdown discovered by `git ls-files`, `.github/workflows/ci.yml` includes a `docs-gates` job using `lycheeverse/lychee-action@v2`, and `lychee.toml` excludes only generated/vendor/dependency paths (`node_modules/`, `dist/`, `.upstream/`, `overlay/get-shit-done/`) plus localhost examples. Local lychee verification passed with 602 total links and 0 errors.
 - 2026-07-01 inbox triage fix closed the confirmed authkey `roadmap update-plan-progress` wrong-checkbox/CRLF issue and medesine-rx false-100% progress issue in code and tests. Memory-nexus v5/decimal roadmap drift is partially fixed in code and tests: `init execute-phase 42` now reports `v5.0`, `roadmap analyze` scopes to v5 phases only, and no v4 Phase 30/32.6 leakage remains. Memory-nexus Codex no-frontmatter installer crash is fixed/tested as of 2026-07-03; installer transaction/preflight/rollback, VERSION mapping clarity, config-schema drift, and grouped stale-STATE health diagnostics remain open. Plan 06 completed the remaining real test subprocess migration and added Windows flake telemetry; no active REL-03 skips exist.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
@@ -111,7 +112,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03 (Phase 42 Plans 01, 02, 03, and 04 completed. SHIP-07, DOCS-04, PERF-03 through PERF-05, and PROCESS-01 through PROCESS-07 are complete; next is Plan 05 docs gates.)
+Last session: 2026-07-03 (Phase 42 Plans 01, 02, 03, 04, and 05 completed. SHIP-07, DOCS-04 through DOCS-06, PERF-03 through PERF-05, and PROCESS-01 through PROCESS-07 are complete; next is PR validation/merge, then Phase 43.)
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Completed 42-03-PLAN.md locally; validate PR/CI/merge, then continue Phase 42 Plan 05 unless replanned.
-Resume file: .planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-05-PLAN.md
+Stopped at: Completed 42-05-PLAN.md locally; validate PR/CI/merge, then continue Phase 43 unless replanned.
+Resume file: .planning/ROADMAP.md

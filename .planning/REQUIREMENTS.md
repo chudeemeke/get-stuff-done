@@ -56,8 +56,8 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [ ] **DOCS-02**: Upgrade guide (consumer-facing) documents the preview-update + aidev release workflow
 - [ ] **DOCS-03**: Override policy documents when to override, REASON.md template, SHA snapshot capture process, re-review triggers
 - [x] **DOCS-04**: `INSTALL.md` covers the cousin-test scenario (fresh public install, optional read-only registry token, PATH setup, version verification)
-- [ ] **DOCS-05**: `lychee-action@v2` link checker runs in CI on tracked markdown files, excluding generated/dependency copies only by narrow path
-- [ ] **DOCS-06**: `markdownlint-cli2@0.23.0` runs in CI enforcing consistent markdown structure
+- [x] **DOCS-05**: `lychee-action@v2` link checker runs in CI on tracked markdown files, excluding generated/dependency copies only by narrow path
+- [x] **DOCS-06**: `markdownlint-cli2@0.23.0` runs in CI enforcing consistent markdown structure
 - [ ] **DOCS-07**: README polished for ship-ready state: clear value proposition, install instructions, feature list, link to MAINTENANCE.md
 - [ ] **DOCS-08**: Keep-a-Changelog and SemVer compliance audited; CHANGELOG.md follows the published spec
 
@@ -148,8 +148,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DOCS-02 | Phase 44 | Pending |
 | DOCS-03 | Phase 44 | Pending |
 | DOCS-04 | Phase 42 | Complete |
-| DOCS-05 | Phase 42 | Pending |
-| DOCS-06 | Phase 42 | Pending |
+| DOCS-05 | Phase 42 | Complete |
+| DOCS-06 | Phase 42 | Complete |
 | DOCS-07 | Phase 44 | Pending |
 | DOCS-08 | Phase 44 | Pending |
 | REL-01 | Phase 41 | Complete |
@@ -176,4 +176,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-07-03 -- Phase 42 Plan 03 completed SHIP-07 and DOCS-04 cousin cold-install workflow and install documentation*
+*Last updated: 2026-07-03 -- Phase 42 Plan 05 completed DOCS-05 and DOCS-06 markdown/link docs gates*

@@ -119,6 +119,7 @@ describe('verify-upgrade orchestration report', () => {
         toVersion: '1.6.1',
         registryUrl: 'http://localhost:4873/',
         tempRoot: root,
+        prepareWorkspace: false,
         skipVerdaccioHealth: true,
         runner,
       });
@@ -172,6 +173,7 @@ describe('verify-upgrade orchestration report', () => {
         toVersion: '1.6.1',
         registryUrl: 'http://localhost:4873/',
         tempRoot: root,
+        prepareWorkspace: false,
         skipVerdaccioHealth: true,
         runner: fakeRunner({ failStep: 'compose' }),
       });
@@ -193,6 +195,7 @@ describe('verify-upgrade orchestration report', () => {
         toVersion: '1.6.1',
         registryUrl: 'http://localhost:4873/',
         tempRoot: root,
+        prepareWorkspace: false,
         skipVerdaccioHealth: true,
         runner: fakeRunner({ failStep: 'reinstall-to' }),
       });

@@ -191,6 +191,16 @@ function envWithMockNpm(tempHome, mockNpmBinDir) {
   };
 }
 
+const CHECK_UPDATE_CACHE_FILE_NAME = 'gsd-update-check-opengsd-gsd-core.json';
+
+function checkUpdateCacheDir(homeDir) {
+  return path.join(homeDir, '.cache', 'gsd');
+}
+
+function checkUpdateCacheFile(homeDir) {
+  return path.join(checkUpdateCacheDir(homeDir), CHECK_UPDATE_CACHE_FILE_NAME);
+}
+
 // Hook paths derived from the SSOT manifest (hooks/index.js + ADR-0001).
 // Test code MUST NOT hardcode hook locations — that pattern caused a 50-day
 // CI redness during the v3.0.0 architecture transition. See 40.5-CI-DIAGNOSIS.md.
@@ -206,6 +216,8 @@ const _findHook = name => {
   }
   return hook;
 };
+
+const _findOptionalHook = name => hooksManifest.findByName(name);
 
 // Hook script paths (source) — derived from manifest, never hardcoded
 const HOOKS = {
@@ -244,7 +256,7 @@ describe('overrides/hooks/gsd-check-update.js', () => {
     cleanup = temp.cleanup;
 
     // Create necessary directory structure
-    const cacheDir = path.join(tempHome, '.claude', 'cache');
+    const cacheDir = checkUpdateCacheDir(tempHome);
     fs.mkdirSync(cacheDir, { recursive: true });
   });
 
@@ -268,7 +280,7 @@ describe('overrides/hooks/gsd-check-update.js', () => {
     }
 
     // Check cache directory was created
-    const cacheDir = path.join(newTempHome, '.claude', 'cache');
+    const cacheDir = checkUpdateCacheDir(newTempHome);
     expect(fs.existsSync(cacheDir)).toBe(true);
   });
 
@@ -283,9 +295,28 @@ describe('overrides/hooks/gsd-check-update.js', () => {
     }).not.toThrow();
   });
 
+  test('declares the update resilience seams without dropping fork routing', () => {
+    const checkUpdateSource = fs.readFileSync(HOOKS.checkUpdate, 'utf8');
+    const workerHook = _findOptionalHook('gsd-check-update-worker.js');
+    expect(workerHook).toBeTruthy();
+    expect(workerHook.kind).toBe('override');
+
+    const workerSource = fs.readFileSync(hooksManifest.sourcePath(workerHook), 'utf8');
+    const combinedSource = `${checkUpdateSource}\n${workerSource}`;
+
+    expect(combinedSource).toContain('detectConfigDir');
+    expect(combinedSource).toContain('isNewer');
+    expect(combinedSource).toContain('.cache');
+    expect(combinedSource).toContain('gsd');
+    expect(combinedSource).toContain('@chude/get-stuff-done');
+    expect(combinedSource).toContain('gsd.role');
+    expect(combinedSource).toContain('4 * 60 * 60');
+    expect(combinedSource).toContain('7 * 24 * 60 * 60');
+  });
+
   test('reads VERSION file when present', () => {
     // Create VERSION file in expected location
-    const gsdDir = path.join(tempHome, '.claude', 'get-stuff-done');
+    const gsdDir = path.join(tempHome, '.claude', 'gsd-core');
     fs.mkdirSync(gsdDir, { recursive: true });
     createTempFile(gsdDir, 'VERSION', '2.1.1\n');
 
@@ -301,7 +332,7 @@ describe('overrides/hooks/gsd-check-update.js', () => {
     }
 
     // Give background process time to write cache (wait up to 2 seconds)
-    const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+    const cacheFile = checkUpdateCacheFile(tempHome);
     let attempts = 0;
     while (!fs.existsSync(cacheFile) && attempts < 20) {
       waitMs(100);
@@ -317,7 +348,7 @@ describe('overrides/hooks/gsd-check-update.js', () => {
   });
 
   test('writes cache with timestamp', { timeout: SUBPROCESS_TIMEOUT }, () => {
-    const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+    const cacheFile = checkUpdateCacheFile(tempHome);
 
     // Run hook
     try {
@@ -344,6 +375,55 @@ describe('overrides/hooks/gsd-check-update.js', () => {
       expect(typeof cache.checked).toBe('number');
     }
   });
+
+  test('records stale installed hooks before a throttled no-update result', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    const configDir = path.join(tempHome, '.claude');
+    const versionDir = path.join(configDir, 'gsd-core');
+    const hooksDir = path.join(configDir, 'hooks');
+    const cacheFile = checkUpdateCacheFile(tempHome);
+    const FIVE_DAYS_AGO = Math.floor(Date.now() / 1000) - (5 * 24 * 60 * 60);
+
+    fs.mkdirSync(versionDir, { recursive: true });
+    fs.mkdirSync(hooksDir, { recursive: true });
+    fs.writeFileSync(path.join(versionDir, 'VERSION'), '2.4.0\n');
+    fs.writeFileSync(
+      path.join(hooksDir, 'gsd-statusline.js'),
+      '#!/usr/bin/env node\n// gsd-hook-version: 2.3.0\n'
+    );
+    fs.writeFileSync(cacheFile, JSON.stringify({
+      update_available: false,
+      installed: '2.4.0',
+      latest: '2.4.0',
+      checked: FIVE_DAYS_AGO
+    }));
+
+    try {
+      runNodeOrThrow(HOOKS.checkUpdate, {
+        env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
+        timeout: SUBPROCESS_TIMEOUT,
+        stdio: 'ignore'
+      });
+    } catch (e) {
+      // Expected - hook exits after spawning background worker.
+    }
+
+    const cacheContent = waitForJsonFile(
+      cacheFile,
+      cache => Array.isArray(cache.stale_hooks),
+      SUBPROCESS_TIMEOUT
+    );
+
+    expect(cacheContent).not.toBeNull();
+    expect(cacheContent.checked).toBe(FIVE_DAYS_AGO);
+    expect(cacheContent.update_available).toBe(false);
+    expect(cacheContent.stale_hooks).toEqual([
+      {
+        file: 'gsd-statusline.js',
+        hookVersion: '2.3.0',
+        installedVersion: '2.4.0'
+      }
+    ]);
+  });
 });
 
 describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
@@ -354,7 +434,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     const temp = createTempDir();
     tempHome = temp.path;
     cleanup = temp.cleanup;
-    fs.mkdirSync(path.join(tempHome, '.claude', 'cache'), { recursive: true });
+    fs.mkdirSync(checkUpdateCacheDir(tempHome), { recursive: true });
   });
 
   afterEach(() => {
@@ -365,7 +445,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(2);
 
     try {
-      const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+      const cacheFile = checkUpdateCacheFile(tempHome);
 
       try {
         runNodeOrThrow(HOOKS.checkUpdate, {
@@ -389,7 +469,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
   });
 
   test('maintainer path: fetch failure leaves existing cache unchanged', { timeout: SUBPROCESS_TIMEOUT }, () => {
-    const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+    const cacheFile = checkUpdateCacheFile(tempHome);
 
     // Pre-write existing cache
     const existingCache = {
@@ -426,7 +506,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
   });
 
   test('skips background spawn when cache is fresh (< 4 hours old)', () => {
-    const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+    const cacheFile = checkUpdateCacheFile(tempHome);
 
     // Write a fresh cache (just now)
     const freshCache = {
@@ -460,7 +540,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     // Test the background process classification logic directly by writing a temp script file
     // (avoids node -e quoting issues on Windows with complex multiline scripts).
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(3);
-    const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+    const cacheFile = checkUpdateCacheFile(tempHome);
     const { path: scriptTmpDir, cleanup: scriptCleanup } = createTempDir();
     const scriptPath = path.join(scriptTmpDir, 'maintainer-test.js');
 
@@ -560,7 +640,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
   test('maintainer path: zero upstream commits writes update_available=false', { timeout: SUBPROCESS_TIMEOUT }, () => {
     // Test directly via temp script file to avoid node -e quoting issues
     const { localDir, cleanup: repoCleanup } = createGitRepoWithUpstream(0);
-    const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+    const cacheFile = checkUpdateCacheFile(tempHome);
     const { path: scriptTmpDir, cleanup: scriptCleanup } = createTempDir();
     const scriptPath = path.join(scriptTmpDir, 'zero-upstream-test.js');
 
@@ -657,7 +737,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     // Layer 2 (7-day throttle) prevents network call inside the subprocess.
 
     test('background process skips network check when cache is 5 days old', { timeout: SUBPROCESS_TIMEOUT }, () => {
-      const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+      const cacheFile = checkUpdateCacheFile(tempHome);
       const FIVE_DAYS_AGO = Math.floor(Date.now() / 1000) - (5 * 24 * 60 * 60);
 
       // Write cache that is 5 days old (>4h so parent spawns child, but <7d so throttle should skip)
@@ -696,7 +776,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     });
 
     test('background process performs full check when cache is 8 days old', { timeout: SUBPROCESS_TIMEOUT }, () => {
-      const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+      const cacheFile = checkUpdateCacheFile(tempHome);
       const EIGHT_DAYS_AGO = Math.floor(Date.now() / 1000) - (8 * 24 * 60 * 60);
       const mockNpm = createMockNpmBin();
 
@@ -736,7 +816,7 @@ describe('overlay/hooks/gsd-check-update.js (maintainer path)', () => {
     });
 
     test('background process performs full check when no cache exists', { timeout: SUBPROCESS_TIMEOUT }, () => {
-      const cacheFile = path.join(tempHome, '.claude', 'cache', 'gsd-update-check.json');
+      const cacheFile = checkUpdateCacheFile(tempHome);
       const mockNpm = createMockNpmBin();
 
       // Ensure no cache file exists
@@ -1256,7 +1336,7 @@ describe('hooks/dist/gsd-check-update.js (bundled)', () => {
       // Hook spawns background process, may exit before completion
     }
 
-    const cacheDir = path.join(newTempHome, '.claude', 'cache');
+    const cacheDir = checkUpdateCacheDir(newTempHome);
     expect(fs.existsSync(cacheDir)).toBe(true);
   });
 
@@ -1424,7 +1504,11 @@ describe('hooks/dist/pre-compact.js (bundled)', () => {
 
 describe('overlay/hooks/gsd-check-update.js (timeout and paths)', () => {
   test('maintainer git fetch uses 3-second timeout', () => {
-    const src = fs.readFileSync(HOOKS.checkUpdate, 'utf8');
+    const workerHook = _findOptionalHook('gsd-check-update-worker.js');
+    const src = fs.readFileSync(
+      workerHook ? hooksManifest.sourcePath(workerHook) : HOOKS.checkUpdate,
+      'utf8'
+    );
     expect(src).toContain('timeout: 3000');
     expect(src).not.toContain('timeout: 15000');
   });

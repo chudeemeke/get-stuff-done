@@ -37,13 +37,23 @@ function normaliseReportPath(reportPath) {
   return relative.startsWith('..') ? path.basename(reportPath) : relative.replace(/\\/g, '/');
 }
 
-function getNpmCommand() {
-  return process.platform === 'win32' ? 'npm.cmd' : 'npm';
+function getNpmInvocation(args) {
+  if (process.platform === 'win32') {
+    return {
+      command: process.env.ComSpec || 'cmd.exe',
+      args: ['/d', '/s', '/c', 'npm.cmd', ...args],
+    };
+  }
+
+  return {
+    command: 'npm',
+    args,
+  };
 }
 
 function installUpstreamPackage({ packageName, version, tempRoot, execFileSyncImpl = execFileSync }) {
   const packageSpec = `${packageName}@${version}`;
-  execFileSyncImpl(getNpmCommand(), [
+  const invocation = getNpmInvocation([
     'install',
     '--prefix',
     tempRoot,
@@ -51,9 +61,12 @@ function installUpstreamPackage({ packageName, version, tempRoot, execFileSyncIm
     '--no-audit',
     '--no-fund',
     packageSpec,
-  ], {
+  ]);
+
+  execFileSyncImpl(invocation.command, invocation.args, {
     cwd: tempRoot,
     stdio: 'inherit',
+    timeout: 120000,
   });
 
   return path.join(tempRoot, 'node_modules', ...packageNameToParts(packageName));
@@ -159,7 +172,20 @@ function runCompatMatrix(options = {}) {
 
   for (const entry of selectedEntries) {
     const startMs = Date.now();
-    const result = runCandidateImpl({ entry, manifest, composeFirst: options.composeFirst === true });
+    let result;
+    try {
+      result = runCandidateImpl({ entry, manifest, composeFirst: options.composeFirst === true });
+    } catch (err) {
+      result = {
+        ok: false,
+        exitCode: 1,
+        passed: 0,
+        failed: 0,
+        skipped: 0,
+        excluded: [],
+        errors: [err.message],
+      };
+    }
     results.push(classifyResult(entry, result, Date.now() - startMs));
   }
 
@@ -311,6 +337,7 @@ module.exports = {
   buildReport,
   classifyResult,
   formatTextReport,
+  getNpmInvocation,
   installUpstreamPackage,
   main,
   parseArgs,

@@ -192,6 +192,45 @@ describe('run-compat-matrix', () => {
     }
   });
 
+  test('records candidate runner errors and continues through the matrix', () => {
+    const dir = makeTempDir();
+
+    try {
+      const manifestPath = writeManifest(dir);
+      const { runCompatMatrix } = require('../scripts/run-compat-matrix');
+      const calls = [];
+      const { exitCode, report } = runCompatMatrix({
+        manifestPath,
+        runCandidateImpl: ({ entry }) => {
+          calls.push(entry.version);
+          if (entry.version === '1.6.0') {
+            throw new Error('install failed for historical pin');
+          }
+
+          return {
+            ok: true,
+            passed: 1,
+            failed: 0,
+            skipped: 0,
+            excluded: [],
+            errors: [],
+          };
+        },
+      });
+
+      expect(exitCode).toBe(0);
+      expect(calls).toEqual(['1.5.0', '1.6.0', '1.6.1']);
+      expect(report.results.find(result => result.version === '1.6.0')).toMatchObject({
+        classification: 'informational',
+        ok: false,
+        exitCode: 1,
+        errors: ['install failed for historical pin'],
+      });
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test('invalid manifests exit non-zero before any matrix entry runs', () => {
     const dir = makeTempDir();
 

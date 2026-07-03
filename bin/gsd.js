@@ -22,6 +22,7 @@
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
+const { readPackageProvenance } = require('../scripts/lib/package-provenance');
 // Import from dist/src/ (npm package) with fallback to overlay/src/ (local dev)
 function tryRequire(distPath, overlayPath) {
   try {
@@ -62,6 +63,26 @@ function getVersion() {
   } catch (e) {
     return '2.1.1'; // fallback
   }
+}
+
+function formatProvenanceText(provenance) {
+  return [
+    `${provenance.packageName} ${provenance.version}`,
+    `upstream: ${provenance.upstreamPackage} ${provenance.upstreamVersion}`,
+    `overlayManifestSha256: ${provenance.overlayManifestSha256}`,
+  ].join('\n');
+}
+
+function printVersion(args) {
+  const packageRoot = path.join(__dirname, '..');
+  const provenance = readPackageProvenance(packageRoot);
+
+  if (args.includes('--json')) {
+    console.log(JSON.stringify(provenance));
+    return;
+  }
+
+  console.log(formatProvenanceText(provenance));
 }
 
 // Logging functions
@@ -213,9 +234,15 @@ function launchClaude(args) {
  */
 function main() {
   try {
+    const args = process.argv.slice(2);
+    if (args.includes('--version')) {
+      printVersion(args);
+      return;
+    }
+
     ensureConfig();
     displayBanner();
-    launchClaude(process.argv.slice(2));
+    launchClaude(args);
   } catch (err) {
     logError(`Initialization failed: ${err.message}`);
     process.exit(1);

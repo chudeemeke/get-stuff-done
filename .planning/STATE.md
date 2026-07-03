@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Completed 43-04-PLAN.md
-last_updated: "2026-07-03T22:38:47.197Z"
+stopped_at: Completed 43-05-PLAN.md
+last_updated: "2026-07-03T22:58:40.990Z"
 last_activity: 2026-07-03
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 34
-  completed_plans: 23
-  percent: 68
+  completed_plans: 24
+  percent: 71
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
-Plan: 5 of 12
+Plan: 6 of 12
 Status: Ready to execute
 Last activity: 2026-07-03
 
@@ -77,6 +77,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-03 Phase 43 Plan 02 decision: runtime/install provenance now exposes `forkPackage`, `forkVersion`, `upstreamPackage`, and `upstreamVersion` while preserving `packageName` and `version` as backward-compatible fork aliases for cousin smoke consumers.
 - 2026-07-03 Phase 43 Plan 03 decision: `.planning/vetted-upstream-versions.json` is the manifest source of truth for the next compatibility matrix, with exactly `1.5.0`, `1.6.0`, and `1.6.1` as candidate entries. `vettedAt` remains `null` until Plan 04 applies matrix evidence.
 - 2026-07-03 Phase 43 Plan 04 decision: compatibility matrix CI is report-only per AF-7 so existing upstream-compat drift does not become a failed PR check; manifest validation and artifact upload remain blocking evidence gates. The matrix report records all three vetted pins as failed, with `1.5.0` classified as the current blocking drift row.
+- 2026-07-03 Phase 43 Plan 05 decision: semantic override staleness is limited to parsed `.js` overrides with recorded `Semantic SHA-256`; Acorn parse failures, missing semantic hashes, and non-JS overrides preserve byte-hash blocking behavior. Markdown semantic diff remains deferred to v1.3.0.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -116,7 +117,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-03T22:38:47.197Z
+Last session: 2026-07-03T22:58:40.990Z
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Completed 43-04-PLAN.md
+Stopped at: Completed 43-05-PLAN.md
 Resume file: None

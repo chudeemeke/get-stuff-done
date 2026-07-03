@@ -42,7 +42,7 @@ created: 2026-07-03
 | 43-02-* | 02 | 2 | UPGRADE-01 | T-43-02 | Installer rollback protects user files and provenance separates fork/upstream package versions | unit/integration | `bun test tests/installer-safety.test.js tests/version-provenance.test.js` | exists | passed |
 | 43-03-* | 03 | 3 | UPGRADE-02 | T-43-03 | Candidate manifest cannot mark versions vetted before matrix evidence exists | unit | `bun test tests/vetted-upstream-versions.test.js` | exists | passed |
 | 43-04-* | 04 | 4 | UPGRADE-02, UPGRADE-04 | T-43-04 | Matrix reads exact vetted pins and blocks only current pin by policy while CI remains report-only per AF-7 | unit/workflow | `bun test tests/run-upstream-compat-ci.test.js tests/ci-workflow.test.js` | exists | passed |
-| 43-05-* | 05 | 5 | UPGRADE-08 | T-43-05 | Semantic comparator cannot suppress real JS behavior changes | unit/integration | `bun test tests/check-overrides.test.js tests/check-overrides-integration.test.js` | exists | pending |
+| 43-05-* | 05 | 5 | UPGRADE-08 | T-43-05 | Semantic comparator cannot suppress real JS behavior changes | unit/integration | `bun test tests/check-overrides.test.js tests/check-overrides-integration.test.js` | exists | passed |
 | 43-06-* | 06 | 6 | UPGRADE-07 | T-43-06 | Check-update preserves fork identity, role routing, stale detection, and exact throttles | unit/package | `bun test tests/hooks.test.js tests/hooks-manifest.test.js` | exists | pending |
 | 43-07-* | 07 | 7 | UPGRADE-07 | T-43-07 | Statusline and hook packaging preserve runtime behavior and current-pin snapshot honesty | unit/package | `bun test tests/hooks.test.js tests/compose.test.js` | exists | pending |
 | 43-08-* | 08 | 8 | UPGRADE-09 | T-43-08 | Override churn is generated deterministically from upstream/override evidence | unit | `bun test tests/override-churn.test.js` | pending | pending |
@@ -59,7 +59,7 @@ created: 2026-07-03
 - [x] `tests/installer-safety.test.js` and `tests/version-provenance.test.js` exist before installer/provenance changes.
 - [x] `tests/vetted-upstream-versions.test.js` exists before manifest helper implementation.
 - [x] `tests/run-upstream-compat-ci.test.js` exists before matrix runner implementation.
-- [ ] `tests/check-overrides.test.js` covers semantic override behavior before gate changes.
+- [x] `tests/check-overrides.test.js` covers semantic override behavior before gate changes.
 - [ ] Hook tests are extended before rewriting hook overrides.
 - [ ] Churn/SBOM tests are added before changing `package.json#files` or `dist` lifecycle scripts.
 

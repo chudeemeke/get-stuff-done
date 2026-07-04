@@ -12,7 +12,7 @@
       },
       "devDependencies": {
         "@cyclonedx/cyclonedx-npm": "4.2.1",
-        "@opengsd/gsd-core": "1.5.0",
+        "@opengsd/gsd-core": "1.6.1",
         "acorn": "8.17.0",
         "audit-ci": "7.1.0",
         "esbuild": "^0.24.0",
@@ -245,7 +245,7 @@
 
     "@oozcitak/util": ["@oozcitak/util@10.0.0", "", {}, "sha512-hAX0pT/73190NLqBPPWSdBVGtbY6VOhWYK3qqHqtXQ1gK7kS2yz4+ivsN07hpJ6I3aeMtKP6J6npsEKOAzuTLA=="],
 
-    "@opengsd/gsd-core": ["@opengsd/gsd-core@1.5.0", "", { "dependencies": { "@anthropic-ai/claude-agent-sdk": "^0.2.84", "ws": "^8.21.0" }, "optionalDependencies": { "fallow": "^2.70.0" }, "bin": { "gsd_run": "gsd-core/bin/gsd_run", "gsd-core": "bin/install.js", "gsd-tools": "gsd-core/bin/gsd-tools.cjs" } }, "sha512-Q3aDGKrdREEcDSUfmj8B8ntDvbwPdbfhd+/2YDTalGM9XnASYO7trZcSGl5eMC4swGSg2vVudHsAWohQoWjxsQ=="],
+    "@opengsd/gsd-core": ["@opengsd/gsd-core@1.6.1", "", { "dependencies": { "@anthropic-ai/claude-agent-sdk": "^0.2.84", "ws": "^8.21.0" }, "optionalDependencies": { "fallow": "^2.70.0" }, "bin": { "gsd_run": "gsd-core/bin/gsd_run", "gsd-core": "bin/install.js", "gsd-tools": "gsd-core/bin/gsd-tools.cjs" } }, "sha512-0SyHK3qGoIFgN3zzASW3Pap1EvGn1PmViHepG0WPO6ePV/huSuL1uF8QzeApaUWCNkmCL1YwH/nCrRUjcgsMWg=="],
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 

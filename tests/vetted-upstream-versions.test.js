@@ -15,6 +15,7 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 const AUTHORITY = JSON.parse(
   fs.readFileSync(path.join(PROJECT_ROOT, '.planning', 'upstream-authority.json'), 'utf-8')
 );
+const ACTIVE_UPSTREAM_VERSION = '1.6.1';
 
 function candidate(version, overrides = {}) {
   return {
@@ -37,9 +38,9 @@ function baseManifest(overrides = {}) {
       evidenceRequiredForVetted: true,
     },
     versions: [
-      candidate('1.5.0', { role: 'current', blocking: true }),
+      candidate('1.5.0'),
       candidate('1.6.0'),
-      candidate('1.6.1', { role: 'latest-stable-candidate' }),
+      candidate(ACTIVE_UPSTREAM_VERSION, { role: 'current', blocking: true }),
     ],
     ...overrides,
   };
@@ -72,9 +73,9 @@ describe('vetted upstream versions manifest', () => {
     for (const version of ['latest', 'next', '1.7.0-rc.1']) {
       const manifest = baseManifest({
         versions: [
-          candidate('1.5.0', { role: 'current', blocking: true }),
-          candidate('1.6.0'),
+          candidate('1.5.0'),
           candidate(version),
+          candidate(ACTIVE_UPSTREAM_VERSION, { role: 'current', blocking: true }),
         ],
       });
 
@@ -87,15 +88,15 @@ describe('vetted upstream versions manifest', () => {
       versions: [
         candidate('1.5.0', { role: 'current', blocking: true }),
         candidate('1.6.0', { blocking: true }),
-        candidate('1.6.1'),
+        candidate(ACTIVE_UPSTREAM_VERSION),
       ],
     }), AUTHORITY)).toThrow('exactly one');
 
     expect(() => validateVettedManifest(baseManifest({
       versions: [
-        candidate('1.5.0', { role: 'current', blocking: false }),
+        candidate('1.5.0', { role: 'current', blocking: true }),
         candidate('1.6.0'),
-        candidate('1.6.1', { blocking: true }),
+        candidate(ACTIVE_UPSTREAM_VERSION),
       ],
     }), AUTHORITY)).toThrow('blocking entry must match active upstream version');
   });
@@ -110,9 +111,9 @@ describe('vetted upstream versions manifest', () => {
   test('vettedAt requires non-empty evidence.matrixReport', () => {
     expect(() => validateVettedManifest(baseManifest({
       versions: [
-        candidate('1.5.0', { role: 'current', blocking: true }),
+        candidate('1.5.0'),
         candidate('1.6.0', { vettedAt: '2026-07-03', evidence: {} }),
-        candidate('1.6.1'),
+        candidate(ACTIVE_UPSTREAM_VERSION, { role: 'current', blocking: true }),
       ],
     }), AUTHORITY)).toThrow('matrixReport');
   });
@@ -122,7 +123,7 @@ describe('vetted upstream versions manifest', () => {
 
     expect(entries).toHaveLength(3);
     expect(entries.map(entry => entry.version)).toEqual(['1.5.0', '1.6.0', '1.6.1']);
-    expect(entries[0].blocking).toBe(true);
+    expect(entries[2].blocking).toBe(true);
   });
 
   test('pruneForBump drops the oldest historical version and keeps exactly 3 versions', () => {

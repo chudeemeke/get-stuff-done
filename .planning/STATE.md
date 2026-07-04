@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Completed 43-09-PLAN.md
-last_updated: "2026-07-04T00:40:00.000+01:00"
+stopped_at: Completed 43-10-PLAN.md
+last_updated: "2026-07-04T01:04:00.000+01:00"
 last_activity: 2026-07-04
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 34
-  completed_plans: 28
-  percent: 82
+  completed_plans: 29
+  percent: 85
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
-Plan: 10 of 12
+Plan: 11 of 12
 Status: Ready to execute
 Last activity: 2026-07-04
 
@@ -82,6 +82,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-04 Phase 43 Plan 07 decision: statusline now consumes the same shared package-lineage cache as check-update, parses `active_phase`, `next_action`, `next_phases`, `completed_phases`, `total_phases`, and `percent` from STATE frontmatter, and uses `CLAUDE_CODE_AUTO_COMPACT_WINDOW` for context scaling while preserving fork branding and `gsd.role` update display. `scripts/finalize-dist.js` now finalizes `gsd-check-update-worker.js` with the other bundled hooks.
 - 2026-07-04 Phase 43 Plan 08 decision: override churn is generated from filesystem evidence by comparing current override paths across previous and target upstream trees. CHANGELOG writes are constrained to the `override-churn` marker block under `Unreleased`, while real bump execution in Plans 10-11 supplies the actual upstream directory pair.
 - 2026-07-04 Phase 43 Plan 09 decision: SBOM generation is a separate `bun run sbom` lifecycle step using pinned `@cyclonedx/cyclonedx-npm@4.2.1`, executed after compose/build and before finalize-dist in `bun run dist`. The wrapper removes Bun's npm user-agent env before spawning CycloneDX and uses `--ignore-npm-errors` because the existing npm tree reports `picomatch` override noise under `npm ls`.
+- 2026-07-04 Phase 43 Plan 10 decision: live upstream evidence captured on the 2026-07-03 US session date confirmed `@opengsd/gsd-core@1.6.1` is still latest stable, `1.7.0-rc.2` remains prerelease-only, `open-gsd/gsd-core` is active, and `refs/tags/v1.6.1` exists. Active authority, embedded fallback authority, `package.json`, `bun.lock`, and `node_modules` now use exact stable `1.6.1`; override snapshot refresh remains Plan 11 work.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -110,6 +111,7 @@ v1.2.0 roadmap decisions:
 - Phase 43 Plans 06-07 resolved the coupled check-update/statusline hook reconciliation debt with shared `$HOME/.cache/gsd` cache semantics, package-lineage guards, worker packaging, phase-lifecycle display, and focused hook/compose tests.
 - Phase 43 Plan 08 observed that direct `bash .changelog-conflict-check.sh CHANGELOG.md` fails on existing published-release bullets even though the required synthetic `--self-test` passes. Before wiring that script as a full-file gate, clarify whether it is fixture-only or update its awk state handling to ignore normal subsection bullets.
 - Phase 43 Plan 09 generated and packaged `dist/bom.json`, and CI uploads it as package evidence. Literal GitHub release-asset attachment remains open until the Phase 44 publish/release workflow exists; do not mark SHIP-03 fully complete before that release-flow hook is verified.
+- Phase 43 Plan 10 observed Bun 1.3.5 Windows `bun install --ignore-scripts` crashes while moving from installed `@opengsd/gsd-core@1.5.0` to lockfile target `1.6.1`. Lockfile-only install plus targeted `bun add -d @opengsd/gsd-core@1.6.1 --ignore-scripts` resolved the local install state, and the required frozen install passed afterward.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
 - Codex `extractFrontmatterField` crash (RESOLVED -- fork-specific, 4 oversight agents had heading before frontmatter)
@@ -124,7 +126,7 @@ Boundary checker still reports 41 structural root-mirror violations as known deb
 
 ## Session Continuity
 
-Last session: 2026-07-04T00:40:00.000+01:00
+Last session: 2026-07-04T01:04:00.000+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Completed 43-09-PLAN.md
+Stopped at: Completed 43-10-PLAN.md
 Resume file: None

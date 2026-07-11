@@ -7,7 +7,7 @@ preserve `gsd.role` consumer/maintainer routing, and keep the fork's exact
 split-worker resilience model.
 
 ## Upstream snapshot
-- Version: 1.5.0
+- Version: 1.6.1
 - SHA-256: 95bbd1c7ca11246828eb85b0b7b3718771d08d186e8d3b103426749cc9bb5415
 - Semantic SHA-256: 8cd427939dd8c8c9d61a602d7a766ddcfdfc1b317f11bdae592d9ddc872eea40
 
@@ -17,13 +17,11 @@ split-worker resilience model.
 - Preserves the fork's 4-hour SessionStart spawn throttle and 7-day network throttle.
 - Keeps legacy `get-stuff-done/VERSION` fallback while adopting `gsd-core/VERSION`.
 
-## Forward-ported 1.6.1 behavior
+## Adopted upstream 1.6.1 behavior
 - Adds `detectConfigDir(baseDir)` multi-runtime config detection.
 - Uses the shared cache directory `$HOME/.cache/gsd`.
 - Spawns `gsd-check-update-worker.js` instead of embedding a `node -e` template.
 - Adds stale hook detection through the worker before a throttled no-update result.
-
-Plan 11 refreshes snapshot after authority pin moves.
 
 ## Review trigger
 When upstream hooks/gsd-check-update.js changes, review whether the override is still needed.

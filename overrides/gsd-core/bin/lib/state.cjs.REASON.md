@@ -4,8 +4,8 @@
 Cross-project inbox reports showed `state update-progress` can report misleading completion when future work is declared in ROADMAP.md but not yet represented by PLAN files on disk.
 
 ## Upstream snapshot
-- Version: 1.5.0
-- SHA-256: 8ce7a35d18656952238533eb58d814c2d399ecd0b19ee5fb53421e4c0d0fb3a6
+- Version: 1.6.1
+- SHA-256: 4d06f311264fcbe05817cb0200b2403963c4f7e7c232c9bd8b38698582b11af8
 
 ## What's different
 - Reads current-milestone ROADMAP `**Plans**` declarations.

@@ -48,7 +48,7 @@ created: 2026-07-03
 | 43-08-* | 08 | 8 | UPGRADE-09 | T-43-08 | Override churn is generated deterministically from upstream/override evidence | unit | `bun test tests/override-churn.test.js` | exists | passed |
 | 43-09-* | 09 | 9 | SHIP-03 | T-43-09 | SBOM is generated into dist and included in package/CI evidence | unit/package | `bun test tests/compose.test.js tests/ci-workflow.test.js` | exists | passed |
 | 43-10-* | 10 | 10 | UPGRADE-05 | T-43-10 | Dogfood bump uses reviewed exact stable pin before snapshot refresh | manual/package | `node scripts/vetted-upstream-versions.js --validate` | exists | passed |
-| 43-11-* | 11 | 11 | UPGRADE-05, UPGRADE-07, UPGRADE-08, UPGRADE-09, SHIP-03 | T-43-11 | Post-bump gates refresh snapshots, churn, SBOM, and matrix evidence | full/package | `bun run dist && node scripts/check-overrides.js` | pending | pending |
+| 43-11-* | 11 | 11 | UPGRADE-05, UPGRADE-07, UPGRADE-08, UPGRADE-09, SHIP-03 | T-43-11 | Post-bump snapshots, churn, and SBOM pass; active-pin compat matrix fails closed | full/package | `bun run dist && node scripts/check-overrides.js`; active-pin `compat-matrix` | blocked | blocked |
 | 43-12-* | 12 | 12 | UPGRADE-05 | T-43-12 | D-7 maintenance evidence and verification close the phase against actual artifacts | full/CI/manual evidence | `bun run lint && bun test && bun run lint:docs && git diff --check` plus GitHub Actions | pending | pending |
 
 ---

@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Completed 43-10-PLAN.md
-last_updated: "2026-07-04T01:04:00.000+01:00"
-last_activity: 2026-07-04
+stopped_at: Blocked in 43-11-PLAN.md on active-pin compat matrix
+last_updated: "2026-07-11T00:58:46.8795160+01:00"
+last_activity: 2026-07-11
 progress:
   total_phases: 10
   completed_phases: 3
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
 Plan: 11 of 12
-Status: Ready to execute
-Last activity: 2026-07-04
+Status: Blocked (failed closed on active-pin compat matrix)
+Last activity: 2026-07-11
 
-**Upstream state:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. `@opengsd/get-shit-done-redux@1.1.0` is deprecated in favor of `@opengsd/gsd-core`. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling now routes through the upstream-authority helper.
+**Upstream state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-11. `1.7.0-rc.5` is prerelease-only and excluded by the exact-stable-pin policy. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling routes through the upstream-authority helper.
 
 ## Performance Metrics
 
@@ -83,6 +83,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-04 Phase 43 Plan 08 decision: override churn is generated from filesystem evidence by comparing current override paths across previous and target upstream trees. CHANGELOG writes are constrained to the `override-churn` marker block under `Unreleased`, while real bump execution in Plans 10-11 supplies the actual upstream directory pair.
 - 2026-07-04 Phase 43 Plan 09 decision: SBOM generation is a separate `bun run sbom` lifecycle step using pinned `@cyclonedx/cyclonedx-npm@4.2.1`, executed after compose/build and before finalize-dist in `bun run dist`. The wrapper removes Bun's npm user-agent env before spawning CycloneDX and uses `--ignore-npm-errors` because the existing npm tree reports `picomatch` override noise under `npm ls`.
 - 2026-07-04 Phase 43 Plan 10 decision: live upstream evidence captured on the 2026-07-03 US session date confirmed `@opengsd/gsd-core@1.6.1` is still latest stable, `1.7.0-rc.2` remains prerelease-only, `open-gsd/gsd-core` is active, and `refs/tags/v1.6.1` exists. Active authority, embedded fallback authority, `package.json`, `bun.lock`, and `node_modules` now use exact stable `1.6.1`; override snapshot refresh remains Plan 11 work.
+- 2026-07-11 Phase 43 Plan 11 decision: post-bump override snapshots, worker classification, churn, dist, and SBOM evidence succeeded, and the compatibility harness helper staging, Windows timeout policy, and repo-root-only runtime-test exclusion were repaired. The active `1.6.1` matrix still fails 87 tests after 159 pass. Fail closed: keep `43-11-SUMMARY.md` absent, keep Plans 11-12 incomplete, and add a corrective GSD runtime-compatibility slice before closeout.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -93,7 +94,7 @@ v1.2.0 roadmap decisions:
 ### Carried Forward Tech Debt
 
 - 41 boundary violations (structural, informational CI)
-- Historical ~130 upstream compat failures (branding diffs, informational CI). After active-authority repair, local Windows compat runner reports 11 failures; keep linux/macos/windows baseline thresholds unchanged until PR matrix evidence exists.
+- Active Open GSD `1.6.1` compatibility matrix fails 87 of 246 assertions after harness repair. Historical `1.5.0` and `1.6.0` rows show the same 159 pass / 87 fail shape. Corrective work must classify supported Open GSD behavior, fork-critical ports, and obsolete legacy expectations before narrowing or restoring the contract.
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
 - Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plans 05-07; 10x validation run `28639808289` passed on Windows, and flake telemetry remains in CI)
@@ -122,11 +123,11 @@ None.
 
 ### Blockers/Concerns
 
-Boundary checker still reports 41 structural root-mirror violations as known debt, but CI now reports it through `--report-only` plus the blocking debt ratchet instead of a failed-step annotation. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Backlog 999.x items are not the default next phase; Phase 43 is the next v1.2 execution path unless explicitly replanned. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
+Plan 43-11 is blocked on the active Open GSD `1.6.1` compatibility matrix (159 passing, 87 failing). `43-11-BLOCKER.md` is the durable evidence artifact; a completion SUMMARY must not exist until a corrective runtime-compatibility slice makes the blocking contract pass. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI now reports it through `--report-only` plus the blocking debt ratchet instead of a failed-step annotation. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Backlog 999.x items are not the default next phase. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
 
 ## Session Continuity
 
-Last session: 2026-07-04T01:04:00.000+01:00
+Last session: 2026-07-11T00:58:46.8795160+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Completed 43-10-PLAN.md
+Stopped at: Blocked in 43-11-PLAN.md on active-pin compat matrix; corrective GSD scope is next.
 Resume file: None

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-done. It consumes upstream as an npm dependency and layers fork-specific additions (cross-platform tooling, theming, sync safety, launcher) on top through a composition pipeline. Users get upstream's full capabilities plus fork enhancements, with surface-only branding. Active v1.2.0 work has cleared the Phase 41 foundation and now moves to Phase 42 budget enforcement, process hardening, and cousin-test validation.
+A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-done. It consumes Open GSD as an exact-pinned npm dependency and layers fork-specific additions (cross-platform tooling, theming, sync safety, launcher) on top through a composition pipeline. Users get upstream's supported capabilities plus fork enhancements, with surface-only branding. Active v1.2.0 work is in Phase 43: the live dogfood bump to Open GSD `1.6.1` is complete, while the post-bump compatibility contract is blocked pending a corrective runtime-compatibility slice.
 
 ## Core Value
 
@@ -64,7 +64,7 @@ A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-don
 **Target features:**
 
 *Upgrade resilience*
-- Open GSD authority is active: legacy `get-shit-done-cc` / `gsd-build/get-shit-done` was migrated to `@opengsd/gsd-core@1.5.0` / `open-gsd/gsd-core` before Phase 41
+- Open GSD authority is active: legacy `get-shit-done-cc` / `gsd-build/get-shit-done` was migrated to `@opengsd/gsd-core` / `open-gsd/gsd-core` before Phase 41, and Phase 43 now pins reviewed stable `1.6.1`
 - Automated upgrade test in CI (install -> bump -> recompose -> reinstall -> verify)
 - Historical-version compat matrix (last N vetted upstream versions, not arbitrary future ones)
 - Override staleness enforcement -- blocking CI gate (distinct from informational boundary/compat stance)
@@ -104,13 +104,13 @@ A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-don
 
 **Shipped:** v1.1.0 Installer & Deployment Hardening on 2026-04-04
 **Architecture:** Overlay model -- upstream consumed as npm devDependency, composed at publish time
-**Upstream:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`; legacy `get-shit-done-cc` is retained only as historical/deprecation evidence for Phase 40.6.
+**Upstream:** Active worktree pins reviewed Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-11; legacy `get-shit-done-cc` is retained only as historical/deprecation evidence for Phase 40.6.
 **Current version:** 3.0.2 (published to npm as @chude/get-stuff-done)
 **Codebase:** ~151 files, ~30K lines; fork-specific overlay code ~2,510 lines; 1742 tests observed in Phase 41 10x CI validation
 **CI:** Blocking test/lint/security/override gates across macOS/Linux/Windows, informational boundary/upstream-compat gates with ratchets, manual perf-baseline and 10x validation workflows
 **Known tech debt:**
 - 41 boundary violations (structural root mirrors -- CI informational, documented in Phase 40.6 verification)
-- ~130 upstream compat failures (branding diffs by design, CI informational)
+- Active Open GSD `1.6.1` compatibility matrix: 159 passing / 87 failing after harness repair; blocking corrective classification and port work is required before Phase 43 closeout
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - ~~INST-04 uninstall manifest gap~~ (RESOLVED -- Phase 40.6 copies overlay manifest/install metadata and scratch uninstall leaves only user `settings.json`)
 - Intermittent Windows subprocess timeout flakiness (MITIGATED -- Phase 41 migrated subprocess tests, added flake telemetry, and passed 10x Windows validation; telemetry remains active)
@@ -223,4 +223,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-03 -- Phase 41 complete; Phase 42 planning is next*
+*Last updated: 2026-07-11 -- Phase 43 Plan 11 blocked on active-pin runtime compatibility; corrective GSD work is next*

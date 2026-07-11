@@ -38,8 +38,12 @@ const TESTS_DIR = path.join(PROJECT_ROOT, 'tests');
  * sync.test.cjs has a dist-relative import blocker (overlay/lib/sync.cjs
  * requires ../get-shit-done/bin/lib/core.cjs which only resolves from
  * the installed dist/ layout, not from the temp dir structure).
+ * runtime-overrides.test.cjs is a fork runtime test that intentionally points
+ * at repo-root dist/ and is verified outside the temp upstream-compat harness.
  */
-const EXCLUDED_TESTS = new Set(['sync.test.cjs']);
+const EXCLUDED_TESTS = new Set(['sync.test.cjs', 'runtime-overrides.test.cjs']);
+const DEFAULT_COMPAT_TEST_TIMEOUT_MS = 120000;
+const WINDOWS_COMPAT_TEST_TIMEOUT_MS = 240000;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -92,29 +96,45 @@ function createLink(linkPath, target) {
   fs.symlinkSync(target, linkPath, type);
 }
 
-/**
- * Create the patched helpers.cjs content.
- *
- * The original helpers.cjs TOOLS_PATH points to:
- *   path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs')
- *
- * In the temp dir, `get-stuff-done/` is a symlink to the composed active
- * package root, so this path resolves correctly without patching. However, the
- * helpers/ directory import needs special handling.
- *
- * @param {string} originalContent  The original helpers.cjs content
- * @param {string} projectRoot      Absolute path to the project root
- * @returns {string} Patched content
- */
-function patchHelpers(originalContent, projectRoot) {
-  // Replace the helpers/ directory require with an absolute path to the
-  // real helpers directory, since we don't copy it to the temp dir
-  const helpersDir = path.join(projectRoot, 'tests', 'helpers', 'index.js')
-    .replace(/\\/g, '/');
+function getCompatTestTimeoutMs(env = process.env, platform = process.platform) {
+  const parsed = Number.parseInt(env.GSD_COMPAT_TEST_TIMEOUT_MS || '', 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
 
-  return originalContent.replace(
-    /require\(['"]\.\/helpers\/index\.js['"]\)/,
-    `require('${helpersDir}')`
+  return platform === 'win32' ? WINDOWS_COMPAT_TEST_TIMEOUT_MS : DEFAULT_COMPAT_TEST_TIMEOUT_MS;
+}
+
+function copyDirectory(srcDir, destDir) {
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+    const srcPath = path.join(srcDir, entry.name);
+    const destPath = path.join(destDir, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirectory(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+/**
+ * Stage helpers.cjs and the local helpers/ dependency tree into the temp test
+ * directory so relative imports still resolve there.
+ *
+ * @param {string} tmpTestsDir  Temp tests directory
+ * @param {string} [testsDir]   Source tests directory
+ */
+function copyCompatHelpers(tmpTestsDir, testsDir = TESTS_DIR) {
+  fs.copyFileSync(
+    path.join(testsDir, 'helpers.cjs'),
+    path.join(tmpTestsDir, 'helpers.cjs')
+  );
+  copyDirectory(
+    path.join(testsDir, 'helpers'),
+    path.join(tmpTestsDir, 'helpers')
   );
 }
 
@@ -169,13 +189,8 @@ function runUpstreamCompat(opts = {}) {
     const tmpTestsDir = path.join(tmpDir, 'tests');
     fs.mkdirSync(tmpTestsDir, { recursive: true });
 
-    // Copy and patch helpers.cjs
-    const helpersContent = fs.readFileSync(
-      path.join(TESTS_DIR, 'helpers.cjs'),
-      'utf-8'
-    );
-    const patchedHelpers = patchHelpers(helpersContent, PROJECT_ROOT);
-    fs.writeFileSync(path.join(tmpTestsDir, 'helpers.cjs'), patchedHelpers, 'utf-8');
+    // Copy helpers.cjs plus its local helpers/ dependency tree.
+    copyCompatHelpers(tmpTestsDir);
 
     // Copy test files
     for (const testFile of testFiles) {
@@ -197,7 +212,7 @@ function runUpstreamCompat(opts = {}) {
           cwd: tmpDir,
           encoding: 'utf-8',
           stdio: ['pipe', 'pipe', 'pipe'],
-          timeout: 120000,
+          timeout: getCompatTestTimeoutMs(),
         }
       );
     } catch (err) {
@@ -357,4 +372,12 @@ if (require.main === module) {
 // Module exports
 // ---------------------------------------------------------------------------
 
-module.exports = { getCompatPackageRoot, runUpstreamCompat, parseTestOutput, formatReport };
+module.exports = {
+  copyCompatHelpers,
+  discoverTestFiles,
+  getCompatPackageRoot,
+  getCompatTestTimeoutMs,
+  runUpstreamCompat,
+  parseTestOutput,
+  formatReport,
+};

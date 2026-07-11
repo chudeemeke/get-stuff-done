@@ -24,8 +24,8 @@ function writeManifest(dir, overrides = {}) {
     versions: [
       {
         version: '1.5.0',
-        role: 'current',
-        blocking: true,
+        role: 'historical-candidate',
+        blocking: false,
         vettedAt: null,
         evidence: {},
       },
@@ -38,8 +38,8 @@ function writeManifest(dir, overrides = {}) {
       },
       {
         version: '1.6.1',
-        role: 'latest-stable-candidate',
-        blocking: false,
+        role: 'current',
+        blocking: true,
         vettedAt: null,
         evidence: {},
       },
@@ -141,6 +141,14 @@ describe('run-compat-matrix', () => {
       expect(report.results).toHaveLength(3);
       expect(report.results[0]).toMatchObject({
         version: '1.5.0',
+        blocking: false,
+        ok: true,
+        exitCode: 0,
+        classification: 'informational',
+        status: 'passed',
+      });
+      expect(report.results[2]).toMatchObject({
+        version: '1.6.1',
         blocking: true,
         ok: true,
         exitCode: 0,
@@ -171,17 +179,17 @@ describe('run-compat-matrix', () => {
       const { exitCode, report } = runCompatMatrix({
         manifestPath,
         runCandidateImpl: ({ entry }) => ({
-          ok: entry.version !== '1.5.0',
+          ok: entry.version !== '1.6.1',
           passed: 0,
-          failed: entry.version === '1.5.0' ? 1 : 0,
+          failed: entry.version === '1.6.1' ? 1 : 0,
           skipped: 0,
           excluded: [],
-          errors: entry.version === '1.5.0' ? ['blocking pin failed'] : [],
+          errors: entry.version === '1.6.1' ? ['blocking pin failed'] : [],
         }),
       });
 
       expect(exitCode).toBe(1);
-      expect(report.results.find(result => result.version === '1.5.0')).toMatchObject({
+      expect(report.results.find(result => result.version === '1.6.1')).toMatchObject({
         blocking: true,
         classification: 'blocking',
         ok: false,

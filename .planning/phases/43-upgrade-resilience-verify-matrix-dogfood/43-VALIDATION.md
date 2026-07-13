@@ -49,7 +49,7 @@ created: 2026-07-03
 | 43-09-* | 09 | 9 | SHIP-03A | T-43-09 | SBOM is generated into dist and included in package/CI evidence | unit/package | `bun test tests/compose.test.js tests/ci-workflow.test.js` | exists | passed |
 | 43-10-* | 10 | 10 | UPGRADE-05 | T-43-10 | Dogfood bump uses reviewed exact stable pin before snapshot refresh | manual/package | `node scripts/vetted-upstream-versions.js --validate` | exists | passed |
 | 43-11A-* | 11A | 11 | UPGRADE-02, UPGRADE-04, UPGRADE-05, SHIP-08B | T-43-11A | Every compatibility suite is classified and candidate failures report per-suite evidence | unit/integration | `bun test tests/run-upstream-compat.test.js tests/run-upstream-compat-ci.test.js` | exists | passed |
-| 43-11B-* | 11B | 12 | UPGRADE-04, UPGRADE-05, SHIP-08B | T-43-11B | Tests adopt supported Open GSD semantics while fork runtime overrides run against each candidate | contract/package | focused Node suites plus active-pin `compat-matrix` | pending | pending |
+| 43-11B-* | 11B | 12 | UPGRADE-04, UPGRADE-05, SHIP-08B | T-43-11B | Tests adopt supported Open GSD semantics while fork runtime overrides run against each candidate | contract/package | focused Node suites plus active-pin `compat-matrix` | exists | passed |
 | 43-11C-* | 11C | 13 | UPGRADE-04, UPGRADE-05, SHIP-08B | T-43-11C | Roadmap updates preserve original EOL and unrelated formatting; exact durable N=3 report bytes prove all reviewed pins while the original plan remains blocked | integration/full package | `node --test tests/roadmap.test.cjs` plus full `compat-matrix --require-all` | pending | pending |
 | 43-11D-* | 11D | 14 | SHIP-08A, SHIP-08B | T-43-11D | Exact source ownership, exhaustive/disjoint groups, Windows junction identity, Jest parity, separate snapshot assurance, and cleanup are proven | unit/integration | coverage-foundation scope plus source-contract and junction fixtures | pending | pending |
 | 43-11K-* | 11K | 15 | UPGRADE-05, SHIP-03A, SHIP-08A | T-43-11K | Windows SBOM env behavior and exact toolchain preflight are proven; the new executable is classified before later coverage | unit/integration/package | SBOM, toolchain, source-contract, and dist fixtures | pending | pending |
@@ -73,8 +73,8 @@ created: 2026-07-03
 - [x] `tests/check-overrides.test.js` covers semantic override behavior before gate changes.
 - [x] Hook tests are extended before rewriting hook overrides.
 - [x] Churn/SBOM tests are added before changing `package.json#files` or `dist` lifecycle scripts.
-- [ ] Compatibility registry and per-suite report tests exist before runner policy changes.
-- [ ] Candidate-path runtime tests exist before removing the repo-root runtime exclusion.
+- [x] Compatibility registry and per-suite report tests exist before runner policy changes.
+- [x] Candidate-path runtime tests exist before removing the repo-root runtime exclusion.
 - [ ] Roadmap CRLF and byte-stability tests remain red before the document adapter is implemented.
 - [ ] Owned-temp cleanup tests exist before compatibility runners adopt recursive cleanup.
 - [ ] Jest adapter conformance, source-contract, multi-process merge, and four-metric threshold fixtures exist before runner implementation.

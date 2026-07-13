@@ -5,10 +5,13 @@ type: execute
 gap_closure: true
 wave: 12
 depends_on: ["11A"]
-status: pending
+status: complete
+completed: 2026-07-13
 requirements: ["UPGRADE-04", "UPGRADE-05", "SHIP-08B"]
 files_modified:
   - tests/helpers/capture-command-output.cjs
+  - tests/helpers/compat-package-root.cjs
+  - tests/helpers.cjs
   - tests/config.test.cjs
   - tests/frontmatter.test.cjs
   - tests/template.test.cjs
@@ -16,6 +19,7 @@ files_modified:
   - tests/runtime-overrides.test.cjs
   - tests/upstream-compat-contract.json
   - scripts/run-upstream-compat.js
+  - tests/run-upstream-compat.test.js
   - tests/run-compat-transition.test.js
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11B-BLOCKER.md
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11B-SUMMARY.md
@@ -82,7 +86,7 @@ and bring fork runtime override regressions inside each candidate run.
   <verify>
     <automated>node --test tests/config.test.cjs tests/frontmatter.test.cjs tests/template.test.cjs</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11B-02" type="auto">
@@ -111,7 +115,7 @@ and bring fork runtime override regressions inside each candidate run.
   <verify>
     <automated>node --test tests/config.test.cjs tests/frontmatter.test.cjs</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11B-03" type="auto">
@@ -141,7 +145,7 @@ and bring fork runtime override regressions inside each candidate run.
     <automated>rg -n "phase-id.cjs|GSD_COMPAT_PACKAGE_ROOT" tests/phase.test.cjs tests/runtime-overrides.test.cjs scripts/run-upstream-compat.js</automated>
     <automated>node -e "const fs=require('node:fs'); const roots=['tests/phase.test.cjs','overlay','overrides']; const walk=(p)=&gt;fs.statSync(p).isDirectory()?fs.readdirSync(p).flatMap((n)=&gt;walk(require('node:path').join(p,n))):[p]; const hits=roots.flatMap(walk).filter((p)=&gt;fs.readFileSync(p,'utf8').includes('bin/lib/core.cjs')); if(hits.length){console.error(hits.join('\n'));process.exit(1)}"</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11B-04" type="auto">
@@ -183,7 +187,7 @@ and bring fork runtime override regressions inside each candidate run.
     <automated>bun test tests/run-compat-transition.test.js</automated>
     <automated>bun test tests/run-upstream-compat.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 </tasks>

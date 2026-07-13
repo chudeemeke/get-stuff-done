@@ -68,6 +68,18 @@ describe('run-upstream-compat-ci', () => {
         skipped: 0,
         excluded: ['sync.test.cjs'],
         errors: [],
+        suites: [{
+          path: 'roadmap.test.cjs',
+          classification: 'candidate',
+          authorityBoundary: 'black-box',
+          status: 'failed',
+          passed: 10,
+          failed: 2,
+          skipped: 0,
+          durationMs: 12,
+          exitCode: 1,
+          errors: ['roadmap assertion failed'],
+        }],
       }),
       stdout: { write: chunk => { output += chunk; } },
     });
@@ -75,6 +87,7 @@ describe('run-upstream-compat-ci', () => {
     expect(exitCode).toBe(0);
     expect(output).toContain('Result: FAIL');
     expect(output).toContain('non-blocking');
+    expect(output).toContain('roadmap.test.cjs');
   });
 
   test('writes a GitHub step summary when GITHUB_STEP_SUMMARY is available', () => {
@@ -96,6 +109,18 @@ describe('run-upstream-compat-ci', () => {
           skipped: 0,
           excluded: [],
           errors: ['expected branding drift'],
+          suites: [{
+            path: 'commands.test.cjs',
+            classification: 'candidate',
+            authorityBoundary: 'black-box',
+            status: 'failed',
+            passed: 4,
+            failed: 1,
+            skipped: 0,
+            durationMs: 8,
+            exitCode: 1,
+            errors: ['expected branding drift'],
+          }],
         }),
         summaryPath,
         stdout: { write: () => {} },
@@ -105,6 +130,8 @@ describe('run-upstream-compat-ci', () => {
       expect(summary).toContain('Upstream compatibility');
       expect(summary).toContain('non-blocking');
       expect(summary).toContain('expected branding drift');
+      expect(summary).toContain('commands.test.cjs');
+      expect(summary.match(/expected branding drift/g)).toHaveLength(1);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
@@ -112,6 +139,35 @@ describe('run-upstream-compat-ci', () => {
 });
 
 describe('run-compat-matrix', () => {
+  test('cleans its owned installer root when candidate installation fails', () => {
+    const tempRoot = makeTempDir('gsd-compat-matrix-owned-');
+    const authority = {
+      contractScope: 'maintainer-build-time',
+      active: {
+        packageName: '@opengsd/gsd-core',
+        version: '1.6.1',
+        sourceRoot: '.',
+        bin: {},
+        paths: { gsdTools: 'gsd-core/bin/gsd-tools.cjs' },
+      },
+    };
+
+    try {
+      const { runCandidate } = require('../scripts/run-compat-matrix');
+      expect(() => runCandidate({ version: '1.6.1' }, {
+        tempRoot,
+        authority,
+        packageName: '@opengsd/gsd-core',
+        installUpstreamPackageImpl: () => {
+          throw new Error('candidate install failed');
+        },
+      })).toThrow('candidate install failed');
+      expect(fs.readdirSync(tempRoot)).toEqual([]);
+    } finally {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test('runs the compatibility runner once per manifest entry and classifies results', () => {
     const dir = makeTempDir();
 
@@ -131,6 +187,18 @@ describe('run-compat-matrix', () => {
             skipped: 0,
             excluded: [],
             errors: entry.version === '1.6.0' ? ['expected historical drift'] : [],
+            suites: [{
+              path: 'roadmap.test.cjs',
+              classification: 'candidate',
+              authorityBoundary: 'black-box',
+              status: entry.version === '1.6.0' ? 'failed' : 'passed',
+              passed: 12,
+              failed: entry.version === '1.6.0' ? 1 : 0,
+              skipped: 0,
+              durationMs: 7,
+              exitCode: entry.version === '1.6.0' ? 1 : 0,
+              errors: entry.version === '1.6.0' ? ['expected historical drift'] : [],
+            }],
           };
         },
         now: () => '2026-07-03T22:30:00.000Z',
@@ -163,6 +231,14 @@ describe('run-compat-matrix', () => {
         classification: 'informational',
         status: 'failed',
       });
+      expect(report.schemaVersion).toBe(2);
+      expect(report.results[1].suites[0]).toMatchObject({
+        path: 'roadmap.test.cjs',
+        authorityBoundary: 'black-box',
+        status: 'failed',
+      });
+      const { formatTextReport } = require('../scripts/run-compat-matrix');
+      expect(formatTextReport(report)).toContain('1.6.0 | roadmap.test.cjs | black-box | failed');
       expect(typeof report.results[1].durationMs).toBe('number');
       expect(fs.existsSync(path.join(dir, 'compat-matrix-report.json'))).toBe(true);
     } finally {
@@ -195,6 +271,83 @@ describe('run-compat-matrix', () => {
         ok: false,
         exitCode: 1,
       });
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('--require-all returns non-zero when a historical row is red', () => {
+    const dir = makeTempDir();
+
+    try {
+      const manifestPath = writeManifest(dir);
+      const { main } = require('../scripts/run-compat-matrix');
+      let output = '';
+      const exitCode = main(['--manifest', manifestPath, '--require-all', '--json'], {
+        stdout: { write: chunk => { output += chunk; } },
+        stderr: { write: () => {} },
+      }, {
+        runCandidateImpl: ({ entry }) => ({
+          ok: entry.version !== '1.5.0',
+          passed: entry.version === '1.5.0' ? 0 : 1,
+          failed: entry.version === '1.5.0' ? 1 : 0,
+          skipped: 0,
+          excluded: [],
+          errors: entry.version === '1.5.0' ? ['historical drift'] : [],
+          suites: [],
+        }),
+      });
+
+      expect(exitCode).toBe(1);
+      const report = JSON.parse(output);
+      expect(report).toMatchObject({
+        ok: false,
+        policy: 'require-all',
+        failedVersions: ['1.5.0'],
+      });
+      expect(report.results.find(result => result.version === '1.6.1')).toMatchObject({
+        blocking: true,
+        ok: true,
+      });
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('failed suite evidence overrides an inconsistent green row result', () => {
+    const dir = makeTempDir();
+
+    try {
+      const manifestPath = writeManifest(dir);
+      const { runCompatMatrix } = require('../scripts/run-compat-matrix');
+      const { exitCode, report } = runCompatMatrix({
+        manifestPath,
+        runCandidateImpl: ({ entry }) => ({
+          ok: true,
+          passed: 1,
+          failed: 0,
+          skipped: 0,
+          excluded: [],
+          errors: [],
+          suites: [{
+            path: 'roadmap.test.cjs',
+            classification: 'candidate',
+            authorityBoundary: 'black-box',
+            status: entry.blocking ? 'failed' : 'passed',
+            passed: entry.blocking ? 0 : 1,
+            failed: entry.blocking ? 1 : 0,
+            skipped: 0,
+            durationMs: 1,
+            exitCode: entry.blocking ? 1 : 0,
+            errors: entry.blocking ? ['suite failed'] : [],
+          }],
+        }),
+      });
+
+      const current = report.results.find(result => result.version === '1.6.1');
+      expect(exitCode).toBe(1);
+      expect(current).toMatchObject({ ok: false, status: 'failed', exitCode: 1 });
+      expect(report.blockingFailures).toEqual(['1.6.1']);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }

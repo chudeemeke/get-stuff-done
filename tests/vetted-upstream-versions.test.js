@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const {
+  applyMatrixEvidence,
   loadVettedManifest,
   validateVettedManifest,
   listMatrixEntries,
@@ -116,6 +117,72 @@ describe('vetted upstream versions manifest', () => {
         candidate(ACTIVE_UPSTREAM_VERSION, { role: 'current', blocking: true }),
       ],
     }), AUTHORITY)).toThrow('matrixReport');
+  });
+
+  test('vettedAt rejects failed matrix evidence loaded from disk', () => {
+    expect(() => validateVettedManifest(baseManifest({
+      versions: [
+        candidate('1.5.0', {
+          vettedAt: '2026-07-03',
+          evidence: { matrixReport: 'compat-matrix-report.json', status: 'failed' },
+        }),
+        candidate('1.6.0'),
+        candidate(ACTIVE_UPSTREAM_VERSION, { role: 'current', blocking: true }),
+      ],
+    }), AUTHORITY)).toThrow('vettedAt requires passed matrix evidence');
+  });
+
+  test('matrix evidence clears vettedAt for red rows and dates only green rows', () => {
+    const manifest = baseManifest({
+      versions: baseManifest().versions.map(entry => ({
+        ...entry,
+        vettedAt: '2026-07-03',
+        evidence: { matrixReport: 'old-report.json', status: 'passed' },
+      })),
+    });
+    const updated = applyMatrixEvidence(manifest, {
+      matrixReport: 'new-report.json',
+      results: manifest.versions.map(entry => ({
+        version: entry.version,
+        ok: entry.version !== '1.5.0',
+        status: entry.version === '1.5.0' ? 'failed' : 'passed',
+        suites: [{
+          path: 'commands.test.cjs',
+          status: entry.version === '1.5.0' ? 'failed' : 'passed',
+          failed: entry.version === '1.5.0' ? 1 : 0,
+          exitCode: entry.version === '1.5.0' ? 1 : 0,
+        }],
+      })),
+    }, '2026-07-13');
+
+    expect(updated.versions[0]).toMatchObject({
+      vettedAt: null,
+      evidence: { matrixReport: 'new-report.json', status: 'failed' },
+    });
+    expect(updated.versions.slice(1).every(entry => entry.vettedAt === '2026-07-13')).toBe(true);
+  });
+
+  test('matrix evidence cannot vet a row with a failed suite', () => {
+    const updated = applyMatrixEvidence(baseManifest(), {
+      matrixReport: 'new-report.json',
+      results: [{
+        version: ACTIVE_UPSTREAM_VERSION,
+        ok: true,
+        status: 'passed',
+        suites: [{
+          path: 'roadmap.test.cjs',
+          status: 'failed',
+          failed: 1,
+          exitCode: 1,
+        }],
+      }],
+    }, '2026-07-13');
+    const current = updated.versions.find(entry => entry.version === ACTIVE_UPSTREAM_VERSION);
+
+    expect(current).toMatchObject({
+      vettedAt: null,
+      evidence: { matrixReport: 'new-report.json', status: 'failed' },
+    });
   });
 
   test('listMatrixEntries returns the three manifest entries in order', () => {

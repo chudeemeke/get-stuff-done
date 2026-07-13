@@ -17,12 +17,14 @@ const {
   listMatrixEntries,
   validateVettedManifest,
 } = require('./vetted-upstream-versions');
+const { cleanupOwnedTemp, createOwnedTemp } = require('./lib/owned-temp');
 const { readAuthorityContract } = require('./lib/upstream-source');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const DEFAULT_MANIFEST_PATH = path.join(PROJECT_ROOT, '.planning', 'vetted-upstream-versions.json');
 const DEFAULT_AUTHORITY_PATH = path.join(PROJECT_ROOT, '.planning', 'upstream-authority.json');
 const DEFAULT_REPORT_PATH = 'compat-matrix-report.json';
+const MATRIX_TEMP_OWNER = 'get-stuff-done/compat-matrix';
 
 function packageNameToParts(packageName) {
   if (packageName.startsWith('@')) {
@@ -73,14 +75,31 @@ function installUpstreamPackage({ packageName, version, tempRoot, execFileSyncIm
 }
 
 function runCandidate(entry, options = {}) {
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-compat-matrix-'));
+  const tempBase = options.tempRoot || os.tmpdir();
+  const tempLifecycle = options.tempLifecycle || {
+    create: createOwnedTemp,
+    cleanup: cleanupOwnedTemp,
+  };
+  const protectedRoots = options.protectedRoots || [
+    PROJECT_ROOT,
+    path.join(PROJECT_ROOT, 'dist'),
+    path.join(PROJECT_ROOT, 'node_modules'),
+  ];
+  const ownedTemp = tempLifecycle.create({
+    tempRoot: tempBase,
+    prefix: 'gsd-compat-matrix-',
+    owner: MATRIX_TEMP_OWNER,
+    protectedRoots,
+  });
+  const tempRoot = ownedTemp.path;
 
   try {
     const authority = options.authority || readAuthorityContract({
       authorityPath: options.authorityPath || DEFAULT_AUTHORITY_PATH,
       allowEmbeddedFallback: false,
     });
-    const upstreamDir = installUpstreamPackage({
+    const installImpl = options.installUpstreamPackageImpl || installUpstreamPackage;
+    const upstreamDir = installImpl({
       packageName: options.packageName,
       version: entry.version,
       tempRoot,
@@ -88,17 +107,23 @@ function runCandidate(entry, options = {}) {
     });
     const distRoot = path.join(tempRoot, 'dist');
 
-    compose({
+    const composeImpl = options.composeImpl || compose;
+    composeImpl({
       upstreamDir,
       overlayDir: path.join(PROJECT_ROOT, 'overlay'),
       distDir: distRoot,
     });
 
-    return runUpstreamCompat({
+    const compatImpl = options.runUpstreamCompatImpl || runUpstreamCompat;
+    return compatImpl({
       distDir: getCompatPackageRoot({ distRoot, authority }),
     });
   } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
+    tempLifecycle.cleanup(tempRoot, {
+      tempRoot: tempBase,
+      owner: MATRIX_TEMP_OWNER,
+      protectedRoots,
+    });
   }
 }
 
@@ -108,35 +133,51 @@ function resultExitCode(result) {
 }
 
 function classifyResult(entry, result, durationMs) {
-  const exitCode = resultExitCode(result);
+  const suites = Array.isArray(result.suites) ? result.suites : [];
+  const suitesPass = suites.length === 0 || suites.every(suite => (
+    suite.classification === 'candidate' &&
+    suite.status === 'passed' &&
+    suite.failed === 0 &&
+    suite.exitCode === 0
+  ));
+  const ok = result.ok === true && suitesPass;
+  const reportedExitCode = resultExitCode(result);
+  const exitCode = ok ? 0 : (reportedExitCode === 0 ? 1 : reportedExitCode);
 
   return {
     version: entry.version,
     role: entry.role,
     blocking: entry.blocking === true,
-    ok: result.ok === true,
+    ok,
     exitCode,
     durationMs,
     classification: entry.blocking === true ? 'blocking' : 'informational',
-    status: result.ok === true ? 'passed' : 'failed',
+    status: ok ? 'passed' : 'failed',
     passed: result.passed || 0,
     failed: result.failed || 0,
     skipped: result.skipped || 0,
     excluded: Array.isArray(result.excluded) ? result.excluded : [],
+    classifiedExclusions: Array.isArray(result.classifiedExclusions)
+      ? result.classifiedExclusions
+      : [],
+    suites,
     errors: Array.isArray(result.errors) ? result.errors : [],
   };
 }
 
-function buildReport({ manifest, results, generatedAt, reportPath }) {
+function buildReport({ manifest, results, generatedAt, reportPath, requireAll = false }) {
   const blockingFailures = results.filter(result => result.blocking && !result.ok);
+  const failedResults = results.filter(result => !result.ok);
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     packageName: manifest.packageName,
     generatedAt,
     matrixReport: normaliseReportPath(reportPath),
-    ok: blockingFailures.length === 0,
+    policy: requireAll ? 'require-all' : 'current-pin',
+    ok: requireAll ? failedResults.length === 0 : blockingFailures.length === 0,
     blockingFailures: blockingFailures.map(result => result.version),
+    failedVersions: failedResults.map(result => result.version),
     results,
   };
 }
@@ -160,12 +201,18 @@ function runCompatMatrix(options = {}) {
   const authority = options.authority || readAuthorityContract({ authorityPath, allowEmbeddedFallback: false });
   const manifest = loadVettedManifest(manifestPath);
   validateVettedManifest(manifest, authority);
+  if (options.requireAll && options.version) {
+    throw new Error('--require-all cannot be combined with --version');
+  }
 
   const runCandidateImpl = options.runCandidateImpl || (({ entry }) => runCandidate(entry, {
     authority,
     authorityPath,
     packageName: manifest.packageName,
     execFileSyncImpl: options.execFileSyncImpl,
+    tempRoot: options.tempRoot,
+    tempLifecycle: options.tempLifecycle,
+    protectedRoots: options.protectedRoots,
   }));
   const selectedEntries = filterEntries(listMatrixEntries(manifest), options.version);
   const results = [];
@@ -194,6 +241,7 @@ function runCompatMatrix(options = {}) {
     results,
     generatedAt: options.now ? options.now() : new Date().toISOString(),
     reportPath: options.reportPath,
+    requireAll: options.requireAll === true,
   });
 
   if (options.reportPath) {
@@ -218,6 +266,7 @@ OPTIONS
   --json                  Print the JSON report instead of text.
   --report <path>         Write the JSON report to a file.
   --compose-first         Accepted for CI parity; matrix candidates always compose isolated temp dist output.
+  --require-all           Fail when any matrix row is red. Cannot be combined with --version.
   --version <x.y.z>       Run one manifest version instead of every entry.
   -h, --help              Show this help.
 `);
@@ -237,6 +286,7 @@ function parseArgs(argv) {
     authorityPath: DEFAULT_AUTHORITY_PATH,
     json: false,
     composeFirst: false,
+    requireAll: false,
   };
   const queue = [...argv];
 
@@ -267,6 +317,10 @@ function parseArgs(argv) {
       options.composeFirst = true;
       continue;
     }
+    if (arg === '--require-all') {
+      options.requireAll = true;
+      continue;
+    }
     if (arg === '--version') {
       options.version = takeValue(queue, arg);
       continue;
@@ -294,6 +348,24 @@ function formatTextReport(report) {
       `- ${result.version} (${result.classification}): ${result.status}; ` +
       `passed=${result.passed} failed=${result.failed} skipped=${result.skipped} durationMs=${result.durationMs}`
     );
+  }
+
+  const suiteRows = report.results.flatMap(result => (
+    (result.suites || []).map(suite => ({ version: result.version, ...suite }))
+  ));
+  if (suiteRows.length > 0) {
+    lines.push('');
+    lines.push('Suites:');
+    lines.push('Version | Suite | Boundary | Status | Passed | Failed | Skipped | Duration');
+    for (const suite of suiteRows) {
+      lines.push(
+        `${suite.version} | ${suite.path} | ${suite.authorityBoundary} | ${suite.status} | ` +
+        `${suite.passed} | ${suite.failed} | ${suite.skipped} | ${suite.durationMs}ms`
+      );
+      for (const error of (suite.errors || []).slice(0, 5)) {
+        lines.push(`  ${String(error).slice(0, 500)}`);
+      }
+    }
   }
 
   lines.push('');

@@ -86,6 +86,9 @@ function validateVettedManifest(manifest, authority = readAuthorityContract({ au
     if (entry.vettedAt && (!entry.evidence || typeof entry.evidence.matrixReport !== 'string' || entry.evidence.matrixReport.length === 0)) {
       throw new Error(`vettedAt requires non-empty evidence.matrixReport for ${entry.version}`);
     }
+    if (entry.vettedAt && entry.evidence.status !== 'passed') {
+      throw new Error(`vettedAt requires passed matrix evidence for ${entry.version}`);
+    }
   }
 
   return manifest;
@@ -164,11 +167,18 @@ function applyMatrixEvidence(manifest, report, date = new Date().toISOString()) 
     const result = results.find(item => item.version === entry.version);
     if (!result) continue;
 
-    entry.vettedAt = date;
+    const reportedStatus = result.status || result.outcome || 'unknown';
+    const suitesPass = Array.isArray(result.suites) && result.suites.length > 0 &&
+      result.suites.every(suite => (
+        suite.status === 'passed' && suite.failed === 0 && suite.exitCode === 0
+      ));
+    const passed = result.ok === true && reportedStatus === 'passed' && suitesPass;
+    const status = passed ? 'passed' : 'failed';
+    entry.vettedAt = passed ? date : null;
     entry.evidence = {
       ...(entry.evidence || {}),
       matrixReport,
-      status: result.status || result.outcome || 'unknown',
+      status,
     };
   }
 

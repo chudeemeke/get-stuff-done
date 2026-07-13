@@ -13,7 +13,7 @@
       "version": "1.5.0",
       "role": "historical-candidate",
       "blocking": false,
-      "vettedAt": "2026-07-03",
+      "vettedAt": null,
       "evidence": {
         "matrixReport": "compat-matrix-report.json",
         "status": "failed"
@@ -23,7 +23,7 @@
       "version": "1.6.0",
       "role": "historical-candidate",
       "blocking": false,
-      "vettedAt": "2026-07-03",
+      "vettedAt": null,
       "evidence": {
         "matrixReport": "compat-matrix-report.json",
         "status": "failed"

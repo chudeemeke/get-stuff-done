@@ -10,13 +10,31 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
-const RUNTIME_TOOLS_PATH = path.join(PROJECT_ROOT, 'dist', 'gsd-core', 'bin', 'gsd-tools.cjs');
+const HAS_CANDIDATE_ROOT = Boolean(process.env.GSD_COMPAT_PACKAGE_ROOT);
 const NODE_EXECUTABLE =
   process.env.GSD_TEST_NODE_EXECUTABLE || (process.versions.bun ? 'node' : process.execPath);
 
+function resolveRuntimeToolsPath(env = process.env, projectRoot = PROJECT_ROOT) {
+  const packageRoot = env.GSD_COMPAT_PACKAGE_ROOT
+    ? path.resolve(env.GSD_COMPAT_PACKAGE_ROOT)
+    : path.join(projectRoot, 'dist', 'gsd-core');
+  return path.join(packageRoot, 'bin', 'gsd-tools.cjs');
+}
+
+function assertRuntimeToolsPath(toolsPath, candidateRoot = HAS_CANDIDATE_ROOT) {
+  const message = candidateRoot
+    ? `Candidate package is missing bin/gsd-tools.cjs: ${toolsPath}`
+    : `Composed runtime is missing: ${toolsPath}. Run bun run compose first.`;
+  assert.ok(fs.existsSync(toolsPath), message);
+  return toolsPath;
+}
+
+const RUNTIME_TOOLS_PATH = resolveRuntimeToolsPath();
+
 function runRuntimeGsdTools(args, cwd) {
+  const toolsPath = assertRuntimeToolsPath(RUNTIME_TOOLS_PATH);
   try {
-    const stdout = execFileSync(NODE_EXECUTABLE, [RUNTIME_TOOLS_PATH, ...args], {
+    const stdout = execFileSync(NODE_EXECUTABLE, [toolsPath, ...args], {
       cwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -52,9 +70,23 @@ describe('composed runtime GSD overrides', () => {
     cleanup(tmpDir);
   });
 
-  test('roadmap analyze and init progress prefer STATE current phase', () => {
-    assert.ok(fs.existsSync(RUNTIME_TOOLS_PATH), 'run bun run compose before runtime override tests');
+  test('explicit candidate root cannot fall back to repository dist', () => {
+    const candidateRoot = path.join(tmpDir, 'candidate-package');
+    fs.mkdirSync(candidateRoot, { recursive: true });
 
+    const toolsPath = resolveRuntimeToolsPath(
+      { GSD_COMPAT_PACKAGE_ROOT: candidateRoot },
+      PROJECT_ROOT
+    );
+
+    assert.strictEqual(toolsPath, path.join(candidateRoot, 'bin', 'gsd-tools.cjs'));
+    assert.throws(
+      () => assertRuntimeToolsPath(toolsPath, true),
+      /Candidate package is missing bin[\\/]gsd-tools\.cjs/
+    );
+  });
+
+  test('roadmap analyze and init progress prefer STATE current phase', () => {
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'ROADMAP.md'),
       `# Roadmap
@@ -106,8 +138,6 @@ Status: In progress
   });
 
   test('roadmap parser prefers current body milestone over stale frontmatter', () => {
-    assert.ok(fs.existsSync(RUNTIME_TOOLS_PATH), 'run bun run compose before runtime override tests');
-
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'ROADMAP.md'),
       `# Roadmap
@@ -192,8 +222,6 @@ Phase: 42 (Dreaming Consolidation) - NEXT
   });
 
   test('state update-progress counts ROADMAP-declared future plans', () => {
-    assert.ok(fs.existsSync(RUNTIME_TOOLS_PATH), 'run bun run compose before runtime override tests');
-
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'STATE.md'),
       `# Project State

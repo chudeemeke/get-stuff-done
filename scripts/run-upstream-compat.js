@@ -454,6 +454,16 @@ function runUpstreamCompat(opts = {}) {
       errors: [`${distRel}/ does not exist. Run \`bun run compose\` first.`],
     };
   }
+  const toolsPath = path.join(distDir, 'bin', 'gsd-tools.cjs');
+  // distDir is the explicit candidate root; this checks its fixed executable contract.
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  if (!fs.existsSync(toolsPath)) {
+    return {
+      ...aggregateSuites([], contract.excluded),
+      ok: false,
+      errors: [`Candidate package root is missing bin/gsd-tools.cjs: ${distRel}/bin/gsd-tools.cjs`],
+    };
+  }
 
   const tempRoot = opts.tempRoot || os.tmpdir();
   const tempLifecycle = opts.tempLifecycle || {

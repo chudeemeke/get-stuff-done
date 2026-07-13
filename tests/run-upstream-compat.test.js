@@ -20,8 +20,9 @@ function makeCompatFixture(suiteNames) {
   const distDir = path.join(root, 'dist', 'gsd-core');
   const tempRoot = path.join(root, 'temp');
   fs.mkdirSync(path.join(testsDir, 'helpers'), { recursive: true });
-  fs.mkdirSync(distDir, { recursive: true });
+  fs.mkdirSync(path.join(distDir, 'bin'), { recursive: true });
   fs.mkdirSync(tempRoot);
+  fs.writeFileSync(path.join(distDir, 'bin', 'gsd-tools.cjs'), "'use strict';\n", 'utf8');
   fs.writeFileSync(path.join(testsDir, 'helpers.cjs'), "'use strict';\n", 'utf8');
   fs.writeFileSync(path.join(testsDir, 'helpers', 'index.js'), "'use strict';\n", 'utf8');
   for (const suiteName of suiteNames) {
@@ -200,6 +201,76 @@ describe('run-upstream-compat helper staging', () => {
 });
 
 describe('run-upstream-compat per-suite execution', () => {
+  test('rejects an absent candidate package root before spawning', () => {
+    const fixture = makeCompatFixture(['alpha.test.cjs']);
+    fs.rmSync(fixture.distDir, { recursive: true, force: true });
+    let spawnCount = 0;
+
+    try {
+      const result = runUpstreamCompat({
+        distDir: fixture.distDir,
+        testsDir: fixture.testsDir,
+        tempRoot: fixture.tempRoot,
+        contract: {
+          schemaVersion: 1,
+          commonVersions: ['1.5.0', '1.6.0', '1.6.1'],
+          suites: [{
+            path: 'alpha.test.cjs',
+            classification: 'candidate',
+            authorityBoundary: 'black-box',
+          }],
+        },
+        runProcessImpl: () => {
+          spawnCount += 1;
+          return { status: 0, stdout: '# pass 1\n# fail 0\n', stderr: '' };
+        },
+      });
+
+      expect(result.ok).toBe(false);
+      expect(result.errors).toEqual([expect.stringContaining('does not exist')]);
+      expect(spawnCount).toBe(0);
+      expect(fs.readdirSync(fixture.tempRoot)).toEqual([]);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('rejects a candidate package root without bin/gsd-tools.cjs before spawning', () => {
+    const fixture = makeCompatFixture(['alpha.test.cjs']);
+    fs.rmSync(path.join(fixture.distDir, 'bin', 'gsd-tools.cjs'));
+    let spawnCount = 0;
+
+    try {
+      const result = runUpstreamCompat({
+        distDir: fixture.distDir,
+        testsDir: fixture.testsDir,
+        tempRoot: fixture.tempRoot,
+        contract: {
+          schemaVersion: 1,
+          commonVersions: ['1.5.0', '1.6.0', '1.6.1'],
+          suites: [{
+            path: 'alpha.test.cjs',
+            classification: 'candidate',
+            authorityBoundary: 'black-box',
+          }],
+        },
+        runProcessImpl: () => {
+          spawnCount += 1;
+          return { status: 0, stdout: '# pass 1\n# fail 0\n', stderr: '' };
+        },
+      });
+
+      expect(result.ok).toBe(false);
+      expect(result.errors).toEqual([
+        expect.stringContaining('bin/gsd-tools.cjs'),
+      ]);
+      expect(spawnCount).toBe(0);
+      expect(fs.readdirSync(fixture.tempRoot)).toEqual([]);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
   test('continues after a failed suite and derives aggregate evidence from suite records', () => {
     const fixture = makeCompatFixture(['alpha.test.cjs', 'beta.test.cjs']);
     const calls = [];

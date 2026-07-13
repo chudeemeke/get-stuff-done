@@ -58,10 +58,10 @@
       "classification": "candidate",
       "authorityBoundary": "upstream-internal-observed",
       "authorityEvidence": [
-        "bin/lib/core.cjs"
+        "bin/lib/phase-id.cjs"
       ],
-      "rationale": "Records the current direct helper dependency so the next contract-modernization plan can replace it with phase-id.cjs deliberately.",
-      "bumpReviewTrigger": "review and migrate the direct phase helper dependency on every Open GSD version bump"
+      "rationale": "Exercises canonical phase identity and ordering behavior from the exact Open GSD phase module consumed by the composed package.",
+      "bumpReviewTrigger": "review the phase-id.cjs dependency and observable phase behavior on every Open GSD version bump"
     },
     {
       "path": "roadmap.test.cjs",

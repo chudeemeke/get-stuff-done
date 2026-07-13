@@ -2,11 +2,21 @@
  * GSD Tools Tests - Roadmap
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
+const { test, describe, beforeEach, afterEach, mock } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { resolveCompatPackageRoot } = require('./helpers/compat-package-root.cjs');
+const COMPAT_PACKAGE_ROOT = resolveCompatPackageRoot();
+const { createGsdToolsHelpers, createTempProject, cleanup } = require('./helpers.cjs');
+const { captureCommandOutput } = require('./helpers/capture-command-output.cjs');
+const { runGsdTools } = createGsdToolsHelpers(COMPAT_PACKAGE_ROOT);
+const roadmapPersistence = require(
+  path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'fork-roadmap-persistence.cjs')
+);
+const { cmdRoadmapUpdatePlanProgress } = require(
+  path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'roadmap.cjs')
+);
 
 describe('roadmap get-phase command', () => {
   let tmpDir;
@@ -373,11 +383,128 @@ describe('roadmap update-plan-progress command', () => {
 
     const output = JSON.parse(result.output);
     const updated = fs.readFileSync(roadmapPath, 'utf-8');
+    const completedDate = updated.match(/\(completed (\d{4}-\d{2}-\d{2})\)/)?.[1];
+    const expected = [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 09.2:** Prep notes that mention Phase 09.3 follow-up',
+      `- [x] **Phase 09.3:** Secure note flow (completed ${completedDate})`,
+      '',
+      '### Phase 09.2: Prep',
+      '**Plans:** 1 plan',
+      '',
+      '### Phase 09.3: Secure Notes',
+      '**Plans:** 1/1 plans complete',
+      '- [x] 09.3-01-PLAN.md',
+      '',
+    ].join('\r\n');
+
     assert.strictEqual(output.updated, true, 'roadmap should be updated');
-    assert.match(updated, /- \[ \] \*\*Phase 09\.2:\*\* Prep notes that mention Phase 09\.3 follow-up/);
-    assert.match(updated, /- \[x\] \*\*Phase 09\.3:\*\* Secure note flow \(completed \d{4}-\d{2}-\d{2}\)/);
-    assert.match(updated, /### Phase 09\.3: Secure Notes\r\n\*\*Plans:\*\* 1\/1 plans complete/);
-    assert.ok(!updated.includes('\n') || updated.includes('\r\n'), 'CRLF line endings should be preserved');
+    assert.match(completedDate, /^\d{4}-\d{2}-\d{2}$/);
+    assert.strictEqual(updated, expected, 'only the requested phase and plan bytes should change');
+    assert.strictEqual(updated.replace(/\r\n/g, '').includes('\n'), false, 'no bare LF should remain');
+  });
+
+  test('preserves LF roadmap bytes outside the requested progress edits', () => {
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    const roadmapContent = [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 10:** Delivery',
+      '',
+      '### Phase 10: Delivery',
+      '**Plans:** 0/1 plans executed',
+      'Keep  trailing spaces  ',
+      '',
+    ].join('\n');
+    fs.writeFileSync(roadmapPath, roadmapContent, 'utf8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '10-delivery');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '10-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '10-01-SUMMARY.md'), '# Summary');
+
+    const result = runGsdTools('roadmap update-plan-progress 10', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const updated = fs.readFileSync(roadmapPath, 'utf8');
+    const completedDate = updated.match(/\(completed (\d{4}-\d{2}-\d{2})\)/)?.[1];
+    const expected = [
+      '# Roadmap',
+      '',
+      `- [x] **Phase 10:** Delivery (completed ${completedDate})`,
+      '',
+      '### Phase 10: Delivery',
+      '**Plans:** 1/1 plans complete',
+      '- [x] 10-01-PLAN.md',
+      'Keep  trailing spaces  ',
+      '',
+    ].join('\n');
+
+    assert.match(completedDate, /^\d{4}-\d{2}-\d{2}$/);
+    assert.strictEqual(updated, expected);
+    assert.strictEqual(updated.includes('\r'), false);
+  });
+
+  test('propagates publication failure without mutating the roadmap', () => {
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    const roadmapContent = [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 11:** Locked',
+      '',
+      '### Phase 11: Locked',
+      '**Plans:** 0/1 plans executed',
+      '',
+    ].join('\n');
+    fs.writeFileSync(roadmapPath, roadmapContent, 'utf8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '11-locked');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '11-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '11-01-SUMMARY.md'), '# Summary');
+
+    const publishError = Object.assign(new Error('roadmap locked'), { code: 'EPERM' });
+    mock.method(roadmapPersistence, 'publishRoadmapPreservingBytes', () => {
+      throw publishError;
+    });
+    try {
+      assert.throws(
+        () => cmdRoadmapUpdatePlanProgress(tmpDir, '11', false),
+        publishError
+      );
+      assert.strictEqual(fs.readFileSync(roadmapPath, 'utf8'), roadmapContent);
+    } finally {
+      mock.restoreAll();
+    }
+  });
+
+  test('reports updated false when publication suppresses a no-op', () => {
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    fs.writeFileSync(roadmapPath, [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 12:** Stable',
+      '',
+      '### Phase 12: Stable',
+      '**Plans:** 0/1 plans executed',
+      '',
+    ].join('\n'), 'utf8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '12-stable');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '12-01-PLAN.md'), '# Plan');
+
+    mock.method(roadmapPersistence, 'publishRoadmapPreservingBytes', () => false);
+    try {
+      const result = captureCommandOutput(
+        () => cmdRoadmapUpdatePlanProgress(tmpDir, '12', false)
+      );
+      assert.strictEqual(result.exitCode, 0);
+      assert.strictEqual(JSON.parse(result.stdout).updated, false);
+    } finally {
+      mock.restoreAll();
+    }
   });
 });
 

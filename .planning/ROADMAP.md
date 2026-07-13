@@ -173,7 +173,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-08-PLAN.md -- Wave 8: Override churn generator
 - [x] 43-09-PLAN.md -- Wave 9: CycloneDX SBOM pipeline
 - [x] 43-10-PLAN.md -- Wave 10: Live target reverify and authority bump
-- [ ] 43-11A-PLAN.md -- Wave 11: Classified compatibility contract and per-suite diagnostics
+- [x] 43-11A-PLAN.md -- Wave 11: Classified compatibility contract and per-suite diagnostics
 - [ ] 43-11B-PLAN.md -- Wave 12: Open GSD contract modernization and candidate runtime coverage
 - [ ] 43-11C-PLAN.md -- Wave 13: Roadmap format preservation and N=3 compatibility proof
 - [ ] 43-11D-PLAN.md -- Wave 14: Source contract and Jest/Node/c8 coverage foundation

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Corrective Phase 43 graph checker-verified; execute 43-11A next
-last_updated: "2026-07-13T21:44:03.0147641+01:00"
+stopped_at: Phase 43 Plan 11A complete; execute 43-11B next
+last_updated: "2026-07-13T22:16:07.5561322+01:00"
 last_activity: 2026-07-13
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 45
-  completed_plans: 29
-  percent: 64
+  completed_plans: 30
+  percent: 67
 ---
 
 # Project State
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
-Plan: 11A of 23
-Status: Corrective graph checker-verified; Plan 11A is next and original Plan 11 remains failed closed
+Plan: 11B of 23
+Status: Plan 11A complete; Plan 11B is next and original Plan 11 remains failed closed
 Last activity: 2026-07-13
 
 **Upstream state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-13. `1.7.0-rc.6` is prerelease-only and excluded by the exact-stable-pin policy. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling routes through the upstream-authority helper.
@@ -87,6 +87,8 @@ v1.2.0 roadmap decisions:
 - 2026-07-13 Phase 43 corrective-slice decision: treat the matrix as one shared composed-package contract under Open GSD authority, classify every suite and direct internal dependency explicitly, modernize stale success-exit/config/module assumptions, include candidate runtime override coverage, and port only the proven roadmap EOL/format-preservation guarantee through an importer-restricted fork-private adapter. Plans 43-11A through 43-11K run before the blocked original Plan 43-11; wave order is authoritative because bounded Plan 11K was inserted after 11D. No legacy `core.cjs` facade, version-specific suite skip, or silent test exclusion is allowed.
 - 2026-07-13 Phase 43 plan-review decision: split umbrella SHIP-03 into Phase 43 SHIP-03A (SBOM generation and tarball inclusion) and Phase 44 SHIP-03B (GitHub release attachment and digest match). Split SHIP-08 production assurance into SHIP-08A, the blocking 95%-per-metric canonical fork-authored gate, and SHIP-08B, the separate blocking shipped-snapshot provenance/drift/delta/N=3 contract. Neither child can stand in for whole-product assurance.
 - 2026-07-13 coverage architecture decision: retain Bun as primary functional authority; exact-pin Jest `30.4.2` for unchanged CommonJS parity and c8 `11.0.0` for merged native `NODE_V8_COVERAGE` from Jest plus required Node subprocess/suites. Vitest was rejected after 1,223/1,223 tests paired with 0% measured native CommonJS source. SHIP-08A's planning-time baseline measured 52 canonical fork executable files and counted byte-identical mirrors once; execution must derive and classify the live post-Plan-11C set. SHIP-08B independently blocks on exact provenance, named delta tests, owner/removal triggers, and green N=3 compatibility for every shipped upstream snapshot.
+- 2026-07-13 Phase 43 Plan 11A decision: the compatibility contract now classifies all 13 root suites as 11 candidate, 1 repository-only, and 1 retired suite, with fail-closed inventory and authority-boundary validation. Candidate suites execute independently through a marker-owned temp lifecycle; matrix schema v2 carries per-suite evidence, defaults to current-pin blocking, and adds closeout-only `--require-all`. Failed matrix rows retain failure evidence but cannot retain `vettedAt`.
+- 2026-07-13 Phase 43 Plan 11A execution evidence: the active Open GSD `1.6.1` run now reports 159 passing and 89 failing assertions across the classified candidate contract. This supersedes the pre-classification 159/87 aggregate for current planning; `43-11-BLOCKER.md` retains that earlier result as historical evidence.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -97,7 +99,7 @@ v1.2.0 roadmap decisions:
 ### Carried Forward Tech Debt
 
 - 41 boundary violations (structural, informational CI)
-- Active Open GSD `1.6.1` compatibility matrix fails 87 of 246 assertions after harness repair. Historical `1.5.0` and `1.6.0` rows show the same 159 pass / 87 fail shape. Corrective work must classify supported Open GSD behavior, fork-critical ports, and obsolete legacy expectations before narrowing or restoring the contract.
+- Active Open GSD `1.6.1` classified compatibility contract passes 159 and fails 89 assertions after Plan 11A. The pre-classification active-pin aggregate and historical `1.5.0`/`1.6.0` rows recorded 159 pass / 87 fail; those older results remain history, not current acceptance evidence. Plan 11B must modernize supported behavior without version-specific exclusions.
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
 - Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plans 05-07; 10x validation run `28639808289` passed on Windows, and flake telemetry remains in CI)
@@ -128,11 +130,11 @@ None.
 
 ### Blockers/Concerns
 
-Plan 43-11 is blocked on the active Open GSD `1.6.1` compatibility matrix (159 passing, 87 failing), SHIP-08A fork-authored four-metric coverage and SHIP-08B shipped-snapshot assurance are not yet implemented, and closeout evidence is not yet machine-validatable. `43-11-BLOCKER.md` is the durable compatibility history; Plan 11C may record compatibility resolution but Plan 11 remains blocked until validator-first Plan 11J measures the final source set and accepts durable machine evidence. Completion summaries must not exist until Plans 11A-11K pass. Plan 11 then regenerates both assurance children after its own mutations before creating its summary. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI now reports it through `--report-only` plus the blocking debt ratchet instead of a failed-step annotation. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Backlog 999.x items are not the default next phase. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
+Plan 43-11 is blocked on the post-Plan-11A active Open GSD `1.6.1` compatibility baseline (159 passing, 89 failing), SHIP-08A fork-authored four-metric coverage and SHIP-08B shipped-snapshot assurance are not yet implemented, and closeout evidence is not yet machine-validatable. `43-11-BLOCKER.md` preserves the pre-classification 159/87 result as durable compatibility history; Plan 11B modernizes stale suite contracts and Plan 11C may record provisional compatibility resolution, but Plan 11 remains blocked until validator-first Plan 11J measures the final source set and accepts durable machine evidence. `43-11-SUMMARY.md` and `43-12-SUMMARY.md` must not exist until Plans 11A-11K pass. Plan 11 then regenerates both assurance children after its own mutations before creating its summary. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI now reports it through `--report-only` plus the blocking debt ratchet instead of a failed-step annotation. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Backlog 999.x items are not the default next phase. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
 
 ## Session Continuity
 
 Last session: 2026-07-13T20:30:23.7520257+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Corrective graph checker-verified; execute Plan 43-11A before continuing by wave through Plan 43-11K and eventually rerunning blocked 43-11-PLAN.md.
+Stopped at: Plan 43-11A complete; execute Plan 43-11B before continuing by wave through Plan 43-11K and eventually rerunning blocked 43-11-PLAN.md.
 Resume file: None

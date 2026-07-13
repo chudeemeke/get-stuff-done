@@ -5,17 +5,20 @@ type: execute
 gap_closure: true
 wave: 11
 depends_on: ["10"]
-status: pending
+status: complete
 requirements: ["UPGRADE-02", "UPGRADE-04", "UPGRADE-05", "SHIP-08B"]
 files_modified:
   - tests/upstream-compat-contract.json
+  - .planning/vetted-upstream-versions.json
   - scripts/lib/owned-temp.js
   - scripts/run-upstream-compat.js
   - scripts/run-compat-matrix.js
   - scripts/run-upstream-compat-ci.js
+  - scripts/vetted-upstream-versions.js
   - tests/run-upstream-compat.test.js
   - tests/run-upstream-compat-ci.test.js
   - tests/owned-temp.test.js
+  - tests/vetted-upstream-versions.test.js
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11A-SUMMARY.md
 autonomous: true
 must_haves:
@@ -78,7 +81,7 @@ with a fail-closed suite registry and per-suite diagnostics.
   <verify>
     <automated>bun test tests/run-upstream-compat.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11A-02" type="auto">
@@ -108,7 +111,7 @@ with a fail-closed suite registry and per-suite diagnostics.
     <automated>bun test tests/run-upstream-compat.test.js</automated>
     <automated>bun test tests/owned-temp.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11A-03" type="auto">
@@ -139,7 +142,7 @@ with a fail-closed suite registry and per-suite diagnostics.
     <automated>bun test --coverage tests/run-upstream-compat.test.js tests/run-upstream-compat-ci.test.js</automated>
     <automated>bun run lint -- scripts/lib/owned-temp.js scripts/run-upstream-compat.js scripts/run-compat-matrix.js scripts/run-upstream-compat-ci.js tests/owned-temp.test.js tests/run-upstream-compat.test.js tests/run-upstream-compat-ci.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 </tasks>

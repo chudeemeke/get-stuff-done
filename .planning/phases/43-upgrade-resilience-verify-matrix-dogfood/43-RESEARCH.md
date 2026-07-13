@@ -177,7 +177,7 @@ Use existing Bun and Node test infrastructure.
 | Hook tests | `bun test tests/hooks.test.js tests/hooks-manifest.test.js` | Atomic check-update/statusline behavior and packaged hook manifest integrity. |
 | Compose/package tests | `bun test tests/compose.test.js tests/package-launcher-v3.test.js` | `dist/bom.json` generation and package inclusion. |
 | Workflow tests | `bun test tests/ci-workflow.test.js` | CI schedule/path/on-change wiring and artifact upload shape. |
-| Full local gate | `bun run lint && bun test && bun run lint:docs && git diff --check` | Regression guard before PR. |
+| Full local gate | `bun run phase43:preflight && bun run lint && bun test && bun run test:coverage:four-metric && bun run lint:docs && git diff --check` | Regression and four-metric guard before PR. |
 
 Manual-only validation should be limited to the live dogfood bump evidence:
 PR number, target version, duration, gate outcomes, caught issues, and friction
@@ -195,5 +195,17 @@ recorded in `MAINTENANCE.md`.
   truth, not runtime package truth.
 - Keep Phase 44 publish/provenance/runbook polish out of Phase 43 unless a
   Phase 43 acceptance criterion directly requires a minimal hook.
+
+## 2026-07-13 Coverage Addendum
+
+The original validation table predates SHIP-08A and SHIP-08B.
+`43-COVERAGE-SPIKE.md` is the corrective authority for SHIP-08A four-metric
+execution and SHIP-08B shipped-snapshot assurance: Bun remains primary, all 48
+root CommonJS suites run unchanged under exact-pinned Jest, required Node
+suites and child processes emit native `NODE_V8_COVERAGE`, and exact-pinned c8
+merges the live canonical fork source set. The measured 52-file count is the
+planning-time baseline; Plan 11D must discover and classify Plan 11C's new
+adapter and every later executable path. Vitest was tested and rejected
+because it passed all tests while reporting 0% for native CommonJS source.
 
 ## RESEARCH COMPLETE

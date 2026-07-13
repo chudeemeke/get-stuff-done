@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Blocked in 43-11-PLAN.md on active-pin compat matrix
-last_updated: "2026-07-11T00:58:46.8795160+01:00"
-last_activity: 2026-07-11
+stopped_at: Corrective Phase 43 graph checker-verified; execute 43-11A next
+last_updated: "2026-07-13T21:44:03.0147641+01:00"
+last_activity: 2026-07-13
 progress:
   total_phases: 10
   completed_phases: 3
-  total_plans: 34
+  total_plans: 45
   completed_plans: 29
-  percent: 85
+  percent: 64
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
-Plan: 11 of 12
-Status: Blocked (failed closed on active-pin compat matrix)
-Last activity: 2026-07-11
+Plan: 11A of 23
+Status: Corrective graph checker-verified; Plan 11A is next and original Plan 11 remains failed closed
+Last activity: 2026-07-13
 
-**Upstream state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-11. `1.7.0-rc.5` is prerelease-only and excluded by the exact-stable-pin policy. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling routes through the upstream-authority helper.
+**Upstream state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-13. `1.7.0-rc.6` is prerelease-only and excluded by the exact-stable-pin policy. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling routes through the upstream-authority helper.
 
 ## Performance Metrics
 
@@ -84,6 +84,9 @@ v1.2.0 roadmap decisions:
 - 2026-07-04 Phase 43 Plan 09 decision: SBOM generation is a separate `bun run sbom` lifecycle step using pinned `@cyclonedx/cyclonedx-npm@4.2.1`, executed after compose/build and before finalize-dist in `bun run dist`. The wrapper removes Bun's npm user-agent env before spawning CycloneDX and uses `--ignore-npm-errors` because the existing npm tree reports `picomatch` override noise under `npm ls`.
 - 2026-07-04 Phase 43 Plan 10 decision: live upstream evidence captured on the 2026-07-03 US session date confirmed `@opengsd/gsd-core@1.6.1` is still latest stable, `1.7.0-rc.2` remains prerelease-only, `open-gsd/gsd-core` is active, and `refs/tags/v1.6.1` exists. Active authority, embedded fallback authority, `package.json`, `bun.lock`, and `node_modules` now use exact stable `1.6.1`; override snapshot refresh remains Plan 11 work.
 - 2026-07-11 Phase 43 Plan 11 decision: post-bump override snapshots, worker classification, churn, dist, and SBOM evidence succeeded, and the compatibility harness helper staging, Windows timeout policy, and repo-root-only runtime-test exclusion were repaired. The active `1.6.1` matrix still fails 87 tests after 159 pass. Fail closed: keep `43-11-SUMMARY.md` absent, keep Plans 11-12 incomplete, and add a corrective GSD runtime-compatibility slice before closeout.
+- 2026-07-13 Phase 43 corrective-slice decision: treat the matrix as one shared composed-package contract under Open GSD authority, classify every suite and direct internal dependency explicitly, modernize stale success-exit/config/module assumptions, include candidate runtime override coverage, and port only the proven roadmap EOL/format-preservation guarantee through an importer-restricted fork-private adapter. Plans 43-11A through 43-11K run before the blocked original Plan 43-11; wave order is authoritative because bounded Plan 11K was inserted after 11D. No legacy `core.cjs` facade, version-specific suite skip, or silent test exclusion is allowed.
+- 2026-07-13 Phase 43 plan-review decision: split umbrella SHIP-03 into Phase 43 SHIP-03A (SBOM generation and tarball inclusion) and Phase 44 SHIP-03B (GitHub release attachment and digest match). Split SHIP-08 production assurance into SHIP-08A, the blocking 95%-per-metric canonical fork-authored gate, and SHIP-08B, the separate blocking shipped-snapshot provenance/drift/delta/N=3 contract. Neither child can stand in for whole-product assurance.
+- 2026-07-13 coverage architecture decision: retain Bun as primary functional authority; exact-pin Jest `30.4.2` for unchanged CommonJS parity and c8 `11.0.0` for merged native `NODE_V8_COVERAGE` from Jest plus required Node subprocess/suites. Vitest was rejected after 1,223/1,223 tests paired with 0% measured native CommonJS source. SHIP-08A's planning-time baseline measured 52 canonical fork executable files and counted byte-identical mirrors once; execution must derive and classify the live post-Plan-11C set. SHIP-08B independently blocks on exact provenance, named delta tests, owner/removal triggers, and green N=3 compatibility for every shipped upstream snapshot.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -99,7 +102,8 @@ v1.2.0 roadmap decisions:
 - INST-04 uninstall manifest gap (overlay files not tracked in upstream manifest)
 - Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plans 05-07; 10x validation run `28639808289` passed on Windows, and flake telemetry remains in CI)
 - First GitHub Actions run showed `gitleaks/gitleaks-action@v2` needs `GITHUB_TOKEN` for pull_request scans and OSV `@v2` is not a resolvable tag. The repaired PR run `28533068807` passed all CI jobs. Boundary report-only cleanup was remote-verified by run `28534255286`; first-party action/runtime and `macos-latest` annotation cleanup was remote-verified by run `28534944081`. The docs reconciliation run `28535445005` passed but surfaced the remaining `gitleaks/gitleaks-action@v2` Node 20 annotation; `gitleaks/gitleaks-action@v3` cleanup was remote-verified by run `28536087964`.
-- Aggregate coverage remains below the user's 95% per-metric standard even though the current repo command exits 0 (`bun test --coverage`: 94.86% functions, 93.08% lines on 2026-07-01).
+- Canonical fork-authored coverage remains below the user's 95% per-metric standard. The proven planning-time 52-file baseline is 70.88% statements, 75.48% branches, 74.47% functions, and 70.88% lines; Plan 11D must derive the live set after Plan 11C adds its adapter, so 52 is evidence rather than a hard-coded invariant. Plans 43-11D through 43-11K split SHIP-08A foundation, toolchain, launch/runtime, distribution, quality, upgrade, hooks/sync, and validator-first aggregate evidence into bounded units; SHIP-08B separately covers shipped snapshot assurance. No broad single-task closure or ignore directive is allowed.
+- The 2026-07-13 Bun coverage research run passed 1,837 tests and exposed the SBOM integration red. Focused diagnosis proved a Windows case-sensitivity bug: Bunx supplies uppercase npm identity keys while `buildCycloneDxEnv()` deletes lowercase keys from a copied object. Plan 43-11D owns a TDD case-insensitive scrub and full dist regression. All disposable coverage artifacts were removed.
 - Phase 41 Plan 04 implemented perf schemas, scripts, package commands, and a `workflow_dispatch` manual capture workflow. Real Linux/macOS/Windows artifacts from run `28638612289` generated `perf-baseline.json` and `.planning/perf/test-timing.json` after the bench script was corrected to use Bun's supported `--cwd` flag instead of unsupported `hyperfine --working-directory`.
 - Phase 41 Plan 07 implemented the `workflow_dispatch` 10x validation gate, weekly flake issue maintenance, and D-11/REL-03 maintenance-log discipline. Post-registration run `28639808289` passed on ubuntu-latest, macos-15, and windows-latest.
 - Phase 42 planning created five executable plans: 42-01 perf budget enforcement, 42-02 non-interactive runtime package provenance, 42-03 cousin cold-install workflow and INSTALL.md, 42-04 oversight principle/probes, and 42-05 markdown/link docs gates. Planning refresh found `markdownlint-cli2` latest `0.23.0`, `lycheeverse/lychee-action` v2 latest `v2.8.0`, and `@chude/get-stuff-done` npm latest `3.0.2`. External plan review found no blockers; accepted findings were incorporated; second-pass review found no blockers/high/medium findings. Review evidence is recorded in `.planning/phases/42-budget-enforcement-process-hardening-cousin-test/42-PLAN-REVIEW.md`.
@@ -111,7 +115,8 @@ v1.2.0 roadmap decisions:
 - Phase 43 Plan 02 resolved the Plan 01 post-wave `tests/installer-v3.test.js` Windows timeout/hang by finalizing upstream delegation on `exit` and adding rollback-aware post-upstream handling. Hook test timeout debt remains intentionally routed to Phase 43 Plans 06-07.
 - Phase 43 Plans 06-07 resolved the coupled check-update/statusline hook reconciliation debt with shared `$HOME/.cache/gsd` cache semantics, package-lineage guards, worker packaging, phase-lifecycle display, and focused hook/compose tests.
 - Phase 43 Plan 08 observed that direct `bash .changelog-conflict-check.sh CHANGELOG.md` fails on existing published-release bullets even though the required synthetic `--self-test` passes. Before wiring that script as a full-file gate, clarify whether it is fixture-only or update its awk state handling to ignore normal subsection bullets.
-- Phase 43 Plan 09 generated and packaged `dist/bom.json`, and CI uploads it as package evidence. Literal GitHub release-asset attachment remains open until the Phase 44 publish/release workflow exists; do not mark SHIP-03 fully complete before that release-flow hook is verified.
+- Phase 43 Plan 09 generated and packaged `dist/bom.json`, and CI uploads it as package evidence. This is SHIP-03A. Literal GitHub release-asset attachment and tarball-digest comparison are SHIP-03B in Phase 44; umbrella SHIP-03 remains incomplete until both children pass.
+- The consumed Open GSD `v1.6.1` research clone under the OS temp root was removed on 2026-07-13 only after resolved-path containment, non-reparse-point, clean-worktree, exact-tag, and `open-gsd/gsd-core` remote checks passed. No live project session was touched.
 - Phase 43 Plan 10 observed Bun 1.3.5 Windows `bun install --ignore-scripts` crashes while moving from installed `@opengsd/gsd-core@1.5.0` to lockfile target `1.6.1`. Lockfile-only install plus targeted `bun add -d @opengsd/gsd-core@1.6.1 --ignore-scripts` resolved the local install state, and the required frozen install passed afterward.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
@@ -123,11 +128,11 @@ None.
 
 ### Blockers/Concerns
 
-Plan 43-11 is blocked on the active Open GSD `1.6.1` compatibility matrix (159 passing, 87 failing). `43-11-BLOCKER.md` is the durable evidence artifact; a completion SUMMARY must not exist until a corrective runtime-compatibility slice makes the blocking contract pass. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI now reports it through `--report-only` plus the blocking debt ratchet instead of a failed-step annotation. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Backlog 999.x items are not the default next phase. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
+Plan 43-11 is blocked on the active Open GSD `1.6.1` compatibility matrix (159 passing, 87 failing), SHIP-08A fork-authored four-metric coverage and SHIP-08B shipped-snapshot assurance are not yet implemented, and closeout evidence is not yet machine-validatable. `43-11-BLOCKER.md` is the durable compatibility history; Plan 11C may record compatibility resolution but Plan 11 remains blocked until validator-first Plan 11J measures the final source set and accepts durable machine evidence. Completion summaries must not exist until Plans 11A-11K pass. Plan 11 then regenerates both assurance children after its own mutations before creating its summary. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI now reports it through `--report-only` plus the blocking debt ratchet instead of a failed-step annotation. This is known v1.2 debt, not hidden. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Backlog 999.x items are not the default next phase. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
 
 ## Session Continuity
 
-Last session: 2026-07-11T00:58:46.8795160+01:00
+Last session: 2026-07-13T20:30:23.7520257+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Blocked in 43-11-PLAN.md on active-pin compat matrix; corrective GSD scope is next.
+Stopped at: Corrective graph checker-verified; execute Plan 43-11A before continuing by wave through Plan 43-11K and eventually rerunning blocked 43-11-PLAN.md.
 Resume file: None

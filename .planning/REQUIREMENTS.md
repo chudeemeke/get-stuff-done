@@ -18,7 +18,7 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 - [x] **UPGRADE-07**: Upstream hook improvements merged into `overrides/hooks/gsd-check-update.js` (isNewer, detectConfigDir, stale hook detection, shared cache) with atomic coupling to `gsd-statusline.js`; fork-specific behavior preserved (package name, role routing, commit classification, 4h/7d throttle)
 - [x] **UPGRADE-08**: Semantic override staleness -- comment-only/whitespace-only upstream changes to override source files do NOT trigger false-positive staleness alerts (D-1; scope: `.js` files initially via AST-diff; `.md` deferred with documented reason)
 - [x] **UPGRADE-09**: Override churn section auto-generated in CHANGELOG on each upstream bump, listing overrides whose upstream source changed (D-8)
-- [ ] **UPGRADE-10**: Pre-Phase-41 upstream currency bump — bump upstream pin from 1.34.2 to 1.38.2 (or latest stable at execution time) BEFORE Phase 41 planning completes, refresh override SHA-256 snapshots, audit for compose collisions, and re-verify all Phase 41 CONTEXT.md decisions against fresh upstream state (amending CONTEXT.md if any decision changes). Ensures Phase 41 planning targets current upstream rather than stale assumptions. Distinct from UPGRADE-05 (the Phase 43 dogfood bump) — UPGRADE-10 establishes currency, UPGRADE-05 dogfoods the bump process against new Phase 41/42 work. (Inserted 2026-04-22 with Phase 40.5.)
+- [x] **UPGRADE-10**: Closed as superseded after Phase 40.5 completed its four authority-valid evidence waves and Phase 40.6 replaced the legacy `get-shit-done-cc` target before the legacy filing wave could execute. No remaining task may bump or file against the retired authority; current dogfood evidence is UPGRADE-05 under Open GSD.
 - [x] **UPGRADE-11**: Upstream authority migration -- migrated the overlay's active upstream from legacy `get-shit-done-cc` / `gsd-build/get-shit-done` to Open GSD `@opengsd/gsd-core@1.5.0` / `open-gsd/gsd-core` before Phase 41, pinned a vetted stable Open GSD version, centralized upstream identity in a machine-readable manifest/helper with packaged fallback, updated compose/override/boundary/update/package tooling to the new package layout, and explicitly retired legacy upstream filing paths. (Completed 2026-06-23 in Phase 40.6.)
 
 ### PROCESS (oversight pattern -- 1 principle + 4 triggers)
@@ -44,11 +44,16 @@ Requirements for ship-ready hardening. Each maps to a roadmap phase.
 
 - [ ] **SHIP-01**: Pre-publish hard gate chain: tests + lint + audit + publint + SBOM all must pass before `aidev publish` proceeds
 - [ ] **SHIP-02**: `publint@0.3.18` validates the actual tarball shape before publish; fails on hand-curated `files:` manifest drops
-- [ ] **SHIP-03**: CycloneDX SBOM (`@cyclonedx/cyclonedx-npm@4.2.1`) generates `dist/bom.json` between compose and finalize-dist; included in tarball AND GitHub release artifact
+- [ ] **SHIP-03**: Umbrella SBOM distribution requirement; complete only when both SHIP-03A and SHIP-03B are complete
+- [x] **SHIP-03A**: CycloneDX SBOM (`@cyclonedx/cyclonedx-npm@4.2.1`) generates `dist/bom.json` between compose and finalize-dist and is included in the npm tarball (Phase 43 Plan 09; reverified during Phase 43 closeout)
+- [ ] **SHIP-03B**: The publish/release flow attaches `dist/bom.json` to the GitHub release and verifies that its digest matches the SBOM packed in the npm tarball (Phase 44)
 - [ ] **SHIP-04**: npm `--provenance` via GHA OIDC Trusted Publishing; no long-lived NPM_TOKEN alongside OIDC (Axios incident pattern)
 - [ ] **SHIP-05**: `zizmor-action@v0` static analysis of GHA workflow YAML runs in CI
 - [ ] **SHIP-06**: Reproducible builds verified: `bun run compose` twice produces byte-identical output; verified in CI
 - [x] **SHIP-07**: Cousin-test cold-install CI job: fresh OS (ubuntu-latest + macos-15 + windows-latest) x Node 20+22 x bun/npm/pnpm matrix installs public `@chude/get-stuff-done`, supports an optional read-only registry token, and runs non-interactive provenance smoke test. Completed 2026-07-03 across 42-02 runtime provenance and 42-03 cold-install workflow/helper.
+- [ ] **SHIP-08**: Umbrella production-assurance requirement; complete only when both SHIP-08A and SHIP-08B are complete, and Phase 43 cannot close while either child gate or any required functional test is red
+- [ ] **SHIP-08A**: A blocking canonical fork-authored coverage gate reports and enforces at least 95% statements, branches, functions, and lines independently; the primary Bun suite remains required, every tracked executable path is classified exactly once, and the validator must never present this narrower aggregate as whole-production-code coverage
+- [ ] **SHIP-08B**: Every shipped upstream snapshot or vendored production source path is covered by a separate blocking assurance contract with exact upstream provenance and digest, byte/semantic drift checks, named fork-delta tests, explicit owner and removal trigger, and passing N=3 composed-package compatibility; unclassified snapshots, missing contract fields, or a red candidate block Phase 43 closeout
 
 ### DOCS (documentation completeness)
 
@@ -122,7 +127,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | UPGRADE-07 | Phase 43 | Complete |
 | UPGRADE-08 | Phase 43 | Pending |
 | UPGRADE-09 | Phase 43 | Complete |
-| UPGRADE-10 | Phase 40.5 | Pending |
+| UPGRADE-10 | Phase 40.5 / 40.6 | Superseded and closed |
 | UPGRADE-11 | Phase 40.6 | Complete |
 | PROCESS-01 | Phase 42 | Complete |
 | PROCESS-02 | Phase 42 | Complete |
@@ -139,11 +144,16 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SECURITY-06 | Phase 41 | Complete |
 | SHIP-01 | Phase 44 | Pending |
 | SHIP-02 | Phase 44 | Pending |
-| SHIP-03 | Phase 43 | Pending |
+| SHIP-03 | Phases 43 and 44 | Pending |
+| SHIP-03A | Phase 43 | Complete |
+| SHIP-03B | Phase 44 | Pending |
 | SHIP-04 | Phase 44 | Pending |
 | SHIP-05 | Phase 44 | Pending |
 | SHIP-06 | Phase 44 | Pending |
 | SHIP-07 | Phase 42 | Complete |
+| SHIP-08 | Phase 43 | Pending |
+| SHIP-08A | Phase 43 | Pending |
+| SHIP-08B | Phase 43 | Pending |
 | DOCS-01 | Phase 44 | Pending |
 | DOCS-02 | Phase 44 | Pending |
 | DOCS-03 | Phase 44 | Pending |
@@ -162,8 +172,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PERF-05 | Phase 42 | Complete |
 
 **Coverage:**
-- v1.2.0 requirements: 47 total (45 original + UPGRADE-10 added 2026-04-22 with Phase 40.5 insertion + UPGRADE-11 added 2026-06-22 with Phase 40.6 insertion)
-- Mapped to phases: 47 (100%)
+- v1.2.0 requirements: 52 total (45 original + UPGRADE-10 + UPGRADE-11 + SHIP-03A + SHIP-03B + SHIP-08 + SHIP-08A + SHIP-08B; umbrella SHIP-03 remains a cross-phase requirement)
+- Mapped to phases: 52 (100%)
 - Unmapped: 0
 
 **Per-phase summary:**
@@ -171,9 +181,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 - Phase 40.6 (Upstream Authority Migration, INSERTED): 1 requirement -- UPGRADE-11
 - Phase 41 (Foundation): 13 requirements -- UPGRADE-03, UPGRADE-06, SECURITY-01..06, PERF-01, PERF-02, REL-01..03
 - Phase 42 (Budget + Process + Cousin-Test): 14 requirements -- PERF-03..05, PROCESS-01..07, SHIP-07, DOCS-04..06
-- Phase 43 (Upgrade Resilience): 8 requirements -- UPGRADE-01, UPGRADE-02, UPGRADE-04, UPGRADE-05, UPGRADE-07..09, SHIP-03
-- Phase 44 (Ship Polish): 10 requirements -- SHIP-01, SHIP-02, SHIP-04..06, DOCS-01..03, DOCS-07, DOCS-08
+- Phase 43 (Upgrade Resilience): 11 requirements -- UPGRADE-01, UPGRADE-02, UPGRADE-04, UPGRADE-05, UPGRADE-07..09, SHIP-03A, SHIP-08, SHIP-08A, SHIP-08B
+- Phase 44 (Ship Polish): 11 requirements -- SHIP-01, SHIP-02, SHIP-03B, SHIP-04..06, DOCS-01..03, DOCS-07, DOCS-08
+- Cross-phase umbrella: 1 requirement -- SHIP-03 (complete only when SHIP-03A and SHIP-03B are complete)
 
 ---
 *Requirements defined: 2026-04-20*
-*Last updated: 2026-07-04 -- Phase 43 Plan 08 completed UPGRADE-09 override churn generation*
+*Last updated: 2026-07-13 -- split SHIP-08 into blocking fork-authored coverage and shipped-snapshot assurance children*

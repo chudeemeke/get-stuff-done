@@ -55,8 +55,9 @@ Phase 44 publish/documentation polish gates.
 
 ### SBOM and Release Artifacts
 
-- **D-18:** Generate CycloneDX SBOM output as `dist/bom.json` between compose and finalize-dist, and include it in the npm tarball and later GitHub release artifact flow.
-- **D-19:** Phase 43 should implement the SBOM production point and tests. Phase 44 can wire broader publish/provenance/release ceremony around it.
+- **D-18:** SHIP-03 is an umbrella split into SHIP-03A and SHIP-03B. Phase 43 owns SHIP-03A: generate CycloneDX SBOM output as `dist/bom.json` between compose and finalize-dist and include it in the npm tarball.
+- **D-19:** Phase 44 owns SHIP-03B: attach `dist/bom.json` to the GitHub release and verify its digest against the tarball copy. Phase 43 must not claim that release-flow obligation complete.
+- **D-19A:** Phase 43 owns umbrella SHIP-08 only when both children pass: SHIP-08A reports and enforces at least 95% statements, branches, functions, and lines independently over canonical fork-authored executable source while Bun remains green; SHIP-08B separately blocks on provenance, drift, named fork-delta, owner/removal, and N=3 composed-package assurance for every shipped upstream snapshot. The fork-only metric must never be labeled whole-production coverage.
 
 ### Folded Inbox Constraints
 
@@ -80,7 +81,7 @@ Phase 44 publish/documentation polish gates.
 ### Phase Scope
 
 - `.planning/ROADMAP.md` - Phase 43 goal, success criteria, and requirement mapping.
-- `.planning/REQUIREMENTS.md` - UPGRADE-01, UPGRADE-02, UPGRADE-04, UPGRADE-05, UPGRADE-07, UPGRADE-08, UPGRADE-09, and SHIP-03 definitions.
+- `.planning/REQUIREMENTS.md` - UPGRADE-01, UPGRADE-02, UPGRADE-04, UPGRADE-05, UPGRADE-07, UPGRADE-08, UPGRADE-09, SHIP-03A, SHIP-08, SHIP-08A, and SHIP-08B definitions.
 - `.planning/PROJECT.md` - Overlay architecture, exact pin policy, out-of-scope rules, and active upstream authority.
 - `.planning/STATE.md` - Current milestone state, carried-forward debt, and Phase 42 completion context.
 

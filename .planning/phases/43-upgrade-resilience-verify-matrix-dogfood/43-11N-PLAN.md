@@ -5,7 +5,7 @@ type: execute
 gap_closure: true
 wave: 17
 depends_on: ["43-11P"]
-status: in_progress
+status: complete
 requirements: []
 files_modified:
   - config/phase43-hosted-ci-contract.json
@@ -17,6 +17,11 @@ files_modified:
   - .gitignore
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-HOSTED-CI-RESUME.md
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-HOSTED-CI-BLOCKER-REVIEW-2026-07-14.md
+  - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11D-PLAN.md
+  - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11Q-PLAN.md
+  - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11R-PLAN.md
+  - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-12B-PLAN.md
+  - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-12C-PLAN.md
   - .planning/STATE.md
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11N-SUMMARY.md
 autonomous: true
@@ -93,7 +98,7 @@ or creating a self-referential evidence loop.
   <verify>
     <automated>bun run test -- tests/verify-hosted-ci.test.js tests/test-config-hygiene.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11N-02" type="auto">
@@ -158,12 +163,12 @@ or creating a self-referential evidence loop.
     <automated>bun run test -- tests/verify-hosted-ci.test.js</automated>
     <automated>node scripts/verify-hosted-ci.js --help</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11N-03" type="auto">
   <name>Persist blocker ownership and exact resumption semantics</name>
-  <files>.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-HOSTED-CI-RESUME.md; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-HOSTED-CI-BLOCKER-REVIEW-2026-07-14.md; .planning/STATE.md</files>
+  <files>.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-HOSTED-CI-RESUME.md; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-HOSTED-CI-BLOCKER-REVIEW-2026-07-14.md; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11D-PLAN.md; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11Q-PLAN.md; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11R-PLAN.md; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-12B-PLAN.md; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-12C-PLAN.md; .planning/STATE.md</files>
   <action>
     Record PR #23, the five zero-step runs, the exact billing annotation, local
     evidence labeled LOCAL ONLY, user ownership, and the no-evidence
@@ -189,7 +194,7 @@ or creating a self-referential evidence loop.
     <automated>bun run lint:docs</automated>
     <automated>git diff --check</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 </tasks>

@@ -70,7 +70,8 @@ fresh exact-head hosted execution and a dispositioned whole-project Fable review
   <action>
     Publish the committed Task 11Q-01 candidate through the normal branch/PR
     workflow and run `bun run phase43:hosted-verdict -- collect --pr 23
-    --receipt .planning/evidence/hosted/post-plan11-candidate.json`. Require
+    --receipt .planning/evidence/hosted/post-plan11-candidate.json --purpose
+    "Plan 11Q candidate hosted authority"`. Require
     every workflow/job in the reconciled contract, real executed steps, and
     stable equality between local and PR HEAD. Do not reuse the pre-11D
     envelope or rerun while an account lock is known active. Run read-only
@@ -79,7 +80,7 @@ fresh exact-head hosted execution and a dispositioned whole-project Fable review
     closure.
   </action>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-pending --receipt .planning/evidence/hosted/post-plan11-candidate.json</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-pending --pr 23 --receipt .planning/evidence/hosted/post-plan11-candidate.json</automated>
   </verify>
   <done>false</done>
 </task>
@@ -120,7 +121,7 @@ fresh exact-head hosted execution and a dispositioned whole-project Fable review
     accepted direction remains outside this task's bounded files.
   </action>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-receipt --receipt .planning/evidence/hosted/post-plan11-candidate.json --subject HEAD</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-receipt --pr 23 --receipt .planning/evidence/hosted/post-plan11-candidate.json --subject $(git rev-parse HEAD)</automated>
     <automated>node scripts/verify-fable-checkpoint.js --record .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md --checkpoint "Post-Plan-11 checkpoint" --manifest .planning/evidence/fable/post-plan-11-input.json --receipt .planning/evidence/fable/post-plan-11-receipt.json</automated>
   </verify>
   <done>false</done>
@@ -132,7 +133,8 @@ fresh exact-head hosted execution and a dispositioned whole-project Fable review
   <action>
     After the Fable record and every accepted correction are committed, publish
     that reviewed head and run `bun run phase43:hosted-verdict -- collect --pr
-    23 --receipt .planning/evidence/hosted/post-plan11-final.json` to obtain a
+    23 --receipt .planning/evidence/hosted/post-plan11-final.json --purpose
+    "Plan 11Q final hosted authority"` to obtain a
     second canonical exact-head hosted envelope. The post-review
     verdict, not Task 11Q-02's candidate verdict, authorizes product closure. If
     Fable changed source, workflows, contracts, or policy, rerun all affected
@@ -147,7 +149,7 @@ fresh exact-head hosted execution and a dispositioned whole-project Fable review
     final goal-backward verification remain.
   </action>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-pending --receipt .planning/evidence/hosted/post-plan11-final.json</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-pending --pr 23 --receipt .planning/evidence/hosted/post-plan11-final.json</automated>
     <automated>node scripts/validate-phase43-evidence.js --require-production-assurance</automated>
     <automated>rg -n "head SHA|hosted|Fable|SHIP-08A|SHIP-08B|N=3|SBOM|cleanup|Plan 12" .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11Q-SUMMARY.md</automated>
   </verify>

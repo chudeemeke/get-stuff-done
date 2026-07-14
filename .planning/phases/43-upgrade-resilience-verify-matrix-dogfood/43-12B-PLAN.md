@@ -49,13 +49,14 @@ entry packet and reverify every accepted correction before final verification.
   <action>
     Publish the committed Plan 12 head and run `bun run phase43:hosted-verdict
     -- collect --pr 23 --receipt
-    .planning/evidence/hosted/phase44-entry-candidate.json` to require a passed exact-head hosted envelope.
+    .planning/evidence/hosted/phase44-entry-candidate.json --purpose "Phase 44 entry candidate authority"`
+    to require a passed exact-head hosted envelope.
     Require every contract workflow/job and real executed steps. Run read-only
     pending-envelope verification, then let normal GSD task completion commit
     the envelope before Fable consumes it.
   </action>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-pending --receipt .planning/evidence/hosted/phase44-entry-candidate.json</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-pending --pr 23 --receipt .planning/evidence/hosted/phase44-entry-candidate.json</automated>
   </verify>
   <done>false</done>
 </task>
@@ -97,7 +98,7 @@ entry packet and reverify every accepted correction before final verification.
     not convert a red Phase 43 gate into deferred debt.
   </action>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-receipt --receipt .planning/evidence/hosted/phase44-entry-candidate.json --subject HEAD</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-receipt --pr 23 --receipt .planning/evidence/hosted/phase44-entry-candidate.json --subject $(git rev-parse HEAD)</automated>
     <automated>node scripts/verify-fable-checkpoint.js --record .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md --checkpoint "Phase 44 entry checkpoint" --manifest .planning/evidence/fable/phase44-entry-input.json --receipt .planning/evidence/fable/phase44-entry-receipt.json</automated>
   </verify>
   <done>false</done>
@@ -110,7 +111,8 @@ entry packet and reverify every accepted correction before final verification.
     After Task 12B-02 commits its review record and accepted bounded corrections,
     publish that resulting committed head, rerun the full hosted workflow contract, and
     run `bun run phase43:hosted-verdict -- collect --pr 23 --receipt
-    .planning/evidence/hosted/phase44-entry-final.json` to require a fresh
+    .planning/evidence/hosted/phase44-entry-final.json --purpose "Phase 44 entry final authority"`
+    to require a fresh
     exact-head passed envelope. Recapture tracked CI evidence
     from the same checked commit. Then rerun every local machine gate affected
     by the readiness classification or an accepted Fable correction, plus the
@@ -124,7 +126,7 @@ entry packet and reverify every accepted correction before final verification.
     44 work.
   </action>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-pending --receipt .planning/evidence/hosted/phase44-entry-final.json</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-pending --pr 23 --receipt .planning/evidence/hosted/phase44-entry-final.json</automated>
     <automated>node scripts/validate-phase43-evidence.js capture-ci --pr 23 --output .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-CI-EVIDENCE.json</automated>
     <automated>node scripts/validate-phase43-evidence.js --require-closeout</automated>
     <automated>rg -n "Fable|digest|disposition|correction|rerun|hosted|checked commit|cleanup|owner|trigger|Plan 12C|SHIP-03B" .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-12B-SUMMARY.md</automated>

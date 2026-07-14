@@ -96,3 +96,24 @@ Disposition:
 
 The repository-backed implementation review remains due after the first real
 hosted run and before Plan 11D, matching the standing whole-project checkpoint.
+
+## Plan 11N Closeout Recheck
+
+The exact standing command, `claude -p --model fable`, was invoked against the
+completed local Plan 11N diff on 2026-07-14. Claude returned `out of usage
+credits`; no review body or lead decision was produced. No authentication,
+token, process, or model setting was changed, and no alternate model was used.
+
+This failed invocation is not represented as Fable approval. The earlier
+disposition above remains the reviewed design authority; Plan 11R still owns
+the next evidence-bearing Fable checkpoint after a real hosted run. A local
+adversarial recheck before Plan 11N closeout found and corrected three gaps:
+
+- contract policy now pins the owning repository, success-only conclusions,
+  and rejection of unexpected workflows and jobs;
+- each selected Actions run must identify the requested pull request in
+  addition to matching its event and exact head SHA;
+- downstream GSD callers now provide the required PR, immutable purpose, path,
+  and resolved 40-hex subject arguments.
+
+These are repository-evidenced corrections, not substitute Fable findings.

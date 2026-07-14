@@ -55,16 +55,20 @@ Then:
    that head through the ordinary pre-push hook.
 3. Rerun each of the five workflows once; do not reuse locked-window rows as
    evidence.
-4. Run `bun run phase43:hosted-verdict -- collect --pr 23 --receipt .planning/evidence/hosted/post-11n.json`.
+4. Run `bun run phase43:hosted-verdict -- collect --pr 23 --receipt .planning/evidence/hosted/post-11n.json --purpose "Plan 11R post-11N hosted authority"`.
 5. Require a new envelope for the exact checked head with `verdict: passed`,
    `hostedEvidenceExists: true`, all five workflows, every required job, and
-   at least one executed step per job. Run `verify-pending`, then let normal GSD
-   task completion commit the envelope at its immutable path.
+   at least one executed step per job. Run
+   `node scripts/verify-hosted-ci.js verify-pending --pr 23 --receipt .planning/evidence/hosted/post-11n.json`,
+   then let normal GSD task completion commit the envelope at its immutable
+   path.
 6. Run strict offline `verify-receipt` against the tracked envelope, proving its
    `checkedCommit` is an ancestor and its source, workflow, contract, and policy
-   digests are unchanged. Run the standing post-hosted-CI Fable lead checkpoint
-   with that repository-backed evidence and disposition every finding in the
-   canonical checkpoint record.
+   digests are unchanged:
+   `node scripts/verify-hosted-ci.js verify-receipt --pr 23 --receipt .planning/evidence/hosted/post-11n.json --subject $(git rev-parse HEAD)`.
+   Run the standing post-hosted-CI Fable lead checkpoint with that
+   repository-backed evidence and disposition every finding in the canonical
+   checkpoint record.
 7. Commit the review, disposition, planning, and state changes, then let the
    standard GSD executor create and commit the Plan 11R summary and metadata.
    The summary records run IDs, attempts, head SHA, timestamp, Fable decision

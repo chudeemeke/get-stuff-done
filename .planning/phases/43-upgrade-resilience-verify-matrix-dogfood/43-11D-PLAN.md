@@ -65,7 +65,7 @@ CommonJS functional parity under Jest without introducing coverage orchestration
     Require a clean tracked worktree and the committed standard GSD
     finalization of Plan 11R, including its summary and metadata. Publish that
     exact finalized head, rerun all five workflows once, and run
-    `bun run phase43:hosted-verdict -- collect --pr 23 --receipt .planning/evidence/hosted/plan11d-entry.json`
+    `bun run phase43:hosted-verdict -- collect --pr 23 --receipt .planning/evidence/hosted/plan11d-entry.json --purpose "Plan 11D entry recertification"`
     to collect a passed hosted envelope whose PR
     head, pre/post collection head, local HEAD, and `checkedCommit` all equal
     that finalized commit. Preserve the tracked
@@ -81,7 +81,7 @@ CommonJS functional parity under Jest without introducing coverage orchestration
     - the new envelope is committed by task completion before Task 11D-01 edits source.
   </acceptance_criteria>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-pending --receipt .planning/evidence/hosted/plan11d-entry.json</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-pending --pr 23 --receipt .planning/evidence/hosted/plan11d-entry.json</automated>
     <automated>node scripts/verify-fable-checkpoint.js --record .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md --checkpoint "Post-hosted-CI checkpoint" --manifest .planning/evidence/fable/post-hosted-ci-input.json --receipt .planning/evidence/fable/post-hosted-ci-receipt.json</automated>
   </verify>
   <done>false</done>

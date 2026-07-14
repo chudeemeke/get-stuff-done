@@ -78,7 +78,7 @@ finalized tracked head for Plan 11D's pre-edit recertification.
   <action>
     Verify status-only authentication without printing secrets. Publish the
     committed Plan 11N head, rerun all five workflows once, and run
-    `bun run phase43:hosted-verdict -- collect --pr 23 --receipt .planning/evidence/hosted/post-11n.json`
+    `bun run phase43:hosted-verdict -- collect --pr 23 --receipt .planning/evidence/hosted/post-11n.json --purpose "Plan 11R post-11N hosted authority"`
     to require a passed hosted envelope for the exact
     PR/local checked commit with real steps. Run read-only pending-envelope
     verification before normal GSD task completion commits the envelope. The
@@ -86,7 +86,7 @@ finalized tracked head for Plan 11D's pre-edit recertification.
     `checkedCommit`; the envelope's governed digests exclude evidence files.
   </action>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-pending --receipt .planning/evidence/hosted/post-11n.json</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-pending --pr 23 --receipt .planning/evidence/hosted/post-11n.json</automated>
   </verify>
   <done>false</done>
 </task>
@@ -133,7 +133,7 @@ finalized tracked head for Plan 11D's pre-edit recertification.
     immutable subject that Plan 11D recertifies before editing source.
   </action>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-receipt --receipt .planning/evidence/hosted/post-11n.json --subject HEAD</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-receipt --pr 23 --receipt .planning/evidence/hosted/post-11n.json --subject $(git rev-parse HEAD)</automated>
     <automated>node scripts/verify-fable-checkpoint.js --record .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md --checkpoint "Post-hosted-CI checkpoint" --manifest .planning/evidence/fable/post-hosted-ci-input.json --receipt .planning/evidence/fable/post-hosted-ci-receipt.json</automated>
     <automated>node dist/gsd-core/bin/gsd-tools.cjs validate consistency</automated>
   </verify>

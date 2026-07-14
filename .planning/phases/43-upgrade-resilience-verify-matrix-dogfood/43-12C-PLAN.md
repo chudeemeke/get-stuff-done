@@ -75,7 +75,7 @@ correction and close Phase 43 only from current evidence.
     - SHIP-03B is not claimed as Phase 43 success or debt.
   </acceptance_criteria>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-receipt --receipt .planning/evidence/hosted/phase44-entry-final.json --subject HEAD</automated>
+    <automated>node scripts/verify-hosted-ci.js verify-receipt --pr 23 --receipt .planning/evidence/hosted/phase44-entry-final.json --subject $(git rev-parse HEAD)</automated>
     <automated>node scripts/verify-fable-checkpoint.js --record .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md --checkpoint "Post-hosted-CI checkpoint" --manifest .planning/evidence/fable/post-hosted-ci-input.json --receipt .planning/evidence/fable/post-hosted-ci-receipt.json</automated>
     <automated>node scripts/verify-fable-checkpoint.js --record .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md --checkpoint "Post-coverage-foundation checkpoint" --manifest .planning/evidence/fable/post-coverage-foundation-input.json --receipt .planning/evidence/fable/post-coverage-foundation-receipt.json</automated>
     <automated>node scripts/verify-fable-checkpoint.js --record .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md --checkpoint "Post-11K, 11E, and 11T checkpoint" --manifest .planning/evidence/fable/post-initial-coverage-input.json --receipt .planning/evidence/fable/post-initial-coverage-receipt.json</automated>

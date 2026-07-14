@@ -162,7 +162,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist and included in the npm tarball. GitHub release attachment is separately owned by SHIP-03B in Phase 44.
   7. Production assurance is blocking and two-part: canonical fork-authored source reaches at least 95% statements, branches, functions, and lines independently while Bun remains green, and every shipped upstream snapshot satisfies exact provenance, drift, named fork-delta, ownership/removal, and N=3 composed-package gates. Closeout language cannot describe the fork-only aggregate as whole-production coverage.
-**Plans**: 16/41 plans executed
+**Plans**: 17/41 plans executed
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
@@ -179,7 +179,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-11L-PLAN.md -- Wave 14: Open GSD plan-scan read-model correction and N=3 revalidation
 - [x] 43-11M-PLAN.md -- Wave 15: Test-runner discovery authority and pre-push recovery
 - [x] 43-11P-PLAN.md -- Wave 16: Subject-bound captured Fable runner, receipt, and replay-safe validator
-- [ ] 43-11N-PLAN.md -- Wave 17: Hosted-CI authority contract, collector, and durable blocker record
+- [x] 43-11N-PLAN.md -- Wave 17: Hosted-CI authority contract, collector, and durable blocker record
 - [ ] 43-11R-PLAN.md -- Wave 18: Human external-state gate, hosted evidence, Fable lead decision, and ordinary GSD finalization
 - [ ] 43-11D-PLAN.md -- Wave 19: Finalized-head hosted recertification, exact source ownership contract, and unchanged Jest parity
 - [ ] 43-11W-PLAN.md -- Wave 20: Multi-process coverage orchestration and per-group feasibility evidence
@@ -236,7 +236,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 16/41 | In Progress | - |
+| 43 | v1.2.0 | 17/41 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog

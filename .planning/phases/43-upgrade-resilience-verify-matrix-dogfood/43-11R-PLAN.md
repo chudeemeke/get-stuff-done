@@ -5,7 +5,7 @@ type: execute
 gap_closure: true
 wave: 18
 depends_on: ["43-11N"]
-status: pending
+status: in_progress
 requirements: []
 files_modified:
   - .planning/evidence/hosted/post-11n.json
@@ -18,7 +18,8 @@ files_modified:
 autonomous: false
 must_haves:
   truths:
-    - "external execution stops until the user confirms both GitHub billing recovery and a safe shared-Claude review window"
+    - "hosted execution stops until the user confirms GitHub billing recovery and authorizes the PR workflow cycle"
+    - "Fable execution remains separately blocked until quota is restored and the user confirms a safe shared-Claude review window"
     - "the first hosted verdict is a tracked envelope bound to the committed post-11N PR/local checked commit and contains real executed steps"
     - "Fable leads the technical and design adjudication of hosted evidence at strategic and implementation scales"
     - "ordinary GSD finalization commits all tracked review, disposition, checkpoint, blocker-state, and summary bytes before recertification"
@@ -49,27 +50,27 @@ finalized tracked head for Plan 11D's pre-edit recertification.
 <tasks>
 
 <task id="11R-01" type="checkpoint:human-action" gate="blocking">
-  <name>Authorize the external hosted and Fable review window</name>
+  <name>Authorize the external hosted window</name>
   <files>None; this human checkpoint performs no tracked write.</files>
   <action>
-    Confirm that the GitHub account billing lock is cleared and that the active
-    shared Claude sessions can safely tolerate this project's exact
-    `claude -p --model fable` review without logout, daemon restart, or token
-    mutation. This confirmation is the only non-automatable action.
+    Confirm that the GitHub account billing lock is cleared and authorize one
+    bounded push plus the five-workflow PR cycle. Fable availability is a
+    separate later checkpoint so hosted evidence can be captured without
+    weakening or bypassing the review gate.
   </action>
   <instructions>
     Plan 11N has already implemented the hosted-verdict collector and persisted
-    the zero-evidence blocker. Confirm both external-state conditions in one
-    response. Do not run repository commands; the agent performs all probes,
-    workflow reruns, review invocation, and evidence capture after confirmation.
+    the zero-evidence blocker. Provide account-recovery evidence and authorize
+    the bounded external cycle. Do not run repository commands; the agent
+    performs all probes, publication, workflow execution, and evidence capture.
   </instructions>
   <verify>
-    The agent runs status-only GitHub and Claude authentication probes, then a
-    non-mutating hosted-verdict probe. Any remaining billing or authentication
+    The agent runs a status-only GitHub authentication probe and verifies the
+    existing draft PR identity. Any remaining billing or GitHub authentication
     failure keeps this checkpoint blocked.
   </verify>
-  <resume-signal>Confirm billing is cleared and the shared Claude review window is safe.</resume-signal>
-  <done>false</done>
+  <resume-signal>Confirm billing is cleared and authorize the bounded PR workflow cycle.</resume-signal>
+  <done>true</done>
 </task>
 
 <task id="11R-02" type="auto">
@@ -88,6 +89,29 @@ finalized tracked head for Plan 11D's pre-edit recertification.
   <verify>
     <automated>node scripts/verify-hosted-ci.js verify-pending --pr 23 --receipt .planning/evidence/hosted/post-11n.json</automated>
   </verify>
+  <done>false</done>
+</task>
+
+<task id="11R-02A" type="checkpoint:human-action" gate="blocking">
+  <name>Authorize the Fable review window</name>
+  <files>None; this human checkpoint performs no tracked write.</files>
+  <action>
+    After the hosted envelope is committed, wait until Fable quota is restored
+    and the user confirms that active shared Claude sessions can safely tolerate
+    this project's exact `claude -p --model fable` invocation. Do not log out,
+    restart shared processes, replace credentials, or substitute another model.
+  </action>
+  <instructions>
+    The user reported that Fable quota resets at approximately 10:00 BST on
+    2026-07-15. Preserve the committed hosted envelope and stop here until the
+    user confirms that the quota and shared-session window are available.
+  </instructions>
+  <verify>
+    Run status-only Claude authentication and quota checks without printing
+    secrets or mutating shared state. Any quota or authentication failure keeps
+    this checkpoint blocked.
+  </verify>
+  <resume-signal>Confirm Fable quota is restored and the shared Claude review window is safe.</resume-signal>
   <done>false</done>
 </task>
 

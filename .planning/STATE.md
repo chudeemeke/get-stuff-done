@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Phase 43 Plan 11N complete; Plan 11R is waiting at the explicit billing and safe-Claude human-action gate
+stopped_at: Phase 43 Plan 11R Task 11R-01 complete; execute hosted Task 11R-02, then stop at the Fable quota and safe-Claude gate
 last_updated: "2026-07-14T14:55:36.6250415+01:00"
 last_activity: 2026-07-14
 progress:
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
 Plan: 11R of 41
-Status: Plan 11N's immutable tracked hosted-authority contract, collector, offline verifiers, blocker record, and downstream caller integration are complete; Plan 11R pauses for billing recovery and a safe Claude window before any external execution
+Status: GitHub billing recovery is user-confirmed and the bounded PR workflow cycle is authorized; execute Plan 11R hosted evidence Task 11R-02, then pause before Fable until quota resets around 10:00 BST on 2026-07-15
 Last activity: 2026-07-14
 
 **Upstream state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-13. `1.7.0-rc.6` is prerelease-only and excluded by the exact-stable-pin policy. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling routes through the upstream-authority helper.

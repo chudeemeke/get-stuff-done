@@ -5,7 +5,7 @@ type: execute
 gap_closure: true
 wave: 15
 depends_on: ["11L"]
-status: in_progress
+status: complete
 requirements: ["SHIP-08A"]
 files_modified:
   - bunfig.toml

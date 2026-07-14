@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Phase 43 Plan 11M in progress; repair pre-push test discovery before hosted CI
-last_updated: "2026-07-14T03:08:00+01:00"
+stopped_at: Phase 43 Plan 11M complete; create draft PR and obtain hosted CI before 11D
+last_updated: "2026-07-14T03:34:18.9960541+01:00"
 last_activity: 2026-07-14
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 47
-  completed_plans: 33
-  percent: 70
+  completed_plans: 34
+  percent: 72
 ---
 
 # Project State
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
-Plan: 11M of 25
-Status: Plan 11M in progress; pre-push exposed cross-runner discovery drift before hosted CI
+Plan: 11D of 25
+Status: Plan 11M complete; branch published, with draft PR and hosted CI required before Plan 11D
 Last activity: 2026-07-14
 
 **Upstream state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-13. `1.7.0-rc.6` is prerelease-only and excluded by the exact-stable-pin policy. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling routes through the upstream-authority helper.
@@ -97,6 +97,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-14 Plan 11L promotion decision: Open GSD `1.6.1` and `next` both misclassify `*-PLAN-REVIEW.md` through the loose plan-scan fallback. Upstream issue `open-gsd/gsd-core#2252` owns the source defect; Plan 11L adds the minimal shared temporary override, removal trigger, and N=3 revalidation before Plan 11D.
 - 2026-07-14 Phase 43 Plan 11L execution evidence: the shared plan-scan override excludes only PLAN-REVIEW derivatives and retains strict, nested, loose-legacy, and summary behavior. Native roadmap tests pass 19/19; repository contracts pass 154/154; the final N=3 matrix passes 945/945 with report SHA-256 `e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712`. Composed `roadmap analyze` reports the authoritative 46-plan portfolio total, including Phase 43 at 24 and Phase 42 at 5.
 - 2026-07-14 Phase 43 Plan 11M trigger: the first ordinary push was correctly blocked when current Bun ignored legacy `bunfig.toml` discovery keys and executed Node-native `.test.cjs` contracts under Bun. Focused native Node authority remains green at 54/54 phase and 19/19 roadmap tests. Plan 11M owns supported Bun discovery configuration, recurrence tests, the negative-path meta-test false positive, and an unbypassed pre-push rerun before hosted CI.
+- 2026-07-14 Phase 43 Plan 11M execution evidence: ADR 004 establishes disjoint Bun functional and native Node authorities through one fail-closed adapter and preload capability. The ordinary push hook passed 1,322/1,322 functional tests across 54 files with zero `.test.cjs` headers; native focused contracts passed 73/73, repository compatibility passed 154/154, and local/remote refs matched at `9246673bac922773d3493ba8f430ba46a1ae2c60`. Hosted CI remains the required checkpoint before Plan 11D.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -145,5 +146,5 @@ Plan 43-11 compatibility and plan-denominator correctness are resolved, but the 
 
 Last session: 2026-07-13T20:30:23.7520257+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Plan 43-11M in progress; restore supported Bun test discovery and pass the ordinary pre-push gate, then push the draft PR and obtain hosted CI before Plan 43-11D.
+Stopped at: Plan 43-11M complete; create the draft PR and obtain a hosted CI verdict before Plan 43-11D.
 Resume file: None

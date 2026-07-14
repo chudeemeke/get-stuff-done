@@ -162,7 +162,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist and included in the npm tarball. GitHub release attachment is separately owned by SHIP-03B in Phase 44.
   7. Production assurance is blocking and two-part: canonical fork-authored source reaches at least 95% statements, branches, functions, and lines independently while Bun remains green, and every shipped upstream snapshot satisfies exact provenance, drift, named fork-delta, ownership/removal, and N=3 composed-package gates. Closeout language cannot describe the fork-only aggregate as whole-production coverage.
-**Plans**: 23 plans (corrective slice checker-verified 2026-07-13)
+**Plans**: 13/24 plans executed
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
@@ -175,17 +175,18 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-10-PLAN.md -- Wave 10: Live target reverify and authority bump
 - [x] 43-11A-PLAN.md -- Wave 11: Classified compatibility contract and per-suite diagnostics
 - [x] 43-11B-PLAN.md -- Wave 12: Open GSD contract modernization and candidate runtime coverage
-- [ ] 43-11C-PLAN.md -- Wave 13: Roadmap format preservation and N=3 compatibility proof
-- [ ] 43-11D-PLAN.md -- Wave 14: Source contract and Jest/Node/c8 coverage foundation
-- [ ] 43-11K-PLAN.md -- Wave 15: SBOM portability and toolchain preflight
-- [ ] 43-11E-PLAN.md -- Wave 16: Launcher and runtime-support four-metric closure
-- [ ] 43-11F-PLAN.md -- Wave 17: Distribution and build-tool four-metric closure
-- [ ] 43-11G-PLAN.md -- Wave 18: Quality, audit, performance, and reliability four-metric closure
-- [ ] 43-11H-PLAN.md -- Wave 19: Upgrade and compatibility tooling four-metric closure
-- [ ] 43-11I-PLAN.md -- Wave 20: Hook and sync four-metric closure
-- [ ] 43-11J-PLAN.md -- Wave 21: Validator-first aggregate assurance, blocker transition, and blocking CI
-- [ ] 43-11-PLAN.md -- Wave 22: Post-bump snapshots, churn, SBOM, and assurance refresh
-- [ ] 43-12-PLAN.md -- Wave 23: D-7 maintenance evidence and verification closeout
+- [x] 43-11C-PLAN.md -- Wave 13: Roadmap format preservation and N=3 compatibility proof
+- [ ] 43-11L-PLAN.md -- Wave 14: Open GSD plan-scan read-model correction and N=3 revalidation
+- [ ] 43-11D-PLAN.md -- Wave 15: Source contract and Jest/Node/c8 coverage foundation
+- [ ] 43-11K-PLAN.md -- Wave 16: SBOM portability and toolchain preflight
+- [ ] 43-11E-PLAN.md -- Wave 17: Launcher and runtime-support four-metric closure
+- [ ] 43-11F-PLAN.md -- Wave 18: Distribution and build-tool four-metric closure
+- [ ] 43-11G-PLAN.md -- Wave 19: Quality, audit, performance, and reliability four-metric closure
+- [ ] 43-11H-PLAN.md -- Wave 20: Upgrade and compatibility tooling four-metric closure
+- [ ] 43-11I-PLAN.md -- Wave 21: Hook and sync four-metric closure
+- [ ] 43-11J-PLAN.md -- Wave 22: Validator-first aggregate assurance, blocker transition, and blocking CI
+- [ ] 43-11-PLAN.md -- Wave 23: Post-bump snapshots, churn, SBOM, and assurance refresh
+- [ ] 43-12-PLAN.md -- Wave 24: D-7 maintenance evidence and verification closeout
 
 ### Phase 44: Ship Polish — Publish Flow, Provenance, Docs
 **Goal**: Wire every gate built in Phases 41-43 into the `aidev release` / `aidev publish` flow with OIDC provenance, verify reproducibility, and land a complete MAINTENANCE.md that documents processes that now actually exist.
@@ -193,11 +194,14 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 **Requirements**: SHIP-01, SHIP-02, SHIP-03B, SHIP-04, SHIP-05, SHIP-06, DOCS-01, DOCS-02, DOCS-03, DOCS-07, DOCS-08
 **Success Criteria** (what must be TRUE):
   1. `aidev publish` refuses to proceed unless the full pre-publish chain (tests + lint + audit + publint + SBOM) passes; publint catches a hand-curated drop in `files:` on a synthetic regression fixture; running the publish command without OIDC credentials fails rather than falling back to a long-lived NPM_TOKEN.
-  2. Running `bun run compose` twice on the same inputs produces byte-identical output (verified via a reproducibility CI job); zizmor static analysis of GHA workflow YAML runs in CI and fails on unpinned-SHA references, injection via `${{ github.event.* }}`, or excessive `GITHUB_TOKEN` permissions.
+  2. Running `bun run compose` twice on the same inputs produces byte-identical output, and the Linux, macOS, and Windows jobs produce identical path-plus-SHA manifests for the composed distribution; zizmor static analysis of GHA workflow YAML runs in CI and fails on unpinned-SHA references, injection via `${{ github.event.* }}`, or excessive `GITHUB_TOKEN` permissions.
   3. `MAINTENANCE.md` exists with every required section (Upgrade Process, Override Conflict Handling, CI Staleness Response, Release Cadence, Bump Runbook prohibiting `--theirs`/`--ours`, Security Triage, Perf Budget, Escape-Hatch Decisions Log) and each section contains executable examples or links to the scripts they describe; a CI check extracts and runs at least one example per section.
-  4. The consumer-facing upgrade guide (`DOCS-02`), override policy (`DOCS-03`), README (`DOCS-07`), and CHANGELOG.md (audited for Keep-a-Changelog + SemVer compliance per `DOCS-08`) all pass lychee + markdownlint; README clearly states the value proposition, install instructions, feature list, and links to MAINTENANCE.md.
+  4. The consumer-facing upgrade guide (`DOCS-02`), override policy (`DOCS-03`), README (`DOCS-07`), and CHANGELOG.md (audited for Keep-a-Changelog + SemVer compliance per `DOCS-08`) all pass lychee + markdownlint; README clearly states the value proposition, install instructions, feature list, support boundary, and links to MAINTENANCE.md, while MAINTENANCE.md states the reviewed upstream-bump cadence.
   5. The "Looks Done But Isn't" checklist from `.planning/research/PITFALLS.md` is walked through as the final ship gate; each item is either a committed artifact in the repo or a dated decision in the Escape-Hatch Log, with zero unresolved items before tagging v1.2.0.
   6. The release workflow attaches `dist/bom.json` to the GitHub release and verifies its digest matches the SBOM included in the npm tarball.
+  7. The packed release candidate passes install -> upgrade, injected-failure rollback, uninstall with user-file preservation, and idempotent reinstall scenarios on Linux, macOS, and Windows.
+  8. The changelog conflict checker either accepts normal published-release content while rejecting the intended conflict fixture, or is removed/replaced by a gate with that exact contract; no known false-positive gate enters the publish chain.
+  9. All 41 baseline boundary violations are classified by plausible upstream-path collision risk; collision-possible entries are corrected or made explicit reviewed overrides, and any retained collision-impossible entries remain documented under the blocking no-regression ratchet.
 **Plans**: TBD
 
 ## Progress
@@ -214,7 +218,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 10/23 | In Progress | - |
+| 43 | v1.2.0 | 13/24 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog

@@ -3,8 +3,8 @@ phase: 43
 plan: "11D"
 type: execute
 gap_closure: true
-wave: 14
-depends_on: ["11C"]
+wave: 15
+depends_on: ["11L"]
 status: pending
 requirements: ["SHIP-08A", "SHIP-08B"]
 files_modified:
@@ -18,6 +18,7 @@ files_modified:
   - tests/helpers/jest-bun-test-adapter.cjs
   - tests/production-source-contract.test.js
   - tests/run-four-metric-coverage.test.js
+  - .planning/evidence/phase43-coverage-feasibility.json
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11D-SUMMARY.md
 autonomous: true
 must_haves:
@@ -27,12 +28,15 @@ must_haves:
     - "native Node subprocess records merge into four real c8 metrics"
     - "every tracked executable path has one explicit ownership classification"
     - "coverage groups are exhaustive and disjoint over the canonical fork source set"
+    - "every source group has a machine-readable truthful-coverage feasibility verdict before closure work starts"
+    - "denominator changes are explicit reviewed diffs rather than silent reclassification"
     - "shipped upstream snapshots remain blocking through a separate assurance contract"
   artifacts:
     - "config/production-source-contract.json"
     - "jest.coverage.config.cjs"
     - "scripts/run-four-metric-coverage.js"
     - "tests/helpers/jest-bun-test-adapter.cjs"
+    - ".planning/evidence/phase43-coverage-feasibility.json"
     - "43-11D-SUMMARY.md"
   key_links:
     - "bun:test imports -> Jest moduleNameMapper -> jest-bun-test-adapter.cjs"
@@ -80,11 +84,16 @@ without attempting broad threshold closure in one plan.
     require one non-zero canonical source entry, no junction alias, and no
     duplicate or zero-valued canonical path. Use a portable symlink equivalent
     where supported, but keep the Windows junction case mandatory in Windows CI.
+    Add fixtures that reject metric averaging, overlapping runner ownership,
+    an unexplained denominator removal/reclassification, validator-policy drift,
+    and a source group marked feasible without non-zero canonical records for
+    every runner it requires.
 
     GREEN: exact-pin `jest@30.4.2` and `c8@11.0.0`. Add the ownership classes
     from `43-COVERAGE-SPIKE.md`, record 52 files only as the planning-time
-    baseline, and resolve the live tracked set after Plan 11C; its roadmap
-    adapter and every future tracked script fail closed unless classified.
+    baseline, and resolve the live tracked set after Plans 11C and 11L; their
+    reviewed fork source and every future tracked script fail closed unless
+    classified.
     Resolve all coverage groups before any scoped run and
     require them to form an exhaustive, disjoint partition of the canonical
     `fork-source` set. SHIP-08A owns that measured set; SHIP-08B owns every
@@ -105,6 +114,17 @@ without attempting broad threshold closure in one plan.
     mode for later plans that move or add executable paths. Always clean through
     the owned-temp port in `finally`.
 
+    Publish `.planning/evidence/phase43-coverage-feasibility.json` with one
+    verdict per source group, the canonical denominator digest, runner ownership,
+    raw-report provenance, and the classified source diff from the planning
+    baseline. The fallback policy is fixed: first consolidate a group onto one
+    truthful Node-compatible coverage runner; otherwise partition evidence only
+    across disjoint source paths and compute metrics from exact counters, never
+    averages. If neither route is truthful, fail Plan 11D and replan before 11E.
+    No ignore directive, threshold reduction, or silent denominator change is a
+    fallback. Persist the source-contract schema/digest as the semantic contract
+    that Plan 11J must consume unchanged.
+
     REFACTOR: keep runner adaptation test-only, source classification pure, and
     process/temp orchestration behind injected ports. Production code never
     imports Jest or c8.
@@ -117,6 +137,10 @@ without attempting broad threshold closure in one plan.
     - `--validate-source-contract` exits zero only for an exhaustive classification and group partition of the live set.
     - every canonical fork path is assigned to exactly one coverage group before any scoped or aggregate command runs.
     - a synthetic new executable path, group gap, and group overlap each fail closed.
+    - every source group has an evidence-backed feasible/no-go verdict before Plan 11E can start.
+    - denominator additions, removals, and reclassifications are emitted as a reviewed machine-readable diff.
+    - runner fallback uses exact counters over one runner or disjoint source partitions; metric averaging fails closed.
+    - the validator contract digest is persisted for an identity check before Plan 11J.
     - byte-identical mirrors are counted once and fail closed on drift.
     - every shipped upstream snapshot satisfies the separate SHIP-08B provenance/drift/delta/N=3 contract; the runner never labels SHIP-08A as whole-production coverage.
     - the Windows junction fixture records one non-zero canonical path with no alias or duplicate.
@@ -126,6 +150,7 @@ without attempting broad threshold closure in one plan.
   <verify>
     <automated>bun test tests/production-source-contract.test.js tests/run-four-metric-coverage.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --representative</automated>
+    <automated>bun run test:coverage:four-metric -- --feasibility</automated>
     <automated>bun run test:coverage:four-metric -- --scope coverage-foundation</automated>
   </verify>
   <done>false</done>
@@ -142,6 +167,8 @@ permanent Windows fixture proves this instead of leaving it as prose. Upstream
 snapshots may remain outside SHIP-08A only because SHIP-08B independently
 blocks on exact provenance, drift, named delta tests, ownership/removal, and N=3
 evidence. The umbrella cannot pass from coverage alone.
+Coverage feasibility is an explicit Plan 11D product: if counters cannot be
+merged or partitioned truthfully, later closure plans do not begin.
 </threat_model>
 
 <verification>

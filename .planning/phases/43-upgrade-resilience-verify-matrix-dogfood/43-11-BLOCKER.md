@@ -2,8 +2,9 @@
 phase: 43
 plan: 11
 wave: 11
-status: blocked
+status: compatibility-resolved-pending-closeout-validation
 date: 2026-07-11
+compatibility_resolved_date: 2026-07-14
 requirements:
   - UPGRADE-05
   - UPGRADE-07
@@ -94,3 +95,48 @@ active-pin compat-matrix must then pass before `43-11-SUMMARY.md` can be created
 - **UPGRADE-07, UPGRADE-08, UPGRADE-09, SHIP-03:** advanced by refreshed hook,
   override, churn, and SBOM evidence, but not closed while the blocking gate is
   red.
+
+## 2026-07-14 Compatibility Resolution
+
+The original failure evidence above remains the historical reason Plan 11
+failed closed. Corrective Plan 11C has now resolved the compatibility gate;
+Plan 11 remains pending closeout validation and still has no summary file.
+
+The authoritative closeout command passed:
+
+```text
+node scripts/run-compat-matrix.js --manifest .planning/vetted-upstream-versions.json --require-all --json --report .planning/evidence/phase43-compat.json
+exit: 0
+policy: require-all
+1.5.0: 312 passed, 0 failed, 0 skipped, 11 candidate suites
+1.6.0: 312 passed, 0 failed, 0 skipped, 11 candidate suites
+1.6.1: 312 passed, 0 failed, 0 skipped, 11 candidate suites
+total: 936 passed, 0 failed, 0 skipped
+```
+
+Every row reports the same classified exclusions:
+
+- `core.test.cjs` - retired legacy authority contract;
+- `phase-verification.test.cjs` - active repository safety contract; and
+- `sync.test.cjs` - source-only repository contract.
+
+The two repository contracts remain blocking against the active product via
+`bun run test:repository-compat`, which passed 154/154 assertions. The runner
+derives that suite set from the validated compatibility contract, so future
+repository classifications cannot bypass the gate through a stale script list.
+
+Durable evidence is recorded at
+`.planning/evidence/phase43-compat.json` with exact-byte SHA-256
+`6b7bb361b7ef34d82e11be5289ecc3f1f14a8200192ee826fb59ea110d8c387c`.
+All three entries in `.planning/vetted-upstream-versions.json` are dated
+`2026-07-14`, reference that repository-relative path and digest, and have
+`status: passed`.
+
+## Remaining Closeout Validation
+
+- remove the temporary transition assertion only after re-reading the durable
+  evidence and validated manifest;
+- rerun focused, workflow, formatting, and repository gates after that removal;
+- create the corrective-plan summary and update GSD roadmap/state truth; and
+- keep `43-11-SUMMARY.md` absent until the original Plan 11 closeout contract is
+  explicitly revalidated.

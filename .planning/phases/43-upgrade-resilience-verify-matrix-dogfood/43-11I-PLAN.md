@@ -3,7 +3,7 @@ phase: 43
 plan: "11I"
 type: execute
 gap_closure: true
-wave: 21
+wave: 22
 depends_on: ["11H"]
 status: pending
 requirements: ["UPGRADE-07", "SHIP-08A"]
@@ -60,7 +60,7 @@ while preserving the fork-specific contracts reconciled in Plans 06-07.
     - source and bundled smoke behavior remains green.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/hooks.test.js tests/hooks-manifest.test.js</automated>
+    <automated>bun run test -- tests/hooks.test.js tests/hooks-manifest.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope hooks</automated>
   </verify>
   <done>false</done>
@@ -102,7 +102,7 @@ junction or consume a live project.
 <verification>
 - `bun run test:coverage:four-metric -- --scope hooks`
 - `bun run test:coverage:four-metric -- --scope sync`
-- `bun test tests/hooks.test.js`
+- `bun run test -- tests/hooks.test.js`
 - `node --test tests/sync.test.cjs`
 - `git diff --check`
 </verification>

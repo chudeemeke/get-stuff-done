@@ -954,7 +954,7 @@ describe('fork roadmap persistence boundary', () => {
       'dist/gsd-core/bin/lib/roadmap.cjs',
     ]);
     expect(fs.existsSync(
-      path.join(projectRoot, 'overrides', 'gsd-core', 'bin', 'lib', 'shell-command-projection.cjs')
+      path.join(projectRoot, 'overrides', 'gsd-core', 'bin', 'lib', 'shell-command-projection.cjs') // meta-test:skip - negative boundary assertion
     )).toBe(false);
   });
 });

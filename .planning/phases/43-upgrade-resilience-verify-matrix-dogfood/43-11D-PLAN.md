@@ -3,8 +3,8 @@ phase: 43
 plan: "11D"
 type: execute
 gap_closure: true
-wave: 15
-depends_on: ["11L"]
+wave: 16
+depends_on: ["11M"]
 status: pending
 requirements: ["SHIP-08A", "SHIP-08B"]
 files_modified:
@@ -23,8 +23,8 @@ files_modified:
 autonomous: true
 must_haves:
   truths:
-    - "Bun remains the primary functional authority"
-    - "Jest executes all 48 unchanged root CommonJS suites under Node"
+    - "Bun remains the primary functional authority through the Plan 11M adapter"
+    - "Jest executes the explicit live Bun-authority CommonJS suite set under Node"
     - "native Node subprocess records merge into four real c8 metrics"
     - "every tracked executable path has one explicit ownership classification"
     - "coverage groups are exhaustive and disjoint over the canonical fork source set"
@@ -52,6 +52,7 @@ without attempting broad threshold closure in one plan.
 <context>
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-COVERAGE-SPIKE.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11C-PLAN.md
+@docs/decisions/004-DUAL-TEST-AUTHORITY.md
 @package.json
 @bunfig.toml
 @tests/helpers.cjs
@@ -101,10 +102,13 @@ without attempting broad threshold closure in one plan.
     Add `tests/helpers/jest-bun-test-adapter.cjs` and map
     `bun:test` plus root `./helpers` only in `jest.coverage.config.cjs`. Preserve
     timeout option objects, `skipIf`, diagnostic `expect`, and `toStartWith`.
-    Do not edit the 48 test files.
+    Derive an explicit live Jest input set from ADR 004's Bun-authority
+    partition; never derive it from Bun runtime discovery. Do not edit existing
+    functional test files merely to make the secondary runner pass.
 
     Add a pure source resolver and a launcher that creates one marker-owned
-    OS-temp root, runs Bun first, all 48 Jest files second, and the policy's
+    OS-temp root, runs the canonical Bun adapter first, the explicit live Jest
+    set second, and the policy's
     required `node:test` suites third with one `NODE_V8_COVERAGE` directory.
     Invoke c8 with its source root derived by `fs.realpathSync(PROJECT_ROOT)`,
     `--allowExternal`, exact contract paths, four independent thresholds, and
@@ -114,7 +118,9 @@ without attempting broad threshold closure in one plan.
     mode for later plans that move or add executable paths. Always clean through
     the owned-temp port in `finally`.
 
-    Publish `.planning/evidence/phase43-coverage-feasibility.json` with one
+    Count Node-contract raw records only for canonical production paths assigned
+    to Node by the source contract; test files never enter the production
+    denominator. Publish `.planning/evidence/phase43-coverage-feasibility.json` with one
     verdict per source group, the canonical denominator digest, runner ownership,
     raw-report provenance, and the classified source diff from the planning
     baseline. The fallback policy is fixed: first consolidate a group onto one
@@ -130,8 +136,9 @@ without attempting broad threshold closure in one plan.
     imports Jest or c8.
   </action>
   <acceptance_criteria>
-    - all 48 unchanged root files pass under Jest and all required Node suites pass.
-    - the primary Bun command remains unchanged and green.
+    - every live Bun-authority suite selected by the explicit partition passes under Jest and every required Node suite passes.
+    - `bun run test` remains the primary functional command and is green.
+    - Jest and Node inputs are explicit contracts rather than Bun discovery output.
     - a synthetic uncovered branch fails only the relevant threshold.
     - every tracked executable JavaScript path is classified exactly once.
     - `--validate-source-contract` exits zero only for an exhaustive classification and group partition of the live set.
@@ -148,7 +155,7 @@ without attempting broad threshold closure in one plan.
     - the new `coverage-foundation` source group is >=95% in all four metrics.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/production-source-contract.test.js tests/run-four-metric-coverage.test.js</automated>
+    <automated>bun run test -- tests/production-source-contract.test.js tests/run-four-metric-coverage.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --representative</automated>
     <automated>bun run test:coverage:four-metric -- --feasibility</automated>
     <automated>bun run test:coverage:four-metric -- --scope coverage-foundation</automated>
@@ -173,7 +180,7 @@ merged or partitioned truthfully, later closure plans do not begin.
 
 <verification>
 Run:
-- `bun test tests/production-source-contract.test.js tests/run-four-metric-coverage.test.js`
+- `bun run test -- tests/production-source-contract.test.js tests/run-four-metric-coverage.test.js`
 - `bun run test:coverage:four-metric -- --functional-only`
 - `git diff --check`
 </verification>

@@ -3,7 +3,7 @@ phase: 43
 plan: "11E"
 type: execute
 gap_closure: true
-wave: 17
+wave: 18
 depends_on: ["11K"]
 status: pending
 requirements: ["SHIP-08A"]
@@ -65,7 +65,7 @@ installer behavior.
     - public help/version/provenance output is unchanged except for verified defects.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/launcher.test.js tests/installer-safety.test.js tests/installer-v3.test.js tests/package-launcher-v3.test.js tests/preview-update-coverage.test.js tests/validate-configs.test.js</automated>
+    <automated>bun run test -- tests/launcher.test.js tests/installer-safety.test.js tests/installer-v3.test.js tests/package-launcher-v3.test.js tests/preview-update-coverage.test.js tests/validate-configs.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope launchers</automated>
   </verify>
   <done>false</done>
@@ -87,7 +87,7 @@ installer behavior.
     - mirror drift checks pass.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/hooks-manifest.test.js tests/hooks.test.js tests/platform.test.js tests/theme.test.js tests/production-source-contract.test.js</automated>
+    <automated>bun run test -- tests/hooks-manifest.test.js tests/hooks.test.js tests/platform.test.js tests/theme.test.js tests/production-source-contract.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope runtime-support</automated>
   </verify>
   <done>false</done>
@@ -105,6 +105,6 @@ logic into the wrapper.
 <verification>
 - `bun run test:coverage:four-metric -- --scope launchers`
 - `bun run test:coverage:four-metric -- --scope runtime-support`
-- `bun test`
+- `bun run test`
 - `git diff --check`
 </verification>

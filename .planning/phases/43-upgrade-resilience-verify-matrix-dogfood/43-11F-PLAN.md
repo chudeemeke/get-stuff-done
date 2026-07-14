@@ -3,7 +3,7 @@ phase: 43
 plan: "11F"
 type: execute
 gap_closure: true
-wave: 18
+wave: 19
 depends_on: ["11E"]
 status: pending
 requirements: ["SHIP-03A", "SHIP-08A"]
@@ -64,7 +64,7 @@ deterministic composed-package behavior.
     - no test file can enter `dist/` undetected.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/compose.test.js tests/branding.test.js tests/test-path-validation.test.js</automated>
+    <automated>bun run test -- tests/compose.test.js tests/branding.test.js tests/test-path-validation.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope distribution-core</automated>
   </verify>
   <done>false</done>
@@ -86,7 +86,7 @@ deterministic composed-package behavior.
     - `bun run dist` produces a valid CycloneDX SBOM.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/generate-sbom.test.js tests/version-provenance.test.js tests/check-overrides.test.js tests/docs-gates.test.js</automated>
+    <automated>bun run test -- tests/generate-sbom.test.js tests/version-provenance.test.js tests/check-overrides.test.js tests/docs-gates.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope distribution-support</automated>
     <automated>bun run dist</automated>
   </verify>

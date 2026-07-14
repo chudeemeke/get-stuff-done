@@ -17,9 +17,9 @@
  *      tests they aren't (fixtures/paths missing) or parses them as the wrong
  *      module type (ESM import/export rejected by CJS parser).
  *
- * Categorical fix: every tool that discovers files by glob excludes dist.
- *   - bunfig.toml [test].exclude includes "double-star/dist/double-star" and
- *     "double-star/node_modules/double-star"
+ * Categorical fix: every tool has an explicit, supported discovery boundary.
+ *   - bunfig.toml [test].root is `tests`
+ *   - bunfig.toml [test].pathIgnorePatterns excludes Node-native `.test.cjs`
  *   - eslint.config.js ignores includes "dist/double-star"
  * This meta-test asserts those invariants are preserved AND that no test files
  * exist in dist/ at test time.
@@ -33,8 +33,15 @@ const path = require('path');
 const { describe, test, expect } = require('bun:test');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
+const TESTS_DIR = __dirname;
 const BUNFIG_PATH = path.join(PROJECT_ROOT, 'bunfig.toml');
 const ESLINT_CONFIG_PATH = path.join(PROJECT_ROOT, 'eslint.config.js');
+const PACKAGE_PATH = path.join(PROJECT_ROOT, 'package.json');
+const COMPAT_CONTRACT_PATH = path.join(PROJECT_ROOT, 'tests', 'upstream-compat-contract.json');
+const SYNC_GUIDANCE_PATHS = [
+  path.join(PROJECT_ROOT, 'overlay', 'workflows', 'upstream-sync.md'),
+  path.join(PROJECT_ROOT, 'get-stuff-done', 'workflows', 'upstream-sync.md'),
+];
 
 function readBunfig() {
   if (!fs.existsSync(BUNFIG_PATH)) {
@@ -43,16 +50,8 @@ function readBunfig() {
   return fs.readFileSync(BUNFIG_PATH, 'utf8');
 }
 
-function extractExcludeArray(bunfigContent) {
-  // Naive TOML parsing — bunfig is small and stable. Extract `exclude = [...]`
-  // line(s) and parse the array. If the format ever grows complex (multi-line
-  // arrays, nested tables), replace this with a proper TOML parser.
-  const match = bunfigContent.match(/^\s*exclude\s*=\s*\[([^\]]+)\]/m);
-  if (!match) return [];
-  return match[1]
-    .split(',')
-    .map(s => s.trim().replace(/^["']|["']$/g, ''))
-    .filter(Boolean);
+function parseBunfig() {
+  return Bun.TOML.parse(readBunfig());
 }
 
 function findTestFiles(dir, found = []) {
@@ -81,26 +80,53 @@ describe('test-config hygiene (meta-test)', () => {
     expect(content).toMatch(/^\s*\[test\]/m);
   });
 
-  test('bunfig.toml [test].exclude contains "**/node_modules/**"', () => {
-    const exclude = extractExcludeArray(readBunfig());
-    const hasNodeModules = exclude.some(p =>
-      p.includes('node_modules')
+  test('bunfig.toml bounds discovery to the fork-owned tests directory', () => {
+    const config = parseBunfig();
+    expect(config.test.root).toBe('tests');
+  });
+
+  test('bunfig.toml uses pathIgnorePatterns for Node-native .test.cjs suites', () => {
+    const config = parseBunfig();
+    expect(config.test.pathIgnorePatterns).toContain('**/*.test.cjs');
+    expect(config.test.preload).toContain('./tests/helpers/enforce-bun-test-authority.js');
+  });
+
+  test('bunfig.toml contains no unsupported legacy discovery keys', () => {
+    const config = parseBunfig();
+    expect(config.test).not.toHaveProperty('include');
+    expect(config.test).not.toHaveProperty('exclude');
+  });
+
+  test('package scripts route Bun tests through the canonical adapter', () => {
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
+    expect(pkg.scripts.test).toBe('node scripts/run-bun-tests.js');
+    expect(pkg.scripts['test:coverage:bun']).toBe('node scripts/run-bun-tests.js --coverage');
+    expect(pkg.scripts).not.toHaveProperty('test:coverage');
+  });
+
+  test('every repository test file has exactly one runner classification', () => {
+    const testFiles = findTestFiles(TESTS_DIR)
+      .map(file => path.relative(TESTS_DIR, file).replace(/\\/g, '/'))
+      .sort();
+    const bunFiles = testFiles.filter(file => file.endsWith('.test.js'));
+    const nodeFiles = testFiles.filter(file => file.endsWith('.test.cjs'));
+    const unclassified = testFiles.filter(
+      file => !file.endsWith('.test.js') && !file.endsWith('.test.cjs')
     );
-    expect(hasNodeModules).toBe(true);
+    const contract = JSON.parse(fs.readFileSync(COMPAT_CONTRACT_PATH, 'utf8'));
+    const registeredNodeFiles = contract.suites.map(suite => suite.path).sort();
+
+    expect(bunFiles.length).toBeGreaterThan(0);
+    expect(unclassified).toEqual([]);
+    expect(nodeFiles).toEqual(registeredNodeFiles);
   });
 
-  test('bunfig.toml [test].exclude contains "**/dist/**"', () => {
-    const exclude = extractExcludeArray(readBunfig());
-    const hasDist = exclude.some(p => p.includes('dist'));
-    expect(hasDist).toBe(true);
-  });
-
-  test('bunfig.toml [test].exclude contains "**/*.test.cjs"', () => {
-    // .cjs tests run via separate runner (test:upstream script in package.json)
-    // and must not be picked up by bun-test which doesn't handle CJS-only deps.
-    const exclude = extractExcludeArray(readBunfig());
-    const hasCjs = exclude.some(p => p.endsWith('.test.cjs'));
-    expect(hasCjs).toBe(true);
+  test('shipped workflow guidance routes Bun projects through the adapter', () => {
+    for (const guidancePath of SYNC_GUIDANCE_PATHS) {
+      const guidance = fs.readFileSync(guidancePath, 'utf8');
+      expect(guidance).toContain('bun run test 2>&1 || npm test 2>&1');
+      expect(guidance).not.toContain('bun test 2>&1 || npm test 2>&1');
+    }
   });
 
   test('zero test files exist in dist/ at test time', () => {
@@ -111,31 +137,13 @@ describe('test-config hygiene (meta-test)', () => {
       throw new Error(
         `Found ${testFiles.length} test file(s) in dist/.\n\n` +
           `This means \`bun run compose\` copied upstream test files into dist/.\n` +
-          `Even with bunfig.toml dist/** exclusion in place, having test files\n` +
+          `Even with Bun discovery rooted at tests/, having test files\n` +
           `in dist/ is a code smell — upstream packaging changed and the compose\n` +
           `pipeline should filter them out. Sample (first 5):\n  ${sample}\n\n` +
           `Fix in scripts/compose.js or upgrade pipeline filter logic.`
       );
     }
     expect(testFiles.length).toBe(0);
-  });
-
-  test('test discovery glob is bounded (not naked **/*.test.*)', () => {
-    const content = readBunfig();
-    const includeMatch = content.match(/^\s*include\s*=\s*\[([^\]]+)\]/m);
-    expect(includeMatch).toBeTruthy();
-
-    const includes = includeMatch[1]
-      .split(',')
-      .map(s => s.trim().replace(/^["']|["']$/g, ''))
-      .filter(Boolean);
-
-    // Allowed: specific extensions like **/*.test.js
-    // Disallowed: wildcard **/*.test.* (would discover .ts in dist/ even with exclusions
-    //             if exclusion patterns ever drift)
-    for (const pattern of includes) {
-      expect(pattern).not.toMatch(/\*\.test\.\*\s*$/);
-    }
   });
 
   test('eslint.config.js ignores dist/**', () => {

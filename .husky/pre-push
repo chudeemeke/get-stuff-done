@@ -16,6 +16,6 @@ unset $(git rev-parse --local-env-vars)
 bun install --frozen-lockfile --ignore-scripts
 bun run compose
 bun run lint
-bun test
+bun run test
 
 echo ">> Pre-push: CI parity check passed."

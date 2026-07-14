@@ -3,7 +3,7 @@ phase: 43
 plan: "11G"
 type: execute
 gap_closure: true
-wave: 19
+wave: 20
 depends_on: ["11F"]
 status: pending
 requirements: ["SHIP-08A"]
@@ -63,7 +63,7 @@ path tests and no weakening of existing gates.
     - integration checks retain real subprocess coverage.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/audit-check.test.js tests/check-debt-ratchet.test.js tests/check-overrides.test.js tests/check-overrides-integration.test.js tests/osv-triage.test.js</automated>
+    <automated>bun run test -- tests/audit-check.test.js tests/check-debt-ratchet.test.js tests/check-overrides.test.js tests/check-overrides-integration.test.js tests/osv-triage.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope quality-security</automated>
   </verify>
   <done>false</done>
@@ -85,7 +85,7 @@ path tests and no weakening of existing gates.
     - cousin and oversight failures remain actionable and non-zero.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/bench.test.js tests/bench-test-timing.test.js tests/check-perf.test.js tests/cousin-smoke.test.js tests/flake-triage.test.js tests/verify-oversight-probes.test.js</automated>
+    <automated>bun run test -- tests/bench.test.js tests/bench-test-timing.test.js tests/check-perf.test.js tests/cousin-smoke.test.js tests/flake-triage.test.js tests/verify-oversight-probes.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope quality-reliability</automated>
   </verify>
   <done>false</done>
@@ -103,6 +103,6 @@ the three live project workspaces.
 <verification>
 - `bun run test:coverage:four-metric -- --scope quality-security`
 - `bun run test:coverage:four-metric -- --scope quality-reliability`
-- `bun test`
+- `bun run test`
 - `git diff --check`
 </verification>

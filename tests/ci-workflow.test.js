@@ -22,6 +22,14 @@ function readAllWorkflowText() {
     .join('\n');
 }
 
+function findBareBunTestCommands(workflowText) {
+  return workflowText
+    .split('\n')
+    .map(line => line.trim())
+    .map(line => (line.startsWith('run:') ? line.slice('run:'.length).trim() : line))
+    .filter(command => command === 'bun test' || command.startsWith('bun test '));
+}
+
 describe('CI workflow security action contracts', () => {
   test('gitleaks receives the GitHub token required for pull request scans', () => {
     const workflow = readCiWorkflow();
@@ -86,6 +94,16 @@ describe('CI workflow informational gates', () => {
     expect(upstreamJob).not.toContain('continue-on-error: true');
   });
 
+  test('functional test gates route through the canonical package script', () => {
+    const workflow = readCiWorkflow();
+    const workflows = readAllWorkflowText();
+
+    expect(workflow).toContain(
+      'bun run test:coverage:bun -- --reporter=junit --reporter-outfile test-results.xml'
+    );
+    expect(findBareBunTestCommands(workflows)).toEqual([]);
+  });
+
   test('boundary debt reports without producing a failed-step annotation', () => {
     const workflow = readCiWorkflow();
     const boundaryJobStart = workflow.indexOf('boundary-check:');
@@ -109,7 +127,8 @@ describe('Phase 41 validation workflows', () => {
     expect(workflow).toContain('macos-15');
     expect(workflow).toContain('windows-latest');
     expect(workflow).toContain('10x validation run');
-    expect(workflow).toContain('bun test --coverage');
+    expect(workflow).toContain('bun run test:coverage:bun');
+    expect(findBareBunTestCommands(workflow)).toEqual([]);
   });
 
   test('flake issue maintenance workflow encodes stale closure and rel-03 guard policy', () => {

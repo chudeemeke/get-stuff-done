@@ -230,7 +230,7 @@ jobs:
       - name: Guard against test files in dist/
         run: node scripts/check-no-test-files-in-dist.js
       - name: Run tests with coverage and JUnit output
-        run: bun test --coverage --reporter=junit --reporter-outfile test-results.xml
+        run: bun run test:coverage:bun -- --reporter=junit --reporter-outfile test-results.xml
       - name: Upload test results on failure
         if: ${{ failure() && hashFiles('test-results.xml') != '' }}
         uses: actions/upload-artifact@v7

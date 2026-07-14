@@ -3,7 +3,7 @@ phase: 43
 plan: "11J"
 type: execute
 gap_closure: true
-wave: 22
+wave: 23
 depends_on: ["11I"]
 status: pending
 requirements: ["UPGRADE-05", "SHIP-03A", "SHIP-08", "SHIP-08A", "SHIP-08B"]
@@ -105,7 +105,7 @@ evidence, and make final production-assurance gates blocking in CI.
     - the `closeout-evidence` source group is >=95% in all four metrics.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/validate-phase43-evidence.test.js tests/ci-workflow.test.js tests/production-source-contract.test.js</automated>
+    <automated>bun run test -- tests/validate-phase43-evidence.test.js tests/ci-workflow.test.js tests/production-source-contract.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope closeout-evidence</automated>
     <automated>node scripts/validate-phase43-evidence.js --help</automated>
     <automated>bash scripts/lint-workflows.sh</automated>
@@ -170,7 +170,7 @@ closed. Phase 43 cannot claim the Phase 44 release attachment.
 </threat_model>
 
 <verification>
-- `bun test tests/validate-phase43-evidence.test.js tests/ci-workflow.test.js`
+- `bun run test -- tests/validate-phase43-evidence.test.js tests/ci-workflow.test.js`
 - `bun run test:coverage:four-metric -- --scope closeout-evidence`
 - `bun run test:coverage:four-metric -- --report .planning/evidence/phase43-coverage.json`
 - `node scripts/validate-phase43-evidence.js --require-production-assurance`

@@ -3,7 +3,7 @@ phase: 43
 plan: "11H"
 type: execute
 gap_closure: true
-wave: 20
+wave: 21
 depends_on: ["11G"]
 status: pending
 requirements: ["UPGRADE-01", "UPGRADE-02", "UPGRADE-04", "UPGRADE-05", "UPGRADE-08", "SHIP-08A", "SHIP-08B"]
@@ -61,7 +61,7 @@ verification without changing the Open GSD authority or matrix contract.
     - churn writes remain marker-bound and deterministic.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/upstream-source.test.js tests/preview-update.test.js tests/preview-update-coverage.test.js tests/vetted-upstream-versions.test.js tests/override-churn.test.js</automated>
+    <automated>bun run test -- tests/upstream-source.test.js tests/preview-update.test.js tests/preview-update-coverage.test.js tests/vetted-upstream-versions.test.js tests/override-churn.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope upgrade-discovery</automated>
   </verify>
   <done>false</done>
@@ -84,7 +84,7 @@ verification without changing the Open GSD authority or matrix contract.
     - upgrade report exit code and structured status always agree.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/run-upstream-compat.test.js tests/run-upstream-compat-ci.test.js tests/verify-upgrade.test.js tests/ci-workflow.test.js</automated>
+    <automated>bun run test -- tests/run-upstream-compat.test.js tests/run-upstream-compat-ci.test.js tests/verify-upgrade.test.js tests/ci-workflow.test.js</automated>
     <automated>bun run test:coverage:four-metric -- --scope upgrade-execution</automated>
   </verify>
   <done>false</done>

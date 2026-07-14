@@ -184,6 +184,42 @@ describe('hosted CI verdict authority', () => {
     expect(() =>
       validateHostedContract({ ...contract, repository: 'attacker/mirror' })
     ).toThrow('repository authority');
+    expect(() => validateHostedContract({ ...contract, schemaVersion: 1 })).toThrow(
+      'schema version 2'
+    );
+    expect(() => validateHostedContract({ ...contract, contractPath: 'config/other.json' })).toThrow(
+      'path authority'
+    );
+    expect(() => validateHostedContract({ ...contract, workflows: null })).toThrow(
+      'governed paths and workflows'
+    );
+    expect(() =>
+      validateHostedContract({
+        ...contract,
+        governedPaths: { ...contract.governedPaths, unknown: ['README.md'] },
+      })
+    ).toThrow('unknown governed-path category');
+    expect(() =>
+      validateHostedContract({
+        ...contract,
+        governedPaths: { ...contract.governedPaths, source: [] },
+      })
+    ).toThrow('governed source paths');
+    expect(() =>
+      validateHostedContract({
+        ...contract,
+        governedPaths: {
+          ...contract.governedPaths,
+          policy: [...contract.governedPaths.policy, contract.governedPaths.source[0]],
+        },
+      })
+    ).toThrow('unique across categories');
+    expect(() =>
+      validateHostedContract({
+        ...contract,
+        governedPaths: { ...contract.governedPaths, contract: ['config/other.json'] },
+      })
+    ).toThrow('govern its own contract path');
     expect(() =>
       validateHostedContract({
         ...contract,

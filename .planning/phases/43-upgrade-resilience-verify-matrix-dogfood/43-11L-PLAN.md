@@ -4,9 +4,9 @@ plan: "11L"
 type: execute
 gap_closure: true
 wave: 14
-depends_on: ["11C"]
-status: pending
-requirements: ["SHIP-08A", "SHIP-08B"]
+depends_on: ["43-11C"]
+status: complete
+requirements: []
 files_modified:
   - overrides/gsd-core/bin/lib/plan-scan.cjs
   - overrides/gsd-core/bin/lib/plan-scan.cjs.REASON.md

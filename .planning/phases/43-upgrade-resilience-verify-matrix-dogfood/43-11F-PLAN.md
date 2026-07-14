@@ -3,38 +3,35 @@ phase: 43
 plan: "11F"
 type: execute
 gap_closure: true
-wave: 20
-depends_on: ["11E"]
+wave: 26
+depends_on: ["43-11S"]
 status: pending
-requirements: ["SHIP-03A", "SHIP-08A"]
+requirements: ["SHIP-03A"]
 files_modified:
   - scripts/build.js
   - scripts/check-no-test-files-in-dist.js
   - scripts/check-parity.js
   - scripts/compose.js
   - scripts/finalize-dist.js
-  - scripts/generate-sbom.js
-  - scripts/lib/package-provenance.js
-  - scripts/lib/semantic-js.js
-  - scripts/lint-docs.js
-  - tests/*.test.js
+  - tests/compose.test.js
+  - tests/branding.test.js
+  - tests/test-path-validation.test.js
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11F-SUMMARY.md
 autonomous: true
 must_haves:
   truths:
-    - "distribution/build tooling reaches 95% in every metric"
-    - "composed output, SBOM, and package provenance remain deterministic"
+    - "compose/build/finalize tooling reaches 95% in every metric"
+    - "composed output remains deterministic"
     - "generated artifacts are validated but never become source authority"
   artifacts:
     - "43-11F-SUMMARY.md"
   key_links:
     - "compose/build/finalize -> dist package -> parity and hygiene gates"
-    - "SBOM source environment -> dist/bom.json -> SHIP-03A"
 ---
 
 <objective>
-Close coverage for the bounded distribution and build pipeline while preserving
-deterministic composed-package behavior.
+Close coverage for the bounded compose, build, finalize, parity, and dist-hygiene
+pipeline while preserving deterministic composed-package behavior.
 </objective>
 
 <context>
@@ -42,7 +39,6 @@ deterministic composed-package behavior.
 @scripts/compose.js
 @scripts/build.js
 @scripts/finalize-dist.js
-@scripts/generate-sbom.js
 </context>
 
 <tasks>
@@ -70,29 +66,6 @@ deterministic composed-package behavior.
   <done>false</done>
 </task>
 
-<task id="11F-02" type="auto">
-  <name>Close provenance, semantic, SBOM, and docs-tool coverage</name>
-  <files>scripts/generate-sbom.js; scripts/lib/package-provenance.js; scripts/lib/semantic-js.js; scripts/lint-docs.js; tests/generate-sbom.test.js; tests/version-provenance.test.js; tests/check-overrides.test.js; tests/docs-gates.test.js</files>
-  <action>
-    Add RED tests for malformed/missing package metadata, hash/parser errors,
-    CycloneDX child failures and invalid output, git tracked-file discovery
-    failure, and documentation tool exit propagation. Preserve structured APIs
-    and inject child execution instead of patching globals. Verify SBOM bytes in
-    `dist` and the package tarball remain identical after all refactors.
-  </action>
-  <acceptance_criteria>
-    - the `distribution-support` group is >=95% in all four metrics.
-    - semantic hash fallback behavior and package provenance schemas remain green.
-    - `bun run dist` produces a valid CycloneDX SBOM.
-  </acceptance_criteria>
-  <verify>
-    <automated>bun run test -- tests/generate-sbom.test.js tests/version-provenance.test.js tests/check-overrides.test.js tests/docs-gates.test.js</automated>
-    <automated>bun run test:coverage:four-metric -- --scope distribution-support</automated>
-    <automated>bun run dist</automated>
-  </verify>
-  <done>false</done>
-</task>
-
 </tasks>
 
 <threat_model>
@@ -104,7 +77,5 @@ successful.
 
 <verification>
 - `bun run test:coverage:four-metric -- --scope distribution-core`
-- `bun run test:coverage:four-metric -- --scope distribution-support`
-- `bun run dist`
 - `git diff --check`
 </verification>

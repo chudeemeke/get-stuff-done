@@ -4,9 +4,9 @@ plan: "11A"
 type: execute
 gap_closure: true
 wave: 11
-depends_on: ["10"]
+depends_on: ["43-10"]
 status: complete
-requirements: ["UPGRADE-02", "UPGRADE-04", "UPGRADE-05", "SHIP-08B"]
+requirements: ["UPGRADE-02", "UPGRADE-04"]
 files_modified:
   - tests/upstream-compat-contract.json
   - .planning/vetted-upstream-versions.json

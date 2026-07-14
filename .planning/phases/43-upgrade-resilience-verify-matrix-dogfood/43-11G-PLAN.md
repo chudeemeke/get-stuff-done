@@ -3,27 +3,25 @@ phase: 43
 plan: "11G"
 type: execute
 gap_closure: true
-wave: 21
-depends_on: ["11F"]
+wave: 28
+depends_on: ["43-11U"]
 status: pending
-requirements: ["SHIP-08A"]
+requirements: []
 files_modified:
   - scripts/audit-check.js
-  - scripts/bench.js
-  - scripts/bench-test-timing.js
   - scripts/check-debt-ratchet.cjs
   - scripts/check-overrides.js
-  - scripts/check-perf.js
-  - scripts/cousin-smoke.js
-  - scripts/flake-triage.js
   - scripts/osv-triage.js
-  - scripts/verify-oversight-probes.js
-  - tests/*.test.js
+  - tests/audit-check.test.js
+  - tests/check-debt-ratchet.test.js
+  - tests/check-overrides.test.js
+  - tests/check-overrides-integration.test.js
+  - tests/osv-triage.test.js
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11G-SUMMARY.md
 autonomous: true
 must_haves:
   truths:
-    - "quality, audit, performance, flake, and oversight tooling reaches 95% in all metrics"
+    - "audit, override, debt-ratchet, and OSV tooling reaches 95% in all metrics"
     - "negative paths preserve fail-closed gate behavior"
     - "tests use injected tools and fixtures rather than the live machine"
   artifacts:
@@ -34,14 +32,13 @@ must_haves:
 ---
 
 <objective>
-Close the quality and performance tooling cluster with deterministic negative
+Close the bounded quality-security tooling cluster with deterministic negative
 path tests and no weakening of existing gates.
 </objective>
 
 <context>
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-COVERAGE-SPIKE.md
 @scripts/audit-check.js
-@scripts/check-perf.js
 @scripts/check-overrides.js
 </context>
 
@@ -69,28 +66,6 @@ path tests and no weakening of existing gates.
   <done>false</done>
 </task>
 
-<task id="11G-02" type="auto">
-  <name>Close benchmark, perf, cousin, flake, and oversight coverage</name>
-  <files>scripts/bench.js; scripts/bench-test-timing.js; scripts/check-perf.js; scripts/cousin-smoke.js; scripts/flake-triage.js; scripts/verify-oversight-probes.js; tests/bench.test.js; tests/bench-test-timing.test.js; tests/check-perf.test.js; tests/cousin-smoke.test.js; tests/flake-triage.test.js; tests/verify-oversight-probes.test.js</files>
-  <action>
-    Add RED fixtures for missing executables, unsupported platforms, invalid or
-    stale baselines, accepted-regression mismatch/expiry, malformed JUnit,
-    duplicate flake keys, cousin package-manager failures, and malformed trigger
-    definitions. Inject clock/platform/child execution. Keep evidence schemas,
-    thresholds, and advisory trigger IDs stable.
-  </action>
-  <acceptance_criteria>
-    - the `quality-reliability` group is >=95% in all four metrics.
-    - perf threshold boundaries and accepted-regression policy remain exact.
-    - cousin and oversight failures remain actionable and non-zero.
-  </acceptance_criteria>
-  <verify>
-    <automated>bun run test -- tests/bench.test.js tests/bench-test-timing.test.js tests/check-perf.test.js tests/cousin-smoke.test.js tests/flake-triage.test.js tests/verify-oversight-probes.test.js</automated>
-    <automated>bun run test:coverage:four-metric -- --scope quality-reliability</automated>
-  </verify>
-  <done>false</done>
-</task>
-
 </tasks>
 
 <threat_model>
@@ -102,7 +77,6 @@ the three live project workspaces.
 
 <verification>
 - `bun run test:coverage:four-metric -- --scope quality-security`
-- `bun run test:coverage:four-metric -- --scope quality-reliability`
 - `bun run test`
 - `git diff --check`
 </verification>

@@ -3,10 +3,10 @@ phase: 43
 plan: "11I"
 type: execute
 gap_closure: true
-wave: 23
-depends_on: ["11H"]
+wave: 32
+depends_on: ["43-11Z"]
 status: pending
-requirements: ["UPGRADE-07", "SHIP-08A"]
+requirements: ["UPGRADE-07"]
 files_modified:
   - overlay/hooks/pre-compact.js
   - overlay/lib/sync.cjs

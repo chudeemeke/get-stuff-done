@@ -44,25 +44,49 @@ gate:
 
 ## Resumption Trigger
 
-The user confirms the GitHub account billing lock is cleared.
+At Plan 11R's blocking human-action checkpoint, the user confirms the GitHub
+account billing lock is cleared and the shared Claude sessions are in a safe
+window for this project's Fable invocation.
 
 Then:
 
-1. Verify PR #23's head equals local `HEAD`.
-2. Push any final Plan 11N commit through the ordinary pre-push hook.
+1. Verify status-only GitHub and Claude authentication without printing secrets.
+2. Verify PR #23's head equals the committed Plan 11N/local `HEAD`, then push
+   that head through the ordinary pre-push hook.
 3. Rerun each of the five workflows once; do not reuse locked-window rows as
    evidence.
-4. Run `bun run phase43:hosted-verdict -- --pr 23`.
-5. Require a local receipt for the exact current head with `verdict: passed`,
+4. Run `bun run phase43:hosted-verdict -- collect --pr 23 --receipt .planning/evidence/hosted/post-11n.json`.
+5. Require a new envelope for the exact checked head with `verdict: passed`,
    `hostedEvidenceExists: true`, all five workflows, every required job, and
-   at least one executed step per job.
-6. Record run IDs, attempts, head SHA, timestamp, and conclusion in the Plan
-   11N summary and PR.
-7. Clear this blocker and begin Plan 11D only after the passed receipt exists.
+   at least one executed step per job. Run `verify-pending`, then let normal GSD
+   task completion commit the envelope at its immutable path.
+6. Run strict offline `verify-receipt` against the tracked envelope, proving its
+   `checkedCommit` is an ancestor and its source, workflow, contract, and policy
+   digests are unchanged. Run the standing post-hosted-CI Fable lead checkpoint
+   with that repository-backed evidence and disposition every finding in the
+   canonical checkpoint record.
+7. Commit the review, disposition, planning, and state changes, then let the
+   standard GSD executor create and commit the Plan 11R summary and metadata.
+   The summary records run IDs, attempts, head SHA, timestamp, Fable decision
+   and review digest, planning corrections, and conclusion.
+8. In Plan 11D Task 11D-00, require a clean tracked worktree, push
+   the fully finalized Plan 11R head, rerun all five workflows once, and require
+   a second passed envelope at `.planning/evidence/hosted/plan11d-entry.json`
+   for that exact PR/local checked head. Verify it pending and commit it through
+   normal task completion.
+9. Begin the first Plan 11D source edit only after strict verification of the
+   tracked entry envelope succeeds. The envelope is durable Plan 11D entry
+   authority; later source commits intentionally invalidate its continuity and
+   do not claim to remain certified by it.
 
-Any new commit invalidates the prior receipt. The generated receipt is
-intentionally gitignored because committing it would change the SHA it
-certifies.
+Hosted envelopes are tracked beneath `.planning/evidence/hosted/`. Each
+certifies an ancestor `checkedCommit`; its later evidence commit is not part of
+the claim, avoiding self-reference. Evidence/docs-only commits remain valid
+only while canonical source, workflow, contract, and policy digests are
+unchanged. Every authority event uses a distinct immutable path:
+`post-11n.json` authorizes the Fable checkpoint, while `plan11d-entry.json`,
+captured after ordinary Plan 11R finalization, authorizes Plan 11D's first
+source edit. No existing envelope is ever overwritten.
 
 ## Forbidden While Locked
 
@@ -77,5 +101,5 @@ certifies.
 Main branch protection still requires the stale context
 `Boundary & Override Check`, while the current workflow reports separate
 `Boundary Check (informational)` and `Override Staleness Check (blocking)`
-contexts. Plan 11N reports this as governance drift; do not mutate branch
+contexts. Plan 11R reports this as governance drift; do not mutate branch
 protection until a real hosted run proves the replacement contexts.

@@ -47,11 +47,11 @@ The strongest remaining risks are execution risks:
 
 ### F1 - Coverage-toolchain feasibility is the dominant technical risk
 
-**Fable finding:** Plans 11E-11J depend on 11D producing truthful merged V8
+**Fable finding:** Plans 11E-11J depend on the coverage foundation producing truthful merged V8
 coverage. Source-map, realpath, line-ending, and runner-counter differences can
 make a green aggregate untrustworthy.
 
-**Disposition: ACCEPT.** Plan 11D now requires a machine-readable feasibility
+**Disposition: ACCEPT.** Plan 11W now requires a machine-readable feasibility
 verdict per source group, fixed fallback rules, and a no-go result when neither
 merged nor disjoint runner evidence can be proven. Thresholds cannot be
 averaged, lowered, or waived.
@@ -81,9 +81,9 @@ Plan 11D. Resolve any blocking failures through GSD before the coverage wave.
 **Fable finding:** classification intent alone does not prevent source removal,
 reclassification, weak tests, or validator drift.
 
-**Disposition: ACCEPT WITH STRICTER POLICY.** Plan 11D will emit a denominator
-digest and classified diff, require every tracked executable path exactly once,
-and define the validator contract once for reuse by 11J. Unlike Fable's proposed
+**Disposition: ACCEPT WITH STRICTER POLICY.** Plan 11D defines the denominator
+digest, classified diff, and exactly-once ownership contract; Plan 11W proves
+runner feasibility against that contract for reuse by 11J. Unlike Fable's proposed
 line-ignore release valve, this project retains its no-ignore rule: unreachable
 production branches must be tested through ports, refactored, removed as dead
 code, or reclassified only through an explicit reviewed source-contract change.
@@ -149,13 +149,14 @@ runners and platforms.
 
 0. Persist this review, execute Plan 11L, push a draft PR, obtain hosted CI,
    and resolve the macOS performance policy from current evidence.
-1. Execute 11D with a per-group coverage feasibility verdict, denominator
-   ratchet, fixed fallback policy, and no-ignore policy.
-2. Execute 11K, then use 11E as the first closure-quality and velocity sample.
-3. Reassess the granularity of 11F-11I from evidence without weakening their
-   source ownership or acceptance gates.
-4. Before 11J, prove its validator contract is identical to the one established
-   by 11D.
+1. Execute 11D for source ownership/Jest parity, then 11W for per-group
+   feasibility, denominator ratchet, fixed fallback policy, and no-ignore policy.
+2. Run Plan 11X's whole-project Fable checkpoint, then execute 11K and use 11E
+   as the first closure-quality and velocity sample.
+3. Reassess the seven bounded 11F/11U/11G/11V/11H/11Z/11I source groups from
+   evidence without weakening their source ownership or acceptance gates.
+4. In Plan 11Y before 11J/11AA/11AB, prove the validator contract is
+   semantically identical to the contracts established by 11D and 11W.
 5. Rerun original Plan 11, then Plan 12, after all corrective mutations.
 6. Enter Phase 44 only with the blocker table re-adjudicated and hosted CI
    green.
@@ -175,26 +176,85 @@ runners and platforms.
 | 41 boundary violations | Audit-block at Phase 44 entry; fix collision-possible subset |
 | 999.2 legacy config keys | Deferred unless install/upgrade behavior depends on one |
 
-## Standing Fable Checkpoints
+## Standing Fable Lead Checkpoints
 
-Fable is a standing whole-project advisor, not a one-plan reviewer. Future
-briefs should be delta-based and include machine evidence plus changed
-decisions.
+Fable is the project's standing lead developer, architect, and designer, not a
+one-plan reviewer. Its reviewed technical and design direction is adopted by
+default. Future briefs must be delta-based, include machine evidence plus
+changed decisions, and request an explicit decision, implementation direction,
+prioritized corrections, and rationale. Repository facts, executable evidence,
+security, WoW, and locked user decisions remain constraints; conflicts with
+those constraints require evidence and user adjudication.
 
-1. **After 11D:** denominator manifest/diff, per-runner samples, feasibility
+1. **After the first real hosted CI run and before 11D:** tracked exact-head
+   envelope with ancestor checked-commit and governed-digest continuity,
+   full workflow/job/step evidence, runner-specific failures, performance
+   observations, and branch-protection drift.
+2. **After the coverage foundation:** denominator manifest/diff, per-runner samples, feasibility
    verdict, fallback result, and anti-gaming checks.
-2. **After 11K and 11E:** coverage delta, representative test-quality sample,
-   closure velocity, and plan-granularity decision for 11F-11I.
-3. **Before 11J:** proof that the aggregate validator uses the 11D contract
-   without semantic drift.
-4. **After original Plan 11:** regenerated N=3 matrix, snapshots, churn, SBOM,
+3. **After 11K, 11E, and 11T:** coverage deltas, representative test-quality
+   samples, closure velocity, and plan-granularity decision for the seven
+   remaining source groups.
+4. **Before 11J/11AA/11AB:** proof that the aggregate validator uses the 11D/11W
+   contracts without semantic drift.
+5. **After original Plan 11:** regenerated N=3 matrix, snapshots, churn, SBOM,
    assurance evidence, and hosted CI.
-5. **At Phase 44 entry:** re-adjudicated blocker table, boundary collision
+6. **At Phase 44 entry:** re-adjudicated blocker table, boundary collision
    classification, performance policy, and changelog-checker disposition.
-6. **Pre-publish:** cross-platform reproducibility comparison, install through
+7. **Pre-publish:** cross-platform reproducibility comparison, install through
    uninstall/reinstall proof, product statement, support policy, and docs gates.
-7. **First post-release bump:** elapsed time, corrective plan count, failure
+8. **First post-release bump:** elapsed time, corrective plan count, failure
    classes, and resulting maintenance-cadence decision.
+
+## Checkpoint Record Contract
+
+Every checkpoint is evidence-bearing. An exact heading alone is insufficient.
+The checkpoint section must contain:
+
+- `Status: dispositioned`;
+- the exact invocation `claude -p --model fable`;
+- the full subject commit plus checkpoint-specific input-manifest, deterministic
+  input-packet, and captured execution-receipt SHA-256 values;
+- the fresh execution nonce echoed exactly once by the returned review;
+- SHA-256 recomputed from the uniquely marked returned-review body using the
+  canonical LF-normalized byte contract in Plan 11P;
+- finding total plus accepted, accepted-with-revision, rejected-with-evidence,
+  and deferred counts whose sum equals the total;
+- non-empty `Lead Decision`, `Implementation Direction`, `Returned Review`,
+  `Findings`, and `Disposition` subsections;
+- exact equality between the lead decision and implementation direction sections
+  and their uniquely marked counterparts inside the hashed returned-review body;
+- `revision=` for every accepted-with-revision finding, `evidence=` for every
+  rejected-with-evidence finding, plus `basis=` limited to verified repository
+  fact, executable evidence, security/WoW, or locked user decision; a product
+  judgment conflict remains deferred to the user rather than rejected; and
+  non-empty `owner=` plus `trigger=` for every deferred finding; and
+- exact equality between canonical finding IDs and disposition IDs.
+
+Plan 11P's shared runner and validator are the only checkpoint-record authority.
+The runner must build the input from subject-bound evidence, execute exact
+`claude -p --model fable` without a shell, and capture the receipt before the
+dependent plan invokes the validator for its exact section. An earlier review,
+self-reported invocation, generic `dispositioned` text, copied/rehashed body, or
+manually inserted heading cannot satisfy a later gate.
+
+## Checkpoint Enforcement Map
+
+These are project leadership checkpoints, even when execution is hosted by a
+specific GSD plan. Each invocation receives the prior whole-project review and
+current program delta, requests Fable's technical/design decision, and may
+revise broader roadmap artifacts through its disposition.
+
+| Standing checkpoint | GSD enforcement |
+|---|---|
+| After first real hosted CI, before 11D | Plan 11R Task 11R-02 collects and commits the first tracked envelope; Task 11R-03 records the lead decision; Plan 11D Task 11D-00 recertifies and commits the fully finalized Plan 11R envelope before Task 11D-01's first source edit |
+| After coverage foundation | Plan 11X Task 11X-01 after committed Plan 11W evidence and before coverage closure begins |
+| After 11K, 11E, and 11T | Plan 11S Task 11S-01 before 11F/11U/11G/11V/11H/11Z/11I continue |
+| Before 11J/11AA/11AB | Plan 11Y Task 11Y-01 before validator source edits |
+| After original Plan 11 | Plan 11Q Task 11Q-02 after fresh exact-head hosted CI and before product closure |
+| Phase 44 entry | Plan 12B Task 12B-01 after readiness evidence and before Plan 12C verification |
+| Pre-publish | Phase 44 planning owner; activation trigger is creation of the release plan, which must include a blocking evidence-bearing checkpoint task |
+| First post-release bump | Phase 44 MAINTENANCE owner; activation trigger is release-plan authoring, which must install the fire-drill evidence and cadence gate before publish |
 
 ## Decisions
 
@@ -202,7 +262,7 @@ decisions.
 compose authority; N=3 no-skip compatibility; fail-closed correction; 95% per
 metric; evidence-backed GSD continuity.
 
-**CHANGE:** add Step 0; strengthen 11D's feasibility and denominator contract;
+**CHANGE:** add Step 0; separate 11D source ownership, 11W feasibility, and 11X review;
 use managed-distribution terminology; add support-cadence and cross-platform
 reproducibility evidence to Phase 44; replace expired perf exceptions with
 measured policy.

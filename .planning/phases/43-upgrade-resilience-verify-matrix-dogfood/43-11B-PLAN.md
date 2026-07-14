@@ -4,10 +4,10 @@ plan: "11B"
 type: execute
 gap_closure: true
 wave: 12
-depends_on: ["11A"]
+depends_on: ["43-11A"]
 status: complete
 completed: 2026-07-13
-requirements: ["UPGRADE-04", "UPGRADE-05", "SHIP-08B"]
+requirements: ["UPGRADE-04"]
 files_modified:
   - tests/helpers/capture-command-output.cjs
   - tests/helpers/compat-package-root.cjs

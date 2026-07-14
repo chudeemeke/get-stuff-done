@@ -4,9 +4,9 @@ plan: "11M"
 type: execute
 gap_closure: true
 wave: 15
-depends_on: ["11L"]
+depends_on: ["43-11L"]
 status: complete
-requirements: ["SHIP-08A"]
+requirements: []
 files_modified:
   - bunfig.toml
   - package.json

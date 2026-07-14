@@ -162,7 +162,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist and included in the npm tarball. GitHub release attachment is separately owned by SHIP-03B in Phase 44.
   7. Production assurance is blocking and two-part: canonical fork-authored source reaches at least 95% statements, branches, functions, and lines independently while Bun remains green, and every shipped upstream snapshot satisfies exact provenance, drift, named fork-delta, ownership/removal, and N=3 composed-package gates. Closeout language cannot describe the fork-only aggregate as whole-production coverage.
-**Plans**: 15/26 plans executed
+**Plans**: 15/41 plans executed
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
@@ -178,17 +178,32 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-11C-PLAN.md -- Wave 13: Roadmap format preservation and N=3 compatibility proof
 - [x] 43-11L-PLAN.md -- Wave 14: Open GSD plan-scan read-model correction and N=3 revalidation
 - [x] 43-11M-PLAN.md -- Wave 15: Test-runner discovery authority and pre-push recovery
-- [ ] 43-11N-PLAN.md -- Wave 16: Exact-head hosted CI verdict and resumption authority
-- [ ] 43-11D-PLAN.md -- Wave 17: Source contract and Jest/Node/c8 coverage foundation
-- [ ] 43-11K-PLAN.md -- Wave 18: SBOM portability and toolchain preflight
-- [ ] 43-11E-PLAN.md -- Wave 19: Launcher and runtime-support four-metric closure
-- [ ] 43-11F-PLAN.md -- Wave 20: Distribution and build-tool four-metric closure
-- [ ] 43-11G-PLAN.md -- Wave 21: Quality, audit, performance, and reliability four-metric closure
-- [ ] 43-11H-PLAN.md -- Wave 22: Upgrade and compatibility tooling four-metric closure
-- [ ] 43-11I-PLAN.md -- Wave 23: Hook and sync four-metric closure
-- [ ] 43-11J-PLAN.md -- Wave 24: Validator-first aggregate assurance, blocker transition, and blocking CI
-- [ ] 43-11-PLAN.md -- Wave 25: Post-bump snapshots, churn, SBOM, and assurance refresh
-- [ ] 43-12-PLAN.md -- Wave 26: D-7 maintenance evidence and verification closeout
+- [ ] 43-11P-PLAN.md -- Wave 16: Subject-bound captured Fable runner, receipt, and replay-safe validator
+- [ ] 43-11N-PLAN.md -- Wave 17: Hosted-CI authority contract, collector, and durable blocker record
+- [ ] 43-11R-PLAN.md -- Wave 18: Human external-state gate, hosted evidence, Fable lead decision, and ordinary GSD finalization
+- [ ] 43-11D-PLAN.md -- Wave 19: Finalized-head hosted recertification, exact source ownership contract, and unchanged Jest parity
+- [ ] 43-11W-PLAN.md -- Wave 20: Multi-process coverage orchestration and per-group feasibility evidence
+- [ ] 43-11X-PLAN.md -- Wave 21: Post-coverage-foundation whole-project Fable checkpoint
+- [ ] 43-11K-PLAN.md -- Wave 22: SBOM portability and toolchain preflight
+- [ ] 43-11E-PLAN.md -- Wave 23: Launcher and installer four-metric closure
+- [ ] 43-11T-PLAN.md -- Wave 24: Runtime-support four-metric closure
+- [ ] 43-11S-PLAN.md -- Wave 25: Post-toolchain and initial-coverage whole-project Fable checkpoint
+- [ ] 43-11F-PLAN.md -- Wave 26: Compose/build/finalize four-metric closure
+- [ ] 43-11U-PLAN.md -- Wave 27: Provenance/semantic/SBOM/docs-tool four-metric closure
+- [ ] 43-11G-PLAN.md -- Wave 28: Audit/override/debt/OSV four-metric closure
+- [ ] 43-11V-PLAN.md -- Wave 29: Benchmark/perf/cousin/flake/oversight four-metric closure
+- [ ] 43-11H-PLAN.md -- Wave 30: Upstream authority/preview/vetted/churn four-metric closure
+- [ ] 43-11Z-PLAN.md -- Wave 31: Compatibility and upgrade-runner four-metric closure
+- [ ] 43-11I-PLAN.md -- Wave 32: Hook and sync four-metric closure
+- [ ] 43-11Y-PLAN.md -- Wave 33: Pre-validator whole-project Fable checkpoint
+- [ ] 43-11J-PLAN.md -- Wave 34: Explicit schemas and pure Phase 43 validator core
+- [ ] 43-11AA-PLAN.md -- Wave 35: Validator adapters, blocking CI, and validator self-coverage
+- [ ] 43-11AB-PLAN.md -- Wave 36: Final aggregate evidence and transactional Plan 11 transition
+- [ ] 43-11-PLAN.md -- Wave 37: Post-bump assurance refresh and bounded evidence summary
+- [ ] 43-11Q-PLAN.md -- Wave 38: Fresh final-head hosted CI and Fable whole-product closure
+- [ ] 43-12-PLAN.md -- Wave 39: Automated D-7 candidate, human confirmation, closeout gates, and Phase 44 readiness
+- [ ] 43-12B-PLAN.md -- Wave 40: Whole-project Fable entry review, post-correction hosted recertification, and reverification
+- [ ] 43-12C-PLAN.md -- Wave 41: Final goal-backward verification and Phase 43 closeout
 
 ### Phase 44: Ship Polish — Publish Flow, Provenance, Docs
 **Goal**: Wire every gate built in Phases 41-43 into the `aidev release` / `aidev publish` flow with OIDC provenance, verify reproducibility, and land a complete MAINTENANCE.md that documents processes that now actually exist.
@@ -204,6 +219,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   7. The packed release candidate passes install -> upgrade, injected-failure rollback, uninstall with user-file preservation, and idempotent reinstall scenarios on Linux, macOS, and Windows.
   8. The changelog conflict checker either accepts normal published-release content while rejecting the intended conflict fixture, or is removed/replaced by a gate with that exact contract; no known false-positive gate enters the publish chain.
   9. All 41 baseline boundary violations are classified by plausible upstream-path collision risk; collision-possible entries are corrected or made explicit reviewed overrides, and any retained collision-impossible entries remain documented under the blocking no-regression ratchet.
+  10. Fable's standing whole-project review is rerun at Phase 44 entry and pre-publish with current machine evidence; every finding is verified and dispositioned, and MAINTENANCE.md requires a first-post-release-bump review of elapsed time, corrective-plan count, failure classes, and sustainable bump cadence.
 **Plans**: TBD
 
 ## Progress
@@ -220,7 +236,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 15/26 | In Progress | - |
+| 43 | v1.2.0 | 15/41 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog
@@ -300,3 +316,27 @@ Plans:
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog alongside the next roadmap-writer change or before v1.2.0 closeout)
+
+### Phase 999.7: Portable market-ready gate system (BACKLOG)
+
+**Goal:** Build one reusable GSD readiness system that combines machine-verifiable production/release evidence, explicit exceptions, project overlays, and human trust/UX review without duplicating portfolio orchestration in conversations.
+**Source:** `authkey:2026-06-07:portable-market-ready-gate-system-get-stuff-done`; implementation ownership confirmed by the paired conversations control-plane handoff.
+**Investigation time-box:** Dedicated post-v1.2 product-methodology phase; estimate during discuss/spec rather than from the inbox proposal.
+**Requirements:** TBD (baseline gate taxonomy, evidence/exception lifecycle, project overlays, human review rubric, generator/checker contract, and conversations-compatible read model).
+
+**Promotion criteria:** See `.planning/phases/999.7-portable-market-ready-gate-system/CONTEXT.md`. Promote after v1.2 ships or by explicit user reprioritization, then run discuss/spec and obtain Fable's standing lead technical/design decision before implementation. Do not absorb this multi-project product into Phase 43 or Phase 44 release closure.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog after v1.2 release or explicit reprioritization)
+
+### Phase 999.8: Open GSD health diagnostic coherence (BACKLOG)
+
+**Goal:** Remove duplicate and false Open GSD `W002` health warnings for valid long-lived roadmap references while preserving strict diagnostics for genuinely unresolved phase identities.
+**Source:** Phase 43 research against composed Open GSD `1.6.1` and `next`; moved out of the release-critical graph to honor locked Phase 43 decision D-22 because no upgrade smoke verifier consumes `validate health`.
+**Investigation time-box:** Reverify after v1.2 or explicit reprioritization; estimate during discuss/spec against the then-current exact Open GSD pin.
+**Requirements:** TBD (phase-reference semantics, composed-runtime tests, N=3 compatibility, removable override/upstream contract, inbox closure evidence).
+
+**Promotion criteria:** See `.planning/phases/999.8-open-gsd-health-diagnostic-coherence/CONTEXT.md`. Run GSD discuss/spec and obtain Fable's standing whole-project lead decision before source work; verify Open GSD issue `#1697` and current upstream behavior rather than relying on the preserved snapshot.
+
+Plans:
+- [ ] TBD (promote after v1.2 release or explicit reprioritization)

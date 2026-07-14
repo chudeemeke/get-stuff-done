@@ -3,159 +3,164 @@ phase: 43
 plan: "11J"
 type: execute
 gap_closure: true
-wave: 24
-depends_on: ["11I"]
+wave: 34
+depends_on: ["43-11Y"]
 status: pending
-requirements: ["UPGRADE-05", "SHIP-03A", "SHIP-08", "SHIP-08A", "SHIP-08B"]
+requirements: ["SHIP-03A"]
 files_modified:
   - config/production-source-contract.json
   - config/phase43-closeout-policy.json
-  - config/schemas/phase43/*.schema.json
+  - config/schemas/phase43/source-contract.schema.json
+  - config/schemas/phase43/coverage.schema.json
+  - config/schemas/phase43/compatibility.schema.json
+  - config/schemas/phase43/ci.schema.json
+  - config/schemas/phase43/d7.schema.json
+  - config/schemas/phase43/blocker-state.schema.json
+  - config/schemas/phase43/sbom-package.schema.json
+  - config/schemas/phase43/closeout.schema.json
   - scripts/validate-phase43-evidence.js
   - tests/validate-phase43-evidence.test.js
-  - tests/ci-workflow.test.js
-  - .github/workflows/ci.yml
-  - .planning/evidence/phase43-coverage.json
-  - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11-BLOCKER.md
-  - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11-BLOCKER-STATE.json
-  - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11-PLAN.md
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11J-SUMMARY.md
 autonomous: true
 must_haves:
   truths:
-    - "the complete canonical fork-authored source set is at least 95% in all four metrics"
-    - "every shipped upstream snapshot passes the separate blocking assurance contract"
-    - "coverage groups are exhaustive and disjoint over the canonical fork set"
-    - "later evidence-only commits cannot invalidate or self-reference measured code identity"
-    - "Phase 43 closeout is decided from strict machine evidence, not prose"
-    - "Plan 43-11 remains blocked until this validator accepts durable compatibility evidence and both SHIP-08 children"
-    - "CI blocks on Bun functional parity and the four-metric aggregate"
+    - "strict schemas reject extra, malformed, stale, or semantically contradictory evidence"
+    - "the validator core is pure and consumes the committed 11D/11W contracts without semantic drift"
+    - "SHIP-08 cannot pass unless SHIP-08A and SHIP-08B pass independently"
+    - "candidate D-7 evidence validates a canonical candidate-facts digest while human confirmation remains pending"
+    - "final closeout accepts only an explicit confirmed transition bound to the corrected candidate digest and correction ledger"
   artifacts:
-    - ".planning/evidence/phase43-coverage.json"
-    - "config/schemas/phase43/*.schema.json"
+    - "config/schemas/phase43/source-contract.schema.json"
+    - "config/schemas/phase43/coverage.schema.json"
+    - "config/schemas/phase43/compatibility.schema.json"
+    - "config/schemas/phase43/ci.schema.json"
+    - "config/schemas/phase43/d7.schema.json"
+    - "config/schemas/phase43/blocker-state.schema.json"
+    - "config/schemas/phase43/sbom-package.schema.json"
+    - "config/schemas/phase43/closeout.schema.json"
     - "scripts/validate-phase43-evidence.js"
     - "43-11J-SUMMARY.md"
   key_links:
-    - "all source groups -> c8 aggregate -> coverage evidence"
-    - "measured commit plus source/policy digests -> validator -> evidence-only commit acceptance"
-    - "strict schemas plus policy -> closeout gates -> CI"
+    - "strict schemas plus policy -> pure validator decisions"
+    - "source, policy, and evidence digests -> non-self-referential lineage"
+    - "D-7 candidate mode -> human confirmation -> strict closeout mode"
 ---
 
 <objective>
-Prove aggregate fork-authored four-metric compliance, validate the separate
-shipped-snapshot assurance contract, create non-self-referential structured
-evidence, and make final production-assurance gates blocking in CI.
+Implement and test the strict schema and pure-validation contract for Phase 43
+evidence without wiring CI or performing final measurement and transition.
 </objective>
 
 <context>
-@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-COVERAGE-SPIKE.md
-@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11I-SUMMARY.md
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11Y-SUMMARY.md
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11D-SUMMARY.md
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11W-SUMMARY.md
 @config/phase43-closeout-policy.json
-@.github/workflows/ci.yml
 </context>
 
 <tasks>
 
 <task id="11J-01" type="auto">
-  <name>Implement and cover strict evidence validation before final measurement</name>
-  <files>config/production-source-contract.json; config/phase43-closeout-policy.json; config/schemas/phase43/*.schema.json; scripts/validate-phase43-evidence.js; tests/validate-phase43-evidence.test.js; tests/ci-workflow.test.js; .github/workflows/ci.yml</files>
+  <name>Define strict source, coverage, compatibility, and CI schemas</name>
+  <files>config/schemas/phase43/source-contract.schema.json; config/schemas/phase43/coverage.schema.json; config/schemas/phase43/compatibility.schema.json; config/schemas/phase43/ci.schema.json; tests/validate-phase43-evidence.test.js</files>
   <action>
     RED: add strict negative fixtures for source contract, coverage,
-    compatibility, CI, D-7, blocker, SBOM/tarball, and closeout result. Reject
-    schema extras, malformed timestamps/SHAs/digests, anything other than
-    exactly three passing `requireAll` rows, report digest mismatch, any metric
-    below 95, non-ancestor subject commits, changed governed digests,
-    missing/non-success required CI, incomplete D-7, tarball/SBOM mismatch, an
-    SHIP-08 umbrella pass when either child is red, an SHIP-08A artifact labeled
-    as whole-production coverage, any unclassified shipped snapshot, any
-    missing SHIP-08B provenance/drift/delta/owner/removal/N=3 field, a
-    coverage-group gap/overlap, premature Plan 11 pending state, and any Phase
-    43 claim that SHIP-03B is complete.
+    compatibility, and CI. Reject schema extras, malformed timestamps, SHAs or
+    digests, anything other than exactly three passing `requireAll` rows, report
+    digest mismatch, any metric below 95, missing/non-success required CI, an
+    SHIP-08A artifact labeled whole-production coverage, unclassified shipped
+    snapshots, missing SHIP-08B provenance/drift/delta/owner/removal/N=3 fields,
+    and coverage-group gaps or overlaps.
 
-    GREEN: add eight `additionalProperties: false` schemas and a pure validator
-    core with filesystem/git/`gh`/packing adapters. Evidence uses role-specific
-    `measuredCodeCommit`, `checkedCommit`, or `dogfoodCommit`; generic `headSha`
-    is forbidden. Later evidence/docs-only commits pass only while recomputed
-    source-set, source-contract, and policy digests are unchanged and the
-    subject commit is an ancestor. Add distinct
-    `--require-production-assurance`, `--require-plan11-unblocked`, and
-    transactional `refresh-production-assurance` modes. The refresh mode
-    validates new governed artifacts before atomically rebinding blocker-state
-    digests and restores prior bytes if post-write validation fails.
+    GREEN: add four `additionalProperties: false` schemas with shared canonical
+    SHA, digest, timestamp, metric, and path definitions. Keep SHIP-08A and
+    SHIP-08B separate in shape and meaning.
 
-    Add `scripts/validate-phase43-evidence.js` to the live production source
-    contract and exactly one `closeout-evidence` group before invoking any
-    scoped coverage. Add CI capture through `gh pr checks --json` without a
-    shell and SBOM capture through marker-owned package temp storage. Add a
-    blocking CI job that runs preflight, Bun, the complete four-metric command,
-    and real production-assurance validation; reconcile required check names
-    against workflow jobs.
-
-    REFACTOR: keep schemas/policy, pure validation, git/CI capture, and package
-    capture in separate boundaries. This task must not write final coverage
-    evidence, resolve the blocker, or change Plan 11 status.
+    REFACTOR: remove fixture duplication without weakening exact field sets.
   </action>
   <acceptance_criteria>
-    - every negative fixture exits non-zero with its exact failed gate.
-    - keyword-rich prose cannot override red machine fields.
-    - the validator executable is classified exactly once and grouped exactly once.
-    - SHIP-08 remains red unless SHIP-08A and SHIP-08B are independently green.
-    - CI has a blocking Bun plus four-metric plus production-assurance job whose name matches policy.
-    - Plan 43-11 remains blocked and its summary remains absent.
-    - the `closeout-evidence` source group is >=95% in all four metrics.
+    - every schema negative fixture fails on its exact field or invariant.
+    - SHIP-08A cannot be labeled whole-production coverage.
+    - compatibility requires exactly three complete passing rows.
   </acceptance_criteria>
   <verify>
-    <automated>bun run test -- tests/validate-phase43-evidence.test.js tests/ci-workflow.test.js tests/production-source-contract.test.js</automated>
-    <automated>bun run test:coverage:four-metric -- --scope closeout-evidence</automated>
-    <automated>node scripts/validate-phase43-evidence.js --help</automated>
-    <automated>bash scripts/lint-workflows.sh</automated>
+    <automated>bun run test -- tests/validate-phase43-evidence.test.js</automated>
   </verify>
   <done>false</done>
 </task>
 
 <task id="11J-02" type="auto">
-  <name>Measure the final set, validate real assurance, and unblock Plan 11</name>
-  <files>.planning/evidence/phase43-coverage.json; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11-BLOCKER.md; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11-BLOCKER-STATE.json; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11-PLAN.md</files>
+  <name>Define strict D-7, blocker, package, and closeout schemas</name>
+  <files>config/phase43-closeout-policy.json; config/schemas/phase43/d7.schema.json; config/schemas/phase43/blocker-state.schema.json; config/schemas/phase43/sbom-package.schema.json; config/schemas/phase43/closeout.schema.json; tests/validate-phase43-evidence.test.js</files>
   <action>
-    Run the complete launcher only after Task 11J-01 has added and classified
-    the validator. Global reconciliation must prove an exhaustive, disjoint
-    partition of the live canonical fork source set. Require zero functional
-    failures and at least 95% independently for statements, branches,
-    functions, and lines. Write `.planning/evidence/phase43-coverage.json`
-    atomically only after success with `measuredCodeCommit`, command argv/exit
-    codes, Bun/Jest/Node counts, exact runner versions, raw report digest,
-    source-set/contract/policy digests, live file count, and integer metrics.
-    Label it `forkAuthoredCoverage`; whole-production synonyms are forbidden.
+    RED: add strict negative fixtures for D-7, blocker, SBOM/tarball, and closeout
+    results. Reject schema extras, tarball/SBOM mismatch, a SHIP-08 umbrella pass
+    when either child is red, premature Plan 11 state, and any Phase 43 SHIP-03B
+    completion claim.
 
-    Consume the exact durable Plan 11C bytes at
-    `.planning/evidence/phase43-compat.json` without regeneration or
-    normalization. Run `--require-production-assurance` against the real
-    coverage, compatibility, source-contract, policy, and provisional blocker
-    artifacts. It must bind every SHIP-08B snapshot to provenance, drift, named
-    delta tests, ownership/removal, and the exact three-row N=3 evidence.
+    Add paired D-7 fixtures. Define `candidateFactsSha256` as lowercase SHA-256
+    over canonical JSON for all structured and rendered dogfood facts excluding
+    the `humanConfirmation` object, with recursively sorted object keys,
+    preserved array order, UTF-8 encoding, and one LF. Candidate validation
+    accepts complete machine fields with
+    `humanConfirmation: { status: pending, candidateFactsSha256,
+    confirmedAt: null, corrections: [] }`. Closeout rejects that record and
+    accepts only `status: confirmed`, the exact recomputed candidate-facts
+    digest, an RFC 3339 `confirmedAt`, and a strict correction ledger whose
+    field/before/after/reason entries agree with the corrected structured and
+    rendered values. No user identity is invented.
 
-    Only after that command exits zero, atomically write resolved
-    `43-11-BLOCKER-STATE.json`, append final validation evidence to
-    `43-11-BLOCKER.md`, and change `43-11-PLAN.md` from blocked to pending while
-    retaining blocker history. Run `--require-plan11-unblocked` immediately
-    against the real artifacts and post-transition files. If it fails, restore
-    the three pre-transition files from their captured bytes and leave Plan 11
-    blocked. Raw/report temp directories are removed through the owned-temp
-    port in every outcome.
+    GREEN: add the remaining four `additionalProperties: false` schemas and the
+    declarative closeout policy. Evidence uses role-specific
+    `measuredCodeCommit`, `checkedCommit`, or `dogfoodCommit`; generic `headSha`
+    is forbidden. Preserve separate candidate D-7 and final closeout shapes.
+
+    REFACTOR: centralize cross-schema constants while retaining strict
+    additional-property rejection.
   </action>
   <acceptance_criteria>
-    - all four fork-authored aggregate metrics are >=95 with integer totals matching c8 JSON.
-    - the final aggregate includes the classified validator and every other live executable path.
-    - compatibility and blocker evidence bind to the exact durable Plan 11C report bytes and matching digest.
-    - the real production-assurance command proves SHIP-08A and SHIP-08B independently before transition.
-    - original Plan 43-11 becomes pending only after pre- and post-transition validation; its summary remains absent.
-    - any post-transition validation failure restores blocked state without partial blocker files.
-    - raw/report temp directories are absent after success and every failure path.
+    - candidate D-7 validation and strict closeout differ only at the explicit digest-bound human-confirmation boundary.
+    - SHIP-08 remains red unless SHIP-08A and SHIP-08B are independently green.
+    - package evidence cannot claim SHIP-03B or pass on a digest mismatch.
   </acceptance_criteria>
   <verify>
-    <automated>bun run test:coverage:four-metric -- --report .planning/evidence/phase43-coverage.json</automated>
-    <automated>node scripts/validate-phase43-evidence.js --require-production-assurance</automated>
-    <automated>node scripts/validate-phase43-evidence.js --require-plan11-unblocked</automated>
+    <automated>bun run test -- tests/validate-phase43-evidence.test.js</automated>
+  </verify>
+  <done>false</done>
+</task>
+
+<task id="11J-03" type="auto">
+  <name>Implement the pure evidence validator core</name>
+  <files>config/production-source-contract.json; scripts/validate-phase43-evidence.js; tests/validate-phase43-evidence.test.js</files>
+  <action>
+    RED: add cross-artifact fixtures for non-ancestor subject commits, changed
+    governed digests, schema-valid but semantically contradictory evidence,
+    keyword-rich prose over red machine fields, and every distinct core
+    decision boundary.
+
+    GREEN: implement a pure validator core with injected filesystem, git, CI,
+    and package-evidence ports. Later evidence/docs-only commits pass only while
+    recomputed source-set, source-contract, and policy digests are unchanged and
+    the measured subject is an ancestor. Define distinct decisions for
+    candidate D-7, production assurance, Plan 11 transition, and final closeout
+    without performing I/O.
+
+    Add the validator executable to the live production source contract and
+    exactly one `closeout-evidence` group. Preserve the committed 11D/11W
+    semantic contract and fail if its digests or ownership rules drift.
+
+    REFACTOR: keep schemas/policy, pure validation, and port interfaces separate.
+    This plan must not edit CI, write final evidence, or change Plan 11 status.
+  </action>
+  <acceptance_criteria>
+    - every cross-artifact negative fixture exits non-zero with its exact failed gate.
+    - keyword-rich prose cannot override red machine fields.
+    - the validator executable is classified and grouped exactly once.
+    - Plan 43-11 remains blocked and its summary remains absent.
+  </acceptance_criteria>
+  <verify>
+    <automated>bun run test -- tests/validate-phase43-evidence.test.js tests/production-source-contract.test.js</automated>
+    <automated>node scripts/validate-phase43-evidence.js --help</automated>
   </verify>
   <done>false</done>
 </task>
@@ -163,18 +168,13 @@ evidence, and make final production-assurance gates blocking in CI.
 </tasks>
 
 <threat_model>
-Evidence committed after measurement cannot truthfully point at its own commit.
-Ancestor checks plus current governed digests prevent both self-reference and
-stale evidence. CI names are policy-reconciled so renamed or removed jobs fail
-closed. Phase 43 cannot claim the Phase 44 release attachment.
+Loose schemas and combined I/O make semantic drift, stale lineage, and prose
+overrides hard to detect. Explicit schemas and a pure core make every evidence
+decision deterministic before CI and live artifacts enter the boundary.
 </threat_model>
 
 <verification>
-- `bun run test -- tests/validate-phase43-evidence.test.js tests/ci-workflow.test.js`
-- `bun run test:coverage:four-metric -- --scope closeout-evidence`
-- `bun run test:coverage:four-metric -- --report .planning/evidence/phase43-coverage.json`
-- `node scripts/validate-phase43-evidence.js --require-production-assurance`
-- `node scripts/validate-phase43-evidence.js --require-plan11-unblocked`
-- `bash scripts/lint-workflows.sh`
+- `bun run test -- tests/validate-phase43-evidence.test.js tests/production-source-contract.test.js`
+- `node scripts/validate-phase43-evidence.js --help`
 - `git diff --check`
 </verification>

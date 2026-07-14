@@ -3,10 +3,10 @@ phase: 43
 plan: "11K"
 type: execute
 gap_closure: true
-wave: 18
-depends_on: ["11D"]
+wave: 22
+depends_on: ["43-11X"]
 status: pending
-requirements: ["UPGRADE-05", "SHIP-03A", "SHIP-08A"]
+requirements: ["SHIP-03A"]
 files_modified:
   - config/production-source-contract.json
   - config/phase43-closeout-policy.json

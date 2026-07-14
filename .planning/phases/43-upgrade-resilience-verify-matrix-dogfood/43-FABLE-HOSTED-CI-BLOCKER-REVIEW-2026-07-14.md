@@ -42,10 +42,14 @@ Accepted:
 
 Accepted with amendment:
 
-- The verdict receipt is local and gitignored, not tracked. A tracked receipt
-  changes the commit SHA it certifies and creates a self-invalidating loop.
-- GitHub remains the authority. The local JSON is a fail-closed materialized
+- The verdict is a tracked immutable envelope that certifies an ancestor
+  `checkedCommit`, not the later commit containing the envelope. This avoids
+  self-reference while surviving isolated-plan worktree cleanup.
+- GitHub remains the authority. The tracked JSON is a fail-closed materialized
   read model over live PR, workflow, job, step, and annotation metadata.
+- Every consumer proves checked-commit ancestry and unchanged canonical source,
+  workflow, contract, and policy digests. Evidence files are outside those
+  governed sets.
 
 Rejected as inapplicable:
 
@@ -85,8 +89,10 @@ Disposition:
 - **Accepted as fail-closed:** the one-page collection bound. More than 100
   runs or jobs returns `collection_error`; implement pagination only if this
   explicit operational trigger is reached.
-- **Retained:** publish the passed exact-head receipt evidence out of band in
-  the PR after billing recovery. The local receipt remains gitignored.
+- **Superseded after independent GSD plan check:** a gitignored local receipt
+  cannot survive Open GSD's default isolated worktree cleanup. Persist each
+  passed verdict as a tracked ancestor-certifying envelope at a distinct path.
+  Any optional PR publication remains a separate consent-gated external action.
 
 The repository-backed implementation review remains due after the first real
 hosted run and before Plan 11D, matching the standing whole-project checkpoint.

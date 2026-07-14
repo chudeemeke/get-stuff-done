@@ -4,9 +4,9 @@ plan: "11C"
 type: execute
 gap_closure: true
 wave: 13
-depends_on: ["11B"]
+depends_on: ["43-11B"]
 status: pending
-requirements: ["UPGRADE-04", "UPGRADE-05", "SHIP-08B"]
+requirements: ["UPGRADE-04"]
 files_modified:
   - overlay/gsd-core/bin/lib/fork-roadmap-persistence.cjs
   - overrides/gsd-core/bin/lib/roadmap.cjs

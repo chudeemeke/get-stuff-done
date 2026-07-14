@@ -119,13 +119,13 @@ Which phases cover which requirements. Populated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | UPGRADE-01 | Phase 43 | Complete |
-| UPGRADE-02 | Phase 43 | Pending |
+| UPGRADE-02 | Phase 43 | Complete |
 | UPGRADE-03 | Phase 41 | Complete |
-| UPGRADE-04 | Phase 43 | Pending |
+| UPGRADE-04 | Phase 43 | Complete |
 | UPGRADE-05 | Phase 43 | Pending |
 | UPGRADE-06 | Phase 41 | Complete |
 | UPGRADE-07 | Phase 43 | Complete |
-| UPGRADE-08 | Phase 43 | Pending |
+| UPGRADE-08 | Phase 43 | Complete |
 | UPGRADE-09 | Phase 43 | Complete |
 | UPGRADE-10 | Phase 40.5 / 40.6 | Superseded and closed |
 | UPGRADE-11 | Phase 40.6 | Complete |

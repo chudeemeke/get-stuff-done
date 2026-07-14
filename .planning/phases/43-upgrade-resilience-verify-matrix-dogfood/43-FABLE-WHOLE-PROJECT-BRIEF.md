@@ -3,12 +3,19 @@ project: get-stuff-done
 reviewer: Claude Fable
 review_scope: whole-project strategic and implementation critique
 prepared: 2026-07-14
-status: reviewed
+status: reviewed-historical-input
 review_completed: 2026-07-14
 review_artifact: 43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md
+authority_clarified: 2026-07-14
 ---
 
 # Fable Whole-Project Advisory Brief
+
+> Historical input note: this file preserves the role wording sent for the
+> completed initial review. The later user decision establishes Fable as the
+> project's lead developer, architect, and designer. All future checkpoints use
+> the lead-authority contract in `.planning/PROJECT.md` and the review artifact;
+> this historical wording is not current governance.
 
 ## Role
 
@@ -86,16 +93,19 @@ Deliver a market-ready, potentially open-source GSD distribution that:
   deliberate rebaseline or variance-aware policy rather than more waivers.
 - The changelog conflict checker passes its synthetic self-test but fails on
   normal published-release bullets; its intended operating scope is unresolved.
-- Project config still has legacy/unknown keys tracked under backlog 999.2.
+- Project config still has known schema drift owned by backlog 999.2. Phase 43
+  must not partially migrate it: canonical Open GSD keys, fork extensions, all
+  consumers, and validation tests need one atomic migration.
 - Windows subprocess/lock behavior is heavily tested but remains an operational
   complexity and flake risk.
-- The branch has multiple local commits and no current PR/CI confirmation for
-  the newest corrective work.
+- Draft PR #23 exists, but its five workflow runs executed zero steps because
+  of the account billing lock; they provide no hosted product evidence.
 - Active Open GSD `plan-scan.cjs` uses a loose Markdown filename fallback that
-  counts `42-PLAN-REVIEW.md` and `43-PLAN-REVIEW.md` as executable plans. The
-  authoritative plan total is 45, while `roadmap analyze` currently reports
-  47. Backlog 999.5 captures the upstream/fork disposition and requires a fix
-  before original Plan 43-11 closeout.
+  counts plan-review derivative artifacts as executable plans. The Phase 43
+  artifact is now named `43-GSD-REVIEW.md` for index hygiene, while the shared
+  local Plan 11L override remains the executable compatibility fix. Current
+  `roadmap analyze` reports 63 portfolio plans and 41 Phase 43 plans. Open GSD
+  issue #2252 owns the upstream defect and the override removal trigger.
 
 ## Remaining Sequence In Detail
 
@@ -167,7 +177,7 @@ Source set:
 5. `docs/decisions/003-UPSTREAM-AUTHORITY-MIGRATION.md`
 6. `docs/superpowers/specs/2026-03-28-overlay-architecture-design.md`
 7. `.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-CONTEXT.md`
-8. `.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-PLAN-REVIEW.md`
+8. `.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-GSD-REVIEW.md`
 9. `.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-COVERAGE-SPIKE.md`
 10. `.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11C-SUMMARY.md`
 11. Plans `43-11D-PLAN.md` through `43-11K-PLAN.md`

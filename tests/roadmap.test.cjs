@@ -17,6 +17,44 @@ const roadmapPersistence = require(
 const { cmdRoadmapUpdatePlanProgress } = require(
   path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'roadmap.cjs')
 );
+const planScan = require(
+  path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'plan-scan.cjs')
+);
+
+describe('shared plan-scan contract', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('excludes PLAN-REVIEW derivatives without narrowing supported plan names', () => {
+    assert.strictEqual(planScan.isRootPlanFile('42-PLAN-REVIEW.md'), false);
+    assert.strictEqual(planScan.isRootPlanFile('42-plan-review.MD'), false);
+    assert.strictEqual(planScan.isRootPlanFile('PLAN-REVIEW.md'), false);
+    assert.strictEqual(planScan.isRootPlanFile('PLAN.md'), true);
+    assert.strictEqual(planScan.isRootPlanFile('42-01-PLAN.md'), true);
+    assert.strictEqual(planScan.isRootPlanFile('legacy-plan-draft.md'), true);
+    assert.strictEqual(planScan.isNestedPlanFile('PLAN-01.md'), true);
+    assert.strictEqual(planScan.isNestedPlanFile('42-PLAN-01.md'), true);
+  });
+
+  test('does not include PLAN-REVIEW derivatives in phase scan totals', () => {
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '42-foundation');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '42-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '42-PLAN-REVIEW.md'), '# Review');
+
+    const result = planScan.scanPhasePlans(phaseDir);
+
+    assert.strictEqual(result.planCount, 1);
+    assert.deepStrictEqual(result.planFiles, ['42-01-PLAN.md']);
+  });
+});
 
 describe('roadmap get-phase command', () => {
   let tmpDir;
@@ -266,6 +304,30 @@ describe('roadmap analyze command', () => {
     assert.strictEqual(output.phases[0].depends_on, 'Nothing');
     assert.strictEqual(output.phases[1].goal, 'Build features');
     assert.strictEqual(output.phases[1].depends_on, 'Phase 1');
+  });
+
+  test('does not inflate plan totals for a PLAN-REVIEW artifact', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 42: Foundation
+**Goal:** Build the foundation
+**Plans:** 1 plan
+`
+    );
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '42-foundation');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '42-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '42-PLAN-REVIEW.md'), '# Review');
+
+    const result = runGsdTools('roadmap analyze', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+    const output = JSON.parse(result.output);
+
+    assert.strictEqual(output.total_plans, 1);
+    assert.strictEqual(output.phases[0].disk_plan_count, 1);
+    assert.strictEqual(output.phases[0].plan_count, 1);
   });
 
   test('counts ROADMAP-declared plans so future work is not hidden', () => {

@@ -17,7 +17,7 @@
       "evidence": {
         "matrixReport": ".planning/evidence/phase43-compat.json",
         "status": "passed",
-        "matrixReportSha256": "6b7bb361b7ef34d82e11be5289ecc3f1f14a8200192ee826fb59ea110d8c387c"
+        "matrixReportSha256": "e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712"
       }
     },
     {
@@ -28,7 +28,7 @@
       "evidence": {
         "matrixReport": ".planning/evidence/phase43-compat.json",
         "status": "passed",
-        "matrixReportSha256": "6b7bb361b7ef34d82e11be5289ecc3f1f14a8200192ee826fb59ea110d8c387c"
+        "matrixReportSha256": "e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712"
       }
     },
     {
@@ -38,7 +38,7 @@
       "vettedAt": "2026-07-14",
       "evidence": {
         "matrixReport": ".planning/evidence/phase43-compat.json",
-        "matrixReportSha256": "6b7bb361b7ef34d82e11be5289ecc3f1f14a8200192ee826fb59ea110d8c387c",
+        "matrixReportSha256": "e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712",
         "status": "passed"
       }
     }

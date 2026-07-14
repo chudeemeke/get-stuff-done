@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "packageName": "@opengsd/gsd-core",
-  "generatedAt": "2026-07-14T00:26:06.288Z",
+  "generatedAt": "2026-07-14T01:35:31.030Z",
   "matrixReport": ".planning/evidence/phase43-compat.json",
   "policy": "require-all",
   "ok": true,
@@ -14,10 +14,10 @@
       "blocking": false,
       "ok": true,
       "exitCode": 0,
-      "durationMs": 53426,
+      "durationMs": 48721,
       "classification": "informational",
       "status": "passed",
-      "passed": 312,
+      "passed": 315,
       "failed": 0,
       "skipped": 0,
       "excluded": [
@@ -48,7 +48,7 @@
           "passed": 22,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 4662,
+          "durationMs": 4816,
           "exitCode": 0,
           "errors": []
         },
@@ -60,7 +60,7 @@
           "passed": 47,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 2097,
+          "durationMs": 2005,
           "exitCode": 0,
           "errors": []
         },
@@ -72,7 +72,7 @@
           "passed": 103,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1789,
+          "durationMs": 1938,
           "exitCode": 0,
           "errors": []
         },
@@ -84,7 +84,7 @@
           "passed": 14,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 3029,
+          "durationMs": 3061,
           "exitCode": 0,
           "errors": []
         },
@@ -96,7 +96,7 @@
           "passed": 2,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 567,
+          "durationMs": 573,
           "exitCode": 0,
           "errors": []
         },
@@ -108,7 +108,7 @@
           "passed": 54,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 7619,
+          "durationMs": 7666,
           "exitCode": 0,
           "errors": []
         },
@@ -117,10 +117,10 @@
           "classification": "candidate",
           "authorityBoundary": "upstream-internal-observed",
           "status": "passed",
-          "passed": 16,
+          "passed": 19,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 13796,
+          "durationMs": 13468,
           "exitCode": 0,
           "errors": []
         },
@@ -132,7 +132,7 @@
           "passed": 4,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1107,
+          "durationMs": 1067,
           "exitCode": 0,
           "errors": []
         },
@@ -144,7 +144,7 @@
           "passed": 13,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 2552,
+          "durationMs": 2561,
           "exitCode": 0,
           "errors": []
         },
@@ -156,7 +156,7 @@
           "passed": 34,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1040,
+          "durationMs": 1033,
           "exitCode": 0,
           "errors": []
         },
@@ -168,7 +168,7 @@
           "passed": 3,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 742,
+          "durationMs": 741,
           "exitCode": 0,
           "errors": []
         }
@@ -181,10 +181,10 @@
       "blocking": false,
       "ok": true,
       "exitCode": 0,
-      "durationMs": 64773,
+      "durationMs": 64878,
       "classification": "informational",
       "status": "passed",
-      "passed": 312,
+      "passed": 315,
       "failed": 0,
       "skipped": 0,
       "excluded": [
@@ -215,7 +215,7 @@
           "passed": 22,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 5028,
+          "durationMs": 5220,
           "exitCode": 0,
           "errors": []
         },
@@ -227,7 +227,7 @@
           "passed": 47,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 2610,
+          "durationMs": 2812,
           "exitCode": 0,
           "errors": []
         },
@@ -251,7 +251,7 @@
           "passed": 14,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 7325,
+          "durationMs": 7316,
           "exitCode": 0,
           "errors": []
         },
@@ -263,7 +263,7 @@
           "passed": 2,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 584,
+          "durationMs": 570,
           "exitCode": 0,
           "errors": []
         },
@@ -275,7 +275,7 @@
           "passed": 54,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 10175,
+          "durationMs": 10160,
           "exitCode": 0,
           "errors": []
         },
@@ -284,10 +284,10 @@
           "classification": "candidate",
           "authorityBoundary": "upstream-internal-observed",
           "status": "passed",
-          "passed": 16,
+          "passed": 19,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 17469,
+          "durationMs": 13326,
           "exitCode": 0,
           "errors": []
         },
@@ -299,7 +299,7 @@
           "passed": 4,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1786,
+          "durationMs": 1697,
           "exitCode": 0,
           "errors": []
         },
@@ -311,7 +311,7 @@
           "passed": 13,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 2805,
+          "durationMs": 2587,
           "exitCode": 0,
           "errors": []
         },
@@ -323,7 +323,7 @@
           "passed": 34,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1108,
+          "durationMs": 1050,
           "exitCode": 0,
           "errors": []
         },
@@ -335,7 +335,7 @@
           "passed": 3,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1642,
+          "durationMs": 1627,
           "exitCode": 0,
           "errors": []
         }
@@ -348,10 +348,10 @@
       "blocking": true,
       "ok": true,
       "exitCode": 0,
-      "durationMs": 63954,
+      "durationMs": 58583,
       "classification": "blocking",
       "status": "passed",
-      "passed": 312,
+      "passed": 315,
       "failed": 0,
       "skipped": 0,
       "excluded": [
@@ -382,7 +382,7 @@
           "passed": 22,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 5089,
+          "durationMs": 4947,
           "exitCode": 0,
           "errors": []
         },
@@ -394,7 +394,7 @@
           "passed": 47,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 2784,
+          "durationMs": 2808,
           "exitCode": 0,
           "errors": []
         },
@@ -406,7 +406,7 @@
           "passed": 103,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1851,
+          "durationMs": 1916,
           "exitCode": 0,
           "errors": []
         },
@@ -418,7 +418,7 @@
           "passed": 14,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 7308,
+          "durationMs": 7459,
           "exitCode": 0,
           "errors": []
         },
@@ -430,7 +430,7 @@
           "passed": 2,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 604,
+          "durationMs": 583,
           "exitCode": 0,
           "errors": []
         },
@@ -442,7 +442,7 @@
           "passed": 54,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 10220,
+          "durationMs": 10193,
           "exitCode": 0,
           "errors": []
         },
@@ -451,10 +451,10 @@
           "classification": "candidate",
           "authorityBoundary": "upstream-internal-observed",
           "status": "passed",
-          "passed": 16,
+          "passed": 19,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 13198,
+          "durationMs": 13246,
           "exitCode": 0,
           "errors": []
         },
@@ -466,7 +466,7 @@
           "passed": 4,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1685,
+          "durationMs": 1681,
           "exitCode": 0,
           "errors": []
         },
@@ -478,7 +478,7 @@
           "passed": 13,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 2647,
+          "durationMs": 2666,
           "exitCode": 0,
           "errors": []
         },
@@ -490,7 +490,7 @@
           "passed": 34,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1119,
+          "durationMs": 1050,
           "exitCode": 0,
           "errors": []
         },
@@ -502,7 +502,7 @@
           "passed": 3,
           "failed": 0,
           "skipped": 0,
-          "durationMs": 1835,
+          "durationMs": 1615,
           "exitCode": 0,
           "errors": []
         }

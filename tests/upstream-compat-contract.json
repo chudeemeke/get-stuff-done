@@ -76,10 +76,11 @@
       "authorityBoundary": "upstream-internal-observed",
       "authorityEvidence": [
         "bin/lib/fork-roadmap-persistence.cjs",
+        "bin/lib/plan-scan.cjs",
         "bin/lib/roadmap.cjs"
       ],
-      "rationale": "Verifies roadmap progress and fork-private byte-preserving publication against the exact composed modules consumed at runtime.",
-      "bumpReviewTrigger": "review roadmap.cjs and fork-roadmap-persistence.cjs imports, persistence behavior, and authority evidence on every Open GSD version bump"
+      "rationale": "Verifies plan classification, roadmap progress, and fork-private byte-preserving publication against the exact composed modules consumed at runtime.",
+      "bumpReviewTrigger": "review plan-scan.cjs, roadmap.cjs, fork-roadmap-persistence.cjs imports, persistence behavior, and authority evidence on every Open GSD version bump"
     },
     {
       "path": "runtime-overrides.test.cjs",

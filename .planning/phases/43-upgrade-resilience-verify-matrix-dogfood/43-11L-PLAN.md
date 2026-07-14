@@ -10,7 +10,8 @@ requirements: ["SHIP-08A", "SHIP-08B"]
 files_modified:
   - overrides/gsd-core/bin/lib/plan-scan.cjs
   - overrides/gsd-core/bin/lib/plan-scan.cjs.REASON.md
-  - tests/plan-scan-override.test.cjs
+  - tests/roadmap.test.cjs
+  - tests/upstream-compat-contract.json
   - .planning/vetted-upstream-versions.json
   - .planning/evidence/phase43-compat.json
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11L-SUMMARY.md
@@ -25,7 +26,7 @@ must_haves:
   artifacts:
     - "overrides/gsd-core/bin/lib/plan-scan.cjs"
     - "overrides/gsd-core/bin/lib/plan-scan.cjs.REASON.md"
-    - "tests/plan-scan-override.test.cjs"
+    - "tests/roadmap.test.cjs"
     - "43-11L-SUMMARY.md"
   key_links:
     - "Open GSD issue #2252 -> temporary override -> removal trigger"
@@ -51,7 +52,7 @@ compatibility and a clear path back to upstream ownership.
 
 <task id="11L-01" type="auto">
   <name>Add the minimal shared plan-scan correction</name>
-  <files>overrides/gsd-core/bin/lib/plan-scan.cjs; overrides/gsd-core/bin/lib/plan-scan.cjs.REASON.md; tests/plan-scan-override.test.cjs</files>
+  <files>overrides/gsd-core/bin/lib/plan-scan.cjs; overrides/gsd-core/bin/lib/plan-scan.cjs.REASON.md; tests/roadmap.test.cjs</files>
   <action>
     RED: add direct classifier and directory-scan tests proving that
     `42-PLAN-REVIEW.md` and case variants are excluded while `PLAN.md`,
@@ -79,9 +80,9 @@ compatibility and a clear path back to upstream ownership.
     - composed `roadmap analyze` reports the authoritative portfolio plan total.
   </acceptance_criteria>
   <verify>
-    <automated>bun test tests/plan-scan-override.test.cjs tests/roadmap.test.cjs</automated>
+    <automated>node --test tests/roadmap.test.cjs</automated>
     <automated>bun run compose</automated>
-    <automated>bun run check:overrides</automated>
+    <automated>node scripts/check-overrides.js</automated>
   </verify>
   <done>false</done>
 </task>
@@ -103,9 +104,9 @@ compatibility and a clear path back to upstream ownership.
     - no owned temporary matrix artifact remains.
   </acceptance_criteria>
   <verify>
-    <automated>bun run test:compat:repository</automated>
+    <automated>bun run test:repository-compat</automated>
     <automated>node scripts/run-compat-matrix.js --manifest .planning/vetted-upstream-versions.json --require-all --json --report .planning/evidence/phase43-compat.json</automated>
-    <automated>node scripts/apply-compat-evidence.js --manifest .planning/vetted-upstream-versions.json --report .planning/evidence/phase43-compat.json</automated>
+    <automated>node scripts/vetted-upstream-versions.js --apply-matrix-evidence .planning/evidence/phase43-compat.json</automated>
   </verify>
   <done>false</done>
 </task>
@@ -120,10 +121,10 @@ fallback, bind it to upstream issue #2252, and rerun composed compatibility.
 </threat_model>
 
 <verification>
-- `bun test tests/plan-scan-override.test.cjs tests/roadmap.test.cjs`
+- `node --test tests/roadmap.test.cjs`
 - `bun run compose`
-- `bun run check:overrides`
-- `bun run test:compat:repository`
+- `node scripts/check-overrides.js`
+- `bun run test:repository-compat`
 - N=3 matrix with strict evidence application
 - `git diff --check`
 </verification>

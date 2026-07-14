@@ -5,9 +5,10 @@ type: execute
 gap_closure: true
 wave: 18
 depends_on: ["43-11N"]
-status: in_progress
+status: blocked
 requirements: []
 files_modified:
+  - .planning/evidence/hosted/first-real-run-failure.json
   - .planning/evidence/hosted/post-11n.json
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-HOSTED-CI-RESUME.md
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md
@@ -24,7 +25,9 @@ must_haves:
     - "Fable leads the technical and design adjudication of hosted evidence at strategic and implementation scales"
     - "ordinary GSD finalization commits all tracked review, disposition, checkpoint, blocker-state, and summary bytes before recertification"
     - "Plan 11D recertifies the exact finalized Plan 11R head before its first source edit"
+    - "a real failed hosted cycle is persisted without manufacturing a passed envelope, and Fable leads the corrective GSD replan before source edits or another external run"
   artifacts:
+    - ".planning/evidence/hosted/first-real-run-failure.json"
     - ".planning/evidence/fable/post-hosted-ci-input.json"
     - ".planning/evidence/fable/post-hosted-ci-receipt.json"
     - "43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md"
@@ -46,6 +49,22 @@ finalized tracked head for Plan 11D's pre-edit recertification.
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md
 @config/phase43-hosted-ci-contract.json
 </context>
+
+<execution_blocker>
+Task 11R-02 was attempted once against exact PR head
+`2c9ba08745cf3bc13cec42b0c05feb2ae5f02233`. Cousin Install,
+Oversight Probes, and Compat Matrix passed with real steps; CI and Upgrade
+Verifier failed with real steps. The fail-closed collector returned
+`run_failed` and created no `post-11n.json` envelope. The immutable observation
+is tracked at `.planning/evidence/hosted/first-real-run-failure.json`.
+
+This is the first real hosted run required by the standing Fable review, but it
+invalidates this plan's assumption that a passed envelope precedes review. Stop
+before source edits, workflow edits, issue remediation, or another hosted run.
+When Fable quota and the shared-session window are available, Fable must lead a
+GSD graph correction that consumes the failure evidence, sequences the
+corrective work, and preserves the later passed-envelope gate before Plan 11D.
+</execution_blocker>
 
 <tasks>
 

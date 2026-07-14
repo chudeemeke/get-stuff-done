@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-done. It consumes upstream as an npm dependency and layers fork-specific additions (cross-platform tooling, theming, sync safety, launcher) on top through a composition pipeline. Users get upstream's full capabilities plus fork enhancements, with surface-only branding. Active v1.2.0 work has cleared the Phase 41 foundation and now moves to Phase 42 budget enforcement, process hardening, and cousin-test validation.
+A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-done. It consumes Open GSD as an exact-pinned npm dependency and layers fork-specific additions (cross-platform tooling, theming, sync safety, launcher) on top through a composition pipeline. Users get upstream's supported capabilities plus fork enhancements, with surface-only branding. Active v1.2.0 work is in Phase 43: the live dogfood bump to Open GSD `1.6.1` is complete, while compatibility, four-metric coverage, and closeout evidence remain failed closed behind a corrective slice.
 
 ## Core Value
 
@@ -64,7 +64,7 @@ A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-don
 **Target features:**
 
 *Upgrade resilience*
-- Open GSD authority is active: legacy `get-shit-done-cc` / `gsd-build/get-shit-done` was migrated to `@opengsd/gsd-core@1.5.0` / `open-gsd/gsd-core` before Phase 41
+- Open GSD authority is active: legacy `get-shit-done-cc` / `gsd-build/get-shit-done` was migrated to `@opengsd/gsd-core` / `open-gsd/gsd-core` before Phase 41, and Phase 43 now pins reviewed stable `1.6.1`
 - Automated upgrade test in CI (install -> bump -> recompose -> reinstall -> verify)
 - Historical-version compat matrix (last N vetted upstream versions, not arbitrary future ones)
 - Override staleness enforcement -- blocking CI gate (distinct from informational boundary/compat stance)
@@ -104,13 +104,15 @@ A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-don
 
 **Shipped:** v1.1.0 Installer & Deployment Hardening on 2026-04-04
 **Architecture:** Overlay model -- upstream consumed as npm devDependency, composed at publish time
-**Upstream:** Active worktree now pins Open GSD `@opengsd/gsd-core@1.5.0`; legacy `get-shit-done-cc` is retained only as historical/deprecation evidence for Phase 40.6.
+**Upstream:** Active worktree pins reviewed Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-13; `1.7.0-rc.6` remains prerelease-only, and legacy `get-shit-done-cc` is retained only as historical/deprecation evidence for Phase 40.6.
 **Current version:** 3.0.2 (published to npm as @chude/get-stuff-done)
 **Codebase:** ~151 files, ~30K lines; fork-specific overlay code ~2,510 lines; 1742 tests observed in Phase 41 10x CI validation
 **CI:** Blocking test/lint/security/override gates across macOS/Linux/Windows, informational boundary/upstream-compat gates with ratchets, manual perf-baseline and 10x validation workflows
 **Known tech debt:**
 - 41 boundary violations (structural root mirrors -- CI informational, documented in Phase 40.6 verification)
-- ~130 upstream compat failures (branding diffs by design, CI informational)
+- Active Open GSD `1.6.1` candidate contract: 315/315 assertions pass; the authoritative N=3 matrix passes 945/945 with durable exact-byte evidence after Plan 11L, while repository-only phase/sync contracts remain separately blocking at 154/154
+- Bun 1.3.5 cannot substantiate branch coverage and the measured canonical fork-authored aggregate is below 95%; Phase 43 Plan 11D defines exact source ownership and Jest parity, Plan 11W adds the separate blocking four-metric fork-source gate while retaining Bun as primary, bounded source-group plans close the deficit, and Plans 11J/11AA/11AB own strict schemas/core, CI/adapters, and final transactional evidence; shipped upstream snapshots remain blocking through a distinct provenance/drift/delta/N=3 assurance contract
+- Full Bun coverage research on 2026-07-13 passed 1,837 tests and exposed the SBOM integration red; focused diagnosis found case-sensitive npm environment scrubbing on Windows, owned by Plan 11K with TDD and full-dist regression before closeout
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - ~~INST-04 uninstall manifest gap~~ (RESOLVED -- Phase 40.6 copies overlay manifest/install metadata and scratch uninstall leaves only user `settings.json`)
 - Intermittent Windows subprocess timeout flakiness (MITIGATED -- Phase 41 migrated subprocess tests, added flake telemetry, and passed 10x Windows validation; telemetry remains active)
@@ -204,6 +206,43 @@ A personalized overlay of GSD (Get Shit Done), published as @chude/get-stuff-don
 | Two-layer throttle for update check | 4h subprocess gate + 7d network gate prevents excessive polling without missing drift | ✓ Good |
 | Central timeout constants | Single source for subprocess test timeouts; prevents hardcoded value drift | ✓ Good |
 | Manifest-driven uninstall | Only removes files listed in manifest; path traversal containment guard | ✓ Good |
+| Canonical Open GSD plan dependency IDs | Active `phase-plan-index` resolves full IDs such as `43-11N`; legacy phase-local IDs silently erase DAG edges | Active |
+| Fable as lead developer, architect, and designer | Whole-project technical and design direction needs one recurring lead authority across strategy, architecture, implementation details, UX/API, integration evidence, and release readiness | Active |
+
+## Fable Lead Governance
+
+Fable is the project's standing lead developer, architect, and designer. Its
+reviewed technical and design direction is the default implementation
+authority across the desired end state, architecture, roadmap sequencing,
+implementation details, user and operator experience, integration behavior,
+and release/support model. Scoped reviews are evidence checkpoints within that
+continuing leadership relationship; they do not reduce Fable to the plan or
+phase that triggered them.
+
+The durable review contract is:
+
+1. send cold-readable, delta-based packets at the checkpoints recorded in
+   `43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md` and whenever a consequential
+   architecture, product, API/UX, or release assumption changes;
+2. ask for an explicit technical/design decision, implementation direction,
+   prioritized corrections, rationale, and both big-picture and
+   implementation-level failure modes;
+3. bind every checkpoint to a subject commit, input-manifest/evidence digests,
+   and captured `claude -p --model fable` execution through the shared runner;
+4. verify every repository-dependent claim against source and machine evidence;
+5. adopt Fable's direction by default and disposition each finding as accepted,
+   accepted with revision, rejected with evidence, or deferred with an owner
+   and concrete trigger; and
+6. retain project orchestration, repository-verification, and user product
+   decision ownership. Fable direction cannot override verified repository
+   facts, executable tests and hosted evidence, security gates, WoW, or locked
+   and explicit user decisions. Any such conflict requires evidence and user
+   adjudication rather than silent substitution.
+
+Routine TDD execution may continue between checkpoints when it remains inside a
+reviewed boundary. Work must stop for a required checkpoint when it changes the
+product contract, architecture, public/API/UX behavior, irreversible data or
+security posture, or release claim.
 
 ## Evolution
 
@@ -223,4 +262,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-03 -- Phase 41 complete; Phase 42 planning is next*
+*Last updated: 2026-07-14 -- Fable established as lead developer, architect, and designer; Phase 43 corrective work remains fail-closed before Plan 11 can close*

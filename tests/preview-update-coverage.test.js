@@ -197,7 +197,7 @@ describe('generateReport() coverage paths', () => {
     expect(report).toContain('2.0.0');
     expect(report).toContain('bun install');
     expect(report).toContain('bun run compose');
-    expect(report).toContain('bun test');
+    expect(report).toContain('bun run test');
   });
 
   test('rollback section references the pinned version', () => {

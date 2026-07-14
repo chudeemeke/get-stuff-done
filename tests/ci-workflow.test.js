@@ -22,6 +22,14 @@ function readAllWorkflowText() {
     .join('\n');
 }
 
+function findBareBunTestCommands(workflowText) {
+  return workflowText
+    .split('\n')
+    .map(line => line.trim())
+    .map(line => (line.startsWith('run:') ? line.slice('run:'.length).trim() : line))
+    .filter(command => command === 'bun test' || command.startsWith('bun test '));
+}
+
 describe('CI workflow security action contracts', () => {
   test('gitleaks receives the GitHub token required for pull request scans', () => {
     const workflow = readCiWorkflow();
@@ -72,6 +80,30 @@ describe('CI workflow informational gates', () => {
     expect(workflow).not.toContain('run: node scripts/run-upstream-compat.js');
   });
 
+  test('repository compatibility contracts are blocking in the cross-platform job', () => {
+    const workflow = readCiWorkflow();
+    const upstreamJobStart = workflow.indexOf('upstream-compat:');
+    const boundaryJobStart = workflow.indexOf('boundary-check:', upstreamJobStart);
+    const upstreamJob = workflow.slice(upstreamJobStart, boundaryJobStart);
+    const packageJson = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf8'));
+
+    expect(packageJson.scripts['test:repository-compat']).toBe(
+      'node scripts/run-repository-compat.js'
+    );
+    expect(upstreamJob).toContain('bun run test:repository-compat');
+    expect(upstreamJob).not.toContain('continue-on-error: true');
+  });
+
+  test('functional test gates route through the canonical package script', () => {
+    const workflow = readCiWorkflow();
+    const workflows = readAllWorkflowText();
+
+    expect(workflow).toContain(
+      'bun run test:coverage:bun -- --reporter=junit --reporter-outfile test-results.xml'
+    );
+    expect(findBareBunTestCommands(workflows)).toEqual([]);
+  });
+
   test('boundary debt reports without producing a failed-step annotation', () => {
     const workflow = readCiWorkflow();
     const boundaryJobStart = workflow.indexOf('boundary-check:');
@@ -95,7 +127,8 @@ describe('Phase 41 validation workflows', () => {
     expect(workflow).toContain('macos-15');
     expect(workflow).toContain('windows-latest');
     expect(workflow).toContain('10x validation run');
-    expect(workflow).toContain('bun test --coverage');
+    expect(workflow).toContain('bun run test:coverage:bun');
+    expect(findBareBunTestCommands(workflow)).toEqual([]);
   });
 
   test('flake issue maintenance workflow encodes stale closure and rel-03 guard policy', () => {
@@ -214,5 +247,78 @@ describe('Phase 42 docs gates workflow', () => {
     expect(docsJob).toContain('overlay/get-shit-done/');
     expect(docsJob).not.toContain('.planning/');
     expect(docsJob).not.toContain('docs/');
+  });
+});
+
+describe('Phase 43 upgrade verifier workflow', () => {
+  test('upgrade verifier runs Verdaccio-backed upgrade verification on Linux and relevant triggers', () => {
+    const workflow = readWorkflow('upgrade-verifier.yml');
+
+    expect(workflow).toContain('schedule:');
+    expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).toContain('pull_request:');
+    expect(workflow).toContain('.planning/upstream-authority.json');
+    expect(workflow).toContain('package.json');
+    expect(workflow).toContain('bun.lock');
+    expect(workflow).toContain('scripts/compose.js');
+    expect(workflow).toContain('scripts/verify-upgrade.js');
+    expect(workflow).toContain('bin/install.js');
+    expect(workflow).toContain('overlay/**');
+    expect(workflow).toContain('overrides/**');
+    expect(workflow).toContain('runs-on: ubuntu-latest');
+    expect(workflow).toContain('verdaccio/verdaccio:6');
+    expect(workflow).toContain('4873:4873');
+    expect(workflow).toContain('actions/setup-node@v6');
+    expect(workflow).toContain('node-version: "22"');
+    expect(workflow).toContain('oven-sh/setup-bun@v2');
+    expect(workflow).toContain('bun install --frozen-lockfile --ignore-scripts');
+    expect(workflow).toContain('bun run verify-upgrade --from 1.5.0 --to 1.6.1 --registry-url http://localhost:4873/ --json --report upgrade-report.json');
+    expect(workflow).toContain('actions/upload-artifact@v7');
+    expect(workflow).toContain('upgrade-report.json');
+  });
+});
+
+describe('Phase 43 compat matrix workflow', () => {
+  test('compat matrix validates vetted pins, runs report-only matrix, and uploads evidence', () => {
+    const workflow = readWorkflow('compat-matrix.yml');
+
+    expect(workflow).toContain('schedule:');
+    expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).toContain('pull_request:');
+    expect(workflow).toContain('.planning/vetted-upstream-versions.json');
+    expect(workflow).toContain('.planning/upstream-authority.json');
+    expect(workflow).toContain('package.json');
+    expect(workflow).toContain('bun.lock');
+    expect(workflow).toContain('scripts/run-compat-matrix.js');
+    expect(workflow).toContain('scripts/run-upstream-compat*.js');
+    expect(workflow).toContain('scripts/run-repository-compat.js');
+    expect(workflow).toContain('tests/upstream-compat-contract.json');
+    expect(workflow).toContain('tests/*.test.cjs');
+    expect(workflow).toContain('tests/helpers.cjs');
+    expect(workflow).toContain('tests/helpers/**');
+    expect(workflow).toContain('overlay/**');
+    expect(workflow).toContain('overrides/**');
+    expect(workflow).toContain('actions/setup-node@v6');
+    expect(workflow).toContain('node-version: "22"');
+    expect(workflow).toContain('oven-sh/setup-bun@v2');
+    expect(workflow).toContain('bun install --frozen-lockfile --ignore-scripts');
+    expect(workflow).toContain('node scripts/vetted-upstream-versions.js --validate');
+    expect(workflow).toContain('node scripts/run-compat-matrix.js --manifest .planning/vetted-upstream-versions.json --json --report compat-matrix-report.json');
+    expect(workflow).toContain('Compatibility matrix reported blocking drift; workflow remains informational per AF-7.');
+    expect(workflow).toContain('exit 0');
+    expect(workflow).not.toContain('continue-on-error: true');
+    expect(workflow).toContain('actions/upload-artifact@v7');
+    expect(workflow).toContain('compat-matrix-report.json');
+    expect(workflow).toContain('if-no-files-found: error');
+  });
+});
+
+describe('Phase 43 SBOM evidence workflow', () => {
+  test('CI generates, verifies, and uploads dist/bom.json', () => {
+    const workflow = readCiWorkflow();
+
+    expect(workflow).toContain('bun run sbom');
+    expect(workflow).toContain('dist/bom.json');
+    expect(workflow).toContain('actions/upload-artifact@v7');
   });
 });

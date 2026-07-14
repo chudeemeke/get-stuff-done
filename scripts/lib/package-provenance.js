@@ -66,14 +66,30 @@ function readPackageProvenance(rootDir) {
   const pkg = readPackageJson(packageRoot);
   const authority = readAuthorityContract({ projectRoot: packageRoot });
   const distMeta = readDistMeta(packageRoot);
-  const upstreamVersion = distMeta && typeof distMeta.upstream_version === 'string'
-    ? distMeta.upstream_version
-    : getActivePackageVersion(authority);
+  let upstreamPackage = getActivePackageName(authority);
+  let upstreamVersion = getActivePackageVersion(authority);
+
+  if (distMeta && typeof distMeta.upstreamPackage === 'string') {
+    upstreamPackage = distMeta.upstreamPackage;
+  } else if (distMeta && typeof distMeta.upstream_package === 'string') {
+    upstreamPackage = distMeta.upstream_package;
+  }
+
+  if (distMeta && typeof distMeta.upstreamVersion === 'string') {
+    upstreamVersion = distMeta.upstreamVersion;
+  } else if (distMeta && typeof distMeta.upstream_version === 'string') {
+    upstreamVersion = distMeta.upstream_version;
+  }
+
+  const forkPackage = pkg.name;
+  const forkVersion = pkg.version;
 
   return {
-    packageName: pkg.name,
-    version: pkg.version,
-    upstreamPackage: getActivePackageName(authority),
+    forkPackage,
+    forkVersion,
+    packageName: forkPackage,
+    version: forkVersion,
+    upstreamPackage,
     upstreamVersion,
     overlayManifestSha256: hashOverlayManifest(packageRoot),
   };

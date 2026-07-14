@@ -178,4 +178,21 @@ describe('hooks/index.js manifest (invariants)', () => {
       }
     }
   });
+
+  test('check-update worker is registered as an override when present in overrides/', () => {
+    const path = require('path');
+    const workerSource = path.join(
+      hooksManifest.PROJECT_ROOT,
+      'overrides',
+      'hooks',
+      'gsd-check-update-worker.js'
+    );
+
+    if (!fs.existsSync(workerSource)) return;
+
+    const workerHook = hooksManifest.findByName('gsd-check-update-worker.js');
+    expect(workerHook).toBeTruthy();
+    expect(workerHook.source).toBe('overrides/hooks');
+    expect(workerHook.kind).toBe('override');
+  });
 });

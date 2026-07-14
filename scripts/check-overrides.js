@@ -24,6 +24,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { getPackageDir } = require('./lib/upstream-source');
+const { semanticHashJavaScript } = require('./lib/semantic-js');
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -93,6 +94,20 @@ function extractHashFromReason(reasonPath) {
 }
 
 /**
+ * Extract the semantic SHA-256 hash from a REASON.md file.
+ *
+ * Looks for a line matching:  - Semantic SHA-256: <64-char hex>
+ *
+ * @param {string} reasonPath  Absolute path to the REASON.md file
+ * @returns {string|null}  The 64-char semantic hash, or null if not found
+ */
+function extractSemanticHashFromReason(reasonPath) {
+  const content = fs.readFileSync(reasonPath, 'utf-8');
+  const match = content.match(/^- Semantic SHA-256:\s*([a-f0-9]{64})\s*$/m);
+  return match ? match[1] : null;
+}
+
+/**
  * Extract the upstream version from a REASON.md file.
  *
  * Looks for a line matching:  - Version: <value>
@@ -122,6 +137,10 @@ function readUpstreamVersion(upstreamDir) {
   }
 }
 
+function isJavaScriptOverride(relPath) {
+  return relPath.endsWith('.js');
+}
+
 // ---------------------------------------------------------------------------
 // Core check function
 // ---------------------------------------------------------------------------
@@ -136,7 +155,7 @@ function readUpstreamVersion(upstreamDir) {
  *   ok: boolean,
  *   overrides: Array<{
  *     relPath: string,
- *     status: 'fresh' | 'stale' | 'missing-reason' | 'orphaned',
+ *     status: 'fresh' | 'fresh-semantic' | 'stale' | 'missing-reason' | 'orphaned',
  *     recordedHash?: string,
  *     currentHash?: string,
  *     recordedVersion?: string,
@@ -197,11 +216,34 @@ function checkOverrides(opts = {}) {
       overrides.push({ relPath, status: 'fresh' });
       summary.fresh++;
     } else {
+      const recordedSemanticHash = isJavaScriptOverride(relPath)
+        ? extractSemanticHashFromReason(reasonPath)
+        : null;
+      let currentSemanticHash;
+      let semanticError;
+
+      if (recordedSemanticHash) {
+        const semantic = semanticHashJavaScript(fs.readFileSync(upstreamPath, 'utf-8'), upstreamPath);
+        if (semantic.ok) {
+          currentSemanticHash = semantic.hash;
+          if (recordedSemanticHash === currentSemanticHash) {
+            overrides.push({ relPath, status: 'fresh-semantic' });
+            summary.fresh++;
+            continue;
+          }
+        } else {
+          semanticError = semantic.error;
+        }
+      }
+
       overrides.push({
         relPath,
         status: 'stale',
         recordedHash,
         currentHash,
+        recordedSemanticHash,
+        currentSemanticHash,
+        semanticError,
         recordedVersion,
         currentVersion: `v${currentVersion}`,
       });
@@ -240,6 +282,9 @@ function formatReport(result) {
 
     if (entry.status === 'fresh') {
       lines.push('  Status:          OK');
+
+    } else if (entry.status === 'fresh-semantic') {
+      lines.push('  Status:          OK (semantic)');
 
     } else if (entry.status === 'stale') {
       const recHash = entry.recordedHash ? entry.recordedHash.slice(0, 16) + '...' : '(none)';
@@ -340,6 +385,7 @@ module.exports = {
   checkOverrides,
   hashFileContent,
   extractHashFromReason,
+  extractSemanticHashFromReason,
   extractVersionFromReason,
   formatReport,
   parseArgs,

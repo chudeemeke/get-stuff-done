@@ -57,12 +57,15 @@
     "minimatch": "3.1.5"
   },
   "devDependencies": {
-    "@opengsd/gsd-core": "1.5.0",
+    "@cyclonedx/cyclonedx-npm": "4.2.1",
+    "@opengsd/gsd-core": "1.6.1",
+    "acorn": "8.17.0",
     "audit-ci": "7.1.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.0.0",
     "eslint-plugin-security": "^3.0.1",
     "husky": "^9.1.7",
+    "js-yaml": "5.2.0",
     "markdownlint-cli2": "0.23.0",
     "sharp": "^0.34.5"
   },
@@ -72,7 +75,8 @@
     "build": "node scripts/build.js",
     "compose": "node scripts/compose.js",
     "finalize-dist": "node scripts/finalize-dist.js",
-    "dist": "bun run compose && bun run build && bun run finalize-dist",
+    "sbom": "node scripts/generate-sbom.js",
+    "dist": "bun run compose && bun run build && bun run sbom && bun run finalize-dist",
     "prepublishOnly": "bun run dist",
     "audit:ci": "node scripts/audit-check.js",
     "bench": "node scripts/bench.js",
@@ -81,9 +85,15 @@
     "lint:docs": "node scripts/lint-docs.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "bun test",
-    "test:coverage": "bun test --coverage",
+    "test": "node scripts/run-bun-tests.js",
+    "test:coverage:bun": "node scripts/run-bun-tests.js --coverage",
+    "test:repository-compat": "node scripts/run-repository-compat.js",
     "test:upstream": "node --test tests/*.test.cjs",
-    "preview-update": "node bin/preview-update-cli.js"
+    "phase43:hosted-verdict": "node scripts/verify-hosted-ci.js",
+    "preview-update": "node bin/preview-update-cli.js",
+    "verify-upgrade": "node scripts/verify-upgrade.js",
+    "vetted-upstream:validate": "node scripts/vetted-upstream-versions.js --validate",
+    "compat:matrix": "node scripts/run-compat-matrix.js",
+    "override:churn": "node scripts/generate-override-churn.js"
   }
 }

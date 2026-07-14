@@ -22,7 +22,8 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { execFileSync, execSync } = require('child_process');
+const { execSync, spawnSync } = require('child_process');
+const { cleanupOwnedTemp, createOwnedTemp } = require('./lib/owned-temp');
 const { getAuthorityPathRelative } = require('./lib/upstream-source');
 
 // ---------------------------------------------------------------------------
@@ -32,28 +33,176 @@ const { getAuthorityPathRelative } = require('./lib/upstream-source');
 const PROJECT_ROOT = path.join(__dirname, '..');
 const DIST_ROOT = path.join(PROJECT_ROOT, 'dist');
 const TESTS_DIR = path.join(PROJECT_ROOT, 'tests');
-
-/**
- * Test files to exclude from the compat run.
- * sync.test.cjs has a dist-relative import blocker (overlay/lib/sync.cjs
- * requires ../get-shit-done/bin/lib/core.cjs which only resolves from
- * the installed dist/ layout, not from the temp dir structure).
- */
-const EXCLUDED_TESTS = new Set(['sync.test.cjs']);
+const COMPAT_CONTRACT_PATH = path.join(TESTS_DIR, 'upstream-compat-contract.json');
+const SUITE_CLASSIFICATIONS = new Set(['candidate', 'repository', 'retired']);
+const AUTHORITY_BOUNDARIES = new Set([
+  'black-box',
+  'upstream-internal-observed',
+  'fork-runtime',
+]);
+const COMMON_COMPAT_VERSIONS = ['1.5.0', '1.6.0', '1.6.1'];
+const SYNC_REVIEW_TRIGGER = 'port when the sync helper can consume the composed Open GSD package or retire when that source-only helper is removed';
+const TEMP_OWNER = 'get-stuff-done/upstream-compat';
+const MAX_FAILURE_LINES = 5;
+const MAX_FAILURE_LINE_LENGTH = 500;
+const DEFAULT_COMPAT_TEST_TIMEOUT_MS = 120000;
+const WINDOWS_COMPAT_TEST_TIMEOUT_MS = 240000;
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 /**
- * Discover upstream .test.cjs files, excluding known incompatible ones.
+ * Discover root compatibility suites without applying execution policy.
  *
  * @returns {string[]} Array of absolute paths to test files
  */
-function discoverTestFiles() {
-  return fs.readdirSync(TESTS_DIR)
-    .filter(f => f.endsWith('.test.cjs') && !EXCLUDED_TESTS.has(f))
-    .map(f => path.join(TESTS_DIR, f));
+function discoverTestFiles(testsDir = TESTS_DIR) {
+  return fs.readdirSync(testsDir)
+    .filter(f => f.endsWith('.test.cjs'))
+    .map(f => path.join(testsDir, f));
+}
+
+function loadCompatContract(registryPath = COMPAT_CONTRACT_PATH) {
+  return JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+}
+
+function isNonEmptyString(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function findInternalImports(source) {
+  const imports = new Set();
+  const normalized = source.replace(/\\/g, '/');
+  const literalPattern = /(?:get-stuff-done\/)?bin\/lib\/([A-Za-z0-9._-]+\.cjs)/g;
+  const pathJoinPattern = /['"]bin['"]\s*,\s*['"]lib['"]\s*,\s*['"]([^'"]+\.cjs)['"]/g;
+  let match;
+
+  while ((match = literalPattern.exec(normalized)) !== null) {
+    imports.add(`bin/lib/${match[1]}`);
+  }
+  while ((match = pathJoinPattern.exec(source)) !== null) {
+    imports.add(`bin/lib/${match[1]}`);
+  }
+
+  return [...imports];
+}
+
+function containsVersionExecutionPolicy(value) {
+  if (!value || typeof value !== 'object') return false;
+
+  return Object.entries(value).some(([key, child]) => (
+    /^(?:skip|skipped|exclude|excluded|enabled|classification|authorityBoundary)$/i.test(key) ||
+    containsVersionExecutionPolicy(child)
+  ));
+}
+
+function validateSuitePolicy(suite, testsDir) {
+  if (!SUITE_CLASSIFICATIONS.has(suite.classification)) {
+    throw new Error(`Unknown compatibility suite classification: ${suite.classification}`);
+  }
+  if (
+    suite.authorityBoundary !== undefined &&
+    !AUTHORITY_BOUNDARIES.has(suite.authorityBoundary)
+  ) {
+    throw new Error(`Unknown compatibility authority boundary: ${suite.authorityBoundary}`);
+  }
+
+  if (suite.classification !== 'candidate') {
+    if (![suite.rationale, suite.owner, suite.trigger].every(isNonEmptyString)) {
+      throw new Error(`${suite.path} ${suite.classification} suite requires rationale, owner, and trigger`);
+    }
+    if (suite.path === 'sync.test.cjs' && suite.trigger !== SYNC_REVIEW_TRIGGER) {
+      throw new Error('sync.test.cjs must retain its exact port-or-retire trigger');
+    }
+    if (suite.classification === 'retired' && (
+      !Array.isArray(suite.replacements) || suite.replacements.length === 0
+    )) {
+      throw new Error(`${suite.path} retired suite requires canonical replacements`);
+    }
+    return;
+  }
+
+  if (!AUTHORITY_BOUNDARIES.has(suite.authorityBoundary)) {
+    throw new Error(`Unknown compatibility authority boundary: ${suite.authorityBoundary}`);
+  }
+  if (containsVersionExecutionPolicy(suite.versions) || containsVersionExecutionPolicy(suite.versionMetadata)) {
+    throw new Error(`${suite.path} candidate suite cannot define per-version execution policy`);
+  }
+
+  const source = fs.readFileSync(path.join(testsDir, suite.path), 'utf8');
+  const internalImports = findInternalImports(source);
+  if (internalImports.length > 0 && suite.authorityBoundary !== 'upstream-internal-observed') {
+    throw new Error(
+      `${suite.path} imports ${internalImports.join(', ')} and must be upstream-internal-observed`
+    );
+  }
+  if (suite.authorityBoundary === 'upstream-internal-observed') {
+    const normalizedEvidence = Array.isArray(suite.authorityEvidence)
+      ? suite.authorityEvidence
+        .filter(isNonEmptyString)
+        .map(evidence => evidence.trim().replace(/\\/g, '/'))
+        .sort()
+      : [];
+    const expectedEvidence = [...internalImports].sort();
+    if (
+      expectedEvidence.length === 0 ||
+      JSON.stringify(normalizedEvidence) !== JSON.stringify(expectedEvidence)
+    ) {
+      throw new Error(`${suite.path} upstream-internal-observed suite requires exact authority evidence`);
+    }
+    if (!isNonEmptyString(suite.rationale) || !isNonEmptyString(suite.bumpReviewTrigger)) {
+      throw new Error(
+        `${suite.path} upstream-internal-observed suite requires rationale and a bump-review trigger`
+      );
+    }
+  }
+}
+
+function validateCompatContract(contract, opts = {}) {
+  if (!contract || contract.schemaVersion !== 1) {
+    throw new Error('Compatibility contract schemaVersion must be 1');
+  }
+  const testsDir = opts.testsDir || TESTS_DIR;
+  const discoveredFiles = opts.discoveredFiles || discoverTestFiles(testsDir);
+  const discoveredPaths = discoveredFiles.map(filePath => path.basename(filePath));
+  const suites = Array.isArray(contract.suites) ? contract.suites : [];
+  const registeredPaths = suites.map(suite => suite.path);
+  const seenPaths = new Set();
+
+  for (const registeredPath of registeredPaths) {
+    if (seenPaths.has(registeredPath)) {
+      throw new Error(`Duplicate compatibility suite path: ${registeredPath}`);
+    }
+    seenPaths.add(registeredPath);
+  }
+
+  const unclassifiedPath = discoveredPaths.find(discoveredPath => !seenPaths.has(discoveredPath));
+  if (unclassifiedPath) {
+    throw new Error(`Unclassified compatibility suite: ${unclassifiedPath}`);
+  }
+
+  const discoveredSet = new Set(discoveredPaths);
+  const missingPath = registeredPaths.find(registeredPath => !discoveredSet.has(registeredPath));
+  if (missingPath) {
+    throw new Error(`Registered compatibility suite is missing: ${missingPath}`);
+  }
+
+  if (JSON.stringify(contract.commonVersions) !== JSON.stringify(COMMON_COMPAT_VERSIONS)) {
+    throw new Error('Compatibility contract must apply to 1.5.0, 1.6.0, and 1.6.1');
+  }
+
+  for (const suite of suites) {
+    validateSuitePolicy(suite, testsDir);
+  }
+
+  return {
+    ...contract,
+    suites,
+    discoveredPaths,
+    candidates: suites.filter(suite => suite.classification === 'candidate'),
+    excluded: suites.filter(suite => suite.classification !== 'candidate'),
+  };
 }
 
 /**
@@ -92,35 +241,189 @@ function createLink(linkPath, target) {
   fs.symlinkSync(target, linkPath, type);
 }
 
-/**
- * Create the patched helpers.cjs content.
- *
- * The original helpers.cjs TOOLS_PATH points to:
- *   path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs')
- *
- * In the temp dir, `get-stuff-done/` is a symlink to the composed active
- * package root, so this path resolves correctly without patching. However, the
- * helpers/ directory import needs special handling.
- *
- * @param {string} originalContent  The original helpers.cjs content
- * @param {string} projectRoot      Absolute path to the project root
- * @returns {string} Patched content
- */
-function patchHelpers(originalContent, projectRoot) {
-  // Replace the helpers/ directory require with an absolute path to the
-  // real helpers directory, since we don't copy it to the temp dir
-  const helpersDir = path.join(projectRoot, 'tests', 'helpers', 'index.js')
-    .replace(/\\/g, '/');
+function getCompatTestTimeoutMs(env = process.env, platform = process.platform) {
+  const parsed = Number.parseInt(env.GSD_COMPAT_TEST_TIMEOUT_MS || '', 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
 
-  return originalContent.replace(
-    /require\(['"]\.\/helpers\/index\.js['"]\)/,
-    `require('${helpersDir}')`
+  return platform === 'win32' ? WINDOWS_COMPAT_TEST_TIMEOUT_MS : DEFAULT_COMPAT_TEST_TIMEOUT_MS;
+}
+
+function copyDirectory(srcDir, destDir) {
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+    const srcPath = path.join(srcDir, entry.name);
+    const destPath = path.join(destDir, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirectory(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+/**
+ * Stage helpers.cjs and the local helpers/ dependency tree into the temp test
+ * directory so relative imports still resolve there.
+ *
+ * @param {string} tmpTestsDir  Temp tests directory
+ * @param {string} [testsDir]   Source tests directory
+ */
+function copyCompatHelpers(tmpTestsDir, testsDir = TESTS_DIR) {
+  fs.copyFileSync(
+    path.join(testsDir, 'helpers.cjs'),
+    path.join(tmpTestsDir, 'helpers.cjs')
+  );
+  copyDirectory(
+    path.join(testsDir, 'helpers'),
+    path.join(tmpTestsDir, 'helpers')
   );
 }
 
 // ---------------------------------------------------------------------------
 // Core runner
 // ---------------------------------------------------------------------------
+
+function stageCompatWorkspace({ tempDir, distDir, testsDir, candidates, linkPath }) {
+  const packageLinkPath = linkPath || path.join(tempDir, 'get-stuff-done');
+  createLink(packageLinkPath, distDir);
+
+  const stagedTestsDir = path.join(tempDir, 'tests');
+  fs.mkdirSync(stagedTestsDir, { recursive: true });
+  copyCompatHelpers(stagedTestsDir, testsDir);
+
+  for (const suite of candidates) {
+    fs.copyFileSync(
+      path.join(testsDir, suite.path),
+      path.join(stagedTestsDir, suite.path)
+    );
+  }
+
+  return { linkPath: packageLinkPath, stagedTestsDir };
+}
+
+function normalizeOutput(value) {
+  if (value === null || value === undefined) return '';
+  return Buffer.isBuffer(value) ? value.toString('utf8') : String(value);
+}
+
+function boundedEvidence(value) {
+  const lines = normalizeOutput(value)
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+  const failedBlocks = [];
+  let inFailedBlock = false;
+  for (const line of lines) {
+    if (/^not ok\b/i.test(line)) {
+      inFailedBlock = true;
+      failedBlocks.push(line);
+      continue;
+    }
+    if (/^ok\b|^# (?:pass|fail|skipped)\b/i.test(line)) {
+      inFailedBlock = false;
+      continue;
+    }
+    if (inFailedBlock && (
+      /^(?:error|expected|actual|operator|code|name|message|stack):/i.test(line) ||
+      /\b(?:assertionerror|err_assertion)\b/i.test(line)
+    )) {
+      failedBlocks.push(line);
+    }
+  }
+  const actionable = failedBlocks.length > 0
+    ? failedBlocks
+    : lines.filter(line => (
+      /\b(?:assertion|assertionerror|err_assertion|error|failed|failure|expected|actual)\b/i.test(line)
+    ));
+  const selected = actionable.length > 0 ? actionable : lines.slice(-MAX_FAILURE_LINES);
+  return [...new Set(selected)]
+    .slice(0, MAX_FAILURE_LINES)
+    .map(line => line.slice(0, MAX_FAILURE_LINE_LENGTH));
+}
+
+function runCompatSuite(suite, options) {
+  const stagedPath = path.join(options.stagedTestsDir, suite.path);
+  const startMs = options.now();
+  let processResult;
+
+  try {
+    processResult = options.runProcessImpl(
+      process.execPath,
+      ['--test', stagedPath],
+      {
+        cwd: options.tempDir,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: options.timeoutMs,
+        env: {
+          ...process.env,
+          GSD_COMPAT_PACKAGE_ROOT: options.distDir,
+        },
+      }
+    );
+  } catch (err) {
+    processResult = { status: null, stdout: '', stderr: '', error: err };
+  }
+
+  const durationMs = Math.max(0, options.now() - startMs);
+  const stdout = normalizeOutput(processResult.stdout);
+  const stderr = normalizeOutput(processResult.stderr);
+  const timedOut = processResult.error && processResult.error.code === 'ETIMEDOUT';
+  const spawnError = processResult.error && !timedOut;
+  const exitCode = Number.isInteger(processResult.status) ? processResult.status : 1;
+  const parsed = parseTestOutput(`${stdout}\n${stderr}`, exitCode);
+  let errors = parsed.errors;
+
+  if (spawnError || timedOut) {
+    errors = [...new Set([
+      processResult.error.message,
+      ...boundedEvidence(stderr),
+    ])].slice(0, MAX_FAILURE_LINES);
+  } else if (!parsed.ok) {
+    errors = [...new Set([
+      ...boundedEvidence(stderr || stdout),
+      ...parsed.errors,
+    ])].slice(0, MAX_FAILURE_LINES);
+  }
+
+  return {
+    path: suite.path,
+    classification: suite.classification,
+    authorityBoundary: suite.authorityBoundary,
+    status: timedOut ? 'timed-out' : spawnError ? 'spawn-error' : parsed.ok ? 'passed' : 'failed',
+    passed: parsed.passed,
+    failed: parsed.failed,
+    skipped: parsed.skipped,
+    durationMs,
+    exitCode,
+    errors,
+  };
+}
+
+function aggregateSuites(suites, excludedSuites) {
+  const aggregate = suites.reduce((result, suite) => ({
+    passed: result.passed + suite.passed,
+    failed: result.failed + suite.failed,
+    skipped: result.skipped + suite.skipped,
+  }), { passed: 0, failed: 0, skipped: 0 });
+  const errors = suites.flatMap(suite => suite.errors.map(error => `${suite.path}: ${error}`));
+
+  return {
+    ok: suites.every(suite => suite.status === 'passed'),
+    ...aggregate,
+    excluded: excludedSuites.map(suite => suite.path),
+    classifiedExclusions: excludedSuites.map(suite => ({
+      path: suite.path,
+      classification: suite.classification,
+    })),
+    suites,
+    errors,
+  };
+}
 
 /**
  * Run upstream compatibility tests against composed dist/.
@@ -137,104 +440,74 @@ function runUpstreamCompat(opts = {}) {
     console.log('');
   }
 
+  const testsDir = opts.testsDir || TESTS_DIR;
+  const contract = validateCompatContract(
+    opts.contract || loadCompatContract(opts.registryPath),
+    { discoveredFiles: discoverTestFiles(testsDir), testsDir }
+  );
   const distDir = opts.distDir || getCompatPackageRoot(opts);
   const distRel = path.relative(PROJECT_ROOT, distDir).replace(/\\/g, '/');
-
-  // Verify dist package root exists
   if (!fs.existsSync(distDir)) {
     return {
+      ...aggregateSuites([], contract.excluded),
       ok: false,
-      passed: 0,
-      failed: 0,
-      skipped: 0,
-      excluded: [...EXCLUDED_TESTS],
       errors: [`${distRel}/ does not exist. Run \`bun run compose\` first.`],
     };
   }
+  const toolsPath = path.join(distDir, 'bin', 'gsd-tools.cjs');
+  // distDir is the explicit candidate root; this checks its fixed executable contract.
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  if (!fs.existsSync(toolsPath)) {
+    return {
+      ...aggregateSuites([], contract.excluded),
+      ok: false,
+      errors: [`Candidate package root is missing bin/gsd-tools.cjs: ${distRel}/bin/gsd-tools.cjs`],
+    };
+  }
 
-  // Discover test files
-  const testFiles = discoverTestFiles();
-  const testFileNames = testFiles.map(f => path.basename(f));
+  const tempRoot = opts.tempRoot || os.tmpdir();
+  const tempLifecycle = opts.tempLifecycle || {
+    create: createOwnedTemp,
+    cleanup: cleanupOwnedTemp,
+  };
+  const protectedRoots = opts.protectedRoots || [
+    PROJECT_ROOT,
+    path.join(PROJECT_ROOT, 'dist'),
+    path.join(PROJECT_ROOT, 'node_modules'),
+  ];
+  const ownedTemp = tempLifecycle.create({
+    tempRoot,
+    prefix: 'gsd-compat-',
+    owner: TEMP_OWNER,
+    protectedRoots,
+  });
+  const linkPath = path.join(ownedTemp.path, 'get-stuff-done');
 
-  let tmpDir;
   try {
-    // Create temp directory
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-compat-'));
-
-    // Create symlink: {tmpDir}/get-stuff-done/ -> active package root under dist/
-    const linkPath = path.join(tmpDir, 'get-stuff-done');
-    createLink(linkPath, distDir);
-
-    // Create tests/ directory in temp
-    const tmpTestsDir = path.join(tmpDir, 'tests');
-    fs.mkdirSync(tmpTestsDir, { recursive: true });
-
-    // Copy and patch helpers.cjs
-    const helpersContent = fs.readFileSync(
-      path.join(TESTS_DIR, 'helpers.cjs'),
-      'utf-8'
-    );
-    const patchedHelpers = patchHelpers(helpersContent, PROJECT_ROOT);
-    fs.writeFileSync(path.join(tmpTestsDir, 'helpers.cjs'), patchedHelpers, 'utf-8');
-
-    // Copy test files
-    for (const testFile of testFiles) {
-      const basename = path.basename(testFile);
-      fs.copyFileSync(testFile, path.join(tmpTestsDir, basename));
-    }
-
-    // Build the glob pattern for test files
-    const testGlobs = testFileNames.map(f => path.join(tmpTestsDir, f));
-
-    // Run node --test
-    let output;
-    let exitCode = 0;
-    try {
-      output = execFileSync(
-        process.execPath,
-        ['--test', ...testGlobs],
-        {
-          cwd: tmpDir,
-          encoding: 'utf-8',
-          stdio: ['pipe', 'pipe', 'pipe'],
-          timeout: 120000,
-        }
-      );
-    } catch (err) {
-      exitCode = err.status || 1;
-      output = (err.stdout || '') + '\n' + (err.stderr || '');
-    }
-
-    // Parse results
-    const result = parseTestOutput(output, exitCode);
-    result.excluded = [...EXCLUDED_TESTS];
-    return result;
-
+    const staged = stageCompatWorkspace({
+      tempDir: ownedTemp.path,
+      distDir,
+      testsDir,
+      candidates: contract.candidates,
+      linkPath,
+    });
+    const runOptions = {
+      tempDir: ownedTemp.path,
+      stagedTestsDir: staged.stagedTestsDir,
+      distDir,
+      timeoutMs: getCompatTestTimeoutMs(opts.env, opts.platform),
+      runProcessImpl: opts.runProcessImpl || spawnSync,
+      now: opts.now || Date.now,
+    };
+    const suites = contract.candidates.map(suite => runCompatSuite(suite, runOptions));
+    return aggregateSuites(suites, contract.excluded);
   } finally {
-    // Cleanup: remove junction/symlink first (Windows EBUSY prevention),
-    // then remove the temp directory tree
-    if (tmpDir && fs.existsSync(tmpDir)) {
-      const linkPath = path.join(tmpDir, 'get-stuff-done');
-      try {
-        // On Windows, junctions must be unlinked before the parent can be removed.
-        // fs.unlinkSync works for junctions; fs.rmdirSync works for directory symlinks.
-        if (fs.existsSync(linkPath)) {
-          const stat = fs.lstatSync(linkPath);
-          if (stat.isSymbolicLink()) {
-            fs.unlinkSync(linkPath);
-          } else {
-            // Junction appears as directory to lstat; rmdir removes the junction point
-            fs.rmdirSync(linkPath);
-          }
-        }
-      } catch { /* best effort */ }
-
-      try {
-        fs.rmSync(tmpDir, { recursive: true, force: true });
-      } catch {
-        // Windows may still hold handles briefly; non-critical
-      }
-    }
+    tempLifecycle.cleanup(ownedTemp.path, {
+      tempRoot,
+      owner: TEMP_OWNER,
+      protectedRoots,
+      allowedLinks: [linkPath],
+    });
   }
 }
 
@@ -246,9 +519,15 @@ function runUpstreamCompat(opts = {}) {
  * @returns {{ ok: boolean, passed: number, failed: number, skipped: number, errors: string[] }}
  */
 function parseTestOutput(output, exitCode) {
-  let passed = 0;
-  let failed = 0;
-  let skipped = 0;
+  const counts = { pass: null, fail: null, skipped: null };
+  const summaryPattern = /^\s*# (pass|fail|skipped) (\d+)\s*$/gm;
+  let summaryMatch;
+  while ((summaryMatch = summaryPattern.exec(output)) !== null) {
+    counts[summaryMatch[1]] = parseInt(summaryMatch[2], 10);
+  }
+  const passed = counts.pass || 0;
+  const failed = counts.fail || 0;
+  const skipped = counts.skipped || 0;
   const errors = [];
 
   // node --test outputs TAP-like format:
@@ -256,16 +535,8 @@ function parseTestOutput(output, exitCode) {
   // # pass N
   // # fail N
   // # skipped N
-  const passMatch = output.match(/# pass (\d+)/);
-  const failMatch = output.match(/# fail (\d+)/);
-  const skipMatch = output.match(/# skipped (\d+)/);
-
-  if (passMatch) passed = parseInt(passMatch[1], 10);
-  if (failMatch) failed = parseInt(failMatch[1], 10);
-  if (skipMatch) skipped = parseInt(skipMatch[1], 10);
-
   // If we couldn't parse counts but exit code was non-zero, record error
-  if (!passMatch && !failMatch && exitCode !== 0) {
+  if (counts.pass === null && counts.fail === null && exitCode !== 0) {
     errors.push('Failed to parse test output. Raw output may contain errors.');
     // Try to extract error messages
     const errorLines = output.split('\n').filter(l => l.includes('Error') || l.includes('error'));
@@ -275,7 +546,7 @@ function parseTestOutput(output, exitCode) {
   }
 
   return {
-    ok: failed === 0 && errors.length === 0,
+    ok: exitCode === 0 && failed === 0 && errors.length === 0,
     passed,
     failed,
     skipped,
@@ -295,6 +566,7 @@ function parseTestOutput(output, exitCode) {
  */
 function formatReport(result) {
   const lines = [];
+  const hasSuiteRecords = Array.isArray(result.suites) && result.suites.length > 0;
 
   lines.push('Upstream compatibility report');
   lines.push('=============================');
@@ -307,9 +579,24 @@ function formatReport(result) {
     lines.push(`  Excluded: ${result.excluded.join(', ')}`);
   }
 
+  if (hasSuiteRecords) {
+    lines.push('');
+    lines.push('Suites:');
+    lines.push('  Suite | Boundary | Status | Passed | Failed | Skipped | Duration');
+    for (const suite of result.suites) {
+      lines.push(
+        `  ${suite.path} | ${suite.authorityBoundary} | ${suite.status} | ` +
+        `${suite.passed} | ${suite.failed} | ${suite.skipped} | ${suite.durationMs}ms`
+      );
+      for (const error of (suite.errors || []).slice(0, MAX_FAILURE_LINES)) {
+        lines.push(`    ${String(error).slice(0, MAX_FAILURE_LINE_LENGTH)}`);
+      }
+    }
+  }
+
   lines.push('');
 
-  if (result.errors.length > 0) {
+  if (!hasSuiteRecords && result.errors.length > 0) {
     lines.push('Errors:');
     for (const err of result.errors) {
       lines.push(`  ${err}`);
@@ -357,4 +644,14 @@ if (require.main === module) {
 // Module exports
 // ---------------------------------------------------------------------------
 
-module.exports = { getCompatPackageRoot, runUpstreamCompat, parseTestOutput, formatReport };
+module.exports = {
+  copyCompatHelpers,
+  discoverTestFiles,
+  getCompatPackageRoot,
+  getCompatTestTimeoutMs,
+  loadCompatContract,
+  runUpstreamCompat,
+  parseTestOutput,
+  formatReport,
+  validateCompatContract,
+};

@@ -18,6 +18,7 @@ const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { EventEmitter } = require('events');
 
 const { createTempDir, SUBPROCESS_TIMEOUT } = require('./helpers');
 const {
@@ -27,6 +28,10 @@ const {
   isSafeToClean,
   uninstall,
   patchStatusLine,
+  preflightInstallTarget,
+  createInstallTransaction,
+  rollbackInstallTransaction,
+  install,
   copyOverlayManifest,
   cleanOrphanedPaths,
   INSTALLED_MANIFEST_NAME,
@@ -91,6 +96,171 @@ function writeManifest(dir, files) {
     JSON.stringify(manifest)
   );
 }
+
+function writeMockDist(rootDir, overlayFiles = ['hooks/gsd-statusline.js']) {
+  const distDir = path.join(rootDir, 'dist');
+  fs.mkdirSync(path.join(distDir, 'bin'), { recursive: true });
+  fs.writeFileSync(path.join(distDir, 'bin', 'install.js'), '// upstream installer');
+  fs.writeFileSync(
+    path.join(distDir, '.overlay-manifest.json'),
+    JSON.stringify(overlayFiles, null, 2)
+  );
+  fs.writeFileSync(
+    path.join(distDir, '.install-meta.json'),
+    JSON.stringify({
+      upstream_version: '1.5.0',
+      features_disabled: [],
+      overrides_applied: [],
+    }, null, 2)
+  );
+
+  for (const relPath of overlayFiles) {
+    const fullPath = path.join(distDir, relPath);
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, `dist:${relPath}`);
+  }
+
+  return distDir;
+}
+
+function spawnThatExits(code = 0) {
+  return () => {
+    const child = new EventEmitter();
+    queueMicrotask(() => child.emit('exit', code));
+    return child;
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Installer transaction preflight and rollback
+// ---------------------------------------------------------------------------
+
+describe('installer transaction safety', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempDir();
+  });
+
+  afterEach(() => {
+    tmpDir.cleanup();
+  });
+
+  test('preflightInstallTarget rejects missing dist manifests before mutation', () => {
+    const distDir = path.join(tmpDir.path, 'dist');
+    const targetDir = path.join(tmpDir.path, 'target');
+    fs.mkdirSync(path.join(distDir, 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(distDir, 'bin', 'install.js'), '// upstream installer');
+
+    expect(() => preflightInstallTarget(targetDir, distDir)).toThrow('.overlay-manifest.json');
+
+    fs.writeFileSync(path.join(distDir, '.overlay-manifest.json'), '[]');
+    expect(() => preflightInstallTarget(targetDir, distDir)).toThrow('.install-meta.json');
+  });
+
+  test('createInstallTransaction snapshots previous metadata and settings.json', () => {
+    const distDir = writeMockDist(tmpDir.path);
+    const targetDir = path.join(tmpDir.path, 'target');
+    fs.mkdirSync(targetDir, { recursive: true });
+    writeManifest(targetDir, ['hooks/gsd-statusline.js']);
+    fs.writeFileSync(path.join(targetDir, '.overlay-manifest.json'), JSON.stringify(['hooks/pre-compact.js']));
+    fs.writeFileSync(path.join(targetDir, '.install-meta.json'), JSON.stringify({ overlay_version: '3.0.1' }));
+    fs.writeFileSync(path.join(targetDir, 'settings.json'), JSON.stringify({ theme: 'dark' }));
+
+    const transaction = createInstallTransaction(targetDir, distDir);
+
+    expect(transaction.snapshotDir).toContain('gsd-install-transaction-');
+    expect(transaction.snapshots.map(snapshot => snapshot.relPath).sort()).toEqual([
+      '.install-meta.json',
+      '.overlay-manifest.json',
+      'gsd-file-manifest.json',
+      'hooks/gsd-statusline.js',
+      'hooks/pre-compact.js',
+      'settings.json',
+    ].sort());
+    expect(fs.existsSync(path.join(transaction.snapshotDir, 'settings.json'))).toBe(true);
+  });
+
+  test('rollback restores settings.json and removes newly copied overlay files', () => {
+    const distDir = writeMockDist(tmpDir.path, [
+      'hooks/gsd-statusline.js',
+      'commands/gsd/new-command.md',
+    ]);
+    const targetDir = path.join(tmpDir.path, 'target');
+    fs.mkdirSync(path.join(targetDir, 'rules'), { recursive: true });
+    fs.mkdirSync(path.join(targetDir, 'projects'), { recursive: true });
+    fs.writeFileSync(path.join(targetDir, 'CLAUDE.md'), '# user instructions');
+    fs.writeFileSync(path.join(targetDir, 'rules', 'user.md'), '# user rule');
+    fs.writeFileSync(path.join(targetDir, 'projects', 'keep.md'), '# user project');
+    fs.writeFileSync(path.join(targetDir, 'settings.json'), JSON.stringify({ theme: 'dark' }));
+
+    const transaction = createInstallTransaction(targetDir, distDir);
+
+    fs.writeFileSync(path.join(targetDir, 'settings.json'), JSON.stringify({ statusLine: { command: 'node hooks/gsd-statusline.js' } }));
+    fs.mkdirSync(path.join(targetDir, 'hooks'), { recursive: true });
+    fs.mkdirSync(path.join(targetDir, 'commands', 'gsd'), { recursive: true });
+    fs.writeFileSync(path.join(targetDir, 'hooks', 'gsd-statusline.js'), 'new overlay hook');
+    fs.writeFileSync(path.join(targetDir, 'commands', 'gsd', 'new-command.md'), 'new overlay command');
+    fs.writeFileSync(path.join(targetDir, '.overlay-manifest.json'), JSON.stringify(['commands/gsd/new-command.md']));
+
+    const result = rollbackInstallTransaction(transaction);
+
+    expect(result.rollback).toBe('applied');
+    expect(JSON.parse(fs.readFileSync(path.join(targetDir, 'settings.json'), 'utf-8'))).toEqual({ theme: 'dark' });
+    expect(fs.existsSync(path.join(targetDir, 'hooks', 'gsd-statusline.js'))).toBe(false);
+    expect(fs.existsSync(path.join(targetDir, 'commands', 'gsd', 'new-command.md'))).toBe(false);
+    expect(fs.readFileSync(path.join(targetDir, 'CLAUDE.md'), 'utf-8')).toBe('# user instructions');
+    expect(fs.readFileSync(path.join(targetDir, 'rules', 'user.md'), 'utf-8')).toBe('# user rule');
+    expect(fs.readFileSync(path.join(targetDir, 'projects', 'keep.md'), 'utf-8')).toBe('# user project');
+  });
+
+  test('rollback preserves previously installed overlay files while removing new overlay files', () => {
+    const distDir = writeMockDist(tmpDir.path, [
+      'hooks/gsd-statusline.js',
+      'hooks/gsd-check-update.js',
+    ]);
+    const targetDir = path.join(tmpDir.path, 'target');
+    fs.mkdirSync(path.join(targetDir, 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(targetDir, 'hooks', 'gsd-statusline.js'), 'previous hook');
+    fs.writeFileSync(path.join(targetDir, '.overlay-manifest.json'), JSON.stringify(['hooks/gsd-statusline.js']));
+
+    const transaction = createInstallTransaction(targetDir, distDir);
+
+    fs.writeFileSync(path.join(targetDir, 'hooks', 'gsd-statusline.js'), 'new hook');
+    fs.writeFileSync(path.join(targetDir, 'hooks', 'gsd-check-update.js'), 'new update hook');
+
+    rollbackInstallTransaction(transaction);
+
+    expect(fs.readFileSync(path.join(targetDir, 'hooks', 'gsd-statusline.js'), 'utf-8')).toBe('previous hook');
+    expect(fs.existsSync(path.join(targetDir, 'hooks', 'gsd-check-update.js'))).toBe(false);
+  });
+
+  test('install reports rollback: "applied" when overlay copy fails after upstream success', async () => {
+    const distDir = writeMockDist(tmpDir.path, ['hooks/gsd-statusline.js']);
+    const targetDir = path.join(tmpDir.path, 'target');
+    fs.mkdirSync(targetDir, { recursive: true });
+    fs.writeFileSync(path.join(targetDir, 'settings.json'), JSON.stringify({ theme: 'dark' }));
+    const exitCodes = [];
+
+    const result = await install(distDir, targetDir, ['--claude'], {
+      spawnImpl: spawnThatExits(0),
+      copyOverlayFilesImpl: () => {
+        fs.mkdirSync(path.join(targetDir, 'hooks'), { recursive: true });
+        fs.writeFileSync(path.join(targetDir, 'hooks', 'gsd-statusline.js'), 'partial');
+        throw new Error('overlay failed');
+      },
+      exitImpl: code => exitCodes.push(code),
+      logImpl: () => {},
+      errorImpl: () => {},
+    });
+
+    expect(result.rollback).toBe('applied');
+    expect(result.failureStep).toBe('overlay');
+    expect(exitCodes).toEqual([1]);
+    expect(fs.existsSync(path.join(targetDir, 'hooks', 'gsd-statusline.js'))).toBe(false);
+    expect(JSON.parse(fs.readFileSync(path.join(targetDir, 'settings.json'), 'utf-8'))).toEqual({ theme: 'dark' });
+  });
+});
 
 // ---------------------------------------------------------------------------
 // readInstalledManifest

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chudeemeke.github.io/get-stuff-done/schemas/vetted-upstream-versions.schema.json",
+  "title": "GetStuffDone Vetted Upstream Versions",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "packageName", "policy", "versions"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "packageName": {
+      "type": "string",
+      "const": "@opengsd/gsd-core"
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxVersions", "prune", "evidenceRequiredForVetted", "notes"],
+      "properties": {
+        "maxVersions": {
+          "type": "integer",
+          "const": 3
+        },
+        "prune": {
+          "type": "string",
+          "const": "oldest-on-successful-bump"
+        },
+        "evidenceRequiredForVetted": {
+          "type": "boolean",
+          "const": true
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "versions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["version", "role", "blocking", "vettedAt", "evidence"],
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["current", "historical-candidate", "latest-stable-candidate"]
+          },
+          "blocking": {
+            "type": "boolean"
+          },
+          "vettedAt": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "matrixReport": {
+                "type": "string",
+                "minLength": 1
+              },
+              "matrixReportSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["passed", "failed"]
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "vettedAt": {
+                  "type": "string"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "matrixReport": true,
+                    "matrixReportSha256": true,
+                    "status": {
+                      "const": "passed"
+                    }
+                  },
+                  "required": ["matrixReport", "matrixReportSha256", "status"]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

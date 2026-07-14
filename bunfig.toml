@@ -1,9 +1,9 @@
 [test]
-# Test discovery is intentionally BOUNDED to fork-owned files.
-# Do not remove `**/dist/**` from exclude — `bun run compose` writes upstream
-# package contents (including any bundled .test.* files) to dist/, and
-# discovering them would run upstream-internal tests in fork context. See
-# tests/test-config-hygiene.test.js for the meta-test that asserts this invariant.
-include = ["**/*.test.js"]
-exclude = ["**/*.test.cjs", "**/node_modules/**", "**/dist/**"]
+# Bun owns fork-authored functional suites under tests/. Node-native `.test.cjs`
+# compatibility contracts execute through the explicit Node registry instead.
+# Bun 1.3.5 parses but does not enforce pathIgnorePatterns for these files, so
+# the preload and scripts/run-bun-tests.js are the blocking boundary (ADR 004).
+root = "tests"
+pathIgnorePatterns = ["**/*.test.cjs"]
+preload = ["./tests/helpers/enforce-bun-test-authority.js"]
 timeout = 15000

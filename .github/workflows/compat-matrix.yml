@@ -1,0 +1,72 @@
+name: Compat Matrix
+
+on:
+  pull_request:
+    paths:
+      - ".planning/vetted-upstream-versions.json"
+      - ".planning/upstream-authority.json"
+      - "package.json"
+      - "bun.lock"
+      - "scripts/run-compat-matrix.js"
+      - "scripts/run-repository-compat.js"
+      - "scripts/run-upstream-compat*.js"
+      - "scripts/vetted-upstream-versions.js"
+      - "tests/upstream-compat-contract.json"
+      - "tests/*.test.cjs"
+      - "tests/helpers.cjs"
+      - "tests/helpers/**"
+      - "overlay/**"
+      - "overrides/**"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  compat-matrix:
+    name: Vetted Upstream Compat Matrix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache bun dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Validate vetted upstream manifest
+        run: node scripts/vetted-upstream-versions.js --validate
+
+      - name: Run compat matrix
+        shell: bash
+        run: |
+          set +e
+          node scripts/run-compat-matrix.js --manifest .planning/vetted-upstream-versions.json --json --report compat-matrix-report.json
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            echo "Compatibility matrix reported blocking drift; workflow remains informational per AF-7."
+          fi
+          exit 0
+
+      - name: Upload compat matrix report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: compat-matrix-report
+          path: compat-matrix-report.json
+          if-no-files-found: error

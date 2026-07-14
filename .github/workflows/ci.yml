@@ -230,7 +230,7 @@ jobs:
       - name: Guard against test files in dist/
         run: node scripts/check-no-test-files-in-dist.js
       - name: Run tests with coverage and JUnit output
-        run: bun test --coverage --reporter=junit --reporter-outfile test-results.xml
+        run: bun run test:coverage:bun -- --reporter=junit --reporter-outfile test-results.xml
       - name: Upload test results on failure
         if: ${{ failure() && hashFiles('test-results.xml') != '' }}
         uses: actions/upload-artifact@v7
@@ -419,6 +419,16 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
+      - run: bun run sbom
+      - name: Verify SBOM artifact
+        run: test -f dist/bom.json
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: package-sbom
+          path: dist/bom.json
+          if-no-files-found: error
+          retention-days: 30
       - run: node scripts/check-parity.js
 
   upstream-compat:
@@ -443,6 +453,8 @@ jobs:
             ${{ runner.os }}-bun-
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
+      - name: Repository compatibility contracts (blocking)
+        run: bun run test:repository-compat
       - run: node scripts/run-upstream-compat-ci.js
 
   boundary-check:

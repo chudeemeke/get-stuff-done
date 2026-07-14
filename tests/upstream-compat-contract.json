@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "commonVersions": [
+    "1.5.0",
+    "1.6.0",
+    "1.6.1"
+  ],
+  "suites": [
+    {
+      "path": "commands.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "black-box"
+    },
+    {
+      "path": "config.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "upstream-internal-observed",
+      "authorityEvidence": [
+        "bin/lib/config.cjs"
+      ],
+      "rationale": "Exercises the exact Open GSD config behavior consumed by the composed package.",
+      "bumpReviewTrigger": "review the config.cjs dependency and observable config behavior on every Open GSD version bump"
+    },
+    {
+      "path": "core.test.cjs",
+      "classification": "retired",
+      "rationale": "The legacy core.cjs re-export spine is not part of the active Open GSD authority.",
+      "owner": "get-stuff-done maintainers",
+      "trigger": "remove after canonical replacement suites cover every retained behavior",
+      "replacements": [
+        "bin/lib/io.cjs",
+        "bin/lib/core-utils.cjs",
+        "bin/lib/phase-id.cjs"
+      ]
+    },
+    {
+      "path": "frontmatter.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "upstream-internal-observed",
+      "authorityEvidence": [
+        "bin/lib/frontmatter.cjs"
+      ],
+      "rationale": "Verifies frontmatter behavior used by the composed package while recording the internal module dependency explicitly.",
+      "bumpReviewTrigger": "review the frontmatter.cjs dependency and observable parsing behavior on every Open GSD version bump"
+    },
+    {
+      "path": "init.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "black-box"
+    },
+    {
+      "path": "milestone.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "black-box"
+    },
+    {
+      "path": "phase.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "upstream-internal-observed",
+      "authorityEvidence": [
+        "bin/lib/phase-id.cjs"
+      ],
+      "rationale": "Exercises canonical phase identity and ordering behavior from the exact Open GSD phase module consumed by the composed package.",
+      "bumpReviewTrigger": "review the phase-id.cjs dependency and observable phase behavior on every Open GSD version bump"
+    },
+    {
+      "path": "phase-verification.test.cjs",
+      "classification": "repository",
+      "rationale": "The active Open GSD product requires passed verification before phase completion, while historical 1.5.0 predates that safety gate.",
+      "owner": "get-stuff-done maintainers",
+      "trigger": "promote to candidate only when every reviewed N=3 upstream version enforces passed verification before phase completion; never remove the active-product gate"
+    },
+    {
+      "path": "roadmap.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "upstream-internal-observed",
+      "authorityEvidence": [
+        "bin/lib/fork-roadmap-persistence.cjs",
+        "bin/lib/plan-scan.cjs",
+        "bin/lib/roadmap.cjs"
+      ],
+      "rationale": "Verifies plan classification, roadmap progress, and fork-private byte-preserving publication against the exact composed modules consumed at runtime.",
+      "bumpReviewTrigger": "review plan-scan.cjs, roadmap.cjs, fork-roadmap-persistence.cjs imports, persistence behavior, and authority evidence on every Open GSD version bump"
+    },
+    {
+      "path": "runtime-overrides.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "fork-runtime"
+    },
+    {
+      "path": "state.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "black-box"
+    },
+    {
+      "path": "sync.test.cjs",
+      "classification": "repository",
+      "rationale": "The source-only sync helper still depends on the legacy repository layout and is enforced by a separate repository gate.",
+      "owner": "get-stuff-done maintainers",
+      "trigger": "port when the sync helper can consume the composed Open GSD package or retire when that source-only helper is removed"
+    },
+    {
+      "path": "template.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "upstream-internal-observed",
+      "authorityEvidence": [
+        "bin/lib/template.cjs"
+      ],
+      "rationale": "Verifies template selection behavior while recording the exact internal module dependency.",
+      "bumpReviewTrigger": "review the template.cjs dependency and observable template behavior on every Open GSD version bump"
+    },
+    {
+      "path": "verify.test.cjs",
+      "classification": "candidate",
+      "authorityBoundary": "black-box"
+    }
+  ]
+}

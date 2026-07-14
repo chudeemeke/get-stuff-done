@@ -70,7 +70,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 
 ### v1.2.0 Ship-Ready Hardening (Phases 40.5-40.6, 41-44) -- ACTIVE
 
-- [ ] **Phase 40.5: Upstream Bump & Phase 41 Decision Re-verification** — (INSERTED 2026-04-22) Pre-Phase-41 currency bump. Bump upstream pin from 1.34.2 to 1.38.2 (312 commits / 566 files drift), refresh override SHA-256 snapshots, audit for compose collisions, re-verify all Phase 41 CONTEXT.md decisions against fresh upstream state, and amend CONTEXT.md if any decision changes. Enables Phase 41 planning against current upstream. Distinct from Phase 43's UPGRADE-05 dogfood bump.
+- [x] **Phase 40.5: Upstream Bump & Phase 41 Decision Re-verification** — (CLOSED/SUPERSEDED 2026-06-23) Four legacy-authority evidence waves completed; Phase 40.6 replaced the authority before Wave 5's filing path, so that path is retired rather than pending.
 - [x] **Phase 40.6: Upstream Authority Migration** -- (COMPLETED 2026-06-23) Replaced legacy upstream authority (`get-shit-done-cc` / `gsd-build/get-shit-done`) with active Open GSD authority (`@opengsd/gsd-core` / `open-gsd/gsd-core`) before Phase 41. Pinned vetted Open GSD stable version `1.5.0`, rebased compose/override/update/package tooling on the new package layout, preserved fork identity, and retired Phase 40.5's legacy filing path.
 - [x] **Phase 41: Foundation — Flip Gate, Install Audit Surface, Windows SLO** — (COMPLETED 2026-07-03) Blocking override-staleness gate, supply-chain audit surface, real perf baseline capture, Windows flake hardening, and 10x Linux/macOS/Windows validation are complete.
 - [x] **Phase 42: Budget Enforcement, Process Hardening, Cousin-Test** — (COMPLETED 2026-07-03) Perf budget enforcement against the baseline, consolidated oversight triggers (1 principle + 4 triggers + probes), cold-install CI + INSTALL.md, and markdown/link gates for docs.
@@ -89,12 +89,12 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   3. Compose-collision audit complete: any files that upstream now ships natively which we had as overlays are either moved to `overrides/` (with REASON.md + SHA snapshot) or removed if no longer needed. Historical pattern: 1.32.0 → 1.34.2 bump surfaced `hooks/gsd-check-update.js` + `hooks/gsd-statusline.js` collisions.
   4. Phase 41 CONTEXT.md re-verified against fresh upstream; each of the 18 decisions + 6 amendments (A-01..A-06) confirmed unchanged OR amended in-place with the Amendments Log updated. Specific re-verification targets: D-09 target API vs upstream #2499 (Windows stdio hang mitigation) — does the upstream fix reduce our subprocess-migration surface? 999.1 hypothesis vs upstream #2487 (wave-dependencies) — does upstream already address the plan-checker gap?
   5. Findings recorded in phase VERIFICATION.md: commits/files diff counted (baseline: 312 commits / 566 files at 2026-04-21 poll), override deltas listed, CONTEXT.md amendment summary (if any), upstream filing candidates noted (e.g., UI-gate regex false-positive still present on clean 1.38.2 → defer to backlog 999.3 per existing decision).
-**Plans:** 5 plans
+**Plans:** 5 plans (4 executed; 1 retired by Phase 40.6 authority migration)
 - [ ] 40.5-01-PLAN.md — Wave 1: Pin bump 1.34.2 -> 1.38.5 (package.json + bun.lock); Linux+macOS green
 - [ ] 40.5-02-PLAN.md — Wave 2: Override drift detection; SHA-snapshot refresh inline; DRIFT-LOG.md
 - [ ] 40.5-03-PLAN.md — Wave 3: Compose-collision audit incl. #1859 review.md; COLLISIONS.md
 - [ ] 40.5-04-PLAN.md — Wave 4: 24-decision re-verify (D-01..D-18 + A-01..A-06); D-09 vs #2499; 999.1 vs #2487
-- [ ] 40.5-05-PLAN.md — Wave 5: Synthesis VERIFICATION.md + README.md; 999.3 disposition; STATE.md close
+- [x] 40.5-05-PLAN.md — Wave 5 retired without execution when Phase 40.6 replaced the legacy authority and filing path
 
 ### Phase 40.6: Upstream Authority Migration (COMPLETED 2026-06-23)
 **Goal**: Move this fork's upstream authority from the legacy `get-shit-done-cc` package / `gsd-build/get-shit-done` repository to the active Open GSD `@opengsd/gsd-core` package / `open-gsd/gsd-core` repository while preserving the overlay architecture, fork identity, and exact-version review discipline.
@@ -153,26 +153,73 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 ### Phase 43: Upgrade Resilience — Verify, Matrix, Dogfood
 **Goal**: Prove the overlay survives a real upstream bump end-to-end — via a Verdaccio-simulated full upgrade, an N=3 historical compat matrix, and a live dogfood bump recorded in MAINTENANCE.md.
 **Depends on**: Phase 41 (override-staleness blocking must exist so verify-upgrade has meaningful failure modes) and Phase 42 (100% test pass SLO must hold before upgrade smoke tests are trusted).
-**Requirements**: UPGRADE-01, UPGRADE-02, UPGRADE-04, UPGRADE-05, UPGRADE-07, UPGRADE-08, UPGRADE-09, SHIP-03
+**Requirements**: UPGRADE-01, UPGRADE-02, UPGRADE-04, UPGRADE-05, UPGRADE-07, UPGRADE-08, UPGRADE-09, SHIP-03A, SHIP-08, SHIP-08A, SHIP-08B
 **Success Criteria** (what must be TRUE):
   1. `bun run verify-upgrade --from <pinned> --to <target>` runs against a Linux Verdaccio service container, performs install->bump->recompose->reinstall->smoke-verify, and emits a structured JSON report whose exit code reflects success; the job is wired into CI on a schedule and on-change to `overlay/`, `scripts/compose.js`, or the upstream-authority pin.
   2. `.planning/vetted-upstream-versions.json` contains exactly 3 vetted upstream versions; the `compat-matrix` CI job expands from it (informational on historical versions, blocking on pinned); pruning-oldest-on-bump is automated as part of the bump runbook.
   3. A comment-only or whitespace-only upstream change to an override source `.js` file does NOT trigger a staleness alert (AST-diff based), while a semantic change does; `.md` files are documented as deferred to v1.3.0 with a reason.
   4. `overrides/hooks/gsd-check-update.js` incorporates upstream's hook improvements (isNewer, detectConfigDir, stale hook detection, shared cache) while preserving fork-specific behavior (package name, role routing, commit classification, 4h/7d throttle); the corresponding `gsd-statusline.js` changes are committed atomically in the same PR.
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
-  6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist, included in both the tarball and the GitHub release artifact.
-**Plans**: TBD
+  6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist and included in the npm tarball. GitHub release attachment is separately owned by SHIP-03B in Phase 44.
+  7. Production assurance is blocking and two-part: canonical fork-authored source reaches at least 95% statements, branches, functions, and lines independently while Bun remains green, and every shipped upstream snapshot satisfies exact provenance, drift, named fork-delta, ownership/removal, and N=3 composed-package gates. Closeout language cannot describe the fork-only aggregate as whole-production coverage.
+**Plans**: 17/41 plans executed
+- [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
+- [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
+- [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
+- [x] 43-04-PLAN.md -- Wave 4: Compatibility matrix evidence and CI
+- [x] 43-05-PLAN.md -- Wave 5: JavaScript semantic override staleness
+- [x] 43-06-PLAN.md -- Wave 6: Check-update hook reconciliation
+- [x] 43-07-PLAN.md -- Wave 7: Statusline reconciliation and hook packaging
+- [x] 43-08-PLAN.md -- Wave 8: Override churn generator
+- [x] 43-09-PLAN.md -- Wave 9: CycloneDX SBOM pipeline
+- [x] 43-10-PLAN.md -- Wave 10: Live target reverify and authority bump
+- [x] 43-11A-PLAN.md -- Wave 11: Classified compatibility contract and per-suite diagnostics
+- [x] 43-11B-PLAN.md -- Wave 12: Open GSD contract modernization and candidate runtime coverage
+- [x] 43-11C-PLAN.md -- Wave 13: Roadmap format preservation and N=3 compatibility proof
+- [x] 43-11L-PLAN.md -- Wave 14: Open GSD plan-scan read-model correction and N=3 revalidation
+- [x] 43-11M-PLAN.md -- Wave 15: Test-runner discovery authority and pre-push recovery
+- [x] 43-11P-PLAN.md -- Wave 16: Subject-bound captured Fable runner, receipt, and replay-safe validator
+- [x] 43-11N-PLAN.md -- Wave 17: Hosted-CI authority contract, collector, and durable blocker record
+- [ ] 43-11R-PLAN.md -- Wave 18: Human external-state gate, hosted evidence, Fable lead decision, and ordinary GSD finalization
+- [ ] 43-11D-PLAN.md -- Wave 19: Finalized-head hosted recertification, exact source ownership contract, and unchanged Jest parity
+- [ ] 43-11W-PLAN.md -- Wave 20: Multi-process coverage orchestration and per-group feasibility evidence
+- [ ] 43-11X-PLAN.md -- Wave 21: Post-coverage-foundation whole-project Fable checkpoint
+- [ ] 43-11K-PLAN.md -- Wave 22: SBOM portability and toolchain preflight
+- [ ] 43-11E-PLAN.md -- Wave 23: Launcher and installer four-metric closure
+- [ ] 43-11T-PLAN.md -- Wave 24: Runtime-support four-metric closure
+- [ ] 43-11S-PLAN.md -- Wave 25: Post-toolchain and initial-coverage whole-project Fable checkpoint
+- [ ] 43-11F-PLAN.md -- Wave 26: Compose/build/finalize four-metric closure
+- [ ] 43-11U-PLAN.md -- Wave 27: Provenance/semantic/SBOM/docs-tool four-metric closure
+- [ ] 43-11G-PLAN.md -- Wave 28: Audit/override/debt/OSV four-metric closure
+- [ ] 43-11V-PLAN.md -- Wave 29: Benchmark/perf/cousin/flake/oversight four-metric closure
+- [ ] 43-11H-PLAN.md -- Wave 30: Upstream authority/preview/vetted/churn four-metric closure
+- [ ] 43-11Z-PLAN.md -- Wave 31: Compatibility and upgrade-runner four-metric closure
+- [ ] 43-11I-PLAN.md -- Wave 32: Hook and sync four-metric closure
+- [ ] 43-11Y-PLAN.md -- Wave 33: Pre-validator whole-project Fable checkpoint
+- [ ] 43-11J-PLAN.md -- Wave 34: Explicit schemas and pure Phase 43 validator core
+- [ ] 43-11AA-PLAN.md -- Wave 35: Validator adapters, blocking CI, and validator self-coverage
+- [ ] 43-11AB-PLAN.md -- Wave 36: Final aggregate evidence and transactional Plan 11 transition
+- [ ] 43-11-PLAN.md -- Wave 37: Post-bump assurance refresh and bounded evidence summary
+- [ ] 43-11Q-PLAN.md -- Wave 38: Fresh final-head hosted CI and Fable whole-product closure
+- [ ] 43-12-PLAN.md -- Wave 39: Automated D-7 candidate, human confirmation, closeout gates, and Phase 44 readiness
+- [ ] 43-12B-PLAN.md -- Wave 40: Whole-project Fable entry review, post-correction hosted recertification, and reverification
+- [ ] 43-12C-PLAN.md -- Wave 41: Final goal-backward verification and Phase 43 closeout
 
 ### Phase 44: Ship Polish — Publish Flow, Provenance, Docs
 **Goal**: Wire every gate built in Phases 41-43 into the `aidev release` / `aidev publish` flow with OIDC provenance, verify reproducibility, and land a complete MAINTENANCE.md that documents processes that now actually exist.
 **Depends on**: Phase 41, 42, 43 (MAINTENANCE.md can only document real processes; provenance needs the publish flow confirmed; the anti-theater checklist walks through artifacts from all prior phases).
-**Requirements**: SHIP-01, SHIP-02, SHIP-04, SHIP-05, SHIP-06, DOCS-01, DOCS-02, DOCS-03, DOCS-07, DOCS-08
+**Requirements**: SHIP-01, SHIP-02, SHIP-03B, SHIP-04, SHIP-05, SHIP-06, DOCS-01, DOCS-02, DOCS-03, DOCS-07, DOCS-08
 **Success Criteria** (what must be TRUE):
   1. `aidev publish` refuses to proceed unless the full pre-publish chain (tests + lint + audit + publint + SBOM) passes; publint catches a hand-curated drop in `files:` on a synthetic regression fixture; running the publish command without OIDC credentials fails rather than falling back to a long-lived NPM_TOKEN.
-  2. Running `bun run compose` twice on the same inputs produces byte-identical output (verified via a reproducibility CI job); zizmor static analysis of GHA workflow YAML runs in CI and fails on unpinned-SHA references, injection via `${{ github.event.* }}`, or excessive `GITHUB_TOKEN` permissions.
+  2. Running `bun run compose` twice on the same inputs produces byte-identical output, and the Linux, macOS, and Windows jobs produce identical path-plus-SHA manifests for the composed distribution; zizmor static analysis of GHA workflow YAML runs in CI and fails on unpinned-SHA references, injection via `${{ github.event.* }}`, or excessive `GITHUB_TOKEN` permissions.
   3. `MAINTENANCE.md` exists with every required section (Upgrade Process, Override Conflict Handling, CI Staleness Response, Release Cadence, Bump Runbook prohibiting `--theirs`/`--ours`, Security Triage, Perf Budget, Escape-Hatch Decisions Log) and each section contains executable examples or links to the scripts they describe; a CI check extracts and runs at least one example per section.
-  4. The consumer-facing upgrade guide (`DOCS-02`), override policy (`DOCS-03`), README (`DOCS-07`), and CHANGELOG.md (audited for Keep-a-Changelog + SemVer compliance per `DOCS-08`) all pass lychee + markdownlint; README clearly states the value proposition, install instructions, feature list, and links to MAINTENANCE.md.
+  4. The consumer-facing upgrade guide (`DOCS-02`), override policy (`DOCS-03`), README (`DOCS-07`), and CHANGELOG.md (audited for Keep-a-Changelog + SemVer compliance per `DOCS-08`) all pass lychee + markdownlint; README clearly states the value proposition, install instructions, feature list, support boundary, and links to MAINTENANCE.md, while MAINTENANCE.md states the reviewed upstream-bump cadence.
   5. The "Looks Done But Isn't" checklist from `.planning/research/PITFALLS.md` is walked through as the final ship gate; each item is either a committed artifact in the repo or a dated decision in the Escape-Hatch Log, with zero unresolved items before tagging v1.2.0.
+  6. The release workflow attaches `dist/bom.json` to the GitHub release and verifies its digest matches the SBOM included in the npm tarball.
+  7. The packed release candidate passes install -> upgrade, injected-failure rollback, uninstall with user-file preservation, and idempotent reinstall scenarios on Linux, macOS, and Windows.
+  8. The changelog conflict checker either accepts normal published-release content while rejecting the intended conflict fixture, or is removed/replaced by a gate with that exact contract; no known false-positive gate enters the publish chain.
+  9. All 41 baseline boundary violations are classified by plausible upstream-path collision risk; collision-possible entries are corrected or made explicit reviewed overrides, and any retained collision-impossible entries remain documented under the blocking no-regression ratchet.
+  10. Fable's standing whole-project review is rerun at Phase 44 entry and pre-publish with current machine evidence; every finding is verified and dispositioned, and MAINTENANCE.md requires a first-post-release-bump review of elapsed time, corrective-plan count, failure classes, and sustainable bump cadence.
 **Plans**: TBD
 
 ## Progress
@@ -185,11 +232,11 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 24-28 | v0.4.0 | - | Superseded | - |
 | 29-36 | v1.0.0 | 21/21 | Complete | 2026-03-31 |
 | 37-40 | v1.1.0 | 8/8 | Complete | 2026-04-04 |
-| 40.5 | v1.2.0 | 4/5 evidence | Partial; Wave 5 legacy filing path retired by Phase 40.6 | - |
+| 40.5 | v1.2.0 | 4 executed + 1 retired | Closed; superseded by Phase 40.6 | 2026-06-23 |
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 0/TBD | Not started | - |
+| 43 | v1.2.0 | 17/41 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog
@@ -253,3 +300,43 @@ Plans:
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog after Phase 41 install lands and the audit-surface stabilizes)
+
+### Phase 999.6: Preserve roadmap progress-table formatting (BACKLOG)
+
+**Goal:** Make `roadmap update-plan-progress` preserve valid incomplete-row spacing and the existing `-` completion placeholder while updating only plan counts and semantic status.
+**Source:** Plan 43-11L closeout dogfood on 2026-07-14. The command correctly reported 24 plans and 14 summaries but rewrote `| In Progress | - |` as `| In Progress|  |`, requiring a manual formatting-only correction.
+**Investigation time-box:** 30 minutes for TDD and writer correction.
+**Requirements:** TBD (roadmap writer fidelity; no current milestone semantic blocker).
+
+**Promotion criteria:**
+- Add a fixture covering an incomplete five-column progress row with a `-` completion placeholder.
+- Preserve valid surrounding cell spacing and the placeholder on incomplete updates.
+- Retain current date insertion and valid-date preservation when a phase becomes complete.
+- Run roadmap byte-preservation, LF/CRLF, no-op, and publication-failure regressions.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog alongside the next roadmap-writer change or before v1.2.0 closeout)
+
+### Phase 999.7: Portable market-ready gate system (BACKLOG)
+
+**Goal:** Build one reusable GSD readiness system that combines machine-verifiable production/release evidence, explicit exceptions, project overlays, and human trust/UX review without duplicating portfolio orchestration in conversations.
+**Source:** `authkey:2026-06-07:portable-market-ready-gate-system-get-stuff-done`; implementation ownership confirmed by the paired conversations control-plane handoff.
+**Investigation time-box:** Dedicated post-v1.2 product-methodology phase; estimate during discuss/spec rather than from the inbox proposal.
+**Requirements:** TBD (baseline gate taxonomy, evidence/exception lifecycle, project overlays, human review rubric, generator/checker contract, and conversations-compatible read model).
+
+**Promotion criteria:** See `.planning/phases/999.7-portable-market-ready-gate-system/CONTEXT.md`. Promote after v1.2 ships or by explicit user reprioritization, then run discuss/spec and obtain Fable's standing lead technical/design decision before implementation. Do not absorb this multi-project product into Phase 43 or Phase 44 release closure.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog after v1.2 release or explicit reprioritization)
+
+### Phase 999.8: Open GSD health diagnostic coherence (BACKLOG)
+
+**Goal:** Remove duplicate and false Open GSD `W002` health warnings for valid long-lived roadmap references while preserving strict diagnostics for genuinely unresolved phase identities.
+**Source:** Phase 43 research against composed Open GSD `1.6.1` and `next`; moved out of the release-critical graph to honor locked Phase 43 decision D-22 because no upgrade smoke verifier consumes `validate health`.
+**Investigation time-box:** Reverify after v1.2 or explicit reprioritization; estimate during discuss/spec against the then-current exact Open GSD pin.
+**Requirements:** TBD (phase-reference semantics, composed-runtime tests, N=3 compatibility, removable override/upstream contract, inbox closure evidence).
+
+**Promotion criteria:** See `.planning/phases/999.8-open-gsd-health-diagnostic-coherence/CONTEXT.md`. Run GSD discuss/spec and obtain Fable's standing whole-project lead decision before source work; verify Open GSD issue `#1697` and current upstream behavior rather than relying on the preserved snapshot.
+
+Plans:
+- [ ] TBD (promote after v1.2 release or explicit reprioritization)

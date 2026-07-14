@@ -6,7 +6,18 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { resolveCompatPackageRoot } = require('./helpers/compat-package-root.cjs');
+const COMPAT_PACKAGE_ROOT = resolveCompatPackageRoot();
+const { createGsdToolsHelpers, createTempProject, cleanup } = require('./helpers.cjs');
+const { runGsdTools } = createGsdToolsHelpers(COMPAT_PACKAGE_ROOT);
+
+function writePassedVerification(phaseDir, phaseId) {
+  fs.writeFileSync(
+    path.join(phaseDir, `${phaseId}-VERIFICATION.md`),
+    `---\nphase: ${phaseId}\nstatus: passed\n---\n`,
+    'utf-8'
+  );
+}
 
 describe('phases list command', () => {
   let tmpDir;
@@ -288,6 +299,7 @@ objective: Auth setup
       path.join(phaseDir, '03-03-PLAN.md'),
       `---
 wave: 2
+depends_on: ["03-01", "03-02"]
 autonomous: false
 objective: API routes
 ---
@@ -766,6 +778,7 @@ describe('phase complete command', () => {
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(p1, '01');
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-api'), { recursive: true });
 
     const result = runGsdTools('phase complete 1', tmpDir);
@@ -803,6 +816,7 @@ describe('phase complete command', () => {
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(p1, '01');
 
     const result = runGsdTools('phase complete 1', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
@@ -867,6 +881,7 @@ describe('phase complete command', () => {
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(p1, '01');
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-api'), { recursive: true });
 
     const result = runGsdTools('phase complete 1', tmpDir);
@@ -940,6 +955,7 @@ describe('phase complete command', () => {
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(p1, '01');
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-api'), { recursive: true });
 
     const result = runGsdTools('phase complete 1', tmpDir);
@@ -997,6 +1013,7 @@ describe('phase complete command', () => {
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(p1, '01');
 
     const result = runGsdTools('phase complete 1', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
@@ -1028,6 +1045,7 @@ describe('phase complete command', () => {
     fs.mkdirSync(p1, { recursive: true });
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(p1, '01');
 
     const result = runGsdTools('phase complete 1', tmpDir);
     assert.ok(result.success, `Command should succeed even without REQUIREMENTS.md: ${result.error}`);
@@ -1094,6 +1112,7 @@ describe('phase complete command', () => {
     fs.mkdirSync(p4, { recursive: true });
     fs.writeFileSync(path.join(p321, '03.2.1-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p321, '03.2.1-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(p321, '03.2.1');
 
     const result = runGsdTools('phase complete 03.2.1', tmpDir);
     assert.ok(result.success, `Command should not crash on regex metacharacters: ${result.error}`);
@@ -1107,7 +1126,9 @@ describe('phase complete command', () => {
 // comparePhaseNum and normalizePhaseName (imported directly)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const { comparePhaseNum, normalizePhaseName } = require('../get-stuff-done/bin/lib/core.cjs');
+const { comparePhaseNum, normalizePhaseName } = require(
+  path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'phase-id.cjs')
+);
 
 describe('comparePhaseNum', () => {
   test('sorts integer phases numerically', () => {
@@ -1189,9 +1210,9 @@ describe('normalizePhaseName', () => {
     assert.strictEqual(normalizePhaseName('12A.2'), '12A.2');
   });
 
-  test('uppercases letters', () => {
-    assert.strictEqual(normalizePhaseName('3a'), '03A');
-    assert.strictEqual(normalizePhaseName('12b.1'), '12B.1');
+  test('preserves letter suffix case', () => {
+    assert.strictEqual(normalizePhaseName('3a'), '03a');
+    assert.strictEqual(normalizePhaseName('12b.1'), '12b.1');
   });
 
   test('handles multi-level decimal phases', () => {

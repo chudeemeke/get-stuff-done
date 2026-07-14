@@ -164,7 +164,7 @@ function verifyTriggerContracts(rootDir = PROJECT_ROOT) {
 
 function hasCommandEvidence(text) {
   return /\bEvidence:/i.test(text) ||
-    /`(?:bun test|node scripts\/|git (?:fetch|show|rev-parse|ls-remote)|gh (?:pr|run) view|bash scripts\/)[^`]*`/i.test(text) ||
+    /`(?:bun (?:run )?test|node scripts\/|git (?:fetch|show|rev-parse|ls-remote)|gh (?:pr|run) view|bash scripts\/)[^`]*`/i.test(text) ||
     /\b(?:run|command|workflow) [0-9]{5,}\b/i.test(text);
 }
 
@@ -189,7 +189,7 @@ function hasCiGateBeforeMeasurementClaim(text) {
 
 function hasMetricCompatibilityGap(text) {
   return /\b(?:95%|coverage|statements|branches|functions|lines|metric|target)\b/i.test(text) &&
-    /\b(?:bun test --coverage|coverage target|metric-target|metric compatibility|reporter)\b/i.test(text) &&
+    /\b(?:bun (?:run )?test(?::coverage:bun)?(?: --coverage)?|coverage target|metric-target|metric compatibility|reporter)\b/i.test(text) &&
     /\b(?:without|no|not needed|before committing|promises?)\b/i.test(text);
 }
 

@@ -23,6 +23,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `/gsd:update` now uses strict package safety checks: only `get-shit-done-cc` is allowed, scoped/user-derived package names are rejected, and install command execution is allowlisted to trusted forms
 - `/gsd:update` install detection now validates local integrity and falls back to global install when local metadata is missing or invalid
 
+### Override Churn
+<!-- override-churn:start -->
+- `bin/install.js` - changed
+- `gsd-core/bin/lib/init.cjs` - changed
+- `gsd-core/bin/lib/roadmap-parser.cjs` - changed
+- `gsd-core/bin/lib/roadmap.cjs` - changed
+- `gsd-core/bin/lib/state.cjs` - changed
+- `hooks/gsd-check-update-worker.js` - carried
+- `hooks/gsd-check-update.js` - carried
+- `hooks/gsd-statusline.js` - carried
+<!-- override-churn:end -->
+
 ## [1.20.5] - 2026-02-19
 
 ### Fixed

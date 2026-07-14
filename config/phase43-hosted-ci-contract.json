@@ -1,16 +1,40 @@
 {
-  "schemaVersion": 1,
-  "receiptSchemaVersion": 1,
+  "schemaVersion": 2,
+  "envelopeSchemaVersion": 1,
   "repository": "chudeemeke/get-stuff-done",
-  "receiptPath": ".planning/evidence/phase43-hosted-verdict.json",
+  "contractPath": "config/phase43-hosted-ci-contract.json",
+  "evidenceDirectory": ".planning/evidence/hosted",
   "acceptedConclusions": [
     "success"
   ],
   "allowUnexpectedWorkflows": false,
   "allowUnexpectedJobs": false,
+  "governedPaths": {
+    "source": [
+      "scripts/verify-hosted-ci.js",
+      "tests/verify-hosted-ci.test.js",
+      "tests/test-config-hygiene.test.js"
+    ],
+    "workflow": [
+      ".github/workflows/ci.yml",
+      ".github/workflows/compat-matrix.yml",
+      ".github/workflows/cousin-install.yml",
+      ".github/workflows/oversight-probes.yml",
+      ".github/workflows/upgrade-verifier.yml"
+    ],
+    "contract": [
+      "config/phase43-hosted-ci-contract.json"
+    ],
+    "policy": [
+      ".gitignore",
+      "package.json",
+      "bun.lock"
+    ]
+  },
   "workflows": [
     {
       "name": "CI",
+      "path": ".github/workflows/ci.yml",
       "requiredJobs": [
         "Audit CI (blocking HIGH/CRITICAL)",
         "Boundary Check (informational)",
@@ -34,6 +58,7 @@
     },
     {
       "name": "Cousin Install",
+      "path": ".github/workflows/cousin-install.yml",
       "requiredJobMatrices": [
         {
           "template": "Cousin Install ({}, Node {}, {})",
@@ -59,18 +84,21 @@
     },
     {
       "name": "Oversight Probes",
+      "path": ".github/workflows/oversight-probes.yml",
       "requiredJobs": [
         "Verify Oversight Probes"
       ]
     },
     {
       "name": "Compat Matrix",
+      "path": ".github/workflows/compat-matrix.yml",
       "requiredJobs": [
         "Vetted Upstream Compat Matrix"
       ]
     },
     {
       "name": "Upgrade Verifier",
+      "path": ".github/workflows/upgrade-verifier.yml",
       "requiredJobs": [
         "Upgrade Verifier"
       ]

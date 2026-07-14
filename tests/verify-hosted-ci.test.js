@@ -1,20 +1,29 @@
 'use strict';
 
 const { describe, expect, test } = require('bun:test');
+const { createHash } = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const {
+  buildPassedEnvelope,
   collectHostedData,
+  collectHostedEnvelope,
+  computeGovernedDigests,
+  createDefaultDependencies,
   evaluateHostedVerdict,
   expandJobMatrices,
   main,
   parseArgs,
   runJsonCommand,
   runTextCommand,
+  resolveReceiptPath,
   selectLatestRuns,
   validateHostedContract,
+  validateHostedEnvelope,
   verifyWorkflowTopology,
+  verifyPendingEnvelope,
+  verifyTrackedEnvelope,
   writeReceiptAtomic,
 } = require('../scripts/verify-hosted-ci');
 
@@ -42,6 +51,10 @@ const COUSIN_JOBS = [
   'Cousin Install (windows-latest, Node 22, pnpm)',
   'Cousin Install (windows-latest, Node 22, bun)',
 ];
+
+function digest(bytes) {
+  return createHash('sha256').update(bytes).digest('hex');
+}
 
 function makeContract() {
   return {
@@ -87,6 +100,7 @@ function makeRun(id, name, overrides = {}) {
     status: 'completed',
     conclusion: 'success',
     run_attempt: 1,
+    pull_requests: [{ number: 23 }],
     html_url: `https://github.com/chudeemeke/get-stuff-done/actions/runs/${id}`,
     updated_at: '2026-07-14T02:38:30Z',
     ...overrides,
@@ -154,6 +168,94 @@ describe('hosted CI verdict authority', () => {
         fs.readFileSync(path.join(PROJECT_ROOT, workflowPath), 'utf8')
       )
     ).toEqual({ workflows: 5, jobs: 39 });
+  });
+
+  test('rejects contract drift, evidence self-governance, and workflow topology drift', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    expect(() => validateHostedContract({ ...contract, unexpected: true })).toThrow(
+      'unknown field'
+    );
+    expect(() =>
+      validateHostedContract({ ...contract, acceptedConclusions: ['success', 'failure'] })
+    ).toThrow('policy authority');
+    expect(() =>
+      validateHostedContract({ ...contract, allowUnexpectedWorkflows: true })
+    ).toThrow('policy authority');
+    expect(() =>
+      validateHostedContract({ ...contract, repository: 'attacker/mirror' })
+    ).toThrow('repository authority');
+    expect(() =>
+      validateHostedContract({
+        ...contract,
+        governedPaths: {
+          ...contract.governedPaths,
+          policy: [...contract.governedPaths.policy, `${contract.evidenceDirectory}/receipt.json`],
+        },
+      })
+    ).toThrow('cannot be part');
+    expect(() =>
+      verifyWorkflowTopology(contract, workflowPath => {
+        const source = fs.readFileSync(path.join(PROJECT_ROOT, workflowPath), 'utf8');
+        return workflowPath.endsWith('ci.yml')
+          ? source.replace('name: CI', 'name: Drifted CI')
+          : source;
+      })
+    ).toThrow('pull_request authority');
+  });
+
+  test('computes canonical governed digests by category from exact commit bytes', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const observed = [];
+    const digests = computeGovernedDigests(contract, filePath => {
+      observed.push(filePath);
+      return Buffer.from(`bytes:${filePath}\n`);
+    });
+
+    expect(Object.keys(digests)).toEqual(['source', 'workflow', 'contract', 'policy']);
+    expect(observed).toEqual(Object.values(contract.governedPaths).flat());
+    expect(digests.workflow).toHaveLength(5);
+    expect(digests.source[0]).toEqual({
+      path: contract.governedPaths.source[0],
+      sha256: digest(Buffer.from(`bytes:${contract.governedPaths.source[0]}\n`)),
+    });
+  });
+
+  test('builds only passed immutable envelopes with subject and purpose authority', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const verdict = evaluateHostedVerdict(makeSuccessfulInput(contract), contract);
+    const governedDigests = computeGovernedDigests(contract, filePath =>
+      Buffer.from(`bytes:${filePath}\n`)
+    );
+    const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
+    const envelope = buildPassedEnvelope(verdict, contract, {
+      purpose: 'Plan 11R initial hosted authority',
+      receiptPath,
+      governedDigests,
+    });
+
+    expect(validateHostedEnvelope(envelope, contract)).toBe(envelope);
+    expect(envelope).toMatchObject({
+      schemaVersion: 1,
+      contractSchemaVersion: 2,
+      repository: contract.repository,
+      pullRequest: 23,
+      checkedCommit: EXPECTED_HEAD,
+      purpose: 'Plan 11R initial hosted authority',
+      receiptPath,
+      verdict: 'passed',
+      hostedEvidenceExists: true,
+      governedDigests,
+    });
+    expect(envelope).not.toHaveProperty('headSha');
+
+    const unavailable = evaluateHostedVerdict(makeBillingLockedInput(), contract);
+    expect(() =>
+      buildPassedEnvelope(unavailable, contract, {
+        purpose: 'must not publish',
+        receiptPath,
+        governedDigests,
+      })
+    ).toThrow('passed hosted verdict');
   });
 
   test('accepts only a complete successful exact-head workflow contract', () => {
@@ -272,16 +374,22 @@ describe('hosted CI verdict authority', () => {
     expect(receipt.diagnostics.map(item => item.code)).toContain('zero_step_failure');
   });
 
-  test('rejects run-head drift, incomplete runs, and unclassified jobs', () => {
+  test('rejects collection drift, wrong PR or trigger authority, incomplete runs, and unclassified jobs', () => {
     const input = makeSuccessfulInput();
+    input.localHeadAtEnd = 'c'.repeat(40);
     input.runs[0].head_sha = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+    input.runs[0].event = 'workflow_dispatch';
+    input.runs[0].pull_requests = [{ number: 99 }];
     input.runs[0].status = 'in_progress';
     input.runs[0].conclusion = null;
     input.jobsByRun[input.runs[0].id].push(makeJob(77777, 'Unclassified Job'));
 
     const codes = evaluateHostedVerdict(input, makeContract()).diagnostics.map(item => item.code);
 
+    expect(codes).toContain('local_head_changed_during_collection');
     expect(codes).toContain('run_head_mismatch');
+    expect(codes).toContain('run_event_mismatch');
+    expect(codes).toContain('run_pr_mismatch');
     expect(codes).toContain('run_incomplete');
     expect(codes).toContain('unexpected_job');
   });
@@ -305,8 +413,9 @@ describe('hosted CI verdict authority', () => {
         'phase43:hosted-verdict'
       ]
     ).toBe('node scripts/verify-hosted-ci.js');
-    expect(fs.readFileSync(path.join(PROJECT_ROOT, '.gitignore'), 'utf8')).toContain(
-      '.planning/evidence/phase43-hosted-verdict.json'
+    expect(contract.evidenceDirectory).toBe('.planning/evidence/hosted');
+    expect(fs.readFileSync(path.join(PROJECT_ROOT, '.gitignore'), 'utf8')).not.toContain(
+      contract.evidenceDirectory
     );
   });
 });
@@ -461,95 +570,424 @@ describe('hosted CI infrastructure ports', () => {
     ).toThrow('run 1');
   });
 
-  test('atomically replaces a stale passed receipt with the latest verdict', () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-hosted-verdict-'));
-    const reportPath = path.join(tempDir, 'receipt.json');
+  test('parses explicit collect and offline verification modes', () => {
+    const receipt = '.planning/evidence/hosted/43-11r-initial.json';
+    expect(
+      parseArgs([
+        'collect',
+        '--pr',
+        '23',
+        '--receipt',
+        receipt,
+        '--purpose',
+        'Plan 11R initial hosted authority',
+      ])
+    ).toEqual({
+      mode: 'collect',
+      pullRequest: 23,
+      receiptPath: receipt,
+      purpose: 'Plan 11R initial hosted authority',
+      subjectCommit: null,
+    });
+    expect(parseArgs(['verify-pending', '--pr', '23', '--receipt', receipt])).toMatchObject({
+      mode: 'verify-pending',
+      pullRequest: 23,
+      receiptPath: receipt,
+    });
+    expect(
+      parseArgs([
+        'verify-receipt',
+        '--pr',
+        '23',
+        '--receipt',
+        receipt,
+        '--subject',
+        EXPECTED_HEAD,
+      ])
+    ).toMatchObject({ mode: 'verify-receipt', subjectCommit: EXPECTED_HEAD });
+    expect(parseArgs(['--help'])).toEqual({ help: true });
+    expect(() => parseArgs(['collect', '--pr', '23', '--receipt', receipt])).toThrow(
+      '--purpose'
+    );
+    expect(() => parseArgs(['--pr', '23'])).toThrow('mode');
+  });
+
+  test('receipt paths stay inside the hosted directory and never target existing bytes', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-hosted-path-'));
+    const hosted = path.join(root, '.planning', 'evidence', 'hosted');
+    const outside = path.join(root, 'outside');
+    fs.mkdirSync(hosted, { recursive: true });
+    fs.mkdirSync(outside);
+    fs.writeFileSync(path.join(hosted, 'existing.json'), '{}\n');
+    fs.symlinkSync(outside, path.join(hosted, 'escape'), process.platform === 'win32' ? 'junction' : 'dir');
+    const contract = { evidenceDirectory: '.planning/evidence/hosted' };
 
     try {
-      fs.writeFileSync(reportPath, JSON.stringify({ verdict: 'passed', headSha: 'stale' }));
-      writeReceiptAtomic(reportPath, { verdict: 'unavailable', headSha: EXPECTED_HEAD });
-
-      expect(JSON.parse(fs.readFileSync(reportPath, 'utf8'))).toEqual({
-        verdict: 'unavailable',
-        headSha: EXPECTED_HEAD,
-      });
-      expect(fs.readdirSync(tempDir)).toEqual(['receipt.json']);
+      expect(
+        resolveReceiptPath(root, contract, '.planning/evidence/hosted/new.json', {
+          mustNotExist: true,
+        })
+      ).toBe(path.join(hosted, 'new.json'));
+      expect(() =>
+        resolveReceiptPath(root, contract, '.planning/evidence/hosted/existing.json', {
+          mustNotExist: true,
+        })
+      ).toThrow('already exists');
+      expect(() =>
+        resolveReceiptPath(root, contract, '.planning/evidence/hosted/escape/out.json', {
+          mustNotExist: true,
+        })
+      ).toThrow('outside');
+      expect(() =>
+        resolveReceiptPath(root, contract, '.planning/evidence/hosted/../outside.json')
+      ).toThrow('repository-relative');
+      expect(() => resolveReceiptPath(root, contract, 'other/receipt.json')).toThrow(
+        'hosted evidence directory'
+      );
     } finally {
-      fs.rmSync(tempDir, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true });
     }
   });
 
-  test('parses only the positive pull request argument', () => {
-    expect(parseArgs(['--', '--pr', '23'])).toEqual({ pullRequest: 23 });
-    expect(() => parseArgs([])).toThrow('positive integer');
-    expect(() => parseArgs(['--pr', 'nope'])).toThrow('positive integer');
-    expect(() => parseArgs(['--unknown'])).toThrow('Unknown argument');
+  test('atomic receipt publication is create-only', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-hosted-write-'));
+    const receiptPath = path.join(root, 'receipt.json');
+
+    try {
+      writeReceiptAtomic(receiptPath, { sequence: 1 });
+      expect(() => writeReceiptAtomic(receiptPath, { sequence: 2 })).toThrow();
+      expect(JSON.parse(fs.readFileSync(receiptPath, 'utf8'))).toEqual({ sequence: 1 });
+      expect(fs.readdirSync(root)).toEqual(['receipt.json']);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
   });
 
-  test('main publishes passed and collection-error receipts through injected ports', () => {
-    const classicToken = ['ghp', '1234567890abcdefghij'].join('_');
+  test('atomic receipt publication rolls back a linked receipt when cleanup fails', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-hosted-rollback-'));
+    const receiptPath = path.join(root, 'receipt.json');
+    let failedTempCleanup = false;
+    const fileSystem = {
+      mkdirSync: fs.mkdirSync,
+      writeFileSync: fs.writeFileSync,
+      linkSync: fs.linkSync,
+      unlinkSync(filePath) {
+        if (!failedTempCleanup && filePath.includes('.tmp.')) {
+          failedTempCleanup = true;
+          throw new Error('simulated temp cleanup failure');
+        }
+        return fs.unlinkSync(filePath);
+      },
+    };
+
+    try {
+      expect(() =>
+        writeReceiptAtomic(receiptPath, { sequence: 1 }, { fileSystem })
+      ).toThrow('simulated temp cleanup failure');
+      expect(fs.readdirSync(root)).toEqual([]);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test('collection publishes only a passed exact-head envelope', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
     const writes = [];
+    const readTracked = (_commit, filePath) => fs.readFileSync(path.join(PROJECT_ROOT, filePath));
+    const baseDependencies = {
+      contract,
+      projectRoot: PROJECT_ROOT,
+      resolveReceiptPath: () => path.join(PROJECT_ROOT, ...receiptPath.split('/')),
+      readTracked,
+      readCurrent: filePath => fs.readFileSync(path.join(PROJECT_ROOT, filePath)),
+      writeReceiptAtomic: (filePath, value) => writes.push({ filePath, value }),
+    };
+    const options = {
+      mode: 'collect',
+      pullRequest: 23,
+      receiptPath,
+      purpose: 'Plan 11R initial hosted authority',
+      subjectCommit: null,
+    };
+
+    const envelope = collectHostedEnvelope(options, {
+      ...baseDependencies,
+      collectHostedData: () => makeSuccessfulInput(contract),
+    });
+    expect(envelope.checkedCommit).toBe(EXPECTED_HEAD);
+    expect(writes).toEqual([
+      {
+        filePath: path.join(PROJECT_ROOT, ...receiptPath.split('/')),
+        value: envelope,
+      },
+    ]);
+
+    writes.length = 0;
+    const unavailable = collectHostedEnvelope(options, {
+      ...baseDependencies,
+      collectHostedData: () => makeBillingLockedInput(),
+    });
+    expect(unavailable.verdict).toBe('unavailable');
+    expect(unavailable.hostedEvidenceExists).toBe(false);
+    expect(writes).toEqual([]);
+  });
+
+  test('pending verification is offline, untracked, and bound to current HEAD', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
+    const governedDigests = computeGovernedDigests(contract, filePath =>
+      fs.readFileSync(path.join(PROJECT_ROOT, filePath))
+    );
+    const envelope = buildPassedEnvelope(
+      evaluateHostedVerdict(makeSuccessfulInput(contract), contract),
+      contract,
+      {
+        purpose: 'Plan 11R initial hosted authority',
+        receiptPath,
+        governedDigests,
+      }
+    );
+    const dependencies = {
+      contract,
+      projectRoot: PROJECT_ROOT,
+      resolveReceiptPath: () => path.join(PROJECT_ROOT, ...receiptPath.split('/')),
+      readFile: () => Buffer.from(JSON.stringify(envelope)),
+      getHead: () => EXPECTED_HEAD,
+      isTracked: () => false,
+      readTracked: (_commit, filePath) => fs.readFileSync(path.join(PROJECT_ROOT, filePath)),
+      readCurrent: filePath => fs.readFileSync(path.join(PROJECT_ROOT, filePath)),
+    };
+    const options = {
+      mode: 'verify-pending',
+      pullRequest: 23,
+      receiptPath,
+      purpose: null,
+      subjectCommit: null,
+    };
+
+    expect(verifyPendingEnvelope(options, dependencies)).toEqual(envelope);
+    expect(() => verifyPendingEnvelope(options, { ...dependencies, isTracked: () => true })).toThrow(
+      'must not already be tracked'
+    );
+    expect(() =>
+      verifyPendingEnvelope(options, {
+        ...dependencies,
+        getHead: () => 'b'.repeat(40),
+      })
+    ).toThrow('current HEAD');
+    expect(() =>
+      verifyPendingEnvelope(options, {
+        ...dependencies,
+        readTracked: (_commit, filePath) =>
+          filePath === contract.governedPaths.source[0]
+            ? Buffer.from('changed\n')
+            : fs.readFileSync(path.join(PROJECT_ROOT, filePath)),
+      })
+    ).toThrow('governed digests');
+  });
+
+  test('tracked verification requires strict ancestry and unchanged governed bytes', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const checkedCommit = 'a'.repeat(40);
+    const subjectCommit = 'b'.repeat(40);
+    const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
+    const input = makeSuccessfulInput(contract);
+    input.expectedHead = checkedCommit;
+    input.prHeadAtStart = checkedCommit;
+    input.prHead = checkedCommit;
+    for (const run of input.runs) run.head_sha = checkedCommit;
+    const governedDigests = computeGovernedDigests(contract, filePath =>
+      fs.readFileSync(path.join(PROJECT_ROOT, filePath))
+    );
+    const envelope = buildPassedEnvelope(evaluateHostedVerdict(input, contract), contract, {
+      purpose: 'Plan 11R initial hosted authority',
+      receiptPath,
+      governedDigests,
+    });
+    const readTracked = (commit, filePath) => {
+      if (commit === subjectCommit && filePath === receiptPath) {
+        return Buffer.from(JSON.stringify(envelope));
+      }
+      return fs.readFileSync(path.join(PROJECT_ROOT, filePath));
+    };
+    const options = {
+      mode: 'verify-receipt',
+      pullRequest: 23,
+      receiptPath,
+      purpose: null,
+      subjectCommit,
+    };
+    const dependencies = {
+      contract,
+      readTracked,
+      isTrackedAt: () => true,
+      isAncestor: () => true,
+    };
+
+    expect(verifyTrackedEnvelope(options, dependencies)).toEqual(envelope);
+    expect(() =>
+      verifyTrackedEnvelope(options, { ...dependencies, isAncestor: () => false })
+    ).toThrow('strict ancestor');
+    expect(() =>
+      verifyTrackedEnvelope(options, {
+        ...dependencies,
+        readTracked: (commit, filePath) => {
+          if (commit === subjectCommit && filePath === contract.governedPaths.source[0]) {
+            return Buffer.from('changed after CI\n');
+          }
+          return readTracked(commit, filePath);
+        },
+      })
+    ).toThrow('governed digests');
+    expect(() =>
+      verifyTrackedEnvelope(options, { ...dependencies, isTrackedAt: () => false })
+    ).toThrow('tracked in the subject commit');
+  });
+
+  test('tracked verification rejects malformed authority before invoking Git adapters', () => {
+    const forbidden = () => {
+      throw new Error('Git adapter must not receive malformed authority');
+    };
+    const dependencies = {
+      readTracked: forbidden,
+      isTrackedAt: forbidden,
+    };
+
+    expect(() =>
+      verifyTrackedEnvelope(
+        {
+          pullRequest: 23,
+          receiptPath: '.planning/evidence/hosted/receipt.json',
+          subjectCommit: 'not-a-commit',
+        },
+        dependencies
+      )
+    ).toThrow('subject commit');
+    expect(() =>
+      verifyTrackedEnvelope(
+        {
+          pullRequest: 23,
+          receiptPath: 'outside/receipt.json',
+          subjectCommit: 'b'.repeat(40),
+        },
+        dependencies
+      )
+    ).toThrow('hosted evidence directory');
+  });
+
+  test('CLI help is side-effect free and mode routing redacts failures', () => {
     const stdout = [];
     const stderr = [];
-    const dependencies = {
-      contract: makeContract(),
-      collectHostedData: () => makeSuccessfulInput(),
-      writeReceiptAtomic(reportPath, receipt) {
-        writes.push({ reportPath, receipt });
-      },
-      stdout: { write: message => stdout.push(message) },
-      stderr: { write: message => stderr.push(message) },
+    const forbidden = () => {
+      throw new Error('help must not inspect the repository or GitHub');
     };
-
-    expect(main(['--pr', '23'], dependencies)).toBe(0);
-    expect(writes[0].reportPath).toEndWith('phase43-hosted-verdict.json');
-    expect(writes[0].receipt.verdict).toBe('passed');
-    expect(stdout).toHaveLength(1);
+    expect(
+      main(['--help'], {
+        createDefaultDependencies: forbidden,
+        stdout: { write: value => stdout.push(value) },
+        stderr: { write: value => stderr.push(value) },
+      })
+    ).toBe(0);
+    expect(stdout.join('')).toContain('collect');
+    expect(stdout.join('')).toContain('verify-pending');
+    expect(stdout.join('')).toContain('verify-receipt');
+    expect(stdout.join('')).toContain('immutable tracked envelope');
     expect(stderr).toEqual([]);
 
-    dependencies.collectHostedData = () => {
-      throw new Error(`GitHub unavailable GH_TOKEN=${classicToken}`);
-    };
-    expect(main(['--pr', '23'], dependencies)).toBe(1);
-    expect(writes[1].receipt.verdict).toBe('unavailable');
-    expect(writes[1].receipt.reason).toBe('collection_error');
-    expect(stderr[0]).toContain('GitHub unavailable');
-    expect(writes[1].receipt.diagnostics[0].message).toContain('[redacted]');
-    expect(JSON.stringify(writes[1].receipt)).not.toContain(classicToken);
-    expect(stderr[0]).not.toContain(classicToken);
-  });
-
-  test('main rejects invalid CLI input before receipt publication', () => {
-    const messages = [];
-    const writes = [];
-
+    const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
+    const calls = [];
+    const options = [
+      'collect',
+      '--pr',
+      '23',
+      '--receipt',
+      receiptPath,
+      '--purpose',
+      'Plan 11R initial hosted authority',
+    ];
     expect(
-      main([], {
-        writeReceiptAtomic: (...args) => writes.push(args),
-        stderr: { write: message => messages.push(message) },
-      })
-    ).toBe(1);
-    expect(writes).toEqual([]);
-    expect(messages[0]).toContain('--pr');
-  });
-
-  test('main replaces stale evidence when the receipt contract drifts', () => {
-    const writes = [];
-    const contract = makeContract();
-    contract.receiptPath = '.planning/evidence/wrong.json';
-
-    expect(
-      main(['--pr', '23'], {
-        contract,
-        writeReceiptAtomic(reportPath, receipt) {
-          writes.push({ reportPath, receipt });
+      main(options, {
+        collectHostedEnvelope: parsed => {
+          calls.push(parsed);
+          return { verdict: 'passed', checkedCommit: EXPECTED_HEAD, receiptPath };
         },
-        stdout: { write() {} },
-        stderr: { write() {} },
+        stdout: { write: value => stdout.push(value) },
+        stderr: { write: value => stderr.push(value) },
+      })
+    ).toBe(0);
+    expect(calls[0]).toMatchObject({ mode: 'collect', pullRequest: 23, receiptPath });
+
+    const classicToken = ['ghp', '1234567890abcdefghij'].join('_');
+    expect(
+      main(options, {
+        collectHostedEnvelope: () => {
+          throw new Error(`GH_TOKEN=${classicToken}`);
+        },
+        stdout: { write: value => stdout.push(value) },
+        stderr: { write: value => stderr.push(value) },
       })
     ).toBe(1);
-    expect(writes).toHaveLength(1);
-    expect(writes[0].reportPath).toEndWith('phase43-hosted-verdict.json');
-    expect(writes[0].receipt.reason).toBe('collection_error');
+    expect(stderr.join('')).toContain('[redacted]');
+    expect(stderr.join('')).not.toContain(classicToken);
+  });
+
+  test('CLI routes both offline verification modes without constructing real adapters', () => {
+    const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
+    const subjectCommit = 'b'.repeat(40);
+    const calls = [];
+    const forbidden = () => {
+      throw new Error('injected handlers must not construct real adapters');
+    };
+    const output = { write() {} };
+    const dependencies = {
+      createDefaultDependencies: forbidden,
+      verifyPendingEnvelope: options => {
+        calls.push(options);
+        return { checkedCommit: EXPECTED_HEAD };
+      },
+      verifyTrackedEnvelope: options => {
+        calls.push(options);
+        return { checkedCommit: EXPECTED_HEAD };
+      },
+      stdout: output,
+      stderr: output,
+    };
+
+    expect(
+      main(['verify-pending', '--pr', '23', '--receipt', receiptPath], dependencies)
+    ).toBe(0);
+    expect(
+      main(
+        [
+          'verify-receipt',
+          '--pr',
+          '23',
+          '--receipt',
+          receiptPath,
+          '--subject',
+          subjectCommit,
+        ],
+        dependencies
+      )
+    ).toBe(0);
+    expect(calls).toEqual([
+      expect.objectContaining({ mode: 'verify-pending', receiptPath }),
+      expect.objectContaining({ mode: 'verify-receipt', receiptPath, subjectCommit }),
+    ]);
+  });
+
+  test('default Git adapters distinguish tracked, missing, and ancestor evidence', () => {
+    const dependencies = createDefaultDependencies(PROJECT_ROOT);
+    const head = dependencies.getHead();
+
+    expect(head).toMatch(/^[0-9a-f]{40}$/);
+    expect(dependencies.isTracked('config/phase43-hosted-ci-contract.json')).toBe(true);
+    expect(dependencies.isTrackedAt(head, 'config/phase43-hosted-ci-contract.json')).toBe(true);
+    expect(dependencies.isTrackedAt(head, '.planning/evidence/hosted/missing.json')).toBe(false);
+    expect(dependencies.isAncestor(head, head)).toBe(true);
+    expect(dependencies.readTracked(head, 'package.json')).toEqual(
+      fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'))
+    );
   });
 });

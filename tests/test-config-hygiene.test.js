@@ -161,14 +161,16 @@ describe('test-config hygiene (meta-test)', () => {
     expect(pkg.scripts).not.toHaveProperty('test:coverage');
   });
 
-  test('hosted CI verdict uses the canonical script and an untracked exact-head receipt', () => {
+  test('hosted CI verdict uses canonical tracked immutable envelope authority', () => {
     const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
     const contract = JSON.parse(fs.readFileSync(HOSTED_CI_CONTRACT_PATH, 'utf8'));
     const gitignore = fs.readFileSync(GITIGNORE_PATH, 'utf8');
 
     expect(pkg.scripts['phase43:hosted-verdict']).toBe('node scripts/verify-hosted-ci.js');
-    expect(contract.receiptPath).toBe('.planning/evidence/phase43-hosted-verdict.json');
-    expect(gitignore).toContain(contract.receiptPath);
+    expect(pkg.devDependencies['js-yaml']).toBe('5.2.0');
+    expect(contract.evidenceDirectory).toBe('.planning/evidence/hosted');
+    expect(gitignore).not.toContain('.planning/evidence/phase43-hosted-verdict.json');
+    expect(gitignore).not.toContain(contract.evidenceDirectory);
   });
 
   test('hosted CI contract exactly matches structured workflow job topology', () => {

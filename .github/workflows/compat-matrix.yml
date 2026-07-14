@@ -8,8 +8,13 @@ on:
       - "package.json"
       - "bun.lock"
       - "scripts/run-compat-matrix.js"
+      - "scripts/run-repository-compat.js"
       - "scripts/run-upstream-compat*.js"
       - "scripts/vetted-upstream-versions.js"
+      - "tests/upstream-compat-contract.json"
+      - "tests/*.test.cjs"
+      - "tests/helpers.cjs"
+      - "tests/helpers/**"
       - "overlay/**"
       - "overrides/**"
   workflow_dispatch:

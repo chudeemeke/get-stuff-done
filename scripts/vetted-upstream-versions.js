@@ -4,7 +4,10 @@
 /* eslint-disable security/detect-non-literal-fs-filename -- maintainer CLI reads/writes explicit repo-local manifest/report paths. */
 
 const fs = require('fs');
+const crypto = require('node:crypto');
 const path = require('path');
+const { writeJsonFileAtomic } = require('./lib/atomic-json-file');
+const { loadCompatContract, validateCompatContract } = require('./run-upstream-compat');
 const {
   getActivePackageName,
   getActivePackageVersion,
@@ -17,16 +20,20 @@ const DEFAULT_MANIFEST_PATH = path.join(PROJECT_ROOT, '.planning', 'vetted-upstr
 const DEFAULT_AUTHORITY_PATH = path.join(PROJECT_ROOT, '.planning', 'upstream-authority.json');
 const VALID_ROLES = new Set(['current', 'historical-candidate', 'latest-stable-candidate']);
 
-function readJsonFile(filePath, description) {
+function readJsonDocument(filePath, description) {
   try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const bytes = fs.readFileSync(filePath);
+    return {
+      bytes,
+      value: JSON.parse(bytes.toString('utf-8')),
+    };
   } catch (err) {
     throw new Error(`Failed to read ${description} at ${filePath}: ${err.message}`);
   }
 }
 
-function writeJsonFile(filePath, value) {
-  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf-8');
+function readJsonFile(filePath, description) {
+  return readJsonDocument(filePath, description).value;
 }
 
 function loadVettedManifest(filePath = DEFAULT_MANIFEST_PATH) {
@@ -39,6 +46,12 @@ function validateStableVersion(version) {
   } catch {
     throw new Error(`Version must be stable semver: ${String(version)}`);
   }
+}
+
+function isIsoCalendarDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }
 
 function validateVettedManifest(manifest, authority = readAuthorityContract({ authorityPath: DEFAULT_AUTHORITY_PATH })) {
@@ -83,11 +96,17 @@ function validateVettedManifest(manifest, authority = readAuthorityContract({ au
     if (entry.vettedAt !== null && typeof entry.vettedAt !== 'string') {
       throw new Error(`vettedAt must be null or a date string for ${entry.version}`);
     }
+    if (entry.vettedAt && !isIsoCalendarDate(entry.vettedAt)) {
+      throw new Error(`vettedAt must be a real ISO calendar date for ${entry.version}`);
+    }
     if (entry.vettedAt && (!entry.evidence || typeof entry.evidence.matrixReport !== 'string' || entry.evidence.matrixReport.length === 0)) {
       throw new Error(`vettedAt requires non-empty evidence.matrixReport for ${entry.version}`);
     }
     if (entry.vettedAt && entry.evidence.status !== 'passed') {
       throw new Error(`vettedAt requires passed matrix evidence for ${entry.version}`);
+    }
+    if (entry.vettedAt && !/^[a-f0-9]{64}$/.test(entry.evidence.matrixReportSha256 || '')) {
+      throw new Error(`vettedAt requires evidence.matrixReportSha256 for ${entry.version}`);
     }
   }
 
@@ -102,6 +121,124 @@ function listMatrixEntries(manifest) {
     vettedAt: entry.vettedAt,
     evidence: entry.evidence || {},
   }));
+}
+
+function validateMatrixEvidenceReport(manifest, report, options = {}) {
+  if (!report || report.schemaVersion !== 2) {
+    throw new Error('Matrix evidence report schemaVersion must be 2');
+  }
+  if (report.packageName !== manifest.packageName) {
+    throw new Error(`Matrix evidence report packageName must be ${manifest.packageName}`);
+  }
+  if (report.policy !== 'require-all' || report.ok !== true) {
+    throw new Error('Matrix evidence application requires a successful require-all report');
+  }
+  if (
+    !Array.isArray(report.blockingFailures) || report.blockingFailures.length !== 0 ||
+    !Array.isArray(report.failedVersions) || report.failedVersions.length !== 0
+  ) {
+    throw new Error('Successful matrix evidence report must contain empty failure arrays');
+  }
+
+  const contract = validateCompatContract(
+    options.contract || loadCompatContract(options.contractPath),
+    options.compatValidation
+  );
+  const expectedSuites = [...contract.candidates].sort((left, right) => (
+    left.path.localeCompare(right.path)
+  ));
+  const expectedSuitePaths = expectedSuites.map(suite => suite.path);
+  const expectedSuitesByPath = new Map(expectedSuites.map(suite => [suite.path, suite]));
+  const expectedExclusions = contract.excluded
+    .map(suite => ({ path: suite.path, classification: suite.classification }))
+    .sort((left, right) => left.path.localeCompare(right.path));
+  const expectedExcludedPaths = expectedExclusions.map(suite => suite.path);
+  const manifestByVersion = new Map(manifest.versions.map(entry => [entry.version, entry]));
+
+  const results = Array.isArray(report.results) ? report.results : [];
+  const expectedVersions = manifest.versions.map(entry => entry.version).sort();
+  const actualVersions = results.map(result => result.version).sort();
+  if (
+    results.length !== expectedVersions.length ||
+    new Set(actualVersions).size !== actualVersions.length ||
+    JSON.stringify(actualVersions) !== JSON.stringify(expectedVersions)
+  ) {
+    throw new Error(`Matrix evidence report must contain exactly the ${expectedVersions.length} manifest versions`);
+  }
+
+  for (const result of results) {
+    const manifestEntry = manifestByVersion.get(result.version);
+    if (
+      !manifestEntry ||
+      result.role !== manifestEntry.role ||
+      result.blocking !== manifestEntry.blocking
+    ) {
+      throw new Error(`Matrix evidence row ${result.version} must match its manifest role and blocking policy`);
+    }
+
+    const suites = Array.isArray(result.suites) ? result.suites : [];
+    const actualSuitePaths = suites.map(suite => suite.path).sort();
+    const suitesPass = (
+      suites.length === expectedSuites.length &&
+      new Set(actualSuitePaths).size === actualSuitePaths.length &&
+      JSON.stringify(actualSuitePaths) === JSON.stringify(expectedSuitePaths) &&
+      suites.every(suite => {
+        const expectedSuite = expectedSuitesByPath.get(suite.path);
+        return (
+          expectedSuite &&
+          suite.classification === 'candidate' &&
+          suite.authorityBoundary === expectedSuite.authorityBoundary &&
+          suite.status === 'passed' &&
+          Number.isInteger(suite.passed) &&
+          suite.passed > 0 &&
+          suite.failed === 0 &&
+          suite.skipped === 0 &&
+          suite.exitCode === 0 &&
+          Array.isArray(suite.errors) &&
+          suite.errors.length === 0
+        );
+      })
+    );
+    if (!suitesPass) {
+      throw new Error(`Matrix evidence row ${result.version} must contain fully passing candidate suites`);
+    }
+
+    const actualExcludedPaths = Array.isArray(result.excluded)
+      ? [...result.excluded].sort()
+      : [];
+    const actualExclusions = Array.isArray(result.classifiedExclusions)
+      ? result.classifiedExclusions
+        .map(suite => ({ path: suite.path, classification: suite.classification }))
+        .sort((left, right) => left.path.localeCompare(right.path))
+      : [];
+    if (
+      new Set(actualExcludedPaths).size !== actualExcludedPaths.length ||
+      JSON.stringify(actualExcludedPaths) !== JSON.stringify(expectedExcludedPaths) ||
+      JSON.stringify(actualExclusions) !== JSON.stringify(expectedExclusions)
+    ) {
+      throw new Error(`Matrix evidence row ${result.version} must contain exact classified exclusions`);
+    }
+
+    const totals = suites.reduce((aggregate, suite) => ({
+      passed: aggregate.passed + suite.passed,
+      failed: aggregate.failed + suite.failed,
+      skipped: aggregate.skipped + suite.skipped,
+    }), { passed: 0, failed: 0, skipped: 0 });
+    if (
+      result.ok !== true ||
+      result.status !== 'passed' ||
+      result.passed !== totals.passed ||
+      result.failed !== totals.failed ||
+      result.skipped !== totals.skipped ||
+      result.exitCode !== 0 ||
+      !Array.isArray(result.errors) ||
+      result.errors.length !== 0
+    ) {
+      throw new Error(`Matrix evidence row ${result.version} must be internally consistent`);
+    }
+  }
+
+  return report;
 }
 
 function cloneManifest(manifest) {
@@ -158,7 +295,16 @@ function pruneForBump(manifest, newVersion) {
   return next;
 }
 
-function applyMatrixEvidence(manifest, report, date = new Date().toISOString()) {
+function applyMatrixEvidence(
+  manifest,
+  report,
+  date = new Date().toISOString().slice(0, 10),
+  options = {}
+) {
+  const matrixReportSha256 = options.matrixReportSha256;
+  if (!/^[a-f0-9]{64}$/.test(matrixReportSha256 || '')) {
+    throw new Error('matrixReportSha256 must be a lowercase SHA-256 digest of the exact report bytes');
+  }
   const next = cloneManifest(manifest);
   const results = Array.isArray(report.results) ? report.results : [];
   const matrixReport = report.matrixReport || report.reportPath || 'compat-matrix-report.json';
@@ -178,6 +324,7 @@ function applyMatrixEvidence(manifest, report, date = new Date().toISOString()) 
     entry.evidence = {
       ...(entry.evidence || {}),
       matrixReport,
+      matrixReportSha256,
       status,
     };
   }
@@ -269,7 +416,7 @@ function readAuthority(authorityPath) {
   return readAuthorityContract({ authorityPath, allowEmbeddedFallback: false });
 }
 
-function main(argv = process.argv.slice(2), io = process) {
+function main(argv = process.argv.slice(2), io = process, deps = {}) {
   try {
     const options = parseArgs(argv);
     if (options.mode === 'help') {
@@ -292,17 +439,28 @@ function main(argv = process.argv.slice(2), io = process) {
     }
 
     if (options.mode === 'apply-matrix-evidence') {
-      const report = readJsonFile(path.resolve(options.reportPath), 'compat matrix report');
-      const updated = applyMatrixEvidence(manifest, report, options.date);
+      const reportDocument = readJsonDocument(
+        path.resolve(options.reportPath),
+        'compat matrix report'
+      );
+      validateMatrixEvidenceReport(manifest, reportDocument.value);
+      const matrixReportSha256 = crypto.createHash('sha256')
+        .update(reportDocument.bytes)
+        .digest('hex');
+      const updated = applyMatrixEvidence(manifest, reportDocument.value, options.date, {
+        matrixReportSha256,
+      });
       validateVettedManifest(updated, authority);
-      writeJsonFile(options.manifestPath, updated);
+      const writeJsonFileImpl = deps.writeJsonFileImpl || writeJsonFileAtomic;
+      writeJsonFileImpl(options.manifestPath, updated);
       io.stdout.write(`Applied matrix evidence to ${options.manifestPath}\n`);
       return 0;
     }
 
     if (options.mode === 'prune-for-bump') {
       const updated = pruneForBump(manifest, options.newVersion);
-      writeJsonFile(options.manifestPath, updated);
+      const writeJsonFileImpl = deps.writeJsonFileImpl || writeJsonFileAtomic;
+      writeJsonFileImpl(options.manifestPath, updated);
       io.stdout.write(`Pruned vetted manifest for bump to ${options.newVersion}\n`);
       return 0;
     }
@@ -326,5 +484,6 @@ module.exports = {
   main,
   parseArgs,
   pruneForBump,
+  validateMatrixEvidenceReport,
   validateVettedManifest,
 };

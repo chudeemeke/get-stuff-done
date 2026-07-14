@@ -66,15 +66,49 @@
           },
           "evidence": {
             "type": "object",
-            "additionalProperties": true,
+            "additionalProperties": false,
             "properties": {
               "matrixReport": {
                 "type": "string",
                 "minLength": 1
+              },
+              "matrixReportSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["passed", "failed"]
               }
             }
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "vettedAt": {
+                  "type": "string"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "matrixReport": true,
+                    "matrixReportSha256": true,
+                    "status": {
+                      "const": "passed"
+                    }
+                  },
+                  "required": ["matrixReport", "matrixReportSha256", "status"]
+                }
+              }
+            }
+          }
+        ]
       }
     }
   }

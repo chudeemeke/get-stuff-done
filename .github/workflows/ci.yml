@@ -453,6 +453,8 @@ jobs:
             ${{ runner.os }}-bun-
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
+      - name: Repository compatibility contracts (blocking)
+        run: bun run test:repository-compat
       - run: node scripts/run-upstream-compat-ci.js
 
   boundary-check:

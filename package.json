@@ -86,6 +86,7 @@
     "lint:fix": "eslint . --fix",
     "test": "bun test",
     "test:coverage": "bun test --coverage",
+    "test:repository-compat": "node scripts/run-repository-compat.js",
     "test:upstream": "node --test tests/*.test.cjs",
     "preview-update": "node bin/preview-update-cli.js",
     "verify-upgrade": "node scripts/verify-upgrade.js",

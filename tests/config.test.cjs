@@ -464,10 +464,10 @@ describe('cmdConfigSet error paths (direct)', () => {
     const before = fs.readFileSync(configPath, 'utf-8');
 
     const { exitCode, stderr } = captureOutput(() =>
-      cmdConfigSet(tmpDir, 'workflow.context_guard_mode', 'sometimes', false));
+      cmdConfigSet(tmpDir, 'workflow.human_verify_mode', 'sometimes', false));
 
     assert.notStrictEqual(exitCode, 0);
-    assert.ok(stderr.includes('Invalid workflow.context_guard_mode'));
+    assert.ok(stderr.includes('Invalid workflow.human_verify_mode'));
     assert.strictEqual(fs.readFileSync(configPath, 'utf-8'), before);
   });
 

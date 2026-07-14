@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 'use strict';
 
-/* eslint-disable security/detect-non-literal-fs-filename -- Matrix verification installs exact upstream pins into temp roots and writes explicit report paths. */
-
-const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
@@ -18,6 +15,7 @@ const {
   validateVettedManifest,
 } = require('./vetted-upstream-versions');
 const { cleanupOwnedTemp, createOwnedTemp } = require('./lib/owned-temp');
+const { writeJsonFileAtomic } = require('./lib/atomic-json-file');
 const { readAuthorityContract } = require('./lib/upstream-source');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
@@ -35,8 +33,23 @@ function packageNameToParts(packageName) {
 
 function normaliseReportPath(reportPath) {
   if (!reportPath) return DEFAULT_REPORT_PATH;
-  const relative = path.relative(PROJECT_ROOT, path.resolve(reportPath));
-  return relative.startsWith('..') ? path.basename(reportPath) : relative.replace(/\\/g, '/');
+
+  if (!path.isAbsolute(reportPath)) {
+    const normalised = path.normalize(reportPath);
+    if (normalised !== '..' && !normalised.startsWith(`..${path.sep}`)) {
+      return normalised.replace(/\\/g, '/');
+    }
+  }
+
+  const absolute = path.resolve(reportPath);
+  for (const root of [process.cwd(), PROJECT_ROOT]) {
+    const relative = path.relative(root, absolute);
+    if (relative && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)) {
+      return relative.replace(/\\/g, '/');
+    }
+  }
+
+  return path.basename(reportPath);
 }
 
 function getNpmInvocation(args) {
@@ -182,10 +195,6 @@ function buildReport({ manifest, results, generatedAt, reportPath, requireAll = 
   };
 }
 
-function writeJsonFile(filePath, value) {
-  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-}
-
 function filterEntries(entries, version) {
   if (!version) return entries;
   const filtered = entries.filter(entry => entry.version === version);
@@ -244,8 +253,9 @@ function runCompatMatrix(options = {}) {
     requireAll: options.requireAll === true,
   });
 
-  if (options.reportPath) {
-    writeJsonFile(path.resolve(options.reportPath), report);
+  if (options.reportPath && (!options.requireAll || report.ok)) {
+    const writeJsonFileImpl = options.writeJsonFileImpl || writeJsonFileAtomic;
+    writeJsonFileImpl(path.resolve(options.reportPath), report);
   }
 
   return {
@@ -386,6 +396,7 @@ function main(argv = process.argv.slice(2), io = process, deps = {}) {
       execFileSyncImpl: deps.execFileSyncImpl,
       now: deps.now,
       authority: deps.authority,
+      writeJsonFileImpl: deps.writeJsonFileImpl,
     });
 
     if (options.json) {

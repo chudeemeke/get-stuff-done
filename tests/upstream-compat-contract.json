@@ -64,9 +64,22 @@
       "bumpReviewTrigger": "review the phase-id.cjs dependency and observable phase behavior on every Open GSD version bump"
     },
     {
+      "path": "phase-verification.test.cjs",
+      "classification": "repository",
+      "rationale": "The active Open GSD product requires passed verification before phase completion, while historical 1.5.0 predates that safety gate.",
+      "owner": "get-stuff-done maintainers",
+      "trigger": "promote to candidate only when every reviewed N=3 upstream version enforces passed verification before phase completion; never remove the active-product gate"
+    },
+    {
       "path": "roadmap.test.cjs",
       "classification": "candidate",
-      "authorityBoundary": "black-box"
+      "authorityBoundary": "upstream-internal-observed",
+      "authorityEvidence": [
+        "bin/lib/fork-roadmap-persistence.cjs",
+        "bin/lib/roadmap.cjs"
+      ],
+      "rationale": "Verifies roadmap progress and fork-private byte-preserving publication against the exact composed modules consumed at runtime.",
+      "bumpReviewTrigger": "review roadmap.cjs and fork-roadmap-persistence.cjs imports, persistence behavior, and authority evidence on every Open GSD version bump"
     },
     {
       "path": "runtime-overrides.test.cjs",

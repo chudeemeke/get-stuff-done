@@ -79,7 +79,7 @@ describe('run-upstream-compat test discovery', () => {
     });
     const basenames = discoveredFiles.map(filePath => path.basename(filePath));
 
-    expect(basenames).toHaveLength(13);
+    expect(basenames).toHaveLength(14);
     expect(validated.suites.map(suite => suite.path).sort()).toEqual(basenames.sort());
   });
 

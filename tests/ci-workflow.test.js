@@ -72,6 +72,20 @@ describe('CI workflow informational gates', () => {
     expect(workflow).not.toContain('run: node scripts/run-upstream-compat.js');
   });
 
+  test('repository compatibility contracts are blocking in the cross-platform job', () => {
+    const workflow = readCiWorkflow();
+    const upstreamJobStart = workflow.indexOf('upstream-compat:');
+    const boundaryJobStart = workflow.indexOf('boundary-check:', upstreamJobStart);
+    const upstreamJob = workflow.slice(upstreamJobStart, boundaryJobStart);
+    const packageJson = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf8'));
+
+    expect(packageJson.scripts['test:repository-compat']).toBe(
+      'node scripts/run-repository-compat.js'
+    );
+    expect(upstreamJob).toContain('bun run test:repository-compat');
+    expect(upstreamJob).not.toContain('continue-on-error: true');
+  });
+
   test('boundary debt reports without producing a failed-step annotation', () => {
     const workflow = readCiWorkflow();
     const boundaryJobStart = workflow.indexOf('boundary-check:');
@@ -258,6 +272,11 @@ describe('Phase 43 compat matrix workflow', () => {
     expect(workflow).toContain('bun.lock');
     expect(workflow).toContain('scripts/run-compat-matrix.js');
     expect(workflow).toContain('scripts/run-upstream-compat*.js');
+    expect(workflow).toContain('scripts/run-repository-compat.js');
+    expect(workflow).toContain('tests/upstream-compat-contract.json');
+    expect(workflow).toContain('tests/*.test.cjs');
+    expect(workflow).toContain('tests/helpers.cjs');
+    expect(workflow).toContain('tests/helpers/**');
     expect(workflow).toContain('overlay/**');
     expect(workflow).toContain('overrides/**');
     expect(workflow).toContain('actions/setup-node@v6');

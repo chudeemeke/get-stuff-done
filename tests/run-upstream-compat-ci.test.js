@@ -246,6 +246,37 @@ describe('run-compat-matrix', () => {
     }
   });
 
+  test('preserves a repository-relative evidence path through a junction worktree', () => {
+    const dir = makeTempDir();
+
+    try {
+      const manifestPath = writeManifest(dir);
+      const { runCompatMatrix } = require('../scripts/run-compat-matrix');
+      const writes = [];
+      const { exitCode, report } = runCompatMatrix({
+        manifestPath,
+        reportPath: '.planning/evidence/phase43-compat.json',
+        requireAll: true,
+        writeJsonFileImpl: (target, value) => writes.push({ target, value }),
+        runCandidateImpl: () => ({
+          ok: true,
+          passed: 1,
+          failed: 0,
+          skipped: 0,
+          excluded: [],
+          errors: [],
+          suites: [],
+        }),
+      });
+
+      expect(exitCode).toBe(0);
+      expect(report.matrixReport).toBe('.planning/evidence/phase43-compat.json');
+      expect(writes).toHaveLength(1);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test('returns non-zero only when the blocking manifest entry fails', () => {
     const dir = makeTempDir();
 
@@ -281,9 +312,17 @@ describe('run-compat-matrix', () => {
 
     try {
       const manifestPath = writeManifest(dir);
+      const reportPath = path.join(dir, 'phase43-compat.json');
+      const priorEvidence = '{"preserved":"successful evidence"}\n';
+      fs.writeFileSync(reportPath, priorEvidence, 'utf8');
       const { main } = require('../scripts/run-compat-matrix');
       let output = '';
-      const exitCode = main(['--manifest', manifestPath, '--require-all', '--json'], {
+      const exitCode = main([
+        '--manifest', manifestPath,
+        '--require-all',
+        '--json',
+        '--report', reportPath,
+      ], {
         stdout: { write: chunk => { output += chunk; } },
         stderr: { write: () => {} },
       }, {
@@ -309,6 +348,7 @@ describe('run-compat-matrix', () => {
         blocking: true,
         ok: true,
       });
+      expect(fs.readFileSync(reportPath, 'utf8')).toBe(priorEvidence);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
@@ -452,6 +492,36 @@ describe('run-compat-matrix', () => {
         Object.prototype.hasOwnProperty.call(result, 'durationMs') &&
         Object.prototype.hasOwnProperty.call(result, 'classification')
       ))).toBe(true);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('report publication failures propagate without changing an existing report', () => {
+    const dir = makeTempDir();
+
+    try {
+      const manifestPath = writeManifest(dir);
+      const reportPath = path.join(dir, 'compat-matrix-report.json');
+      const originalBytes = '{"preserved":true}\n';
+      fs.writeFileSync(reportPath, originalBytes, 'utf8');
+      const publicationError = Object.assign(new Error('report publish denied'), { code: 'EACCES' });
+      const { runCompatMatrix } = require('../scripts/run-compat-matrix');
+
+      expect(() => runCompatMatrix({
+        manifestPath,
+        reportPath,
+        runCandidateImpl: () => ({
+          ok: true,
+          passed: 1,
+          failed: 0,
+          skipped: 0,
+          excluded: [],
+          errors: [],
+        }),
+        writeJsonFileImpl: () => { throw publicationError; },
+      })).toThrow(publicationError);
+      expect(fs.readFileSync(reportPath, 'utf8')).toBe(originalBytes);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }

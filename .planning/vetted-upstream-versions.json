@@ -13,28 +13,34 @@
       "version": "1.5.0",
       "role": "historical-candidate",
       "blocking": false,
-      "vettedAt": null,
+      "vettedAt": "2026-07-14",
       "evidence": {
-        "matrixReport": "compat-matrix-report.json",
-        "status": "failed"
+        "matrixReport": ".planning/evidence/phase43-compat.json",
+        "status": "passed",
+        "matrixReportSha256": "6b7bb361b7ef34d82e11be5289ecc3f1f14a8200192ee826fb59ea110d8c387c"
       }
     },
     {
       "version": "1.6.0",
       "role": "historical-candidate",
       "blocking": false,
-      "vettedAt": null,
+      "vettedAt": "2026-07-14",
       "evidence": {
-        "matrixReport": "compat-matrix-report.json",
-        "status": "failed"
+        "matrixReport": ".planning/evidence/phase43-compat.json",
+        "status": "passed",
+        "matrixReportSha256": "6b7bb361b7ef34d82e11be5289ecc3f1f14a8200192ee826fb59ea110d8c387c"
       }
     },
     {
       "version": "1.6.1",
       "role": "current",
       "blocking": true,
-      "vettedAt": null,
-      "evidence": {}
+      "vettedAt": "2026-07-14",
+      "evidence": {
+        "matrixReport": ".planning/evidence/phase43-compat.json",
+        "matrixReportSha256": "6b7bb361b7ef34d82e11be5289ecc3f1f14a8200192ee826fb59ea110d8c387c",
+        "status": "passed"
+      }
     }
   ]
 }

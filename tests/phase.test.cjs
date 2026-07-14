@@ -753,26 +753,6 @@ describe('phase complete command', () => {
     cleanup(tmpDir);
   });
 
-  test('refuses completion without passed verification evidence', () => {
-    fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'ROADMAP.md'),
-      '# Roadmap\n\n- [ ] Phase 1: Foundation\n\n### Phase 1: Foundation\n'
-    );
-    fs.writeFileSync(
-      path.join(tmpDir, '.planning', 'STATE.md'),
-      '# State\n\n**Current Phase:** 01\n**Status:** In progress\n'
-    );
-    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-foundation');
-    fs.mkdirSync(phaseDir, { recursive: true });
-    fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), '# Plan');
-    fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), '# Summary');
-
-    const result = runGsdTools('phase complete 1', tmpDir);
-
-    assert.strictEqual(result.success, false);
-    assert.ok(result.error.includes('verification is incomplete'));
-  });
-
   test('marks phase complete and transitions to next', () => {
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'ROADMAP.md'),

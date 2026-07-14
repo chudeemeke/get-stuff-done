@@ -140,3 +140,29 @@ All three entries in `.planning/vetted-upstream-versions.json` are dated
 - create the corrective-plan summary and update GSD roadmap/state truth; and
 - keep `43-11-SUMMARY.md` absent until the original Plan 11 closeout contract is
   explicitly revalidated.
+
+## 2026-07-14 Plan-Scan Revalidation
+
+Plan 11L corrected the Open GSD plan-scan denominator defect and reran the
+complete compatibility surface after the final exact override bytes were
+composed. This supersedes the 936/936 report above as the current durable
+compatibility evidence while preserving it as Plan 11C history.
+
+```text
+policy: require-all
+1.5.0: 315 passed, 0 failed, 0 skipped, 11 candidate suites
+1.6.0: 315 passed, 0 failed, 0 skipped, 11 candidate suites
+1.6.1: 315 passed, 0 failed, 0 skipped, 11 candidate suites
+total: 945 passed, 0 failed, 0 skipped
+repository contracts: 154 passed, 0 failed
+```
+
+The current durable report SHA-256 is
+`e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712`.
+All three vetted manifest rows reference that exact digest. The composed
+`roadmap analyze` read model now reports 46 portfolio plans, including 24 for
+Phase 43 and 5 for Phase 42, with PLAN-REVIEW artifacts excluded.
+
+Original Plan 11 remains incomplete only on the planned SHIP-08A/SHIP-08B
+aggregate assurance and validator-first closeout sequence. Its summary remains
+absent.

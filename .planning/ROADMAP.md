@@ -162,7 +162,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist and included in the npm tarball. GitHub release attachment is separately owned by SHIP-03B in Phase 44.
   7. Production assurance is blocking and two-part: canonical fork-authored source reaches at least 95% statements, branches, functions, and lines independently while Bun remains green, and every shipped upstream snapshot satisfies exact provenance, drift, named fork-delta, ownership/removal, and N=3 composed-package gates. Closeout language cannot describe the fork-only aggregate as whole-production coverage.
-**Plans**: 13/24 plans executed
+**Plans**: 14/24 plans executed
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
@@ -176,7 +176,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-11A-PLAN.md -- Wave 11: Classified compatibility contract and per-suite diagnostics
 - [x] 43-11B-PLAN.md -- Wave 12: Open GSD contract modernization and candidate runtime coverage
 - [x] 43-11C-PLAN.md -- Wave 13: Roadmap format preservation and N=3 compatibility proof
-- [ ] 43-11L-PLAN.md -- Wave 14: Open GSD plan-scan read-model correction and N=3 revalidation
+- [x] 43-11L-PLAN.md -- Wave 14: Open GSD plan-scan read-model correction and N=3 revalidation
 - [ ] 43-11D-PLAN.md -- Wave 15: Source contract and Jest/Node/c8 coverage foundation
 - [ ] 43-11K-PLAN.md -- Wave 16: SBOM portability and toolchain preflight
 - [ ] 43-11E-PLAN.md -- Wave 17: Launcher and runtime-support four-metric closure
@@ -218,7 +218,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 13/24 | In Progress | - |
+| 43 | v1.2.0 | 14/24 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog
@@ -282,3 +282,19 @@ Plans:
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog after Phase 41 install lands and the audit-surface stabilizes)
+
+### Phase 999.6: Preserve roadmap progress-table formatting (BACKLOG)
+
+**Goal:** Make `roadmap update-plan-progress` preserve valid incomplete-row spacing and the existing `-` completion placeholder while updating only plan counts and semantic status.
+**Source:** Plan 43-11L closeout dogfood on 2026-07-14. The command correctly reported 24 plans and 14 summaries but rewrote `| In Progress | - |` as `| In Progress|  |`, requiring a manual formatting-only correction.
+**Investigation time-box:** 30 minutes for TDD and writer correction.
+**Requirements:** TBD (roadmap writer fidelity; no current milestone semantic blocker).
+
+**Promotion criteria:**
+- Add a fixture covering an incomplete five-column progress row with a `-` completion placeholder.
+- Preserve valid surrounding cell spacing and the placeholder on incomplete updates.
+- Retain current date insertion and valid-date preservation when a phase becomes complete.
+- Run roadmap byte-preservation, LF/CRLF, no-op, and publication-failure regressions.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog alongside the next roadmap-writer change or before v1.2.0 closeout)

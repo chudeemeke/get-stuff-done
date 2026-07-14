@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Phase 43 Plan 11C complete; execute 43-11L next
-last_updated: "2026-07-14T02:19:52.6598421+01:00"
+stopped_at: Phase 43 Plan 11L complete; obtain hosted CI before 43-11D
+last_updated: "2026-07-14T02:38:26.8053737+01:00"
 last_activity: 2026-07-14
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 46
-  completed_plans: 32
-  percent: 70
+  completed_plans: 33
+  percent: 72
 ---
 
 # Project State
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
-Plan: 11L of 24
-Status: Plan 11C complete; execute plan-scan correction and hosted-CI preflight before coverage foundation
+Plan: 11D of 24
+Status: Plan 11L complete; push draft PR and obtain hosted-CI verdict before executing coverage foundation
 Last activity: 2026-07-14
 
 **Upstream state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-13. `1.7.0-rc.6` is prerelease-only and excluded by the exact-stable-pin policy. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling routes through the upstream-authority helper.
@@ -95,6 +95,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-14 Phase 43 Plan 11C execution evidence: the standalone active row passes 312/312 and the authoritative `--require-all` matrix passes 936/936 with no failures or skips. Durable report SHA-256 is `6b7bb361b7ef34d82e11be5289ecc3f1f14a8200192ee826fb59ea110d8c387c`; all vetted rows reference it with `status: passed`. Compatibility is resolved, but Plan 11 remains incomplete until SHIP-08A, SHIP-08B, and validator-first closeout pass.
 - 2026-07-14 Fable whole-project review decision: retain exact-pin Open GSD plus overlay/override composition; treat Fable as a standing project-level critic at seven evidence checkpoints. Accepted changes add hosted CI before 11D, a machine-readable coverage-feasibility and denominator contract, variance-aware performance disposition, Phase 44 cross-platform reproducibility/scenario evidence, and maintenance-cadence measurement. Fable's INST-04 concern was rejected as stale after 10/10 focused uninstall tests passed and `.planning/PROJECT.md` confirmed Phase 40.6 resolution.
 - 2026-07-14 Plan 11L promotion decision: Open GSD `1.6.1` and `next` both misclassify `*-PLAN-REVIEW.md` through the loose plan-scan fallback. Upstream issue `open-gsd/gsd-core#2252` owns the source defect; Plan 11L adds the minimal shared temporary override, removal trigger, and N=3 revalidation before Plan 11D.
+- 2026-07-14 Phase 43 Plan 11L execution evidence: the shared plan-scan override excludes only PLAN-REVIEW derivatives and retains strict, nested, loose-legacy, and summary behavior. Native roadmap tests pass 19/19; repository contracts pass 154/154; the final N=3 matrix passes 945/945 with report SHA-256 `e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712`. Composed `roadmap analyze` reports the authoritative 46-plan portfolio total, including Phase 43 at 24 and Phase 42 at 5.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -105,7 +106,7 @@ v1.2.0 roadmap decisions:
 ### Carried Forward Tech Debt
 
 - 41 boundary violations (structural, informational CI)
-- Active Open GSD `1.6.1` now passes 312/312 candidate assertions, and the complete N=3 contract passes 936/936 with durable exact-byte evidence. The Plan 11B 309/1 row, Plan 11A 159/89 baseline, and older 159/87 rows remain history, not current acceptance evidence. Repository-only phase-verification and sync contracts remain separately blocking at 154/154.
+- Active Open GSD `1.6.1` now passes 315/315 candidate assertions, and the complete N=3 contract passes 945/945 with durable exact-byte evidence after Plan 11L. Plan 11C's 312/312 and 936/936 evidence, Plan 11B's 309/1 row, Plan 11A's 159/89 baseline, and older 159/87 rows remain history, not current acceptance evidence. Repository-only phase-verification and sync contracts remain separately blocking at 154/154.
 - preview-update.js ~5% uncovered I/O paths (documented exception)
 - Intermittent Windows subprocess timeout flakiness (advanced in Phase 41 Plans 05-07; 10x validation run `28639808289` passed on Windows, and flake telemetry remains in CI)
 - First GitHub Actions run showed `gitleaks/gitleaks-action@v2` needs `GITHUB_TOKEN` for pull_request scans and OSV `@v2` is not a resolvable tag. The repaired PR run `28533068807` passed all CI jobs. Boundary report-only cleanup was remote-verified by run `28534255286`; first-party action/runtime and `macos-latest` annotation cleanup was remote-verified by run `28534944081`. The docs reconciliation run `28535445005` passed but surfaced the remaining `gitleaks/gitleaks-action@v2` Node 20 annotation; `gitleaks/gitleaks-action@v3` cleanup was remote-verified by run `28536087964`.
@@ -126,7 +127,8 @@ v1.2.0 roadmap decisions:
 - The consumed Open GSD `v1.6.1` research clone under the OS temp root was removed on 2026-07-13 only after resolved-path containment, non-reparse-point, clean-worktree, exact-tag, and `open-gsd/gsd-core` remote checks passed. No live project session was touched.
 - Phase 43 Plan 10 observed Bun 1.3.5 Windows `bun install --ignore-scripts` crashes while moving from installed `@opengsd/gsd-core@1.5.0` to lockfile target `1.6.1`. Lockfile-only install plus targeted `bun add -d @opengsd/gsd-core@1.6.1 --ignore-scripts` resolved the local install state, and the required frozen install passed afterward.
 - Config schema drift -- 8 unknown config.json keys flagged by gsd-tools; tracked as backlog 999.2 with 80% investigation done and Option C (namespace under features.*) recommended
-- Open GSD `plan-scan.cjs` counts `*-PLAN-REVIEW.md` derivative documents as executable plans through its loose legacy filename fallback. Pre-promotion reconciliation reported 47 portfolio plans instead of the authoritative 45. Open GSD issue #2252 and active Plan 43-11L now own the temporary override, removal trigger, and corrected read-model evidence.
+- Open GSD `plan-scan.cjs` PLAN-REVIEW misclassification is locally resolved by Plan 11L through a shared temporary override. Open GSD issue #2252 owns the upstream correction and removal path. The corrected live read model reports 46 portfolio plans after adding Plan 11L, with no derivative review artifacts counted.
+- `roadmap update-plan-progress` preserves semantic counts but rewrites an incomplete five-column progress row's spacing and `-` completion placeholder. Plan 11L closeout corrected the live row manually; backlog 999.6 owns TDD writer fidelity before v1.2.0 closeout or the next roadmap-writer change.
 - `_auto_chain_active` schema key (RESOLVED -- fork-specific, fixed in Phase 39 schema)
 - Codex `extractFrontmatterField` crash (RESOLVED -- fork-specific, 4 oversight agents had heading before frontmatter)
 
@@ -136,11 +138,11 @@ None.
 
 ### Blockers/Concerns
 
-Plan 43-11 compatibility is resolved, but the plan remains incomplete on SHIP-08A fork-authored four-metric coverage, SHIP-08B shipped-snapshot assurance, and machine-validatable closeout evidence. `43-11-BLOCKER.md` preserves the pre-classification 159/87 result as durable history and appends the exact 936/936 replacement evidence. Plan 11 remains blocked until Plan 11L corrects the progress denominator and validator-first Plan 11J measures the final source set and accepts durable machine evidence. `43-11-SUMMARY.md` and `43-12-SUMMARY.md` must not exist until all corrective Plans 11A-11L pass in authoritative wave order. Plan 11 then regenerates both assurance children after its own mutations before creating its summary. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI reports it through `--report-only` plus the blocking debt ratchet. Fable's whole-project review is complete and its seven standing checkpoints are recorded in `43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md`; findings are advisory until verified and dispositioned against repository truth. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
+Plan 43-11 compatibility and plan-denominator correctness are resolved, but the plan remains incomplete on SHIP-08A fork-authored four-metric coverage, SHIP-08B shipped-snapshot assurance, and machine-validatable closeout evidence. `43-11-BLOCKER.md` preserves the pre-classification 159/87 result, Plan 11C's 936/936 replacement, and Plan 11L's current 945/945 evidence. Plan 11 remains blocked until validator-first Plan 11J measures the final source set and accepts durable machine evidence. `43-11-SUMMARY.md` and `43-12-SUMMARY.md` must not exist until all corrective Plans 11A-11L pass in authoritative wave order. Plan 11 then regenerates both assurance children after its own mutations before creating its summary. Before 11D, the current branch must obtain a hosted CI verdict; expired macOS performance policy is corrected from that evidence rather than renewed by waiver. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI reports it through `--report-only` plus the blocking debt ratchet. Fable's whole-project review is complete and its seven standing checkpoints are recorded in `43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md`; findings are advisory until verified and dispositioned against repository truth. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
 
 ## Session Continuity
 
 Last session: 2026-07-13T20:30:23.7520257+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Plan 43-11C complete; execute Plan 43-11L, obtain hosted CI, then continue by authoritative wave through Plan 43-11K and eventually rerun blocked 43-11-PLAN.md.
+Stopped at: Plan 43-11L complete; push the draft PR and obtain hosted CI before Plan 43-11D, then continue by authoritative wave through Plan 43-11K and eventually rerun blocked 43-11-PLAN.md.
 Resume file: None

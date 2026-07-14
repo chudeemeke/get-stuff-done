@@ -13,6 +13,8 @@ const {
   runJsonCommand,
   runTextCommand,
   selectLatestRuns,
+  validateHostedContract,
+  verifyWorkflowTopology,
   writeReceiptAtomic,
 } = require('../scripts/verify-hosted-ci');
 
@@ -143,6 +145,17 @@ function makeBillingLockedInput() {
 }
 
 describe('hosted CI verdict authority', () => {
+  test('validates the tracked-envelope contract against exact workflow YAML topology', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+
+    expect(validateHostedContract(contract)).toBe(contract);
+    expect(
+      verifyWorkflowTopology(contract, workflowPath =>
+        fs.readFileSync(path.join(PROJECT_ROOT, workflowPath), 'utf8')
+      )
+    ).toEqual({ workflows: 5, jobs: 39 });
+  });
+
   test('accepts only a complete successful exact-head workflow contract', () => {
     const receipt = evaluateHostedVerdict(makeSuccessfulInput(), makeContract());
 

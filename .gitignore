@@ -41,6 +41,10 @@ improve.md
 philosophy.md
 .planning/upstream-outreach-drafts.md
 
+# Exact-head hosted verdict receipts are local read models. Tracking a receipt
+# would change the commit SHA that it certifies.
+.planning/evidence/phase43-hosted-verdict.json
+
 # Secret-leakage proactive ignores (Phase 40.5 Wave 1.7-A, A-11)
 # Defense in depth: also gated by gitleaks step in CI + GitHub-native
 # secret scanning + push protection (post-public-flip). These patterns

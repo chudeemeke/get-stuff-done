@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
 status: executing
-stopped_at: Phase 43 Plan 11M complete; create draft PR and obtain hosted CI before 11D
-last_updated: "2026-07-14T03:34:18.9960541+01:00"
+stopped_at: Phase 43 Plan 11N in progress; materialize hosted verdict while billing lock blocks runners
+last_updated: "2026-07-14T03:06:38.602Z"
 last_activity: 2026-07-14
 progress:
   total_phases: 10
   completed_phases: 3
-  total_plans: 47
+  total_plans: 48
   completed_plans: 34
-  percent: 72
+  percent: 71
 ---
 
 # Project State
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — EXECUTING
-Plan: 11D of 25
-Status: Plan 11M complete; branch published, with draft PR and hosted CI required before Plan 11D
+Plan: 11N of 26
+Status: Plan 11N in progress; GitHub billing lock means zero hosted evidence exists for draft PR #23
 Last activity: 2026-07-14
 
 **Upstream state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-13. `1.7.0-rc.6` is prerelease-only and excluded by the exact-stable-pin policy. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling routes through the upstream-authority helper.
@@ -84,7 +84,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-04 Phase 43 Plan 09 decision: SBOM generation is a separate `bun run sbom` lifecycle step using pinned `@cyclonedx/cyclonedx-npm@4.2.1`, executed after compose/build and before finalize-dist in `bun run dist`. The wrapper removes Bun's npm user-agent env before spawning CycloneDX and uses `--ignore-npm-errors` because the existing npm tree reports `picomatch` override noise under `npm ls`.
 - 2026-07-04 Phase 43 Plan 10 decision: live upstream evidence captured on the 2026-07-03 US session date confirmed `@opengsd/gsd-core@1.6.1` is still latest stable, `1.7.0-rc.2` remains prerelease-only, `open-gsd/gsd-core` is active, and `refs/tags/v1.6.1` exists. Active authority, embedded fallback authority, `package.json`, `bun.lock`, and `node_modules` now use exact stable `1.6.1`; override snapshot refresh remains Plan 11 work.
 - 2026-07-11 Phase 43 Plan 11 decision: post-bump override snapshots, worker classification, churn, dist, and SBOM evidence succeeded, and the compatibility harness helper staging, Windows timeout policy, and repo-root-only runtime-test exclusion were repaired. The active `1.6.1` matrix still fails 87 tests after 159 pass. Fail closed: keep `43-11-SUMMARY.md` absent, keep Plans 11-12 incomplete, and add a corrective GSD runtime-compatibility slice before closeout.
-- 2026-07-13 Phase 43 corrective-slice decision: treat the matrix as one shared composed-package contract under Open GSD authority, classify every suite and direct internal dependency explicitly, modernize stale success-exit/config/module assumptions, include candidate runtime override coverage, and port only the proven roadmap EOL/format-preservation guarantee through an importer-restricted fork-private adapter. Plans 43-11A through 43-11M run before the blocked original Plan 43-11; authoritative wave order places 11L then 11M before 11D and 11K after 11D. No legacy `core.cjs` facade, version-specific suite skip, or silent test exclusion is allowed.
+- 2026-07-13 Phase 43 corrective-slice decision: treat the matrix as one shared composed-package contract under Open GSD authority, classify every suite and direct internal dependency explicitly, modernize stale success-exit/config/module assumptions, include candidate runtime override coverage, and port only the proven roadmap EOL/format-preservation guarantee through an importer-restricted fork-private adapter. Plans 43-11A through 43-11N run before the blocked original Plan 43-11; authoritative wave order places 11L, 11M, and 11N before 11D and 11K after 11D. No legacy `core.cjs` facade, version-specific suite skip, or silent test exclusion is allowed.
 - 2026-07-13 Phase 43 plan-review decision: split umbrella SHIP-03 into Phase 43 SHIP-03A (SBOM generation and tarball inclusion) and Phase 44 SHIP-03B (GitHub release attachment and digest match). Split SHIP-08 production assurance into SHIP-08A, the blocking 95%-per-metric canonical fork-authored gate, and SHIP-08B, the separate blocking shipped-snapshot provenance/drift/delta/N=3 contract. Neither child can stand in for whole-product assurance.
 - 2026-07-13 coverage architecture decision: retain Bun as primary functional authority; exact-pin Jest `30.4.2` for unchanged CommonJS parity and c8 `11.0.0` for merged native `NODE_V8_COVERAGE` from Jest plus required Node subprocess/suites. Vitest was rejected after 1,223/1,223 tests paired with 0% measured native CommonJS source. SHIP-08A's planning-time baseline measured 52 canonical fork executable files and counted byte-identical mirrors once; execution must derive and classify the live post-Plan-11L set. SHIP-08B independently blocks on exact provenance, named delta tests, owner/removal triggers, and green N=3 compatibility for every shipped upstream snapshot.
 - 2026-07-13 Phase 43 Plan 11A decision: the compatibility contract now classifies all 13 root suites as 11 candidate, 1 repository-only, and 1 retired suite, with fail-closed inventory and authority-boundary validation. Candidate suites execute independently through a marker-owned temp lifecycle; matrix schema v2 carries per-suite evidence, defaults to current-pin blocking, and adds closeout-only `--require-all`. Failed matrix rows retain failure evidence but cannot retain `vettedAt`.
@@ -98,6 +98,8 @@ v1.2.0 roadmap decisions:
 - 2026-07-14 Phase 43 Plan 11L execution evidence: the shared plan-scan override excludes only PLAN-REVIEW derivatives and retains strict, nested, loose-legacy, and summary behavior. Native roadmap tests pass 19/19; repository contracts pass 154/154; the final N=3 matrix passes 945/945 with report SHA-256 `e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712`. Composed `roadmap analyze` reports the authoritative 46-plan portfolio total, including Phase 43 at 24 and Phase 42 at 5.
 - 2026-07-14 Phase 43 Plan 11M trigger: the first ordinary push was correctly blocked when current Bun ignored legacy `bunfig.toml` discovery keys and executed Node-native `.test.cjs` contracts under Bun. Focused native Node authority remains green at 54/54 phase and 19/19 roadmap tests. Plan 11M owns supported Bun discovery configuration, recurrence tests, the negative-path meta-test false positive, and an unbypassed pre-push rerun before hosted CI.
 - 2026-07-14 Phase 43 Plan 11M execution evidence: ADR 004 establishes disjoint Bun functional and native Node authorities through one fail-closed adapter and preload capability. The ordinary push hook passed 1,322/1,322 functional tests across 54 files with zero `.test.cjs` headers; native focused contracts passed 73/73, repository compatibility passed 154/154, and local/remote refs matched at `9246673bac922773d3493ba8f430ba46a1ae2c60`. Hosted CI remains the required checkpoint before Plan 11D.
+- 2026-07-14 hosted-CI blocker decision: draft PR #23 created all five expected workflow runs at head `64f137a110e985c86b08acb3140bc8b982d34843`, but every job contained zero steps and check-run annotation `86986198397` reported an account billing lock. These rows provide zero hosted evidence. The user owns the off-platform billing action; Plan 11D and every later Phase 43 implementation plan remain blocked until a fresh exact-head run passes.
+- 2026-07-14 Fable blocker review decision: accept a machine-checkable exact-head hosted verdict, but amend the proposed materialized artifact to a gitignored local receipt over live GitHub metadata. A tracked receipt changes the SHA it certifies. Plan 11N may implement this resumption boundary while locked; no remaining implementation plan is independent of 11D.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -140,11 +142,13 @@ None.
 
 ### Blockers/Concerns
 
-Plan 43-11 compatibility and plan-denominator correctness are resolved, but the plan remains incomplete on SHIP-08A fork-authored four-metric coverage, SHIP-08B shipped-snapshot assurance, and machine-validatable closeout evidence. `43-11-BLOCKER.md` preserves the pre-classification 159/87 result, Plan 11C's 936/936 replacement, and Plan 11L's current 945/945 evidence. Plan 11 remains blocked until validator-first Plan 11J measures the final source set and accepts durable machine evidence. `43-11-SUMMARY.md` and `43-12-SUMMARY.md` must not exist until all corrective Plans 11A-11M pass in authoritative wave order. Plan 11 then regenerates both assurance children after its own mutations before creating its summary. Before 11D, the current branch must obtain a hosted CI verdict; expired macOS performance policy is corrected from that evidence rather than renewed by waiver. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI reports it through `--report-only` plus the blocking debt ratchet. Fable's whole-project review is complete and its seven standing checkpoints are recorded in `43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md`; findings are advisory until verified and dispositioned against repository truth. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
+BLOCKER [2026-07-14] `hosted-ci-billing-lock`: GitHub account billing lock; every draft PR #23 job started zero steps, so zero hosted evidence exists. Blocks Plan 11D and all transitive Phase 43 implementation plans. Local evidence is LOCAL ONLY: Bun 1,322/1,322 with zero native-contract leakage, native 73/73, repository 154/154, and N=3 945/945 at last observed head `64f137a110e985c86b08acb3140bc8b982d34843`. Next owner: user. Resume from `43-HOSTED-CI-RESUME.md` only after the user confirms billing is unlocked.
+
+Plan 43-11 compatibility and plan-denominator correctness are resolved, but the plan remains incomplete on SHIP-08A fork-authored four-metric coverage, SHIP-08B shipped-snapshot assurance, and machine-validatable closeout evidence. `43-11-BLOCKER.md` preserves the pre-classification 159/87 result, Plan 11C's 936/936 replacement, and Plan 11L's current 945/945 evidence. Plan 11 remains blocked until validator-first Plan 11J measures the final source set and accepts durable machine evidence. `43-11-SUMMARY.md` and `43-12-SUMMARY.md` must not exist until all corrective Plans 11A-11N pass in authoritative wave order. Plan 11 then regenerates both assurance children after its own mutations before creating its summary. Before 11D, the current branch must obtain a hosted CI verdict; expired macOS performance policy is corrected from that evidence rather than renewed by waiver. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI reports it through `--report-only` plus the blocking debt ratchet. Fable's whole-project review is complete and its seven standing checkpoints are recorded in `43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md`; findings are advisory until verified and dispositioned against repository truth. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
 
 ## Session Continuity
 
 Last session: 2026-07-13T20:30:23.7520257+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Plan 43-11M complete; create the draft PR and obtain a hosted CI verdict before Plan 43-11D.
+Stopped at: Plan 43-11N in progress; implement the exact-head hosted verdict gate, then wait for user confirmation that GitHub billing is unlocked before any Plan 43-11D work.
 Resume file: None

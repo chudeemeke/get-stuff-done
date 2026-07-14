@@ -65,6 +65,7 @@
     "eslint": "^9.0.0",
     "eslint-plugin-security": "^3.0.1",
     "husky": "^9.1.7",
+    "js-yaml": "5.2.0",
     "markdownlint-cli2": "0.23.0",
     "sharp": "^0.34.5"
   },
@@ -88,6 +89,7 @@
     "test:coverage:bun": "node scripts/run-bun-tests.js --coverage",
     "test:repository-compat": "node scripts/run-repository-compat.js",
     "test:upstream": "node --test tests/*.test.cjs",
+    "phase43:hosted-verdict": "node scripts/verify-hosted-ci.js",
     "preview-update": "node bin/preview-update-cli.js",
     "verify-upgrade": "node scripts/verify-upgrade.js",
     "vetted-upstream:validate": "node scripts/vetted-upstream-versions.js --validate",

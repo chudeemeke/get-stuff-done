@@ -30,13 +30,28 @@
 
 const fs = require('fs');
 const path = require('path');
+const yaml = require('js-yaml');
 const { describe, test, expect } = require('bun:test');
+const { expandJobMatrices } = require('../scripts/verify-hosted-ci');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const TESTS_DIR = __dirname;
 const BUNFIG_PATH = path.join(PROJECT_ROOT, 'bunfig.toml');
 const ESLINT_CONFIG_PATH = path.join(PROJECT_ROOT, 'eslint.config.js');
 const PACKAGE_PATH = path.join(PROJECT_ROOT, 'package.json');
+const GITIGNORE_PATH = path.join(PROJECT_ROOT, '.gitignore');
+const HOSTED_CI_CONTRACT_PATH = path.join(
+  PROJECT_ROOT,
+  'config',
+  'phase43-hosted-ci-contract.json'
+);
+const HOSTED_WORKFLOW_PATHS = [
+  'ci.yml',
+  'compat-matrix.yml',
+  'cousin-install.yml',
+  'oversight-probes.yml',
+  'upgrade-verifier.yml',
+].map(file => path.join(PROJECT_ROOT, '.github', 'workflows', file));
 const COMPAT_CONTRACT_PATH = path.join(PROJECT_ROOT, 'tests', 'upstream-compat-contract.json');
 const SYNC_GUIDANCE_PATHS = [
   path.join(PROJECT_ROOT, 'overlay', 'workflows', 'upstream-sync.md'),
@@ -68,6 +83,48 @@ function findTestFiles(dir, found = []) {
     }
   }
   return found;
+}
+
+function cartesianRows(entries) {
+  return entries.reduce(
+    (rows, [key, values]) =>
+      rows.flatMap(row => values.map(value => new Map([...row, [key, value]]))),
+    [new Map()]
+  );
+}
+
+function workflowMatrixRows(matrix) {
+  const axes = Object.entries(matrix || {}).filter(
+    ([key, values]) => key !== 'include' && key !== 'exclude' && Array.isArray(values)
+  );
+  if (matrix?.exclude || (matrix?.include && axes.length > 0)) {
+    throw new Error('Hosted workflow contract test does not support mixed include/exclude matrices.');
+  }
+  if (Array.isArray(matrix?.include)) {
+    return matrix.include.map(row => new Map(Object.entries(row)));
+  }
+  return cartesianRows(axes);
+}
+
+function expandWorkflowJobNames(workflow) {
+  const names = [];
+  for (const [jobId, job] of Object.entries(workflow.jobs || {})) {
+    const template = String(job.name || jobId);
+    const matrix = job.strategy?.matrix;
+    if (!matrix) {
+      names.push(template);
+      continue;
+    }
+    for (const row of workflowMatrixRows(matrix)) {
+      names.push(
+        template.replace(/\$\{\{\s*matrix\.([A-Za-z0-9_-]+)\s*\}\}/g, (_match, key) => {
+          if (!row.has(key)) throw new Error(`Workflow job ${jobId} references absent matrix key ${key}.`);
+          return String(row.get(key));
+        })
+      );
+    }
+  }
+  return names.sort();
 }
 
 describe('test-config hygiene (meta-test)', () => {
@@ -102,6 +159,37 @@ describe('test-config hygiene (meta-test)', () => {
     expect(pkg.scripts.test).toBe('node scripts/run-bun-tests.js');
     expect(pkg.scripts['test:coverage:bun']).toBe('node scripts/run-bun-tests.js --coverage');
     expect(pkg.scripts).not.toHaveProperty('test:coverage');
+  });
+
+  test('hosted CI verdict uses the canonical script and an untracked exact-head receipt', () => {
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
+    const contract = JSON.parse(fs.readFileSync(HOSTED_CI_CONTRACT_PATH, 'utf8'));
+    const gitignore = fs.readFileSync(GITIGNORE_PATH, 'utf8');
+
+    expect(pkg.scripts['phase43:hosted-verdict']).toBe('node scripts/verify-hosted-ci.js');
+    expect(contract.receiptPath).toBe('.planning/evidence/phase43-hosted-verdict.json');
+    expect(gitignore).toContain(contract.receiptPath);
+  });
+
+  test('hosted CI contract exactly matches structured workflow job topology', () => {
+    const contract = JSON.parse(fs.readFileSync(HOSTED_CI_CONTRACT_PATH, 'utf8'));
+    const workflows = new Map(
+      HOSTED_WORKFLOW_PATHS.map(workflowPath => {
+        const workflow = yaml.load(fs.readFileSync(workflowPath, 'utf8'));
+        return [workflow.name, workflow];
+      })
+    );
+
+    expect([...workflows.keys()].sort()).toEqual(
+      contract.workflows.map(workflow => workflow.name).sort()
+    );
+    for (const workflowContract of contract.workflows) {
+      const expectedJobs = [
+        ...(workflowContract.requiredJobs || []),
+        ...expandJobMatrices(workflowContract.requiredJobMatrices || []),
+      ].sort();
+      expect(expandWorkflowJobNames(workflows.get(workflowContract.name))).toEqual(expectedJobs);
+    }
   });
 
   test('every repository test file has exactly one runner classification', () => {

@@ -162,7 +162,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist and included in the npm tarball. GitHub release attachment is separately owned by SHIP-03B in Phase 44.
   7. Production assurance is blocking and two-part: canonical fork-authored source reaches at least 95% statements, branches, functions, and lines independently while Bun remains green, and every shipped upstream snapshot satisfies exact provenance, drift, named fork-delta, ownership/removal, and N=3 composed-package gates. Closeout language cannot describe the fork-only aggregate as whole-production coverage.
-**Plans**: 15/25 plans executed
+**Plans**: 15/26 plans executed
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
@@ -178,16 +178,17 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-11C-PLAN.md -- Wave 13: Roadmap format preservation and N=3 compatibility proof
 - [x] 43-11L-PLAN.md -- Wave 14: Open GSD plan-scan read-model correction and N=3 revalidation
 - [x] 43-11M-PLAN.md -- Wave 15: Test-runner discovery authority and pre-push recovery
-- [ ] 43-11D-PLAN.md -- Wave 16: Source contract and Jest/Node/c8 coverage foundation
-- [ ] 43-11K-PLAN.md -- Wave 17: SBOM portability and toolchain preflight
-- [ ] 43-11E-PLAN.md -- Wave 18: Launcher and runtime-support four-metric closure
-- [ ] 43-11F-PLAN.md -- Wave 19: Distribution and build-tool four-metric closure
-- [ ] 43-11G-PLAN.md -- Wave 20: Quality, audit, performance, and reliability four-metric closure
-- [ ] 43-11H-PLAN.md -- Wave 21: Upgrade and compatibility tooling four-metric closure
-- [ ] 43-11I-PLAN.md -- Wave 22: Hook and sync four-metric closure
-- [ ] 43-11J-PLAN.md -- Wave 23: Validator-first aggregate assurance, blocker transition, and blocking CI
-- [ ] 43-11-PLAN.md -- Wave 24: Post-bump snapshots, churn, SBOM, and assurance refresh
-- [ ] 43-12-PLAN.md -- Wave 25: D-7 maintenance evidence and verification closeout
+- [ ] 43-11N-PLAN.md -- Wave 16: Exact-head hosted CI verdict and resumption authority
+- [ ] 43-11D-PLAN.md -- Wave 17: Source contract and Jest/Node/c8 coverage foundation
+- [ ] 43-11K-PLAN.md -- Wave 18: SBOM portability and toolchain preflight
+- [ ] 43-11E-PLAN.md -- Wave 19: Launcher and runtime-support four-metric closure
+- [ ] 43-11F-PLAN.md -- Wave 20: Distribution and build-tool four-metric closure
+- [ ] 43-11G-PLAN.md -- Wave 21: Quality, audit, performance, and reliability four-metric closure
+- [ ] 43-11H-PLAN.md -- Wave 22: Upgrade and compatibility tooling four-metric closure
+- [ ] 43-11I-PLAN.md -- Wave 23: Hook and sync four-metric closure
+- [ ] 43-11J-PLAN.md -- Wave 24: Validator-first aggregate assurance, blocker transition, and blocking CI
+- [ ] 43-11-PLAN.md -- Wave 25: Post-bump snapshots, churn, SBOM, and assurance refresh
+- [ ] 43-12-PLAN.md -- Wave 26: D-7 maintenance evidence and verification closeout
 
 ### Phase 44: Ship Polish — Publish Flow, Provenance, Docs
 **Goal**: Wire every gate built in Phases 41-43 into the `aidev release` / `aidev publish` flow with OIDC provenance, verify reproducibility, and land a complete MAINTENANCE.md that documents processes that now actually exist.
@@ -219,7 +220,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 15/25 | In Progress | - |
+| 43 | v1.2.0 | 15/26 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog

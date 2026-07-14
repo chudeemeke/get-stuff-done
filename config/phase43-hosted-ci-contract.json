@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "receiptSchemaVersion": 1,
+  "repository": "chudeemeke/get-stuff-done",
+  "receiptPath": ".planning/evidence/phase43-hosted-verdict.json",
+  "acceptedConclusions": [
+    "success"
+  ],
+  "allowUnexpectedWorkflows": false,
+  "allowUnexpectedJobs": false,
+  "workflows": [
+    {
+      "name": "CI",
+      "requiredJobs": [
+        "Audit CI (blocking HIGH/CRITICAL)",
+        "Boundary Check (informational)",
+        "Docs Gates",
+        "Lint",
+        "OSV Scanner",
+        "Override Staleness Check (blocking)",
+        "Perf Budget (linux)",
+        "Perf Budget (macos)",
+        "Perf Budget (windows)",
+        "Secret Scan",
+        "Source Parity Check",
+        "Test (macos-15)",
+        "Test (ubuntu-latest)",
+        "Test (windows-latest)",
+        "Upstream Compat (macos-15)",
+        "Upstream Compat (ubuntu-latest)",
+        "Upstream Compat (windows-latest)",
+        "Workflow Lint"
+      ]
+    },
+    {
+      "name": "Cousin Install",
+      "requiredJobMatrices": [
+        {
+          "template": "Cousin Install ({}, Node {}, {})",
+          "dimensions": [
+            [
+              "ubuntu-latest",
+              "macos-15",
+              "windows-latest"
+            ],
+            [
+              "20",
+              "22"
+            ],
+            [
+              "npm",
+              "pnpm",
+              "bun"
+            ]
+          ],
+          "expectedCount": 18
+        }
+      ]
+    },
+    {
+      "name": "Oversight Probes",
+      "requiredJobs": [
+        "Verify Oversight Probes"
+      ]
+    },
+    {
+      "name": "Compat Matrix",
+      "requiredJobs": [
+        "Vetted Upstream Compat Matrix"
+      ]
+    },
+    {
+      "name": "Upgrade Verifier",
+      "requiredJobs": [
+        "Upgrade Verifier"
+      ]
+    }
+  ]
+}

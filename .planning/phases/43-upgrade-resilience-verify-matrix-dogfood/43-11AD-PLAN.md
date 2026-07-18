@@ -1,0 +1,98 @@
+---
+phase: 43
+plan: "11AD"
+type: execute
+gap_closure: true
+wave: 19
+depends_on: ["43-11AC"]
+status: pending
+requirements: ["SHIP-03A", "SHIP-08"]
+files_modified:
+  - package.json
+  - bun.lock
+  - package-lock.json
+  - scripts/generate-sbom.js
+  - tests/generate-sbom.test.js
+  - .planning/audits/suppressions.json
+  - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AD-SUMMARY.md
+autonomous: true
+must_haves:
+  truths:
+    - "GHSA-v75r-vx73-82pj is removed by a tested direct dependency upgrade rather than suppression"
+    - "the CycloneDX major upgrade preserves a valid reproducible package SBOM"
+    - "both lock authorities agree with the exact dependency pin"
+  artifacts:
+    - "tests/generate-sbom.test.js"
+    - "dist/bom.json"
+    - "43-11AD-SUMMARY.md"
+  key_links:
+    - "CycloneDX executable contract -> generate-sbom adapter -> validated dist/bom.json"
+    - "exact package pin -> bun and npm locks -> audit and OSV authority"
+---
+
+<objective>
+Remove the release-blocking CycloneDX advisory through a compatibility-proven
+major upgrade while preserving the fork's SBOM and distribution contracts.
+</objective>
+
+<context>
+@package.json
+@scripts/generate-sbom.js
+@tests/generate-sbom.test.js
+@.planning/evidence/hosted/first-real-run-failure.json
+</context>
+
+<tasks>
+
+<task id="11AD-01" type="auto">
+  <name>Prove and land the CycloneDX 6 compatibility boundary</name>
+  <files>package.json; bun.lock; package-lock.json; scripts/generate-sbom.js; tests/generate-sbom.test.js; .planning/audits/suppressions.json</files>
+  <action>
+    RED: assert the direct dependency is exact-pinned at the reviewed fixed
+    major, executable discovery and arguments are explicit, child failure
+    propagates, generated JSON validates as CycloneDX, required package identity
+    is present, and repeated generation on identical inputs is byte-stable where
+    the tool supports deterministic metadata control. Reproduce the current
+    HIGH audit failure before the bump.
+
+    GREEN: upgrade `@cyclonedx/cyclonedx-npm` to the reviewed 6.x fixed release,
+    regenerate both lockfiles, and adapt only the narrow generator port if CLI
+    or output defaults changed. Keep the direct local executable path and
+    environment sanitization. Do not add an audit suppression, lower severity,
+    or bypass OSV.
+
+    REFACTOR: isolate version-sensitive flags/output normalization behind the
+    generator adapter so Plan 11K can add environment portability without
+    coupling to the old CLI.
+  </action>
+  <acceptance_criteria>
+    - local audit no longer reports GHSA-v75r-vx73-82pj.
+    - `bun run sbom` and `bun run dist` produce a schema-valid `dist/bom.json`.
+    - package and both lockfiles identify the same exact CycloneDX version.
+    - suppressions contain no entry for the advisory or upgraded package.
+  </acceptance_criteria>
+  <verify>
+    <automated>bun run test -- tests/generate-sbom.test.js</automated>
+    <automated>bun run audit:ci</automated>
+    <automated>bun run sbom</automated>
+    <automated>bun run dist</automated>
+  </verify>
+  <done>false</done>
+</task>
+
+</tasks>
+
+<threat_model>
+A suppression would make CI green while leaving a shell-injection advisory in
+the supply-chain attestation path. A blind major bump could silently alter SBOM
+shape or contents. Exact locks, RED-GREEN adapter tests, dual audit authority,
+and output validation make both failure modes visible.
+</threat_model>
+
+<verification>
+- `bun run test -- tests/generate-sbom.test.js`
+- `bun run audit:ci`
+- `bun run dist`
+- focused four-metric coverage at or above 95% for changed generator code
+- `git diff --check`
+</verification>

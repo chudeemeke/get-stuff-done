@@ -3,8 +3,8 @@ phase: 43
 plan: "11D"
 type: execute
 gap_closure: true
-wave: 19
-depends_on: ["43-11R"]
+wave: 23
+depends_on: ["43-11AJ"]
 status: pending
 requirements: []
 files_modified:
@@ -26,7 +26,7 @@ must_haves:
     - "coverage groups are exhaustive and disjoint over the canonical fork source set"
     - "denominator changes are explicit reviewed diffs rather than silent reclassification"
     - "shipped upstream snapshots remain blocking through a separate assurance contract"
-    - "the fully finalized Plan 11R head receives a second tracked exact-head hosted envelope before the first source edit"
+    - "the fully finalized corrective/Fable head receives a second tracked exact-head hosted envelope before the first source edit"
   artifacts:
     - "config/production-source-contract.json"
     - "jest.coverage.config.cjs"
@@ -37,7 +37,7 @@ must_haves:
     - "tracked executable paths -> production source contract -> exact ownership and group partition"
     - "bun:test imports -> Jest moduleNameMapper -> jest-bun-test-adapter.cjs"
     - "SHIP-08A fork source -> separate SHIP-08B snapshot assurance"
-    - "finalized Plan 11R head -> second hosted recertification -> first Plan 11D source edit"
+    - "finalized Plan 11AJ head and truthful 11R closure -> second hosted recertification -> first Plan 11D source edit"
 ---
 
 <objective>
@@ -59,11 +59,12 @@ CommonJS functional parity under Jest without introducing coverage orchestration
 <tasks>
 
 <task id="11D-00" type="auto">
-  <name>Recertify the finalized Plan 11R head before source work</name>
+  <name>Recertify the finalized corrective and Fable head before source work</name>
   <files>.planning/evidence/hosted/plan11d-entry.json</files>
   <action>
     Require a clean tracked worktree and the committed standard GSD
-    finalization of Plan 11R, including its summary and metadata. Publish that
+    finalization of Plan 11AJ, including the truthful supersession summary for
+    Plan 11R and all corrective/Fable metadata. Publish that
     exact finalized head, rerun all five workflows once, and run
     `bun run phase43:hosted-verdict -- collect --pr 23 --receipt .planning/evidence/hosted/plan11d-entry.json --purpose "Plan 11D entry recertification"`
     to collect a passed hosted envelope whose PR
@@ -72,7 +73,7 @@ CommonJS functional parity under Jest without introducing coverage orchestration
     `.planning/evidence/hosted/post-11n.json` bytes and reverify its
     subject-bound Fable checkpoint. Run pending-envelope verification, then let
     normal GSD task completion commit the new envelope before any source edit.
-    Preserve the finalized Plan 11R commit, hosted run IDs, observed time, and
+    Preserve the finalized Plan 11AJ commit, hosted run IDs, observed time, and
     envelope digest for the Plan 11D summary.
   </action>
   <acceptance_criteria>
@@ -134,7 +135,7 @@ CommonJS functional parity under Jest without introducing coverage orchestration
     - denominator additions, removals, and reclassifications emit a reviewed machine-readable diff.
     - each shipped upstream snapshot carries the separate SHIP-08B contract fields.
     - canonical digests are stable across Windows and POSIX path separators.
-    - the Plan 11D summary can identify the exact finalized Plan 11R commit and second hosted receipt that authorized the first edit.
+    - the Plan 11D summary can identify the exact finalized Plan 11AJ commit, truthful 11R closure, and second hosted receipt that authorized the first edit.
   </acceptance_criteria>
   <verify>
     <automated>bun run test -- tests/production-source-contract.test.js</automated>

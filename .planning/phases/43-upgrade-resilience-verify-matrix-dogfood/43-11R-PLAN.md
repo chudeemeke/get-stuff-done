@@ -58,12 +58,22 @@ Verifier failed with real steps. The fail-closed collector returned
 `run_failed` and created no `post-11n.json` envelope. The immutable observation
 is tracked at `.planning/evidence/hosted/first-real-run-failure.json`.
 
-This is the first real hosted run required by the standing Fable review, but it
-invalidates this plan's assumption that a passed envelope precedes review. Stop
-before source edits, workflow edits, issue remediation, or another hosted run.
-When Fable quota and the shared-session window are available, Fable must lead a
-GSD graph correction that consumes the failure evidence, sequences the
-corrective work, and preserves the later passed-envelope gate before Plan 11D.
+This is the first real hosted run required by the standing review, but it
+invalidates this plan's assumption that a passed envelope precedes review. Three
+independent 2026-07-18 reviews and primary-evidence reconciliation are persisted
+in the adjacent interim-review artifacts. They converged on a corrective branch
+and additionally proved that default PR checkout executed synthetic merge
+`e2139a78cdba1d5bf5130431d2bd8e8e6f7bdd52` while the collector claimed PR head
+`2c9ba08745cf3bc13cec42b0c05feb2ae5f02233`, that issues #5-#11 contain 266
+accumulated non-idempotent bot comments, and that the active compatibility
+workflow can fail internally while concluding success.
+
+Plan 11R therefore remains blocked and receives no summary now. Plans 11AC
+through 11AI own local contract/remediation/integration work from the immutable
+failure observation; non-autonomous Plan 11AJ owns the next user-authorized
+hosted cycle, formal Fable checkpoint, and eventual truthful supersession
+summary. Plan 11D depends on 11AJ. No source edit is owned by this plan, no new
+external run is authorized, and no passed envelope is inferred.
 </execution_blocker>
 
 <tasks>

@@ -3,7 +3,7 @@ phase: 43
 plan: "11K"
 type: execute
 gap_closure: true
-wave: 22
+wave: 26
 depends_on: ["43-11X"]
 status: pending
 requirements: ["SHIP-03A"]
@@ -75,10 +75,11 @@ toolchain preflight in a bounded plan after the coverage/source foundation.
     local CycloneDX executable path and existing argument contract. Add a pure,
     injectable toolchain probe plus bounded JSON CLI output. The policy owns
     minimum versions, exact runner pins, and required command capabilities.
-    Use Plan 11M hosted evidence to adjudicate the existing floating-latest Bun
-    policy against an exact CI pin. Record the decision and re-verification
-    trigger explicitly; do not alter the machine-global Bun installation while
-    other project sessions are live.
+    Consume the exact Bun and hosted dependency authority established by Plans
+    11AC and 11AH; do not reopen or replace that decision here. Verify its
+    machine-readable update trigger and add this plan's runtime/coverage probes
+    to the existing authority. Do not alter the machine-global Bun installation
+    while other project sessions are live.
     Classify and group the new executable in the live source contract before
     running any coverage command; do not change SHIP-08A thresholds.
 

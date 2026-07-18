@@ -162,7 +162,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist and included in the npm tarball. GitHub release attachment is separately owned by SHIP-03B in Phase 44.
   7. Production assurance is blocking and two-part: canonical fork-authored source reaches at least 95% statements, branches, functions, and lines independently while Bun remains green, and every shipped upstream snapshot satisfies exact provenance, drift, named fork-delta, ownership/removal, and N=3 composed-package gates. Closeout language cannot describe the fork-only aggregate as whole-production coverage.
-**Plans**: 17/41 plans executed
+**Plans**: 17/49 plans executed
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
@@ -180,30 +180,38 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-11M-PLAN.md -- Wave 15: Test-runner discovery authority and pre-push recovery
 - [x] 43-11P-PLAN.md -- Wave 16: Subject-bound captured Fable runner, receipt, and replay-safe validator
 - [x] 43-11N-PLAN.md -- Wave 17: Hosted-CI authority contract, collector, and durable blocker record
-- [ ] 43-11R-PLAN.md -- Wave 18: Human external-state gate, hosted evidence, Fable lead decision, and ordinary GSD finalization
-- [ ] 43-11D-PLAN.md -- Wave 19: Finalized-head hosted recertification, exact source ownership contract, and unchanged Jest parity
-- [ ] 43-11W-PLAN.md -- Wave 20: Multi-process coverage orchestration and per-group feasibility evidence
-- [ ] 43-11X-PLAN.md -- Wave 21: Post-coverage-foundation whole-project Fable checkpoint
-- [ ] 43-11K-PLAN.md -- Wave 22: SBOM portability and toolchain preflight
-- [ ] 43-11E-PLAN.md -- Wave 23: Launcher and installer four-metric closure
-- [ ] 43-11T-PLAN.md -- Wave 24: Runtime-support four-metric closure
-- [ ] 43-11S-PLAN.md -- Wave 25: Post-toolchain and initial-coverage whole-project Fable checkpoint
-- [ ] 43-11F-PLAN.md -- Wave 26: Compose/build/finalize four-metric closure
-- [ ] 43-11U-PLAN.md -- Wave 27: Provenance/semantic/SBOM/docs-tool four-metric closure
-- [ ] 43-11G-PLAN.md -- Wave 28: Audit/override/debt/OSV four-metric closure
-- [ ] 43-11V-PLAN.md -- Wave 29: Benchmark/perf/cousin/flake/oversight four-metric closure
-- [ ] 43-11H-PLAN.md -- Wave 30: Upstream authority/preview/vetted/churn four-metric closure
-- [ ] 43-11Z-PLAN.md -- Wave 31: Compatibility and upgrade-runner four-metric closure
-- [ ] 43-11I-PLAN.md -- Wave 32: Hook and sync four-metric closure
-- [ ] 43-11Y-PLAN.md -- Wave 33: Pre-validator whole-project Fable checkpoint
-- [ ] 43-11J-PLAN.md -- Wave 34: Explicit schemas and pure Phase 43 validator core
-- [ ] 43-11AA-PLAN.md -- Wave 35: Validator adapters, blocking CI, and validator self-coverage
-- [ ] 43-11AB-PLAN.md -- Wave 36: Final aggregate evidence and transactional Plan 11 transition
-- [ ] 43-11-PLAN.md -- Wave 37: Post-bump assurance refresh and bounded evidence summary
-- [ ] 43-11Q-PLAN.md -- Wave 38: Fresh final-head hosted CI and Fable whole-product closure
-- [ ] 43-12-PLAN.md -- Wave 39: Automated D-7 candidate, human confirmation, closeout gates, and Phase 44 readiness
-- [ ] 43-12B-PLAN.md -- Wave 40: Whole-project Fable entry review, post-correction hosted recertification, and reverification
-- [ ] 43-12C-PLAN.md -- Wave 41: Final goal-backward verification and Phase 43 closeout
+- [ ] 43-11R-PLAN.md -- Wave 18: Blocked first hosted attempt retained until successor plans fulfill its envelope and Fable obligations
+- [ ] 43-11AC-PLAN.md -- Wave 18: Exact execution-subject and deterministic toolchain authority contracts
+- [ ] 43-11AD-PLAN.md -- Wave 19: CycloneDX 6 security remediation and SBOM compatibility
+- [ ] 43-11AE-PLAN.md -- Wave 19: Cross-platform product, oracle, and harness corrections
+- [ ] 43-11AF-PLAN.md -- Wave 19: Authenticated Verdaccio upgrade verification and redaction
+- [ ] 43-11AG-PLAN.md -- Wave 19: Paired same-run performance authority
+- [ ] 43-11AH-PLAN.md -- Wave 20: Read-only subject-bound workflow governance, docs policy, and active compatibility blocking
+- [ ] 43-11AI-PLAN.md -- Wave 21: Full local corrective integration receipt
+- [ ] 43-11AJ-PLAN.md -- Wave 22: Human-gated hosted envelope, formal Fable checkpoint, and truthful 11R closure
+- [ ] 43-11D-PLAN.md -- Wave 23: Finalized-head hosted recertification, exact source ownership contract, and unchanged Jest parity
+- [ ] 43-11W-PLAN.md -- Wave 24: Multi-process coverage orchestration and per-group feasibility evidence
+- [ ] 43-11X-PLAN.md -- Wave 25: Post-coverage-foundation whole-project Fable checkpoint
+- [ ] 43-11K-PLAN.md -- Wave 26: SBOM portability and toolchain preflight
+- [ ] 43-11E-PLAN.md -- Wave 27: Launcher and installer four-metric closure
+- [ ] 43-11T-PLAN.md -- Wave 28: Runtime-support four-metric closure
+- [ ] 43-11S-PLAN.md -- Wave 29: Post-toolchain and initial-coverage whole-project Fable checkpoint
+- [ ] 43-11F-PLAN.md -- Wave 30: Compose/build/finalize four-metric closure
+- [ ] 43-11U-PLAN.md -- Wave 31: Provenance/semantic/SBOM/docs-tool four-metric closure
+- [ ] 43-11G-PLAN.md -- Wave 32: Audit/override/debt/OSV four-metric closure
+- [ ] 43-11V-PLAN.md -- Wave 33: Benchmark/perf/cousin/flake/oversight four-metric closure
+- [ ] 43-11H-PLAN.md -- Wave 34: Upstream authority/preview/vetted/churn four-metric closure
+- [ ] 43-11Z-PLAN.md -- Wave 35: Compatibility and upgrade-runner four-metric closure
+- [ ] 43-11I-PLAN.md -- Wave 36: Hook and sync four-metric closure
+- [ ] 43-11Y-PLAN.md -- Wave 37: Pre-validator whole-project Fable checkpoint
+- [ ] 43-11J-PLAN.md -- Wave 38: Explicit schemas and pure Phase 43 validator core
+- [ ] 43-11AA-PLAN.md -- Wave 39: Validator adapters, blocking CI, and validator self-coverage
+- [ ] 43-11AB-PLAN.md -- Wave 40: Final aggregate evidence and transactional Plan 11 transition
+- [ ] 43-11-PLAN.md -- Wave 41: Post-bump assurance refresh and bounded evidence summary
+- [ ] 43-11Q-PLAN.md -- Wave 42: Fresh final-head hosted CI and Fable whole-product closure
+- [ ] 43-12-PLAN.md -- Wave 43: Automated D-7 candidate, human confirmation, closeout gates, and Phase 44 readiness
+- [ ] 43-12B-PLAN.md -- Wave 44: Whole-project Fable entry review, post-correction hosted recertification, and reverification
+- [ ] 43-12C-PLAN.md -- Wave 45: Final goal-backward verification and Phase 43 closeout
 
 ### Phase 44: Ship Polish — Publish Flow, Provenance, Docs
 **Goal**: Wire every gate built in Phases 41-43 into the `aidev release` / `aidev publish` flow with OIDC provenance, verify reproducibility, and land a complete MAINTENANCE.md that documents processes that now actually exist.
@@ -236,7 +244,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 17/41 | In Progress | - |
+| 43 | v1.2.0 | 17/49 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog

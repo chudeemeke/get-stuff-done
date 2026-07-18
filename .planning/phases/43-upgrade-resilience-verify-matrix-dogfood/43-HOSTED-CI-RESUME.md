@@ -1,8 +1,9 @@
 ---
-status: blocked
-blocker: hosted-ci-real-failures-and-fable-replan
-next_owner: user-then-fable
+status: local-corrective-execution
+blocker: corrective-chain-before-next-hosted-window
+next_owner: get-stuff-done
 created: 2026-07-14
+updated: 2026-07-19
 pull_request: 23
 last_observed_head: 2c9ba08745cf3bc13cec42b0c05feb2ae5f02233
 ---
@@ -43,9 +44,20 @@ The failure families are:
 
 The cycle also exposed an unanticipated governance side effect. CI's OSV job
 has `issues: write` and posted one `github-actions` comment to each existing
-issue `#5` through `#11`: `Observed again in` the CI run URL. It created no new
-issues. No deletion or edit has been attempted because that would be another
-external mutation requiring explicit user approval.
+issue `#5` through `#11`: `Observed again in` the CI run URL. Read-only history
+verification on 2026-07-18 found 38 such comments on each issue, 266 total. The
+latest run added seven; repeated append-on-every-run behavior is the larger
+design defect. The PR test job has a second `issues: write` flake-upsert surface.
+No comment deletion or edit has been attempted because that is a separate public
+mutation requiring explicit user approval.
+
+The review also proved the current envelope overstates executed-subject
+authority. GitHub associated the run with PR head `2c9ba087...`, while job
+`87201829510` explicitly checked out synthetic merge
+`e2139a78cdba1d5bf5130431d2bd8e8e6f7bdd52`. The collector validates run-head
+metadata but no per-job checked-out commit. In addition, `compat-matrix.yml`
+forces `exit 0` after internal blocking drift. These are corrective
+preconditions, not reasons to weaken the collector.
 
 ## Historical Billing Blocker
 
@@ -80,29 +92,37 @@ gate:
 - Repository compatibility: 154/154.
 - N=3 Open GSD compatibility: 945/945.
 
-## Resumption Trigger
+## Local Corrective Sequence
 
-After the reported quota reset at approximately 10:00 BST on 2026-07-15, the
-user confirms that Fable quota is restored and the shared Claude sessions are
-in a safe window for this project's exact `claude -p --model fable`
-invocation.
+Fable, Opus, and GPT-5.6-Sol independently reviewed the tracked failure packet
+at `xhigh` on 2026-07-18. All returned `proceed-with-corrections`. Their outputs,
+lead synthesis, and primary-evidence corrections are persisted beside the Phase
+43 plans. The formal passed-envelope Fable checkpoint remains unpassed.
 
-Then:
+Execute locally through GSD:
 
-1. Verify Claude status and quota without printing secrets or mutating shared
-   authentication.
-2. Bind the tracked first-real-run failure observation, this resumption record,
-   and the standing whole-project review into the subject-bound Fable packet.
-3. Require Fable's lead decision on the corrected GSD sequence, remediation
-   slices, security priority, performance authority, workflow side effects, and
-   the point at which a passed hosted envelope becomes mandatory.
-4. Disposition every finding against verified repository facts, executable
-   evidence, security/WoW, and locked user decisions. Apply the reviewed graph
-   correction before any source edit.
-5. Obtain explicit user authorization before another push/workflow cycle and
-   before deleting or editing the seven automated issue comments.
-6. After corrective work is locally green, publish a new exact head and require
-   `post-11n.json` to pass pending and strict verification before Plan 11D.
+1. Plan 11AC repairs executed-subject and toolchain authority contracts.
+2. Plans 11AD-11AG independently repair CycloneDX, platform behavior/oracles,
+   Verdaccio authentication, and paired performance measurement.
+3. Plan 11AH wires exact subject/pins, makes PR CI read-only, separates issue
+   mutation, makes active compatibility blocking, and separates decorative
+   third-party availability from blocking docs correctness.
+4. Plan 11AI runs the full local corrective gate and commits a local-only
+   pre-retry receipt with four-metric coverage.
+
+No public authorization is needed for those local, reversible plan slices.
+
+## External Resumption Trigger
+
+Plan 11AJ presents the exact corrective head and local receipt, then obtains a
+new explicit user authorization for one PR-head update and its five governed
+workflow runs. A passed `post-11n.json` must prove each job's exact execution
+subject. Performance above the unchanged 1.25 budget, any workflow failure,
+head drift, or public mutation stops the cycle without rerun or policy change.
+
+After the passed envelope is committed, Plan 11AJ separately obtains a safe
+Fable window and runs the formal Plan 11P checkpoint. Only an approving valid
+receipt permits the truthful 11R supersession summary and Plan 11D entry.
 
 Passed hosted envelopes remain tracked beneath `.planning/evidence/hosted/`.
 The failed observation is not a passed envelope and cannot authorize Plan 11D.
@@ -120,9 +140,10 @@ source edit. No existing envelope is ever overwritten.
 
 - Starting or partially implementing Plan 11D.
 - Treating local results as hosted results.
-- Editing source or workflow files before the Fable-led GSD replan.
+- Editing source or workflow files outside Plans 11AC-11AI before their local gates.
 - Pushing or rerunning workflows without a new explicit authorization window.
-- Deleting or editing the automated issue comments without explicit approval.
+- Creating, deleting, or editing issue state/comments without explicit approval.
+- Changing the 1.10/1.25 performance budget or accepting a regression without explicit approval.
 - Replacing the gate with self-hosted or alternate CI.
 - Merging draft PR #23.
 

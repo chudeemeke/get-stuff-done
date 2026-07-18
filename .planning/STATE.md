@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: blocked
-stopped_at: Phase 43 Plan 11R Task 11R-02 produced real hosted failures at exact head 2c9ba087; no passed envelope exists; stop for Fable-led corrective replanning after quota reset
-last_updated: "2026-07-14T21:59:40.7457824+01:00"
-last_activity: 2026-07-14
+status: in_progress
+stopped_at: Phase 43 Plan 11AC ready after three-review synthesis and primary-evidence correction; Plan 11R remains blocked and no passed envelope exists
+last_updated: "2026-07-19T00:18:45.1651428+01:00"
+last_activity: 2026-07-19
 progress:
   total_phases: 10
   completed_phases: 3
-  total_plans: 63
+  total_plans: 71
   completed_plans: 36
-  percent: 57
+  percent: 51
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 
 ## Current Position
 
-Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — BLOCKED
-Plan: 11R of 41
-Status: The authorized exact-head cycle executed real steps. Cousin Install, Compat Matrix, and Oversight Probes passed; CI and Upgrade Verifier failed. The collector failed closed with `run_failed`, created no passed envelope, and persisted the failure observation for Fable-led GSD replanning. No source edit or external rerun is authorized before that review; Fable quota is expected to reset around 10:00 BST on 2026-07-15.
-Last activity: 2026-07-14
+Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — IN PROGRESS
+Plan: 11AC of 49
+Status: Plan 11R's first hosted cycle remains blocked with no passed envelope. Independent Fable, Opus, and GPT-5.6-Sol reviews converged on corrective replanning; primary verification added executed-subject, 266-comment, dual issue-write, and fail-open active-compat findings. Plans 11AC-11AI now own local corrective work. Plan 11AJ retains every external and formal-Fable gate before Plan 11D.
+Last activity: 2026-07-19
 
 **Upstream state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.6.1`, reverified as latest stable on 2026-07-13. `1.7.0-rc.6` is prerelease-only and excluded by the exact-stable-pin policy. Legacy `get-shit-done-cc` remains deprecation evidence only; it is not the active bump target and must not be used as `latest` authority. Open GSD package layout is not drop-in: no `gsd-sdk` bin in core, source root is package-specific, and compose/override/update tooling routes through the upstream-authority helper.
 
@@ -114,6 +114,7 @@ v1.2.0 roadmap decisions:
 - 2026-07-14 fourth fresh plan-review correction: hosted verdicts now cross explicit GSD task-commit boundaries as tracked ancestor-certifying envelopes; D-7 uses non-auto-approvable `checkpoint:human-action`; and Plans 11X/11S/11Y record Fable dispositions but halt for a full planner/checker revision and execute-phase restart before any executable-plan correction. The review artifact is `43-GSD-REVIEW.md`, avoiding plan-shaped index noise. Plans 11E, 11J, and 11V split oversized write sets into independently verifiable TDD tasks.
 - 2026-07-14 Phase 43 Plan 11P execution evidence: versioned input and receipt schemas now bind exact subject/evidence bytes, nonce, argv `claude -p --model fable`, lead decision, implementation direction, record location, and review digests. The runner rechecks manifest, HEAD, evidence, record, and receipt absence after execution; receipts publish create-only; the offline verifier reconstructs packet and disposition authority. Focused tests pass 28/28. Focused Bun coverage remains below ship authority at 88.37% lines/69.12% functions for the runner and 92.06% lines/93.75% functions for the verifier; Plan 11W owns the blocking four-metric 95% closure. No live Fable call was made because the shared authentication window remains blocked.
 - 2026-07-14 Phase 43 Plan 11N execution evidence: immutable tracked hosted envelopes now bind requested PR, exact local/PR/run commit, pull-request event and PR association, all five workflow/job topologies, real steps, and governed source/workflow/contract/policy digests. Pending and strict ancestor verification are offline/read-only; publication is create-only with rollback; the billing-lock shape remains unavailable with zero evidence. Focused/config tests pass 43/43; focused Bun coverage is 97.67% functions and 95.37% lines, while Plan 11W retains statement/branch authority. The exact Fable closeout invocation returned `out of usage credits`, so no fresh Fable approval is claimed and Plan 11R retains the evidence-bearing checkpoint. Implementation commit `dceff38b`, coverage hardening `a8bbb9d3`; no GitHub action occurred.
+- 2026-07-19 corrective-review synthesis decision: three independent `xhigh` reviews (Fable, Opus, GPT-5.6-Sol) returned `proceed-with-corrections`. Primary verification confirmed that hosted jobs executed synthetic merge `e2139a78...` while the collector claimed PR head `2c9ba087...`; issues #5-#11 contain 266 accumulated `Observed again` bot comments; PR CI has both OSV and Windows-flake issue-write surfaces; and active compatibility drift can be converted to workflow success. Plan 11R remains blocked without a summary. Plans 11AC-11AI branch from completed 11N for exact-subject/toolchain authority, four bounded remediations, workflow governance, and local integration. Non-autonomous 11AJ alone owns a new user-authorized hosted cycle, formal Fable checkpoint, and eventual truthful 11R supersession closure. The graph is 49 plans across 45 waves; blocked 11R and corrective 11AC share Wave 18 as sibling branches, and downstream implementation ownership is unchanged while shifting by four waves.
 - 2026-07-03 Phase 42 Plan 04 decision: evidence-before-claim oversight is centralized in `overlay/memory/oversight-principle-evidence-before-claim.md`; execution, verification, and planning agents carry only compact advisory triggers tied to PROCESS-07.
 
 ### Roadmap Evolution
@@ -156,13 +157,13 @@ None.
 
 ### Blockers/Concerns
 
-BLOCKER [2026-07-14] `hosted-ci-billing-lock`: GitHub account billing lock; every draft PR #23 job started zero steps, so zero hosted evidence exists. Plan 11N's hosted-authority implementation and local finalization are complete; the lock blocks Plan 11R's external cycle and all transitive source work from Plan 11D onward. Local evidence is LOCAL ONLY: Bun 1,322/1,322 with zero native-contract leakage, native 73/73, repository 154/154, and N=3 945/945 at last observed hosted head `64f137a110e985c86b08acb3140bc8b982d34843`. Next owner: user at Plan 11R's blocking human-action checkpoint. Resume from `43-HOSTED-CI-RESUME.md` only after the user confirms billing is unlocked and the shared Claude review window is safe.
+BLOCKER [2026-07-19] `hosted-ci-corrective-authority`: billing and Claude authentication are no longer current blockers, but the 2026-07-14 cycle produced real CI/Upgrade Verifier failures and no passed envelope. Executed-subject proof, deterministic toolchain inputs, the HIGH CycloneDX advisory, platform ownership, authenticated Verdaccio, paired performance authority, read-only PR governance, docs availability classification, and active compatibility blocking must pass Plans 11AC-11AI locally. Plan 11AJ then requires new explicit user authorization for any push/hosted run and a separate safe Fable window. Plan 11D remains blocked until a genuine exact-subject envelope and formal Fable receipt exist.
 
-Plan 43-11 compatibility and plan-denominator correctness are resolved, but the plan remains incomplete on SHIP-08A fork-authored four-metric coverage, SHIP-08B shipped-snapshot assurance, and machine-validatable closeout evidence. `43-11-BLOCKER.md` preserves the pre-classification 159/87 result, Plan 11C's 936/936 replacement, and Plan 11L's current 945/945 evidence. Plan 11 remains blocked until Plans 11J, 11AA, and 11AB implement strict schemas/core, adapters/CI, then measure and transactionally accept durable evidence. Product closure then requires Plan 11Q's fresh exact-head hosted verdict and Fable lead decision; final phase closure requires Plans 12, 12B, and 12C. Before 11D, Plan 11P has established the shared review validator, Plan 11N has completed hosted authority, and Plan 11R enforces the human external-state gate, first hosted verdict, whole-project Fable disposition, and ordinary GSD finalization. Plan 11D recertifies that finalized head before its first source edit. Plans 11D and 11W establish source/Jest and coverage-feasibility contracts, and Plan 11X runs the next standing whole-project lead checkpoint before closure plans begin. Plan 11Y runs the pre-validator lead checkpoint before 11J/11AA/11AB. The W002 health-diagnostic defect is preserved in backlog 999.8 and does not block Phase 43 under locked D-22. Expired macOS performance policy is corrected from hosted evidence rather than renewed by waiver. Boundary checker still reports 41 structural root-mirror violations as known debt, but CI reports it through `--report-only` plus the blocking debt ratchet. Fable's initial whole-project review is complete and its eight standing checkpoints are recorded in `43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md`; later checkpoints remain unpassed until their exact evidence-bearing records are dispositioned. Old Phase 40.5 Wave 5 must not file or patch against legacy upstream; it is retired unless a future reviewed plan creates a new Open GSD-specific filing path. Root-local inbox handoffs are being reconciled into terminal tracked records where resolved/no-action, with the remaining memory-nexus/authkey implementation items left active.
+Plan 43-11 compatibility and plan-denominator correctness are resolved, but the plan remains incomplete on SHIP-08A fork-authored four-metric coverage, SHIP-08B shipped-snapshot assurance, and machine-validatable closeout evidence. `43-11-BLOCKER.md` preserves the pre-classification 159/87 result, Plan 11C's 936/936 replacement, and Plan 11L's current 945/945 evidence. Plan 11 remains blocked until Plans 11J, 11AA, and 11AB implement strict schemas/core, adapters/CI, then measure and transactionally accept durable evidence. Product closure then requires Plan 11Q's fresh exact-subject hosted verdict and Fable lead decision; final phase closure requires Plans 12, 12B, and 12C. Before 11D, Plan 11P provides the shared review validator, Plan 11N provides the collector, blocked Plan 11R preserves the failed first attempt, Plans 11AC-11AI restore local corrective authority, and Plan 11AJ owns the next human-gated hosted/Fable success path plus truthful 11R closure. Plan 11D recertifies that finalized 11AJ head before its first source edit. Plans 11D and 11W establish source/Jest and coverage-feasibility contracts, and Plan 11X runs the next standing whole-project lead checkpoint before closure plans begin. Plan 11Y runs the pre-validator whole-project checkpoint before 11J/11AA/11AB. The W002 health-diagnostic defect remains backlog 999.8 under locked D-22. Performance enforcement moves to paired same-run authority without renewing calendar exceptions; budget/SLO changes remain user-owned. Boundary checker still reports 41 known structural root-mirror violations under report-only plus the blocking debt ratchet. Fable's initial whole-project review and interim corrective review are advisory evidence; the formal post-hosted checkpoint remains unpassed until Plan 11AJ validates it. Old Phase 40.5 Wave 5 remains retired. Root-local inbox handoffs are reconciled terminally when resolved, while memory-nexus/authkey implementation items remain separately owned.
 
 ## Session Continuity
 
-Last session: 2026-07-13T20:30:23.7520257+01:00
+Last session: 2026-07-19T00:18:45.1651428+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
-Stopped at: Plan 43-11N is complete. Stop at Plan 11R's human-action gate for billing recovery and a safe shared-Claude window before hosted/Fable execution and Plan 43-11D source work.
-Resume file: None
+Stopped at: Plan 43-11AC is ready for local TDD execution. Plan 11R remains blocked; no external or formal-Fable action is authorized before Plan 11AI passes and Plan 11AJ obtains explicit gates.
+Resume file: .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AC-PLAN.md

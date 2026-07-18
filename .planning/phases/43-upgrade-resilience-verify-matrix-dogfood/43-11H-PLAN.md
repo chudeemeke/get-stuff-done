@@ -3,7 +3,7 @@ phase: 43
 plan: "11H"
 type: execute
 gap_closure: true
-wave: 30
+wave: 34
 depends_on: ["43-11V"]
 status: pending
 requirements: ["UPGRADE-01", "UPGRADE-02", "UPGRADE-04", "UPGRADE-08"]

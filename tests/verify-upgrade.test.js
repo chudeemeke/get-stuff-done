@@ -112,6 +112,9 @@ function configFixture() {
   fs.writeFileSync(path.join(projectRoot, 'package.json'), JSON.stringify({
     name: '@chude/get-stuff-done',
     version: '3.0.2',
+    devDependencies: {
+      '@opengsd/gsd-core': '1.5.0',
+    },
   }), 'utf8');
 
   const projectNpmrc = path.join(projectRoot, '.npmrc');
@@ -310,12 +313,15 @@ describe('verify-upgrade orchestration report', () => {
     const { runUpgradeVerification } = loadVerifierModule();
     const root = tempRoot();
     const capture = {};
-    const runner = fakeRunner({ requireAuth: true });
+    const runner = fakeRunner({
+      requireAuth: true,
+      packBumpedStdout: 'chude-get-stuff-done-3.0.2-upgrade.1.7.0.tgz\n',
+    });
 
     try {
       const report = await runUpgradeVerification({
-        fromVersion: '1.5.0',
-        toVersion: '1.6.1',
+        fromVersion: '1.6.1',
+        toVersion: '1.7.0',
         registryUrl: 'http://localhost:4873/',
         tempRoot: root,
         prepareWorkspace: false,
@@ -325,11 +331,11 @@ describe('verify-upgrade orchestration report', () => {
         randomBytes: deterministicRandomBytes,
       });
 
-      expect(report.fromVersion).toBe('1.5.0');
-      expect(report.toVersion).toBe('1.6.1');
+      expect(report.fromVersion).toBe('1.6.1');
+      expect(report.toVersion).toBe('1.7.0');
       expect(report.registryUrl).toBe('http://localhost:4873/');
       expect(report.packageTarball).toContain('chude-get-stuff-done-3.0.2.tgz');
-      expect(report.packedArtifact).toContain('chude-get-stuff-done-3.0.2-upgrade.1.6.1.tgz');
+      expect(report.packedArtifact).toContain('chude-get-stuff-done-3.0.2-upgrade.1.7.0.tgz');
       expect(report.composeResult.status).toBe(0);
       expect(report.reinstallTarget).toContain('install-target');
       expect(report.smokeCommands).toEqual([
@@ -349,7 +355,7 @@ describe('verify-upgrade orchestration report', () => {
         'smoke-verify',
       ]);
       expect(report.steps.find(step => step.name === 'reinstall-to').args).toContain(
-        '@chude/get-stuff-done@3.0.2-upgrade.1.6.1'
+        '@chude/get-stuff-done@3.0.2-upgrade.1.7.0'
       );
       expect(report.warnings).toEqual([]);
       expect(report.exitClassification).toBe('success');
@@ -373,8 +379,8 @@ describe('verify-upgrade orchestration report', () => {
 
     try {
       const report = await runUpgradeVerification({
-        fromVersion: '1.5.0',
-        toVersion: '1.6.1',
+        fromVersion: '1.6.1',
+        toVersion: '1.7.0',
         registryUrl: 'http://localhost:4873/',
         tempRoot: root,
         prepareWorkspace: false,
@@ -397,8 +403,8 @@ describe('verify-upgrade orchestration report', () => {
 
     try {
       const report = await runUpgradeVerification({
-        fromVersion: '1.5.0',
-        toVersion: '1.6.1',
+        fromVersion: '1.6.1',
+        toVersion: '1.7.0',
         registryUrl: 'http://localhost:4873/',
         tempRoot: root,
         prepareWorkspace: false,
@@ -657,6 +663,46 @@ describe('verify-upgrade orchestration report', () => {
       } finally {
         fs.rmSync(fixture.root, { recursive: true, force: true });
       }
+    }
+  });
+
+  test('fails closed when the checkout upstream pin does not match --from', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const runner = fakeRunner();
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        fromVersion: '1.6.0',
+        runner,
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('source_pin_mismatch');
+      expect(report.warnings).toContain('Checkout upstream pin does not match --from');
+      expect(runner.calls).toEqual([]);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('fails closed when the checkout has no active upstream pin', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const packagePath = path.join(fixture.projectRoot, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+    delete packageJson.devDependencies;
+    fs.writeFileSync(packagePath, JSON.stringify(packageJson), 'utf8');
+    const runner = fakeRunner();
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner,
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('source_pin_mismatch');
+      expect(runner.calls).toEqual([]);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
 

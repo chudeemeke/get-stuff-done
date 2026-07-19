@@ -544,7 +544,6 @@ function prepareBumpWorkspace(context, toVersion, bumpedPackageVersion, options 
   const packageJson = readJson(packagePath, context.fs);
   const upstreamPackage = getActivePackageName();
   packageJson.version = bumpedPackageVersion;
-  packageJson.devDependencies = packageJson.devDependencies || {};
   // eslint-disable-next-line security/detect-object-injection -- Key comes from validated upstream-source authority.
   packageJson.devDependencies[upstreamPackage] = toVersion;
   writeJson(packagePath, packageJson, context.fs);
@@ -632,6 +631,13 @@ function maybeCheckRegistry(context, runner, skipVerdaccioHealth) {
 
 function executeUpgradeSequence(options, context, report, runner) {
   const packageJson = readJson(path.join(context.projectRoot, 'package.json'), context.fs);
+  const upstreamPackage = getActivePackageName();
+  // eslint-disable-next-line security/detect-object-injection -- Key comes from validated upstream-source authority.
+  if (packageJson.devDependencies?.[upstreamPackage] !== options.fromVersion) {
+    report.warnings.push('Checkout upstream pin does not match --from');
+    report.exitClassification = 'source_pin_mismatch';
+    return;
+  }
   const sourcePackageVersion = requireExactStableVersion('package version', packageJson.version);
   const packageSpec = `${packageJson.name}@${sourcePackageVersion}`;
   const bumpedPackageVersion = `${sourcePackageVersion}-upgrade.${options.toVersion}`;

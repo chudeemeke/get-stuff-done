@@ -268,6 +268,34 @@ describe('PR and issue evidence governance', () => {
     expect(issue).toContain('gh run list --branch');
   });
 
+  test('governance adoption has an issue-ready GSD record', () => {
+    const issue = read('.planning/quick/pr-issue-evidence-workflow-ISSUE.md');
+
+    for (const heading of [
+      '## Problem',
+      '## Desired Outcome',
+      '## Scope Boundaries',
+      '## Acceptance Criteria',
+      '## Verification Required',
+      '## Explicit Non-Claims',
+    ]) {
+      expect(issue).toContain(heading);
+    }
+
+    for (const label of [
+      'type:workflow',
+      'type:docs',
+      'status:owner-gated',
+      'priority:p1',
+    ]) {
+      expect(issue).toContain(label);
+    }
+
+    expect(issue).toContain('pr-issue-evidence-workflow-CONTEXT.md');
+    expect(issue).toContain('final PR HEAD');
+    expect(issue).toContain('config/hosted-evidence-contract.json');
+  });
+
   test('contribution guidance keeps merge and goal closure distinct', () => {
     const guide = read('CONTRIBUTING.md');
 

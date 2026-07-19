@@ -315,7 +315,12 @@ describe('verify-upgrade orchestration report', () => {
     const capture = {};
     const runner = fakeRunner({
       requireAuth: true,
-      packBumpedStdout: 'chude-get-stuff-done-3.0.2-upgrade.1.7.0.tgz\n',
+      packCurrentStdout: JSON.stringify([{
+        filename: 'chude-get-stuff-done-3.0.2.tgz',
+      }]),
+      packBumpedStdout: JSON.stringify([{
+        filename: 'chude-get-stuff-done-3.0.2-upgrade.1.7.0.tgz',
+      }]),
     });
 
     try {
@@ -357,6 +362,14 @@ describe('verify-upgrade orchestration report', () => {
       expect(report.steps.find(step => step.name === 'reinstall-to').args).toContain(
         '@chude/get-stuff-done@3.0.2-upgrade.1.7.0'
       );
+      for (const stepName of ['pack-current', 'pack-bumped']) {
+        const packStep = report.steps.find(step => step.name === stepName);
+        expect(packStep.args).toContain('--json');
+        expect(packStep.args).toContain('--ignore-scripts');
+      }
+      const publishBumped = report.steps.find(step => step.name === 'publish-bumped');
+      expect(publishBumped.args).toContain('--tag');
+      expect(publishBumped.args).toContain('upgrade-verifier');
       expect(report.warnings).toEqual([]);
       expect(report.exitClassification).toBe('success');
 
@@ -625,10 +638,11 @@ describe('verify-upgrade orchestration report', () => {
     const absoluteBumped = path.join(fixture.root, 'absolute-bumped.tgz');
     const runner = fakeRunner({
       packCurrentStdout: '',
-      packBumpedStdout: absoluteBumped,
+      packBumpedStdout: JSON.stringify({ filename: absoluteBumped }),
       onCall: ({ call, stepName }) => {
         if (stepName === 'pack-current') {
-          fs.writeFileSync(path.join(call.args[2], 'fallback-current.tgz'), 'artifact', 'utf8');
+          const destination = call.args[call.args.indexOf('--pack-destination') + 1];
+          fs.writeFileSync(path.join(destination, 'fallback-current.tgz'), 'artifact', 'utf8');
         }
       },
     });

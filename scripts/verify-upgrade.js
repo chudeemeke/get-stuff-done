@@ -557,6 +557,17 @@ function prepareBumpWorkspace(context, toVersion, bumpedPackageVersion, options 
 }
 
 function resolveTarballPath(stdout, directory, fileSystem = fs) {
+  try {
+    const payload = JSON.parse(String(stdout || ''));
+    const record = Array.isArray(payload) ? payload.at(-1) : payload;
+    if (record && typeof record.filename === 'string' && record.filename.endsWith('.tgz')) {
+      return path.isAbsolute(record.filename)
+        ? record.filename
+        : path.join(directory, record.filename);
+    }
+  } catch {
+    // Older npm output and injected runners may emit the filename as plain text.
+  }
   const lines = String(stdout || '')
     .split(/\r?\n/)
     .map(line => line.trim())
@@ -646,7 +657,7 @@ function executeUpgradeSequence(options, context, report, runner) {
   const packCurrent = {
     name: 'pack-current',
     command: 'npm',
-    args: ['pack', '--pack-destination', context.registryDir],
+    args: ['pack', '--json', '--ignore-scripts', '--pack-destination', context.registryDir],
     cwd: context.projectRoot,
   };
   if (!runRecordedStep(packCurrent, report, context, runner)) return;
@@ -693,7 +704,7 @@ function executeUpgradeSequence(options, context, report, runner) {
   if (!runRecordedStep({
     name: 'pack-bumped',
     command: 'npm',
-    args: ['pack', '--pack-destination', context.registryDir],
+    args: ['pack', '--json', '--ignore-scripts', '--pack-destination', context.registryDir],
     cwd: context.workspaceDir,
   }, report, context, runner)) return;
   report.packedArtifact = resolveTarballPath(
@@ -706,7 +717,13 @@ function executeUpgradeSequence(options, context, report, runner) {
     {
       name: 'publish-bumped',
       command: 'npm',
-      args: ['publish', report.packedArtifact, '--registry', context.registryUrl, '--access', 'public'],
+      args: [
+        'publish',
+        report.packedArtifact,
+        '--registry', context.registryUrl,
+        '--access', 'public',
+        '--tag', 'upgrade-verifier',
+      ],
       cwd: context.workspaceDir,
     },
     {

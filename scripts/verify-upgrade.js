@@ -58,6 +58,7 @@ const COPY_EXCLUDES = new Set([
   '.turbo',
   '.next',
   '.npmrc',
+  'bun.lock',
 ]);
 const CURRENT_PACKAGE_COPY_EXCLUDES = new Set(
   [...COPY_EXCLUDES].filter(entry => entry !== 'dist')
@@ -599,6 +600,7 @@ function runProcess(step, context, runner, overrides = {}) {
     env: {
       ...context.env,
       GSD_VERIFY_UPGRADE_STEP: step.name,
+      ...(step.env || {}),
       ...(overrides.env || {}),
     },
     encoding: 'utf8',
@@ -682,6 +684,21 @@ function prepareCurrentPackage(context) {
       CURRENT_PACKAGE_COPY_EXCLUDES
     );
   }
+}
+
+function stageTargetInstallManifest(context, toVersion) {
+  const packagePath = path.join(context.workspaceDir, 'package.json');
+  const fullPackageBytes = context.fs.readFileSync(packagePath);
+  const upstreamPackage = getActivePackageName();
+  writeJson(packagePath, {
+    private: true,
+    name: 'gsd-upgrade-target-install',
+    version: '0.0.0',
+    dependencies: {
+      [upstreamPackage]: toVersion,
+    },
+  }, context.fs);
+  return () => context.fs.writeFileSync(packagePath, fullPackageBytes);
 }
 
 function resolveTarballPath(stdout, directory, fileSystem = fs, excludedPaths = []) {
@@ -852,6 +869,13 @@ function executeUpgradeSequence(options, context, report, runner) {
   const packageSpec = `${packageJson.name}@${sourcePackageVersion}`;
   const bumpedPackageVersion = `${sourcePackageVersion}-upgrade.${options.toVersion}`;
   const bumpedPackageSpec = `${packageJson.name}@${bumpedPackageVersion}`;
+  const packEnvironment = {
+    PATH: [path.join(context.projectRoot, 'node_modules', '.bin'), context.env.PATH]
+      .filter(Boolean)
+      .join(path.delimiter),
+    npm_config_ignore_scripts: 'true',
+    NPM_CONFIG_IGNORE_SCRIPTS: 'true',
+  };
   prepareCurrentPackage(context);
   prepareSourceWorkspace(context);
 
@@ -860,6 +884,7 @@ function executeUpgradeSequence(options, context, report, runner) {
     command: 'npm',
     args: ['pack', '--json', '--ignore-scripts', '--pack-destination', context.registryDir],
     cwd: context.sourcePackageDir,
+    env: packEnvironment,
   };
   if (!runRecordedStep(packCurrent, report, context, runner)) return;
   try {
@@ -897,18 +922,28 @@ function executeUpgradeSequence(options, context, report, runner) {
 
   prepareBumpWorkspace(context, options.toVersion, bumpedPackageVersion, options);
   const priorTarballs = listTarballs(context.registryDir, context.fs);
-  if (!runRecordedStep({
-    name: 'bump-upstream',
-    command: 'bun',
-    args: ['install', '--ignore-scripts'],
-    cwd: context.workspaceDir,
-  }, report, context, runner)) return;
+  const restoreBumpedManifest = stageTargetInstallManifest(context, options.toVersion);
+  let bumpSucceeded;
+  try {
+    bumpSucceeded = runRecordedStep({
+      name: 'bump-upstream',
+      command: 'bun',
+      args: ['install', '--ignore-scripts', '--no-save', '--omit=optional'],
+      cwd: context.workspaceDir,
+    }, report, context, runner);
+  } finally {
+    restoreBumpedManifest();
+  }
+  if (!bumpSucceeded) return;
 
   if (!runRecordedStep({
     name: 'compose',
     command: 'bun',
     args: ['run', 'compose'],
     cwd: context.workspaceDir,
+    env: {
+      NODE_PATH: path.join(context.projectRoot, 'node_modules'),
+    },
   }, report, context, runner)) return;
 
   if (!runRecordedStep({
@@ -916,6 +951,7 @@ function executeUpgradeSequence(options, context, report, runner) {
     command: 'npm',
     args: ['pack', '--json', '--ignore-scripts', '--pack-destination', context.registryDir],
     cwd: context.workspaceDir,
+    env: packEnvironment,
   }, report, context, runner)) return;
   try {
     const artifact = validatePackedArtifact(

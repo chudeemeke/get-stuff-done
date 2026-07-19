@@ -481,12 +481,23 @@ describe('verify-upgrade orchestration report', () => {
       );
       for (const stepName of ['pack-current', 'pack-bumped']) {
         const packStep = report.steps.find(step => step.name === stepName);
+        const packCall = runner.calls.find(call =>
+          call.options.env.GSD_VERIFY_UPGRADE_STEP === stepName
+        );
         expect(packStep.args).toContain('--json');
         expect(packStep.args).toContain('--ignore-scripts');
+        expect(packCall.options.env.npm_config_ignore_scripts).toBe('true');
+        expect(packCall.options.env.NPM_CONFIG_IGNORE_SCRIPTS).toBe('true');
+        expect(packCall.options.env.PATH.split(path.delimiter)[0]).toBe(
+          path.join(fixture.projectRoot, 'node_modules', '.bin')
+        );
       }
       const publishBumped = report.steps.find(step => step.name === 'publish-bumped');
       expect(publishBumped.args).toContain('--tag');
       expect(publishBumped.args).toContain('upgrade-verifier');
+      const bumpStep = report.steps.find(step => step.name === 'bump-upstream');
+      expect(bumpStep.args).toContain('--no-save');
+      expect(bumpStep.args).toContain('--omit=optional');
       expect(report.warnings).toEqual([]);
       expect(report.exitClassification).toBe('success');
 
@@ -709,6 +720,7 @@ describe('verify-upgrade orchestration report', () => {
     );
     let observedWorkspace;
     let observedCurrentPackage;
+    let observedInstallManifest;
     const runner = fakeRunner({
       onCall: ({ call, stepName }) => {
         if (stepName === 'pack-current') {
@@ -717,7 +729,12 @@ describe('verify-upgrade orchestration report', () => {
             copiedNpmrc: fs.existsSync(path.join(call.options.cwd, '.npmrc')),
           };
         }
-        if (stepName !== 'bump-upstream') return;
+        if (stepName === 'bump-upstream') {
+          observedInstallManifest = JSON.parse(
+            fs.readFileSync(path.join(call.options.cwd, 'package.json'), 'utf8')
+          );
+        }
+        if (stepName !== 'compose') return;
         observedWorkspace = {
           packageJson: JSON.parse(fs.readFileSync(path.join(call.options.cwd, 'package.json'), 'utf8')),
           authority: JSON.parse(fs.readFileSync(
@@ -729,6 +746,7 @@ describe('verify-upgrade orchestration report', () => {
           copiedLink: fs.existsSync(path.join(call.options.cwd, 'linked-docs')),
           copiedNpmrc: fs.existsSync(path.join(call.options.cwd, '.npmrc')),
           copiedDist: fs.existsSync(path.join(call.options.cwd, 'dist')),
+          nodePath: call.options.env.NODE_PATH,
         };
       },
     });
@@ -741,6 +759,10 @@ describe('verify-upgrade orchestration report', () => {
       }));
       expect(report.exitClassification).toBe('success');
       expect(observedCurrentPackage).toEqual({ dist: 'current-dist', copiedNpmrc: false });
+      expect(observedInstallManifest.dependencies).toEqual({
+        '@opengsd/gsd-core': '1.6.1',
+      });
+      expect(observedInstallManifest.devDependencies).toBeUndefined();
       expect(observedWorkspace.packageJson.devDependencies['@opengsd/gsd-core']).toBe('1.6.1');
       expect(observedWorkspace.packageJson.version).toBe('3.0.2-upgrade.1.6.1');
       expect(observedWorkspace.authority.active.version).toBe('1.6.1');
@@ -749,6 +771,7 @@ describe('verify-upgrade orchestration report', () => {
       expect(observedWorkspace.copiedLink).toBe(false);
       expect(observedWorkspace.copiedNpmrc).toBe(false);
       expect(observedWorkspace.copiedDist).toBe(false);
+      expect(observedWorkspace.nodePath).toBe(path.join(fixture.projectRoot, 'node_modules'));
     } finally {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }

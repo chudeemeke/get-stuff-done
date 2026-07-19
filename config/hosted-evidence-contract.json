@@ -88,6 +88,7 @@
         "lines": 95
       },
       "issueRequired": true,
+      "issueArtifact": ".planning/quick/coverage-gate-release-blocker-ISSUE.md",
       "owner": ".planning/ROADMAP.md Phase 43 SHIP-08A",
       "nonClaim": "Current Bun coverage output reports data but does not enforce these four thresholds."
     },
@@ -113,6 +114,7 @@
     "releasePlan": {
       "status": "missing",
       "issueRequired": true,
+      "issueArtifact": ".planning/quick/release-plan-dry-run-gate-ISSUE.md",
       "owner": ".planning/ROADMAP.md Phase 44",
       "nonClaim": "Current package smoke does not prove a no-publish release plan or final artifact set."
     }

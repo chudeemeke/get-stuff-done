@@ -173,6 +173,28 @@ describe('PR and issue evidence governance', () => {
     expect(contract.capabilities.fuzz.reconsiderWhen).toBeTruthy();
   });
 
+  test('every issue-required capability links an issue-ready GSD record', () => {
+    const contract = JSON.parse(read('config/hosted-evidence-contract.json'));
+    const issueRequired = Object.entries(contract.capabilities)
+      .filter(([, capability]) => capability.issueRequired);
+
+    expect(issueRequired.length).toBeGreaterThan(0);
+    for (const [name, capability] of issueRequired) {
+      expect(capability.issueArtifact, `${name} is missing issueArtifact`).toBeTruthy();
+      const issue = read(capability.issueArtifact);
+      for (const heading of [
+        '## Problem',
+        '## Desired Outcome',
+        '## Scope Boundaries',
+        '## Acceptance Criteria',
+        '## Verification Required',
+        '## Explicit Non-Claims',
+      ]) {
+        expect(issue, `${name} issue is missing ${heading}`).toContain(heading);
+      }
+    }
+  });
+
   test('hosted contract equals the pull-request workflow and job inventory', () => {
     const contract = JSON.parse(read('config/hosted-evidence-contract.json'));
     const workflowDirectory = path.join(ROOT, '.github', 'workflows');

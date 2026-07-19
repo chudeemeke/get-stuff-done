@@ -337,16 +337,33 @@ function ensureDir(dirPath, fileSystem = fs) {
 }
 
 function assertInside(parent, child, label) {
-  const parentPath = path.resolve(parent);
-  const childPath = path.resolve(child);
+  const parentPath = comparablePath(parent);
+  const childPath = comparablePath(child);
   if (childPath !== parentPath && !childPath.startsWith(parentPath + path.sep)) {
     throw new Error(`${label} must be inside temp root`);
   }
 }
 
-function assertTempParentOutsideProject(projectRoot, tempParent) {
-  const sourcePath = path.resolve(projectRoot);
-  const tempPath = path.resolve(tempParent);
+function comparablePath(filePath) {
+  const resolved = path.resolve(filePath);
+  return process.platform === 'win32' ? resolved.toLowerCase() : resolved;
+}
+
+function canonicalizePotentialPath(fileSystem, filePath) {
+  let cursor = path.resolve(filePath);
+  const missingSegments = [];
+  while (!fileSystem.existsSync(cursor)) {
+    const parent = path.dirname(cursor);
+    if (parent === cursor) return path.resolve(filePath);
+    missingSegments.unshift(path.basename(cursor));
+    cursor = parent;
+  }
+  return path.resolve(fileSystem.realpathSync(cursor), ...missingSegments);
+}
+
+function assertTempParentOutsideProject(projectRoot, tempParent, fileSystem = fs) {
+  const sourcePath = comparablePath(canonicalizePotentialPath(fileSystem, projectRoot));
+  const tempPath = comparablePath(canonicalizePotentialPath(fileSystem, tempParent));
   if (tempPath === sourcePath || tempPath.startsWith(sourcePath + path.sep)) {
     throw new Error('Verifier temp root must be outside the source checkout.');
   }
@@ -425,11 +442,12 @@ function createVerifierContext({
 }) {
   const normalizedRegistryUrl = validateRegistryUrl(registryUrl);
   const baseRoot = tempRoot ? path.resolve(tempRoot) : os.tmpdir();
-  assertTempParentOutsideProject(projectRoot, baseRoot);
+  assertTempParentOutsideProject(projectRoot, baseRoot, fileSystem);
   ensureDir(baseRoot, fileSystem);
   const prefix = tempRoot ? OWNED_RUN_PREFIX : 'gsd-verify-upgrade-';
   const root = fileSystem.mkdtempSync(path.join(baseRoot, prefix));
   try {
+    assertTempParentOutsideProject(projectRoot, root, fileSystem);
     const registryDir = ensureDir(path.join(root, 'registry'), fileSystem);
     const sourcePackageDir = ensureDir(path.join(root, 'source-package'), fileSystem);
     const workspaceDir = ensureDir(path.join(root, 'workspace'), fileSystem);
@@ -448,6 +466,7 @@ function createVerifierContext({
     const xdgConfigDir = ensureDir(path.join(root, 'xdg-config'), fileSystem);
     const xdgCacheDir = ensureDir(path.join(root, 'xdg-cache'), fileSystem);
     const xdgDataDir = ensureDir(path.join(root, 'xdg-data'), fileSystem);
+    const prepareCompatBinDir = ensureDir(path.join(root, 'prepare-compat-bin'), fileSystem);
 
     for (const [label, dirPath] of [
       ['registry', registryDir],
@@ -467,6 +486,7 @@ function createVerifierContext({
       ['XDG_CONFIG_HOME', xdgConfigDir],
       ['XDG_CACHE_HOME', xdgCacheDir],
       ['XDG_DATA_HOME', xdgDataDir],
+      ['prepare compatibility bin', prepareCompatBinDir],
     ]) {
       assertInside(root, dirPath, label);
     }
@@ -482,6 +502,31 @@ function createVerifierContext({
       version: '0.0.0',
     }, null, 2), 'utf8');
 
+    const childEnv = {
+      ...isolatedChildEnvironment(env),
+      HOME: homeDir,
+      USERPROFILE: userProfileDir,
+      CLAUDE_CONFIG_DIR: claudeConfigDir,
+      APPDATA: appDataDir,
+      LOCALAPPDATA: localAppDataDir,
+      XDG_CONFIG_HOME: xdgConfigDir,
+      XDG_CACHE_HOME: xdgCacheDir,
+      XDG_DATA_HOME: xdgDataDir,
+      TEMP: tempDir,
+      TMP: tempDir,
+      TMPDIR: tempDir,
+      npm_config_userconfig: npmrcPath,
+      NPM_CONFIG_USERCONFIG: npmrcPath,
+      npm_config_globalconfig: globalNpmrcPath,
+      NPM_CONFIG_GLOBALCONFIG: globalNpmrcPath,
+      npm_config_cache: npmCacheDir,
+      NPM_CONFIG_CACHE: npmCacheDir,
+      npm_config_prefix: npmPrefixDir,
+      NPM_CONFIG_PREFIX: npmPrefixDir,
+      npm_config_registry: normalizedRegistryUrl,
+      NPM_CONFIG_REGISTRY: normalizedRegistryUrl,
+    };
+
     return {
       registryUrl: normalizedRegistryUrl,
       root,
@@ -491,32 +536,11 @@ function createVerifierContext({
       workspaceDir,
       installTargetDir,
       npmrcPath,
+      prepareCompatBinDir,
       fs: fileSystem,
       secretValues: secretValuesFromEnv(env),
-      env: {
-        ...isolatedChildEnvironment(env),
-        HOME: homeDir,
-        USERPROFILE: userProfileDir,
-        CLAUDE_CONFIG_DIR: claudeConfigDir,
-        APPDATA: appDataDir,
-        LOCALAPPDATA: localAppDataDir,
-        XDG_CONFIG_HOME: xdgConfigDir,
-        XDG_CACHE_HOME: xdgCacheDir,
-        XDG_DATA_HOME: xdgDataDir,
-        TEMP: tempDir,
-        TMP: tempDir,
-        TMPDIR: tempDir,
-        npm_config_userconfig: npmrcPath,
-        NPM_CONFIG_USERCONFIG: npmrcPath,
-        npm_config_globalconfig: globalNpmrcPath,
-        NPM_CONFIG_GLOBALCONFIG: globalNpmrcPath,
-        npm_config_cache: npmCacheDir,
-        NPM_CONFIG_CACHE: npmCacheDir,
-        npm_config_prefix: npmPrefixDir,
-        NPM_CONFIG_PREFIX: npmPrefixDir,
-        npm_config_registry: normalizedRegistryUrl,
-        NPM_CONFIG_REGISTRY: normalizedRegistryUrl,
-      },
+      env: childEnv,
+      resolveTool: createToolResolver(childEnv, projectRoot, fileSystem),
     };
   } catch (error) {
     try {
@@ -540,8 +564,13 @@ function writeAuthenticatedNpmrc(context, token) {
 
 function defaultRunner(command, args, options) {
   try {
-    const invocation = resolveToolInvocation(command, args, options.env);
-    return spawnSync(invocation.command, invocation.args, { ...options, shell: false });
+    const { resolveTool, ...spawnOptions } = options;
+    const trusted = resolveTool(command);
+    return spawnSync(
+      trusted.command,
+      [...trusted.args, ...args],
+      { ...spawnOptions, shell: false }
+    );
   } catch (error) {
     return { status: null, stdout: '', stderr: '', error };
   }
@@ -558,18 +587,24 @@ function firstPathCommand(commandNames, env, fileSystem = fs) {
   return null;
 }
 
-function resolveToolInvocation(command, args, env = process.env, platform = process.platform) {
+function resolveToolInvocation(
+  command,
+  args,
+  env = process.env,
+  platform = process.platform,
+  fileSystem = fs
+) {
   if (command === 'node') return { command: process.execPath, args };
 
   if (command === 'npm') {
     const names = platform === 'win32' ? ['npm.exe', 'npm.cmd'] : ['npm'];
-    const executable = firstPathCommand(names, env);
+    const executable = firstPathCommand(names, env, fileSystem);
     if (!executable) throw new Error('Unable to resolve npm without a command shell.');
     if (platform !== 'win32' || executable.toLowerCase().endsWith('.exe')) {
       return { command: executable, args };
     }
     const npmCli = path.join(path.dirname(executable), 'node_modules', 'npm', 'bin', 'npm-cli.js');
-    if (!fs.existsSync(npmCli)) {
+    if (!fileSystem.existsSync(npmCli)) {
       throw new Error('Unable to resolve the npm CLI behind the Windows command shim.');
     }
     return { command: process.execPath, args: [npmCli, ...args] };
@@ -577,12 +612,46 @@ function resolveToolInvocation(command, args, env = process.env, platform = proc
 
   if (command === 'bun') {
     const names = platform === 'win32' ? ['bun.exe'] : ['bun'];
-    const executable = firstPathCommand(names, env);
+    const executable = firstPathCommand(names, env, fileSystem);
     if (!executable) throw new Error('Unable to resolve Bun without a command shell.');
     return { command: executable, args };
   }
 
   throw new Error(`Unsupported verifier command: ${command}`);
+}
+
+function createToolResolver(env, projectRoot, fileSystem = fs) {
+  const cache = new Map();
+  return command => {
+    if (!cache.has(command)) {
+      const invocation = resolveToolInvocation(
+        command,
+        [],
+        env,
+        process.platform,
+        fileSystem
+      );
+      const canonicalProject = canonicalizePotentialPath(fileSystem, projectRoot);
+      const comparableProject = comparablePath(canonicalProject);
+      for (const executablePath of [invocation.command, ...invocation.args].filter(path.isAbsolute)) {
+        const comparableSource = comparablePath(
+          canonicalizePotentialPath(fileSystem, executablePath)
+        );
+        if (
+          comparableSource === comparableProject ||
+          comparableSource.startsWith(comparableProject + path.sep)
+        ) {
+          throw new Error(`Refusing to execute project-controlled ${command}.`);
+        }
+      }
+      cache.set(command, Object.freeze({
+        command: invocation.command,
+        args: Object.freeze([...invocation.args]),
+      }));
+    }
+    const resolved = cache.get(command);
+    return { command: resolved.command, args: [...resolved.args] };
+  };
 }
 
 function sanitizeResult(result, secretValues) {
@@ -606,6 +675,7 @@ function runProcess(step, context, runner, overrides = {}) {
     encoding: 'utf8',
     shell: false,
     stdio: ['ignore', 'pipe', 'pipe'],
+    resolveTool: context.resolveTool,
   }), context.secretValues);
 
   return {
@@ -686,6 +756,34 @@ function prepareCurrentPackage(context) {
   }
 }
 
+function writePrepareCompatibilityShim(context, packageJson) {
+  if (packageJson.scripts?.prepare !== 'husky') {
+    throw new Error('Verifier requires the reviewed static prepare script: husky.');
+  }
+  const posixShim = path.join(context.prepareCompatBinDir, 'husky');
+  const windowsShim = path.join(context.prepareCompatBinDir, 'husky.cmd');
+  context.fs.writeFileSync(posixShim, '#!/bin/sh\nexit 0\n', { encoding: 'utf8', mode: 0o700 });
+  context.fs.writeFileSync(windowsShim, '@echo off\r\nexit /b 0\r\n', {
+    encoding: 'utf8',
+    mode: 0o700,
+  });
+  if (typeof context.fs.chmodSync === 'function') context.fs.chmodSync(posixShim, 0o700);
+}
+
+function installedDependencyVersion(context, packageName) {
+  const packagePath = path.join(
+    context.projectRoot,
+    'node_modules',
+    ...packageName.split('/'),
+    'package.json'
+  );
+  const packageJson = readJson(packagePath, context.fs);
+  if (packageJson.name !== packageName) {
+    throw new Error(`Installed build dependency identity mismatch: ${packageName}.`);
+  }
+  return requireExactStableVersion(`${packageName} package version`, packageJson.version);
+}
+
 function stageTargetInstallManifest(context, toVersion) {
   const packagePath = path.join(context.workspaceDir, 'package.json');
   const fullPackageBytes = context.fs.readFileSync(packagePath);
@@ -696,23 +794,47 @@ function stageTargetInstallManifest(context, toVersion) {
     version: '0.0.0',
     dependencies: {
       [upstreamPackage]: toVersion,
+      ajv: installedDependencyVersion(context, 'ajv'),
     },
   }, context.fs);
   return () => context.fs.writeFileSync(packagePath, fullPackageBytes);
 }
 
-function resolveTarballPath(stdout, directory, fileSystem = fs, excludedPaths = []) {
+function validateWorkspaceTarget(context, packageName, expectedVersion) {
+  const nodeModules = path.join(context.workspaceDir, 'node_modules');
+  const packagePath = path.join(nodeModules, ...packageName.split('/'), 'package.json');
+  const packageStat = context.fs.lstatSync(packagePath);
+  if (!packageStat.isFile() || packageStat.isSymbolicLink()) {
+    throw new Error('Target upstream package metadata must be a regular file.');
+  }
+  const realNodeModules = context.fs.realpathSync(nodeModules);
+  const realPackagePath = context.fs.realpathSync(packagePath);
+  assertInside(realNodeModules, realPackagePath, 'target upstream package');
+  const packageJson = readJson(realPackagePath, context.fs);
+  if (packageJson.name !== packageName || packageJson.version !== expectedVersion) {
+    throw new Error('Target upstream package identity does not match the requested upgrade.');
+  }
+  return realPackagePath;
+}
+
+function packOutputRecord(stdout) {
   try {
     const payload = JSON.parse(String(stdout || ''));
     const record = Array.isArray(payload) ? payload.at(-1) : payload;
-    if (record && typeof record.filename === 'string' && record.filename.endsWith('.tgz')) {
-      return path.isAbsolute(record.filename)
-        ? record.filename
-        : path.join(directory, record.filename);
-    }
+    return record && typeof record === 'object' && !Array.isArray(record) ? record : null;
   } catch {
-    // Older npm output and injected runners may emit the filename as plain text.
+    return null;
   }
+}
+
+function resolveTarballPath(stdout, directory, fileSystem = fs, excludedPaths = []) {
+  const record = packOutputRecord(stdout);
+  if (record && typeof record.filename === 'string' && record.filename.endsWith('.tgz')) {
+    return path.isAbsolute(record.filename)
+      ? record.filename
+      : path.join(directory, record.filename);
+  }
+  // Older npm output and injected runners may emit the filename as plain text.
   const lines = String(stdout || '')
     .split(/\r?\n/)
     .map(line => line.trim())
@@ -740,7 +862,17 @@ function listTarballs(directory, fileSystem = fs) {
     .sort();
 }
 
-function validatePackedArtifact(stdout, directory, fileSystem = fs, excludedPaths = []) {
+function expectedTarballFilename(packageName, version) {
+  return `${packageName.replace(/^@/, '').replace(/\//g, '-')}-${version}.tgz`;
+}
+
+function validatePackedArtifact(
+  stdout,
+  directory,
+  fileSystem = fs,
+  excludedPaths = [],
+  expectedPackage = null
+) {
   const candidate = resolveTarballPath(stdout, directory, fileSystem, excludedPaths);
   if (!candidate) throw new Error('Pack command did not produce a tarball artifact.');
 
@@ -754,6 +886,24 @@ function validatePackedArtifact(stdout, directory, fileSystem = fs, excludedPath
   const realDirectory = fileSystem.realpathSync(directory);
   const realCandidate = fileSystem.realpathSync(absoluteCandidate);
   assertInside(realDirectory, realCandidate, 'packed artifact');
+  for (const excludedPath of excludedPaths) {
+    const canonicalExcluded = fileSystem.existsSync(excludedPath)
+      ? fileSystem.realpathSync(excludedPath)
+      : path.resolve(excludedPath);
+    if (comparablePath(canonicalExcluded) === comparablePath(realCandidate)) {
+      throw new Error('Pack command reused a pre-existing tarball artifact.');
+    }
+  }
+  if (expectedPackage) {
+    const expectedFilename = expectedTarballFilename(expectedPackage.name, expectedPackage.version);
+    if (path.basename(realCandidate) !== expectedFilename) {
+      throw new Error('Packed artifact filename does not match the expected package identity.');
+    }
+    const record = packOutputRecord(stdout);
+    if (record && (record.name !== expectedPackage.name || record.version !== expectedPackage.version)) {
+      throw new Error('Pack metadata does not match the expected package identity.');
+    }
+  }
   const bytes = fileSystem.readFileSync(realCandidate);
   return {
     path: absoluteCandidate,
@@ -765,7 +915,7 @@ function validatePackedArtifact(stdout, directory, fileSystem = fs, excludedPath
   };
 }
 
-function parseSmokeProvenance(stdout, expected) {
+function parseSmokeProvenancePayload(stdout) {
   let payload;
   try {
     payload = JSON.parse(String(stdout || ''));
@@ -773,6 +923,32 @@ function parseSmokeProvenance(stdout, expected) {
     return null;
   }
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
+  for (const key of [
+    'forkPackage',
+    'forkVersion',
+    'packageName',
+    'version',
+    'upstreamPackage',
+    'upstreamVersion',
+  ]) {
+    // eslint-disable-next-line security/detect-object-injection -- Keys are from a closed local list.
+    if (typeof payload[key] !== 'string' || payload[key].length === 0) return null;
+  }
+  if (!/^[a-f0-9]{64}$/i.test(payload.overlayManifestSha256 || '')) return null;
+  return {
+    forkPackage: payload.forkPackage,
+    forkVersion: payload.forkVersion,
+    packageName: payload.packageName,
+    version: payload.version,
+    upstreamPackage: payload.upstreamPackage,
+    upstreamVersion: payload.upstreamVersion,
+    overlayManifestSha256: payload.overlayManifestSha256.toLowerCase(),
+  };
+}
+
+function parseSmokeProvenance(stdout, expected) {
+  const observed = parseSmokeProvenancePayload(stdout);
+  if (!observed) return null;
   const required = {
     forkPackage: expected.forkPackage,
     forkVersion: expected.forkVersion,
@@ -780,16 +956,24 @@ function parseSmokeProvenance(stdout, expected) {
     version: expected.forkVersion,
     upstreamPackage: expected.upstreamPackage,
     upstreamVersion: expected.upstreamVersion,
+    overlayManifestSha256: expected.overlayManifestSha256.toLowerCase(),
   };
   for (const [key, value] of Object.entries(required)) {
     // eslint-disable-next-line security/detect-object-injection -- Keys are from a closed local object.
-    if (payload[key] !== value) return null;
+    if (observed[key] !== value) return null;
   }
-  if (!/^[a-f0-9]{64}$/i.test(payload.overlayManifestSha256 || '')) return null;
-  return {
-    ...required,
-    overlayManifestSha256: payload.overlayManifestSha256.toLowerCase(),
-  };
+  return observed;
+}
+
+function digestContainedFile(context, filePath, label) {
+  const stat = context.fs.lstatSync(filePath);
+  if (!stat.isFile() || stat.isSymbolicLink()) {
+    throw new Error(`${label} must be a regular file.`);
+  }
+  const realWorkspace = context.fs.realpathSync(context.workspaceDir);
+  const realFile = context.fs.realpathSync(filePath);
+  assertInside(realWorkspace, realFile, label);
+  return crypto.createHash('sha256').update(context.fs.readFileSync(realFile)).digest('hex');
 }
 
 function classificationFor(stepName) {
@@ -840,6 +1024,8 @@ function createBaseReport({ fromVersion, toVersion, registryUrl, installTargetDi
       bumped: null,
     },
     smokeProvenance: null,
+    smokeProvenanceExpected: null,
+    smokeProvenanceObserved: null,
     steps: [],
     warnings: [],
     exitClassification: 'success',
@@ -869,8 +1055,9 @@ function executeUpgradeSequence(options, context, report, runner) {
   const packageSpec = `${packageJson.name}@${sourcePackageVersion}`;
   const bumpedPackageVersion = `${sourcePackageVersion}-upgrade.${options.toVersion}`;
   const bumpedPackageSpec = `${packageJson.name}@${bumpedPackageVersion}`;
+  writePrepareCompatibilityShim(context, packageJson);
   const packEnvironment = {
-    PATH: [path.join(context.projectRoot, 'node_modules', '.bin'), context.env.PATH]
+    PATH: [context.prepareCompatBinDir, context.env.PATH]
       .filter(Boolean)
       .join(path.delimiter),
     npm_config_ignore_scripts: 'true',
@@ -891,7 +1078,9 @@ function executeUpgradeSequence(options, context, report, runner) {
     const artifact = validatePackedArtifact(
       report.steps.at(-1).stdout,
       context.registryDir,
-      context.fs
+      context.fs,
+      [],
+      { name: packageJson.name, version: sourcePackageVersion }
     );
     report.packageTarball = artifact.path;
     report.artifacts.current = artifact.evidence;
@@ -936,15 +1125,35 @@ function executeUpgradeSequence(options, context, report, runner) {
   }
   if (!bumpSucceeded) return;
 
+  try {
+    validateWorkspaceTarget(context, upstreamPackage, options.toVersion);
+  } catch {
+    report.warnings.push('Target upstream package failed workspace containment validation');
+    report.exitClassification = 'target_upstream_invalid';
+    return;
+  }
+
   if (!runRecordedStep({
     name: 'compose',
     command: 'bun',
     args: ['run', 'compose'],
     cwd: context.workspaceDir,
-    env: {
-      NODE_PATH: path.join(context.projectRoot, 'node_modules'),
-    },
   }, report, context, runner)) return;
+
+  const expectedSmokeProvenance = {
+    forkPackage: packageJson.name,
+    forkVersion: bumpedPackageVersion,
+    packageName: packageJson.name,
+    version: bumpedPackageVersion,
+    upstreamPackage,
+    upstreamVersion: options.toVersion,
+    overlayManifestSha256: digestContainedFile(
+      context,
+      path.join(context.workspaceDir, 'dist', '.overlay-manifest.json'),
+      'composed overlay manifest'
+    ),
+  };
+  report.smokeProvenanceExpected = expectedSmokeProvenance;
 
   if (!runRecordedStep({
     name: 'pack-bumped',
@@ -958,7 +1167,8 @@ function executeUpgradeSequence(options, context, report, runner) {
       report.steps.at(-1).stdout,
       context.registryDir,
       context.fs,
-      priorTarballs
+      priorTarballs,
+      { name: packageJson.name, version: bumpedPackageVersion }
     );
     report.packedArtifact = artifact.path;
     report.artifacts.bumped = artifact.evidence;
@@ -1000,12 +1210,11 @@ function executeUpgradeSequence(options, context, report, runner) {
   ]) {
     if (!runRecordedStep(step, report, context, runner)) return;
   }
-  report.smokeProvenance = parseSmokeProvenance(report.steps.at(-1).stdout, {
-    forkPackage: packageJson.name,
-    forkVersion: bumpedPackageVersion,
-    upstreamPackage,
-    upstreamVersion: options.toVersion,
-  });
+  report.smokeProvenanceObserved = parseSmokeProvenancePayload(report.steps.at(-1).stdout);
+  report.smokeProvenance = parseSmokeProvenance(
+    report.steps.at(-1).stdout,
+    expectedSmokeProvenance
+  );
   if (!report.smokeProvenance) {
     report.warnings.push('Installed package provenance did not match the requested upgrade');
     report.exitClassification = 'smoke_provenance_mismatch';

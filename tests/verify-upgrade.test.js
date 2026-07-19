@@ -26,9 +26,12 @@ function fakeRunner({
   requireAuth = false,
   leakedValues = () => [],
   materializeTarget = true,
+  overlayManifestKind = 'file',
+  targetManifestKind = 'file',
+  targetVersion,
   onCall,
   packCurrentStdout = 'chude-get-stuff-done-3.0.2.tgz\n',
-  packBumpedStdout = 'chude-get-stuff-done-3.0.2-upgrade.1.6.1.tgz\n',
+  packBumpedStdout = null,
   smokeStdout,
 } = {}) {
   const calls = [];
@@ -76,10 +79,26 @@ function fakeRunner({
     }
 
     if (stepName === 'pack-bumped') {
-      materializeFakePack(packBumpedStdout, call);
+      const bumpedManifest = JSON.parse(
+        fs.readFileSync(path.join(call.options.cwd, 'package.json'), 'utf8')
+      );
+      const targetManifest = JSON.parse(fs.readFileSync(path.join(
+        call.options.cwd,
+        'node_modules',
+        '@opengsd',
+        'gsd-core',
+        'package.json'
+      ), 'utf8'));
+      const artifactVersion = bumpedManifest.version.includes('-upgrade.')
+        ? bumpedManifest.version
+        : `${bumpedManifest.version}-upgrade.${targetManifest.version}`;
+      const output = packBumpedStdout === null
+        ? `chude-get-stuff-done-${artifactVersion}.tgz\n`
+        : packBumpedStdout;
+      materializeFakePack(output, call);
       return {
         status: 0,
-        stdout: packBumpedStdout,
+        stdout: output,
         stderr: '',
         error: null,
       };
@@ -97,18 +116,27 @@ function fakeRunner({
         'gsd-core'
       );
       fs.mkdirSync(upstreamDir, { recursive: true });
-      fs.writeFileSync(path.join(upstreamDir, 'package.json'), JSON.stringify({
-        name: '@opengsd/gsd-core',
-        version: upstreamVersion,
-      }), 'utf8');
+      const targetPackagePath = path.join(upstreamDir, 'package.json');
+      if (targetManifestKind === 'directory') {
+        fs.mkdirSync(targetPackagePath, { recursive: true });
+      } else {
+        fs.writeFileSync(targetPackagePath, JSON.stringify({
+          name: '@opengsd/gsd-core',
+          version: targetVersion || upstreamVersion,
+        }), 'utf8');
+      }
     }
 
     if (stepName === 'compose') {
       const manifestPath = path.join(call.options.cwd, 'dist', '.overlay-manifest.json');
       const manifestBytes = '["overlay/example.md"]\n';
-      fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
-      fs.writeFileSync(manifestPath, manifestBytes, 'utf8');
-      overlayManifestSha256 = crypto.createHash('sha256').update(manifestBytes).digest('hex');
+      if (overlayManifestKind === 'directory') {
+        fs.mkdirSync(manifestPath, { recursive: true });
+      } else if (overlayManifestKind === 'file') {
+        fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+        fs.writeFileSync(manifestPath, manifestBytes, 'utf8');
+        overlayManifestSha256 = crypto.createHash('sha256').update(manifestBytes).digest('hex');
+      }
     }
 
     if (stepName === 'reinstall-to') {
@@ -190,6 +218,9 @@ function configFixture({ upstreamVersion = '1.5.0' } = {}) {
   fs.writeFileSync(path.join(projectRoot, 'package.json'), JSON.stringify({
     name: '@chude/get-stuff-done',
     version: '3.0.2',
+    scripts: {
+      prepare: 'husky',
+    },
     dependencies: {
       ajv: '^8.17.1',
     },
@@ -225,6 +256,7 @@ function configFixture({ upstreamVersion = '1.5.0' } = {}) {
       USERPROFILE: home,
       npm_config_userconfig: userNpmrc,
       NPM_CONFIG_USERCONFIG: userNpmrc,
+      npm_config_globalconfig: '',
     },
   };
 }
@@ -367,6 +399,10 @@ describe('verify-upgrade CLI contract', () => {
     fs.writeFileSync(path.join(windowsCmdBin, 'npm.cmd'), '', 'utf8');
 
     try {
+      expect(resolveToolInvocation('node', [])).toEqual({
+        command: process.execPath,
+        args: [],
+      });
       expect(resolveToolInvocation('node', ['--version'], {}, 'win32')).toEqual({
         command: process.execPath,
         args: ['--version'],
@@ -456,9 +492,13 @@ describe('verify-upgrade orchestration report', () => {
     const runner = fakeRunner({
       requireAuth: true,
       packCurrentStdout: JSON.stringify([{
+        name: '@chude/get-stuff-done',
+        version: '3.0.2',
         filename: 'chude-get-stuff-done-3.0.2.tgz',
       }]),
       packBumpedStdout: JSON.stringify([{
+        name: '@chude/get-stuff-done',
+        version: '3.0.2-upgrade.1.7.0',
         filename: 'chude-get-stuff-done-3.0.2-upgrade.1.7.0.tgz',
       }]),
     });
@@ -525,9 +565,10 @@ describe('verify-upgrade orchestration report', () => {
         expect(packStep.args).toContain('--ignore-scripts');
         expect(packCall.options.env.npm_config_ignore_scripts).toBe('true');
         expect(packCall.options.env.NPM_CONFIG_IGNORE_SCRIPTS).toBe('true');
-        expect(packCall.options.env.PATH.split(path.delimiter)[0]).toBe(
-          path.join(fixture.projectRoot, 'node_modules', '.bin')
-        );
+        const prepareCompatBin = packCall.options.env.PATH.split(path.delimiter)[0];
+        expect(path.basename(prepareCompatBin)).toBe('prepare-compat-bin');
+        expect(path.resolve(prepareCompatBin).startsWith(path.resolve(fixture.projectRoot)))
+          .toBe(false);
       }
       const publishBumped = report.steps.find(step => step.name === 'publish-bumped');
       expect(publishBumped.args).toContain('--tag');
@@ -585,6 +626,38 @@ describe('verify-upgrade orchestration report', () => {
 
       expect(report.exitClassification).toBe('reinstall_failed');
       expect(report.steps.find(step => step.name === 'reinstall-to').ok).toBe(false);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('classifies install-from failures before target materialization', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner: fakeRunner({ failStep: 'install-from' }),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('install_from_failed');
+      expect(report.steps.at(-1).name).toBe('install-from');
+      expect(report.steps.map(step => step.name)).not.toContain('bump-upstream');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('classifies pack-current failure before any publication', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner: fakeRunner({ failStep: 'pack-current' }),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('pack_current_failed');
+      expect(report.steps.map(step => step.name)).toEqual(['pack-current']);
+      expect(report.packageTarball).toBeNull();
     } finally {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
@@ -820,11 +893,19 @@ describe('verify-upgrade orchestration report', () => {
     const fixture = configFixture();
     const runner = fakeRunner({
       packCurrentStdout: '',
-      packBumpedStdout: JSON.stringify({ filename: 'object-bumped.tgz' }),
+      packBumpedStdout: JSON.stringify({
+        name: '@chude/get-stuff-done',
+        version: '3.0.2-upgrade.1.6.1',
+        filename: 'chude-get-stuff-done-3.0.2-upgrade.1.6.1.tgz',
+      }),
       onCall: ({ call, stepName }) => {
         if (stepName === 'pack-current') {
           const destination = call.args[call.args.indexOf('--pack-destination') + 1];
-          fs.writeFileSync(path.join(destination, 'fallback-current.tgz'), 'artifact', 'utf8');
+          fs.writeFileSync(
+            path.join(destination, 'chude-get-stuff-done-3.0.2.tgz'),
+            'artifact',
+            'utf8'
+          );
         }
       },
     });
@@ -835,8 +916,8 @@ describe('verify-upgrade orchestration report', () => {
         httpRequest: successfulRegistryRequest({}),
       }));
       expect(report.exitClassification).toBe('success');
-      expect(report.packageTarball).toContain('fallback-current.tgz');
-      expect(report.packedArtifact).toContain('object-bumped.tgz');
+      expect(report.packageTarball).toContain('chude-get-stuff-done-3.0.2.tgz');
+      expect(report.packedArtifact).toContain('chude-get-stuff-done-3.0.2-upgrade.1.6.1.tgz');
     } finally {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
@@ -910,6 +991,98 @@ describe('verify-upgrade orchestration report', () => {
       }));
       expect(report.exitClassification).toBe('target_upstream_invalid');
       expect(report.steps.map(step => step.name)).not.toContain('compose');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('fails before compose when the workspace target has the wrong exact version', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner: fakeRunner({ targetVersion: '9.9.9' }),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('target_upstream_invalid');
+      expect(report.steps.map(step => step.name)).not.toContain('compose');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('fails before compose when target package metadata is not a regular file', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner: fakeRunner({ targetManifestKind: 'directory' }),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('target_upstream_invalid');
+      expect(report.steps.map(step => step.name)).not.toContain('compose');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('rejects unreviewed prepare scripts and invalid installed Ajv authority', async () => {
+    for (const mutate of [
+      packageJson => { delete packageJson.scripts; },
+      packageJson => { packageJson.scripts.prepare = 'node unexpected.js'; },
+      (_packageJson, fixture) => {
+        const ajvPath = path.join(fixture.projectRoot, 'node_modules', 'ajv', 'package.json');
+        fs.writeFileSync(ajvPath, JSON.stringify({ name: 'not-ajv', version: '8.17.1' }), 'utf8');
+      },
+    ]) {
+      const { runUpgradeVerification } = loadVerifierModule();
+      const fixture = configFixture();
+      const packagePath = path.join(fixture.projectRoot, 'package.json');
+      const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+      mutate(packageJson, fixture);
+      fs.writeFileSync(packagePath, JSON.stringify(packageJson), 'utf8');
+      try {
+        const report = await runUpgradeVerification(baseOptions(fixture, {
+          runner: fakeRunner(),
+          httpRequest: successfulRegistryRequest({}),
+        }));
+        expect(report.exitClassification).toBe('verifier_failed');
+      } finally {
+        fs.rmSync(fixture.root, { recursive: true, force: true });
+      }
+    }
+  });
+
+  test('rejects pack metadata that disagrees with the exact bumped identity', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner: fakeRunner({
+          packBumpedStdout: JSON.stringify({
+            name: '@chude/get-stuff-done',
+            version: '9.9.9',
+            filename: 'chude-get-stuff-done-3.0.2-upgrade.1.6.1.tgz',
+          }),
+        }),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('pack_bumped_artifact_invalid');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('rejects a composed overlay manifest that is not a regular file', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner: fakeRunner({ overlayManifestKind: 'directory' }),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('verifier_failed');
+      expect(report.warnings).toContain('composed overlay manifest must be a regular file.');
     } finally {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
@@ -1305,6 +1478,27 @@ describe('verify-upgrade orchestration report', () => {
     }
   });
 
+  test('supports an isolated fake-runner lifecycle without an inherited PATH', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const env = { ...fixture.env };
+    delete env.PATH;
+    delete env.Path;
+    delete env.path;
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        env,
+        runner: fakeRunner(),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('success');
+      const packCall = report.steps.find(step => step.name === 'pack-current');
+      expect(packCall.ok).toBe(true);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
   test('rejects a verifier temp parent nested inside the source checkout', async () => {
     const { runUpgradeVerification } = loadVerifierModule();
     const fixture = configFixture();
@@ -1383,6 +1577,36 @@ describe('verify-upgrade orchestration report', () => {
       expect(report.exitClassification).toBe('success');
       expect(path.resolve(resolvedNpm.command)).not.toBe(path.resolve(fakeNpm));
     } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('refuses a project-controlled outer npm even when it is on the baseline path', () => {
+    const { createVerifierContext } = loadVerifierModule();
+    const fixture = configFixture();
+    const projectBin = path.join(fixture.projectRoot, 'node_modules', '.bin');
+    const npmPath = path.join(projectBin, process.platform === 'win32' ? 'npm.cmd' : 'npm');
+    fs.mkdirSync(projectBin, { recursive: true });
+    fs.writeFileSync(npmPath, process.platform === 'win32'
+      ? '@echo off\r\nexit /b 0\r\n'
+      : '#!/bin/sh\nexit 0\n', 'utf8');
+    if (process.platform !== 'win32') fs.chmodSync(npmPath, 0o700);
+    if (process.platform === 'win32') {
+      const npmCli = path.join(projectBin, 'node_modules', 'npm', 'bin', 'npm-cli.js');
+      fs.mkdirSync(path.dirname(npmCli), { recursive: true });
+      fs.writeFileSync(npmCli, '', 'utf8');
+    }
+    const context = createVerifierContext({
+      registryUrl: 'http://localhost:4873/',
+      tempRoot: fixture.runBase,
+      env: { ...fixture.env, PATH: projectBin },
+      projectRoot: fixture.projectRoot,
+    });
+    try {
+      expect(() => context.resolveTool('npm')).toThrow('project-controlled npm');
+      expect(() => context.resolveTool('npm')).toThrow('project-controlled npm');
+    } finally {
+      fs.rmSync(context.root, { recursive: true, force: true });
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
@@ -1511,6 +1735,7 @@ describe('verify-upgrade orchestration report', () => {
       '[]',
       '{}',
       JSON.stringify({ ...valid, upstreamVersion: '9.9.9' }),
+      JSON.stringify({ ...valid, forkPackage: '' }),
       JSON.stringify({ ...valid, overlayManifestSha256: 'b'.repeat(64) }),
       JSON.stringify({ ...valid, overlayManifestSha256: 'short' }),
       JSON.stringify({ ...valid, overlayManifestSha256: undefined }),

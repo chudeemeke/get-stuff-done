@@ -1,12 +1,8 @@
 ---
 name: Bug Report
 description: Report something that is not working correctly
-labels: ["bug"]
+labels: ["type:bug"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to report a bug. Please fill out the sections below.
   - type: input
     id: version
     attributes:
@@ -26,17 +22,17 @@ body:
     validations:
       required: true
   - type: textarea
-    id: description
+    id: problem
     attributes:
-      label: What happened?
-      description: Describe what went wrong
+      label: Problem
+      description: Describe the observed failure and its impact.
     validations:
       required: true
   - type: textarea
-    id: expected
+    id: outcome
     attributes:
-      label: What did you expect?
-      description: Describe what you expected to happen
+      label: Desired outcome
+      description: Describe the observable corrected behavior.
     validations:
       required: true
   - type: textarea
@@ -47,6 +43,41 @@ body:
       placeholder: |
         1. Run /gsd:...
         2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Scope boundaries
+      description: State affected and explicitly unaffected surfaces.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List independently verifiable completion criteria.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification required
+      description: Name the local and hosted evidence required to close this bug.
+    validations:
+      required: true
+  - type: textarea
+    id: non_claims
+    attributes:
+      label: Explicit non-claims
+      description: State what this fix will not prove or complete.
+    validations:
+      required: true
+  - type: input
+    id: gsd
+    attributes:
+      label: Linked GSD artifact
+      description: Link the owning phase, plan, backlog, or inbox record.
     validations:
       required: true
   - type: textarea

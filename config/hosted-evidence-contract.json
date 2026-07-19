@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "repository": "chudeemeke/get-stuff-done",
+  "finalHeadPolicy": {
+    "requireExactHead": true,
+    "invalidateOnNewCommit": true,
+    "requireExpectedWorkflowInventory": true,
+    "requireSkippedJobDisposition": true,
+    "requireFailureDisposition": true,
+    "manualWatchWhenRulesetsUnavailable": true
+  },
+  "pullRequestWorkflows": [
+    {
+      "name": "CI",
+      "path": ".github/workflows/ci.yml",
+      "requiredJobs": [
+        "Workflow Lint",
+        "Secret Scan",
+        "Audit CI (blocking HIGH/CRITICAL)",
+        "Docs Gates",
+        "OSV Scanner",
+        "Lint",
+        "Test (ubuntu-latest)",
+        "Test (macos-15)",
+        "Test (windows-latest)",
+        "Perf Budget (linux)",
+        "Perf Budget (macos)",
+        "Perf Budget (windows)",
+        "Source Parity Check",
+        "Upstream Compat (ubuntu-latest)",
+        "Upstream Compat (macos-15)",
+        "Upstream Compat (windows-latest)",
+        "Boundary Check (informational)",
+        "Override Staleness Check (blocking)"
+      ]
+    },
+    {
+      "name": "Cousin Install",
+      "path": ".github/workflows/cousin-install.yml",
+      "requiredMatrix": {
+        "job": "Cousin Install ({os}, Node {node}, {packageManager})",
+        "os": ["ubuntu-latest", "macos-15", "windows-latest"],
+        "node": ["20", "22"],
+        "packageManager": ["npm", "pnpm", "bun"],
+        "expectedJobs": 18
+      }
+    },
+    {
+      "name": "Oversight Probes",
+      "path": ".github/workflows/oversight-probes.yml",
+      "requiredJobs": ["Verify Oversight Probes"]
+    }
+  ],
+  "capabilities": {
+    "ci": {
+      "status": "enforced",
+      "evidence": "CI build, lint, test, parity, compatibility, boundary-ratchet, and override jobs"
+    },
+    "coverage": {
+      "status": "missing",
+      "thresholds": {
+        "statements": 95,
+        "branches": 95,
+        "functions": 95,
+        "lines": 95
+      },
+      "issueRequired": true,
+      "owner": ".planning/ROADMAP.md Phase 43 SHIP-08A",
+      "nonClaim": "Current Bun coverage output reports data but does not enforce these four thresholds."
+    },
+    "security": {
+      "status": "enforced",
+      "jobs": ["Audit CI (blocking HIGH/CRITICAL)", "OSV Scanner"],
+      "failurePolicy": "HIGH and CRITICAL findings fail the job after triage"
+    },
+    "secretScan": {
+      "status": "enforced",
+      "jobs": ["Secret Scan"]
+    },
+    "smoke": {
+      "status": "enforced",
+      "jobs": ["Cousin Install"],
+      "scope": "cold install and provenance smoke across supported OS, Node, and package managers"
+    },
+    "fuzz": {
+      "status": "not-applicable",
+      "reason": "The current repository has no owned parser or protocol fuzz target with a defined oracle.",
+      "reconsiderWhen": "An untrusted-input parser, binary format, network protocol, or equivalent fuzzable boundary is introduced."
+    },
+    "releasePlan": {
+      "status": "missing",
+      "issueRequired": true,
+      "owner": ".planning/ROADMAP.md Phase 44",
+      "nonClaim": "Current package smoke does not prove a no-publish release plan or final artifact set."
+    }
+  }
+}

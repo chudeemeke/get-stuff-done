@@ -1,20 +1,32 @@
----
-name: Feature Request
-description: Suggest a new feature or improvement
-labels: ["type:feature"]
+name: Project Work Item
+description: Track a phase task, decision, blocker, adoption item, or handoff
 body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Work item type
+      options:
+        - Phase task
+        - Release blocker
+        - Owner-gated decision
+        - Security or CI gate
+        - Adoption feedback
+        - Follow-up work
+        - Cross-project handoff
+    validations:
+      required: true
   - type: textarea
     id: problem
     attributes:
       label: Problem
-      description: What problem does this solve? Why do you want this?
+      description: State the observed gap or decision without assuming a solution.
     validations:
       required: true
   - type: textarea
     id: outcome
     attributes:
       label: Desired outcome
-      description: Describe the observable outcome without prescribing implementation.
+      description: Describe the observable end state.
     validations:
       required: true
   - type: textarea
@@ -35,20 +47,20 @@ body:
     id: verification
     attributes:
       label: Verification required
-      description: Name local, hosted, adoption, or release evidence required.
+      description: Name local, hosted, security, smoke, or release evidence required.
     validations:
       required: true
   - type: textarea
     id: non_claims
     attributes:
       label: Explicit non-claims
-      description: State what delivering this feature will not prove or complete.
+      description: State what resolving this item will not prove or complete.
     validations:
       required: true
   - type: input
     id: gsd
     attributes:
       label: Linked GSD artifact
-      description: Link the owning phase, plan, backlog, or decision record.
+      description: Link the owning phase, plan, backlog, decision, or inbox record.
     validations:
       required: true

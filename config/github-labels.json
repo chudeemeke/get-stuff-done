@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "labels": [
+    { "name": "type:bug", "color": "d73a4a", "description": "Confirmed or suspected product defect" },
+    { "name": "type:feature", "color": "0e8a16", "description": "New user-visible capability" },
+    { "name": "type:docs", "color": "0075ca", "description": "Documentation-only work" },
+    { "name": "type:decision", "color": "5319e7", "description": "Owner-gated product or architecture decision" },
+    { "name": "type:release-blocker", "color": "b60205", "description": "Must be resolved before the affected release" },
+    { "name": "type:security", "color": "8b0000", "description": "Security defect or remediation" },
+    { "name": "type:adoption", "color": "1d76db", "description": "Installer, onboarding, or consumer feedback" },
+    { "name": "type:cross-project", "color": "6f42c1", "description": "Cross-project handoff or dependency" },
+    { "name": "type:ci", "color": "0052cc", "description": "Continuous integration behavior" },
+    { "name": "type:workflow", "color": "0366d6", "description": "GitHub Actions or automation workflow" },
+    { "name": "type:release-plan", "color": "fbca04", "description": "Artifact or release-plan verification" },
+    { "name": "type:fuzz", "color": "c5def5", "description": "Fuzz target or fuzzing infrastructure" },
+    { "name": "type:security-gate", "color": "e11d21", "description": "Security check enforcement or verifier integrity" },
+    { "name": "status:blocked", "color": "b60205", "description": "Cannot proceed until a stated dependency changes" },
+    { "name": "status:owner-gated", "color": "d4c5f9", "description": "Requires an explicit owner decision or authorization" },
+    { "name": "status:ready", "color": "0e8a16", "description": "Acceptance and dependencies are ready for work" },
+    { "name": "status:misconfigured", "color": "f9d0c4", "description": "The check or workflow does not enforce its claimed contract" },
+    { "name": "status:needs-hosted-evidence", "color": "fbca04", "description": "Local work exists but final-HEAD hosted proof is missing" },
+    { "name": "priority:p0", "color": "7f0000", "description": "Immediate critical priority" },
+    { "name": "priority:p1", "color": "d93f0b", "description": "High priority" },
+    { "name": "priority:p2", "color": "fbca04", "description": "Normal planned priority" }
+  ]
+}

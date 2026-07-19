@@ -17,12 +17,221 @@
     "schemaVersion": { "const": 1 },
     "authority": { "const": "paired-blocking" },
     "capturedAt": { "type": "string", "minLength": 1 },
-    "executionIdentity": { "type": "object" },
-    "controls": { "type": "object" },
-    "policy": { "type": "object" },
-    "subjects": { "type": "object" },
-    "metrics": { "type": "object" },
+    "executionIdentity": { "$ref": "#/definitions/executionIdentity" },
+    "controls": { "$ref": "#/definitions/controls" },
+    "policy": { "$ref": "#/definitions/policy" },
+    "subjects": { "$ref": "#/definitions/subjects" },
+    "metrics": { "$ref": "#/definitions/metrics" },
     "verdict": { "enum": ["pass", "warn", "fail"] }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "definitions": {
+    "executionIdentity": {
+      "type": "object",
+      "required": [
+        "platform",
+        "architecture",
+        "cpu",
+        "runnerImage",
+        "nodeVersion",
+        "bunVersion",
+        "hyperfineVersion",
+        "sha256"
+      ],
+      "properties": {
+        "platform": { "$ref": "#/definitions/identityValue" },
+        "architecture": { "$ref": "#/definitions/identityValue" },
+        "cpu": { "$ref": "#/definitions/identityValue" },
+        "runnerImage": { "$ref": "#/definitions/identityValue" },
+        "nodeVersion": { "$ref": "#/definitions/identityValue" },
+        "bunVersion": { "$ref": "#/definitions/identityValue" },
+        "hyperfineVersion": { "$ref": "#/definitions/identityValue" },
+        "sha256": { "$ref": "#/definitions/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "object",
+      "required": [
+        "harnessSha256",
+        "workloadSha256",
+        "schedulerSha256",
+        "commandTemplateSha256",
+        "policySha256",
+        "sha256"
+      ],
+      "properties": {
+        "harnessSha256": { "$ref": "#/definitions/sha256" },
+        "workloadSha256": { "$ref": "#/definitions/sha256" },
+        "schedulerSha256": { "$ref": "#/definitions/sha256" },
+        "commandTemplateSha256": { "$ref": "#/definitions/sha256" },
+        "policySha256": { "$ref": "#/definitions/sha256" },
+        "sha256": { "$ref": "#/definitions/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "subjects": {
+      "type": "object",
+      "required": ["reference", "candidate"],
+      "properties": {
+        "reference": { "$ref": "#/definitions/subject" },
+        "candidate": { "$ref": "#/definitions/subject" }
+      },
+      "additionalProperties": false
+    },
+    "subject": {
+      "type": "object",
+      "required": ["commit", "packageSha256", "lockSha256", "upstreamAuthoritySha256", "sha256"],
+      "properties": {
+        "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "packageSha256": { "$ref": "#/definitions/sha256" },
+        "lockSha256": { "$ref": "#/definitions/sha256" },
+        "upstreamAuthoritySha256": { "$ref": "#/definitions/sha256" },
+        "sha256": { "$ref": "#/definitions/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["measuredPairs", "warmupRuns", "warningRatio", "failureRatio", "scheduler", "seed"],
+      "properties": {
+        "measuredPairs": { "type": "integer", "minimum": 10 },
+        "warmupRuns": { "type": "integer", "minimum": 1 },
+        "warningRatio": { "const": 1.1 },
+        "failureRatio": { "const": 1.25 },
+        "scheduler": { "const": "alternating-ab-ba-v1" },
+        "seed": { "$ref": "#/definitions/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["install", "compose"],
+      "properties": {
+        "install": { "$ref": "#/definitions/metricEvidence" },
+        "compose": { "$ref": "#/definitions/metricEvidence" }
+      },
+      "additionalProperties": false
+    },
+    "metricEvidence": {
+      "type": "object",
+      "required": ["warmups", "pairs", "summary"],
+      "properties": {
+        "warmups": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/warmup" }
+        },
+        "pairs": {
+          "type": "array",
+          "minItems": 10,
+          "items": { "$ref": "#/definitions/pair" }
+        },
+        "summary": { "$ref": "#/definitions/summary" }
+      },
+      "additionalProperties": false
+    },
+    "warmup": {
+      "type": "object",
+      "required": ["index", "samples"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "samples": { "$ref": "#/definitions/twoSamples" }
+      },
+      "additionalProperties": false
+    },
+    "pair": {
+      "type": "object",
+      "required": ["index", "order", "samples"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "order": { "enum": ["AB", "BA"] },
+        "samples": { "$ref": "#/definitions/twoSamples" }
+      },
+      "additionalProperties": false
+    },
+    "twoSamples": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "$ref": "#/definitions/sample" }
+    },
+    "sample": {
+      "type": "object",
+      "required": [
+        "subject",
+        "executionIdentitySha256",
+        "resolvedCommit",
+        "dirty",
+        "preparationExitCode",
+        "benchmarkExitCode",
+        "durationNs",
+        "controlsBeforeSha256",
+        "controlsAfterSha256",
+        "subjectBeforeSha256",
+        "subjectAfterSha256"
+      ],
+      "properties": {
+        "subject": { "enum": ["reference", "candidate"] },
+        "executionIdentitySha256": { "$ref": "#/definitions/sha256" },
+        "resolvedCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "dirty": { "const": false },
+        "preparationExitCode": { "const": 0 },
+        "benchmarkExitCode": { "const": 0 },
+        "durationNs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "controlsBeforeSha256": { "$ref": "#/definitions/sha256" },
+        "controlsAfterSha256": { "$ref": "#/definitions/sha256" },
+        "subjectBeforeSha256": { "$ref": "#/definitions/sha256" },
+        "subjectAfterSha256": { "$ref": "#/definitions/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": ["referenceMeanNs", "candidateMeanNs", "ratio", "status", "diagnostics"],
+      "properties": {
+        "referenceMeanNs": { "type": "number", "exclusiveMinimum": 0 },
+        "candidateMeanNs": { "type": "number", "exclusiveMinimum": 0 },
+        "ratio": { "type": "number", "exclusiveMinimum": 0 },
+        "status": { "enum": ["pass", "warn", "fail"] },
+        "diagnostics": { "$ref": "#/definitions/diagnostics" }
+      },
+      "additionalProperties": false
+    },
+    "diagnostics": {
+      "type": "object",
+      "required": [
+        "pairRatios",
+        "medianPairRatio",
+        "meanAbsoluteDeltaNs",
+        "abCandidateMeanNs",
+        "baCandidateMeanNs"
+      ],
+      "properties": {
+        "pairRatios": {
+          "type": "array",
+          "minItems": 10,
+          "items": { "type": "number", "exclusiveMinimum": 0 }
+        },
+        "medianPairRatio": { "type": "number", "exclusiveMinimum": 0 },
+        "meanAbsoluteDeltaNs": { "type": "number", "minimum": 0 },
+        "abCandidateMeanNs": { "type": "number", "exclusiveMinimum": 0 },
+        "baCandidateMeanNs": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "identityValue": {
+      "type": "string",
+      "minLength": 1,
+      "not": { "enum": ["unknown", "unavailable", "n/a"] }
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
 }

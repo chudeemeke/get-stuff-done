@@ -125,9 +125,144 @@ function validComparison() {
   };
 }
 
+function errorText(validate) {
+  return JSON.stringify(validate.errors || []);
+}
+
 describe('paired performance comparison schema', () => {
   test('accepts a complete ten-pair blocking comparison artifact', () => {
     const validate = compileSchema();
     expect(validate(validComparison())).toBe(true);
+  });
+
+  test('requires a complete non-placeholder execution identity', () => {
+    const validate = compileSchema();
+    for (const field of ['platform', 'architecture', 'cpu', 'runnerImage', 'nodeVersion', 'bunVersion', 'hyperfineVersion', 'sha256']) {
+      const comparison = validComparison();
+      delete comparison.executionIdentity[field];
+      expect(validate(comparison)).toBe(false);
+      expect(errorText(validate)).toContain(field);
+    }
+
+    const placeholder = validComparison();
+    placeholder.executionIdentity.runnerImage = 'unknown';
+    expect(validate(placeholder)).toBe(false);
+  });
+
+  test('binds shared controls separately from each immutable subject', () => {
+    const validate = compileSchema();
+    const comparison = validComparison();
+    expect(comparison.subjects.reference.lockSha256).not.toBe(comparison.subjects.candidate.lockSha256);
+    expect(validate(comparison)).toBe(true);
+
+    delete comparison.controls.workloadSha256;
+    expect(validate(comparison)).toBe(false);
+    expect(errorText(validate)).toContain('workloadSha256');
+
+    const shortCommit = validComparison();
+    shortCommit.subjects.reference.commit = 'abc123';
+    expect(validate(shortCommit)).toBe(false);
+  });
+
+  test('locks deterministic scheduling and the approved performance budgets', () => {
+    const validate = compileSchema();
+    for (const [field, value] of [
+      ['measuredPairs', 9],
+      ['warmupRuns', 0],
+      ['warningRatio', 1.11],
+      ['failureRatio', 1.26],
+      ['scheduler', 'grouped'],
+      ['seed', 'not-a-sha256'],
+    ]) {
+      const comparison = validComparison();
+      comparison.policy[field] = value;
+      expect(validate(comparison)).toBe(false);
+    }
+  });
+
+  test('requires complete warmup and ten-pair evidence for both metrics', () => {
+    const validate = compileSchema();
+    const tooFewPairs = validComparison();
+    tooFewPairs.metrics.install.pairs.pop();
+    expect(validate(tooFewPairs)).toBe(false);
+
+    const noWarmup = validComparison();
+    noWarmup.metrics.compose.warmups = [];
+    expect(validate(noWarmup)).toBe(false);
+
+    const missingCompose = validComparison();
+    delete missingCompose.metrics.compose;
+    expect(validate(missingCompose)).toBe(false);
+  });
+
+  test('records closed indexed pair order with exactly two subject samples', () => {
+    const validate = compileSchema();
+    const incompletePair = validComparison();
+    incompletePair.metrics.install.pairs[0].samples.pop();
+    expect(validate(incompletePair)).toBe(false);
+
+    const invalidOrder = validComparison();
+    invalidOrder.metrics.install.pairs[0].order = 'AA';
+    expect(validate(invalidOrder)).toBe(false);
+
+    const incompleteWarmup = validComparison();
+    incompleteWarmup.metrics.compose.warmups[0].samples.pop();
+    expect(validate(incompleteWarmup)).toBe(false);
+  });
+
+  test('requires successful immutable receipts with safe positive nanosecond timings', () => {
+    const validate = compileSchema();
+    for (const field of ['preparationExitCode', 'benchmarkExitCode']) {
+      const comparison = validComparison();
+      comparison.metrics.compose.pairs[0].samples[0][field] = 1;
+      expect(validate(comparison)).toBe(false);
+    }
+
+    const dirty = validComparison();
+    dirty.metrics.install.pairs[0].samples[0].dirty = true;
+    expect(validate(dirty)).toBe(false);
+
+    for (const durationNs of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+      const comparison = validComparison();
+      comparison.metrics.install.pairs[0].samples[0].durationNs = durationNs;
+      expect(validate(comparison)).toBe(false);
+    }
+
+    const incomplete = validComparison();
+    delete incomplete.metrics.install.pairs[0].samples[0].controlsAfterSha256;
+    expect(validate(incomplete)).toBe(false);
+
+    const undeclared = validComparison();
+    undeclared.metrics.install.pairs[0].samples[0].command = 'unbounded';
+    expect(validate(undeclared)).toBe(false);
+  });
+
+  test('requires closed ratio and order-effect summary diagnostics', () => {
+    const validate = compileSchema();
+    const incomplete = validComparison();
+    delete incomplete.metrics.install.summary.diagnostics.medianPairRatio;
+    expect(validate(incomplete)).toBe(false);
+
+    const tooFewPairRatios = validComparison();
+    tooFewPairRatios.metrics.compose.summary.diagnostics.pairRatios.pop();
+    expect(validate(tooFewPairRatios)).toBe(false);
+
+    const invalidRatio = validComparison();
+    invalidRatio.metrics.install.summary.ratio = 0;
+    expect(validate(invalidRatio)).toBe(false);
+
+    const undeclared = validComparison();
+    undeclared.metrics.install.summary.diagnostics.pValue = 0.04;
+    expect(validate(undeclared)).toBe(false);
+  });
+
+  test('excludes waivers, calendars, and historical baselines from blocking evidence', () => {
+    const validate = compileSchema();
+    for (const field of ['acceptedRegressions', 'expiresOn', 'baseline']) {
+      const comparison = validComparison();
+      comparison[field] = [];
+      expect(validate(comparison)).toBe(false);
+      expect(errorText(validate)).toContain('additional');
+    }
   });
 });

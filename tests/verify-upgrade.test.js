@@ -151,7 +151,7 @@ async function startRegistryServer(handler) {
   };
 }
 
-function configFixture() {
+function configFixture({ upstreamVersion = '1.5.0' } = {}) {
   const root = tempRoot();
   const projectRoot = path.join(root, 'project');
   const home = path.join(root, 'ambient-home');
@@ -163,7 +163,7 @@ function configFixture() {
     name: '@chude/get-stuff-done',
     version: '3.0.2',
     devDependencies: {
-      '@opengsd/gsd-core': '1.5.0',
+      '@opengsd/gsd-core': upstreamVersion,
     },
   }), 'utf8');
 
@@ -414,7 +414,7 @@ describe('verify-upgrade CLI contract', () => {
 describe('verify-upgrade orchestration report', () => {
   test('emits D-03 report fields and temp-scoped runner environment', async () => {
     const { runUpgradeVerification } = loadVerifierModule();
-    const root = tempRoot();
+    const fixture = configFixture({ upstreamVersion: '1.6.1' });
     const capture = {};
     const runner = fakeRunner({
       requireAuth: true,
@@ -427,17 +427,12 @@ describe('verify-upgrade orchestration report', () => {
     });
 
     try {
-      const report = await runUpgradeVerification({
+      const report = await runUpgradeVerification(baseOptions(fixture, {
         fromVersion: '1.6.1',
         toVersion: '1.7.0',
-        registryUrl: 'http://localhost:4873/',
-        tempRoot: root,
-        prepareWorkspace: false,
-        skipVerdaccioHealth: true,
         runner,
         httpRequest: successfulRegistryRequest(capture),
-        randomBytes: deterministicRandomBytes,
-      });
+      }));
 
       expect(report.fromVersion).toBe('1.6.1');
       expect(report.toVersion).toBe('1.7.0');
@@ -496,64 +491,54 @@ describe('verify-upgrade orchestration report', () => {
       expect(report.exitClassification).toBe('success');
 
       for (const call of runner.calls) {
-        expect(call.options.env.HOME.startsWith(root)).toBe(true);
-        expect(call.options.env.USERPROFILE.startsWith(root)).toBe(true);
-        expect(call.options.env.CLAUDE_CONFIG_DIR.startsWith(root)).toBe(true);
-        expect(call.options.env.npm_config_userconfig.startsWith(root)).toBe(true);
-        expect(call.options.env.NPM_CONFIG_USERCONFIG.startsWith(root)).toBe(true);
-        expect(call.options.env.npm_config_cache.startsWith(root)).toBe(true);
+        expect(call.options.env.HOME.startsWith(fixture.runBase)).toBe(true);
+        expect(call.options.env.USERPROFILE.startsWith(fixture.runBase)).toBe(true);
+        expect(call.options.env.CLAUDE_CONFIG_DIR.startsWith(fixture.runBase)).toBe(true);
+        expect(call.options.env.npm_config_userconfig.startsWith(fixture.runBase)).toBe(true);
+        expect(call.options.env.NPM_CONFIG_USERCONFIG.startsWith(fixture.runBase)).toBe(true);
+        expect(call.options.env.npm_config_cache.startsWith(fixture.runBase)).toBe(true);
         expect(call.options.shell).toBe(false);
       }
     } finally {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
 
   test('classifies compose failures', async () => {
     const { runUpgradeVerification } = loadVerifierModule();
-    const root = tempRoot();
+    const fixture = configFixture({ upstreamVersion: '1.6.1' });
 
     try {
-      const report = await runUpgradeVerification({
+      const report = await runUpgradeVerification(baseOptions(fixture, {
         fromVersion: '1.6.1',
         toVersion: '1.7.0',
-        registryUrl: 'http://localhost:4873/',
-        tempRoot: root,
-        prepareWorkspace: false,
-        skipVerdaccioHealth: true,
         runner: fakeRunner({ failStep: 'compose' }),
         httpRequest: successfulRegistryRequest({}),
-        randomBytes: deterministicRandomBytes,
-      });
+      }));
 
       expect(report.exitClassification).toBe('compose_failed');
       expect(report.steps.find(step => step.name === 'compose').ok).toBe(false);
     } finally {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
 
   test('classifies reinstall failures', async () => {
     const { runUpgradeVerification } = loadVerifierModule();
-    const root = tempRoot();
+    const fixture = configFixture({ upstreamVersion: '1.6.1' });
 
     try {
-      const report = await runUpgradeVerification({
+      const report = await runUpgradeVerification(baseOptions(fixture, {
         fromVersion: '1.6.1',
         toVersion: '1.7.0',
-        registryUrl: 'http://localhost:4873/',
-        tempRoot: root,
-        prepareWorkspace: false,
-        skipVerdaccioHealth: true,
         runner: fakeRunner({ failStep: 'reinstall-to' }),
         httpRequest: successfulRegistryRequest({}),
-        randomBytes: deterministicRandomBytes,
-      });
+      }));
 
       expect(report.exitClassification).toBe('reinstall_failed');
       expect(report.steps.find(step => step.name === 'reinstall-to').ok).toBe(false);
     } finally {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
 
@@ -713,6 +698,8 @@ describe('verify-upgrade orchestration report', () => {
     }), 'utf8');
     fs.mkdirSync(path.join(fixture.projectRoot, 'docs', 'nested'), { recursive: true });
     fs.writeFileSync(path.join(fixture.projectRoot, 'docs', 'nested', 'evidence.txt'), 'kept', 'utf8');
+    fs.mkdirSync(path.join(fixture.projectRoot, 'dist'), { recursive: true });
+    fs.writeFileSync(path.join(fixture.projectRoot, 'dist', 'current.txt'), 'current-dist', 'utf8');
     fs.mkdirSync(path.join(fixture.projectRoot, 'node_modules'), { recursive: true });
     fs.writeFileSync(path.join(fixture.projectRoot, 'node_modules', 'ignored.txt'), 'ignored', 'utf8');
     fs.symlinkSync(
@@ -721,8 +708,15 @@ describe('verify-upgrade orchestration report', () => {
       process.platform === 'win32' ? 'junction' : 'dir'
     );
     let observedWorkspace;
+    let observedCurrentPackage;
     const runner = fakeRunner({
       onCall: ({ call, stepName }) => {
+        if (stepName === 'pack-current') {
+          observedCurrentPackage = {
+            dist: fs.readFileSync(path.join(call.options.cwd, 'dist', 'current.txt'), 'utf8'),
+            copiedNpmrc: fs.existsSync(path.join(call.options.cwd, '.npmrc')),
+          };
+        }
         if (stepName !== 'bump-upstream') return;
         observedWorkspace = {
           packageJson: JSON.parse(fs.readFileSync(path.join(call.options.cwd, 'package.json'), 'utf8')),
@@ -734,6 +728,7 @@ describe('verify-upgrade orchestration report', () => {
           copiedNodeModules: fs.existsSync(path.join(call.options.cwd, 'node_modules')),
           copiedLink: fs.existsSync(path.join(call.options.cwd, 'linked-docs')),
           copiedNpmrc: fs.existsSync(path.join(call.options.cwd, '.npmrc')),
+          copiedDist: fs.existsSync(path.join(call.options.cwd, 'dist')),
         };
       },
     });
@@ -745,6 +740,7 @@ describe('verify-upgrade orchestration report', () => {
         httpRequest: successfulRegistryRequest({}),
       }));
       expect(report.exitClassification).toBe('success');
+      expect(observedCurrentPackage).toEqual({ dist: 'current-dist', copiedNpmrc: false });
       expect(observedWorkspace.packageJson.devDependencies['@opengsd/gsd-core']).toBe('1.6.1');
       expect(observedWorkspace.packageJson.version).toBe('3.0.2-upgrade.1.6.1');
       expect(observedWorkspace.authority.active.version).toBe('1.6.1');
@@ -752,6 +748,7 @@ describe('verify-upgrade orchestration report', () => {
       expect(observedWorkspace.copiedNodeModules).toBe(false);
       expect(observedWorkspace.copiedLink).toBe(false);
       expect(observedWorkspace.copiedNpmrc).toBe(false);
+      expect(observedWorkspace.copiedDist).toBe(false);
     } finally {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
@@ -801,6 +798,22 @@ describe('verify-upgrade orchestration report', () => {
       } finally {
         fs.rmSync(fixture.root, { recursive: true, force: true });
       }
+    }
+  });
+
+  test('rejects a successful bumped pack command that produces no new artifact', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner: fakeRunner({ packBumpedStdout: '' }),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('pack_bumped_artifact_invalid');
+      expect(report.steps.at(-1)).toMatchObject({ name: 'pack-bumped', ok: true });
+      expect(report.artifacts.bumped).toBeNull();
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
 
@@ -1052,6 +1065,14 @@ describe('verify-upgrade orchestration report', () => {
         runner: fakeRunner(),
         httpRequest: successfulRegistryRequest({}),
       }))).rejects.toThrow('Unable to fingerprint ambient npm configuration');
+
+      fs.unlinkSync(fixture.projectNpmrc);
+      const absentConfigReport = await runUpgradeVerification(baseOptions(fixture, {
+        runner: fakeRunner(),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(absentConfigReport.exitClassification).toBe('success');
+      expect(fs.existsSync(fixture.projectNpmrc)).toBe(false);
     } finally {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
@@ -1080,6 +1101,35 @@ describe('verify-upgrade orchestration report', () => {
       }));
       expect(report.exitClassification).toBe('success');
       expect(npmrcWrites).toBe(3);
+      expect(fs.readdirSync(fixture.runBase)).toEqual([]);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('accepts root deletion as authority when direct credential unlink fails', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    let unlinkAttempts = 0;
+    const fileSystem = {
+      ...fs,
+      unlinkSync(targetPath) {
+        if (path.basename(targetPath) === '.npmrc' && targetPath.includes('gsd-verify-upgrade-run-')) {
+          unlinkAttempts += 1;
+          throw new Error('direct unlink blocked');
+        }
+        return fs.unlinkSync(targetPath);
+      },
+    };
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        fs: fileSystem,
+        runner: fakeRunner(),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('success');
+      expect(unlinkAttempts).toBe(1);
       expect(fs.readdirSync(fixture.runBase)).toEqual([]);
     } finally {
       fs.rmSync(fixture.root, { recursive: true, force: true });

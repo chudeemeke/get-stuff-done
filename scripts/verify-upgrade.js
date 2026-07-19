@@ -59,6 +59,9 @@ const COPY_EXCLUDES = new Set([
   '.next',
   '.npmrc',
 ]);
+const CURRENT_PACKAGE_COPY_EXCLUDES = new Set(
+  [...COPY_EXCLUDES].filter(entry => entry !== 'dist')
+);
 
 function validateRegistryUrl(value) {
   let registry;
@@ -427,6 +430,7 @@ function createVerifierContext({
   const root = fileSystem.mkdtempSync(path.join(baseRoot, prefix));
   try {
     const registryDir = ensureDir(path.join(root, 'registry'), fileSystem);
+    const sourcePackageDir = ensureDir(path.join(root, 'source-package'), fileSystem);
     const workspaceDir = ensureDir(path.join(root, 'workspace'), fileSystem);
     const installTargetDir = ensureDir(path.join(root, 'install-target'), fileSystem);
     const homeDir = ensureDir(path.join(root, 'home'), fileSystem);
@@ -446,6 +450,7 @@ function createVerifierContext({
 
     for (const [label, dirPath] of [
       ['registry', registryDir],
+      ['source-package', sourcePackageDir],
       ['workspace', workspaceDir],
       ['install-target', installTargetDir],
       ['HOME', homeDir],
@@ -481,6 +486,7 @@ function createVerifierContext({
       root,
       projectRoot,
       registryDir,
+      sourcePackageDir,
       workspaceDir,
       installTargetDir,
       npmrcPath,
@@ -613,16 +619,16 @@ function runProcess(step, context, runner, overrides = {}) {
   };
 }
 
-function copyTree(sourceDir, destDir, fileSystem = fs) {
+function copyTree(sourceDir, destDir, fileSystem = fs, excludes = COPY_EXCLUDES) {
   const entries = fileSystem.readdirSync(sourceDir, { withFileTypes: true });
   for (const entry of entries) {
-    if (COPY_EXCLUDES.has(entry.name)) continue;
+    if (excludes.has(entry.name)) continue;
     const sourcePath = path.join(sourceDir, entry.name);
     const destPath = path.join(destDir, entry.name);
 
     if (entry.isDirectory()) {
       fileSystem.mkdirSync(destPath, { recursive: true });
-      copyTree(sourcePath, destPath, fileSystem);
+      copyTree(sourcePath, destPath, fileSystem, excludes);
       continue;
     }
     if (entry.isSymbolicLink()) continue;
@@ -664,6 +670,17 @@ function prepareBumpWorkspace(context, toVersion, bumpedPackageVersion, options 
 function prepareSourceWorkspace(context) {
   if (context.fs.readdirSync(context.workspaceDir).length === 0) {
     copyTree(context.projectRoot, context.workspaceDir, context.fs);
+  }
+}
+
+function prepareCurrentPackage(context) {
+  if (context.fs.readdirSync(context.sourcePackageDir).length === 0) {
+    copyTree(
+      context.projectRoot,
+      context.sourcePackageDir,
+      context.fs,
+      CURRENT_PACKAGE_COPY_EXCLUDES
+    );
   }
 }
 
@@ -818,7 +835,7 @@ function maybeCheckRegistry(context, runner, skipVerdaccioHealth) {
     name: 'verdaccio-health',
     command: 'npm',
     args: ['ping', '--registry', context.registryUrl],
-    cwd: context.projectRoot,
+    cwd: context.installTargetDir,
   }, context, runner);
 }
 
@@ -835,13 +852,14 @@ function executeUpgradeSequence(options, context, report, runner) {
   const packageSpec = `${packageJson.name}@${sourcePackageVersion}`;
   const bumpedPackageVersion = `${sourcePackageVersion}-upgrade.${options.toVersion}`;
   const bumpedPackageSpec = `${packageJson.name}@${bumpedPackageVersion}`;
+  prepareCurrentPackage(context);
   prepareSourceWorkspace(context);
 
   const packCurrent = {
     name: 'pack-current',
     command: 'npm',
     args: ['pack', '--json', '--ignore-scripts', '--pack-destination', context.registryDir],
-    cwd: context.workspaceDir,
+    cwd: context.sourcePackageDir,
   };
   if (!runRecordedStep(packCurrent, report, context, runner)) return;
   try {
@@ -863,7 +881,7 @@ function executeUpgradeSequence(options, context, report, runner) {
       name: 'publish-current',
       command: 'npm',
       args: ['publish', report.packageTarball, '--registry', context.registryUrl, '--access', 'public'],
-      cwd: context.projectRoot,
+      cwd: context.sourcePackageDir,
     },
     {
       name: 'install-from',

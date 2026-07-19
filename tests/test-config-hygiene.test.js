@@ -161,6 +161,22 @@ describe('test-config hygiene (meta-test)', () => {
     expect(pkg.scripts).not.toHaveProperty('test:coverage');
   });
 
+  test('Phase 43 verifier coverage remains frozen to the two entry modules', () => {
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
+    const coverageScript = pkg.scripts['test:coverage:phase43-verifiers'];
+    const includes = [...coverageScript.matchAll(/--include=([^']+)'/g)].map(match => match[1]);
+
+    expect(includes).toEqual([
+      '**/scripts/verify-hosted-ci.js',
+      '**/scripts/verify-toolchain-authority.js',
+    ]);
+    expect(coverageScript).toContain('--per-file');
+    expect(coverageScript).toContain('--statements 95');
+    expect(coverageScript).toContain('--branches 95');
+    expect(coverageScript).toContain('--functions 95');
+    expect(coverageScript).toContain('--lines 95');
+  });
+
   test('hosted CI verdict uses canonical tracked immutable envelope authority', () => {
     const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
     const contract = JSON.parse(fs.readFileSync(HOSTED_CI_CONTRACT_PATH, 'utf8'));

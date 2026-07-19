@@ -1,10 +1,12 @@
 'use strict';
 
-const { describe, expect, test } = require('bun:test');
+const { describe, expect, test } = require('./helpers/portable-test-api');
+const { spawnSync } = require('child_process');
 const { createHash } = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const yaml = require('js-yaml');
 const {
   buildPassedEnvelope,
   collectHostedData,
@@ -21,6 +23,8 @@ const {
   selectLatestRuns,
   validateHostedContract,
   validateHostedEnvelope,
+  validateTierARunnerReceipt,
+  validateTierBRuntimeReceipt,
   verifyWorkflowTopology,
   verifyPendingEnvelope,
   verifyTrackedEnvelope,
@@ -29,8 +33,23 @@ const {
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const CONTRACT_PATH = path.join(PROJECT_ROOT, 'config', 'phase43-hosted-ci-contract.json');
+const TOOLCHAIN_MANIFEST_PATH = path.join(
+  PROJECT_ROOT,
+  'config',
+  'phase43-toolchain-authority.json'
+);
 const EXPECTED_HEAD = '64f137a110e985c86b08acb3140bc8b982d34843';
 const BILLING_MESSAGE = 'The job was not started because your account is locked due to a billing issue.';
+const SUBJECT_CHECKOUT_STEP = 'Checkout exact event subject';
+const SUBJECT_VERIFY_STEP = 'Verify execution subject';
+const MAX_HOSTED_RECEIPT_BYTES = 1024 * 1024;
+const WORKFLOW_PATHS = {
+  CI: '.github/workflows/ci.yml',
+  'Cousin Install': '.github/workflows/cousin-install.yml',
+  'Oversight Probes': '.github/workflows/oversight-probes.yml',
+  'Compat Matrix': '.github/workflows/compat-matrix.yml',
+  'Upgrade Verifier': '.github/workflows/upgrade-verifier.yml',
+};
 const COUSIN_JOBS = [
   'Cousin Install (ubuntu-latest, Node 20, npm)',
   'Cousin Install (ubuntu-latest, Node 20, pnpm)',
@@ -64,10 +83,16 @@ function makeContract() {
     receiptPath: '.planning/evidence/phase43-hosted-verdict.json',
     acceptedConclusions: ['success'],
     allowUnexpectedWorkflows: false,
+    executionSubject: {
+      checkoutStep: SUBJECT_CHECKOUT_STEP,
+      verificationStep: SUBJECT_VERIFY_STEP,
+      requireAdjacent: true,
+    },
     workflows: [
-      { name: 'CI', requiredJobs: ['Lint', 'Test (ubuntu-latest)'] },
+      { name: 'CI', path: WORKFLOW_PATHS.CI, requiredJobs: ['Lint', 'Test (ubuntu-latest)'] },
       {
         name: 'Cousin Install',
+        path: WORKFLOW_PATHS['Cousin Install'],
         requiredJobMatrices: [
           {
             template: 'Cousin Install ({}, Node {}, {})',
@@ -80,21 +105,34 @@ function makeContract() {
           },
         ],
       },
-      { name: 'Oversight Probes', requiredJobs: ['Verify Oversight Probes'] },
-      { name: 'Compat Matrix', requiredJobs: ['Vetted Upstream Compat Matrix'] },
-      { name: 'Upgrade Verifier', requiredJobs: ['Upgrade Verifier'] },
+      {
+        name: 'Oversight Probes',
+        path: WORKFLOW_PATHS['Oversight Probes'],
+        requiredJobs: ['Verify Oversight Probes'],
+      },
+      {
+        name: 'Compat Matrix',
+        path: WORKFLOW_PATHS['Compat Matrix'],
+        requiredJobs: ['Vetted Upstream Compat Matrix'],
+      },
+      {
+        name: 'Upgrade Verifier',
+        path: WORKFLOW_PATHS['Upgrade Verifier'],
+        requiredJobs: ['Upgrade Verifier'],
+      },
     ],
   };
 }
 
-function makeStep() {
-  return { number: 1, name: 'Checkout', status: 'completed', conclusion: 'success' };
+function makeStep(number, name, overrides = {}) {
+  return { number, name, status: 'completed', conclusion: 'success', ...overrides };
 }
 
 function makeRun(id, name, overrides = {}) {
   return {
     id,
     name,
+    path: WORKFLOW_PATHS[name] || '.github/workflows/unclassified.yml',
     head_sha: EXPECTED_HEAD,
     event: 'pull_request',
     status: 'completed',
@@ -102,19 +140,23 @@ function makeRun(id, name, overrides = {}) {
     run_attempt: 1,
     pull_requests: [{ number: 23 }],
     html_url: `https://github.com/chudeemeke/get-stuff-done/actions/runs/${id}`,
+    created_at: '2026-07-14T02:00:00Z',
     updated_at: '2026-07-14T02:38:30Z',
     ...overrides,
   };
 }
 
 function makeJob(id, name, overrides = {}) {
+  const runId = overrides.run_id;
   return {
     id,
     name,
     status: 'completed',
     conclusion: 'success',
-    steps: [makeStep()],
-    html_url: `https://github.com/chudeemeke/get-stuff-done/actions/jobs/${id}`,
+    steps: [makeStep(1, SUBJECT_CHECKOUT_STEP), makeStep(2, SUBJECT_VERIFY_STEP)],
+    html_url: Number.isInteger(runId)
+      ? `https://github.com/chudeemeke/get-stuff-done/actions/runs/${runId}/job/${id}`
+      : `https://github.com/chudeemeke/get-stuff-done/actions/jobs/${id}`,
     ...overrides,
   };
 }
@@ -126,7 +168,9 @@ function makeSuccessfulInput(contract = makeContract()) {
   for (const run of runs) {
     const workflow = contract.workflows.find(candidate => candidate.name === run.name);
     const names = workflow.requiredJobs || COUSIN_JOBS;
-    jobsByRun[run.id] = names.map((name, index) => makeJob(run.id * 100 + index, name));
+    jobsByRun[run.id] = names.map((name, index) =>
+      makeJob(run.id * 100 + index, name, { run_id: run.id })
+    );
   }
 
   return {
@@ -158,16 +202,629 @@ function makeBillingLockedInput() {
   return input;
 }
 
+function makeSubjectCompliantWorkflow(workflowPath, contract) {
+  const document = yaml.load(fs.readFileSync(path.join(PROJECT_ROOT, workflowPath), 'utf8'));
+  const policy = contract.executionSubject;
+  const toolchainManifest = JSON.parse(fs.readFileSync(TOOLCHAIN_MANIFEST_PATH, 'utf8'));
+  const checkoutUses = `${policy.checkoutAction}@${toolchainManifest.githubActions.pins[policy.checkoutAction].sha}`;
+  const securityUses = `${policy.securityPrelude.action}@${toolchainManifest.githubActions.pins[policy.securityPrelude.action].sha}`;
+  for (const [jobId, job] of Object.entries(document.jobs)) {
+    const originalSteps = job.steps || [];
+    const hasSecurityPrelude = originalSteps[0]?.uses?.startsWith(
+      `${policy.securityPrelude.action}@`
+    );
+    const checkoutInputs = {
+      ref: policy.checkoutRef,
+      ...(policy.checkoutInputs[workflowPath]?.[jobId] || {}),
+    };
+    job.steps = [
+      ...(hasSecurityPrelude
+        ? [{ uses: securityUses, with: { ...originalSteps[0].with } }]
+        : []),
+      {
+        name: policy.checkoutStep,
+        uses: checkoutUses,
+        with: checkoutInputs,
+      },
+      {
+        name: policy.verificationStep,
+        shell: policy.verificationShell,
+        env: { [policy.expectedSubjectEnvironment]: policy.expectedSubjectExpression },
+        run: policy.verificationRun,
+      },
+      ...originalSteps.filter(
+        step =>
+          !step.uses?.startsWith('actions/checkout@') &&
+          !step.uses?.startsWith(`${policy.securityPrelude.action}@`)
+      ),
+    ];
+  }
+  return yaml.dump(document);
+}
+
+function readSubjectCompliantAuthorityPath(filePath, contract) {
+  return Buffer.from(
+    contract.governedPaths.workflow.includes(filePath)
+      ? makeSubjectCompliantWorkflow(filePath, contract)
+      : fs.readFileSync(path.join(PROJECT_ROOT, filePath))
+  );
+}
+
 describe('hosted CI verdict authority', () => {
-  test('validates the tracked-envelope contract against exact workflow YAML topology', () => {
+  test('validates the tracked-envelope contract against exact workflow YAML topology and subject semantics', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
 
     expect(validateHostedContract(contract)).toBe(contract);
     expect(
-      verifyWorkflowTopology(contract, workflowPath =>
-        fs.readFileSync(path.join(PROJECT_ROOT, workflowPath), 'utf8')
+      verifyWorkflowTopology(contract, filePath =>
+        readSubjectCompliantAuthorityPath(filePath, contract)
       )
     ).toEqual({ workflows: 5, jobs: 39 });
+  });
+
+  test('requires versioned execution-subject authority in the hosted contract', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+
+    expect(contract.schemaVersion).toBe(4);
+    expect(contract.envelopeSchemaVersion).toBe(2);
+    expect(contract.executionSubject).toEqual({
+      checkoutStep: SUBJECT_CHECKOUT_STEP,
+      verificationStep: SUBJECT_VERIFY_STEP,
+      requireAdjacent: true,
+      checkoutAction: 'actions/checkout',
+      checkoutRef: '${{ github.event.pull_request.head.sha }}',
+      verificationShell: 'bash',
+      expectedSubjectEnvironment: 'GSD_EXPECTED_SUBJECT',
+      expectedSubjectExpression: '${{ github.event.pull_request.head.sha }}',
+      verificationRun: [
+        'actual="$(git rev-parse HEAD)"',
+        'if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then',
+        '  echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"',
+        '  exit 1',
+        'fi',
+      ].join('\n'),
+      securityPrelude: {
+        action: 'step-security/harden-runner',
+        allowedInputs: { 'egress-policy': ['audit', 'block'] },
+      },
+      checkoutInputs: {
+        '.github/workflows/ci.yml': {
+          'secret-scan': { 'fetch-depth': 0 },
+        },
+      },
+    });
+    expect(() => validateHostedContract({ ...contract, schemaVersion: 2 })).toThrow(
+      'schema version 4'
+    );
+    expect(() =>
+      validateHostedContract({
+        ...contract,
+        executionSubject: { ...contract.executionSubject, requireAdjacent: false },
+      })
+    ).toThrow('execution-subject authority');
+  });
+
+  test('declares one closed security prelude and one checkout-input exception', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+
+    expect(contract.schemaVersion).toBe(4);
+    expect(contract.executionSubject.securityPrelude).toEqual({
+      action: 'step-security/harden-runner',
+      allowedInputs: { 'egress-policy': ['audit', 'block'] },
+    });
+    expect(contract.executionSubject.checkoutInputs).toEqual({
+      '.github/workflows/ci.yml': {
+        'secret-scan': { 'fetch-depth': 0 },
+      },
+    });
+  });
+
+  test('declares closed Tier A runner and Tier B runtime receipt fields', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+
+    expect(contract.runtimeReceipts).toEqual({
+      schemaVersion: 1,
+      tierAFields: [
+        'schemaVersion',
+        'jobId',
+        'runId',
+        'attempt',
+        'job',
+        'runnerName',
+        'runnerLabels',
+      ],
+      tierBFields: [
+        'schemaVersion',
+        'subject',
+        'jobId',
+        'runId',
+        'attempt',
+        'os',
+        'osVersion',
+        'architecture',
+        'runnerName',
+        'runnerLabels',
+        'nodeVersion',
+        'bunVersion',
+        'tools',
+        'containers',
+      ],
+    });
+  });
+
+  test('accepts complete run-attempt-bound Tier A and Tier B receipts', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const tierA = {
+      schemaVersion: 1,
+      jobId: 1001,
+      runId: 100,
+      attempt: 2,
+      job: 'Cousin Install (ubuntu-latest, Node 22, bun)',
+      runnerName: 'GitHub Actions 1001',
+      runnerLabels: ['ubuntu-latest', 'ubuntu-24.04', 'X64'],
+    };
+    const tierB = {
+      schemaVersion: 1,
+      subject: 'cousin-ubuntu-latest-node-22-bun',
+      jobId: 1001,
+      runId: 100,
+      attempt: 2,
+      os: 'linux',
+      osVersion: '24.04',
+      architecture: 'x64',
+      runnerName: 'GitHub Actions 1001',
+      runnerLabels: ['ubuntu-latest', 'ubuntu-24.04', 'X64'],
+      nodeVersion: '22.18.0',
+      bunVersion: '1.3.5',
+      tools: { hyperfine: '1.20.0' },
+      containers: {
+        'verdaccio/verdaccio':
+          'sha256:bcd0dc5f10d0b9cca5a21b1f4fb3b08c6d90978bc87b8b46402abb271e0d573a',
+      },
+    };
+
+    expect(validateTierARunnerReceipt(tierA, contract)).toBe(tierA);
+    expect(validateTierBRuntimeReceipt(tierB, contract)).toBe(tierB);
+  });
+
+  test('rejects incomplete or unsafe runner and runtime receipt identity', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const tierA = {
+      schemaVersion: 1,
+      jobId: 1001,
+      runId: 100,
+      attempt: 2,
+      job: 'Perf Budget (linux)',
+      runnerName: 'GitHub Actions 1001',
+      runnerLabels: ['ubuntu-latest', 'X64'],
+    };
+    const tierB = {
+      schemaVersion: 1,
+      subject: 'ci-perf-linux',
+      jobId: 1001,
+      runId: 100,
+      attempt: 2,
+      os: 'linux',
+      osVersion: '24.04',
+      architecture: 'x64',
+      runnerName: 'GitHub Actions 1001',
+      runnerLabels: ['ubuntu-latest', 'X64'],
+      nodeVersion: '22.18.0',
+      bunVersion: '1.3.5',
+      tools: { hyperfine: '1.20.0' },
+      containers: {},
+    };
+
+    const tierACases = [
+      candidate => delete candidate.job,
+      candidate => (candidate.jobId = 0),
+      candidate => (candidate.runId = Number.MAX_SAFE_INTEGER + 1),
+      candidate => (candidate.attempt = 0),
+      candidate => (candidate.runnerName = 'unsafe\nrunner'),
+      candidate => (candidate.runnerLabels = ['ubuntu-latest', 'ubuntu-latest']),
+    ];
+    for (const mutate of tierACases) {
+      const candidate = structuredClone(tierA);
+      mutate(candidate);
+      expect(() => validateTierARunnerReceipt(candidate, contract)).toThrow('Tier A');
+    }
+
+    const tierBCases = [
+      candidate => (candidate.subject = '../unsafe'),
+      candidate => (candidate.osVersion = 'unsafe\rversion'),
+      candidate => (candidate.architecture = 'unknown'),
+      candidate => (candidate.nodeVersion = '22'),
+      candidate => (candidate.bunVersion = 'latest'),
+      candidate => (candidate.tools.hyperfine = 'latest'),
+      candidate => (candidate.containers.verdaccio = 'verdaccio:6'),
+    ];
+    for (const mutate of tierBCases) {
+      const candidate = structuredClone(tierB);
+      mutate(candidate);
+      expect(() => validateTierBRuntimeReceipt(candidate, contract)).toThrow('Tier B');
+    }
+  });
+
+  test('rejects security-prelude and per-job checkout-input drift', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const verifyMutation = mutate => {
+      const documents = new Map(
+        contract.workflows.map(authority => [
+          authority.path,
+          yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+        ])
+      );
+      mutate(documents.get(WORKFLOW_PATHS.CI));
+      return () =>
+        verifyWorkflowTopology(contract, filePath =>
+          filePath === 'config/phase43-toolchain-authority.json'
+            ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+            : yaml.dump(documents.get(filePath))
+        );
+    };
+
+    const cases = [
+      ci => (ci.jobs['secret-scan'].steps[0].uses = 'step-security/harden-runner@v2'),
+      ci => ci.jobs['secret-scan'].steps.unshift({ ...ci.jobs['secret-scan'].steps[0] }),
+      ci => {
+        const prelude = ci.jobs['secret-scan'].steps.shift();
+        ci.jobs['secret-scan'].steps.splice(1, 0, prelude);
+      },
+      ci => ci.jobs.lint.steps.unshift({ uses: 'actions/cache@unknown', with: {} }),
+      ci => {
+        const checkout = ci.jobs.lint.steps.find(step => step.name === SUBJECT_CHECKOUT_STEP);
+        checkout.with['fetch-depth'] = 0;
+      },
+      ci => {
+        const checkout = ci.jobs['secret-scan'].steps.find(
+          step => step.name === SUBJECT_CHECKOUT_STEP
+        );
+        delete checkout.with['fetch-depth'];
+      },
+    ];
+
+    for (const mutate of cases) {
+      expect(verifyMutation(mutate)).toThrow('execution-subject implementation');
+    }
+  });
+
+  test('validates scalar matrix values and rejects closed contract boundary drift', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const scalarMatrix = structuredClone(contract);
+    const matrix = scalarMatrix.workflows.find(
+      workflow => workflow.name === 'Cousin Install'
+    ).requiredJobMatrices[0];
+    matrix.dimensions[1] = [20, 22];
+    matrix.dimensions[2] = [true, false, 'bun'];
+    expect(validateHostedContract(scalarMatrix)).toBe(scalarMatrix);
+
+    const cases = [
+      candidate => {
+        candidate.workflows[0] = null;
+      },
+      candidate => {
+        candidate.workflows[1].name = candidate.workflows[0].name;
+      },
+      candidate => {
+        candidate.workflows[0].requiredJobs = 'Lint';
+      },
+      candidate => {
+        candidate.workflows[0].requiredJobs = ['Lint', 'Lint'];
+      },
+      candidate => {
+        candidate.workflows.find(
+          workflow => workflow.name === 'Cousin Install'
+        ).requiredJobMatrices[0].dimensions = null;
+      },
+      candidate => {
+        candidate.workflows.find(
+          workflow => workflow.name === 'Cousin Install'
+        ).requiredJobMatrices[0].template = null;
+      },
+      candidate => {
+        candidate.governedPaths.workflow.pop();
+      },
+    ];
+    for (const mutate of cases) {
+      const malformed = structuredClone(contract);
+      mutate(malformed);
+      expect(() => validateHostedContract(malformed)).toThrow();
+    }
+  });
+
+  test('rejects named no-op subject steps and checkout-ref drift', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const documents = new Map(
+      contract.workflows.map(authority => [
+        authority.path,
+        yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+      ])
+    );
+    const ci = documents.get('.github/workflows/ci.yml');
+    const firstJob = Object.values(ci.jobs)[0];
+    firstJob.steps[1].run = 'echo success';
+
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+          : yaml.dump(documents.get(filePath))
+      )
+    ).toThrow('execution-subject implementation');
+
+    firstJob.steps[1].run = contract.executionSubject.verificationRun;
+    firstJob.steps[0].with.ref = '${{ github.sha }}';
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+          : yaml.dump(documents.get(filePath))
+      )
+    ).toThrow('execution-subject implementation');
+
+    firstJob.steps[0].with.ref = contract.executionSubject.checkoutRef;
+    firstJob.steps[1]['continue-on-error'] = '${{ true }}';
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+          : yaml.dump(documents.get(filePath))
+      )
+    ).toThrow('execution-subject implementation');
+
+    firstJob.steps[1]['continue-on-error'] = 'false';
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+          : yaml.dump(documents.get(filePath))
+      )
+    ).toThrow('execution-subject implementation');
+  });
+
+  test('rejects any second checkout after execution-subject verification', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const documents = new Map(
+      contract.workflows.map(authority => [
+        authority.path,
+        yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+      ])
+    );
+    const ci = documents.get('.github/workflows/ci.yml');
+    Object.values(ci.jobs)[0].steps.push({
+      uses: 'actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10',
+    });
+
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+          : yaml.dump(documents.get(filePath))
+      )
+    ).toThrow('execution-subject implementation');
+  });
+
+  test('rejects side-workspace and inherited execution-subject overrides', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const cases = [
+      ({ checkout }) => (checkout.with.clean = false),
+      ({ checkout, verification }) => {
+        checkout.with.path = 'attested';
+        verification['working-directory'] = 'attested';
+      },
+      ({ verification }) => (verification.env.PATH = 'attacker-bin'),
+      ({ workflow }) => (workflow.env = { PATH: 'attacker-bin' }),
+      ({ job }) => (job.env = { GIT_DIR: 'attacker-repository' }),
+      ({ workflow }) => (workflow.env = { BASH_ENV: 'attacker-bootstrap' }),
+      ({ job }) => (job.env = { NODE_OPTIONS: '--require=./attacker.js' }),
+      ({ job }) => (job.steps.at(-1).env = { LD_PRELOAD: './attacker.so' }),
+      ({ workflow }) => (workflow.defaults = { run: { 'working-directory': 'attested' } }),
+      ({ job }) => (job.defaults = { run: { 'working-directory': 'attested' } }),
+      ({ job }) => job.steps.unshift({ run: 'echo attacker-bin >> "$GITHUB_PATH"' }),
+    ];
+
+    for (const mutate of cases) {
+      const documents = new Map(
+        contract.workflows.map(authority => [
+          authority.path,
+          yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+        ])
+      );
+      const workflow = documents.get('.github/workflows/ci.yml');
+      const job = Object.values(workflow.jobs)[0];
+      mutate({ workflow, job, checkout: job.steps[0], verification: job.steps[1] });
+
+      expect(() =>
+        verifyWorkflowTopology(contract, filePath =>
+          filePath === 'config/phase43-toolchain-authority.json'
+            ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+            : yaml.dump(documents.get(filePath))
+        )
+      ).toThrow('execution-subject implementation');
+    }
+  });
+
+  test('rejects oversized contract and workflow matrices before Cartesian expansion', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const oversizedContract = structuredClone(contract);
+    const cousin = oversizedContract.workflows.find(workflow => workflow.name === 'Cousin Install');
+    cousin.requiredJobMatrices[0].dimensions = [
+      Array.from({ length: 101 }, (_, index) => `os-${index}`),
+      Array.from({ length: 101 }, (_, index) => `node-${index}`),
+      ['npm'],
+    ];
+    cousin.requiredJobMatrices[0].expectedCount = 10201;
+    expect(() => validateHostedContract(oversizedContract)).toThrow('matrix authority');
+
+    const tooManyMatrices = structuredClone(contract);
+    const matrixTemplate = tooManyMatrices.workflows.find(
+      workflow => workflow.name === 'Cousin Install'
+    ).requiredJobMatrices[0];
+    tooManyMatrices.workflows.find(
+      workflow => workflow.name === 'Cousin Install'
+    ).requiredJobMatrices = Array.from({ length: 101 }, () => structuredClone(matrixTemplate));
+    expect(() => validateHostedContract(tooManyMatrices)).toThrow('matrix authority');
+
+    const documents = new Map(
+      contract.workflows.map(authority => [
+        authority.path,
+        yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+      ])
+    );
+    documents.get('.github/workflows/cousin-install.yml').jobs['cousin-install'].strategy.matrix = {
+      os: Array.from({ length: 101 }, (_, index) => `os-${index}`),
+      node: Array.from({ length: 101 }, (_, index) => index),
+    };
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+          : yaml.dump(documents.get(filePath))
+      )
+    ).toThrow('workflow matrix');
+  });
+
+  test('rejects aggregate workflow matrix rows before Cartesian expansion', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const documents = new Map(
+      contract.workflows.map(authority => [
+        authority.path,
+        yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+      ])
+    );
+    const ci = documents.get('.github/workflows/ci.yml');
+    ci.jobs = Object.fromEntries(
+      ['first', 'second'].map(jobId => [
+        jobId,
+        {
+          name: `${jobId} \${{ matrix.row }}`,
+          strategy: { matrix: { row: Array.from({ length: 100 }, (_, index) => index) } },
+          steps: [],
+        },
+      ])
+    );
+
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+          : yaml.dump(documents.get(filePath))
+      )
+    ).toThrow('supported bounds');
+  });
+
+  test('rejects unsupported workflow matrix axes instead of discarding them', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const documents = new Map(
+      contract.workflows.map(authority => [
+        authority.path,
+        yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+      ])
+    );
+    const cousin = documents.get('.github/workflows/cousin-install.yml');
+    cousin.jobs['cousin-install'].strategy.matrix.dynamic = '${{ fromJSON(inputs.rows) }}';
+
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+          : yaml.dump(documents.get(filePath))
+      )
+    ).toThrow('workflow matrix');
+  });
+
+  test('fails closed on duplicate, missing, and malformed workflow matrix topology', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const matrixAuthority = contract.workflows.find(
+      workflow => workflow.name === 'Cousin Install'
+    ).requiredJobMatrices[0];
+    expect(() => expandJobMatrices(null)).toThrow('matrix authority');
+    expect(() => expandJobMatrices([null])).toThrow('matrix authority');
+    expect(() => expandJobMatrices([matrixAuthority], 0)).toThrow('supported bounds');
+
+    const verifyMutation = (mutate, manifestMutation) => {
+      const documents = new Map(
+        contract.workflows.map(authority => [
+          authority.path,
+          yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+        ])
+      );
+      mutate(documents);
+      const manifest = JSON.parse(fs.readFileSync(TOOLCHAIN_MANIFEST_PATH, 'utf8'));
+      if (manifestMutation) manifestMutation(manifest);
+      return () =>
+        verifyWorkflowTopology(contract, filePath =>
+          filePath === 'config/phase43-toolchain-authority.json'
+            ? JSON.stringify(manifest)
+            : yaml.dump(documents.get(filePath))
+        );
+    };
+
+    for (const mutation of [
+      documents => {
+        documents.get(WORKFLOW_PATHS['Cousin Install']).jobs['cousin-install'].strategy.matrix = [];
+      },
+      documents => {
+        documents.get(WORKFLOW_PATHS['Cousin Install']).jobs['cousin-install'].strategy.matrix = {
+          include: [{ os: 'linux' }, { os: 'linux' }],
+        };
+      },
+      documents => {
+        documents.get(WORKFLOW_PATHS['Cousin Install']).jobs['cousin-install'].strategy.matrix = {
+          os: ['linux', 'linux'],
+        };
+      },
+      documents => {
+        const job = documents.get(WORKFLOW_PATHS['Cousin Install']).jobs['cousin-install'];
+        job.name = 'Cousin Install ${{ matrix.missing }}';
+        job.strategy.matrix = { os: ['linux'] };
+      },
+      documents => {
+        documents.get(WORKFLOW_PATHS.CI).jobs = null;
+      },
+      documents => {
+        Object.values(documents.get(WORKFLOW_PATHS.CI).jobs)[0].name = 'Unexpected job name';
+      },
+    ]) {
+      expect(verifyMutation(mutation)).toThrow();
+    }
+    expect(
+      verifyMutation(
+        () => {},
+        manifest => delete manifest.githubActions.pins['actions/checkout']
+      )
+    ).toThrow('checkout action is not governed');
+  });
+
+  test('applies toolchain manifest byte authority during hosted topology verification', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const manifest = fs.readFileSync(TOOLCHAIN_MANIFEST_PATH);
+    const oversizedManifest = Buffer.concat([
+      manifest,
+      Buffer.alloc(300000 - manifest.length, 0x20),
+    ]);
+
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? oversizedManifest
+          : makeSubjectCompliantWorkflow(filePath, contract)
+      )
+    ).toThrow('size limit');
+  });
+
+  test('applies governed workflow byte authority during hosted topology verification', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath => {
+        if (filePath === 'config/phase43-toolchain-authority.json') {
+          return fs.readFileSync(TOOLCHAIN_MANIFEST_PATH);
+        }
+        if (filePath === contract.workflows[0].path) return Buffer.alloc(256 * 1024 + 1, 0x20);
+        return makeSubjectCompliantWorkflow(filePath, contract);
+      })
+    ).toThrow('size limit');
   });
 
   test('rejects contract drift, evidence self-governance, and workflow topology drift', () => {
@@ -185,7 +842,7 @@ describe('hosted CI verdict authority', () => {
       validateHostedContract({ ...contract, repository: 'attacker/mirror' })
     ).toThrow('repository authority');
     expect(() => validateHostedContract({ ...contract, schemaVersion: 1 })).toThrow(
-      'schema version 2'
+      'schema version 4'
     );
     expect(() => validateHostedContract({ ...contract, contractPath: 'config/other.json' })).toThrow(
       'path authority'
@@ -239,6 +896,27 @@ describe('hosted CI verdict authority', () => {
     ).toThrow('pull_request authority');
   });
 
+  test('requires hosted and toolchain authority to govern the same workflow set', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const manifest = JSON.parse(fs.readFileSync(TOOLCHAIN_MANIFEST_PATH, 'utf8'));
+    manifest.governedWorkflows = manifest.governedWorkflows.map(workflow =>
+      workflow === '.github/workflows/oversight-probes.yml'
+        ? '.github/workflows/unreviewed.yml'
+        : workflow
+    );
+    manifest.runtimeRequirements['.github/workflows/unreviewed.yml'] =
+      manifest.runtimeRequirements['.github/workflows/oversight-probes.yml'];
+    delete manifest.runtimeRequirements['.github/workflows/oversight-probes.yml'];
+
+    expect(() =>
+      verifyWorkflowTopology(contract, filePath =>
+        filePath === 'config/phase43-toolchain-authority.json'
+          ? JSON.stringify(manifest)
+          : readSubjectCompliantAuthorityPath(filePath, contract)
+      )
+    ).toThrow('workflow set');
+  });
+
   test('computes canonical governed digests by category from exact commit bytes', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
     const observed = [];
@@ -254,6 +932,9 @@ describe('hosted CI verdict authority', () => {
       path: contract.governedPaths.source[0],
       sha256: digest(Buffer.from(`bytes:${contract.governedPaths.source[0]}\n`)),
     });
+    expect(
+      computeGovernedDigests(contract, filePath => `text:${filePath}\n`).source[0].sha256
+    ).toBe(digest(Buffer.from(`text:${contract.governedPaths.source[0]}\n`)));
   });
 
   test('builds only passed immutable envelopes with subject and purpose authority', () => {
@@ -271,8 +952,8 @@ describe('hosted CI verdict authority', () => {
 
     expect(validateHostedEnvelope(envelope, contract)).toBe(envelope);
     expect(envelope).toMatchObject({
-      schemaVersion: 1,
-      contractSchemaVersion: 2,
+      schemaVersion: 2,
+      contractSchemaVersion: 4,
       repository: contract.repository,
       pullRequest: 23,
       checkedCommit: EXPECTED_HEAD,
@@ -282,7 +963,89 @@ describe('hosted CI verdict authority', () => {
       hostedEvidenceExists: true,
       governedDigests,
     });
+    const subjectEvidence = envelope.workflows.flatMap(workflow => workflow.executionSubjects);
+    expect(subjectEvidence).toHaveLength(39);
+    expect(subjectEvidence).toContainEqual(
+      expect.objectContaining({
+        job: 'Lint',
+        runId: envelope.workflows[0].runId,
+        attempt: envelope.workflows[0].attempt,
+        expectedSubject: EXPECTED_HEAD,
+        status: 'completed',
+        conclusion: 'success',
+      })
+    );
+    const tampered = structuredClone(envelope);
+    tampered.workflows[0].executionSubjects[0].status = 'in_progress';
+    expect(() => validateHostedEnvelope(tampered, contract)).toThrow(
+      'execution-subject evidence'
+    );
+    const wrongRun = structuredClone(envelope);
+    wrongRun.workflows[0].executionSubjects[0].runId += 1;
+    expect(() => validateHostedEnvelope(wrongRun, contract)).toThrow('execution-subject evidence');
+    const wrongAttempt = structuredClone(envelope);
+    wrongAttempt.workflows[0].executionSubjects[0].attempt += 1;
+    expect(() => validateHostedEnvelope(wrongAttempt, contract)).toThrow(
+      'execution-subject evidence'
+    );
+    const wrongSubject = structuredClone(envelope);
+    wrongSubject.workflows[0].executionSubjects[0].expectedSubject = 'a'.repeat(40);
+    expect(() => validateHostedEnvelope(wrongSubject, contract)).toThrow(
+      'execution-subject evidence'
+    );
+    const smuggledWorkflowField = structuredClone(envelope);
+    smuggledWorkflowField.workflows[0].actualCheckedCommit = EXPECTED_HEAD;
+    expect(() => validateHostedEnvelope(smuggledWorkflowField, contract)).toThrow(
+      'workflow evidence'
+    );
+    const poisonedSubjectEnvelope = structuredClone(envelope);
+    const originalSubject = poisonedSubjectEnvelope.workflows[0].executionSubjects[0];
+    const poisonedSubject = Object.assign(Object.create({ job: originalSubject.job }), originalSubject, {
+      unknownEvidence: EXPECTED_HEAD,
+    });
+    delete poisonedSubject.job;
+    poisonedSubjectEnvelope.workflows[0].executionSubjects[0] = poisonedSubject;
+    expect(() => validateHostedEnvelope(poisonedSubjectEnvelope, contract)).toThrow(
+      'execution-subject evidence'
+    );
+    const wrongWorkflowUrl = structuredClone(envelope);
+    wrongWorkflowUrl.workflows[0].url = 'https://attacker.invalid/run/100';
+    expect(() => validateHostedEnvelope(wrongWorkflowUrl, contract)).toThrow('workflow evidence');
+    const poisonedDigestEnvelope = structuredClone(envelope);
+    const originalDigest = poisonedDigestEnvelope.governedDigests.source[0];
+    const poisonedDigest = Object.assign(Object.create({ path: originalDigest.path }), {
+      sha256: originalDigest.sha256,
+      unknownDigestField: true,
+    });
+    poisonedDigestEnvelope.governedDigests.source[0] = poisonedDigest;
+    expect(() => validateHostedEnvelope(poisonedDigestEnvelope, contract)).toThrow(
+      'digests do not match'
+    );
+    for (const mutate of [
+      candidate => (candidate.checkedCommit = null),
+      candidate => delete candidate.governedDigests.policy,
+      candidate => (candidate.governedDigests.source[0].sha256 = null),
+      candidate => (candidate.workflows = null),
+      candidate => (candidate.workflows[0].executionSubjects = null),
+    ]) {
+      const malformed = structuredClone(envelope);
+      mutate(malformed);
+      expect(() => validateHostedEnvelope(malformed, contract)).toThrow();
+    }
     expect(envelope).not.toHaveProperty('headSha');
+
+    for (const mutate of [
+      candidate => (candidate.purpose = 'x'.repeat(501)),
+      candidate => (candidate.observedAt = 'not-a-timestamp'),
+      candidate => (candidate.pullRequest = Number.MAX_SAFE_INTEGER + 1),
+      candidate => (candidate.workflows[0].runId = Number.MAX_SAFE_INTEGER + 1),
+      candidate =>
+        (candidate.workflows[0].executionSubjects[0].jobId = Number.MAX_SAFE_INTEGER + 1),
+    ]) {
+      const malformed = structuredClone(envelope);
+      mutate(malformed);
+      expect(() => validateHostedEnvelope(malformed, contract)).toThrow();
+    }
 
     const unavailable = evaluateHostedVerdict(makeBillingLockedInput(), contract);
     expect(() =>
@@ -302,6 +1065,152 @@ describe('hosted CI verdict authority', () => {
     expect(receipt.headSha).toBe(EXPECTED_HEAD);
     expect(receipt.workflows).toHaveLength(5);
     expect(receipt.diagnostics).toEqual([]);
+  });
+
+  test('applies safe defaults to absent hosted collections and deduplicates unexpected runs', () => {
+    const emptyContract = makeContract();
+    emptyContract.workflows = [];
+    delete emptyContract.acceptedConclusions;
+    const empty = evaluateHostedVerdict({}, emptyContract);
+    expect(empty.verdict).toBe('passed');
+    expect(empty.hostedEvidenceExists).toBe(false);
+
+    const contract = makeContract();
+    const input = makeSuccessfulInput(contract);
+    const unexpected = makeRun(999, 'Unexpected', { path: '' });
+    input.runs.push(unexpected, { ...unexpected, id: 1000 });
+    delete input.annotationsByJob;
+    delete input.prHeadAtStart;
+    delete input.jobsByRun[input.runs[0].id];
+    input.jobsByRun[input.runs[1].id][0].steps = null;
+    delete contract.executionSubject;
+    const result = evaluateHostedVerdict(input, contract);
+    expect(result.diagnostics.filter(item => item.code === 'unexpected_workflow')).toHaveLength(1);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({ code: 'missing_job', workflow: contract.workflows[0].name })
+    );
+  });
+
+  test('rejects PR-head metadata when a required job lacks execution-subject evidence', () => {
+    const contract = makeContract();
+    const input = makeSuccessfulInput(contract);
+    const job = input.jobsByRun[input.runs[0].id][0];
+    job.steps = [makeStep(1, SUBJECT_CHECKOUT_STEP)];
+
+    const receipt = evaluateHostedVerdict(input, contract);
+
+    expect(receipt.verdict).toBe('failed');
+    expect(receipt.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: 'execution_subject_step_missing',
+        workflow: 'CI',
+        job: 'Lint',
+      })
+    );
+  });
+
+  test('requires the execution-subject step to complete successfully', () => {
+    const contract = makeContract();
+
+    for (const state of [
+      { status: 'completed', conclusion: 'failure' },
+      { status: 'completed', conclusion: 'skipped' },
+      { status: 'in_progress', conclusion: null },
+    ]) {
+      const input = makeSuccessfulInput(contract);
+      const subjectStep = input.jobsByRun[input.runs[0].id][0].steps[1];
+      Object.assign(subjectStep, state);
+
+      const codes = evaluateHostedVerdict(input, contract).diagnostics.map(item => item.code);
+
+      expect(codes).toContain('execution_subject_step_not_successful');
+    }
+  });
+
+  test('requires the governed checkout step to complete successfully', () => {
+    const contract = makeContract();
+
+    for (const state of [
+      { status: 'completed', conclusion: 'failure' },
+      { status: 'completed', conclusion: 'skipped' },
+      { status: 'in_progress', conclusion: null },
+    ]) {
+      const input = makeSuccessfulInput(contract);
+      Object.assign(input.jobsByRun[input.runs[0].id][0].steps[0], state);
+
+      expect(evaluateHostedVerdict(input, contract).diagnostics.map(item => item.code)).toContain(
+        'execution_subject_checkout_not_successful'
+      );
+    }
+  });
+
+  test('requires subject verification immediately after the governed checkout step', () => {
+    const contract = makeContract();
+    const input = makeSuccessfulInput(contract);
+    input.jobsByRun[input.runs[0].id][0].steps = [
+      makeStep(1, SUBJECT_VERIFY_STEP),
+      makeStep(2, SUBJECT_CHECKOUT_STEP),
+    ];
+
+    const receipt = evaluateHostedVerdict(input, contract);
+
+    expect(receipt.verdict).toBe('failed');
+    expect(receipt.diagnostics.map(item => item.code)).toContain(
+      'execution_subject_step_order_invalid'
+    );
+  });
+
+  test('checks execution-subject evidence on every expanded matrix job', () => {
+    const contract = makeContract();
+    const input = makeSuccessfulInput(contract);
+    const cousinRun = input.runs.find(run => run.name === 'Cousin Install');
+    const matrixJob = input.jobsByRun[cousinRun.id].find(
+      job => job.name === 'Cousin Install (windows-latest, Node 22, bun)'
+    );
+    matrixJob.steps = [makeStep(1, SUBJECT_CHECKOUT_STEP)];
+
+    expect(evaluateHostedVerdict(input, contract).diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: 'execution_subject_step_missing',
+        workflow: 'Cousin Install',
+        job: matrixJob.name,
+      })
+    );
+  });
+
+  test('rejects ambiguous duplicate execution-subject evidence', () => {
+    const contract = makeContract();
+    const input = makeSuccessfulInput(contract);
+    const job = input.jobsByRun[input.runs[0].id][0];
+    job.steps.push(makeStep(3, SUBJECT_VERIFY_STEP));
+
+    expect(evaluateHostedVerdict(input, contract).diagnostics.map(item => item.code)).toContain(
+      'execution_subject_step_ambiguous'
+    );
+  });
+
+  test('rejects execution-subject evidence assigned to a different workflow run', () => {
+    const contract = makeContract();
+    const input = makeSuccessfulInput(contract);
+    input.jobsByRun[input.runs[0].id][0].run_id += 1;
+
+    expect(evaluateHostedVerdict(input, contract).diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: 'execution_subject_run_mismatch',
+        workflow: 'CI',
+        job: 'Lint',
+      })
+    );
+
+    const wrongUrl = makeSuccessfulInput(contract);
+    wrongUrl.jobsByRun[wrongUrl.runs[0].id][0].html_url =
+      'https://github.com/chudeemeke/get-stuff-done/actions/runs/999/job/1';
+    expect(evaluateHostedVerdict(wrongUrl, contract).diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: 'execution_subject_job_url_invalid',
+        workflow: 'CI',
+      })
+    );
   });
 
   test('fails when the live PR head differs from local HEAD', () => {
@@ -330,6 +1239,26 @@ describe('hosted CI verdict authority', () => {
     expect(
       evaluateHostedVerdict(unexpected, makeContract()).diagnostics.map(item => item.code)
     ).toContain('unexpected_workflow');
+  });
+
+  test('rejects a same-name run from a different workflow path', () => {
+    const input = makeSuccessfulInput();
+    input.runs.push(
+      makeRun(999, 'CI', {
+        path: '.github/workflows/spoof.yml',
+        created_at: '2026-07-14T04:00:00Z',
+        updated_at: '2026-07-14T04:00:00Z',
+      })
+    );
+
+    const receipt = evaluateHostedVerdict(input, makeContract());
+
+    expect(receipt.verdict).toBe('failed');
+    expect(receipt.diagnostics).toContainEqual({
+      code: 'unexpected_workflow_identity',
+      workflow: 'CI',
+      path: '.github/workflows/spoof.yml',
+    });
   });
 
   test('fails closed on missing jobs, pending jobs, and executed failures', () => {
@@ -367,6 +1296,21 @@ describe('hosted CI verdict authority', () => {
 
     expect(receipt.verdict).toBe('passed');
     expect(receipt.workflows.find(workflow => workflow.name === 'CI').attempt).toBe(2);
+    expect(
+      receipt.workflows
+        .find(workflow => workflow.name === 'CI')
+        .executionSubjects.every(subject => subject.attempt === 2)
+    ).toBe(true);
+  });
+
+  test('rejects missing or unsafe run-attempt authority', () => {
+    for (const runAttempt of [undefined, 0, Number.MAX_SAFE_INTEGER + 1]) {
+      const input = makeSuccessfulInput();
+      input.runs[0].run_attempt = runAttempt;
+      expect(
+        evaluateHostedVerdict(input, makeContract()).diagnostics.map(item => item.code)
+      ).toContain('run_attempt_invalid');
+    }
   });
 
   test('uses update time and run ID to break equal-attempt ties deterministically', () => {
@@ -375,6 +1319,36 @@ describe('hosted CI verdict authority', () => {
     const laterHighId = makeRun(3, 'CI', { updated_at: '2026-07-14T03:00:00Z' });
 
     expect(selectLatestRuns([early, laterLowId, laterHighId]).get('CI').id).toBe(3);
+  });
+
+  test('does not let an older rerun eclipse a newer workflow run', () => {
+    const olderRerun = makeRun(10, 'CI', {
+      run_attempt: 9,
+      created_at: '2026-07-14T01:00:00Z',
+      updated_at: '2026-07-14T05:00:00Z',
+    });
+    const newerRun = makeRun(20, 'CI', {
+      run_attempt: 1,
+      created_at: '2026-07-14T04:00:00Z',
+      updated_at: '2026-07-14T04:30:00Z',
+    });
+
+    expect(selectLatestRuns([olderRerun, newerRun]).get('CI').id).toBe(newerRun.id);
+  });
+
+  test('orders equal and partially populated runs deterministically', () => {
+    const sameId = [
+      makeRun(7, 'CI', { created_at: null, updated_at: '2026-07-14T02:00:00Z', run_attempt: 1 }),
+      makeRun(7, 'CI', { created_at: null, updated_at: '2026-07-14T02:00:01Z', run_attempt: 2 }),
+    ];
+    expect(selectLatestRuns(sameId).get('CI').run_attempt).toBe(2);
+
+    const sameAttempt = [
+      makeRun(8, 'CI', { created_at: null, updated_at: '2026-07-14T02:00:00Z' }),
+      makeRun(8, 'CI', { created_at: null, updated_at: '2026-07-14T02:00:01Z' }),
+    ];
+    expect(selectLatestRuns(sameAttempt).get('CI').updated_at).toBe('2026-07-14T02:00:01Z');
+    expect(selectLatestRuns([{ name: 'CI' }, { name: 'CI' }]).get('CI')).toEqual({ name: 'CI' });
   });
 
   test('rejects malformed job-matrix cardinality and placeholder contracts', () => {
@@ -408,6 +1382,24 @@ describe('hosted CI verdict authority', () => {
     expect(receipt.verdict).toBe('failed');
     expect(receipt.reason).not.toBe('account_billing_lock');
     expect(receipt.diagnostics.map(item => item.code)).toContain('zero_step_failure');
+  });
+
+  test('handles missing billing annotations, jobs, and execution-subject steps', () => {
+    const missingMessage = makeBillingLockedInput();
+    missingMessage.annotationsByJob[missingMessage.jobsByRun[missingMessage.runs[0].id][0].id] = [
+      {},
+    ];
+    expect(evaluateHostedVerdict(missingMessage, makeContract()).verdict).toBe('failed');
+
+    const missingJobs = makeBillingLockedInput();
+    delete missingJobs.jobsByRun[missingJobs.runs[0].id];
+    expect(evaluateHostedVerdict(missingJobs, makeContract()).verdict).toBe('failed');
+
+    const missingSteps = makeSuccessfulInput();
+    missingSteps.jobsByRun[missingSteps.runs[0].id][0].steps = null;
+    expect(evaluateHostedVerdict(missingSteps, makeContract()).diagnostics).toContainEqual(
+      expect.objectContaining({ code: 'execution_subject_step_missing' })
+    );
   });
 
   test('rejects collection drift, wrong PR or trigger authority, incomplete runs, and unclassified jobs', () => {
@@ -470,6 +1462,12 @@ describe('hosted CI infrastructure ports', () => {
     expect(calls).toHaveLength(1);
     expect(calls[0].options.shell).toBe(false);
     expect(calls[0].options.encoding).toBe('utf8');
+    expect(
+      runJsonCommand(process.execPath, [
+        '-e',
+        'process.stdout.write(JSON.stringify({ portable: true }))',
+      ])
+    ).toEqual({ portable: true });
   });
 
   test('rejects command failures and malformed JSON without echoing environment', () => {
@@ -534,6 +1532,9 @@ describe('hosted CI infrastructure ports', () => {
         },
       })
     ).toThrow('git unavailable');
+    expect(runTextCommand(process.execPath, ['-e', 'process.stdout.write("portable")'])).toBe(
+      'portable'
+    );
   });
 
   test('collects exact-head runs, latest jobs, and zero-step annotations', () => {
@@ -556,7 +1557,9 @@ describe('hosted CI infrastructure ports', () => {
             return { head: { sha: EXPECTED_HEAD } };
           }
           if (endpoint.includes('/actions/runs?')) return { total_count: 1, workflow_runs: [run] };
-          if (endpoint.includes('/actions/runs/100/jobs')) return { total_count: 1, jobs: [job] };
+          if (endpoint.includes('/actions/runs/100/attempts/1/jobs')) {
+            return { total_count: 1, jobs: [job] };
+          }
           if (endpoint.includes('/check-runs/1000/annotations')) {
             return [{ message: BILLING_MESSAGE }];
           }
@@ -572,6 +1575,11 @@ describe('hosted CI infrastructure ports', () => {
     expect(input.jobsByRun[100]).toEqual([job]);
     expect(input.annotationsByJob[1000]).toEqual([{ message: BILLING_MESSAGE }]);
     expect(calls.every(call => call[0] === 'gh' || call[0] === 'git')).toBe(true);
+    expect(calls).toContainEqual([
+      'gh',
+      'api',
+      'repos/chudeemeke/get-stuff-done/actions/runs/100/attempts/1/jobs?per_page=100',
+    ]);
   });
 
   test('rejects incomplete workflow and job pagination', () => {
@@ -604,6 +1612,57 @@ describe('hosted CI infrastructure ports', () => {
         }
       )
     ).toThrow('run 1');
+  });
+
+  test('uses default command adapters and rejects unsafe collected run identity', () => {
+    const spawn = (_command, args) => {
+      if (args[0] === 'rev-parse') return { status: 0, stdout: `${EXPECTED_HEAD}\n`, stderr: '' };
+      if (args[1].includes('/pulls/')) {
+        return {
+          status: 0,
+          stdout: JSON.stringify({ head: { sha: EXPECTED_HEAD } }),
+          stderr: '',
+        };
+      }
+      return { status: 0, stdout: '{}', stderr: '' };
+    };
+    const collected = collectHostedData(
+      { repository: 'chudeemeke/get-stuff-done', pullRequest: 23 },
+      { spawnSync: spawn }
+    );
+    expect(collected.runs).toEqual([]);
+    expect(collected.localHeadAtEnd).toBe(EXPECTED_HEAD);
+
+    expect(() =>
+      collectHostedData(
+        { repository: 'chudeemeke/get-stuff-done', pullRequest: 23 },
+        {
+          runTextCommand: () => EXPECTED_HEAD,
+          runJsonCommand(_command, args) {
+            if (args[1].includes('/pulls/')) return { head: { sha: EXPECTED_HEAD } };
+            return { workflow_runs: [makeRun(0, 'CI')], total_count: 1 };
+          },
+        }
+      )
+    ).toThrow('run ID and attempt');
+
+    const run = makeRun(1, 'CI');
+    const noJobs = collectHostedData(
+      {
+        repository: 'chudeemeke/get-stuff-done',
+        pullRequest: 23,
+        workflows: [{ name: 'CI', path: WORKFLOW_PATHS.CI }],
+      },
+      {
+        runTextCommand: () => EXPECTED_HEAD,
+        runJsonCommand(_command, args) {
+          if (args[1].includes('/pulls/')) return { head: { sha: EXPECTED_HEAD } };
+          if (args[1].includes('/actions/runs?')) return { workflow_runs: [run] };
+          return {};
+        },
+      }
+    );
+    expect(noJobs.jobsByRun[run.id]).toEqual([]);
   });
 
   test('parses explicit collect and offline verification modes', () => {
@@ -642,10 +1701,42 @@ describe('hosted CI infrastructure ports', () => {
       ])
     ).toMatchObject({ mode: 'verify-receipt', subjectCommit: EXPECTED_HEAD });
     expect(parseArgs(['--help'])).toEqual({ help: true });
+    expect(parseArgs(['-h'])).toEqual({ help: true });
     expect(() => parseArgs(['collect', '--pr', '23', '--receipt', receipt])).toThrow(
       '--purpose'
     );
+    expect(() =>
+      parseArgs([
+        'collect',
+        '--pr',
+        String(Number.MAX_SAFE_INTEGER + 1),
+        '--receipt',
+        receipt,
+        '--purpose',
+        'bounded collection',
+      ])
+    ).toThrow('--pr');
+    expect(() =>
+      parseArgs([
+        'collect',
+        '--pr',
+        '23',
+        '--receipt',
+        receipt,
+        '--purpose',
+        'x'.repeat(501),
+      ])
+    ).toThrow('--purpose');
     expect(() => parseArgs(['--pr', '23'])).toThrow('mode');
+    for (const args of [
+      ['verify-pending', '--pr', '23', '--unknown', 'value'],
+      ['verify-pending', '--pr', '23', '--pr', '24', '--receipt', receipt],
+      ['verify-pending', '--pr', '23'],
+      ['verify-pending', '--pr', '23', '--receipt', receipt, '--purpose', 'not allowed'],
+      ['verify-receipt', '--pr', '23', '--receipt', receipt],
+    ]) {
+      expect(() => parseArgs(args)).toThrow();
+    }
   });
 
   test('receipt paths stay inside the hosted directory and never target existing bytes', () => {
@@ -680,6 +1771,11 @@ describe('hosted CI infrastructure ports', () => {
       expect(() => resolveReceiptPath(root, contract, 'other/receipt.json')).toThrow(
         'hosted evidence directory'
       );
+      expect(() =>
+        resolveReceiptPath(root, contract, '.planning/evidence/hosted/missing/deep/receipt.json', {
+          mustExist: true,
+        })
+      ).toThrow('does not exist');
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }
@@ -726,17 +1822,36 @@ describe('hosted CI infrastructure ports', () => {
     }
   });
 
+  test('atomic receipt publication reports cleanup failures without hiding the cause', () => {
+    expect(() => writeReceiptAtomic('unused.json', undefined)).toThrow('serialize');
+    let unlinkCalls = 0;
+    const fileSystem = {
+      mkdirSync() {},
+      writeFileSync() {},
+      linkSync() {},
+      unlinkSync() {
+        unlinkCalls += 1;
+        if (unlinkCalls === 1) throw new Error('primary unlink failure');
+        if (unlinkCalls === 2) throw new Error('destination cleanup failure');
+        throw new Error('temp cleanup failure');
+      },
+    };
+    expect(() => writeReceiptAtomic('unused.json', { sequence: 1 }, { fileSystem })).toThrow(
+      'publication and cleanup failed'
+    );
+  });
+
   test('collection publishes only a passed exact-head envelope', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
     const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
     const writes = [];
-    const readTracked = (_commit, filePath) => fs.readFileSync(path.join(PROJECT_ROOT, filePath));
+    const readTracked = (_commit, filePath) => readSubjectCompliantAuthorityPath(filePath, contract);
     const baseDependencies = {
       contract,
       projectRoot: PROJECT_ROOT,
       resolveReceiptPath: () => path.join(PROJECT_ROOT, ...receiptPath.split('/')),
       readTracked,
-      readCurrent: filePath => fs.readFileSync(path.join(PROJECT_ROOT, filePath)),
+      readCurrent: filePath => readSubjectCompliantAuthorityPath(filePath, contract),
       writeReceiptAtomic: (filePath, value) => writes.push({ filePath, value }),
     };
     const options = {
@@ -767,13 +1882,67 @@ describe('hosted CI infrastructure ports', () => {
     expect(unavailable.verdict).toBe('unavailable');
     expect(unavailable.hostedEvidenceExists).toBe(false);
     expect(writes).toEqual([]);
+    expect(() =>
+      collectHostedEnvelope(options, {
+        ...baseDependencies,
+        readCurrent: undefined,
+        collectHostedData: () => makeSuccessfulInput(contract),
+      })
+    ).toThrow('tracked and current governed-byte readers');
+
+    const defaultReceipt = `.planning/evidence/hosted/defaults-${process.pid}.json`;
+    const defaultOptions = { ...options, receiptPath: defaultReceipt };
+    expect(
+      collectHostedEnvelope(defaultOptions, {
+        collectHostedData: () => makeBillingLockedInput(),
+      }).verdict
+    ).toBe('unavailable');
+
+    const spawn = (_command, args) => {
+      if (args[0] === 'rev-parse') return { status: 0, stdout: `${EXPECTED_HEAD}\n`, stderr: '' };
+      if (args[1].includes('/pulls/')) {
+        return {
+          status: 0,
+          stdout: JSON.stringify({ head: { sha: EXPECTED_HEAD } }),
+          stderr: '',
+        };
+      }
+      return { status: 0, stdout: '{}', stderr: '' };
+    };
+    expect(collectHostedEnvelope(defaultOptions, { spawnSync: spawn }).verdict).toBe('failed');
+
+    const errors = [];
+    expect(
+      main(
+        [
+          'collect',
+          '--pr',
+          '23',
+          '--receipt',
+          defaultReceipt,
+          '--purpose',
+          'default handler routing',
+        ],
+        {
+          createDefaultDependencies: () => ({
+            contract,
+            projectRoot: PROJECT_ROOT,
+            resolveReceiptPath: () => path.join(PROJECT_ROOT, ...defaultReceipt.split('/')),
+            collectHostedData: () => makeBillingLockedInput(),
+          }),
+          stderr: { write: value => errors.push(value) },
+          stdout: { write() {} },
+        }
+      )
+    ).toBe(1);
+    expect(errors.join('')).toContain('produced unavailable');
   });
 
   test('pending verification is offline, untracked, and bound to current HEAD', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
     const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
     const governedDigests = computeGovernedDigests(contract, filePath =>
-      fs.readFileSync(path.join(PROJECT_ROOT, filePath))
+      readSubjectCompliantAuthorityPath(filePath, contract)
     );
     const envelope = buildPassedEnvelope(
       evaluateHostedVerdict(makeSuccessfulInput(contract), contract),
@@ -791,8 +1960,8 @@ describe('hosted CI infrastructure ports', () => {
       readFile: () => Buffer.from(JSON.stringify(envelope)),
       getHead: () => EXPECTED_HEAD,
       isTracked: () => false,
-      readTracked: (_commit, filePath) => fs.readFileSync(path.join(PROJECT_ROOT, filePath)),
-      readCurrent: filePath => fs.readFileSync(path.join(PROJECT_ROOT, filePath)),
+      readTracked: (_commit, filePath) => readSubjectCompliantAuthorityPath(filePath, contract),
+      readCurrent: filePath => readSubjectCompliantAuthorityPath(filePath, contract),
     };
     const options = {
       mode: 'verify-pending',
@@ -818,9 +1987,53 @@ describe('hosted CI infrastructure ports', () => {
         readTracked: (_commit, filePath) =>
           filePath === contract.governedPaths.source[0]
             ? Buffer.from('changed\n')
-            : fs.readFileSync(path.join(PROJECT_ROOT, filePath)),
+            : readSubjectCompliantAuthorityPath(filePath, contract),
       })
     ).toThrow('governed digests');
+    expect(() =>
+      verifyPendingEnvelope(options, {
+        ...dependencies,
+        readFile: () => Buffer.alloc(MAX_HOSTED_RECEIPT_BYTES + 1, 0x20),
+      })
+    ).toThrow('size limit');
+    expect(() =>
+      verifyPendingEnvelope(options, {
+        contract,
+        projectRoot: PROJECT_ROOT,
+        resolveReceiptPath: () => path.join(PROJECT_ROOT, ...receiptPath.split('/')),
+      })
+    ).toThrow('receipt reader');
+    expect(() =>
+      verifyPendingEnvelope(options, {
+        ...dependencies,
+        readCurrent: undefined,
+      })
+    ).toThrow('tracked and current governed-byte readers');
+    const wrongAuthority = structuredClone(envelope);
+    wrongAuthority.pullRequest += 1;
+    expect(() =>
+      verifyPendingEnvelope(options, {
+        ...dependencies,
+        readFile: () => JSON.stringify(wrongAuthority),
+      })
+    ).toThrow('CLI path and pull request authority');
+    expect(() =>
+      verifyPendingEnvelope(options, {
+        ...dependencies,
+        readTracked: (_commit, filePath) =>
+          readSubjectCompliantAuthorityPath(filePath, contract).toString('utf8'),
+        readCurrent: filePath =>
+          filePath === contract.governedPaths.source[0]
+            ? 'changed current bytes\n'
+            : readSubjectCompliantAuthorityPath(filePath, contract).toString('utf8'),
+      })
+    ).toThrow('differs from checked commit');
+    expect(() =>
+      verifyPendingEnvelope(
+        { ...options, receiptPath: `.planning/evidence/hosted/missing-${process.pid}.json` },
+        {}
+      )
+    ).toThrow('does not exist');
   });
 
   test('tracked verification requires strict ancestry and unchanged governed bytes', () => {
@@ -834,7 +2047,7 @@ describe('hosted CI infrastructure ports', () => {
     input.prHead = checkedCommit;
     for (const run of input.runs) run.head_sha = checkedCommit;
     const governedDigests = computeGovernedDigests(contract, filePath =>
-      fs.readFileSync(path.join(PROJECT_ROOT, filePath))
+      readSubjectCompliantAuthorityPath(filePath, contract)
     );
     const envelope = buildPassedEnvelope(evaluateHostedVerdict(input, contract), contract, {
       purpose: 'Plan 11R initial hosted authority',
@@ -845,7 +2058,7 @@ describe('hosted CI infrastructure ports', () => {
       if (commit === subjectCommit && filePath === receiptPath) {
         return Buffer.from(JSON.stringify(envelope));
       }
-      return fs.readFileSync(path.join(PROJECT_ROOT, filePath));
+      return readSubjectCompliantAuthorityPath(filePath, contract);
     };
     const options = {
       mode: 'verify-receipt',
@@ -879,6 +2092,17 @@ describe('hosted CI infrastructure ports', () => {
     expect(() =>
       verifyTrackedEnvelope(options, { ...dependencies, isTrackedAt: () => false })
     ).toThrow('tracked in the subject commit');
+    const wrongAuthority = structuredClone(envelope);
+    wrongAuthority.receiptPath = '.planning/evidence/hosted/other.json';
+    expect(() =>
+      verifyTrackedEnvelope(options, {
+        ...dependencies,
+        readTracked: (commit, filePath) =>
+          commit === subjectCommit && filePath === receiptPath
+            ? JSON.stringify(wrongAuthority)
+            : readTracked(commit, filePath),
+      })
+    ).toThrow('CLI path and pull request authority');
   });
 
   test('tracked verification rejects malformed authority before invoking Git adapters', () => {
@@ -910,6 +2134,48 @@ describe('hosted CI infrastructure ports', () => {
         dependencies
       )
     ).toThrow('hosted evidence directory');
+    expect(() =>
+      verifyTrackedEnvelope(
+        {
+          pullRequest: 23,
+          receiptPath: '.planning/evidence/hosted/receipt.json',
+          subjectCommit: 'b'.repeat(40),
+        },
+        {}
+      )
+    ).toThrow('exact-commit reader');
+    expect(() =>
+      verifyTrackedEnvelope(
+        {
+          pullRequest: 23,
+          receiptPath: '.planning/evidence/hosted/receipt.json',
+          subjectCommit: 'b'.repeat(40),
+        },
+        {
+          isTrackedAt: () => true,
+          readTracked: () => JSON.stringify({ checkedCommit: 'invalid' }),
+        }
+      )
+    ).toThrow('checked commit is invalid');
+    expect(() =>
+      verifyTrackedEnvelope(
+        { pullRequest: 23, receiptPath: '.planning/evidence/hosted/receipt.json' },
+        {}
+      )
+    ).toThrow('subject commit');
+    expect(() =>
+      verifyTrackedEnvelope(
+        {
+          pullRequest: 23,
+          receiptPath: '.planning/evidence/hosted/receipt.json',
+          subjectCommit: 'b'.repeat(40),
+        },
+        {
+          isTrackedAt: () => true,
+          readTracked: () => JSON.stringify({}),
+        }
+      )
+    ).toThrow('checked commit is invalid');
   });
 
   test('CLI help is side-effect free and mode routing redacts failures', () => {
@@ -968,6 +2234,36 @@ describe('hosted CI infrastructure ports', () => {
     expect(stderr.join('')).not.toContain(classicToken);
   });
 
+  test('default Node CLI and filesystem adapters are executable and bounded', () => {
+    const scriptPath = path.join(PROJECT_ROOT, 'scripts', 'verify-hosted-ci.js');
+    const help = spawnSync(process.execPath, [scriptPath, '--help'], {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8',
+      shell: false,
+      windowsHide: true,
+    });
+    expect(help.status).toBe(0);
+    expect(help.stdout).toContain('Usage:');
+
+    const dependencies = createDefaultDependencies(PROJECT_ROOT);
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-hosted-defaults-'));
+    const receiptPath = path.join(root, 'receipt.json');
+    try {
+      fs.writeFileSync(receiptPath, '{}\n');
+      expect(dependencies.readFile(receiptPath).toString('utf8')).toBe('{}\n');
+      fs.writeFileSync(receiptPath, Buffer.alloc(MAX_HOSTED_RECEIPT_BYTES + 1));
+      expect(() => dependencies.readFile(receiptPath)).toThrow('size limit');
+      expect(() => dependencies.readTracked('not-a-commit', 'package.json')).toThrow(
+        'Git hosted-evidence command failed'
+      );
+      expect(() => dependencies.isAncestor('not-a-commit', 'also-not-a-commit')).toThrow(
+        'status command failed'
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test('CLI routes both offline verification modes without constructing real adapters', () => {
     const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
     const subjectCommit = 'b'.repeat(40);
@@ -1022,8 +2318,8 @@ describe('hosted CI infrastructure ports', () => {
     expect(dependencies.isTrackedAt(head, 'config/phase43-hosted-ci-contract.json')).toBe(true);
     expect(dependencies.isTrackedAt(head, '.planning/evidence/hosted/missing.json')).toBe(false);
     expect(dependencies.isAncestor(head, head)).toBe(true);
-    expect(dependencies.readTracked(head, 'package.json')).toEqual(
-      fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'))
-    );
+    const trackedPackage = dependencies.readTracked(head, 'package.json');
+    expect(Buffer.isBuffer(trackedPackage)).toBe(true);
+    expect(JSON.parse(trackedPackage.toString('utf8')).name).toBe('@chude/get-stuff-done');
   });
 });

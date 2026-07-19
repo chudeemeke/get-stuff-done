@@ -328,6 +328,16 @@ function windowsReplaceError(result) {
   return error;
 }
 
+function buildWindowsPowerShellExecutable(systemRoot = 'C:\\Windows') {
+  return path.win32.join(
+    systemRoot,
+    'System32',
+    'WindowsPowerShell',
+    'v1.0',
+    'powershell.exe'
+  );
+}
+
 function replaceWindowsFileSync(replacementPath, targetPath, deps = {}) {
   const environment = deps.env || process.env;
   const spawn = deps.spawnSync || spawnSync;
@@ -336,9 +346,6 @@ function replaceWindowsFileSync(replacementPath, targetPath, deps = {}) {
   const entropy = deps.entropy || crypto.randomUUID;
   const sleep = deps.sleep || sleepSync;
   const expectedContent = deps.expectedOriginalContent;
-  if (typeof expectedContent !== 'string') {
-    throw new TypeError('expected original roadmap content must be a string');
-  }
   const originalIdentity = readExpectedRegularFile(fileSystem, targetPath, expectedContent);
   if (!originalIdentity) {
     throw new Error('roadmap target changed or is not a regular file before Windows publication');
@@ -363,12 +370,8 @@ function replaceWindowsFileSync(replacementPath, targetPath, deps = {}) {
     }
     throw error;
   }
-  const executable = path.join(
-    environment.SystemRoot || 'C:\\Windows',
-    'System32',
-    'WindowsPowerShell',
-    'v1.0',
-    'powershell.exe'
+  const executable = buildWindowsPowerShellExecutable(
+    environment.SystemRoot || 'C:\\Windows'
   );
   const result = spawn(executable, [
     '-NoLogo',
@@ -481,6 +484,7 @@ function publishRoadmapPreservingBytes(filePath, originalContent, updatedContent
 }
 
 module.exports = {
+  buildWindowsPowerShellExecutable,
   projectRoadmapEol,
   publishRoadmapPreservingBytes,
 };

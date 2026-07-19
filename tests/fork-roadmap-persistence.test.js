@@ -1,10 +1,11 @@
-const { describe, expect, test } = require('bun:test');
+const { describe, expect, test } = require('./helpers/portable-test-api');
 const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
 const {
+  buildWindowsPowerShellExecutable,
   projectRoadmapEol,
   publishRoadmapPreservingBytes,
 } = require('../overlay/gsd-core/bin/lib/fork-roadmap-persistence.cjs');
@@ -62,22 +63,30 @@ function walkFiles(rootPath) {
   });
 }
 
-function runWindowsPowerShell(script, filePath) {
-  const executable = path.join(
-    process.env.SystemRoot || 'C:\\Windows',
-    'System32',
-    'WindowsPowerShell',
-    'v1.0',
-    'powershell.exe'
+function runWindowsPowerShell(script, filePath, options = {}) {
+  const executable = buildWindowsPowerShellExecutable(
+    process.env.SystemRoot || 'C:\\Windows'
   );
+  const bootstrap = `
+    $securityManifest = $env:GSD_TEST_SECURITY_MANIFEST
+    if ([string]::IsNullOrEmpty($securityManifest)) {
+      $securityManifest = Join-Path $PSHOME 'Modules\\Microsoft.PowerShell.Security\\Microsoft.PowerShell.Security.psd1'
+    }
+    Import-Module -Name $securityManifest -ErrorAction Stop
+  `;
   const result = spawnSync(executable, [
     '-NoLogo',
     '-NoProfile',
     '-NonInteractive',
     '-EncodedCommand',
-    Buffer.from(script, 'utf16le').toString('base64'),
+    Buffer.from(`${bootstrap}\n${script}`, 'utf16le').toString('base64'),
   ], {
-    env: { ...process.env, GSD_TEST_ROADMAP_PATH: filePath },
+    env: {
+      ...process.env,
+      ...options.env,
+      GSD_TEST_ROADMAP_PATH: filePath,
+      GSD_TEST_SECURITY_MANIFEST: options.securityManifestPath || '',
+    },
     encoding: 'utf8',
     windowsHide: true,
   });
@@ -177,6 +186,13 @@ describe('fork roadmap atomic publication', () => {
   test('rejects an empty roadmap path', () => {
     expect(() => publishRoadmapPreservingBytes('', 'before', 'after'))
       .toThrow('roadmap file path must be a non-empty string');
+  });
+
+  test('rejects non-string roadmap publication content', () => {
+    expect(() => publishRoadmapPreservingBytes('ROADMAP.md', null, 'after'))
+      .toThrow('roadmap content must be a string');
+    expect(() => publishRoadmapPreservingBytes('ROADMAP.md', 'before', null))
+      .toThrow('roadmap content must be a string');
   });
 
   test('does not publish when projected content is unchanged', () => {
@@ -300,7 +316,9 @@ describe('fork roadmap atomic publication', () => {
       if (process.platform !== 'win32') fs.chmodSync(filePath, 0o600);
       const originalMode = fs.statSync(filePath).mode & 0o777;
 
-      expect(publishRoadmapPreservingBytes(filePath, 'before\n', 'after\n')).toBe(true);
+      expect(publishRoadmapPreservingBytes(filePath, 'before\n', 'after\n', {
+        platform: 'linux',
+      })).toBe(true);
       expect(fs.readFileSync(filePath, 'utf8')).toBe('after\n');
       expect(fs.statSync(filePath).mode & 0o777).toBe(originalMode);
     } finally {
@@ -322,6 +340,15 @@ describe('fork roadmap atomic publication', () => {
     expect(harness.calls.filter(([name]) => name === 'replace'))
       .toEqual([['replace', tempPath, filePath]]);
     expect(harness.calls.filter(([name]) => name === 'rename')).toHaveLength(0);
+  });
+
+  test('constructs the target Windows executable independently of host separators', () => {
+    expect(buildWindowsPowerShellExecutable()).toBe(
+      'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+    );
+    expect(buildWindowsPowerShellExecutable('C:/Windows')).toBe(
+      'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+    );
   });
 
   test('passes Windows replacement paths through the child environment only', () => {
@@ -485,6 +512,26 @@ describe('fork roadmap atomic publication', () => {
       })).toThrow();
       expect(fs.readFileSync(filePath, 'utf8')).toBe('before\n');
       expect(fs.readdirSync(tempDir)).toEqual(['ROADMAP.md']);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test('preserves all copies when the reserved Windows backup is changed', () => {
+    const { tempDir, filePath } = createRealPublicationFixture('gsd-roadmap-backup-changed-');
+    try {
+      expect(() => publishRoadmapPreservingBytes(filePath, 'before\n', 'after\n', {
+        platform: 'win32',
+        entropy: () => 'abc123',
+        spawnSync: simulatedWindowsReplace(999, ({ backupPath }) => {
+          fs.writeFileSync(backupPath, 'tampered\n', 'utf8');
+        }),
+      })).toThrow('Windows roadmap replacement failed with an untrusted recovery object');
+      expect(fs.readFileSync(filePath, 'utf8')).toBe('tampered\n');
+      expect(fs.readdirSync(tempDir).some((entry) => entry.includes('.tmp.'))).toBe(true);
+      const recoveryDir = fs.readdirSync(tempDir).find((entry) => entry.includes('.recovery.'));
+      expect(fs.readFileSync(path.join(tempDir, recoveryDir, 'original'), 'utf8'))
+        .toBe('tampered\n');
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
@@ -795,6 +842,28 @@ describe('fork roadmap atomic publication', () => {
       expect(publishRoadmapPreservingBytes(filePath, 'before\n', 'after\n')).toBe(true);
       expect(readWindowsDacl(filePath)).toEqual(originalDacl);
       expect(fs.readdirSync(tempDir)).toEqual(['ROADMAP.md']);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test('ACL bootstrap stops before the probe body when the inbox manifest is unavailable', () => {
+    if (process.platform !== 'win32') return;
+
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-roadmap-acl-bootstrap-'));
+    const markerPath = path.join(tempDir, 'product-called');
+    try {
+      expect(() =>
+        runWindowsPowerShell(
+          `[System.IO.File]::WriteAllText($env:GSD_TEST_PRODUCT_MARKER, 'called')`,
+          path.join(tempDir, 'ROADMAP.md'),
+          {
+            securityManifestPath: path.join(tempDir, 'missing-security-module.psd1'),
+            env: { GSD_TEST_PRODUCT_MARKER: markerPath },
+          }
+        )
+      ).toThrow('PowerShell ACL probe failed');
+      expect(fs.existsSync(markerPath)).toBe(false);
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }

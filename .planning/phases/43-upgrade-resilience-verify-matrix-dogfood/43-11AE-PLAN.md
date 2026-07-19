@@ -8,6 +8,7 @@ depends_on: ["43-11AC"]
 status: pending
 requirements: ["UPGRADE-04", "SHIP-08"]
 files_modified:
+  - package.json
   - overlay/gsd-core/bin/lib/fork-roadmap-persistence.cjs
   - tests/fork-roadmap-persistence.test.js
   - tests/verify-hosted-ci.test.js

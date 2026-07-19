@@ -1741,7 +1741,8 @@ describe('hosted CI infrastructure ports', () => {
 
   test('receipt paths stay inside the hosted directory and never target existing bytes', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-hosted-path-'));
-    const hosted = path.join(root, '.planning', 'evidence', 'hosted');
+    const canonicalRoot = fs.realpathSync.native(root);
+    const hosted = path.join(canonicalRoot, '.planning', 'evidence', 'hosted');
     const outside = path.join(root, 'outside');
     fs.mkdirSync(hosted, { recursive: true });
     fs.mkdirSync(outside);
@@ -1778,6 +1779,60 @@ describe('hosted CI infrastructure ports', () => {
       ).toThrow('does not exist');
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test('receipt expectations use native canonical identity for a linked project root', () => {
+    const container = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-hosted-alias-'));
+    const realRoot = path.join(container, 'real-root');
+    const aliasRoot = path.join(container, 'alias-root');
+    const contract = { evidenceDirectory: '.planning/evidence/hosted' };
+    fs.mkdirSync(path.join(realRoot, '.planning', 'evidence', 'hosted'), {
+      recursive: true,
+    });
+
+    try {
+      fs.symlinkSync(
+        realRoot,
+        aliasRoot,
+        process.platform === 'win32' ? 'junction' : 'dir'
+      );
+      const canonicalRoot = fs.realpathSync.native(aliasRoot);
+      const expected = path.join(
+        canonicalRoot,
+        '.planning',
+        'evidence',
+        'hosted',
+        'new.json'
+      );
+      const resolved = resolveReceiptPath(
+        aliasRoot,
+        contract,
+        '.planning/evidence/hosted/new.json',
+        { mustNotExist: true }
+      );
+
+      expect(resolved).toBe(expected);
+      expect(resolved).not.toBe(
+        path.join(aliasRoot, '.planning', 'evidence', 'hosted', 'new.json')
+      );
+    } finally {
+      fs.rmSync(container, { recursive: true, force: true });
+    }
+  });
+
+  test('native canonical expectations account for platform path aliases', () => {
+    if (process.platform === 'darwin' && fs.existsSync('/var')) {
+      expect(fs.realpathSync.native('/var')).toBe('/private/var');
+    }
+
+    if (process.platform === 'win32') {
+      const shortProgramFiles = `${process.env.SystemDrive || 'C:'}\\PROGRA~1`;
+      if (fs.existsSync(shortProgramFiles)) {
+        expect(fs.realpathSync.native(shortProgramFiles)).toBe(
+          fs.realpathSync.native(process.env.ProgramFiles)
+        );
+      }
     }
   });
 

@@ -90,6 +90,7 @@
     "test": "node scripts/run-bun-tests.js",
     "test:coverage:bun": "node scripts/run-bun-tests.js --coverage",
     "test:coverage:phase43-verifiers": "node node_modules/c8/bin/c8.js --allowExternal --per-file '--include=**/scripts/verify-hosted-ci.js' '--include=**/scripts/verify-toolchain-authority.js' --check-coverage --statements 95 --branches 95 --functions 95 --lines 95 --reporter=text --reporter=json-summary node --test tests/verify-hosted-ci.test.js tests/toolchain-authority.test.js",
+    "test:coverage:phase43-roadmap-persistence": "node node_modules/c8/bin/c8.js --allowExternal --per-file '--include=**/overlay/gsd-core/bin/lib/fork-roadmap-persistence.cjs' --check-coverage --statements 95 --branches 95 --functions 95 --lines 95 --reporter=text --reporter=json-summary node --test tests/fork-roadmap-persistence.test.js",
     "test:coverage:phase43-audit-sbom": "node node_modules/c8/bin/c8.js --allowExternal --per-file '--include=**/scripts/audit-check.js' '--include=**/scripts/generate-sbom.js' --check-coverage --statements 95 --branches 95 --functions 95 --lines 95 --reporter=text --reporter=json-summary node --test tests/audit-check.test.js tests/generate-sbom.test.js",
     "test:repository-compat": "node scripts/run-repository-compat.js",
     "test:upstream": "node --test tests/*.test.cjs",

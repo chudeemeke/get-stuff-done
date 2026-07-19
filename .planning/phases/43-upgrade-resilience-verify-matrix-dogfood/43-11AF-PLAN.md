@@ -5,7 +5,7 @@ type: execute
 gap_closure: true
 wave: 19
 depends_on: ["43-11AC"]
-status: pending
+status: complete
 requirements: ["UPGRADE-01", "UPGRADE-02", "UPGRADE-09", "SHIP-08"]
 files_modified:
   - scripts/verify-upgrade.js
@@ -56,7 +56,7 @@ authentication and fail-closed secret handling.
   <verify>
     <automated>bun run test -- tests/verify-upgrade.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11AF-02" type="auto">
@@ -93,7 +93,7 @@ authentication and fail-closed secret handling.
     <automated>bun run test -- tests/verify-upgrade.test.js</automated>
     <automated>bun run verify-upgrade -- --help</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 </tasks>

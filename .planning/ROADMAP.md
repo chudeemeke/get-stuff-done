@@ -184,7 +184,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-11AC-PLAN.md -- Wave 18: Exact execution-subject and deterministic toolchain authority contracts
 - [x] 43-11AD-PLAN.md -- Wave 19: CycloneDX 6 security remediation and SBOM compatibility
 - [x] 43-11AE-PLAN.md -- Wave 19: Cross-platform product, oracle, and harness corrections
-- [ ] 43-11AF-PLAN.md -- Wave 19: Authenticated Verdaccio upgrade verification and redaction
+- [x] 43-11AF-PLAN.md -- Wave 19: Authenticated Verdaccio upgrade verification and redaction
 - [ ] 43-11AG-PLAN.md -- Wave 19: Paired same-run performance authority
 - [ ] 43-11AH-PLAN.md -- Wave 20: Read-only subject-bound workflow governance, docs policy, and active compatibility blocking
 - [ ] 43-11AI-PLAN.md -- Wave 21: Full local corrective integration receipt
@@ -247,7 +247,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 19/50 | In Progress | - |
+| 43 | v1.2.0 | 21/50 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog

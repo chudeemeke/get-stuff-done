@@ -182,7 +182,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-11N-PLAN.md -- Wave 17: Hosted-CI authority contract, collector, and durable blocker record
 - [ ] 43-11R-PLAN.md -- Wave 18: Blocked first hosted attempt retained until successor plans fulfill its envelope and Fable obligations
 - [x] 43-11AC-PLAN.md -- Wave 18: Exact execution-subject and deterministic toolchain authority contracts
-- [ ] 43-11AD-PLAN.md -- Wave 19: CycloneDX 6 security remediation and SBOM compatibility
+- [x] 43-11AD-PLAN.md -- Wave 19: CycloneDX 6 security remediation and SBOM compatibility
 - [ ] 43-11AE-PLAN.md -- Wave 19: Cross-platform product, oracle, and harness corrections
 - [ ] 43-11AF-PLAN.md -- Wave 19: Authenticated Verdaccio upgrade verification and redaction
 - [ ] 43-11AG-PLAN.md -- Wave 19: Paired same-run performance authority
@@ -247,7 +247,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 18/50 | In Progress | - |
+| 43 | v1.2.0 | 19/50 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog

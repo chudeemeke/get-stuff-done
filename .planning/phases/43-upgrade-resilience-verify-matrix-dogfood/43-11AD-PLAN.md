@@ -5,7 +5,7 @@ type: execute
 gap_closure: true
 wave: 19
 depends_on: ["43-11AC"]
-status: pending
+status: complete
 requirements: ["SHIP-03A", "SHIP-08"]
 files_modified:
   - package.json
@@ -14,6 +14,8 @@ files_modified:
   - scripts/generate-sbom.js
   - tests/audit-check.test.js
   - tests/generate-sbom.test.js
+  - tests/compose.test.js
+  - config/suppressions.schema.json
   - .planning/audits/suppressions.json
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AD-SUMMARY.md
 autonomous: true
@@ -82,7 +84,7 @@ major upgrade while preserving the fork's SBOM and distribution contracts.
     <automated>bun run sbom</automated>
     <automated>bun run dist</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11AD-02" type="auto">
@@ -120,7 +122,7 @@ major upgrade while preserving the fork's SBOM and distribution contracts.
     <automated>bun run test -- tests/audit-check.test.js tests/generate-sbom.test.js</automated>
     <automated>bun run audit:ci</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 </tasks>

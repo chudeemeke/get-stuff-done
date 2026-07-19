@@ -173,10 +173,10 @@ describe('SBOM dist pipeline', () => {
     return JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf-8'));
   }
 
-  test('package pins CycloneDX npm SBOM generator to 4.2.1', () => {
+  test('package pins CycloneDX npm SBOM generator to 6.0.0', () => {
     const pkg = readPackageJson();
 
-    expect(pkg.devDependencies['@cyclonedx/cyclonedx-npm']).toBe('4.2.1');
+    expect(pkg.devDependencies['@cyclonedx/cyclonedx-npm']).toBe('6.0.0');
   });
 
   test('package scripts generate SBOM after compose and before finalize-dist', () => {

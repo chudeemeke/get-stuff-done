@@ -9,6 +9,29 @@
     "requireFailureDisposition": true,
     "manualWatchWhenRulesetsUnavailable": true
   },
+  "branchProtection": {
+    "branch": "main",
+    "minimumRequiredContexts": [
+      "Workflow Lint",
+      "Lint",
+      "Source Parity Check",
+      "Override Staleness Check (blocking)",
+      "Secret Scan"
+    ],
+    "informationalContexts": [
+      "Boundary Check (informational)"
+    ],
+    "forbiddenStaleContexts": [
+      "Boundary & Override Check"
+    ],
+    "mutationRequiresOwnerApproval": true,
+    "verificationCommands": [
+      "gh api repos/chudeemeke/get-stuff-done/branches/main/protection",
+      "gh pr checks <number>",
+      "gh run list --branch <branch>"
+    ],
+    "nonClaim": "This desired-state record does not prove the live GitHub setting matches it."
+  },
   "pullRequestWorkflows": [
     {
       "name": "CI",

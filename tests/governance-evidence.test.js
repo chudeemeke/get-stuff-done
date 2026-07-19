@@ -113,6 +113,58 @@ describe('PR and issue evidence governance', () => {
     expect(contract.capabilities.fuzz.reconsiderWhen).toBeTruthy();
   });
 
+  test('branch-protection contract rejects the obsolete combined check', () => {
+    const contract = JSON.parse(read('config/hosted-evidence-contract.json'));
+
+    expect(contract.branchProtection.branch).toBe('main');
+    expect(contract.branchProtection.minimumRequiredContexts).toEqual([
+      'Workflow Lint',
+      'Lint',
+      'Source Parity Check',
+      'Override Staleness Check (blocking)',
+      'Secret Scan',
+    ]);
+    expect(contract.branchProtection.informationalContexts).toEqual([
+      'Boundary Check (informational)',
+    ]);
+    expect(contract.branchProtection.forbiddenStaleContexts).toEqual([
+      'Boundary & Override Check',
+    ]);
+    expect(contract.branchProtection.mutationRequiresOwnerApproval).toBe(true);
+  });
+
+  test('stale branch-protection drift has an issue-ready GSD record', () => {
+    const issue = read(
+      '.planning/quick/branch-protection-required-check-drift-ISSUE.md',
+    );
+
+    for (const heading of [
+      '## Problem',
+      '## Desired Outcome',
+      '## Scope Boundaries',
+      '## Acceptance Criteria',
+      '## Verification Required',
+      '## Explicit Non-Claims',
+    ]) {
+      expect(issue).toContain(heading);
+    }
+
+    for (const label of [
+      'type:ci',
+      'type:release-blocker',
+      'status:misconfigured',
+      'status:owner-gated',
+      'priority:p1',
+    ]) {
+      expect(issue).toContain(label);
+    }
+
+    expect(issue).toContain('Boundary & Override Check');
+    expect(issue).toContain('Override Staleness Check (blocking)');
+    expect(issue).toContain('gh pr checks');
+    expect(issue).toContain('gh run list --branch');
+  });
+
   test('contribution guidance keeps merge and goal closure distinct', () => {
     const guide = read('CONTRIBUTING.md');
 
@@ -123,5 +175,15 @@ describe('PR and issue evidence governance', () => {
     expect(guide).toContain('does not complete the project goal');
     expect(guide).toMatch(/merged PR or (?:with )?a written evidence note/);
     expect(guide).toContain('durable GSD state');
+  });
+
+  test('contribution guidance protects public artifact hygiene', () => {
+    const guide = read('CONTRIBUTING.md');
+
+    expect(guide).toContain('repository-relative paths');
+    expect(guide).toContain('machine-specific absolute paths');
+    expect(guide).toContain('raw authentication or billing diagnostics');
+    expect(guide).toContain('history rewrite');
+    expect(guide).toContain('owner-approved incident plan');
   });
 });

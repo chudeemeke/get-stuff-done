@@ -44,6 +44,22 @@ coverage enforcement is owned by Phase 43 SHIP-08A, release-plan verification
 is owned by Phase 44, and fuzzing is currently not applicable until the project
 owns a suitable untrusted-input or protocol target.
 
+## Public Artifact Hygiene
+
+This repository is public. New issues, pull requests, documentation, logs, and
+test evidence must use repository-relative paths and neutral machine labels in
+place of personal home directories or machine-specific absolute paths.
+
+Never publish credentials, tokens, cookies, private configuration values, or
+raw authentication or billing diagnostics. Preserve the evidence needed to
+audit a result, such as tool versions, error classes, run IDs, timestamps, and
+the final PR HEAD, while redacting unrelated account and environment details.
+
+Before pushing, scan changed text and captured output for secrets, personal
+paths, and unnecessary account metadata. This forward policy does not authorize
+a history rewrite. Rewriting published history requires a confirmed security or
+privacy incident and an owner-approved incident plan.
+
 ## Issue Workflow
 
 Use one issue per meaningful deliverable or owner-gated decision, including

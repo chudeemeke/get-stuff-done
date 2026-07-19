@@ -32,10 +32,18 @@ describe('shared plan-scan contract', () => {
     cleanup(tmpDir);
   });
 
-  test('excludes PLAN-REVIEW derivatives without narrowing supported plan names', () => {
+  test('excludes plan-reference derivatives without narrowing supported plan names', () => {
     assert.strictEqual(planScan.isRootPlanFile('42-PLAN-REVIEW.md'), false);
     assert.strictEqual(planScan.isRootPlanFile('42-plan-review.MD'), false);
     assert.strictEqual(planScan.isRootPlanFile('PLAN-REVIEW.md'), false);
+    assert.strictEqual(
+      planScan.isRootPlanFile('43-FABLE-PLAN11AC-ADJUDICATION-PACKET-2026-07-19.md'),
+      false
+    );
+    assert.strictEqual(
+      planScan.isRootPlanFile('43-SOL-PLAN11AC-ADVISORY-REVIEW-2026-07-19.md'),
+      false
+    );
     assert.strictEqual(planScan.isRootPlanFile('PLAN.md'), true);
     assert.strictEqual(planScan.isRootPlanFile('42-01-PLAN.md'), true);
     assert.strictEqual(planScan.isRootPlanFile('legacy-plan-draft.md'), true);

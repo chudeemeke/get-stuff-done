@@ -13,6 +13,7 @@ const node_path_1 = require("node:path");
 const PLAN_OUTLINE_RE = /-OUTLINE\.md$/i;
 const PLAN_PRE_BOUNCE_RE = /\.pre-bounce\.md$/i;
 const PLAN_REVIEW_RE = /(?:^|-)PLAN-REVIEW\.md$/i;
+const LOOSE_PLAN_TOKEN_RE = /(?:^|[-_])PLAN(?:[-_.]|$)/i;
 function isRootPlanFile(fileName) {
     if (PLAN_OUTLINE_RE.test(fileName))
         return false;
@@ -27,7 +28,7 @@ function isRootPlanFile(fileName) {
     // substring "PLAN") are not double-counted as plans. (#500 RC2)
     if (isRootSummaryFile(fileName))
         return false;
-    return /\.md$/i.test(fileName) && /PLAN/i.test(fileName);
+    return /\.md$/i.test(fileName) && LOOSE_PLAN_TOKEN_RE.test(fileName);
 }
 function isNestedPlanFile(fileName) {
     if (PLAN_OUTLINE_RE.test(fileName))

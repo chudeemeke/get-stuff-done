@@ -1,12 +1,49 @@
-import { describe, expect, test } from 'bun:test';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+const { describe, expect, test } = require('bun:test');
+const fs = require('node:fs');
+const path = require('node:path');
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const ROOT = path.resolve(__dirname, '..');
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
+}
+
+function parseWorkflow(relativePath) {
+  return Bun.YAML.parse(read(relativePath));
+}
+
+function cartesianRows(matrix) {
+  const keys = Object.keys(matrix);
+  return keys.reduce(
+    (rows, key) => rows.flatMap((row) => matrix[key].map((value) => ({
+      ...row,
+      [key]: value,
+    }))),
+    [{}],
+  );
+}
+
+function expandWorkflowJobNames(workflow) {
+  return Object.values(workflow.jobs).flatMap((job) => {
+    const matrix = job.strategy?.matrix;
+    if (!matrix) return [job.name];
+    if (matrix.exclude) throw new Error('matrix exclude requires explicit contract support');
+
+    const axisEntries = Object.entries(matrix)
+      .filter(([key]) => key !== 'include');
+    if (matrix.include && axisEntries.length > 0) {
+      throw new Error('mixed matrix axes and include require explicit contract support');
+    }
+    const rows = matrix.include ?? cartesianRows(Object.fromEntries(axisEntries));
+
+    return rows.map((row) => job.name.replace(
+      /\$\{\{\s*matrix\.([a-z0-9_-]+)\s*\}\}/gi,
+      (_, key) => {
+        if (!(key in row)) throw new Error(`missing matrix value ${key}`);
+        return String(row[key]);
+      },
+    ));
+  }).sort();
 }
 
 describe('PR and issue evidence governance', () => {
@@ -59,6 +96,12 @@ describe('PR and issue evidence governance', () => {
     const catalog = JSON.parse(read('config/github-labels.json'));
     const names = new Set(catalog.labels.map((label) => label.name));
 
+    expect(names.size).toBe(catalog.labels.length);
+    for (const label of catalog.labels) {
+      expect(label.color, `invalid color for ${label.name}`).toMatch(/^[0-9a-f]{6}$/i);
+      expect(label.description.trim(), `missing description for ${label.name}`).toBeTruthy();
+    }
+
     for (const name of [
       'type:bug',
       'type:feature',
@@ -83,6 +126,23 @@ describe('PR and issue evidence governance', () => {
       'priority:p2',
     ]) {
       expect(names.has(name), `missing label ${name}`).toBe(true);
+    }
+  });
+
+  test('issue-form defaults reference cataloged labels', () => {
+    const catalog = JSON.parse(read('config/github-labels.json'));
+    const names = new Set(catalog.labels.map((label) => label.name));
+    const formDirectory = path.join(ROOT, '.github', 'ISSUE_TEMPLATE');
+    const forms = fs.readdirSync(formDirectory)
+      .filter((name) => name.endsWith('.yml') && name !== 'config.yml');
+
+    for (const form of forms) {
+      const parsed = Bun.YAML.parse(
+        read(path.join('.github', 'ISSUE_TEMPLATE', form)),
+      );
+      for (const label of parsed.labels ?? []) {
+        expect(names.has(label), `${form} references missing label ${label}`).toBe(true);
+      }
     }
   });
 
@@ -111,6 +171,49 @@ describe('PR and issue evidence governance', () => {
     expect(contract.capabilities.releasePlan.issueRequired).toBe(true);
     expect(contract.capabilities.fuzz.status).toBe('not-applicable');
     expect(contract.capabilities.fuzz.reconsiderWhen).toBeTruthy();
+  });
+
+  test('hosted contract equals the pull-request workflow and job inventory', () => {
+    const contract = JSON.parse(read('config/hosted-evidence-contract.json'));
+    const workflowDirectory = path.join(ROOT, '.github', 'workflows');
+    const actualPullRequestPaths = fs.readdirSync(workflowDirectory)
+      .filter((name) => parseWorkflow(path.join('.github', 'workflows', name))
+        .on?.pull_request !== undefined)
+      .map((name) => `.github/workflows/${name}`)
+      .sort();
+    const contractPaths = contract.pullRequestWorkflows
+      .map((workflow) => workflow.path)
+      .sort();
+
+    expect(contractPaths).toEqual(actualPullRequestPaths);
+
+    for (const workflowContract of contract.pullRequestWorkflows) {
+      const workflow = parseWorkflow(workflowContract.path);
+      if (workflowContract.requiredJobs) {
+        expect(
+          workflowContract.requiredJobs.toSorted(),
+          `${workflowContract.name} job inventory drifted`,
+        ).toEqual(expandWorkflowJobNames(workflow));
+      }
+    }
+
+    const cousinContract = contract.pullRequestWorkflows
+      .find((workflow) => workflow.name === 'Cousin Install').requiredMatrix;
+    const cousinWorkflow = parseWorkflow('.github/workflows/cousin-install.yml');
+    const cousinJob = cousinWorkflow.jobs['cousin-install'];
+    const cousinMatrix = cousinJob.strategy.matrix;
+
+    expect(cousinJob.name).toBe(
+      'Cousin Install (${{ matrix.os }}, Node ${{ matrix.node-version }}, ${{ matrix.package-manager }})',
+    );
+    expect(cousinMatrix.os).toEqual(cousinContract.os);
+    expect(cousinMatrix['node-version'].map(String)).toEqual(cousinContract.node);
+    expect(cousinMatrix['package-manager']).toEqual(cousinContract.packageManager);
+    expect(
+      cousinMatrix.os.length
+        * cousinMatrix['node-version'].length
+        * cousinMatrix['package-manager'].length,
+    ).toBe(cousinContract.expectedJobs);
   });
 
   test('branch-protection contract rejects the obsolete combined check', () => {

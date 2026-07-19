@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 2,
-  "envelopeSchemaVersion": 1,
+  "schemaVersion": 4,
+  "envelopeSchemaVersion": 2,
   "repository": "chudeemeke/get-stuff-done",
   "contractPath": "config/phase43-hosted-ci-contract.json",
   "evidenceDirectory": ".planning/evidence/hosted",
@@ -9,10 +9,64 @@
   ],
   "allowUnexpectedWorkflows": false,
   "allowUnexpectedJobs": false,
+  "executionSubject": {
+    "checkoutStep": "Checkout exact event subject",
+    "verificationStep": "Verify execution subject",
+    "requireAdjacent": true,
+    "checkoutAction": "actions/checkout",
+    "checkoutRef": "${{ github.event.pull_request.head.sha }}",
+    "verificationShell": "bash",
+    "expectedSubjectEnvironment": "GSD_EXPECTED_SUBJECT",
+    "expectedSubjectExpression": "${{ github.event.pull_request.head.sha }}",
+    "verificationRun": "actual=\"$(git rev-parse HEAD)\"\nif [ \"$actual\" != \"$GSD_EXPECTED_SUBJECT\" ]; then\n  echo \"::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual\"\n  exit 1\nfi",
+    "securityPrelude": {
+      "action": "step-security/harden-runner",
+      "allowedInputs": {
+        "egress-policy": ["audit", "block"]
+      }
+    },
+    "checkoutInputs": {
+      ".github/workflows/ci.yml": {
+        "secret-scan": {
+          "fetch-depth": 0
+        }
+      }
+    }
+  },
+  "runtimeReceipts": {
+    "schemaVersion": 1,
+    "tierAFields": [
+      "schemaVersion",
+      "jobId",
+      "runId",
+      "attempt",
+      "job",
+      "runnerName",
+      "runnerLabels"
+    ],
+    "tierBFields": [
+      "schemaVersion",
+      "subject",
+      "jobId",
+      "runId",
+      "attempt",
+      "os",
+      "osVersion",
+      "architecture",
+      "runnerName",
+      "runnerLabels",
+      "nodeVersion",
+      "bunVersion",
+      "tools",
+      "containers"
+    ]
+  },
   "governedPaths": {
     "source": [
       "scripts/verify-hosted-ci.js",
+      "scripts/verify-toolchain-authority.js",
       "tests/verify-hosted-ci.test.js",
+      "tests/toolchain-authority.test.js",
       "tests/test-config-hygiene.test.js"
     ],
     "workflow": [
@@ -23,10 +77,12 @@
       ".github/workflows/upgrade-verifier.yml"
     ],
     "contract": [
-      "config/phase43-hosted-ci-contract.json"
+      "config/phase43-hosted-ci-contract.json",
+      "config/phase43-toolchain-authority.json"
     ],
     "policy": [
       ".gitignore",
+      ".bun-version",
       "package.json",
       "bun.lock"
     ]

@@ -5,14 +5,42 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const { createHash, randomUUID } = require('crypto');
 const { TextDecoder } = require('util');
-const yaml = require('js-yaml');
+const {
+  isResolvedSemver,
+  parseGovernedWorkflow,
+  parseToolchainAuthorityManifest,
+  validateExecutionSubjectPolicy,
+} = require('./verify-toolchain-authority');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const CONTRACT_PATH = 'config/phase43-hosted-ci-contract.json';
+const TOOLCHAIN_AUTHORITY_PATH = 'config/phase43-toolchain-authority.json';
 const HOSTED_EVIDENCE_DIRECTORY = '.planning/evidence/hosted';
 const EXPECTED_REPOSITORY = 'chudeemeke/get-stuff-done';
 const BILLING_LOCK_TEXT = 'account is locked due to a billing issue';
 const GOVERNED_CATEGORIES = ['source', 'workflow', 'contract', 'policy'];
+const MAX_HOSTED_JSON_BYTES = 1024 * 1024;
+const MAX_HOSTED_MATRIX_DIMENSIONS = 10;
+const MAX_HOSTED_MATRIX_ROWS = 100;
+const MAX_HOSTED_MATRIX_VALUE_LENGTH = 100;
+const MAX_HOSTED_PURPOSE_LENGTH = 500;
+const SUBJECT_ENVIRONMENT_OVERRIDE_KEYS = new Set([
+  'BASHOPTS',
+  'BASH_ENV',
+  'CDPATH',
+  'COMSPEC',
+  'DYLD_INSERT_LIBRARIES',
+  'DYLD_LIBRARY_PATH',
+  'ENV',
+  'LD_LIBRARY_PATH',
+  'LD_PRELOAD',
+  'NODE_OPTIONS',
+  'PATH',
+  'PATHEXT',
+  'PROMPT_COMMAND',
+  'PSMODULEPATH',
+  'SHELLOPTS',
+]);
 const CONTRACT_KEYS = new Set([
   'schemaVersion',
   'envelopeSchemaVersion',
@@ -22,11 +50,73 @@ const CONTRACT_KEYS = new Set([
   'acceptedConclusions',
   'allowUnexpectedWorkflows',
   'allowUnexpectedJobs',
+  'executionSubject',
+  'runtimeReceipts',
   'governedPaths',
   'workflows',
 ]);
 const WORKFLOW_KEYS = new Set(['name', 'path', 'requiredJobs', 'requiredJobMatrices']);
 const JOB_MATRIX_KEYS = new Set(['template', 'dimensions', 'expectedCount']);
+const WORKFLOW_EVIDENCE_KEYS = new Set([
+  'name',
+  'runId',
+  'attempt',
+  'status',
+  'conclusion',
+  'url',
+  'jobCount',
+  'executedStepCount',
+  'executionSubjects',
+]);
+const EXECUTION_SUBJECT_EVIDENCE_KEYS = new Set([
+  'jobId',
+  'job',
+  'runId',
+  'attempt',
+  'expectedSubject',
+  'stepNumber',
+  'status',
+  'conclusion',
+  'url',
+]);
+const GOVERNED_DIGEST_KEYS = new Set(['path', 'sha256']);
+const SUBJECT_CHECKOUT_REQUIRED_KEYS = new Set(['name', 'uses', 'with']);
+const SUBJECT_CHECKOUT_ALLOWED_KEYS = new Set([
+  ...SUBJECT_CHECKOUT_REQUIRED_KEYS,
+  'continue-on-error',
+]);
+const SUBJECT_VERIFICATION_REQUIRED_KEYS = new Set(['name', 'shell', 'env', 'run']);
+const SUBJECT_VERIFICATION_ALLOWED_KEYS = new Set([
+  ...SUBJECT_VERIFICATION_REQUIRED_KEYS,
+  'continue-on-error',
+]);
+const SECURITY_PRELUDE_KEYS = new Set(['uses', 'with']);
+const RUNTIME_RECEIPT_SCHEMA_KEYS = new Set(['schemaVersion', 'tierAFields', 'tierBFields']);
+const TIER_A_RECEIPT_FIELDS = [
+  'schemaVersion',
+  'jobId',
+  'runId',
+  'attempt',
+  'job',
+  'runnerName',
+  'runnerLabels',
+];
+const TIER_B_RECEIPT_FIELDS = [
+  'schemaVersion',
+  'subject',
+  'jobId',
+  'runId',
+  'attempt',
+  'os',
+  'osVersion',
+  'architecture',
+  'runnerName',
+  'runnerLabels',
+  'nodeVersion',
+  'bunVersion',
+  'tools',
+  'containers',
+];
 const HELP = [
   'Usage:',
   '  node scripts/verify-hosted-ci.js collect --pr <number> --receipt <path> --purpose <text>',
@@ -51,6 +141,86 @@ function isRepositoryRelativePath(value) {
     !value.startsWith('/') &&
     !/^[A-Za-z]:/.test(value) &&
     value.split('/').every(segment => segment !== '' && segment !== '.' && segment !== '..')
+  );
+}
+
+function isHostedMatrixValue(value) {
+  return (
+    (typeof value === 'string' && value.length <= MAX_HOSTED_MATRIX_VALUE_LENGTH) ||
+    Number.isSafeInteger(value) ||
+    typeof value === 'boolean'
+  );
+}
+
+function hasClosedKeys(value, requiredKeys, allowedKeys) {
+  return (
+    value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    [...requiredKeys].every(key => Object.prototype.hasOwnProperty.call(value, key)) &&
+    Object.keys(value).every(key => allowedKeys.has(key))
+  );
+}
+
+function hasSubjectEnvironmentOverride(environment) {
+  if (!environment || typeof environment !== 'object' || Array.isArray(environment)) return false;
+  return Object.keys(environment).some(key => {
+    const normalized = key.toUpperCase();
+    return SUBJECT_ENVIRONMENT_OVERRIDE_KEYS.has(normalized) || normalized.startsWith('GIT_');
+  });
+}
+
+function isPositiveSafeInteger(value) {
+  return Number.isSafeInteger(value) && value > 0;
+}
+
+function isCanonicalIsoTimestamp(value) {
+  if (typeof value !== 'string' || value.length !== 24) return false;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
+}
+
+function hasInheritedWorkingDirectory(record) {
+  return Object.prototype.hasOwnProperty.call(record?.defaults?.run || {}, 'working-directory');
+}
+
+function boundedMatrixCardinality(dimensions) {
+  if (
+    !Array.isArray(dimensions) ||
+    dimensions.length === 0 ||
+    dimensions.length > MAX_HOSTED_MATRIX_DIMENSIONS
+  ) {
+    return null;
+  }
+  let cardinality = 1;
+  for (const dimension of dimensions) {
+    if (
+      !Array.isArray(dimension) ||
+      dimension.length === 0 ||
+      dimension.some(value => !isHostedMatrixValue(value)) ||
+      dimension.length > Math.floor(MAX_HOSTED_MATRIX_ROWS / cardinality)
+    ) {
+      return null;
+    }
+    cardinality *= dimension.length;
+  }
+  return cardinality;
+}
+
+function validateHostedJobMatrix(matrix) {
+  const cardinality = boundedMatrixCardinality(matrix?.dimensions);
+  const placeholders = typeof matrix?.template === 'string' ? matrix.template.match(/\{\}/g) || [] : [];
+  return (
+    matrix &&
+    Object.keys(matrix).length === JOB_MATRIX_KEYS.size &&
+    Object.keys(matrix).every(key => JOB_MATRIX_KEYS.has(key)) &&
+    typeof matrix.template === 'string' &&
+    matrix.template.length > 0 &&
+    matrix.template.length <= 200 &&
+    placeholders.length === matrix.dimensions.length &&
+    cardinality !== null &&
+    Number.isInteger(matrix.expectedCount) &&
+    matrix.expectedCount === cardinality
   );
 }
 
@@ -111,15 +281,26 @@ function resolveReceiptPath(projectRoot, contract, receiptPath, options = {}) {
 }
 
 function expectedWorkflowJobs(workflowContract) {
-  return [
-    ...(workflowContract.requiredJobs || []),
-    ...expandJobMatrices(workflowContract.requiredJobMatrices || []),
-  ].sort();
+  const requiredJobs = workflowContract.requiredJobs || [];
+  const matrices = workflowContract.requiredJobMatrices || [];
+  if (
+    !Array.isArray(requiredJobs) ||
+    !Array.isArray(matrices) ||
+    requiredJobs.length > MAX_HOSTED_MATRIX_ROWS ||
+    matrices.length > MAX_HOSTED_MATRIX_ROWS
+  ) {
+    throw new Error('Hosted CI workflow job authority exceeds supported bounds.');
+  }
+  const matrixJobs = expandJobMatrices(
+    matrices,
+    MAX_HOSTED_MATRIX_ROWS - requiredJobs.length
+  );
+  return [...requiredJobs, ...matrixJobs].sort();
 }
 
 function validateHostedContract(contract) {
-  if (!contract || contract.schemaVersion !== 2 || contract.envelopeSchemaVersion !== 1) {
-    throw new Error('Hosted CI contract must use schema version 2 and envelope version 1.');
+  if (!contract || contract.schemaVersion !== 4 || contract.envelopeSchemaVersion !== 2) {
+    throw new Error('Hosted CI contract must use schema version 4 and envelope version 2.');
   }
   if (Object.keys(contract).some(key => !CONTRACT_KEYS.has(key))) {
     throw new Error('Hosted CI contract contains an unknown field.');
@@ -147,7 +328,31 @@ function validateHostedContract(contract) {
   ) {
     throw new Error('Hosted CI contract policy authority must fail closed.');
   }
-  if (!contract.governedPaths || !Array.isArray(contract.workflows)) {
+  try {
+    validateExecutionSubjectPolicy(contract.executionSubject);
+  } catch {
+    throw new Error('Hosted CI contract execution-subject authority is invalid.');
+  }
+  if (
+    !hasClosedKeys(
+      contract.runtimeReceipts,
+      RUNTIME_RECEIPT_SCHEMA_KEYS,
+      RUNTIME_RECEIPT_SCHEMA_KEYS
+    ) ||
+    contract.runtimeReceipts.schemaVersion !== 1 ||
+    JSON.stringify(contract.runtimeReceipts.tierAFields) !==
+      JSON.stringify(TIER_A_RECEIPT_FIELDS) ||
+    JSON.stringify(contract.runtimeReceipts.tierBFields) !==
+      JSON.stringify(TIER_B_RECEIPT_FIELDS)
+  ) {
+    throw new Error('Hosted CI contract runtime-receipt schema authority is invalid.');
+  }
+  if (
+    !contract.governedPaths ||
+    !Array.isArray(contract.workflows) ||
+    contract.workflows.length === 0 ||
+    contract.workflows.length > 20
+  ) {
     throw new Error('Hosted CI contract must define governed paths and workflows.');
   }
   const governedCategories = Object.keys(contract.governedPaths);
@@ -160,7 +365,7 @@ function validateHostedContract(contract) {
 
   const governed = [];
   for (const category of GOVERNED_CATEGORIES) {
-    const paths = contract.governedPaths[category];
+    const paths = Reflect.get(contract.governedPaths, category);
     if (!Array.isArray(paths) || paths.length === 0 || paths.some(item => !isRepositoryRelativePath(item))) {
       throw new Error(`Hosted CI contract governed ${category} paths are invalid.`);
     }
@@ -185,25 +390,30 @@ function validateHostedContract(contract) {
       typeof workflow.name !== 'string' ||
       !isRepositoryRelativePath(workflow.path) ||
       names.has(workflow.name) ||
-      workflowPaths.has(workflow.path) ||
-      expectedWorkflowJobs(workflow).length === 0
+      workflowPaths.has(workflow.path)
     ) {
       throw new Error('Hosted CI workflow authority is invalid or duplicated.');
     }
     if (
-      workflow.requiredJobMatrices?.some(
-        matrix =>
-          !matrix ||
-          Object.keys(matrix).some(key => !JOB_MATRIX_KEYS.has(key)) ||
-          typeof matrix.template !== 'string' ||
-          !Array.isArray(matrix.dimensions) ||
-          matrix.dimensions.length === 0 ||
-          matrix.dimensions.some(dimension => !Array.isArray(dimension) || dimension.length === 0) ||
-          !Number.isInteger(matrix.expectedCount) ||
-          matrix.expectedCount < 1
-      )
+      (workflow.requiredJobs !== undefined &&
+        (!Array.isArray(workflow.requiredJobs) ||
+          workflow.requiredJobs.some(
+            job => typeof job !== 'string' || job.length === 0 || job.length > 200
+          ))) ||
+      (workflow.requiredJobMatrices !== undefined &&
+        (!Array.isArray(workflow.requiredJobMatrices) ||
+          workflow.requiredJobMatrices.length > MAX_HOSTED_MATRIX_ROWS ||
+          workflow.requiredJobMatrices.some(matrix => !validateHostedJobMatrix(matrix))))
     ) {
       throw new Error('Hosted CI workflow matrix authority is invalid.');
+    }
+    const expectedJobs = expectedWorkflowJobs(workflow);
+    if (
+      expectedJobs.length === 0 ||
+      expectedJobs.length > MAX_HOSTED_MATRIX_ROWS ||
+      new Set(expectedJobs).size !== expectedJobs.length
+    ) {
+      throw new Error('Hosted CI workflow job authority is invalid or duplicated.');
     }
     names.add(workflow.name);
     workflowPaths.add(workflow.path);
@@ -215,6 +425,200 @@ function validateHostedContract(contract) {
   return contract;
 }
 
+function hasExactFieldList(value, fields) {
+  return (
+    value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.keys(value).length === fields.length &&
+    fields.every(field => Object.prototype.hasOwnProperty.call(value, field))
+  );
+}
+
+function isBoundedPrintable(value, maximumLength = 200) {
+  return (
+    typeof value === 'string' &&
+    value.length > 0 &&
+    value.length <= maximumLength &&
+    value.trim() === value &&
+    [...value].every(character => {
+      const code = character.codePointAt(0);
+      return code >= 0x20 && code <= 0x7e;
+    })
+  );
+}
+
+function isBoundedReceiptToken(value) {
+  return typeof value === 'string' && /^[A-Za-z0-9._-]{1,100}$/.test(value);
+}
+
+function hasValidRunnerLabels(labels) {
+  return (
+    Array.isArray(labels) &&
+    labels.length > 0 &&
+    labels.length <= 20 &&
+    new Set(labels).size === labels.length &&
+    labels.every(isBoundedReceiptToken)
+  );
+}
+
+function validateTierARunnerReceipt(receipt, contract) {
+  validateHostedContract(contract);
+  if (
+    !hasExactFieldList(receipt, contract.runtimeReceipts.tierAFields) ||
+    receipt.schemaVersion !== contract.runtimeReceipts.schemaVersion ||
+    !isPositiveSafeInteger(receipt.jobId) ||
+    !isPositiveSafeInteger(receipt.runId) ||
+    !isPositiveSafeInteger(receipt.attempt) ||
+    !isBoundedPrintable(receipt.job) ||
+    !isBoundedPrintable(receipt.runnerName) ||
+    !hasValidRunnerLabels(receipt.runnerLabels)
+  ) {
+    throw new Error('Hosted Tier A runner receipt authority is invalid.');
+  }
+  return receipt;
+}
+
+function validateTierBRuntimeReceipt(receipt, contract) {
+  validateHostedContract(contract);
+  const tools = receipt?.tools;
+  const containers = receipt?.containers;
+  if (
+    !hasExactFieldList(receipt, contract.runtimeReceipts.tierBFields) ||
+    receipt.schemaVersion !== contract.runtimeReceipts.schemaVersion ||
+    !isBoundedReceiptToken(receipt.subject) ||
+    !isPositiveSafeInteger(receipt.jobId) ||
+    !isPositiveSafeInteger(receipt.runId) ||
+    !isPositiveSafeInteger(receipt.attempt) ||
+    !isBoundedReceiptToken(receipt.os) ||
+    !isBoundedPrintable(receipt.osVersion, 100) ||
+    !['x64', 'arm64', 'x86'].includes(receipt.architecture) ||
+    !isBoundedPrintable(receipt.runnerName) ||
+    !hasValidRunnerLabels(receipt.runnerLabels) ||
+    !isResolvedSemver(receipt.nodeVersion) ||
+    !isResolvedSemver(receipt.bunVersion) ||
+    !tools ||
+    typeof tools !== 'object' ||
+    Array.isArray(tools) ||
+    Object.keys(tools).length > 20 ||
+    Object.entries(tools).some(
+      ([tool, version]) => !isBoundedReceiptToken(tool) || !isResolvedSemver(version)
+    ) ||
+    !containers ||
+    typeof containers !== 'object' ||
+    Array.isArray(containers) ||
+    Object.keys(containers).length > 20 ||
+    Object.entries(containers).some(
+      ([image, digest]) =>
+        !/^[a-z0-9._/-]{1,200}$/.test(image) || !/^sha256:[0-9a-f]{64}$/.test(digest)
+    )
+  ) {
+    throw new Error('Hosted Tier B runtime receipt authority is invalid.');
+  }
+  return receipt;
+}
+
+function verifyWorkflowSubjectImplementation(
+  workflow,
+  policy,
+  actionUses,
+  workflowName,
+  workflowPath
+) {
+  if (hasSubjectEnvironmentOverride(workflow.env) || hasInheritedWorkingDirectory(workflow)) {
+    throw new Error(
+      `Workflow ${workflowName} execution-subject implementation does not match the contract.`
+    );
+  }
+  const checkoutInputOverrides = Reflect.get(policy.checkoutInputs, workflowPath) || {};
+  const jobs = workflow.jobs || {};
+  if (Object.keys(checkoutInputOverrides).some(jobId => !Reflect.get(jobs, jobId))) {
+    throw new Error(
+      `Workflow ${workflowName} execution-subject checkout-input authority names an unknown job.`
+    );
+  }
+  for (const [jobId, job] of Object.entries(workflow.jobs || {})) {
+    const steps = Array.isArray(job?.steps) ? job.steps : [];
+    const checkouts = steps.filter(step => step?.name === policy.checkoutStep);
+    const checkoutActions = steps.filter(step =>
+      step?.uses?.startsWith(`${policy.checkoutAction}@`)
+    );
+    const verifications = steps.filter(step => step?.name === policy.verificationStep);
+    const securityPreludes = steps.filter(step =>
+      step?.uses?.startsWith(`${policy.securityPrelude.action}@`)
+    );
+    const securityPrelude = securityPreludes[0];
+    const hasSecurityPrelude = securityPreludes.length === 1;
+    const checkout = checkouts[0];
+    const verification = verifications[0];
+    const checkoutIndex = steps.indexOf(checkout);
+    const verificationIndex = steps.indexOf(verification);
+    const expectedCheckoutInputs = {
+      ref: policy.checkoutRef,
+      ...(Reflect.get(checkoutInputOverrides, jobId) || {}),
+    };
+    const preludeInputs = securityPrelude?.with;
+    const preludeInputsValid =
+      preludeInputs &&
+      typeof preludeInputs === 'object' &&
+      !Array.isArray(preludeInputs) &&
+      Object.keys(preludeInputs).length > 0 &&
+      Object.entries(preludeInputs).every(([key, value]) =>
+        Reflect.get(policy.securityPrelude.allowedInputs, key)?.includes(value)
+      );
+    if (
+      checkouts.length !== 1 ||
+      checkoutActions.length !== 1 ||
+      checkoutActions[0] !== checkout ||
+      verifications.length !== 1 ||
+      securityPreludes.length > 1 ||
+      (hasSecurityPrelude &&
+        (steps.indexOf(securityPrelude) !== 0 ||
+          !hasClosedKeys(securityPrelude, SECURITY_PRELUDE_KEYS, SECURITY_PRELUDE_KEYS) ||
+          securityPrelude.uses !== actionUses.securityPrelude ||
+          !preludeInputsValid)) ||
+      checkoutIndex !== (hasSecurityPrelude ? 1 : 0) ||
+      verificationIndex !== checkoutIndex + 1 ||
+      hasSubjectEnvironmentOverride(job?.env) ||
+      steps.some(step => hasSubjectEnvironmentOverride(step?.env)) ||
+      hasInheritedWorkingDirectory(job) ||
+      !hasClosedKeys(
+        checkout,
+        SUBJECT_CHECKOUT_REQUIRED_KEYS,
+        SUBJECT_CHECKOUT_ALLOWED_KEYS
+      ) ||
+      checkout.uses !== actionUses.checkout ||
+      !checkout.with ||
+      Object.keys(checkout.with).length !== Object.keys(expectedCheckoutInputs).length ||
+      Object.entries(expectedCheckoutInputs).some(
+        ([key, value]) => Reflect.get(checkout.with, key) !== value
+      ) ||
+      (Object.prototype.hasOwnProperty.call(checkout, 'continue-on-error') &&
+        checkout['continue-on-error'] !== false) ||
+      !hasClosedKeys(
+        verification,
+        SUBJECT_VERIFICATION_REQUIRED_KEYS,
+        SUBJECT_VERIFICATION_ALLOWED_KEYS
+      ) ||
+      verification.shell !== policy.verificationShell ||
+      !verification.env ||
+      Object.keys(verification.env).length !== 1 ||
+      !Object.prototype.hasOwnProperty.call(
+        verification.env,
+        policy.expectedSubjectEnvironment
+      ) ||
+      verification.env?.[policy.expectedSubjectEnvironment] !== policy.expectedSubjectExpression ||
+      verification.run !== policy.verificationRun ||
+      (Object.prototype.hasOwnProperty.call(verification, 'continue-on-error') &&
+        verification['continue-on-error'] !== false)
+    ) {
+      throw new Error(
+        `Workflow ${workflowName} job ${jobId} execution-subject implementation does not match the contract.`
+      );
+    }
+  }
+}
+
 function cartesianRows(entries) {
   return entries.reduce(
     (rows, [key, values]) =>
@@ -223,17 +627,70 @@ function cartesianRows(entries) {
   );
 }
 
-function workflowMatrixRows(matrix) {
+function workflowMatrixRows(matrix, maximumRows = MAX_HOSTED_MATRIX_ROWS) {
+  if (!matrix || typeof matrix !== 'object' || Array.isArray(matrix)) {
+    throw new Error('Hosted workflow matrix authority is invalid.');
+  }
   const axes = Object.entries(matrix || {}).filter(
     ([key, values]) => key !== 'include' && key !== 'exclude' && Array.isArray(values)
   );
-  if (matrix?.exclude || (matrix?.include && axes.length > 0)) {
-    throw new Error('Hosted workflow authority does not support mixed include/exclude matrices.');
+  const hasInclude = Object.prototype.hasOwnProperty.call(matrix, 'include');
+  const hasExclude = Object.prototype.hasOwnProperty.call(matrix, 'exclude');
+  const hasUnsupportedAxis = Object.entries(matrix).some(
+    ([key, values]) => key !== 'include' && key !== 'exclude' && !Array.isArray(values)
+  );
+  if (
+    hasExclude ||
+    hasUnsupportedAxis ||
+    (hasInclude && (!Array.isArray(matrix.include) || axes.length > 0))
+  ) {
+    throw new Error('Hosted workflow matrix authority contains unsupported axes or exclusions.');
   }
   if (Array.isArray(matrix?.include)) {
-    return matrix.include.map(row => new Map(Object.entries(row)));
+    if (
+      matrix.include.length === 0 ||
+      matrix.include.length > MAX_HOSTED_MATRIX_ROWS ||
+      matrix.include.length > maximumRows ||
+      matrix.include.some(
+        row =>
+          !row ||
+          typeof row !== 'object' ||
+          Array.isArray(row) ||
+          Object.keys(row).length === 0 ||
+          Object.keys(row).length > MAX_HOSTED_MATRIX_DIMENSIONS ||
+          Object.entries(row).some(
+            ([key, value]) =>
+              !/^[A-Za-z0-9_-]{1,100}$/.test(key) || !isHostedMatrixValue(value)
+          )
+      )
+    ) {
+      throw new Error('Hosted workflow matrix authority exceeds supported bounds.');
+    }
+    const rows = matrix.include.map(row => new Map(Object.entries(row)));
+    const identities = rows.map(row => JSON.stringify([...row.entries()].sort()));
+    if (new Set(identities).size !== identities.length) {
+      throw new Error('Hosted workflow matrix authority contains duplicate rows.');
+    }
+    return rows;
   }
-  return cartesianRows(axes);
+  const cardinality = boundedMatrixCardinality(axes.map(([, values]) => values));
+  if (
+    axes.some(
+      ([key, values]) =>
+        !/^[A-Za-z0-9_-]{1,100}$/.test(key) ||
+        values.some(value => !isHostedMatrixValue(value))
+    ) ||
+    cardinality === null ||
+    cardinality > maximumRows
+  ) {
+    throw new Error('Hosted workflow matrix authority exceeds supported bounds.');
+  }
+  const rows = cartesianRows(axes);
+  const identities = rows.map(row => JSON.stringify([...row.entries()].sort()));
+  if (new Set(identities).size !== identities.length) {
+    throw new Error('Hosted workflow matrix authority contains duplicate rows.');
+  }
+  return rows;
 }
 
 function expandWorkflowJobNames(workflow) {
@@ -242,10 +699,13 @@ function expandWorkflowJobNames(workflow) {
     const template = String(job.name || jobId);
     const matrix = job.strategy?.matrix;
     if (!matrix) {
+      if (names.length >= MAX_HOSTED_MATRIX_ROWS) {
+        throw new Error('Hosted workflow matrix authority exceeds supported bounds.');
+      }
       names.push(template);
       continue;
     }
-    for (const row of workflowMatrixRows(matrix)) {
+    for (const row of workflowMatrixRows(matrix, MAX_HOSTED_MATRIX_ROWS - names.length)) {
       names.push(
         template.replace(/\$\{\{\s*matrix\.([A-Za-z0-9_-]+)\s*\}\}/g, (_match, key) => {
           if (!row.has(key)) {
@@ -261,9 +721,28 @@ function expandWorkflowJobNames(workflow) {
 
 function verifyWorkflowTopology(contract, readWorkflow) {
   validateHostedContract(contract);
+  const toolchainManifest = parseToolchainAuthorityManifest(
+    readWorkflow(TOOLCHAIN_AUTHORITY_PATH)
+  );
+  const hostedWorkflowPaths = contract.workflows.map(workflow => workflow.path).sort();
+  const toolchainWorkflowPaths = [...toolchainManifest.governedWorkflows].sort();
+  if (JSON.stringify(hostedWorkflowPaths) !== JSON.stringify(toolchainWorkflowPaths)) {
+    throw new Error('Hosted and toolchain authority workflow sets do not match.');
+  }
+  const checkoutPin = toolchainManifest.githubActions.pins[contract.executionSubject.checkoutAction];
+  if (!checkoutPin) {
+    throw new Error('Hosted execution-subject checkout action is not governed by toolchain authority.');
+  }
+  const checkoutUses = `${contract.executionSubject.checkoutAction}@${checkoutPin.sha}`;
+  const securityPin =
+    toolchainManifest.githubActions.pins[contract.executionSubject.securityPrelude.action];
+  if (!securityPin) {
+    throw new Error('Hosted execution-subject security prelude is not governed by toolchain authority.');
+  }
+  const securityUses = `${contract.executionSubject.securityPrelude.action}@${securityPin.sha}`;
   let jobCount = 0;
   for (const authority of contract.workflows) {
-    const workflow = yaml.load(readWorkflow(authority.path));
+    const workflow = parseGovernedWorkflow(readWorkflow(authority.path));
     if (!workflow || workflow.name !== authority.name || !workflow.on?.pull_request) {
       throw new Error(`Workflow ${authority.name} does not expose the contracted pull_request authority.`);
     }
@@ -272,6 +751,13 @@ function verifyWorkflowTopology(contract, readWorkflow) {
     if (JSON.stringify(actualJobs) !== JSON.stringify(expectedJobs)) {
       throw new Error(`Workflow ${authority.name} job topology does not match the hosted CI contract.`);
     }
+    verifyWorkflowSubjectImplementation(
+      workflow,
+      contract.executionSubject,
+      { checkout: checkoutUses, securityPrelude: securityUses },
+      authority.name,
+      authority.path
+    );
     jobCount += actualJobs.length;
   }
   return { workflows: contract.workflows.length, jobs: jobCount };
@@ -325,15 +811,14 @@ function validateHostedEnvelope(envelope, contract) {
     envelope.schemaVersion !== contract.envelopeSchemaVersion ||
     envelope.contractSchemaVersion !== contract.schemaVersion ||
     envelope.repository !== contract.repository ||
-    !Number.isInteger(envelope.pullRequest) ||
-    envelope.pullRequest <= 0 ||
+    !isPositiveSafeInteger(envelope.pullRequest) ||
     !/^[0-9a-f]{40}$/.test(envelope.checkedCommit || '') ||
     typeof envelope.purpose !== 'string' ||
     envelope.purpose.trim().length === 0 ||
+    envelope.purpose.length > MAX_HOSTED_PURPOSE_LENGTH ||
     !isRepositoryRelativePath(envelope.receiptPath) ||
     !envelope.receiptPath.startsWith(`${contract.evidenceDirectory}/`) ||
-    typeof envelope.observedAt !== 'string' ||
-    envelope.observedAt.length === 0 ||
+    !isCanonicalIsoTimestamp(envelope.observedAt) ||
     envelope.verdict !== 'passed' ||
     envelope.hostedEvidenceExists !== true ||
     !Array.isArray(envelope.diagnostics) ||
@@ -342,7 +827,14 @@ function validateHostedEnvelope(envelope, contract) {
     throw new Error('Hosted CI envelope authority is invalid.');
   }
 
-  if (!envelope.governedDigests || Object.keys(envelope.governedDigests).length !== GOVERNED_CATEGORIES.length) {
+  if (
+    !envelope.governedDigests ||
+    Object.keys(envelope.governedDigests).length !== GOVERNED_CATEGORIES.length ||
+    Object.keys(envelope.governedDigests).some(category => !GOVERNED_CATEGORIES.includes(category)) ||
+    GOVERNED_CATEGORIES.some(
+      category => !Object.prototype.hasOwnProperty.call(envelope.governedDigests, category)
+    )
+  ) {
     throw new Error('Hosted CI envelope governed digests are incomplete.');
   }
   for (const category of GOVERNED_CATEGORIES) {
@@ -354,7 +846,11 @@ function validateHostedEnvelope(envelope, contract) {
       entries.some(
         (entry, index) =>
           !entry ||
-          Object.keys(entry).length !== 2 ||
+          Object.keys(entry).length !== GOVERNED_DIGEST_KEYS.size ||
+          Object.keys(entry).some(key => !GOVERNED_DIGEST_KEYS.has(key)) ||
+          [...GOVERNED_DIGEST_KEYS].some(
+            key => !Object.prototype.hasOwnProperty.call(entry, key)
+          ) ||
           entry.path !== expectedPaths[index] ||
           !/^[0-9a-f]{64}$/.test(entry.sha256 || '')
       )
@@ -372,18 +868,49 @@ function validateHostedEnvelope(envelope, contract) {
     const expectedJobCount = expectedWorkflowJobs(authority).length;
     if (
       !observed ||
+      Object.keys(observed).length !== WORKFLOW_EVIDENCE_KEYS.size ||
+      Object.keys(observed).some(key => !WORKFLOW_EVIDENCE_KEYS.has(key)) ||
       observed.name !== authority.name ||
-      !Number.isInteger(observed.runId) ||
-      observed.runId <= 0 ||
-      !Number.isInteger(observed.attempt) ||
-      observed.attempt <= 0 ||
+      !isPositiveSafeInteger(observed.runId) ||
+      !isPositiveSafeInteger(observed.attempt) ||
       observed.status !== 'completed' ||
       !contract.acceptedConclusions.includes(observed.conclusion) ||
+      observed.url !==
+        `https://github.com/${contract.repository}/actions/runs/${observed.runId}` ||
       observed.jobCount !== expectedJobCount ||
       !Number.isInteger(observed.executedStepCount) ||
       observed.executedStepCount < expectedJobCount
     ) {
-      throw new Error(`Hosted CI envelope workflow ${authority.name} is invalid.`);
+      throw new Error(`Hosted CI envelope workflow evidence ${authority.name} is invalid.`);
+    }
+    const expectedJobNames = expectedWorkflowJobs(authority);
+    const executionSubjectIds = Array.isArray(observed.executionSubjects)
+      ? observed.executionSubjects.map(subject => subject?.jobId)
+      : [];
+    if (
+      !Array.isArray(observed.executionSubjects) ||
+      observed.executionSubjects.length !== expectedJobNames.length ||
+      new Set(executionSubjectIds).size !== executionSubjectIds.length ||
+      observed.executionSubjects.some((subject, subjectIndex) =>
+        !subject ||
+        Object.keys(subject).length !== EXECUTION_SUBJECT_EVIDENCE_KEYS.size ||
+        Object.keys(subject).some(key => !EXECUTION_SUBJECT_EVIDENCE_KEYS.has(key)) ||
+        [...EXECUTION_SUBJECT_EVIDENCE_KEYS].some(
+          key => !Object.prototype.hasOwnProperty.call(subject, key)
+        ) ||
+        !isPositiveSafeInteger(subject.jobId) ||
+        subject.job !== expectedJobNames[subjectIndex] ||
+        subject.runId !== observed.runId ||
+        subject.attempt !== observed.attempt ||
+        subject.expectedSubject !== envelope.checkedCommit ||
+        !isPositiveSafeInteger(subject.stepNumber) ||
+        subject.status !== 'completed' ||
+        subject.conclusion !== 'success' ||
+        subject.url !==
+          `https://github.com/${contract.repository}/actions/runs/${observed.runId}/job/${subject.jobId}`
+      )
+    ) {
+      throw new Error(`Hosted CI envelope workflow ${authority.name} execution-subject evidence is invalid.`);
     }
   }
   return envelope;
@@ -413,6 +940,9 @@ function buildPassedEnvelope(verdict, contract, authority) {
 
 function parseJsonBytes(value, label) {
   const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value);
+  if (bytes.length > MAX_HOSTED_JSON_BYTES) {
+    throw new Error(`${label} exceeds the ${MAX_HOSTED_JSON_BYTES}-byte size limit.`);
+  }
   let text;
   try {
     text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
@@ -433,11 +963,15 @@ function assertGovernedDigestsMatch(actual, expected) {
 }
 
 function compareRunRecency(left, right) {
-  const attemptDelta = Number(right.run_attempt || 0) - Number(left.run_attempt || 0);
-  if (attemptDelta !== 0) return attemptDelta;
-  const timeDelta = Date.parse(right.updated_at || 0) - Date.parse(left.updated_at || 0);
-  if (timeDelta !== 0) return timeDelta;
-  return Number(right.id || 0) - Number(left.id || 0);
+  const createdDelta = Date.parse(right.created_at || 0) - Date.parse(left.created_at || 0);
+  if (createdDelta !== 0) return createdDelta;
+  if (right.id === left.id) {
+    const attemptDelta = Number(right.run_attempt || 0) - Number(left.run_attempt || 0);
+    if (attemptDelta !== 0) return attemptDelta;
+  }
+  const idDelta = Number(right.id || 0) - Number(left.id || 0);
+  if (idDelta !== 0) return idDelta;
+  return Date.parse(right.updated_at || 0) - Date.parse(left.updated_at || 0);
 }
 
 function selectLatestRuns(runs) {
@@ -490,22 +1024,92 @@ function classifyJobs(workflowContract, jobs) {
   ]);
   const classified = new Set();
   const missing = [];
+  const required = [];
 
   for (const name of exactNames) {
     const matches = jobs.filter(job => job.name === name);
     if (matches.length !== 1) missing.push({ name, actual: matches.length });
-    for (const match of matches) classified.add(match.id);
+    for (const match of matches) {
+      classified.add(match.id);
+      required.push(match);
+    }
   }
 
   return {
     missing,
+    required,
     unexpected: jobs.filter(job => !classified.has(job.id)),
   };
 }
 
-function expandJobMatrices(matrices) {
+function inspectExecutionSubject(policy, job, authority) {
+  if (!policy) return { code: null, evidence: null };
+  if (!Number.isInteger(job.run_id) || job.run_id !== authority.runId) {
+    return { code: 'execution_subject_run_mismatch', evidence: null };
+  }
+  if (
+    job.html_url !==
+    `https://github.com/${authority.repository}/actions/runs/${authority.runId}/job/${job.id}`
+  ) {
+    return { code: 'execution_subject_job_url_invalid', evidence: null };
+  }
+  const steps = Array.isArray(job.steps) ? job.steps : [];
+  const matches = steps.filter(step => step.name === policy.verificationStep);
+  if (matches.length === 0) return { code: 'execution_subject_step_missing', evidence: null };
+  if (matches.length !== 1) return { code: 'execution_subject_step_ambiguous', evidence: null };
+
+  const step = matches[0];
+  const evidence = {
+    jobId: job.id,
+    job: job.name,
+    runId: authority.runId,
+    attempt: authority.attempt,
+    expectedSubject: authority.expectedSubject,
+    stepNumber: step.number,
+    status: step.status,
+    conclusion: step.conclusion,
+    url: job.html_url,
+  };
+  if (step.status !== 'completed' || step.conclusion !== 'success') {
+    return { code: 'execution_subject_step_not_successful', evidence };
+  }
+  const checkouts = steps.filter(step => step.name === policy.checkoutStep);
+  if (
+    checkouts.length !== 1 ||
+    !Number.isInteger(checkouts[0].number) ||
+    !Number.isInteger(step.number) ||
+    step.number !== checkouts[0].number + 1
+  ) {
+    return { code: 'execution_subject_step_order_invalid', evidence };
+  }
+  if (checkouts[0].status !== 'completed' || checkouts[0].conclusion !== 'success') {
+    return { code: 'execution_subject_checkout_not_successful', evidence };
+  }
+  return { code: null, evidence };
+}
+
+function expandJobMatrices(matrices, maximumRows = MAX_HOSTED_MATRIX_ROWS) {
+  if (!Array.isArray(matrices) || matrices.length > MAX_HOSTED_MATRIX_ROWS) {
+    throw new Error('Hosted CI workflow matrix authority exceeds supported bounds.');
+  }
   const names = [];
   for (const matrix of matrices) {
+    const cardinality = boundedMatrixCardinality(matrix?.dimensions);
+    if (cardinality !== null && matrix?.expectedCount !== cardinality) {
+      throw new Error(
+        `Job matrix ${matrix.template} expands to ${cardinality}, expected ${matrix.expectedCount}.`
+      );
+    }
+    const placeholders = typeof matrix?.template === 'string' ? matrix.template.match(/\{\}/g) || [] : [];
+    if (Array.isArray(matrix?.dimensions) && placeholders.length > matrix.dimensions.length) {
+      throw new Error(`Job matrix ${matrix.template} has unused placeholders.`);
+    }
+    if (!validateHostedJobMatrix(matrix)) {
+      throw new Error('Hosted CI workflow matrix authority is invalid.');
+    }
+    if (names.length + cardinality > maximumRows) {
+      throw new Error('Hosted CI workflow job authority exceeds supported bounds.');
+    }
     let combinations = [[]];
     for (const dimension of matrix.dimensions || []) {
       combinations = combinations.flatMap(combination =>
@@ -530,8 +1134,12 @@ function expandJobMatrices(matrices) {
 function evaluateHostedVerdict(input, contract) {
   const diagnostics = [];
   const accepted = new Set(contract.acceptedConclusions || ['success']);
-  const expectedNames = new Set(contract.workflows.map(workflow => workflow.name));
-  const latestByName = selectLatestRuns(input.runs || []);
+  const expectedIdentities = new Map(
+    contract.workflows.map(workflow => [workflow.name, workflow.path])
+  );
+  const runs = input.runs || [];
+  const governedRuns = runs.filter(run => expectedIdentities.get(run.name) === run.path);
+  const latestByName = selectLatestRuns(governedRuns);
   const selectedRuns = [];
   const prHeadAtStart = input.prHeadAtStart || input.prHead;
   const localHeadAtEnd = input.localHeadAtEnd || input.expectedHead;
@@ -576,11 +1184,31 @@ function evaluateHostedVerdict(input, contract) {
     if (run.head_sha !== input.expectedHead) {
       diagnostics.push({ code: 'run_head_mismatch', workflow: workflow.name, actual: run.head_sha });
     }
+    if (!isPositiveSafeInteger(run.run_attempt)) {
+      diagnostics.push({
+        code: 'run_attempt_invalid',
+        workflow: workflow.name,
+        actual: run.run_attempt,
+      });
+    }
   }
 
   if (!contract.allowUnexpectedWorkflows) {
-    for (const name of latestByName.keys()) {
-      if (!expectedNames.has(name)) diagnostics.push({ code: 'unexpected_workflow', workflow: name });
+    const unexpectedIdentities = new Set();
+    for (const run of runs) {
+      if (expectedIdentities.get(run.name) === run.path) continue;
+      const identity = `${run.name}\0${run.path || ''}`;
+      if (unexpectedIdentities.has(identity)) continue;
+      unexpectedIdentities.add(identity);
+      if (expectedIdentities.has(run.name)) {
+        diagnostics.push({
+          code: 'unexpected_workflow_identity',
+          workflow: run.name,
+          path: run.path,
+        });
+      } else {
+        diagnostics.push({ code: 'unexpected_workflow', workflow: run.name });
+      }
     }
   }
 
@@ -614,6 +1242,20 @@ function evaluateHostedVerdict(input, contract) {
         diagnostics.push({ code: 'unexpected_job', workflow: workflow.name, job: job.name });
       }
     }
+    const executionSubjects = [];
+    for (const job of classification.required) {
+      const { code, evidence } = inspectExecutionSubject(contract.executionSubject, job, {
+        runId: run.id,
+        attempt: run.run_attempt,
+        expectedSubject: input.expectedHead,
+        repository: contract.repository,
+      });
+      if (code) diagnostics.push({ code, workflow: workflow.name, job: job.name });
+      if (evidence) executionSubjects.push(evidence);
+    }
+    executionSubjects.sort((left, right) =>
+      left.job < right.job ? -1 : left.job > right.job ? 1 : 0
+    );
 
     for (const job of jobs) {
       if (job.status !== 'completed') {
@@ -639,6 +1281,7 @@ function evaluateHostedVerdict(input, contract) {
       url: run.html_url,
       jobCount: jobs.length,
       executedStepCount,
+      executionSubjects,
     });
   }
 
@@ -726,13 +1369,24 @@ function collectHostedData(options, dependencies = {}) {
     throw new Error('Hosted workflow collection exceeded one page; refusing incomplete evidence.');
   }
 
-  const latestRuns = [...selectLatestRuns(runs).values()];
+  const governedRuns = Array.isArray(options.workflows)
+    ? runs.filter(run =>
+        options.workflows.some(workflow => workflow.name === run.name && workflow.path === run.path)
+      )
+    : runs;
+  const latestRuns = [...selectLatestRuns(governedRuns).values()];
   const jobsByRun = {};
   const annotationsByJob = {};
   for (const run of latestRuns) {
+    if (!isPositiveSafeInteger(run.id) || !isPositiveSafeInteger(run.run_attempt)) {
+      throw new Error('Hosted workflow run ID and attempt authority are invalid.');
+    }
     const jobResponse = runJson(
       'gh',
-      ['api', `repos/${options.repository}/actions/runs/${run.id}/jobs?filter=latest&per_page=100`],
+      [
+        'api',
+        `repos/${options.repository}/actions/runs/${run.id}/attempts/${run.run_attempt}/jobs?per_page=100`,
+      ],
       commandDependencies
     );
     const jobs = jobResponse.jobs || [];
@@ -783,7 +1437,7 @@ function collectHostedEnvelope(options, dependencies = {}) {
   });
   const collect = dependencies.collectHostedData || collectHostedData;
   const input = collect(
-    { ...options, repository: contract.repository },
+    { ...options, repository: contract.repository, workflows: contract.workflows },
     dependencies
   );
   const verdict = evaluateHostedVerdict(input, contract);
@@ -978,7 +1632,7 @@ function parseArgs(args) {
     observed.add(flag);
     options[key] = key === 'pullRequest' ? Number(value) : value;
   }
-  if (!Number.isInteger(options.pullRequest) || options.pullRequest <= 0) {
+  if (!isPositiveSafeInteger(options.pullRequest)) {
     throw new Error('--pr requires a positive integer pull request number.');
   }
   if (typeof options.receiptPath !== 'string' || options.receiptPath.length === 0) {
@@ -986,6 +1640,9 @@ function parseArgs(args) {
   }
   if (mode === 'collect' && (!options.purpose || options.subjectCommit)) {
     throw new Error('collect requires --purpose and does not accept --subject.');
+  }
+  if (mode === 'collect' && options.purpose.length > MAX_HOSTED_PURPOSE_LENGTH) {
+    throw new Error(`--purpose must not exceed ${MAX_HOSTED_PURPOSE_LENGTH} characters.`);
   }
   if (mode === 'verify-pending' && (options.purpose || options.subjectCommit)) {
     throw new Error('verify-pending does not accept --purpose or --subject.');
@@ -1034,7 +1691,15 @@ function createDefaultDependencies(projectRoot = PROJECT_ROOT) {
       )
     ),
     spawnSync: projectSpawn,
-    readFile: filePath => fs.readFileSync(filePath),
+    readFile: filePath => {
+      // Receipt paths are containment-checked before this adapter is called.
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      if (fs.statSync(filePath).size > MAX_HOSTED_JSON_BYTES) {
+        throw new Error(`Hosted CI envelope exceeds the ${MAX_HOSTED_JSON_BYTES}-byte size limit.`);
+      }
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      return fs.readFileSync(filePath);
+    },
     readCurrent: filePath => fs.readFileSync(path.join(projectRoot, ...filePath.split('/'))),
     readTracked: (commit, filePath) => gitBinary(['show', `${commit}:${filePath}`]),
     getHead: () => runTextCommand('git', ['rev-parse', 'HEAD'], { spawnSync: projectSpawn }),
@@ -1103,6 +1768,8 @@ module.exports = {
   selectLatestRuns,
   validateHostedContract,
   validateHostedEnvelope,
+  validateTierARunnerReceipt,
+  validateTierBRuntimeReceipt,
   verifyWorkflowTopology,
   verifyPendingEnvelope,
   verifyTrackedEnvelope,

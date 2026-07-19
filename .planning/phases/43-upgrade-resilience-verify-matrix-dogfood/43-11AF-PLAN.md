@@ -18,6 +18,7 @@ must_haves:
     - "credentials never appear in argv, stdout, stderr, JSON reports, or committed configuration"
     - "pack, publish, install, bump, reinstall, and smoke verification remain real operations"
     - "all credential material is scoped to and deleted with the verifier temporary root"
+    - "pre-existing user and project npm configuration remains byte-identical outside the verifier temporary root"
   artifacts:
     - "tests/verify-upgrade.test.js"
     - "43-11AF-SUMMARY.md"
@@ -36,6 +37,7 @@ authentication and fail-closed secret handling.
 @tests/verify-upgrade.test.js
 @.github/workflows/upgrade-verifier.yml
 @.planning/evidence/hosted/first-real-run-failure.json
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AF-AUTHENTICATION-SPIKE.md
 </context>
 
 <tasks>
@@ -47,8 +49,9 @@ authentication and fail-closed secret handling.
     RED: reproduce `ENEEDAUTH`; add injected registry fixtures for successful
     identity bootstrap, rejected signup, malformed token response, publish auth
     failure, cleanup failure, and child output containing token/password/npmrc
-    auth-line patterns. Assert no secret reaches argv, logs, thrown messages, or
-    the structured report.
+    auth-line patterns. Add a canary user/project npm configuration and assert
+    its byte digest remains unchanged after success and every failure. Assert no
+    secret reaches argv, logs, thrown messages, or the structured report.
   </action>
   <verify>
     <automated>bun run test -- tests/verify-upgrade.test.js</automated>
@@ -67,6 +70,11 @@ authentication and fail-closed secret handling.
     command arguments. Centralize redaction before output/report persistence and
     delete all material with the owned temporary root.
 
+    Never invoke `npm config` against an implicit userconfig. Every npm child
+    must receive the owned npmrc through the explicit isolated environment, and
+    the live integration must compare pre/post digests of every pre-existing
+    user/project npm config without reading credential values into output.
+
     Keep the existing pack -> publish-current -> install -> bump -> compose ->
     publish-bumped -> reinstall -> smoke sequence. Do not enable anonymous
     publication or reduce the verifier to pack-only simulation.
@@ -79,6 +87,7 @@ authentication and fail-closed secret handling.
     - malformed or rejected identity bootstrap fails before publication.
     - secret canaries are absent from every observable output and retained artifact.
     - cleanup is attempted on every success and failure path.
+    - user/project npm config digests are unchanged after the live integration.
   </acceptance_criteria>
   <verify>
     <automated>bun run test -- tests/verify-upgrade.test.js</automated>
@@ -94,7 +103,10 @@ Adding a token to the existing raw child-output report would turn a CI fix into
 a credential leak. Anonymous publication would make the scenario pass by
 removing the security property real registries enforce. Injected lifecycle
 ports, centralized redaction, and a disposable identity preserve both realism
-and secrecy.
+and secrecy. Ambient or operator-created npm config can redirect verifier and
+unrelated installs, while an implicit npm config operation can mutate that
+external state. Explicit owned config and host-config non-mutation are therefore
+blocking defense-in-depth properties.
 </threat_model>
 
 <verification>

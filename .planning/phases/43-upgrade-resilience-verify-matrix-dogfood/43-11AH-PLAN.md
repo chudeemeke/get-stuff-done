@@ -20,9 +20,12 @@ files_modified:
   - config/phase43-hosted-ci-contract.json
   - config/phase43-toolchain-authority.json
   - lychee.toml
+  - scripts/emit-hosted-runtime-receipt.js
   - scripts/run-compat-matrix.js
+  - scripts/verify-hosted-ci.js
   - tests/ci-workflow.test.js
   - tests/docs-gates.test.js
+  - tests/hosted-runtime-receipt.test.js
   - tests/toolchain-authority.test.js
   - tests/verify-hosted-ci.test.js
   - tests/vetted-upstream-versions.test.js
@@ -33,16 +36,19 @@ must_haves:
     - "diagnostic pull-request workflows are read-only and cannot create or append issue comments"
     - "all governed jobs explicitly checkout and verify the exact event subject"
     - "governed workflows consume the exact Bun pin and immutable action/container identities"
+    - "every governed job contributes attempt-bound runner metadata and each of the 21 runtime subjects emits a closed runtime receipt"
     - "the active pinned compatibility row fails closed while historical vetted rows remain informational"
     - "volatile decorative third-party availability is separated from blocking project-owned documentation correctness"
   artifacts:
     - ".github/workflows/issue-proposal-maintenance.yml"
     - "tests/ci-workflow.test.js"
     - "tests/docs-gates.test.js"
+    - "scripts/emit-hosted-runtime-receipt.js"
     - "43-11AH-SUMMARY.md"
   key_links:
     - "PR diagnostics -> normalized proposal artifact -> explicit idempotent mutation workflow"
     - "exact checkout -> subject verification step -> hosted collector contract"
+    - "run-attempt job metadata plus governed runtime receipt -> trusted hosted-runtime evidence"
     - "active upstream pin -> compat report row -> blocking workflow conclusion"
 ---
 
@@ -66,27 +72,43 @@ from blocking product authority.
 
 <task id="11AH-01" type="auto">
   <name>Make governed workflow execution reproducible and subject-bound</name>
-  <files>.github/dependabot.yml; .github/workflows/ci.yml; .github/workflows/compat-matrix.yml; .github/workflows/cousin-install.yml; .github/workflows/oversight-probes.yml; .github/workflows/upgrade-verifier.yml; .github/workflows/perf-baseline.yml; config/phase43-hosted-ci-contract.json; config/phase43-toolchain-authority.json; tests/ci-workflow.test.js; tests/toolchain-authority.test.js; tests/verify-hosted-ci.test.js</files>
+  <files>.github/dependabot.yml; .github/workflows/ci.yml; .github/workflows/compat-matrix.yml; .github/workflows/cousin-install.yml; .github/workflows/oversight-probes.yml; .github/workflows/upgrade-verifier.yml; .github/workflows/perf-baseline.yml; config/phase43-hosted-ci-contract.json; config/phase43-toolchain-authority.json; scripts/emit-hosted-runtime-receipt.js; scripts/verify-hosted-ci.js; tests/ci-workflow.test.js; tests/hosted-runtime-receipt.test.js; tests/toolchain-authority.test.js; tests/verify-hosted-ci.test.js</files>
   <action>
     RED: add structural workflow tests that reject default synthetic-merge
     checkout, absent/late subject verification, Bun `latest`, movable action
     tags, a mutable Verdaccio image, missing resolved-runtime provenance, or
-    contract topology that omits the subject step.
+    contract topology that omits the subject step. Reject an unpinned,
+    duplicated, misplaced, or unknown security prelude; checkout inputs outside
+    the per-job allowlist; a non-control run-step job missing from the exact
+    runtime map; missing or extraneous runtime setup; absent run-attempt runner
+    metadata; and missing, malformed, unbound, or duplicate Tier B receipts.
+    Add emitter fixtures for OS/version, architecture, runner labels, Node patch,
+    Bun version, required tool versions, container identity, run ID, attempt,
+    and job identity without exposing environment or credentials.
 
     GREEN: in every governed source-executing job, explicitly checkout the event
     PR head (or `github.sha` for non-PR events) and immediately verify
     `git rev-parse HEAD` against the expected event subject using injection-safe
-    environment wiring. Consume `.bun-version`. Pin governed actions to full
+    environment wiring. Preserve an exact pinned harden-runner prelude before
+    checkout where already present and permit `fetch-depth: 0` only for Secret
+    Scan. Consume `.bun-version`; conform every run-step job to Plan 11AC's exact
+    `runtimeRequirements` map so Bun-only jobs never gain setup-node. Pin
+    governed actions to full
     reviewed SHAs with tag comments and pin Verdaccio by digest. Record resolved
     Node patch and performance-tool versions while retaining Node 20/22 support
     dimensions. Add GitHub Actions update automation that proposes reviewed pin
-    changes rather than silently floating them.
+    changes rather than silently floating them. Capture Tier A runner labels
+    and name from the run-attempt jobs endpoint for every governed job. Emit one
+    sanitized Tier B receipt for each of the 18 Cousin matrix subjects and three
+    performance subjects using the Plan 11AC schema, publish them create-only,
+    and bind collection to run ID, attempt, and job ID. Other jobs remain closed
+    Tier A-only exemptions; Plan 11AJ owns first `hosted-runtime` consumption.
 
-    Co-update the hosted contract job/step topology and governed paths in the
+    Co-update the hosted contract job/step topology, receipt cardinality, and governed paths in the
     same task. A workflow digest without matching step authority must fail.
   </action>
   <verify>
-    <automated>bun run test -- tests/ci-workflow.test.js tests/toolchain-authority.test.js tests/verify-hosted-ci.test.js</automated>
+    <automated>bun run test -- tests/ci-workflow.test.js tests/hosted-runtime-receipt.test.js tests/toolchain-authority.test.js tests/verify-hosted-ci.test.js</automated>
     <automated>bash scripts/lint-workflows.sh</automated>
   </verify>
   <done>false</done>
@@ -155,7 +177,7 @@ repeating those governance failures.
 </threat_model>
 
 <verification>
-- focused workflow, hosted-contract, compatibility, docs, and authority tests
+- focused workflow, hosted-contract, runtime-receipt, compatibility, docs, and authority tests
 - `bash scripts/lint-workflows.sh`
 - `bun run lint:docs`
 - live `node scripts/verify-toolchain-authority.js` against all governed workflows

@@ -2,7 +2,7 @@
 phase: 43
 plan: "12B"
 type: execute
-wave: 44
+wave: 45
 depends_on: ["43-12"]
 status: pending
 requirements: ["SHIP-03A"]

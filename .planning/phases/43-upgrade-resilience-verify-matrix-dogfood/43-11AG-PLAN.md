@@ -45,6 +45,7 @@ acceptance for the user.
 @config/perf-baseline.schema.json
 @tests/bench.test.js
 @tests/check-perf.test.js
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AG-PAIRED-PERF-SPIKE.md
 </context>
 
 <tasks>

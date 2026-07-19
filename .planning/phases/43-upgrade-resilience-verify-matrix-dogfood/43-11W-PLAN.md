@@ -3,7 +3,7 @@ phase: 43
 plan: "11W"
 type: execute
 gap_closure: true
-wave: 24
+wave: 25
 depends_on: ["43-11D"]
 status: pending
 requirements: []
@@ -25,6 +25,7 @@ must_haves:
     - "fallbacks use exact counters over one runner or disjoint source partitions, never metric averages"
     - "Windows junction execution resolves to one non-zero canonical source identity"
     - "raw coverage and reports are removed through marker-owned cleanup on every exit path"
+    - "the recorded c8 11 versus minimatch 3 incompatibility cannot be bypassed by a silent c8 upgrade"
   artifacts:
     - "scripts/run-four-metric-coverage.js"
     - "tests/run-four-metric-coverage.test.js"
@@ -77,7 +78,10 @@ coverage feasibility for every source group before broad threshold closure.
 
     GREEN: classify `scripts/run-four-metric-coverage.js` exactly once in
     `config/production-source-contract.json`, preserve the reviewed denominator
-    diff, and exact-pin `c8@11.0.0`. Add a launcher that validates the resulting
+    diff, and select an exact c8 version only after explicitly resolving the
+    Plan 11AC evidence that c8 11 is incompatible with the deliberate global
+    minimatch 3 security override. Do not silently upgrade from the bounded
+    c8 9.1.0 seam or weaken the override. Add a launcher that validates the resulting
     complete source contract before creating one marker-owned OS-temp root, runs the
     canonical Bun adapter first, the explicit live Jest set second, and the
     policy's required `node:test` suites third with one `NODE_V8_COVERAGE`
@@ -102,6 +106,7 @@ coverage feasibility for every source group before broad threshold closure.
     - the runner is unclassified in RED, then classified exactly once with a reviewed denominator diff and Plan 11D base-digest lineage.
     - the Windows junction fixture records one non-zero canonical path with no alias or duplicate.
     - raw coverage and reports are absent after success and every tested failure path.
+    - the selected exact c8 version has explicit compatibility and security evidence against the repository override set.
   </acceptance_criteria>
   <verify>
     <automated>bun run test -- tests/run-four-metric-coverage.test.js tests/production-source-contract.test.js</automated>

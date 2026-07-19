@@ -112,6 +112,158 @@ Execute locally through GSD:
 
 No public authorization is needed for those local, reversible plan slices.
 
+## Plan 11AC Local WIP Checkpoint (2026-07-19)
+
+Plan 11AC has an uncommitted local implementation at committed head
+`9402163951e76bc7c75af8d500da1749af93bdd4`. No task is marked done and no
+summary, commit, push, hosted run, or public mutation has been made for this
+slice.
+
+Current local changes:
+
+- `.bun-version`
+- `config/phase43-hosted-ci-contract.json`
+- `config/phase43-toolchain-authority.json`
+- `scripts/verify-hosted-ci.js`
+- `scripts/verify-toolchain-authority.js`
+- `tests/verify-hosted-ci.test.js`
+- `tests/toolchain-authority.test.js`
+
+The hosted collector binds each required job to the selected workflow run,
+selected run attempt, exact real job URL, expected PR-head subject, successful
+checkout/verification steps, stable workflow name/path identity, and
+new-run-first freshness. Jobs are fetched from the attempt-specific GitHub API
+endpoint and each subject record repeats the selected attempt. Static
+topology now requires checkout as the first YAML step, exactly one governed
+`actions/checkout`, a closed exact-ref checkout record, an adjacent closed
+verification record in the default workspace, and no workflow/job/step shell
+or runtime injection environment, `PATH`, `GIT_*`, or inherited
+working-directory override. Matrix schemas, scalar evidence, and aggregate
+Cartesian expansion fail closed before allocation.
+
+The toolchain checker defines exact Bun `1.3.5`, exact action SHAs, the
+Verdaccio container digest, bounded Node 20/22 compatibility, one-to-one
+job/runtime subjects, and unconditional blocking setup for both Node and Bun in
+every shell/runtime-subject job. Setup action inputs are closed to
+`node-version` and `bun-version-file`; mirror/download source overrides fail
+closed. Shared bounded fatal-UTF-8 parsers govern the Bun version, manifest,
+and workflow YAML. Hosted and toolchain manifests must name exactly the same
+workflow set. Local actions, duplicate/unsupported matrices, unbounded
+evidence, ambiguous runtime rows, and containment escapes fail closed.
+
+Focused authority/config tests pass 119/119 with 454 expectations. The latest
+broad run executed 1,459 tests: 1,458 passed and 1 failed. A focused 40-test
+rerun confirms the Windows PowerShell security-module failure occurs before
+product execution. Bounded diagnosis found name-based import resolves an
+incompatible PowerShell 7 WindowsApps module, while importing Windows
+PowerShell's exact `$PSHOME` manifest succeeds. The correction remains owned by
+dependency-blocked Plan 11AE. The earlier bundled statusline malformed-input
+status-9 result
+did not reproduce in 5/5 direct source/bundle probes, an isolated bundled test,
+or a full 58/58 hook-suite rerun. It is retained only as a load-sensitive
+observation under Plan 11I's bounded-subprocess contract, not as a Plan 11AC or
+11AE product defect. Static verification reports 77 expected pre-11AH
+diagnostics: 50 action pins, 14 non-authoritative Bun setups, 1 missing Bun
+setup, 1 container pin, and 11 missing Node setups, with no runtime-matrix
+authority diagnostics. Node syntax, `git diff --check`, and ESLint pass with
+zero errors. Live tag resolution matches all ten recorded GitHub Action
+commits; Docker Registry v2 resolves `verdaccio/verdaccio:6` to the recorded
+OCI index digest; and local Bun matches `.bun-version` at `1.3.5`.
+
+Bun coverage output became internally inconsistent across equivalent focused
+runs and does not expose statements or branches, so it remains non-authoritative
+for this claim. A narrow Node-native seam now reuses the verifier suites through
+`node:test`, exact `expect@30.4.1`, and c8 `9.1.0`. The 107/107 Node lane proves
+hosted coverage at 98.76/96.81/98.21/98.76 and toolchain coverage at
+97.04/95.33/100/97.04 for statements/branches/functions/lines. Full Jest and
+c8 11 were removed after the proof showed they were unnecessary and
+incompatible with the deliberate minimatch 3 override. The compatible
+brace-expansion 1.1.13 override clears the advisory on the new coverage path.
+`bun audit` remains red on eight pre-existing advisories, including the high
+CycloneDX CLI advisory owned by Plan 11AD. Generated coverage output was
+removed after verification. A persistent read-only GPT-5.6-Sol `xhigh` review
+completed after 1,325 seconds with `proceed-with-corrections`, no P0, seven P1,
+and two P2 findings. Its record is
+`43-SOL-PLAN11AC-ADVISORY-REVIEW-2026-07-19.md`.
+Sol remains advisory and cannot approve architecture or satisfy Fable's formal
+checkpoint. The Opus attempt failed before execution because Claude OAuth was
+expired, and Fable quota is unavailable until about 10:00.
+
+Directly composing the complete toolchain evaluator into hosted topology was
+tested and removed because it exposed an unresolved semantic collision. The
+mandatory Bash subject-control step makes action-only jobs appear to be
+Node/Bun runtime jobs under the current conservative `any run step` classifier.
+Forcing Node and Bun setup into those jobs would add dependencies and a false
+runtime claim. No policy was silently chosen.
+
+Fable adjudicated the eight architecture decisions on 2026-07-19 with
+`proceed-with-corrections`:
+
+1. Distinguish the exact contract-governed subject control step from payload
+   runtime without reopening executable-name guessing.
+2. Reconcile exact-pinned `harden-runner`, adjacent checkout verification, and
+   the secret scan's required `fetch-depth: 0` through a closed security
+   prelude and job-specific checkout policy.
+3. Limit the product claim to exact pre-payload event-subject proof, a
+   byte-pinned governed step program, no subsequent checkout, and a closed
+   injection surface. Whole-job worktree immutability is not claimed.
+4. Define trusted hosted runtime receipts, runner identity, closed job
+   exemptions, and ownership across Plans 11AC/11AH/11AJ.
+5. Decide whether to accept the implemented narrow `node:test`/expect/c8
+   four-metric seam in 11AC and how Plans 11D/11W consume its evidence without
+   changing their canonical runner migration.
+6. Decide whether the 982-line toolchain verifier and 1,622-line hosted
+   verifier require a hexagonal/SRP module split now, or a bounded later
+   extraction, without cosmetic slicing or an unbounded refactor.
+7. Choose one Bun-first package audit authority or an explicitly parity-proven
+   dual-lock contract before Plan 11AD changes dependencies or lockfiles.
+8. Insert and scope the stable 1.7.0 bump plus override reconciliation before
+   the next hosted cycle without contaminating the current 11AC review subject.
+
+The cold-readable review input is
+`43-FABLE-PLAN11AC-ADJUDICATION-PACKET-2026-07-19.md`; the exact captured
+response and authoritative adjudication are
+`43-FABLE-PLAN11AC-WHOLE-PROJECT-REVIEW-2026-07-19.md` and
+`43-FABLE-PLAN11AC-AUTHORITATIVE-ADJUDICATION-2026-07-19.md`. The current WIP
+remains uncommitted, and the distinct formal post-hosted Fable checkpoint is
+still required by Plan 11AJ.
+
+## Local GSD State Integrity Follow-up (2026-07-19)
+
+GSD resume routing incorrectly selected Phase 40.5 because three historical
+summary records were absent even though Plans 02 and 03 had committed evidence
+and Plan 05 had been superseded by verified Phase 40.6. Retrospective summaries
+now preserve those exact distinctions in local commit `94021639`:
+
+- Plan 02 closes against implementation commit `db8de746` and its drift log.
+- Plan 03 closes against implementation commit `0abd5b55` and its collision log.
+- Plan 05 closes as superseded, explicitly without claiming that its legacy
+  issue/PR filing or historical synthesis commands executed.
+
+`query init.progress` now reports Phase 40.5 as 6/6 complete and correctly keeps
+Phase 43 current. The root-local memory-nexus health handoff was also corrected
+and linted: remaining W002 work is active backlog Phase 999.8 under locked D-22,
+not removed Plan 11O and not a Phase 43/44 release blocker. The paired
+conversations control-plane item remains non-blocking and was not edited because
+conversations is running in a live session.
+
+## Local Environment Attribution Correction -- 2026-07-19
+
+A compatibility preflight found the user npm registry pointing to the stopped
+local endpoint at `localhost:4873`. The operator later confirmed manually
+running `npm set registry http://localhost:4873/` from WSL, so this was not
+evidence that the Verdaccio spike changed external config. Native Windows and
+WSL npm currently resolve the same user-level config file, report the npmjs
+registry, and report no local endpoint reference. Existing npmjs
+authentication was neither printed nor replaced. Plan 11AF retains pre/post
+byte-invariance evidence for external npm configuration as defense in depth.
+
+The same preflight found the two new `PLAN11AC` review artifacts inflating
+Phase 43 to 51 plans. The shared Plan 11L override now requires a
+delimiter-bounded legacy `PLAN` token. Roadmap 19/19, repository 154/154, and
+N=3 945/945 gates pass; composed progress again reports 17/49. No public action
+or live first-party service mutation occurred.
+
 ## External Resumption Trigger
 
 Plan 11AJ presents the exact corrective head and local receipt, then obtains a
@@ -154,3 +306,28 @@ Main branch protection still requires the stale context
 `Boundary Check (informational)` and `Override Staleness Check (blocking)`
 contexts. Plan 11R reports this as governance drift; do not mutate branch
 protection until a real hosted run proves the replacement contexts.
+
+## Public Repository Audit (2026-07-19)
+
+Read-only GitHub and unauthenticated HTTP checks confirmed
+`chudeemeke/get-stuff-done` is already public, independent rather than a fork,
+and MIT licensed. No visibility mutation was issued. GitHub reports secret
+scanning and push protection enabled with zero open secret-scanning or
+Dependabot alerts. A Gitleaks scan across all published `origin/*` history
+scanned 2,660 commits and returned two occurrences of one generic-key rule;
+redacted context proved both occurrences are the same test-fixture filename,
+not credential material. Locally fetched upstream-only refs produced additional
+test-fixture findings but are not published by this repository.
+
+All published workflow runner selectors resolve to standard GitHub-hosted
+Ubuntu, macOS, or Windows runners. Repository cache usage was approximately
+1.35 GB and retained artifacts approximately 0.92 MB at audit time. Account-level
+billing attribution remains unavailable because the current GitHub token lacks
+the `user` scope; no authentication scope or credential was changed.
+
+Public-history hygiene remains a separate governance decision before the next
+push. The published branch contains historical absolute user paths and bounded
+account/authentication diagnostics in planning evidence. They are not secrets,
+and rewriting already-public history would not undo prior exposure. Plan 11AH
+should define the forward-looking tracked-artifact contract; any branch
+protection or other GitHub-setting mutation remains user-gated in Plan 11AJ.

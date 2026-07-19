@@ -37,6 +37,7 @@ containment or misclassifying runner setup as product behavior.
 @tests/fork-roadmap-persistence.test.js
 @scripts/verify-hosted-ci.js
 @tests/verify-hosted-ci.test.js
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AE-WINDOWS-ACL-DIAGNOSIS-2026-07-19.md
 </context>
 
 <tasks>
@@ -48,13 +49,16 @@ containment or misclassifying runner setup as product behavior.
     RED: preserve a POSIX-hosted fixture that selects the injected `win32`
     product branch and proves the executable is a fully Windows-normalized path.
     Add a harness negative showing ACL setup fails before product execution when
-    `Microsoft.PowerShell.Security` is unavailable.
+    the Windows PowerShell-owned `Microsoft.PowerShell.Security` manifest is
+    unavailable.
 
     GREEN: construct the Windows PowerShell executable with `path.win32.join`.
-    Make the test harness explicitly import
-    `Microsoft.PowerShell.Security -ErrorAction Stop` or use the equivalent .NET
-    ACL API before invoking product behavior. Keep roadmap target/replacement
-    paths in the child environment and preserve existing recovery semantics.
+    Make the test harness import the exact Windows PowerShell inbox manifest at
+    `$PSHOME/Modules/Microsoft.PowerShell.Security/` with `-ErrorAction Stop`, or
+    use the equivalent .NET ACL API, before invoking product behavior. Do not
+    import by module name: this host resolves a PowerShell 7 WindowsApps module
+    before the compatible inbox module. Keep roadmap target/replacement paths in
+    the child environment and preserve existing recovery semantics.
 
     REFACTOR: keep target-platform selection injectable and avoid global path
     normalization that would alter real POSIX filesystem paths.

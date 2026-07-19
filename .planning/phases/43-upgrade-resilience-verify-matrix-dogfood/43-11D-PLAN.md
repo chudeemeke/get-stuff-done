@@ -3,7 +3,7 @@ phase: 43
 plan: "11D"
 type: execute
 gap_closure: true
-wave: 23
+wave: 24
 depends_on: ["43-11AJ"]
 status: pending
 requirements: []
@@ -27,6 +27,7 @@ must_haves:
     - "denominator changes are explicit reviewed diffs rather than silent reclassification"
     - "shipped upstream snapshots remain blocking through a separate assurance contract"
     - "the fully finalized corrective/Fable head receives a second tracked exact-head hosted envelope before the first source edit"
+    - "coverage ownership consumes the stable post-11AC mechanical extraction layout without treating the bounded c8 seam as precedent"
   artifacts:
     - "config/production-source-contract.json"
     - "jest.coverage.config.cjs"
@@ -50,6 +51,7 @@ CommonJS functional parity under Jest without introducing coverage orchestration
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11C-PLAN.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11R-SUMMARY.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-HOSTED-CI-RESUME.md
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AC-SUMMARY.md
 @docs/decisions/004-DUAL-TEST-AUTHORITY.md
 @package.json
 @bunfig.toml
@@ -113,6 +115,10 @@ CommonJS functional parity under Jest without introducing coverage orchestration
     binding. Test the canonical UTF-8 path/file digest algorithm and require an
     explicit machine-readable diff for every denominator addition, removal, or
     reclassification.
+
+    Consume the final Plan 11AC entry/extracted-module layout as repository
+    truth. Do not duplicate its temporary verifier coverage seam or infer that
+    its exact `expect`/c8 choices constrain this plan's canonical runner design.
 
     GREEN: implement a pure source resolver and declarative contract using the
     ownership classes from `43-COVERAGE-SPIKE.md`. Record 52 files only as the

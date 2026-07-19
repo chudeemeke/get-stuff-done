@@ -103,6 +103,24 @@ contract, and removed after no child process remained. Matrix-owned temp roots
 are absent. `dist/` and `node_modules/` were preserved, and no live `authkey`,
 `remotely`, or `conversations` session was touched.
 
+## Post-Completion Correction -- 2026-07-19
+
+Two new review artifacts containing embedded plan references (`PLAN11AC`) made
+the loose `/PLAN/i` fallback regress from the authoritative 49 Phase 43 plans
+to 51. Disk and ROADMAP comparison proved both contained exactly the same 49
+real `*-PLAN.md` files.
+
+RED tests reproduced both false positives. GREEN changed the loose legacy
+fallback to require a delimiter-bounded `PLAN` token, retaining
+`legacy-plan-draft.md` while excluding embedded references such as `PLAN11AC`.
+A 2,391-file portfolio inventory found only the two review artifacts affected
+by that narrowing. Fresh verification passed the 19/19 roadmap suite, 154/154
+repository compatibility, and 945/945 N=3 candidate matrix. Composed
+`init progress` again reports 49 Phase 43 plans and 17 summaries.
+
+No upstream comment was posted. Issue #2252 remains the public removal trigger,
+and any proposed scope clarification remains user-gated.
+
 ## Next
 
 Push the current branch as a draft PR and obtain a hosted CI verdict. Resolve

@@ -21,6 +21,22 @@ const OWNED_RUN_PREFIX = 'gsd-verify-upgrade-run-';
 const REGISTRY_REQUEST_TIMEOUT_MS = 5000;
 const REGISTRY_RESPONSE_MAX_BYTES = 64 * 1024;
 const REGISTRY_TOKEN_PATTERN = /^[A-Za-z0-9._~-]{16,4096}$/;
+const SAFE_CHILD_ENV_KEYS = new Set([
+  'CI',
+  'COMSPEC',
+  'LANG',
+  'LC_ALL',
+  'NO_COLOR',
+  'NUMBER_OF_PROCESSORS',
+  'OS',
+  'PATH',
+  'PATHEXT',
+  'PROCESSOR_ARCHITECTURE',
+  'SYSTEMROOT',
+  'TERM',
+  'TZ',
+  'WINDIR',
+]);
 const STEP_NAMES = [
   'pack-current',
   'publish-current',
@@ -41,6 +57,7 @@ const COPY_EXCLUDES = new Set([
   'coverage',
   '.turbo',
   '.next',
+  '.npmrc',
 ]);
 
 function validateRegistryUrl(value) {
@@ -323,11 +340,21 @@ function assertInside(parent, child, label) {
   }
 }
 
+function assertTempParentOutsideProject(projectRoot, tempParent) {
+  const sourcePath = path.resolve(projectRoot);
+  const tempPath = path.resolve(tempParent);
+  if (tempPath === sourcePath || tempPath.startsWith(sourcePath + path.sep)) {
+    throw new Error('Verifier temp root must be outside the source checkout.');
+  }
+}
+
 function npmConfigCandidates(projectRoot, env) {
   const candidates = new Set([path.resolve(projectRoot, '.npmrc')]);
   for (const candidate of [
     env.npm_config_userconfig,
     env.NPM_CONFIG_USERCONFIG,
+    env.npm_config_globalconfig,
+    env.NPM_CONFIG_GLOBALCONFIG,
     env.HOME && path.join(env.HOME, '.npmrc'),
     env.USERPROFILE && path.join(env.USERPROFILE, '.npmrc'),
   ]) {
@@ -371,10 +398,18 @@ function verifyNpmConfigSnapshots(snapshots, fileSystem = fs) {
 }
 
 function isolatedChildEnvironment(env) {
-  return Object.fromEntries(Object.entries(env).filter(([key]) => !(
-    /^(?:NPM_TOKEN|NODE_AUTH_TOKEN)$/i.test(key) ||
-    /^npm_config_.*(?:auth|token|password)/i.test(key)
-  )));
+  const isolated = {};
+  for (const [key, value] of Object.entries(env || {})) {
+    if (SAFE_CHILD_ENV_KEYS.has(key.toUpperCase()) && typeof value === 'string') {
+      // eslint-disable-next-line security/detect-object-injection -- Key is selected from a closed allowlist.
+      isolated[key] = value;
+    }
+  }
+  const pathValue = env?.PATH || env?.Path || env?.path;
+  delete isolated.Path;
+  delete isolated.path;
+  if (typeof pathValue === 'string') isolated.PATH = pathValue;
+  return isolated;
 }
 
 function createVerifierContext({
@@ -386,6 +421,7 @@ function createVerifierContext({
 }) {
   const normalizedRegistryUrl = validateRegistryUrl(registryUrl);
   const baseRoot = tempRoot ? path.resolve(tempRoot) : os.tmpdir();
+  assertTempParentOutsideProject(projectRoot, baseRoot);
   ensureDir(baseRoot, fileSystem);
   const prefix = tempRoot ? OWNED_RUN_PREFIX : 'gsd-verify-upgrade-';
   const root = fileSystem.mkdtempSync(path.join(baseRoot, prefix));
@@ -397,8 +433,16 @@ function createVerifierContext({
     const userProfileDir = ensureDir(path.join(root, 'userprofile'), fileSystem);
     const claudeConfigDir = ensureDir(path.join(root, 'claude-config'), fileSystem);
     const npmCacheDir = ensureDir(path.join(root, 'npm-cache'), fileSystem);
+    const npmPrefixDir = ensureDir(path.join(root, 'npm-prefix'), fileSystem);
     const npmrcDir = ensureDir(path.join(root, 'npmrc'), fileSystem);
     const npmrcPath = path.join(npmrcDir, '.npmrc');
+    const globalNpmrcPath = path.join(npmrcDir, 'global.npmrc');
+    const tempDir = ensureDir(path.join(root, 'tmp'), fileSystem);
+    const appDataDir = ensureDir(path.join(root, 'appdata'), fileSystem);
+    const localAppDataDir = ensureDir(path.join(root, 'local-appdata'), fileSystem);
+    const xdgConfigDir = ensureDir(path.join(root, 'xdg-config'), fileSystem);
+    const xdgCacheDir = ensureDir(path.join(root, 'xdg-cache'), fileSystem);
+    const xdgDataDir = ensureDir(path.join(root, 'xdg-data'), fileSystem);
 
     for (const [label, dirPath] of [
       ['registry', registryDir],
@@ -408,7 +452,15 @@ function createVerifierContext({
       ['USERPROFILE', userProfileDir],
       ['CLAUDE_CONFIG_DIR', claudeConfigDir],
       ['npm_config_cache', npmCacheDir],
+      ['npm_config_prefix', npmPrefixDir],
       ['npm_config_userconfig', npmrcPath],
+      ['npm_config_globalconfig', globalNpmrcPath],
+      ['TEMP', tempDir],
+      ['APPDATA', appDataDir],
+      ['LOCALAPPDATA', localAppDataDir],
+      ['XDG_CONFIG_HOME', xdgConfigDir],
+      ['XDG_CACHE_HOME', xdgCacheDir],
+      ['XDG_DATA_HOME', xdgDataDir],
     ]) {
       assertInside(root, dirPath, label);
     }
@@ -417,6 +469,7 @@ function createVerifierContext({
       encoding: 'utf8',
       mode: 0o600,
     });
+    fileSystem.writeFileSync(globalNpmrcPath, '', { encoding: 'utf8', mode: 0o600 });
     fileSystem.writeFileSync(path.join(installTargetDir, 'package.json'), JSON.stringify({
       private: true,
       name: 'gsd-upgrade-install-target',
@@ -438,10 +491,22 @@ function createVerifierContext({
         HOME: homeDir,
         USERPROFILE: userProfileDir,
         CLAUDE_CONFIG_DIR: claudeConfigDir,
+        APPDATA: appDataDir,
+        LOCALAPPDATA: localAppDataDir,
+        XDG_CONFIG_HOME: xdgConfigDir,
+        XDG_CACHE_HOME: xdgCacheDir,
+        XDG_DATA_HOME: xdgDataDir,
+        TEMP: tempDir,
+        TMP: tempDir,
+        TMPDIR: tempDir,
         npm_config_userconfig: npmrcPath,
         NPM_CONFIG_USERCONFIG: npmrcPath,
+        npm_config_globalconfig: globalNpmrcPath,
+        NPM_CONFIG_GLOBALCONFIG: globalNpmrcPath,
         npm_config_cache: npmCacheDir,
         NPM_CONFIG_CACHE: npmCacheDir,
+        npm_config_prefix: npmPrefixDir,
+        NPM_CONFIG_PREFIX: npmPrefixDir,
         npm_config_registry: normalizedRegistryUrl,
         NPM_CONFIG_REGISTRY: normalizedRegistryUrl,
       },
@@ -467,7 +532,50 @@ function writeAuthenticatedNpmrc(context, token) {
 }
 
 function defaultRunner(command, args, options) {
-  return spawnSync(command, args, options);
+  try {
+    const invocation = resolveToolInvocation(command, args, options.env);
+    return spawnSync(invocation.command, invocation.args, { ...options, shell: false });
+  } catch (error) {
+    return { status: null, stdout: '', stderr: '', error };
+  }
+}
+
+function firstPathCommand(commandNames, env, fileSystem = fs) {
+  const searchPath = env?.PATH || '';
+  for (const directory of searchPath.split(path.delimiter).filter(Boolean)) {
+    for (const commandName of commandNames) {
+      const candidate = path.join(directory, commandName);
+      if (fileSystem.existsSync(candidate)) return candidate;
+    }
+  }
+  return null;
+}
+
+function resolveToolInvocation(command, args, env = process.env, platform = process.platform) {
+  if (command === 'node') return { command: process.execPath, args };
+
+  if (command === 'npm') {
+    const names = platform === 'win32' ? ['npm.exe', 'npm.cmd'] : ['npm'];
+    const executable = firstPathCommand(names, env);
+    if (!executable) throw new Error('Unable to resolve npm without a command shell.');
+    if (platform !== 'win32' || executable.toLowerCase().endsWith('.exe')) {
+      return { command: executable, args };
+    }
+    const npmCli = path.join(path.dirname(executable), 'node_modules', 'npm', 'bin', 'npm-cli.js');
+    if (!fs.existsSync(npmCli)) {
+      throw new Error('Unable to resolve the npm CLI behind the Windows command shim.');
+    }
+    return { command: process.execPath, args: [npmCli, ...args] };
+  }
+
+  if (command === 'bun') {
+    const names = platform === 'win32' ? ['bun.exe'] : ['bun'];
+    const executable = firstPathCommand(names, env);
+    if (!executable) throw new Error('Unable to resolve Bun without a command shell.');
+    return { command: executable, args };
+  }
+
+  throw new Error(`Unsupported verifier command: ${command}`);
 }
 
 function sanitizeResult(result, secretValues) {
@@ -488,7 +596,7 @@ function runProcess(step, context, runner, overrides = {}) {
       ...(overrides.env || {}),
     },
     encoding: 'utf8',
-    shell: process.platform === 'win32',
+    shell: false,
     stdio: ['ignore', 'pipe', 'pipe'],
   }), context.secretValues);
 
@@ -534,11 +642,8 @@ function writeJson(filePath, value, fileSystem = fs) {
 }
 
 function prepareBumpWorkspace(context, toVersion, bumpedPackageVersion, options = {}) {
+  prepareSourceWorkspace(context);
   if (options.prepareWorkspace === false) return;
-
-  if (context.fs.readdirSync(context.workspaceDir).length === 0) {
-    copyTree(context.projectRoot, context.workspaceDir, context.fs);
-  }
 
   const packagePath = path.join(context.workspaceDir, 'package.json');
   const packageJson = readJson(packagePath, context.fs);
@@ -556,7 +661,13 @@ function prepareBumpWorkspace(context, toVersion, bumpedPackageVersion, options 
   }
 }
 
-function resolveTarballPath(stdout, directory, fileSystem = fs) {
+function prepareSourceWorkspace(context) {
+  if (context.fs.readdirSync(context.workspaceDir).length === 0) {
+    copyTree(context.projectRoot, context.workspaceDir, context.fs);
+  }
+}
+
+function resolveTarballPath(stdout, directory, fileSystem = fs, excludedPaths = []) {
   try {
     const payload = JSON.parse(String(stdout || ''));
     const record = Array.isArray(payload) ? payload.at(-1) : payload;
@@ -581,9 +692,70 @@ function resolveTarballPath(stdout, directory, fileSystem = fs) {
     ? fileSystem.readdirSync(directory)
       .filter(entry => entry.endsWith('.tgz'))
       .map(entry => path.join(directory, entry))
+      .filter(candidate => !excludedPaths.includes(path.resolve(candidate)))
     : [];
   candidates.sort();
   return candidates[candidates.length - 1] || null;
+}
+
+function listTarballs(directory, fileSystem = fs) {
+  if (!fileSystem.existsSync(directory)) return [];
+  return fileSystem.readdirSync(directory)
+    .filter(entry => entry.endsWith('.tgz'))
+    .map(entry => path.resolve(directory, entry))
+    .sort();
+}
+
+function validatePackedArtifact(stdout, directory, fileSystem = fs, excludedPaths = []) {
+  const candidate = resolveTarballPath(stdout, directory, fileSystem, excludedPaths);
+  if (!candidate) throw new Error('Pack command did not produce a tarball artifact.');
+
+  const absoluteCandidate = path.resolve(candidate);
+  assertInside(directory, absoluteCandidate, 'packed artifact');
+  const stat = fileSystem.lstatSync(absoluteCandidate);
+  if (!stat.isFile() || stat.isSymbolicLink()) {
+    throw new Error('Packed artifact must be a regular file.');
+  }
+
+  const realDirectory = fileSystem.realpathSync(directory);
+  const realCandidate = fileSystem.realpathSync(absoluteCandidate);
+  assertInside(realDirectory, realCandidate, 'packed artifact');
+  const bytes = fileSystem.readFileSync(realCandidate);
+  return {
+    path: absoluteCandidate,
+    evidence: {
+      filename: path.basename(absoluteCandidate),
+      sizeBytes: bytes.length,
+      sha256: crypto.createHash('sha256').update(bytes).digest('hex'),
+    },
+  };
+}
+
+function parseSmokeProvenance(stdout, expected) {
+  let payload;
+  try {
+    payload = JSON.parse(String(stdout || ''));
+  } catch {
+    return null;
+  }
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
+  const required = {
+    forkPackage: expected.forkPackage,
+    forkVersion: expected.forkVersion,
+    packageName: expected.forkPackage,
+    version: expected.forkVersion,
+    upstreamPackage: expected.upstreamPackage,
+    upstreamVersion: expected.upstreamVersion,
+  };
+  for (const [key, value] of Object.entries(required)) {
+    // eslint-disable-next-line security/detect-object-injection -- Keys are from a closed local object.
+    if (payload[key] !== value) return null;
+  }
+  if (!/^[a-f0-9]{64}$/i.test(payload.overlayManifestSha256 || '')) return null;
+  return {
+    ...required,
+    overlayManifestSha256: payload.overlayManifestSha256.toLowerCase(),
+  };
 }
 
 function classificationFor(stepName) {
@@ -624,6 +796,16 @@ function createBaseReport({ fromVersion, toVersion, registryUrl, installTargetDi
     ],
     durationMs: 0,
     changedOverrides: [],
+    registryLifecycle: {
+      ownership: 'external-disposable',
+      disposalRequired: true,
+      verifierOwnsRegistry: false,
+    },
+    artifacts: {
+      current: null,
+      bumped: null,
+    },
+    smokeProvenance: null,
     steps: [],
     warnings: [],
     exitClassification: 'success',
@@ -653,19 +835,28 @@ function executeUpgradeSequence(options, context, report, runner) {
   const packageSpec = `${packageJson.name}@${sourcePackageVersion}`;
   const bumpedPackageVersion = `${sourcePackageVersion}-upgrade.${options.toVersion}`;
   const bumpedPackageSpec = `${packageJson.name}@${bumpedPackageVersion}`;
+  prepareSourceWorkspace(context);
 
   const packCurrent = {
     name: 'pack-current',
     command: 'npm',
     args: ['pack', '--json', '--ignore-scripts', '--pack-destination', context.registryDir],
-    cwd: context.projectRoot,
+    cwd: context.workspaceDir,
   };
   if (!runRecordedStep(packCurrent, report, context, runner)) return;
-  report.packageTarball = resolveTarballPath(
-    report.steps.at(-1).stdout,
-    context.registryDir,
-    context.fs
-  );
+  try {
+    const artifact = validatePackedArtifact(
+      report.steps.at(-1).stdout,
+      context.registryDir,
+      context.fs
+    );
+    report.packageTarball = artifact.path;
+    report.artifacts.current = artifact.evidence;
+  } catch {
+    report.warnings.push('Current package artifact failed containment validation');
+    report.exitClassification = 'pack_current_artifact_invalid';
+    return;
+  }
 
   const orderedSteps = [
     {
@@ -687,6 +878,7 @@ function executeUpgradeSequence(options, context, report, runner) {
   }
 
   prepareBumpWorkspace(context, options.toVersion, bumpedPackageVersion, options);
+  const priorTarballs = listTarballs(context.registryDir, context.fs);
   if (!runRecordedStep({
     name: 'bump-upstream',
     command: 'bun',
@@ -707,11 +899,20 @@ function executeUpgradeSequence(options, context, report, runner) {
     args: ['pack', '--json', '--ignore-scripts', '--pack-destination', context.registryDir],
     cwd: context.workspaceDir,
   }, report, context, runner)) return;
-  report.packedArtifact = resolveTarballPath(
-    report.steps.at(-1).stdout,
-    context.registryDir,
-    context.fs
-  );
+  try {
+    const artifact = validatePackedArtifact(
+      report.steps.at(-1).stdout,
+      context.registryDir,
+      context.fs,
+      priorTarballs
+    );
+    report.packedArtifact = artifact.path;
+    report.artifacts.bumped = artifact.evidence;
+  } catch {
+    report.warnings.push('Bumped package artifact failed containment validation');
+    report.exitClassification = 'pack_bumped_artifact_invalid';
+    return;
+  }
 
   for (const step of [
     {
@@ -745,6 +946,16 @@ function executeUpgradeSequence(options, context, report, runner) {
   ]) {
     if (!runRecordedStep(step, report, context, runner)) return;
   }
+  report.smokeProvenance = parseSmokeProvenance(report.steps.at(-1).stdout, {
+    forkPackage: packageJson.name,
+    forkVersion: bumpedPackageVersion,
+    upstreamPackage,
+    upstreamVersion: options.toVersion,
+  });
+  if (!report.smokeProvenance) {
+    report.warnings.push('Installed package provenance did not match the requested upgrade');
+    report.exitClassification = 'smoke_provenance_mismatch';
+  }
 }
 
 function cleanupVerifierContext(context) {
@@ -756,7 +967,14 @@ function cleanupVerifierContext(context) {
       });
     }
   } catch {
-    // Root deletion below is the credential-destruction authority.
+    // Independent credential-file deletion and root deletion follow.
+  }
+  try {
+    if (context.fs.existsSync(context.npmrcPath)) {
+      context.fs.unlinkSync(context.npmrcPath);
+    }
+  } catch {
+    // Root deletion remains the final credential-destruction authority.
   }
   try {
     context.fs.rmSync(context.root, { recursive: true, force: true });
@@ -893,8 +1111,10 @@ module.exports = {
   STEP_NAMES,
   createVerifierContext,
   main,
+  parseSmokeProvenance,
   parseArgs,
   redactText,
   runUpgradeVerification,
+  resolveToolInvocation,
   validateRegistryUrl,
 };

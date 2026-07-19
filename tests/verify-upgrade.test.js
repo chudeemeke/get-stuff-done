@@ -313,6 +313,59 @@ describe('verify-upgrade CLI contract', () => {
     expect(() => parseArgs(['--unknown'])).toThrow('Unknown option');
   });
 
+  test('resolves Node, npm, and Bun without a command shell', () => {
+    const { resolveToolInvocation } = loadVerifierModule();
+    const root = tempRoot();
+    const missing = path.join(root, 'missing');
+    const posixBin = path.join(root, 'posix-bin');
+    const windowsExeBin = path.join(root, 'windows-exe-bin');
+    const windowsCmdBin = path.join(root, 'windows-cmd-bin');
+    fs.mkdirSync(posixBin, { recursive: true });
+    fs.mkdirSync(windowsExeBin, { recursive: true });
+    fs.mkdirSync(windowsCmdBin, { recursive: true });
+    fs.writeFileSync(path.join(posixBin, 'npm'), '', 'utf8');
+    fs.writeFileSync(path.join(posixBin, 'bun'), '', 'utf8');
+    fs.writeFileSync(path.join(windowsExeBin, 'npm.exe'), '', 'utf8');
+    fs.writeFileSync(path.join(windowsExeBin, 'bun.exe'), '', 'utf8');
+    fs.writeFileSync(path.join(windowsCmdBin, 'npm.cmd'), '', 'utf8');
+
+    try {
+      expect(resolveToolInvocation('node', ['--version'], {}, 'win32')).toEqual({
+        command: process.execPath,
+        args: ['--version'],
+      });
+      expect(resolveToolInvocation('npm', ['ping'], {
+        PATH: `${missing}${path.delimiter}${posixBin}`,
+      }, 'linux')).toEqual({
+        command: path.join(posixBin, 'npm'),
+        args: ['ping'],
+      });
+      expect(resolveToolInvocation('bun', ['run', 'compose'], { PATH: posixBin }, 'linux'))
+        .toEqual({ command: path.join(posixBin, 'bun'), args: ['run', 'compose'] });
+      expect(resolveToolInvocation('npm', ['ping'], { PATH: windowsExeBin }, 'win32'))
+        .toEqual({ command: path.join(windowsExeBin, 'npm.exe'), args: ['ping'] });
+      expect(resolveToolInvocation('bun', ['run'], { PATH: windowsExeBin }, 'win32'))
+        .toEqual({ command: path.join(windowsExeBin, 'bun.exe'), args: ['run'] });
+
+      expect(() => resolveToolInvocation('npm', [], {}, 'win32'))
+        .toThrow('resolve npm without a command shell');
+      expect(() => resolveToolInvocation('bun', [], {}, 'linux'))
+        .toThrow('resolve Bun without a command shell');
+      expect(() => resolveToolInvocation('npm', [], { PATH: windowsCmdBin }, 'win32'))
+        .toThrow('npm CLI behind the Windows command shim');
+
+      const npmCli = path.join(windowsCmdBin, 'node_modules', 'npm', 'bin', 'npm-cli.js');
+      fs.mkdirSync(path.dirname(npmCli), { recursive: true });
+      fs.writeFileSync(npmCli, '', 'utf8');
+      expect(resolveToolInvocation('npm', ['publish'], { PATH: windowsCmdBin }, 'win32'))
+        .toEqual({ command: process.execPath, args: [npmCli, 'publish'] });
+      expect(() => resolveToolInvocation('git', [], { PATH: posixBin }, 'linux'))
+        .toThrow('Unsupported verifier command');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test('emits JSON and text reports through the CLI boundary', async () => {
     const { main } = loadVerifierModule();
     const root = tempRoot();
@@ -962,6 +1015,27 @@ describe('verify-upgrade orchestration report', () => {
       }));
       expect(report.exitClassification).toBe('success');
 
+      const symlinkKindFs = {
+        ...fs,
+        lstatSync(targetPath) {
+          if (path.resolve(targetPath) === path.resolve(fixture.projectNpmrc)) {
+            const stat = fs.lstatSync(targetPath);
+            return {
+              ...stat,
+              isFile: () => false,
+              isSymbolicLink: () => true,
+            };
+          }
+          return fs.lstatSync(targetPath);
+        },
+      };
+      const symlinkReport = await runUpgradeVerification(baseOptions(fixture, {
+        fs: symlinkKindFs,
+        runner: fakeRunner(),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(symlinkReport.exitClassification).toBe('success');
+
       const unreadableFs = {
         ...fs,
         lstatSync(targetPath) {
@@ -1105,7 +1179,7 @@ describe('verify-upgrade orchestration report', () => {
         stdout: '',
       },
       {
-        stdout: fixture => JSON.stringify({ filename: path.join(fixture.root, 'outside.tgz') }),
+        stdout: fixture => `${path.join(fixture.root, 'outside.tgz')}\n`,
         setup: fixture => fs.writeFileSync(path.join(fixture.root, 'outside.tgz'), 'outside', 'utf8'),
       },
       {
@@ -1165,6 +1239,38 @@ describe('verify-upgrade orchestration report', () => {
       expect(report.smokeProvenance).toBeNull();
     } finally {
       fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('accepts only complete exact smoke provenance JSON', () => {
+    const { parseSmokeProvenance } = loadVerifierModule();
+    const expected = {
+      forkPackage: '@chude/get-stuff-done',
+      forkVersion: '3.0.2-upgrade.1.6.1',
+      upstreamPackage: '@opengsd/gsd-core',
+      upstreamVersion: '1.6.1',
+    };
+    const valid = {
+      ...expected,
+      packageName: expected.forkPackage,
+      version: expected.forkVersion,
+      overlayManifestSha256: 'A'.repeat(64),
+    };
+
+    expect(parseSmokeProvenance(JSON.stringify(valid), expected)).toMatchObject({
+      ...valid,
+      overlayManifestSha256: 'a'.repeat(64),
+    });
+    for (const payload of [
+      '',
+      'null',
+      '[]',
+      '{}',
+      JSON.stringify({ ...valid, upstreamVersion: '9.9.9' }),
+      JSON.stringify({ ...valid, overlayManifestSha256: 'short' }),
+      JSON.stringify({ ...valid, overlayManifestSha256: undefined }),
+    ]) {
+      expect(parseSmokeProvenance(payload, expected)).toBeNull();
     }
   });
 

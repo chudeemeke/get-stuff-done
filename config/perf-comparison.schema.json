@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Phase 43 paired performance comparison",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "authority",
+    "capturedAt",
+    "executionIdentity",
+    "controls",
+    "policy",
+    "subjects",
+    "metrics",
+    "verdict"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "authority": { "const": "paired-blocking" },
+    "capturedAt": { "type": "string", "minLength": 1 },
+    "executionIdentity": { "type": "object" },
+    "controls": { "type": "object" },
+    "policy": { "type": "object" },
+    "subjects": { "type": "object" },
+    "metrics": { "type": "object" },
+    "verdict": { "enum": ["pass", "warn", "fail"] }
+  },
+  "additionalProperties": false
+}

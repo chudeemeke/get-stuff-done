@@ -70,17 +70,20 @@ the changed product file.
 
 ## Registry Cause Evidence
 
-The prior Verdaccio `ENEEDAUTH` behavior now has a concrete historical cause.
-The user had run `npm set registry http://localhost:4873/` from WSL. That WSL
-session resolves npm to `/mnt/c/Program Files/nodejs/npm`, so the command changed
-the Windows user-level `C:\Users\Destiny\.npmrc` used by both Windows npm and
-WSL-invoked npm. It redirected package and publish traffic; it did not start
-Verdaccio.
+The ambient local registry redirect found during preflight now has a concrete
+historical cause. The user had run
+`npm set registry http://localhost:4873/` from WSL. That WSL session resolves
+npm to `/mnt/c/Program Files/nodejs/npm`, so the command changed the Windows
+user-level `C:\Users\Destiny\.npmrc` used by both Windows npm and WSL-invoked
+npm. It redirected package and publish traffic; it neither started Verdaccio
+nor created an authenticated publish identity. The hosted `ENEEDAUTH` remains a
+separate verifier defect caused by its isolated npm client having no
+authenticated identity, and Plan 11AF retains ownership of that correction.
 
 Current verification reports `https://registry.npmjs.org/` for both effective
 Windows and WSL npm configuration. The Windows user config contains that public
-registry and the project has no `.npmrc`. Verdaccio is therefore historical
-cause evidence, not an active registry blocker.
+registry and the project has no `.npmrc`. The ambient redirect is therefore
+historical cause evidence, not an active local registry blocker.
 
 ## GSD Closeout
 

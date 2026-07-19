@@ -5,7 +5,7 @@ type: execute
 gap_closure: true
 wave: 19
 depends_on: ["43-11AC"]
-status: pending
+status: complete
 requirements: ["UPGRADE-04", "SHIP-08"]
 files_modified:
   - package.json
@@ -67,7 +67,7 @@ containment or misclassifying runner setup as product behavior.
   <verify>
     <automated>bun run test -- tests/fork-roadmap-persistence.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11AE-02" type="auto">
@@ -86,7 +86,7 @@ containment or misclassifying runner setup as product behavior.
   <verify>
     <automated>bun run test -- tests/verify-hosted-ci.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 </tasks>

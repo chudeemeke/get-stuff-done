@@ -3,6 +3,7 @@
 const { describe, expect, test } = require('./helpers/portable-test-api');
 const crypto = require('crypto');
 const fs = require('fs');
+const http = require('http');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
@@ -20,7 +21,14 @@ function tempRoot() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-verify-upgrade-'));
 }
 
-function fakeRunner({ failStep, requireAuth = false, leakedValues = () => [] } = {}) {
+function fakeRunner({
+  failStep,
+  requireAuth = false,
+  leakedValues = () => [],
+  onCall,
+  packCurrentStdout = 'chude-get-stuff-done-3.0.2.tgz\n',
+  packBumpedStdout = 'chude-get-stuff-done-3.0.2-upgrade.1.6.1.tgz\n',
+} = {}) {
   const calls = [];
   const runner = (command, args, options) => {
     const npmrcPath = options.env.npm_config_userconfig;
@@ -34,6 +42,7 @@ function fakeRunner({ failStep, requireAuth = false, leakedValues = () => [] } =
     calls.push(call);
 
     const stepName = options.env.GSD_VERIFY_UPGRADE_STEP;
+    if (onCall) onCall({ call, stepName });
     if (requireAuth && stepName.startsWith('publish-') && !call.hasAuthToken) {
       return {
         status: 1,
@@ -55,7 +64,7 @@ function fakeRunner({ failStep, requireAuth = false, leakedValues = () => [] } =
     if (stepName === 'pack-current') {
       return {
         status: 0,
-        stdout: 'chude-get-stuff-done-3.0.2.tgz\n',
+        stdout: packCurrentStdout,
         stderr: '',
         error: null,
       };
@@ -64,7 +73,7 @@ function fakeRunner({ failStep, requireAuth = false, leakedValues = () => [] } =
     if (stepName === 'pack-bumped') {
       return {
         status: 0,
-        stdout: 'chude-get-stuff-done-3.0.3.tgz\n',
+        stdout: packBumpedStdout,
         stderr: '',
         error: null,
       };
@@ -75,6 +84,21 @@ function fakeRunner({ failStep, requireAuth = false, leakedValues = () => [] } =
   };
   runner.calls = calls;
   return runner;
+}
+
+async function startRegistryServer(handler) {
+  const server = http.createServer(handler);
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const address = server.address();
+  return {
+    url: `http://127.0.0.1:${address.port}/`,
+    close: () => new Promise((resolve, reject) => {
+      server.close(error => error ? reject(error) : resolve());
+    }),
+  };
 }
 
 function configFixture() {
@@ -204,6 +228,81 @@ describe('verify-upgrade CLI contract', () => {
     expect(result.status).not.toBe(0);
     expect(`${result.stdout}${result.stderr}`).toContain('exact stable version required');
   });
+
+  test('parses inline options and rejects missing or unknown values', () => {
+    const { parseArgs } = loadVerifierModule();
+    expect(parseArgs([
+      '--from=1.5.0',
+      '--to=1.6.1',
+      '--registry-url=http://127.0.0.1:4873/',
+      '--temp-root=C:\\temp\\upgrade',
+      '--report=C:\\temp\\report.json',
+      '--json',
+      '--skip-verdaccio-health',
+    ])).toMatchObject({
+      fromVersion: '1.5.0',
+      toVersion: '1.6.1',
+      registryUrl: 'http://127.0.0.1:4873/',
+      json: true,
+      skipVerdaccioHealth: true,
+    });
+    expect(parseArgs(['-h'])).toMatchObject({ help: true });
+    expect(parseArgs([
+      '--from', '1.5.0',
+      '--to', '1.6.1',
+      '--registry-url', 'http://localhost:4873/',
+      '--temp-root', 'C:\\temp\\upgrade',
+    ])).toMatchObject({
+      registryUrl: 'http://localhost:4873/',
+      tempRoot: 'C:\\temp\\upgrade',
+    });
+    expect(() => parseArgs(['--from'])).toThrow('Missing value for --from');
+    expect(() => parseArgs(['--unknown'])).toThrow('Unknown option');
+  });
+
+  test('emits JSON and text reports through the CLI boundary', async () => {
+    const { main } = loadVerifierModule();
+    const root = tempRoot();
+    const reportPath = path.join(root, 'reports', 'upgrade.json');
+    const stdout = [];
+    const stderr = [];
+    const io = {
+      stdout: { write: value => stdout.push(value) },
+      stderr: { write: value => stderr.push(value) },
+    };
+    const success = {
+      fromVersion: '1.5.0',
+      toVersion: '1.6.1',
+      exitClassification: 'success',
+    };
+
+    try {
+      const successCode = await main([
+        '--from', '1.5.0',
+        '--to', '1.6.1',
+        '--json',
+        '--report', reportPath,
+      ], io, {
+        runUpgradeVerification: async () => success,
+      });
+      expect(successCode).toBe(0);
+      expect(JSON.parse(stdout.join(''))).toEqual(success);
+      expect(JSON.parse(fs.readFileSync(reportPath, 'utf8'))).toEqual(success);
+
+      stdout.length = 0;
+      const failureCode = await main(['--from=1.5.0', '--to=1.6.1'], io, {
+        runUpgradeVerification: async () => ({
+          ...success,
+          exitClassification: 'compose_failed',
+        }),
+      });
+      expect(failureCode).toBe(1);
+      expect(stdout.join('')).toContain('Upgrade verification compose_failed');
+      expect(stderr).toEqual([]);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('verify-upgrade orchestration report', () => {
@@ -230,7 +329,7 @@ describe('verify-upgrade orchestration report', () => {
       expect(report.toVersion).toBe('1.6.1');
       expect(report.registryUrl).toBe('http://localhost:4873/');
       expect(report.packageTarball).toContain('chude-get-stuff-done-3.0.2.tgz');
-      expect(report.packedArtifact).toContain('chude-get-stuff-done-3.0.3.tgz');
+      expect(report.packedArtifact).toContain('chude-get-stuff-done-3.0.2-upgrade.1.6.1.tgz');
       expect(report.composeResult.status).toBe(0);
       expect(report.reinstallTarget).toContain('install-target');
       expect(report.smokeCommands).toEqual([
@@ -249,6 +348,9 @@ describe('verify-upgrade orchestration report', () => {
         'reinstall-to',
         'smoke-verify',
       ]);
+      expect(report.steps.find(step => step.name === 'reinstall-to').args).toContain(
+        '@chude/get-stuff-done@3.0.2-upgrade.1.6.1'
+      );
       expect(report.warnings).toEqual([]);
       expect(report.exitClassification).toBe('success');
 
@@ -391,6 +493,173 @@ describe('verify-upgrade orchestration report', () => {
     }
   });
 
+  test('registers through the real bounded HTTP adapter', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    let requestBody = '';
+    const registry = await startRegistryServer((request, response) => {
+      request.setEncoding('utf8');
+      request.on('data', chunk => { requestBody += chunk; });
+      request.on('end', () => {
+        response.writeHead(201, { 'content-type': 'application/json' });
+        response.end(JSON.stringify({ token: TOKEN_CANARY }));
+      });
+    });
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        registryUrl: registry.url,
+        runner: fakeRunner({ requireAuth: true }),
+      }));
+      expect(report.exitClassification).toBe('success');
+      expect(JSON.parse(requestBody).name).toMatch(/^gsd-/);
+      expect(JSON.stringify(report)).not.toContain(TOKEN_CANARY);
+    } finally {
+      await registry.close();
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('uses default entropy and an OS-owned run root when no temp parent is supplied', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const capture = {};
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        tempRoot: undefined,
+        randomBytes: undefined,
+        runner: fakeRunner({ requireAuth: true }),
+        httpRequest: successfulRegistryRequest(capture),
+      }));
+      expect(report.exitClassification).toBe('success');
+      expect(capture.credentials.name).toMatch(/^gsd-[a-f0-9]{24}$/);
+      expect(capture.credentials.password.length).toBeGreaterThanOrEqual(32);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('rejects an oversized real registry identity response', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const registry = await startRegistryServer((_request, response) => {
+      response.writeHead(201, { 'content-type': 'application/json' });
+      response.end('x'.repeat((64 * 1024) + 1));
+    });
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        registryUrl: registry.url,
+        runner: fakeRunner({ requireAuth: true }),
+      }));
+      expect(report.exitClassification).toBe('verdaccio_auth_failed');
+      expect(report.steps).toEqual([]);
+    } finally {
+      await registry.close();
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('prepares a copied bump workspace without build or dependency artifacts', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const authorityDir = path.join(fixture.projectRoot, '.planning');
+    fs.mkdirSync(authorityDir, { recursive: true });
+    fs.writeFileSync(path.join(authorityDir, 'upstream-authority.json'), JSON.stringify({
+      active: { package: '@opengsd/gsd-core', version: '1.5.0' },
+    }), 'utf8');
+    fs.mkdirSync(path.join(fixture.projectRoot, 'docs', 'nested'), { recursive: true });
+    fs.writeFileSync(path.join(fixture.projectRoot, 'docs', 'nested', 'evidence.txt'), 'kept', 'utf8');
+    fs.mkdirSync(path.join(fixture.projectRoot, 'node_modules'), { recursive: true });
+    fs.writeFileSync(path.join(fixture.projectRoot, 'node_modules', 'ignored.txt'), 'ignored', 'utf8');
+    fs.symlinkSync(
+      path.join(fixture.projectRoot, 'docs'),
+      path.join(fixture.projectRoot, 'linked-docs'),
+      process.platform === 'win32' ? 'junction' : 'dir'
+    );
+    let observedWorkspace;
+    const runner = fakeRunner({
+      onCall: ({ call, stepName }) => {
+        if (stepName !== 'bump-upstream') return;
+        observedWorkspace = {
+          packageJson: JSON.parse(fs.readFileSync(path.join(call.options.cwd, 'package.json'), 'utf8')),
+          authority: JSON.parse(fs.readFileSync(
+            path.join(call.options.cwd, '.planning', 'upstream-authority.json'),
+            'utf8'
+          )),
+          nested: fs.readFileSync(path.join(call.options.cwd, 'docs', 'nested', 'evidence.txt'), 'utf8'),
+          copiedNodeModules: fs.existsSync(path.join(call.options.cwd, 'node_modules')),
+          copiedLink: fs.existsSync(path.join(call.options.cwd, 'linked-docs')),
+        };
+      },
+    });
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        prepareWorkspace: true,
+        runner,
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('success');
+      expect(observedWorkspace.packageJson.devDependencies['@opengsd/gsd-core']).toBe('1.6.1');
+      expect(observedWorkspace.packageJson.version).toBe('3.0.2-upgrade.1.6.1');
+      expect(observedWorkspace.authority.active.version).toBe('1.6.1');
+      expect(observedWorkspace.nested).toBe('kept');
+      expect(observedWorkspace.copiedNodeModules).toBe(false);
+      expect(observedWorkspace.copiedLink).toBe(false);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('discovers a packed artifact from disk and accepts an absolute pack result', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const absoluteBumped = path.join(fixture.root, 'absolute-bumped.tgz');
+    const runner = fakeRunner({
+      packCurrentStdout: '',
+      packBumpedStdout: absoluteBumped,
+      onCall: ({ call, stepName }) => {
+        if (stepName === 'pack-current') {
+          fs.writeFileSync(path.join(call.args[2], 'fallback-current.tgz'), 'artifact', 'utf8');
+        }
+      },
+    });
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner,
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('success');
+      expect(report.packageTarball).toContain('fallback-current.tgz');
+      expect(report.packedArtifact).toBe(absoluteBumped);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('classifies bump and bumped-pack failures at their stopping step', async () => {
+    for (const [failStep, classification] of [
+      ['bump-upstream', 'bump_upstream_failed'],
+      ['pack-bumped', 'pack_bumped_failed'],
+    ]) {
+      const { runUpgradeVerification } = loadVerifierModule();
+      const fixture = configFixture();
+      try {
+        const report = await runUpgradeVerification(baseOptions(fixture, {
+          runner: fakeRunner({ failStep }),
+          httpRequest: successfulRegistryRequest({}),
+        }));
+        expect(report.exitClassification).toBe(classification);
+        expect(report.steps.at(-1).name).toBe(failStep);
+      } finally {
+        fs.rmSync(fixture.root, { recursive: true, force: true });
+      }
+    }
+  });
+
   test('fails before publication on rejected or malformed registry identity responses', async () => {
     const { runUpgradeVerification } = loadVerifierModule();
     const cases = [
@@ -405,6 +674,10 @@ describe('verify-upgrade orchestration report', () => {
       {
         statusCode: 201,
         body: JSON.stringify({ token: 'short' }),
+      },
+      {
+        statusCode: 201,
+        body: JSON.stringify({}),
       },
     ];
 
@@ -506,6 +779,216 @@ describe('verify-upgrade orchestration report', () => {
       expect(retainedRoot).not.toBeNull();
     } finally {
       if (retainedRoot) fs.rmSync(retainedRoot, { recursive: true, force: true });
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('detects ambient npm configuration mutation after execution', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const runner = fakeRunner({
+      onCall: ({ stepName }) => {
+        if (stepName === 'compose') fs.appendFileSync(fixture.userNpmrc, 'mutated=true\n');
+      },
+    });
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        runner,
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('npm_config_changed');
+      expect(report.warnings).toContain('Ambient npm configuration changed during upgrade verification');
+      expect(fs.readdirSync(fixture.runBase)).toEqual([]);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('accepts a non-file npm config fingerprint and rejects an unreadable one', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const otherKindFs = {
+      ...fs,
+      lstatSync(targetPath) {
+        if (path.resolve(targetPath) === path.resolve(fixture.projectNpmrc)) {
+          const stat = fs.lstatSync(targetPath);
+          return {
+            ...stat,
+            isFile: () => false,
+            isSymbolicLink: () => false,
+          };
+        }
+        return fs.lstatSync(targetPath);
+      },
+    };
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        fs: otherKindFs,
+        runner: fakeRunner(),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('success');
+
+      const unreadableFs = {
+        ...fs,
+        lstatSync(targetPath) {
+          if (path.resolve(targetPath) === path.resolve(fixture.projectNpmrc)) {
+            const error = new Error('access denied');
+            error.code = 'EACCES';
+            throw error;
+          }
+          return fs.lstatSync(targetPath);
+        },
+      };
+      await expect(runUpgradeVerification(baseOptions(fixture, {
+        fs: unreadableFs,
+        runner: fakeRunner(),
+        httpRequest: successfulRegistryRequest({}),
+      }))).rejects.toThrow('Unable to fingerprint ambient npm configuration');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('deletes the owned root even if credential-file neutralization fails', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    let npmrcWrites = 0;
+    const fileSystem = {
+      ...fs,
+      writeFileSync(targetPath, ...args) {
+        if (path.basename(targetPath) === '.npmrc' && targetPath.includes('gsd-verify-upgrade-run-')) {
+          npmrcWrites += 1;
+          if (npmrcWrites === 3) throw new Error('neutralization blocked');
+        }
+        return fs.writeFileSync(targetPath, ...args);
+      },
+    };
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        fs: fileSystem,
+        runner: fakeRunner(),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('success');
+      expect(npmrcWrites).toBe(3);
+      expect(fs.readdirSync(fixture.runBase)).toEqual([]);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('turns an unexpected runner exception into a redacted verifier report', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        env: { ...fixture.env, CUSTOM_SECRET: TOKEN_CANARY },
+        runner: () => { throw new Error(`runner exploded ${TOKEN_CANARY}`); },
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(report.exitClassification).toBe('verifier_failed');
+      expect(report.warnings).toContain('runner exploded [redacted]');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('uses the real process runner for a deterministic failed health probe', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const fakeBin = path.join(fixture.root, 'fake-bin');
+    fs.mkdirSync(fakeBin, { recursive: true });
+    if (process.platform === 'win32') {
+      fs.writeFileSync(path.join(fakeBin, 'npm.cmd'), '@echo off\r\nexit /b 1\r\n', 'utf8');
+    } else {
+      const npmPath = path.join(fakeBin, 'npm');
+      fs.writeFileSync(npmPath, '#!/bin/sh\nexit 1\n', 'utf8');
+      fs.chmodSync(npmPath, 0o755);
+    }
+
+    try {
+      const report = await runUpgradeVerification(baseOptions(fixture, {
+        env: {
+          ...fixture.env,
+          PATH: `${fakeBin}${path.delimiter}${fixture.env.PATH || ''}`,
+        },
+        runner: undefined,
+        skipVerdaccioHealth: false,
+      }));
+      expect(report.exitClassification).toBe('verdaccio_failed');
+      expect(report.warnings).toContain('Verdaccio health check failed before upgrade verification');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('contains setup failures even when best-effort setup cleanup also fails', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+    const fileSystem = {
+      ...fs,
+      writeFileSync(targetPath, ...args) {
+        if (targetPath.endsWith(path.join('install-target', 'package.json'))) {
+          throw new Error(`setup failed ${TOKEN_CANARY}`);
+        }
+        return fs.writeFileSync(targetPath, ...args);
+      },
+      rmSync(targetPath, options) {
+        if (path.dirname(targetPath) === fixture.runBase) throw new Error('cleanup also failed');
+        return fs.rmSync(targetPath, options);
+      },
+    };
+
+    try {
+      await expect(runUpgradeVerification(baseOptions(fixture, {
+        fs: fileSystem,
+        env: { ...fixture.env, CUSTOM_SECRET: TOKEN_CANARY },
+        runner: fakeRunner(),
+        httpRequest: successfulRegistryRequest({}),
+      }))).rejects.toThrow('setup failed [redacted]');
+    } finally {
+      for (const entry of fs.readdirSync(fixture.runBase)) {
+        fs.rmSync(path.join(fixture.runBase, entry), { recursive: true, force: true });
+      }
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  test('rejects invalid entropy and sanitizes malformed process results', async () => {
+    const { runUpgradeVerification } = loadVerifierModule();
+    const fixture = configFixture();
+
+    try {
+      const entropyReport = await runUpgradeVerification(baseOptions(fixture, {
+        runner: fakeRunner(),
+        httpRequest: successfulRegistryRequest({}),
+        randomBytes: () => Buffer.alloc(1),
+      }));
+      expect(entropyReport.exitClassification).toBe('verdaccio_auth_failed');
+
+      const processReport = await runUpgradeVerification(baseOptions(fixture, {
+        runner: () => ({
+          status: undefined,
+          stdout: null,
+          stderr: undefined,
+          error: new Error(`spawn failed ${TOKEN_CANARY}`),
+        }),
+        httpRequest: successfulRegistryRequest({}),
+      }));
+      expect(processReport.exitClassification).toBe('pack_current_failed');
+      expect(processReport.steps[0]).toMatchObject({
+        status: null,
+        stdout: '',
+        stderr: '',
+        error: 'spawn failed [redacted]',
+        ok: false,
+      });
+    } finally {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });

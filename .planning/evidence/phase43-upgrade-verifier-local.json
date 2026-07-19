@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-07-19T12:27:55.907Z",
+  "subject": "phase43-plan-11AF-local-upgrade-lifecycle",
+  "source": {
+    "fromVersion": "1.6.1",
+    "toVersion": "1.7.0",
+    "forkVersion": "3.0.2"
+  },
+  "registry": {
+    "implementation": "verdaccio",
+    "version": "6.8.0",
+    "integrity": "sha512-fGKQZnFQVuLiRYbTDnyOaQDtAs+SgnoK2gQSztM3MIMXMa5MfiRQ+Ub/+8OMFygoroZU21d05d+JJJr4f2TnEQ==",
+    "configSha256": "9c89c6049b0a88ab479365de6013ebede23cb85e9f56dbe8aff932d18b36ad1b",
+    "loopbackOnly": true,
+    "osAssignedPort": true,
+    "processOwnedByHarness": true,
+    "storageOwnedByHarness": true,
+    "anonymousPublishRejected": true
+  },
+  "verifier": {
+    "exitClassification": "success",
+    "reportSha256": "ee76c446e27b56a057bdbc62609a17953b55226ae7ebb94eea00e5ebdab983d4",
+    "steps": [
+      {
+        "name": "pack-current",
+        "status": 0,
+        "ok": true
+      },
+      {
+        "name": "publish-current",
+        "status": 0,
+        "ok": true
+      },
+      {
+        "name": "install-from",
+        "status": 0,
+        "ok": true
+      },
+      {
+        "name": "bump-upstream",
+        "status": 0,
+        "ok": true
+      },
+      {
+        "name": "compose",
+        "status": 0,
+        "ok": true
+      },
+      {
+        "name": "pack-bumped",
+        "status": 0,
+        "ok": true
+      },
+      {
+        "name": "publish-bumped",
+        "status": 0,
+        "ok": true
+      },
+      {
+        "name": "reinstall-to",
+        "status": 0,
+        "ok": true
+      },
+      {
+        "name": "smoke-verify",
+        "status": 0,
+        "ok": true
+      }
+    ],
+    "artifacts": {
+      "current": {
+        "filename": "chude-get-stuff-done-3.0.2.tgz",
+        "sizeBytes": 2473574,
+        "sha256": "9e29177bc6cce6ac582e11dc4fd0d54ec67b21b3eb66b8590d665d28cf90d8f9"
+      },
+      "bumped": {
+        "filename": "chude-get-stuff-done-3.0.2-upgrade.1.7.0.tgz",
+        "sizeBytes": 2593671,
+        "sha256": "1c4996a482013f3d2310a5589e0b78bcfd6bb536be6e1bfe3cff6b7136e04d4d"
+      }
+    },
+    "smokeProvenance": {
+      "forkPackage": "@chude/get-stuff-done",
+      "forkVersion": "3.0.2-upgrade.1.7.0",
+      "packageName": "@chude/get-stuff-done",
+      "version": "3.0.2-upgrade.1.7.0",
+      "upstreamPackage": "@opengsd/gsd-core",
+      "upstreamVersion": "1.7.0",
+      "overlayManifestSha256": "6a190570637b4bb4d7193a34968d5b1f9b1d64a9f2828c5c7022cefeb2ceacd7"
+    },
+    "registryLifecycle": {
+      "ownership": "external-disposable",
+      "disposalRequired": true,
+      "verifierOwnsRegistry": false
+    },
+    "changedOverrides": [],
+    "warnings": []
+  },
+  "containment": {
+    "ambientNpmConfigs": [
+      {
+        "label": "project",
+        "existed": false,
+        "unchanged": true
+      },
+      {
+        "label": "userprofile",
+        "existed": true,
+        "unchanged": true
+      }
+    ],
+    "observableCredentialPatternsAbsent": true,
+    "verifierRootsRemaining": 0,
+    "registryProcessStopped": true,
+    "listenerClosed": true,
+    "registryRootDeleted": true
+  },
+  "nonClaims": [
+    "This is local Windows lifecycle evidence, not hosted Linux or container evidence.",
+    "This receipt does not authorize a push, merge, release, or public mutation.",
+    "The verifier worker requires an externally disposable registry lifecycle."
+  ]
+}

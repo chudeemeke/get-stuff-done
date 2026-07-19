@@ -1,8 +1,11 @@
 {
-  "schemaVersion": 1,
-  "capturedAt": "2026-07-19T12:27:55.907Z",
+  "schemaVersion": 2,
+  "capturedAt": "2026-07-19T23:13:40.758Z",
   "subject": "phase43-plan-11AF-local-upgrade-lifecycle",
   "source": {
+    "revision": "8d92a57640e705f2f8f181afb8a89594fc5de73e",
+    "verifierSha256": "14fbda4a1b4b99b10a38fdba33f12185840e1a9ea951d63bb1a048a4c42ce0f4",
+    "testsSha256": "d981b256a3ce7b0c67460205c4a79e463a9803776009fd05065eaaa540c11411",
     "fromVersion": "1.6.1",
     "toVersion": "1.7.0",
     "forkVersion": "3.0.2"
@@ -11,7 +14,7 @@
     "implementation": "verdaccio",
     "version": "6.8.0",
     "integrity": "sha512-fGKQZnFQVuLiRYbTDnyOaQDtAs+SgnoK2gQSztM3MIMXMa5MfiRQ+Ub/+8OMFygoroZU21d05d+JJJr4f2TnEQ==",
-    "configSha256": "9c89c6049b0a88ab479365de6013ebede23cb85e9f56dbe8aff932d18b36ad1b",
+    "configSha256": "07e985a481f208a78bf74b3ab3c5088685dcabf551118dd197e2f668769e146d",
     "loopbackOnly": true,
     "osAssignedPort": true,
     "processOwnedByHarness": true,
@@ -20,7 +23,7 @@
   },
   "verifier": {
     "exitClassification": "success",
-    "reportSha256": "ee76c446e27b56a057bdbc62609a17953b55226ae7ebb94eea00e5ebdab983d4",
+    "reportSha256": "f56cd8cc2a0174f1adcc7ec1d09065514cecfb65a12aa9301467fa1c315b0e06",
     "steps": [
       {
         "name": "pack-current",
@@ -72,13 +75,31 @@
       "current": {
         "filename": "chude-get-stuff-done-3.0.2.tgz",
         "sizeBytes": 2473574,
-        "sha256": "9e29177bc6cce6ac582e11dc4fd0d54ec67b21b3eb66b8590d665d28cf90d8f9"
+        "sha256": "39d06c3ec87a818491c7ce3027634c89cc2dee035bda6eaaed4644b5c5f32d48"
       },
       "bumped": {
         "filename": "chude-get-stuff-done-3.0.2-upgrade.1.7.0.tgz",
         "sizeBytes": 2593671,
-        "sha256": "1c4996a482013f3d2310a5589e0b78bcfd6bb536be6e1bfe3cff6b7136e04d4d"
+        "sha256": "939c20cbb93dd6420ebd1a4338c981afcce4785b318d4110eec2536be5433f9d"
       }
+    },
+    "smokeProvenanceExpected": {
+      "forkPackage": "@chude/get-stuff-done",
+      "forkVersion": "3.0.2-upgrade.1.7.0",
+      "packageName": "@chude/get-stuff-done",
+      "version": "3.0.2-upgrade.1.7.0",
+      "upstreamPackage": "@opengsd/gsd-core",
+      "upstreamVersion": "1.7.0",
+      "overlayManifestSha256": "6a190570637b4bb4d7193a34968d5b1f9b1d64a9f2828c5c7022cefeb2ceacd7"
+    },
+    "smokeProvenanceObserved": {
+      "forkPackage": "@chude/get-stuff-done",
+      "forkVersion": "3.0.2-upgrade.1.7.0",
+      "packageName": "@chude/get-stuff-done",
+      "version": "3.0.2-upgrade.1.7.0",
+      "upstreamPackage": "@opengsd/gsd-core",
+      "upstreamVersion": "1.7.0",
+      "overlayManifestSha256": "6a190570637b4bb4d7193a34968d5b1f9b1d64a9f2828c5c7022cefeb2ceacd7"
     },
     "smokeProvenance": {
       "forkPackage": "@chude/get-stuff-done",

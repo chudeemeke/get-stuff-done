@@ -23,6 +23,7 @@ files_modified:
   - scripts/emit-hosted-runtime-receipt.js
   - scripts/install-hyperfine.js
   - scripts/lib/hosted-evidence-binding.js
+  - scripts/lib/paired-perf.js
   - scripts/run-compat-matrix.js
   - scripts/verify-hosted-ci.js
   - scripts/verify-toolchain-authority.js
@@ -31,6 +32,7 @@ files_modified:
   - tests/hosted-evidence-binding.test.js
   - tests/hosted-runtime-receipt.test.js
   - tests/install-hyperfine.test.js
+  - tests/coverage/paired-perf.test.cjs
   - tests/toolchain-authority.test.js
   - tests/verify-hosted-ci.test.js
   - tests/vetted-upstream-versions.test.js
@@ -41,10 +43,12 @@ must_haves:
     - "diagnostic pull-request workflows are read-only and cannot create or append issue comments"
     - "every governed job checks out and verifies its exact event subject; each PR performance job separately verifies the immutable bootstrap authority, governed harness, base reference, and head candidate"
     - "paired capture followed by check-perf --comparison is the sole blocking PR performance path on Linux, macOS, and Windows"
+    - "blocking paired performance authority is limited to same-repository PR heads; fork pull requests receive an explicit no-authority outcome"
     - "fork pull requests execute without repository, organization, or environment secrets; write permissions; persisted credentials; candidate-step token exposure; cache publication; privileged triggers; or self-hosted runners"
     - "governed workflows consume the exact Bun pin, reviewed action/container identities, Node 22 for performance, and checksum-verified Hyperfine 1.20.0 assets"
     - "the current PR topology expects contract-derived authority equivalent to 39 Tier A jobs, 21 Tier B runtime subjects, 18 standalone runtime artifacts, and three paired bundles across five first-attempt workflow runs"
     - "Tier A API authority, Tier B runtime observation, paired raw evidence, and artifact metadata remain separate until Plan 11AJ performs their validated join"
+    - "PR-side workflow definitions and check-name identity are claims rather than authority; owner-run collection remains the merge evidence gate"
     - "the active pinned compatibility row fails closed while historical vetted rows remain informational"
     - "volatile decorative third-party availability is separated from blocking project-owned documentation correctness"
   artifacts:
@@ -79,6 +83,7 @@ compatibility from blocking product authority.
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-GPT-5.6-SOL-PLAN11AH-READINESS-REVIEW-2026-07-20.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-GPT-5.6-SOL-PLAN11AH-CORRECTION-REVIEW-2026-07-20.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-PLAN11AG-11AH-AUTHORITATIVE-PACKET-2026-07-20.md
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-PLAN11AG-11AH-AUTHORITATIVE-REVIEW-2026-07-20.md
 @.github/workflows/ci.yml
 @config/phase43-hosted-ci-contract.json
 </context>
@@ -87,7 +92,7 @@ compatibility from blocking product authority.
 
 <task id="11AH-01" type="auto">
   <name>Define event-specific execution and hosted-evidence authority</name>
-  <files>config/phase43-hosted-ci-contract.json; config/phase43-toolchain-authority.json; scripts/emit-hosted-runtime-receipt.js; scripts/lib/hosted-evidence-binding.js; scripts/verify-hosted-ci.js; scripts/verify-toolchain-authority.js; tests/hosted-evidence-binding.test.js; tests/hosted-runtime-receipt.test.js; tests/toolchain-authority.test.js; tests/verify-hosted-ci.test.js</files>
+  <files>config/phase43-hosted-ci-contract.json; config/phase43-toolchain-authority.json; scripts/emit-hosted-runtime-receipt.js; scripts/lib/hosted-evidence-binding.js; scripts/lib/paired-perf.js; scripts/verify-hosted-ci.js; scripts/verify-toolchain-authority.js; tests/coverage/paired-perf.test.cjs; tests/hosted-evidence-binding.test.js; tests/hosted-runtime-receipt.test.js; tests/toolchain-authority.test.js; tests/verify-hosted-ci.test.js</files>
   <action>
     RED: reject an event-agnostic PR-head expression used on push, a synthetic
     merge or branch ref, an absent repository/ref/path, persisted checkout
@@ -104,6 +109,11 @@ compatibility from blocking product authority.
     three paired bundles without treating those numbers as timeless constants.
     Model the hosted cycle as five exact-head workflow runs, each with its own
     run ID and first attempt; reject independent latest-attempt selection.
+    Reject blocking paired authority when the pull-request head repository is
+    not the canonical repository, and reject any contract that treats a green
+    check name or PR-side workflow definition as authority. Add a RED assertion
+    that the paired-performance module does not publicly expose the unused
+    floating-point `statusForRatio` classifier.
 
     GREEN: version the hosted contract for explicit event and per-job checkout
     profiles. Single-subject PR jobs use head repository plus head SHA; push,
@@ -122,6 +132,11 @@ compatibility from blocking product authority.
     canonical repository before execution. The bootstrap pin becomes authority
     only after Fable accepts the final 11AH implementation and disposition; no
     workflow executes during this plan.
+    Scope blocking paired authority to same-repository PR heads. Fork pull
+    requests must emit an explicit no-authority outcome; stronger isolation or
+    an owner-authorized trusted re-run is later owner-gated work. State in the
+    contract that PR-side workflow definitions and check-name identity are not
+    authority and that only the owner-run collector can join merge evidence.
     Performance has no blocking authority outside `pull_request`; non-PR skips
     are explicit contract outcomes rather than green performance claims.
 
@@ -133,6 +148,10 @@ compatibility from blocking product authority.
     that binds harness/reference/candidate repositories and SHAs plus SHA-256
     digests of the Tier B receipt and 11AG comparison file. Artifact ID, archive
     digest, workflow-run binding, and Tier A identity remain collector-owned.
+    Define 11AG `runnerImage` as the observed runner OS fingerprint and carry
+    the actual nullable hosted-image name/version only in Tier B. Remove the
+    unused floating-point classifier from the paired-performance public API;
+    blocking status remains exact rational arithmetic only.
 
     Add one pure `hosted-evidence-binding` domain boundary over supplied event,
     contract, job, artifact, receipt, and paired evidence. Keep GitHub API,
@@ -166,6 +185,9 @@ compatibility from blocking product authority.
     security prelude; checkout inputs outside the per-job allowlist; a
     non-control run-step job missing from the exact runtime map; missing or
     extraneous runtime setup; and malformed runtime receipts.
+    Reject a same-repository paired capture whose bootstrap, harness, base, or
+    head checkout lacks `package.json`, `bun.lock`, or
+    `.planning/upstream-authority.json`, with no measurement process started.
 
     GREEN: in every governed source-executing job, use its contracted exact
     checkout profile and injection-safe environment wiring. Preserve an exact
@@ -180,6 +202,9 @@ compatibility from blocking product authority.
     allowlist for reviewed pinned actions that require it, including checkout
     and Secret Scan. Never expose it to candidate-controlled run steps and never
     persist checkout credentials.
+    Document the reason for every token-allowlist entry. Keep upload/download
+    artifact actions outside that allowlist unless an inspected platform
+    requirement proves they need the explicit GitHub token.
 
     For each PR performance subject, execute the Hyperfine installer only from
     the verified bootstrap checkout. Install Hyperfine 1.20.0 from the exact
@@ -194,6 +219,9 @@ compatibility from blocking product authority.
     performance step. Upload exactly one immutable, uniquely named paired bundle
     containing the comparison, Tier B receipt, and closed binding manifest. No
     non-PR event may claim a blocking performance verdict.
+    Before capture, verify all four checkouts contain `package.json`, `bun.lock`,
+    and `.planning/upstream-authority.json`; fail with an actionable diagnostic
+    before Hyperfine when any required authority file is absent.
 
     Retain `perf-baseline.yml` only as explicitly named manual historical-trend
     capture. It is not a required check, does not feed `check-perf --comparison`,
@@ -281,6 +309,10 @@ blocking compatibility drift, or recurring public comments. Event-specific
 subjects, a governed harness, separate evidence sources, immutable toolchains,
 read-only PR permissions, and an owner-gated collector prevent another
 expensive hosted cycle from repeating those governance failures.
+Blocking paired authority is intentionally narrower than general fork PR
+execution: same-runner candidate code can bias later reference measurements,
+so untrusted fork heads receive no performance authority until a separately
+authorized isolation or trusted re-run design exists.
 </threat_model>
 
 <verification>

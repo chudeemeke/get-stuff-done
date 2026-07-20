@@ -25,6 +25,7 @@ must_haves:
     - "every governed job proves exact event-subject execution and all five workflows pass"
     - "the current PR topology supplies contract-derived authority equivalent to 39 Jobs API Tier A records, 21 runner-emitted Tier B receipts, 18 standalone runtime artifacts, and three paired bundles across five exact-head first-attempt workflow runs"
     - "each paired bundle is semantically revalidated and joined to its Tier A job, Tier B runtime, artifact API identity, governed harness, base reference, and head candidate without silently changing the existing budget"
+    - "green check-name identity is never merge authority; canonical workflow-origin enforcement and the owner-run collector are separately verified"
     - "the formal Fable checkpoint consumes a committed passed envelope through Plan 11P authority"
     - "Plan 11R is summarized only after its inherited envelope and Fable obligations are actually fulfilled"
   artifacts:
@@ -62,9 +63,14 @@ blocked 11R branch only when its missing obligations are true.
   <files>scripts/setup-branch-protection.json; .planning/evidence/hosted/pre-public-authority.json; .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-HOSTED-CI-RESUME.md</files>
   <action>
     RED: prove the tracked branch-protection intent still requires the obsolete
-    combined boundary context and omits the real blocking override context.
+    combined boundary context, omits the real blocking override context, and
+    treats check-name identity as sufficient without a canonical-workflow-origin
+    control or explicit unsupported-platform disposition.
     GREEN: update only the tracked intent to the exact current workflow context
-    names; do not mutate GitHub. Rerun the complete Plan 11AI local integration
+    names and desired canonical-workflow-origin/ruleset control; do not mutate
+    GitHub. If the current account/repository tier cannot enforce that origin
+    control, record the exact capability gap and keep owner-run collector
+    verification as the non-bypassable merge authority. Rerun the complete Plan 11AI local integration
     gate against this final local head and publish a new create-only
     `pre-public-authority.json` local corrective receipt. Prove the pinned
     bootstrap and harness commits are ancestors included by the planned exact
@@ -93,7 +99,7 @@ blocked 11R branch only when its missing obligations are true.
     permissions/topology, and planned single push-triggered
     five-workflow cycle. Separately present and record an approve/decline choice
     for: the phase-branch push and hosted cycle; live branch-protection context
-    reconciliation; pushing the governance branch as its own PR; historical
+    and canonical-workflow-origin/ruleset reconciliation; pushing the governance branch as its own PR; historical
     bot-comment cleanup; and filing the broader Open GSD classifier proposal.
     Confirm current PR/billing/auth state read-only. Do not infer approval from
     the earlier failed window or combine these public mutations into one consent.

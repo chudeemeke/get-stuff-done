@@ -1,5 +1,9 @@
 'use strict';
 
+const { createHash } = require('crypto');
+const { TextDecoder } = require('util');
+const { adjudicatePairedComparison } = require('./paired-perf');
+
 const EVENT_SUBJECT_EXPRESSIONS = Object.freeze({
   pull_request: Object.freeze({
     repository: '${{ github.event.pull_request.head.repo.full_name }}',
@@ -65,6 +69,7 @@ const TIER_B_RECEIPT_FIELDS = [
   'containers',
 ];
 const MAX_EVIDENCE_IDENTITIES = 100;
+const MAX_RAW_EVIDENCE_BYTES = 1024 * 1024;
 const EVENT_FIELDS = ['name', 'canonicalRepository', 'base', 'head'];
 const RUN_FIELDS = ['workflow', 'runId', 'attempt', 'event', 'headSha'];
 const ARTIFACT_FIELDS = [
@@ -76,8 +81,11 @@ const ARTIFACT_FIELDS = [
   'archiveSha256',
   'tierBReceiptSha256',
   'receipt',
+  'tierBReceiptRaw',
   'manifest',
   'comparisonSha256',
+  'comparison',
+  'comparisonRaw',
 ];
 const JOIN_INPUT_FIELDS = [
   'hostedContract',
@@ -153,10 +161,16 @@ function classifyPairedPerformanceAuthority(input) {
 
 function validateEvidenceAuthorityPolicy(policy) {
   if (
-    !hasExactFields(policy, ['checkNames', 'prWorkflowDefinitions', 'mergeEvidence']) ||
+    !hasExactFields(policy, [
+      'checkNames',
+      'prWorkflowDefinitions',
+      'mergeEvidence',
+      'collectorActivationGate',
+    ]) ||
     policy.checkNames !== 'claim-only' ||
     policy.prWorkflowDefinitions !== 'claim-only' ||
-    policy.mergeEvidence !== 'owner-run-collector'
+    policy.mergeEvidence !== 'owner-run-collector' ||
+    policy.collectorActivationGate !== 'plan-11aj-owner-authorization'
   ) {
     throw new Error('Hosted evidence authority policy is invalid.');
   }
@@ -352,6 +366,35 @@ function isCommitSha(value) {
 
 function isSha256(value) {
   return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);
+}
+
+function parseRawEvidence(value, label) {
+  if (typeof value !== 'string' && !Buffer.isBuffer(value) && !ArrayBuffer.isView(value)) {
+    throw new Error(`${label} raw bytes are invalid.`);
+  }
+  const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value);
+  if (bytes.length === 0 || bytes.length > MAX_RAW_EVIDENCE_BYTES) {
+    throw new Error(`${label} raw bytes are invalid.`);
+  }
+  let text;
+  try {
+    text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    throw new Error(`${label} raw bytes are not valid UTF-8.`);
+  }
+  try {
+    return { bytes, parsed: JSON.parse(text) };
+  } catch {
+    throw new Error(`${label} raw bytes are not valid JSON.`);
+  }
+}
+
+function rawEvidenceMatchesParsed(raw, parsed) {
+  return JSON.stringify(raw) === JSON.stringify(parsed);
+}
+
+function sha256Bytes(bytes) {
+  return createHash('sha256').update(bytes).digest('hex');
 }
 
 function isResolvedSemver(value) {
@@ -624,18 +667,46 @@ function validateArtifactRecord(record) {
   return record;
 }
 
-function validatePairedArtifact(record, expectedSubjects, policy) {
+function validatePairedRuntimeIdentity(comparison, receipt) {
+  const identity = comparison.executionIdentity;
+  if (
+    identity.platform !== receipt.os ||
+    identity.architecture !== receipt.architecture ||
+    identity.runnerImage !== receipt.runnerImage ||
+    identity.runnerImageExpected !== receipt.runnerImage ||
+    identity.nodeVersion.replace(/^v/, '') !== receipt.nodeVersion ||
+    identity.bunVersion !== receipt.bunVersion ||
+    identity.hyperfineVersion !== receipt.tools.hyperfine
+  ) {
+    throw new Error('Hosted paired comparison runtime identity is invalid.');
+  }
+}
+
+function validatePairedArtifact(record, expectedSubjects, policy, receipt) {
   validatePairedBindingManifest(record.manifest, policy);
+  const rawComparison = parseRawEvidence(record.comparisonRaw, 'Hosted paired comparison');
+  let adjudication;
+  try {
+    adjudication = adjudicatePairedComparison(rawComparison.parsed);
+  } catch {
+    throw new Error('Hosted paired comparison semantics are invalid.');
+  }
   if (
     !isSha256(record.comparisonSha256) ||
+    !rawEvidenceMatchesParsed(rawComparison.parsed, record.comparison) ||
+    sha256Bytes(rawComparison.bytes) !== record.comparisonSha256 ||
     record.manifest.tierBReceiptSha256 !== record.tierBReceiptSha256 ||
     record.manifest.comparisonSha256 !== record.comparisonSha256 ||
+    record.comparison.subjects.reference.commit !== expectedSubjects.reference.sha ||
+    record.comparison.subjects.candidate.commit !== expectedSubjects.candidate.sha ||
     !['bootstrap', 'harness', 'reference', 'candidate'].every(field =>
       subjectsEqual(Reflect.get(record.manifest, field), Reflect.get(expectedSubjects, field))
     )
   ) {
     throw new Error('Hosted paired evidence binding is invalid.');
   }
+  validatePairedRuntimeIdentity(record.comparison, receipt);
+  return adjudication;
 }
 
 function validateArtifactSet(
@@ -669,6 +740,13 @@ function validateArtifactSet(
     ) {
       throw new Error('Hosted evidence join artifact identity is invalid or duplicated.');
     }
+    const rawReceipt = parseRawEvidence(record.tierBReceiptRaw, 'Hosted Tier B runtime receipt');
+    if (
+      !rawEvidenceMatchesParsed(rawReceipt.parsed, record.receipt) ||
+      sha256Bytes(rawReceipt.bytes) !== record.tierBReceiptSha256
+    ) {
+      throw new Error('Hosted Tier B runtime receipt digest is invalid.');
+    }
     validateTierBRuntimeReceipt(record.receipt, contract);
     validateRuntimeAuthority(record.receipt, expected.subject, toolchainAuthority);
     if (
@@ -680,9 +758,20 @@ function validateArtifactSet(
       throw new Error('Hosted evidence join Tier B identity is invalid.');
     }
     const tierA = tierAByIdentity.get(`${expected.workflow}\0${expected.job}`);
+    let adjudication = null;
     if (expected.kind === 'paired') {
-      validatePairedArtifact(record, expectedSubjects, contract.evidenceBinding);
-    } else if (record.manifest !== null || record.comparisonSha256 !== null) {
+      adjudication = validatePairedArtifact(
+        record,
+        expectedSubjects,
+        contract.evidenceBinding,
+        record.receipt
+      );
+    } else if (
+      record.manifest !== null ||
+      record.comparisonSha256 !== null ||
+      record.comparison !== null ||
+      record.comparisonRaw !== null
+    ) {
       throw new Error('Hosted standalone runtime artifact contains paired evidence.');
     }
     seenNames.add(record.name);
@@ -703,7 +792,11 @@ function validateArtifactSet(
       },
       paired:
         expected.kind === 'paired'
-          ? { manifest: record.manifest, comparisonSha256: record.comparisonSha256 }
+          ? {
+              manifest: record.manifest,
+              comparisonSha256: record.comparisonSha256,
+              adjudication,
+            }
           : null,
     });
   }

@@ -10,7 +10,7 @@
   "allowUnexpectedWorkflows": false,
   "allowUnexpectedJobs": false,
   "executionSubject": {
-    "schemaVersion": 3,
+    "schemaVersion": 4,
     "defaultProfile": "single-subject",
     "checkoutStep": "Checkout exact event subject",
     "verificationStep": "Verify execution subject",
@@ -80,7 +80,8 @@
     "evidenceAuthority": {
       "checkNames": "claim-only",
       "prWorkflowDefinitions": "claim-only",
-      "mergeEvidence": "owner-run-collector"
+      "mergeEvidence": "owner-run-collector",
+      "collectorActivationGate": "plan-11aj-owner-authorization"
     },
     "performanceProfile": {
       "profile": "paired-performance",

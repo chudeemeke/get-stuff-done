@@ -1,8 +1,10 @@
 'use strict';
 
 const { describe, expect, test } = require('./helpers/portable-test-api');
+const { createHash } = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const { captureFixture } = require('./helpers/paired-perf-fixture');
 const {
   classifyPairedPerformanceAuthority,
   deriveEvidenceTopology,
@@ -45,6 +47,53 @@ function eventSubjectPolicies() {
 
 function digest(value) {
   return value.toString(16).padStart(64, '0');
+}
+
+function rawJson(value) {
+  return `${JSON.stringify(value)}\n`;
+}
+
+function sha256Bytes(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+function comparisonFor(receipt) {
+  return captureFixture({
+    spec: {
+      executionIdentity: {
+        platform: receipt.os,
+        architecture: receipt.architecture,
+        cpu: 'fixture-cpu',
+        runnerImage: receipt.runnerImage,
+        runnerImageExpected: receipt.runnerImage,
+        nodeVersion: `v${receipt.nodeVersion}`,
+        bunVersion: receipt.bunVersion,
+        hyperfineVersion: receipt.tools.hyperfine,
+      },
+      subjects: {
+        reference: {
+          commit: BASE_SHA,
+          packageSha256: digest(801),
+          lockSha256: digest(802),
+          upstreamAuthoritySha256: digest(803),
+        },
+        candidate: {
+          commit: HEAD_SHA,
+          packageSha256: digest(804),
+          lockSha256: digest(805),
+          upstreamAuthoritySha256: digest(806),
+        },
+      },
+    },
+  });
+}
+
+function rebindReceipt(artifact) {
+  artifact.tierBReceiptRaw = rawJson(artifact.receipt);
+  artifact.tierBReceiptSha256 = sha256Bytes(artifact.tierBReceiptRaw);
+  if (artifact.manifest) {
+    artifact.manifest.tierBReceiptSha256 = artifact.tierBReceiptSha256;
+  }
 }
 
 function runtimeOs(authority) {
@@ -107,8 +156,6 @@ function joinFixture() {
     const authority = toolchainAuthority.runtimeSubjects[artifact.subject];
     const run = runByWorkflow.get(artifact.workflow);
     const os = runtimeOs(authority);
-    const tierBReceiptSha256 = digest(index + 1);
-    const comparisonSha256 = artifact.kind === 'paired' ? digest(index + 101) : null;
     const receipt = {
       schemaVersion: hostedContract.runtimeReceipts.schemaVersion,
       subject: artifact.subject,
@@ -128,6 +175,11 @@ function joinFixture() {
       ),
       containers: {},
     };
+    const tierBReceiptRaw = rawJson(receipt);
+    const tierBReceiptSha256 = sha256Bytes(tierBReceiptRaw);
+    const comparison = artifact.kind === 'paired' ? comparisonFor(receipt) : null;
+    const comparisonRaw = comparison === null ? null : rawJson(comparison);
+    const comparisonSha256 = comparisonRaw === null ? null : sha256Bytes(comparisonRaw);
     return {
       artifactId: 30_000 + index,
       name: artifact.name,
@@ -137,11 +189,14 @@ function joinFixture() {
       archiveSha256: digest(index + 201),
       tierBReceiptSha256,
       receipt,
+      tierBReceiptRaw,
       manifest:
         artifact.kind === 'paired'
           ? pairedManifest(hostedContract, event, tierBReceiptSha256, comparisonSha256)
           : null,
       comparisonSha256,
+      comparison,
+      comparisonRaw,
     };
   });
   return { hostedContract, toolchainAuthority, event, runs, tierA, artifacts };
@@ -177,6 +232,7 @@ describe('hosted evidence binding', () => {
       checkNames: 'claim-only',
       prWorkflowDefinitions: 'claim-only',
       mergeEvidence: 'owner-run-collector',
+      collectorActivationGate: 'plan-11aj-owner-authorization',
     };
     expect(validateEvidenceAuthorityPolicy(policy)).toBe(policy);
 
@@ -357,6 +413,7 @@ describe('hosted evidence binding', () => {
     expect(paired.tierB.subject).toBe('ci-perf-linux');
     expect(paired.artifact.name).toBe('paired-performance-ci-perf-linux');
     expect(paired.paired.manifest.comparisonSha256).toBe(paired.paired.comparisonSha256);
+    expect(paired.paired.adjudication.verdict).toBe('pass');
   });
 
   test('returns an explicit no-authority outcome for a fork without accepting evidence', () => {
@@ -418,6 +475,7 @@ describe('hosted evidence binding', () => {
       fixture => { fixture.artifacts[0].receipt.subject = 'other-subject'; },
       fixture => { fixture.artifacts[0].receipt.event = 'push'; },
       fixture => { fixture.artifacts[0].receipt.attempt = 2; },
+      fixture => { fixture.artifacts[0].tierBReceiptRaw = '{}'; },
       fixture => { fixture.artifacts[1].artifactId = fixture.artifacts[0].artifactId; },
       fixture => { fixture.artifacts[0].manifest = {}; },
       fixture => { fixture.artifacts[0].comparisonSha256 = digest(999); },
@@ -432,6 +490,18 @@ describe('hosted evidence binding', () => {
       fixture => {
         const paired = fixture.artifacts.find(artifact => artifact.manifest);
         paired.manifest.candidate.sha = BASE_SHA;
+      },
+      fixture => {
+        const paired = fixture.artifacts.find(artifact => artifact.manifest);
+        paired.comparisonRaw = '{}';
+      },
+      fixture => {
+        const paired = fixture.artifacts.find(artifact => artifact.manifest);
+        paired.comparison.verdict = 'fail';
+      },
+      fixture => {
+        const standalone = fixture.artifacts.find(artifact => artifact.manifest === null);
+        standalone.comparisonRaw = '{}';
       },
     ];
     for (const mutate of cases) {
@@ -501,6 +571,7 @@ describe('hosted evidence binding', () => {
     for (const mutate of cases) {
       const fixture = joinFixture();
       mutate(fixture.artifacts[0].receipt);
+      rebindReceipt(fixture.artifacts[0]);
       expect(() => joinHostedEvidence(fixture)).toThrow('Tier B runtime receipt authority');
     }
   });
@@ -508,24 +579,33 @@ describe('hosted evidence binding', () => {
   test('binds Tier B runtime claims to each governed subject authority', () => {
     const cases = [
       fixture => {
-        fixture.artifacts[0].receipt.os = 'macos';
-        fixture.artifacts[0].receipt.runnerImage =
+        const standalone = fixture.artifacts.find(artifact => artifact.manifest === null);
+        standalone.receipt.os = 'macos';
+        standalone.receipt.runnerImage =
           'macos:fixture-os-version:fixture-runner';
       },
-      fixture => { fixture.artifacts[0].receipt.nodeVersion = '21.1.0'; },
-      fixture => { fixture.artifacts[0].receipt.bunVersion = '1.3.4'; },
-      fixture => { fixture.artifacts[0].receipt.tools = { hyperfine: '1.20.0' }; },
+      fixture => {
+        fixture.artifacts.find(artifact => artifact.manifest === null).receipt.nodeVersion = '21.1.0';
+      },
+      fixture => {
+        fixture.artifacts.find(artifact => artifact.manifest === null).receipt.bunVersion = '1.3.4';
+      },
+      fixture => {
+        fixture.artifacts.find(artifact => artifact.manifest === null).receipt.tools = {
+          hyperfine: '1.20.0',
+        };
+      },
       fixture => {
         const paired = fixture.artifacts.find(artifact => artifact.receipt.tools.hyperfine);
         paired.receipt.tools.hyperfine = '1.19.0';
       },
       fixture => {
-        fixture.artifacts[0].receipt.containers = {
+        fixture.artifacts.find(artifact => artifact.manifest === null).receipt.containers = {
           unknown: `sha256:${'a'.repeat(64)}`,
         };
       },
       fixture => {
-        fixture.artifacts[0].receipt.containers = {
+        fixture.artifacts.find(artifact => artifact.manifest === null).receipt.containers = {
           'verdaccio/verdaccio': `sha256:${'0'.repeat(64)}`,
         };
       },
@@ -533,6 +613,7 @@ describe('hosted evidence binding', () => {
     for (const mutate of cases) {
       const fixture = joinFixture();
       mutate(fixture);
+      fixture.artifacts.forEach(rebindReceipt);
       expect(() => joinHostedEvidence(fixture)).toThrow('runtime authority');
     }
 
@@ -541,6 +622,7 @@ describe('hosted evidence binding', () => {
     fixture.artifacts[0].receipt.containers = {
       'verdaccio/verdaccio': container.digest,
     };
+    rebindReceipt(fixture.artifacts[0]);
     expect(joinHostedEvidence(fixture).runtime).toHaveLength(21);
   });
 
@@ -627,6 +709,7 @@ describe('hosted evidence binding', () => {
       checkNames: 'claim-only',
       prWorkflowDefinitions: 'claim-only',
       mergeEvidence: 'owner-run-collector',
+      collectorActivationGate: 'plan-11aj-owner-authorization',
     };
     for (const mutate of [
       candidate => { candidate.prWorkflowDefinitions = 'authority'; },

@@ -35,6 +35,13 @@ function readAllWorkflowText() {
     .join('\n');
 }
 
+function workflowFiles() {
+  return fs
+    .readdirSync(WORKFLOWS_DIR)
+    .filter(fileName => fileName.endsWith('.yml') || fileName.endsWith('.yaml'))
+    .sort();
+}
+
 function readPerfBudgetJob() {
   const workflow = readCiWorkflow();
   const start = workflow.indexOf('  perf-budget:');
@@ -98,14 +105,7 @@ describe('CI workflow security action contracts', () => {
 });
 
 describe('Phase 43 reproducible workflow toolchains', () => {
-  const governedFiles = [
-    'ci.yml',
-    'compat-matrix.yml',
-    'cousin-install.yml',
-    'oversight-probes.yml',
-    'upgrade-verifier.yml',
-    'perf-baseline.yml',
-  ];
+  const governedFiles = workflowFiles();
 
   test('all governed and historical workflow actions use reviewed immutable commits', () => {
     const actionAuthority = JSON.parse(
@@ -134,6 +134,19 @@ describe('Phase 43 reproducible workflow toolchains', () => {
     expect(setupCount).toBeGreaterThan(0);
     expect(versionFileCount).toBe(setupCount);
     expect(workflows).not.toContain('bun-version: latest');
+  });
+
+  test('pull request workflows cannot publish dependency caches for fork heads', () => {
+    const trustedCacheCondition =
+      "${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}";
+    for (const fileName of ['ci.yml', 'compat-matrix.yml']) {
+      const workflow = readWorkflow(fileName);
+      const cacheSteps = [...workflow.matchAll(/- name: Cache bun dependencies[\s\S]*?(?=\n\s*- (?:name:|uses:|run:)|\n\s{2}\S|$)/g)];
+      expect(cacheSteps.length).toBeGreaterThan(0);
+      for (const [cacheStep] of cacheSteps) {
+        expect(cacheStep).toContain(`if: ${trustedCacheCondition}`);
+      }
+    }
   });
 
   test('pins Verdaccio and keeps historical performance capture on reviewed Hyperfine', () => {
@@ -221,6 +234,10 @@ describe('Phase 43 issue mutation boundary', () => {
     expect(workflow).toContain('osv-triage.json');
     expect(workflow).toContain('path: flake-events.json');
     expect(workflow).toContain('GITHUB_STEP_SUMMARY');
+    expect(workflow).toContain(
+      '--commit "${{ github.event_name == \'pull_request\' && github.event.pull_request.head.sha || github.sha }}"'
+    );
+    expect(workflow).not.toContain('--commit "${{ github.sha }}"');
   });
 
   test('scheduled flake maintenance is report-only', () => {

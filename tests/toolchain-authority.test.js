@@ -254,7 +254,7 @@ describe('toolchain authority', () => {
     );
     const policy = contract.executionSubject.automaticTokenPolicy;
 
-    expect(contract.executionSubject.schemaVersion).toBe(3);
+    expect(contract.executionSubject.schemaVersion).toBe(4);
     expect(policy.requiredPermissions).toEqual({ contents: 'read' });
     expect(policy.allowlist).toEqual([
       {
@@ -353,8 +353,14 @@ describe('toolchain authority', () => {
 
   test('rejects indirect token contexts and token-shaped bindings outside the allowlist', () => {
     const workflow = makeCompliantWorkflow();
-    workflow.env = { DEPLOY_KEY: '${{ secrets.DEPLOY_KEY }}' };
-    workflow.jobs['test-node-20'].env = { CONTEXT: '${{ toJSON(github) }}' };
+    workflow.env = {
+      DEPLOY_KEY: '${{ secrets.DEPLOY_KEY }}',
+      GITHUB_TOKEN: 'opaque-workflow-token',
+    };
+    workflow.jobs['test-node-20'].env = {
+      CONTEXT: '${{ toJSON(github) }}',
+      ACCESS_TOKEN: 'opaque-job-token',
+    };
     workflow.jobs['test-node-20'].steps.push(
       { uses: 'actions/setup-node', with: { token: 'opaque' } },
       { uses: './local-action', env: { ACCESS_TOKEN: 0 } },
@@ -366,6 +372,10 @@ describe('toolchain authority', () => {
       []
     );
     workflow.jobs.invalid = null;
+    workflow.jobs.reusable = {
+      uses: 'owner/repository/.github/workflows/reusable.yml@0123456789012345678901234567890123456789',
+      secrets: 'inherit',
+    };
 
     const result = evaluateToolchainAuthority({
       manifest: makeManifest(),
@@ -383,6 +393,11 @@ describe('toolchain authority', () => {
       code: 'automatic_token_job_scope_exposure',
       workflow: '.github/workflows/ci.yml',
       job: 'test-node-20',
+    });
+    expect(result.diagnostics).toContainEqual({
+      code: 'automatic_token_job_scope_exposure',
+      workflow: '.github/workflows/ci.yml',
+      job: 'reusable',
     });
     expect(result.diagnostics).toContainEqual({
       code: 'automatic_token_exposure_not_allowlisted',

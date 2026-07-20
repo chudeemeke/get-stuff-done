@@ -298,6 +298,7 @@ jobs:
         with:
           bun-version-file: .bun-version
       - name: Cache bun dependencies
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.bun/install/cache
@@ -324,7 +325,7 @@ jobs:
           --junit test-results.xml
           --platform windows
           --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          --commit "${{ github.sha }}"
+          --commit "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
           --output flake-events.json
       - name: Upload Windows flake issue proposals
         if: ${{ failure() && matrix.os == 'windows-latest' && hashFiles('flake-events.json') != '' }}
@@ -616,6 +617,7 @@ jobs:
         with:
           bun-version-file: .bun-version
       - name: Cache bun dependencies
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.bun/install/cache

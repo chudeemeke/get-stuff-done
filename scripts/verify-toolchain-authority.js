@@ -260,7 +260,7 @@ function validateExecutionSubjectPolicy(policy) {
   );
   if (
     !hasExactKeys(policy, EXECUTION_SUBJECT_KEYS) ||
-    policy.schemaVersion !== 3 ||
+    policy.schemaVersion !== 4 ||
     policy.defaultProfile !== 'single-subject' ||
     policy.checkoutStep !== 'Checkout exact event subject' ||
     policy.verificationStep !== 'Verify execution subject' ||
@@ -819,7 +819,20 @@ function hasSensitiveTokenExpression(value) {
 }
 
 function isTokenBindingKey(key) {
-  return /^(?:github[-_]?token|token|auth[-_]?token|access[-_]?token)$/i.test(key);
+  return (
+    /^(?:github[-_]?token|token|auth[-_]?token|access[-_]?token)$/i.test(key) ||
+    /(?:^|[-_])token$/i.test(key)
+  );
+}
+
+function containsTokenBindingKey(value) {
+  const seen = new WeakSet();
+  const visit = current => {
+    if (!current || typeof current !== 'object' || seen.has(current)) return false;
+    seen.add(current);
+    return Object.entries(current).some(([key, child]) => isTokenBindingKey(key) || visit(child));
+  };
+  return visit(value);
 }
 
 function collectSensitiveTokenReferences(value) {
@@ -936,13 +949,21 @@ function evaluateAutomaticTokenPolicy(document, policy, workflow, actionPins, di
   }
 
   const workflowLevel = { ...document, jobs: undefined };
-  if (collectSensitiveTokenReferences(workflowLevel).length > 0) {
+  if (
+    collectSensitiveTokenReferences(workflowLevel).length > 0 ||
+    containsTokenBindingKey(workflowLevel)
+  ) {
     diagnostics.add({ code: 'automatic_token_workflow_scope_exposure', workflow });
   }
   for (const [jobId, job] of Object.entries(jobs)) {
     if (!job || typeof job !== 'object' || Array.isArray(job)) continue;
     const jobLevel = { ...job, steps: undefined };
-    if (collectSensitiveTokenReferences(jobLevel).length > 0) {
+    if (
+      collectSensitiveTokenReferences(jobLevel).length > 0 ||
+      containsTokenBindingKey(jobLevel) ||
+      Object.prototype.hasOwnProperty.call(job, 'secrets') ||
+      Object.prototype.hasOwnProperty.call(job, 'environment')
+    ) {
       diagnostics.add({
         code: 'automatic_token_job_scope_exposure',
         workflow,

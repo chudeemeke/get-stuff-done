@@ -139,7 +139,7 @@ const HELP = [
   '  node scripts/verify-hosted-ci.js verify-pending --pr <number> --receipt <path>',
   '  node scripts/verify-hosted-ci.js verify-receipt --pr <number> --receipt <path> --subject <40-hex>',
   '',
-  'collect writes one immutable tracked envelope only for complete passed hosted evidence.',
+  'collect is reserved and remains inactive until Plan 11AJ owns the first live evidence join.',
   'verify-pending and verify-receipt perform no network calls and no writes.',
   '',
 ].join('\n');
@@ -1489,40 +1489,9 @@ function collectHostedData(options, dependencies = {}) {
 }
 
 function collectHostedEnvelope(options, dependencies = {}) {
-  const contract = validateHostedContract(
-    dependencies.contract || require('../config/phase43-hosted-ci-contract.json')
-  );
-  const projectRoot = dependencies.projectRoot || PROJECT_ROOT;
-  const resolvePath = dependencies.resolveReceiptPath || resolveReceiptPath;
-  const receiptFile = resolvePath(projectRoot, contract, options.receiptPath, {
-    mustNotExist: true,
-  });
-  const collect = dependencies.collectHostedData || collectHostedData;
-  const input = collect(
-    { ...options, repository: contract.repository, workflows: contract.workflows },
-    dependencies
-  );
-  const verdict = evaluateHostedVerdict(input, contract);
-  if (verdict.verdict !== 'passed' || verdict.hostedEvidenceExists !== true) return verdict;
-
-  if (typeof dependencies.readTracked !== 'function' || typeof dependencies.readCurrent !== 'function') {
-    throw new Error('Hosted collection requires tracked and current governed-byte readers.');
-  }
-  verifyWorkflowTopology(contract, filePath =>
-    dependencies.readTracked(input.expectedHead, filePath)
-  );
-  assertGovernedWorktreeMatchesCommit(contract, input.expectedHead, dependencies);
-  const governedDigests = computeGovernedDigests(contract, filePath =>
-    dependencies.readTracked(input.expectedHead, filePath)
-  );
-  const envelope = buildPassedEnvelope(verdict, contract, {
-    purpose: options.purpose,
-    receiptPath: options.receiptPath,
-    governedDigests,
-  });
-  const writeReceipt = dependencies.writeReceiptAtomic || writeReceiptAtomic;
-  writeReceipt(receiptFile, envelope);
-  return envelope;
+  void options;
+  void dependencies;
+  throw new Error('Hosted CI collection remains inactive until Plan 11AJ owner authorization.');
 }
 
 function verifyPendingEnvelope(options, dependencies = {}) {

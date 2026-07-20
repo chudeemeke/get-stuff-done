@@ -319,7 +319,7 @@ describe('hosted CI verdict authority', () => {
     expect(contract.schemaVersion).toBe(5);
     expect(contract.envelopeSchemaVersion).toBe(2);
     expect(contract.executionSubject).toMatchObject({
-      schemaVersion: 3,
+      schemaVersion: 4,
       defaultProfile: 'single-subject',
       checkoutRepository:
         "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}",
@@ -340,6 +340,7 @@ describe('hosted CI verdict authority', () => {
         checkNames: 'claim-only',
         prWorkflowDefinitions: 'claim-only',
         mergeEvidence: 'owner-run-collector',
+        collectorActivationGate: 'plan-11aj-owner-authorization',
       },
     });
     expect(contract.executionSubject.performanceProfile).toMatchObject({
@@ -2123,7 +2124,7 @@ describe('hosted CI infrastructure ports', () => {
     );
   });
 
-  test('collection publishes only a passed exact-head envelope', () => {
+  test('keeps legacy collection inactive until Plan 11AJ owns the first live join', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
     const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
     const writes = [];
@@ -2144,54 +2145,13 @@ describe('hosted CI infrastructure ports', () => {
       subjectCommit: null,
     };
 
-    const envelope = collectHostedEnvelope(options, {
-      ...baseDependencies,
-      collectHostedData: () => makeSuccessfulInput(contract),
-    });
-    expect(envelope.checkedCommit).toBe(EXPECTED_HEAD);
-    expect(writes).toEqual([
-      {
-        filePath: path.join(PROJECT_ROOT, ...receiptPath.split('/')),
-        value: envelope,
-      },
-    ]);
-
-    writes.length = 0;
-    const unavailable = collectHostedEnvelope(options, {
-      ...baseDependencies,
-      collectHostedData: () => makeBillingLockedInput(),
-    });
-    expect(unavailable.verdict).toBe('unavailable');
-    expect(unavailable.hostedEvidenceExists).toBe(false);
-    expect(writes).toEqual([]);
     expect(() =>
       collectHostedEnvelope(options, {
         ...baseDependencies,
-        readCurrent: undefined,
         collectHostedData: () => makeSuccessfulInput(contract),
       })
-    ).toThrow('tracked and current governed-byte readers');
-
-    const defaultReceipt = `.planning/evidence/hosted/defaults-${process.pid}.json`;
-    const defaultOptions = { ...options, receiptPath: defaultReceipt };
-    expect(
-      collectHostedEnvelope(defaultOptions, {
-        collectHostedData: () => makeBillingLockedInput(),
-      }).verdict
-    ).toBe('unavailable');
-
-    const spawn = (_command, args) => {
-      if (args[0] === 'rev-parse') return { status: 0, stdout: `${EXPECTED_HEAD}\n`, stderr: '' };
-      if (args[1].includes('/pulls/')) {
-        return {
-          status: 0,
-          stdout: JSON.stringify({ head: { sha: EXPECTED_HEAD } }),
-          stderr: '',
-        };
-      }
-      return { status: 0, stdout: '{}', stderr: '' };
-    };
-    expect(collectHostedEnvelope(defaultOptions, { spawnSync: spawn }).verdict).toBe('failed');
+    ).toThrow('Plan 11AJ');
+    expect(writes).toEqual([]);
 
     const errors = [];
     expect(
@@ -2201,7 +2161,7 @@ describe('hosted CI infrastructure ports', () => {
           '--pr',
           '23',
           '--receipt',
-          defaultReceipt,
+          receiptPath,
           '--purpose',
           'default handler routing',
         ],
@@ -2209,7 +2169,7 @@ describe('hosted CI infrastructure ports', () => {
           createDefaultDependencies: () => ({
             contract,
             projectRoot: PROJECT_ROOT,
-            resolveReceiptPath: () => path.join(PROJECT_ROOT, ...defaultReceipt.split('/')),
+            resolveReceiptPath: () => path.join(PROJECT_ROOT, ...receiptPath.split('/')),
             collectHostedData: () => makeBillingLockedInput(),
           }),
           stderr: { write: value => errors.push(value) },
@@ -2217,7 +2177,7 @@ describe('hosted CI infrastructure ports', () => {
         }
       )
     ).toBe(1);
-    expect(errors.join('')).toContain('produced unavailable');
+    expect(errors.join('')).toContain('Plan 11AJ');
   });
 
   test('pending verification is offline, untracked, and bound to current HEAD', () => {
@@ -2476,7 +2436,7 @@ describe('hosted CI infrastructure ports', () => {
     expect(stdout.join('')).toContain('collect');
     expect(stdout.join('')).toContain('verify-pending');
     expect(stdout.join('')).toContain('verify-receipt');
-    expect(stdout.join('')).toContain('immutable tracked envelope');
+    expect(stdout.join('')).toContain('inactive until Plan 11AJ');
     expect(stderr).toEqual([]);
 
     const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';

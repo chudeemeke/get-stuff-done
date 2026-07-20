@@ -162,7 +162,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist and included in the npm tarball. GitHub release attachment is separately owned by SHIP-03B in Phase 44.
   7. Production assurance is blocking and two-part: canonical fork-authored source reaches at least 95% statements, branches, functions, and lines independently while Bun remains green, and every shipped upstream snapshot satisfies exact provenance, drift, named fork-delta, ownership/removal, and N=3 composed-package gates. Closeout language cannot describe the fork-only aggregate as whole-production coverage.
-**Plans**: 20/50 plans executed
+**Plans**: 21/50 plans executed
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest

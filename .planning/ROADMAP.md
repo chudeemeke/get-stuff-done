@@ -162,7 +162,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
   5. A live upstream bump from the currently pinned version to a newer vetted version is executed within the milestone using the new gates, with a D-7 evidence record in MAINTENANCE.md capturing PR number, duration, what the gates caught, and any friction encountered.
   6. On each upstream bump, the Override Churn section of CHANGELOG.md is auto-generated listing overrides whose upstream source changed (added/removed/carried), and `dist/bom.json` (CycloneDX SBOM) is produced between compose and finalize-dist and included in the npm tarball. GitHub release attachment is separately owned by SHIP-03B in Phase 44.
   7. Production assurance is blocking and two-part: canonical fork-authored source reaches at least 95% statements, branches, functions, and lines independently while Bun remains green, and every shipped upstream snapshot satisfies exact provenance, drift, named fork-delta, ownership/removal, and N=3 composed-package gates. Closeout language cannot describe the fork-only aggregate as whole-production coverage.
-**Plans**: 21/50 plans executed
+**Plans**: 22/50 plans executed
 - [x] 43-01-PLAN.md -- Wave 1: Upgrade verifier report schema and Verdaccio CI
 - [x] 43-02-PLAN.md -- Wave 2: Installer rollback and VERSION/package provenance clarity
 - [x] 43-03-PLAN.md -- Wave 3: Vetted upstream candidate manifest
@@ -185,7 +185,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 - [x] 43-11AD-PLAN.md -- Wave 19: CycloneDX 6 security remediation and SBOM compatibility
 - [x] 43-11AE-PLAN.md -- Wave 19: Cross-platform product, oracle, and harness corrections
 - [x] 43-11AF-PLAN.md -- Wave 19: Authenticated Verdaccio upgrade verification and redaction
-- [ ] 43-11AG-PLAN.md -- Wave 19: Paired same-run performance authority
+- [x] 43-11AG-PLAN.md -- Wave 19: Paired same-run performance authority
 - [ ] 43-11AH-PLAN.md -- Wave 20: Read-only subject-bound workflow governance, docs policy, and active compatibility blocking
 - [ ] 43-11AI-PLAN.md -- Wave 21: Full local corrective integration receipt
 - [ ] 43-11AK-PLAN.md -- Wave 22: Stable Open GSD 1.7.0 bump, N=3 rotation, and all-override reconciliation
@@ -247,7 +247,7 @@ See: .planning/milestones/v1.1.0-ROADMAP.md
 | 40.6 | v1.2.0 | 4/4 | Complete; Open GSD authority active, boundary debt documented | 2026-06-23 |
 | 41 | v1.2.0 | 7/7 | Complete | 2026-07-03 |
 | 42 | v1.2.0 | 5/5 | Complete | 2026-07-03 |
-| 43 | v1.2.0 | 21/50 | In Progress | - |
+| 43 | v1.2.0 | 22/50 | In Progress | - |
 | 44 | v1.2.0 | 0/TBD | Not started | - |
 
 ## Backlog

@@ -5,7 +5,7 @@ type: execute
 gap_closure: true
 wave: 19
 depends_on: ["43-11AC"]
-status: pending
+status: complete
 requirements: ["UPGRADE-08", "SHIP-08"]
 files_modified:
   - config/perf-comparison.schema.json
@@ -80,7 +80,7 @@ acceptance for the user.
   <verify>
     <automated>bun run test -- tests/perf-comparison-schema.test.js tests/bench.test.js tests/check-perf.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 <task id="11AG-02" type="auto">
@@ -132,7 +132,7 @@ acceptance for the user.
   <verify>
     <automated>bun run test -- tests/perf-comparison-schema.test.js tests/bench.test.js tests/check-perf.test.js</automated>
   </verify>
-  <done>false</done>
+  <done>true</done>
 </task>
 
 </tasks>

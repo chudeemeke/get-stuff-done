@@ -53,6 +53,7 @@ const HOSTED_WORKFLOW_PATHS = [
   'upgrade-verifier.yml',
 ].map(file => path.join(PROJECT_ROOT, '.github', 'workflows', file));
 const COMPAT_CONTRACT_PATH = path.join(PROJECT_ROOT, 'tests', 'upstream-compat-contract.json');
+const COVERAGE_CONTRACT_PATH = path.join(PROJECT_ROOT, 'tests', 'coverage-contract.json');
 const SYNC_GUIDANCE_PATHS = [
   path.join(PROJECT_ROOT, 'overlay', 'workflows', 'upstream-sync.md'),
   path.join(PROJECT_ROOT, 'get-stuff-done', 'workflows', 'upstream-sync.md'),
@@ -220,11 +221,20 @@ describe('test-config hygiene (meta-test)', () => {
       file => !file.endsWith('.test.js') && !file.endsWith('.test.cjs')
     );
     const contract = JSON.parse(fs.readFileSync(COMPAT_CONTRACT_PATH, 'utf8'));
-    const registeredNodeFiles = contract.suites.map(suite => suite.path).sort();
+    const coverageContract = JSON.parse(fs.readFileSync(COVERAGE_CONTRACT_PATH, 'utf8'));
+    const registeredCompatFiles = contract.suites.map(suite => suite.path).sort();
+    const registeredCoverageFiles = coverageContract.suites.map(suite => suite.path).sort();
+    const registeredNodeFiles = [...registeredCompatFiles, ...registeredCoverageFiles].sort();
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
 
     expect(bunFiles.length).toBeGreaterThan(0);
     expect(unclassified).toEqual([]);
+    expect(registeredCompatFiles.filter(file => registeredCoverageFiles.includes(file))).toEqual([]);
     expect(nodeFiles).toEqual(registeredNodeFiles);
+    for (const suite of coverageContract.suites) {
+      expect(suite.authority).toBe('focused-four-metric-coverage');
+      expect(pkg.scripts[suite.script]).toContain(suite.path);
+    }
   });
 
   test('shipped workflow guidance routes Bun projects through the adapter', () => {

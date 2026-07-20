@@ -351,3 +351,20 @@ Plans:
 
 Plans:
 - [ ] TBD (promote after v1.2 release or explicit reprioritization)
+
+### Phase 999.9: Bound summary and plan reference validators (BACKLOG)
+
+**Goal:** Make `verify-summary` inspect only the intended self-check section and make `verify references` distinguish actual `@path` references from executable verification commands.
+**Source:** Phase 43 Plan 11AG closeout on 2026-07-20. `verify-summary` matched an earlier `## Verification Evidence` heading, scanned through the later self-check, and treated historical words such as `fail` as a failed self-check. `verify references` also reported `<automated>` command strings as missing files.
+**Investigation time-box:** 1-2 hours for TDD fixtures, bounded parsing, and compatibility regressions.
+**Requirements:** TBD (validator truthfulness and diagnostic precision; not a current Phase 43 semantic blocker).
+
+**Promotion criteria:**
+- Add a summary fixture containing an earlier verification/evidence section with failure-mode prose plus a later passing self-check.
+- Parse one bounded self-check section rather than slicing from the first generic verification heading to end of file.
+- Preserve support for existing `Self-Check`, `Verification`, and `Quality Check` summary conventions without keyword false positives.
+- Restrict plan reference validation to actual reference syntax and never classify `<automated>` command content as a filesystem path.
+- Run summary validation, plan reference, LF/CRLF, malformed-input, and existing GSD tool regressions.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog before the next validator change or v1.2.0 closeout)

@@ -10,6 +10,7 @@ const {
   mergeBaselineArtifacts,
   normalizeHyperfineResults,
 } = require('../scripts/bench');
+const { buildSchedule } = require('../scripts/lib/paired-perf');
 
 function hyperfineResult(command, overrides = {}) {
   return {
@@ -37,6 +38,13 @@ function partialBaseline(platform) {
     compose: { mean_ms: 500, stddev_ms: 5, min_ms: 490, max_ms: 510, samples: 5 },
   };
 }
+
+describe('paired benchmark scheduling', () => {
+  test('derives the first order from the recorded seed and then alternates', () => {
+    expect(buildSchedule('00'.padEnd(64, '0'), 6)).toEqual(['AB', 'BA', 'AB', 'BA', 'AB', 'BA']);
+    expect(buildSchedule('ff'.padEnd(64, '0'), 6)).toEqual(['BA', 'AB', 'BA', 'AB', 'BA', 'AB']);
+  });
+});
 
 describe('bench hyperfine normalization', () => {
   test('normalizes hyperfine seconds to integer millisecond metrics', () => {

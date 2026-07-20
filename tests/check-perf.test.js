@@ -5,6 +5,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { summarizeMetric } = require('../scripts/lib/paired-perf');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const CHECK_PERF = path.join(PROJECT_ROOT, 'scripts', 'check-perf.js');
@@ -92,6 +93,46 @@ function acceptedRegression(overrides = {}) {
     ...overrides,
   };
 }
+
+function pairedSamples(referenceDurations, candidateDurations) {
+  return referenceDurations.map((referenceDuration, index) => {
+    const order = index % 2 === 0 ? 'AB' : 'BA';
+    const reference = { subject: 'reference', durationNs: referenceDuration };
+    const candidate = { subject: 'candidate', durationNs: candidateDurations[index] };
+    return {
+      index,
+      order,
+      samples: order === 'AB' ? [reference, candidate] : [candidate, reference],
+    };
+  });
+}
+
+describe('paired performance adjudication', () => {
+  test('derives the blocking ratio and diagnostics only from raw paired samples', () => {
+    const pairs = pairedSamples(
+      Array.from({ length: 10 }, (_, index) => 100 + index),
+      Array.from({ length: 10 }, (_, index) => 105 + index)
+    );
+
+    expect(summarizeMetric(pairs)).toEqual({
+      referenceMeanNs: 104.5,
+      candidateMeanNs: 109.5,
+      ratio: 109.5 / 104.5,
+      status: 'pass',
+      diagnostics: {
+        pairRatios: pairs.map((pair) => {
+          const reference = pair.samples.find(sample => sample.subject === 'reference');
+          const candidate = pair.samples.find(sample => sample.subject === 'candidate');
+          return candidate.durationNs / reference.durationNs;
+        }),
+        medianPairRatio: (109 / 104 + 110 / 105) / 2,
+        meanAbsoluteDeltaNs: 5,
+        abCandidateMeanNs: 109,
+        baCandidateMeanNs: 110,
+      },
+    });
+  });
+});
 
 describe('check-perf CLI', () => {
   test('passes compose ratios below or exactly at warning threshold without annotations', () => {

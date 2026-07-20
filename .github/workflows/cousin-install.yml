@@ -11,8 +11,12 @@ on:
       - "dist/**"
       - "overlay/**"
       - "scripts/cousin-smoke.js"
+      - "scripts/emit-hosted-runtime-receipt.js"
       - "scripts/lib/package-provenance.js"
       - "scripts/lib/upstream-source.js"
+      - "config/phase43-hosted-ci-contract.json"
+      - "config/phase43-toolchain-authority.json"
+      - ".bun-version"
       - "package.json"
       - "bun.lock"
       - ".github/workflows/cousin-install.yml"
@@ -35,13 +39,31 @@ jobs:
         node-version: [20, 22]
         package-manager: [npm, pnpm, bun]
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
+          bun-version-file: .bun-version
       - name: Enable Corepack for pnpm
         if: ${{ matrix.package-manager == 'pnpm' }}
         run: |
@@ -62,11 +84,22 @@ jobs:
             echo "spec=@chude/get-stuff-done@latest" >> "$GITHUB_OUTPUT"
           fi
       - name: Cold install and verify provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_READONLY_TOKEN }}
         # scripts/cousin-smoke.js runs the installed local gsd bin with --version --json.
         run: >-
           node scripts/cousin-smoke.js
           --package-manager "${{ matrix.package-manager }}"
           --package "${{ steps.package.outputs.spec }}"
           --temp-root "${{ runner.temp }}"
+      - name: Emit Tier B runtime receipt
+        shell: bash
+        run: >-
+          node scripts/emit-hosted-runtime-receipt.js
+          --subject "cousin-${{ matrix.os }}-node-${{ matrix.node-version }}-${{ matrix.package-manager }}"
+          --output "artifacts/runtime-receipt.json"
+      - name: Upload Tier B runtime receipt
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: runtime-receipt-cousin-${{ matrix.os }}-node-${{ matrix.node-version }}-${{ matrix.package-manager }}
+          path: artifacts/runtime-receipt.json
+          if-no-files-found: error
+          overwrite: false

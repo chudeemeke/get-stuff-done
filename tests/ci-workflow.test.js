@@ -5,6 +5,12 @@ const path = require('path');
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const WORKFLOWS_DIR = path.join(PROJECT_ROOT, '.github', 'workflows');
 const CI_WORKFLOW = path.join(WORKFLOWS_DIR, 'ci.yml');
+const ACTION_PINS = {
+  checkout: 'df4cb1c069e1874edd31b4311f1884172cec0e10',
+  setupNode: '249970729cb0ef3589644e2896645e5dc5ba9c38',
+  setupBun: '0c5077e51419868618aeaa5fe8019c62421857d6',
+  uploadArtifact: '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
+};
 
 function readCiWorkflow() {
   return fs.readFileSync(CI_WORKFLOW, 'utf8');
@@ -204,7 +210,7 @@ describe('Phase 42 cousin install workflow', () => {
     expect(workflow).not.toContain('macos-latest');
     expect(workflow).toContain('node-version: [20, 22]');
     expect(workflow).toContain('package-manager: [npm, pnpm, bun]');
-    expect(workflow).toContain('actions/setup-node@v6');
+    expect(workflow).toContain(`actions/setup-node@${ACTION_PINS.setupNode}`);
     expect(workflow).toContain('node-version: ${{ matrix.node-version }}');
     expect(workflow).toContain('corepack enable');
     expect(workflow).toContain('PNPM_VERSION: 10.17.1');
@@ -217,11 +223,43 @@ describe('Phase 42 cousin install workflow', () => {
     expect(workflow).toContain('bun run dist');
     expect(workflow).toContain('npm pack --pack-destination "$RUNNER_TEMP"');
     expect(workflow).toContain('@chude/get-stuff-done@latest');
-    expect(workflow).toContain('NODE_AUTH_TOKEN: ${{ secrets.NPM_READONLY_TOKEN }}');
+    expect(workflow).not.toContain('NPM_READONLY_TOKEN');
+    expect(workflow).not.toContain('secrets.');
     expect(workflow).toContain('scripts/cousin-smoke.js');
     expect(workflow).toContain('--package-manager "${{ matrix.package-manager }}"');
     expect(workflow).toContain('--temp-root "${{ runner.temp }}"');
     expect(workflow).toContain('--version --json');
+  });
+
+  test('cousin install binds every runtime row to exact subject and immutable receipt transport', () => {
+    const workflow = readWorkflow('cousin-install.yml');
+
+    expect(workflow).toContain(`actions/checkout@${ACTION_PINS.checkout}`);
+    expect(workflow).toContain('name: Checkout exact event subject');
+    expect(workflow).toContain(
+      "repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}"
+    );
+    expect(workflow).toContain(
+      "ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
+    );
+    expect(workflow).toContain('persist-credentials: false');
+    expect(workflow).toContain('name: Verify execution subject');
+    expect(workflow).toContain('actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"');
+    expect(workflow).toContain(`oven-sh/setup-bun@${ACTION_PINS.setupBun}`);
+    expect(workflow).toContain('bun-version-file: .bun-version');
+    expect(workflow).not.toContain('bun-version: latest');
+    expect(workflow).toContain('node scripts/emit-hosted-runtime-receipt.js');
+    expect(workflow).toContain(
+      '--subject "cousin-${{ matrix.os }}-node-${{ matrix.node-version }}-${{ matrix.package-manager }}"'
+    );
+    expect(workflow).toContain('--output "artifacts/runtime-receipt.json"');
+    expect(workflow).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
+    expect(workflow).toContain(
+      'name: runtime-receipt-cousin-${{ matrix.os }}-node-${{ matrix.node-version }}-${{ matrix.package-manager }}'
+    );
+    expect(workflow).toContain('path: artifacts/runtime-receipt.json');
+    expect(workflow).toContain('if-no-files-found: error');
+    expect(workflow).toContain('overwrite: false');
   });
 });
 

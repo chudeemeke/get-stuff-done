@@ -303,6 +303,16 @@ describe('hosted CI verdict authority', () => {
     ).toEqual({ workflows: 5, jobs: 39 });
   });
 
+  test('repository workflows implement the exact execution-subject contract', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+
+    expect(
+      verifyWorkflowTopology(contract, filePath =>
+        fs.readFileSync(path.join(PROJECT_ROOT, ...filePath.split('/')))
+      )
+    ).toEqual({ workflows: 5, jobs: 39 });
+  });
+
   test('requires versioned execution-subject authority in the hosted contract', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
 

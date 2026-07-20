@@ -16,6 +16,8 @@ files_modified:
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11R-SUMMARY.md
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-HOSTED-CI-RESUME.md
   - scripts/setup-branch-protection.json
+  - .github/workflows/issue-proposal-maintenance.yml
+  - tests/ci-workflow.test.js
   - .planning/STATE.md
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AJ-SUMMARY.md
 autonomous: false
@@ -26,6 +28,7 @@ must_haves:
     - "the current PR topology supplies contract-derived authority equivalent to 39 Jobs API Tier A records, 21 runner-emitted Tier B receipts, 18 standalone runtime artifacts, and three paired bundles across five exact-head first-attempt workflow runs"
     - "each paired bundle is semantically revalidated and joined to its Tier A job, Tier B runtime, artifact API identity, governed harness, base reference, and head candidate without silently changing the existing budget"
     - "green check-name identity is never merge authority; canonical workflow-origin enforcement and the owner-run collector are separately verified"
+    - "issue-proposal preview and apply share closed record validation, and stale-flake closure proves bot ownership before mutation"
     - "the formal Fable checkpoint consumes a committed passed envelope through Plan 11P authority"
     - "Plan 11R is summarized only after its inherited envelope and Fable obligations are actually fulfilled"
   artifacts:
@@ -78,11 +81,19 @@ blocked 11R branch only when its missing obligations are true.
     proof that both pins already resolve from the canonical repository. Preserve
     the earlier Plan 11AI receipt as predecessor evidence rather than replacing
     it.
+
+    Before presenting any issue-proposal mutation for authorization, RED/GREEN
+    harden the manual workflow so preview and apply use the same closed per-record
+    validator; reject empty or duplicate stable identities and malformed source
+    provenance; and require stale-flake closure to fetch the target issue and
+    verify the expected bot-owned marker and labels before closing it. Keep apply
+    default-off and preserve the separate exact `APPLY` confirmation.
   </action>
   <acceptance_criteria>
     - tracked protection intent names only emitted, reviewed required contexts.
     - no live repository setting changes before the human checkpoint.
     - the final local head has a create-only passed integration receipt.
+    - issue-proposal preview rejects every record that apply would reject, and stale closure cannot target an unowned issue.
   </acceptance_criteria>
   <verify>
     <automated>node scripts/verify-phase43-corrective-gate.js --receipt .planning/evidence/hosted/pre-public-authority.json</automated>

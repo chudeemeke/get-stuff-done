@@ -91,27 +91,39 @@ const SUBJECT_VERIFICATION_ALLOWED_KEYS = new Set([
   'continue-on-error',
 ]);
 const SECURITY_PRELUDE_KEYS = new Set(['uses', 'with']);
-const RUNTIME_RECEIPT_SCHEMA_KEYS = new Set(['schemaVersion', 'tierAFields', 'tierBFields']);
+const RUNTIME_RECEIPT_SCHEMA_KEYS = new Set([
+  'schemaVersion',
+  'tierAAuthority',
+  'tierBSemantics',
+  'runnerImageSemantics',
+  'hostedImageSemantics',
+  'tierAFields',
+  'tierBFields',
+]);
 const TIER_A_RECEIPT_FIELDS = [
   'schemaVersion',
   'jobId',
   'runId',
   'attempt',
   'job',
+  'runnerId',
   'runnerName',
+  'runnerGroupId',
+  'runnerGroupName',
   'runnerLabels',
 ];
 const TIER_B_RECEIPT_FIELDS = [
   'schemaVersion',
   'subject',
-  'jobId',
+  'event',
   'runId',
   'attempt',
   'os',
   'osVersion',
   'architecture',
-  'runnerName',
-  'runnerLabels',
+  'runnerImage',
+  'hostedImageName',
+  'hostedImageVersion',
   'nodeVersion',
   'bunVersion',
   'tools',
@@ -339,7 +351,13 @@ function validateHostedContract(contract) {
       RUNTIME_RECEIPT_SCHEMA_KEYS,
       RUNTIME_RECEIPT_SCHEMA_KEYS
     ) ||
-    contract.runtimeReceipts.schemaVersion !== 1 ||
+    contract.runtimeReceipts.schemaVersion !== 2 ||
+    contract.runtimeReceipts.tierAAuthority !== 'github-jobs-api' ||
+    contract.runtimeReceipts.tierBSemantics !==
+      'bounded-runner-self-observation-claims' ||
+    contract.runtimeReceipts.runnerImageSemantics !== 'observed-os-fingerprint' ||
+    contract.runtimeReceipts.hostedImageSemantics !==
+      'nullable-hosted-image-name-version' ||
     JSON.stringify(contract.runtimeReceipts.tierAFields) !==
       JSON.stringify(TIER_A_RECEIPT_FIELDS) ||
     JSON.stringify(contract.runtimeReceipts.tierBFields) !==
@@ -471,7 +489,10 @@ function validateTierARunnerReceipt(receipt, contract) {
     !isPositiveSafeInteger(receipt.runId) ||
     !isPositiveSafeInteger(receipt.attempt) ||
     !isBoundedPrintable(receipt.job) ||
+    !isPositiveSafeInteger(receipt.runnerId) ||
     !isBoundedPrintable(receipt.runnerName) ||
+    !isPositiveSafeInteger(receipt.runnerGroupId) ||
+    !isBoundedPrintable(receipt.runnerGroupName) ||
     !hasValidRunnerLabels(receipt.runnerLabels)
   ) {
     throw new Error('Hosted Tier A runner receipt authority is invalid.');
@@ -483,18 +504,27 @@ function validateTierBRuntimeReceipt(receipt, contract) {
   validateHostedContract(contract);
   const tools = receipt?.tools;
   const containers = receipt?.containers;
+  const hostedImageAbsent =
+    receipt?.hostedImageName === null && receipt?.hostedImageVersion === null;
+  const hostedImagePresent =
+    isBoundedPrintable(receipt?.hostedImageName, 100) &&
+    isBoundedPrintable(receipt?.hostedImageVersion, 100);
+  const runnerImageValid =
+    isBoundedPrintable(receipt?.runnerImage, 300) &&
+    !['unknown', 'unavailable', 'none', 'n/a'].includes(receipt.runnerImage.toLowerCase()) &&
+    receipt.runnerImage.startsWith(`${receipt.os}:${receipt.osVersion}:`);
   if (
     !hasExactFieldList(receipt, contract.runtimeReceipts.tierBFields) ||
     receipt.schemaVersion !== contract.runtimeReceipts.schemaVersion ||
     !isBoundedReceiptToken(receipt.subject) ||
-    !isPositiveSafeInteger(receipt.jobId) ||
+    !Object.prototype.hasOwnProperty.call(contract.executionSubject.eventSubjects, receipt.event) ||
     !isPositiveSafeInteger(receipt.runId) ||
     !isPositiveSafeInteger(receipt.attempt) ||
-    !isBoundedReceiptToken(receipt.os) ||
+    !['linux', 'macos', 'windows'].includes(receipt.os) ||
     !isBoundedPrintable(receipt.osVersion, 100) ||
     !['x64', 'arm64', 'x86'].includes(receipt.architecture) ||
-    !isBoundedPrintable(receipt.runnerName) ||
-    !hasValidRunnerLabels(receipt.runnerLabels) ||
+    !runnerImageValid ||
+    (!hostedImageAbsent && !hostedImagePresent) ||
     !isResolvedSemver(receipt.nodeVersion) ||
     !isResolvedSemver(receipt.bunVersion) ||
     !tools ||

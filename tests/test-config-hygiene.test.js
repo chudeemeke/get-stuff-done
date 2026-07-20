@@ -168,6 +168,7 @@ describe('test-config hygiene (meta-test)', () => {
     const includes = [...coverageScript.matchAll(/--include=([^']+)'/g)].map(match => match[1]);
 
     expect(includes).toEqual([
+      '**/scripts/emit-hosted-runtime-receipt.js',
       '**/scripts/install-hyperfine.js',
       '**/scripts/lib/hosted-evidence-binding.js',
       '**/scripts/verify-hosted-ci.js',

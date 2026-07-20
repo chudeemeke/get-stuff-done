@@ -381,27 +381,35 @@ describe('hosted CI verdict authority', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
 
     expect(contract.runtimeReceipts).toEqual({
-      schemaVersion: 1,
+      schemaVersion: 2,
+      tierAAuthority: 'github-jobs-api',
+      tierBSemantics: 'bounded-runner-self-observation-claims',
+      runnerImageSemantics: 'observed-os-fingerprint',
+      hostedImageSemantics: 'nullable-hosted-image-name-version',
       tierAFields: [
         'schemaVersion',
         'jobId',
         'runId',
         'attempt',
         'job',
+        'runnerId',
         'runnerName',
+        'runnerGroupId',
+        'runnerGroupName',
         'runnerLabels',
       ],
       tierBFields: [
         'schemaVersion',
         'subject',
-        'jobId',
+        'event',
         'runId',
         'attempt',
         'os',
         'osVersion',
         'architecture',
-        'runnerName',
-        'runnerLabels',
+        'runnerImage',
+        'hostedImageName',
+        'hostedImageVersion',
         'nodeVersion',
         'bunVersion',
         'tools',
@@ -413,25 +421,29 @@ describe('hosted CI verdict authority', () => {
   test('accepts complete run-attempt-bound Tier A and Tier B receipts', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
     const tierA = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       jobId: 1001,
       runId: 100,
       attempt: 2,
       job: 'Cousin Install (ubuntu-latest, Node 22, bun)',
+      runnerId: 2001,
       runnerName: 'GitHub Actions 1001',
+      runnerGroupId: 1,
+      runnerGroupName: 'GitHub Actions',
       runnerLabels: ['ubuntu-latest', 'ubuntu-24.04', 'X64'],
     };
     const tierB = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       subject: 'cousin-ubuntu-latest-node-22-bun',
-      jobId: 1001,
+      event: 'pull_request',
       runId: 100,
       attempt: 2,
       os: 'linux',
       osVersion: '24.04',
       architecture: 'x64',
-      runnerName: 'GitHub Actions 1001',
-      runnerLabels: ['ubuntu-latest', 'ubuntu-24.04', 'X64'],
+      runnerImage: 'linux:24.04:fixture-version',
+      hostedImageName: 'ubuntu24',
+      hostedImageVersion: '20250720.1.0',
       nodeVersion: '22.18.0',
       bunVersion: '1.3.5',
       tools: { hyperfine: '1.20.0' },
@@ -448,25 +460,29 @@ describe('hosted CI verdict authority', () => {
   test('rejects incomplete or unsafe runner and runtime receipt identity', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
     const tierA = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       jobId: 1001,
       runId: 100,
       attempt: 2,
       job: 'Perf Budget (linux)',
+      runnerId: 2001,
       runnerName: 'GitHub Actions 1001',
+      runnerGroupId: 1,
+      runnerGroupName: 'GitHub Actions',
       runnerLabels: ['ubuntu-latest', 'X64'],
     };
     const tierB = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       subject: 'ci-perf-linux',
-      jobId: 1001,
+      event: 'pull_request',
       runId: 100,
       attempt: 2,
       os: 'linux',
       osVersion: '24.04',
       architecture: 'x64',
-      runnerName: 'GitHub Actions 1001',
-      runnerLabels: ['ubuntu-latest', 'X64'],
+      runnerImage: 'linux:24.04:fixture-version',
+      hostedImageName: null,
+      hostedImageVersion: null,
       nodeVersion: '22.18.0',
       bunVersion: '1.3.5',
       tools: { hyperfine: '1.20.0' },
@@ -478,7 +494,10 @@ describe('hosted CI verdict authority', () => {
       candidate => (candidate.jobId = 0),
       candidate => (candidate.runId = Number.MAX_SAFE_INTEGER + 1),
       candidate => (candidate.attempt = 0),
+      candidate => (candidate.runnerId = 0),
       candidate => (candidate.runnerName = 'unsafe\nrunner'),
+      candidate => (candidate.runnerGroupId = 0),
+      candidate => (candidate.runnerGroupName = ''),
       candidate => (candidate.runnerLabels = ['ubuntu-latest', 'ubuntu-latest']),
     ];
     for (const mutate of tierACases) {
@@ -489,8 +508,11 @@ describe('hosted CI verdict authority', () => {
 
     const tierBCases = [
       candidate => (candidate.subject = '../unsafe'),
+      candidate => (candidate.event = 'pull_request_target'),
       candidate => (candidate.osVersion = 'unsafe\rversion'),
       candidate => (candidate.architecture = 'unknown'),
+      candidate => (candidate.runnerImage = 'unknown'),
+      candidate => (candidate.hostedImageName = 'ubuntu24'),
       candidate => (candidate.nodeVersion = '22'),
       candidate => (candidate.bunVersion = 'latest'),
       candidate => (candidate.tools.hyperfine = 'latest'),
@@ -499,6 +521,11 @@ describe('hosted CI verdict authority', () => {
     for (const mutate of tierBCases) {
       const candidate = structuredClone(tierB);
       mutate(candidate);
+      expect(() => validateTierBRuntimeReceipt(candidate, contract)).toThrow('Tier B');
+    }
+    for (const field of ['jobId', 'runnerName', 'runnerGroupName', 'runnerLabels']) {
+      const candidate = structuredClone(tierB);
+      candidate[field] = field === 'runnerLabels' ? ['ubuntu-latest'] : 'producer-claim';
       expect(() => validateTierBRuntimeReceipt(candidate, contract)).toThrow('Tier B');
     }
   });

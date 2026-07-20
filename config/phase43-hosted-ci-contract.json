@@ -153,27 +153,35 @@
     }
   },
   "runtimeReceipts": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
+    "tierAAuthority": "github-jobs-api",
+    "tierBSemantics": "bounded-runner-self-observation-claims",
+    "runnerImageSemantics": "observed-os-fingerprint",
+    "hostedImageSemantics": "nullable-hosted-image-name-version",
     "tierAFields": [
       "schemaVersion",
       "jobId",
       "runId",
       "attempt",
       "job",
+      "runnerId",
       "runnerName",
+      "runnerGroupId",
+      "runnerGroupName",
       "runnerLabels"
     ],
     "tierBFields": [
       "schemaVersion",
       "subject",
-      "jobId",
+      "event",
       "runId",
       "attempt",
       "os",
       "osVersion",
       "architecture",
-      "runnerName",
-      "runnerLabels",
+      "runnerImage",
+      "hostedImageName",
+      "hostedImageVersion",
       "nodeVersion",
       "bunVersion",
       "tools",
@@ -182,8 +190,10 @@
   },
   "governedPaths": {
     "source": [
+      "scripts/emit-hosted-runtime-receipt.js",
       "scripts/verify-hosted-ci.js",
       "scripts/verify-toolchain-authority.js",
+      "tests/hosted-runtime-receipt.test.js",
       "tests/verify-hosted-ci.test.js",
       "tests/toolchain-authority.test.js",
       "tests/test-config-hygiene.test.js"

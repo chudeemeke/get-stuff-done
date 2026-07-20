@@ -1,0 +1,276 @@
+name: Issue Proposal Maintenance
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Run ID that produced the proposal artifact
+        required: true
+        type: string
+      proposal_type:
+        description: Proposal artifact type
+        required: true
+        type: choice
+        options:
+          - osv
+          - windows-flake
+          - stale-flake
+      apply:
+        description: Apply the reviewed proposals
+        required: true
+        type: boolean
+        default: false
+      confirmation:
+        description: Enter APPLY when apply is enabled
+        required: false
+        type: string
+
+permissions: {}
+
+jobs:
+  preview:
+    name: Preview issue proposals
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Reject incomplete apply confirmation
+        if: ${{ inputs.apply && inputs.confirmation != 'APPLY' }}
+        run: |
+          echo "::error::Apply requires the exact confirmation APPLY"
+          exit 1
+      # Cross-run artifact download requires the read-only GitHub token.
+      - name: Download OSV proposals
+        if: ${{ inputs.proposal_type == 'osv' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: osv-issue-proposals-${{ inputs.source_run_id }}
+          path: proposals
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+      - name: Download Windows flake proposals
+        if: ${{ inputs.proposal_type == 'windows-flake' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: windows-flake-issue-proposals-${{ inputs.source_run_id }}
+          path: proposals
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+      - name: Download stale flake proposals
+        if: ${{ inputs.proposal_type == 'stale-flake' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: stale-flake-proposals-${{ inputs.source_run_id }}
+          path: proposals
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+      - name: Validate and preview proposals
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          PROPOSAL_TYPE: ${{ inputs.proposal_type }}
+        with:
+          script: |
+            const fs = require('fs');
+            const pathByType = {
+              osv: 'proposals/osv-triage.json',
+              'windows-flake': 'proposals/flake-events.json',
+              'stale-flake': 'proposals/flake-maintenance-proposals.json',
+            };
+            const proposalPath = pathByType[process.env.PROPOSAL_TYPE];
+            if (!proposalPath) throw new Error('Unsupported proposal type.');
+            const stat = fs.statSync(proposalPath);
+            if (!stat.isFile() || stat.size > 1024 * 1024) {
+              throw new Error('Proposal artifact must be a regular file no larger than 1 MiB.');
+            }
+            const proposals = JSON.parse(fs.readFileSync(proposalPath, 'utf8'));
+            if (!Array.isArray(proposals) || proposals.length > 100) {
+              throw new Error('Proposal artifact must contain at most 100 records.');
+            }
+            await core.summary
+              .addHeading('Issue proposal preview')
+              .addRaw(`${proposals.length} ${process.env.PROPOSAL_TYPE} proposal(s) validated. No issues were mutated.`)
+              .write();
+
+  apply:
+    name: Apply issue proposals
+    needs: preview
+    if: ${{ inputs.apply && inputs.confirmation == 'APPLY' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+    steps:
+      # Cross-run artifact download requires the read-only GitHub token.
+      - name: Download OSV proposals
+        if: ${{ inputs.proposal_type == 'osv' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: osv-issue-proposals-${{ inputs.source_run_id }}
+          path: proposals
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+      - name: Download Windows flake proposals
+        if: ${{ inputs.proposal_type == 'windows-flake' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: windows-flake-issue-proposals-${{ inputs.source_run_id }}
+          path: proposals
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+      - name: Download stale flake proposals
+        if: ${{ inputs.proposal_type == 'stale-flake' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: stale-flake-proposals-${{ inputs.source_run_id }}
+          path: proposals
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+      - name: Apply idempotent issue updates
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          PROPOSAL_TYPE: ${{ inputs.proposal_type }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        with:
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const type = process.env.PROPOSAL_TYPE;
+            const pathByType = {
+              osv: 'proposals/osv-triage.json',
+              'windows-flake': 'proposals/flake-events.json',
+              'stale-flake': 'proposals/flake-maintenance-proposals.json',
+            };
+            const proposalPath = pathByType[type];
+            if (!proposalPath) throw new Error('Unsupported proposal type.');
+            const stat = fs.statSync(proposalPath);
+            if (!stat.isFile() || stat.size > 1024 * 1024) {
+              throw new Error('Proposal artifact must be a regular file no larger than 1 MiB.');
+            }
+            const proposals = JSON.parse(fs.readFileSync(proposalPath, 'utf8'));
+            if (!Array.isArray(proposals) || proposals.length > 100) {
+              throw new Error('Proposal artifact must contain at most 100 records.');
+            }
+
+            const clean = (value, limit) => String(value || '')
+              .replace(/<!--[\s\S]*?-->/g, '')
+              .replace(/[\u0000-\u001f\u007f]/g, ' ')
+              .trim()
+              .slice(0, limit);
+            const markerPart = value => encodeURIComponent(clean(value, 240));
+            const labelColors = {
+              security: 'd73a4a',
+              'security-moderate': 'fbca04',
+              'security-low': '0e8a16',
+              osv: '5319e7',
+              dependency: '0366d6',
+              'flake-report': 'd876e3',
+              'flake-platform-windows': '0078d4',
+            };
+            const sourceRunUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${process.env.SOURCE_RUN_ID}`;
+
+            async function ensureLabels(labels) {
+              for (const label of labels) {
+                try {
+                  await github.rest.issues.getLabel({ owner, repo, name: label });
+                } catch (error) {
+                  if (error.status !== 404) throw error;
+                  await github.rest.issues.createLabel({
+                    owner,
+                    repo,
+                    name: label,
+                    color: labelColors[label] || 'ededed',
+                  });
+                }
+              }
+            }
+
+            if (type === 'stale-flake') {
+              if (
+                proposals.some(proposal =>
+                  proposal.action !== 'close' ||
+                  !Number.isInteger(proposal.issueNumber) ||
+                  proposal.issueNumber < 1 ||
+                  proposal.key !== `stale-flake:${proposal.issueNumber}`
+                )
+              ) {
+                throw new Error('Invalid stale-flake proposal.');
+              }
+              for (const proposal of proposals) {
+                await github.rest.issues.update({
+                  owner,
+                  repo,
+                  issue_number: proposal.issueNumber,
+                  state: 'closed',
+                  state_reason: 'completed',
+                });
+              }
+              return;
+            }
+
+            const normalized = [];
+            for (const proposal of proposals) {
+              if (type === 'osv' && !['medium', 'low'].includes(proposal.severity)) continue;
+              let marker;
+              let title;
+              let body;
+              let labels;
+              if (type === 'osv') {
+                marker = `<!-- gsd-osv:${markerPart(proposal.id)}:${markerPart(proposal.packageName)}:${markerPart(proposal.packageVersion)} -->`;
+                title = clean(proposal.title, 180);
+                body = clean(proposal.body, 58000);
+                labels = ['security', `security-${proposal.severity === 'medium' ? 'moderate' : 'low'}`, 'osv', 'dependency'];
+              } else {
+                if (proposal.platform !== 'windows' || !proposal.key) {
+                  throw new Error('Invalid Windows flake proposal.');
+                }
+                marker = `<!-- gsd-flake:${markerPart(proposal.key)} -->`;
+                title = clean(proposal.title, 180);
+                body = [
+                  `Observed in ${clean(proposal.runUrl, 500)}.`,
+                  `Commit: ${clean(proposal.commit, 40)}`,
+                  `Failure: ${clean(proposal.failureMessage || '(no failure message)', 4000)}`,
+                ].join('\n');
+                labels = ['flake-report', 'flake-platform-windows'];
+                const fileLabel = `flake-file-${clean(proposal.testFilePath, 80).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`;
+                if (/^flake-file-[a-z0-9-]{1,80}$/.test(fileLabel)) labels.push(fileLabel);
+              }
+              if (!title || !body) throw new Error('Proposal title and body are required.');
+              normalized.push({ marker, title, body, labels });
+            }
+
+            const existingIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'all',
+              per_page: 100,
+            });
+            for (const { marker, title, body, labels } of normalized) {
+              await ensureLabels(labels);
+              const issueBody = `${body}\n\nSource run: ${sourceRunUrl}\n\n${marker}`;
+              const existing = existingIssues.find(issue =>
+                !issue.pull_request && String(issue.body || '').includes(marker)
+              );
+              if (existing) {
+                await github.rest.issues.update({
+                  owner,
+                  repo,
+                  issue_number: existing.number,
+                  title,
+                  body: issueBody,
+                  labels,
+                  state: 'open',
+                });
+              } else {
+                const created = await github.rest.issues.create({
+                  owner,
+                  repo,
+                  title,
+                  body: issueBody,
+                  labels,
+                });
+                existingIssues.push(created.data);
+              }
+            }

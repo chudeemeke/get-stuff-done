@@ -70,7 +70,13 @@ describe('CI workflow security action contracts', () => {
   });
 
   test('first-party Node actions use reviewed Node 24-compatible commits', () => {
-    const workflows = ['ci.yml', 'compat-matrix.yml', 'cousin-install.yml', 'perf-baseline.yml']
+    const workflows = [
+      'ci.yml',
+      'compat-matrix.yml',
+      'cousin-install.yml',
+      'issue-proposal-maintenance.yml',
+      'perf-baseline.yml',
+    ]
       .map(readWorkflow)
       .join('\n');
 
@@ -199,6 +205,56 @@ describe('CI workflow informational gates', () => {
     expect(boundaryJob).toContain('node scripts/check-boundary.js --report-only');
     expect(boundaryJob).not.toContain('continue-on-error: true');
     expect(boundaryJob).toContain('node scripts/check-debt-ratchet.cjs --no-compose');
+  });
+});
+
+describe('Phase 43 issue mutation boundary', () => {
+  test('pull-request CI is read-only and emits issue proposal artifacts', () => {
+    const workflow = readCiWorkflow();
+    const header = workflow.slice(0, workflow.indexOf('\njobs:'));
+
+    expect(header).toContain('permissions:\n  contents: read');
+    expect(workflow).not.toContain('issues: write');
+    expect(workflow).not.toContain('github.rest.issues.');
+    expect(workflow).toContain('name: osv-issue-proposals-${{ github.run_id }}');
+    expect(workflow).toContain('name: windows-flake-issue-proposals-${{ github.run_id }}');
+    expect(workflow).toContain('osv-triage.json');
+    expect(workflow).toContain('path: flake-events.json');
+    expect(workflow).toContain('GITHUB_STEP_SUMMARY');
+  });
+
+  test('scheduled flake maintenance is report-only', () => {
+    const workflow = readWorkflow('flake-issue-maintenance.yml');
+
+    expect(workflow).toContain('schedule:');
+    expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).toContain('issues: read');
+    expect(workflow).not.toContain('issues: write');
+    expect(workflow).not.toContain('github.rest.issues.createComment');
+    expect(workflow).not.toContain('github.rest.issues.update');
+    expect(workflow).toContain('flake-maintenance-proposals.json');
+    expect(workflow).toContain('GITHUB_STEP_SUMMARY');
+  });
+
+  test('manual issue mutation defaults to preview and requires explicit apply confirmation', () => {
+    const workflow = readWorkflow('issue-proposal-maintenance.yml');
+
+    expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).not.toContain('pull_request:');
+    expect(workflow).not.toContain('schedule:');
+    expect(workflow).toContain('apply:');
+    expect(workflow).toContain('type: boolean');
+    expect(workflow).toContain('default: false');
+    expect(workflow).toContain('confirmation:');
+    expect(workflow).toContain("inputs.apply && inputs.confirmation == 'APPLY'");
+    expect(workflow).toContain('issues: write');
+    expect(workflow).toContain('<!-- gsd-osv:');
+    expect(workflow).toContain('<!-- gsd-flake:');
+    expect(workflow).toContain('github.rest.issues.update');
+    expect(workflow).toContain('github.rest.issues.create');
+    expect(workflow).not.toContain('github.rest.issues.createComment');
+    expect(workflow).toContain(`actions/download-artifact@${ACTION_PINS.downloadArtifact}`);
+    expect(workflow).toContain(`actions/github-script@${ACTION_PINS.githubScript}`);
   });
 });
 

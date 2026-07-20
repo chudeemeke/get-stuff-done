@@ -333,8 +333,10 @@ describe('check-perf CLI', () => {
     expect(targeted.output).toContain('acceptedRegressions');
     expect(targeted.output).not.toContain('::error');
 
-    expect(untargeted.status).toBe(0);
+    expect(untargeted.status).toBe(1);
     expect(untargeted.output).toContain('acceptedRegressions');
+    expect(untargeted.output).toContain('Error [EPERF]');
+    expect(untargeted.output).not.toContain('Perf budget failure');
 
     expect(globalScope.status).toBe(0);
     expect(globalScope.output).toContain('acceptedRegressions');

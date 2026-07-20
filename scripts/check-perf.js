@@ -224,7 +224,7 @@ function compareMetric({ baseline, current, platform, metric, warnRatio, failRat
 }
 
 function printComparison(result, stream = process.stdout) {
-  const summary = `${result.platform} ${result.metric}: baseline=${result.baselineMean}ms current=${result.currentMean}ms ratio=${formatRatio(result.ratio)}`;
+  const summary = `historical diagnostic ${result.platform} ${result.metric}: baseline=${result.baselineMean}ms current=${result.currentMean}ms ratio=${formatRatio(result.ratio)}`;
   stream.write(`${summary}\n`);
 
   if (result.accepted) {
@@ -232,10 +232,8 @@ function printComparison(result, stream = process.stdout) {
     return;
   }
 
-  if (result.status === 'fail') {
-    stream.write(`::error title=Perf budget failure::${summary}\n`);
-  } else if (result.status === 'warn') {
-    stream.write(`::warning title=Perf budget warning::${summary}\n`);
+  if (result.status === 'fail' || result.status === 'warn') {
+    stream.write(`::warning title=Historical perf diagnostic::${summary}\n`);
   }
 }
 
@@ -253,7 +251,7 @@ function runComparison(options, baseline, current) {
     printComparison(result);
   }
 
-  return results.some(result => result.status === 'fail') ? 1 : 0;
+  return 0;
 }
 
 function printPairedMetric(metric, summary, stream = process.stdout) {

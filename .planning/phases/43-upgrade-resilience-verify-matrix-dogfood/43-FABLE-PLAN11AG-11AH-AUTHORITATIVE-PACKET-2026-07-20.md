@@ -26,9 +26,10 @@ The repository is public, but no push, PR update, hosted run, merge, release,
 credential change, setting mutation, or public comment is authorized in these
 plans. Plan 11AJ retains explicit owner checkpoints before every public action.
 
-The current worktree head is `dc012678`. Plan 11AG's candidate implementation
-revision is `35cbe0883a65409b13f9b7cc6347c793df2a2f15`; later commits are planning
-and review records, not code changes to the candidate.
+The corrected plan revision under review is `dc012678`; this packet is a later
+docs-only commit. Plan 11AG's candidate implementation revision is
+`35cbe0883a65409b13f9b7cc6347c793df2a2f15`; later commits are planning and
+review records, not code changes to the candidate.
 
 The owner requires unchanged strict performance boundaries:
 
@@ -317,4 +318,3 @@ Read at minimum:
 - No public or hosted action is authorized.
 - No regression or threshold change is accepted.
 - Sol is advisory; this Fable verdict is authoritative.
-

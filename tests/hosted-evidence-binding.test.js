@@ -501,7 +501,7 @@ describe('hosted evidence binding', () => {
     for (const mutate of cases) {
       const fixture = joinFixture();
       mutate(fixture.artifacts[0].receipt);
-      expect(() => joinHostedEvidence(fixture)).toThrow('Tier B record');
+      expect(() => joinHostedEvidence(fixture)).toThrow('Tier B runtime receipt authority');
     }
   });
 

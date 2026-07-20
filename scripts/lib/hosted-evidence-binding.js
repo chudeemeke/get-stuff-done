@@ -47,6 +47,23 @@ const RUNTIME_SUBJECT_FIELDS = [
   'nodeMajor',
   'requiredTools',
 ];
+const TIER_B_RECEIPT_FIELDS = [
+  'schemaVersion',
+  'subject',
+  'event',
+  'runId',
+  'attempt',
+  'os',
+  'osVersion',
+  'architecture',
+  'runnerImage',
+  'hostedImageName',
+  'hostedImageVersion',
+  'nodeVersion',
+  'bunVersion',
+  'tools',
+  'containers',
+];
 const MAX_EVIDENCE_IDENTITIES = 100;
 const EVENT_FIELDS = ['name', 'canonicalRepository', 'base', 'head'];
 const RUN_FIELDS = ['workflow', 'runId', 'attempt', 'event', 'headSha'];
@@ -427,23 +444,32 @@ function isClosedVersionMap(value, validator) {
   );
 }
 
-function validateTierBRecord(record, contract) {
+function validateTierBRuntimeReceipt(record, contract) {
   const hostedImageAbsent =
     record?.hostedImageName === null && record?.hostedImageVersion === null;
   const hostedImagePresent =
     isBoundedPrintable(record?.hostedImageName, 100) &&
     isBoundedPrintable(record?.hostedImageVersion, 100);
   if (
+    !contract?.runtimeReceipts ||
+    !Number.isSafeInteger(contract.runtimeReceipts.schemaVersion) ||
+    JSON.stringify(contract.runtimeReceipts.tierBFields) !==
+      JSON.stringify(TIER_B_RECEIPT_FIELDS) ||
+    !contract?.executionSubject?.eventSubjects ||
     !hasExactFields(record, contract.runtimeReceipts.tierBFields) ||
     record.schemaVersion !== contract.runtimeReceipts.schemaVersion ||
     !isBoundedToken(record.subject) ||
-    !isBoundedPrintable(record.event, 50) ||
+    !Object.prototype.hasOwnProperty.call(
+      contract.executionSubject.eventSubjects,
+      record.event
+    ) ||
     !isPositiveSafeInteger(record.runId) ||
     !isPositiveSafeInteger(record.attempt) ||
     !['linux', 'macos', 'windows'].includes(record.os) ||
     !isBoundedPrintable(record.osVersion, 100) ||
     !['x64', 'arm64', 'x86'].includes(record.architecture) ||
     !isBoundedPrintable(record.runnerImage, 300) ||
+    ['unknown', 'unavailable', 'none', 'n/a'].includes(record.runnerImage.toLowerCase()) ||
     !record.runnerImage.startsWith(`${record.os}:${record.osVersion}:`) ||
     (!hostedImageAbsent && !hostedImagePresent) ||
     !isResolvedSemver(record.nodeVersion) ||
@@ -458,7 +484,7 @@ function validateTierBRecord(record, contract) {
         /^[a-z0-9._/-]{1,200}$/.test(image) && /^sha256:[0-9a-f]{64}$/.test(digest)
     )
   ) {
-    throw new Error('Hosted evidence join Tier B record is invalid.');
+    throw new Error('Hosted Tier B runtime receipt authority is invalid.');
   }
   return record;
 }
@@ -643,7 +669,7 @@ function validateArtifactSet(
     ) {
       throw new Error('Hosted evidence join artifact identity is invalid or duplicated.');
     }
-    validateTierBRecord(record.receipt, contract);
+    validateTierBRuntimeReceipt(record.receipt, contract);
     validateRuntimeAuthority(record.receipt, expected.subject, toolchainAuthority);
     if (
       record.receipt.subject !== expected.subject ||
@@ -731,9 +757,11 @@ function joinHostedEvidence(input) {
 module.exports = {
   classifyPairedPerformanceAuthority,
   deriveEvidenceTopology,
+  isResolvedSemver,
   joinHostedEvidence,
   validateEvidenceAuthorityPolicy,
   validateEvidenceBindingPolicy,
   validateEventSubjectPolicies,
   validatePairedBindingManifest,
+  validateTierBRuntimeReceipt,
 };

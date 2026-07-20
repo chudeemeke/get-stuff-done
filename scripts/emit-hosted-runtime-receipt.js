@@ -5,8 +5,10 @@ const os = require('os');
 const path = require('path');
 const { randomUUID } = require('crypto');
 const { spawnSync } = require('child_process');
-const { isResolvedSemver } = require('./verify-toolchain-authority');
-const { validateTierBRuntimeReceipt } = require('./verify-hosted-ci');
+const {
+  isResolvedSemver,
+  validateTierBRuntimeReceipt,
+} = require('./lib/hosted-evidence-binding');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const CONTRACT = JSON.parse(

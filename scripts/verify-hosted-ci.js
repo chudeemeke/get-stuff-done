@@ -6,12 +6,14 @@ const { spawnSync } = require('child_process');
 const { createHash, randomUUID } = require('crypto');
 const { TextDecoder } = require('util');
 const {
-  isResolvedSemver,
   parseGovernedWorkflow,
   parseToolchainAuthorityManifest,
   validateExecutionSubjectPolicy,
 } = require('./verify-toolchain-authority');
-const { validateEvidenceBindingPolicy } = require('./lib/hosted-evidence-binding');
+const {
+  validateEvidenceBindingPolicy,
+  validateTierBRuntimeReceipt: validateBoundTierBRuntimeReceipt,
+} = require('./lib/hosted-evidence-binding');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const CONTRACT_PATH = 'config/phase43-hosted-ci-contract.json';
@@ -509,50 +511,7 @@ function validateTierARunnerReceipt(receipt, contract) {
 
 function validateTierBRuntimeReceipt(receipt, contract) {
   validateHostedContract(contract);
-  const tools = receipt?.tools;
-  const containers = receipt?.containers;
-  const hostedImageAbsent =
-    receipt?.hostedImageName === null && receipt?.hostedImageVersion === null;
-  const hostedImagePresent =
-    isBoundedPrintable(receipt?.hostedImageName, 100) &&
-    isBoundedPrintable(receipt?.hostedImageVersion, 100);
-  const runnerImageValid =
-    isBoundedPrintable(receipt?.runnerImage, 300) &&
-    !['unknown', 'unavailable', 'none', 'n/a'].includes(receipt.runnerImage.toLowerCase()) &&
-    receipt.runnerImage.startsWith(`${receipt.os}:${receipt.osVersion}:`);
-  if (
-    !hasExactFieldList(receipt, contract.runtimeReceipts.tierBFields) ||
-    receipt.schemaVersion !== contract.runtimeReceipts.schemaVersion ||
-    !isBoundedReceiptToken(receipt.subject) ||
-    !Object.prototype.hasOwnProperty.call(contract.executionSubject.eventSubjects, receipt.event) ||
-    !isPositiveSafeInteger(receipt.runId) ||
-    !isPositiveSafeInteger(receipt.attempt) ||
-    !['linux', 'macos', 'windows'].includes(receipt.os) ||
-    !isBoundedPrintable(receipt.osVersion, 100) ||
-    !['x64', 'arm64', 'x86'].includes(receipt.architecture) ||
-    !runnerImageValid ||
-    (!hostedImageAbsent && !hostedImagePresent) ||
-    !isResolvedSemver(receipt.nodeVersion) ||
-    !isResolvedSemver(receipt.bunVersion) ||
-    !tools ||
-    typeof tools !== 'object' ||
-    Array.isArray(tools) ||
-    Object.keys(tools).length > 20 ||
-    Object.entries(tools).some(
-      ([tool, version]) => !isBoundedReceiptToken(tool) || !isResolvedSemver(version)
-    ) ||
-    !containers ||
-    typeof containers !== 'object' ||
-    Array.isArray(containers) ||
-    Object.keys(containers).length > 20 ||
-    Object.entries(containers).some(
-      ([image, digest]) =>
-        !/^[a-z0-9._/-]{1,200}$/.test(image) || !/^sha256:[0-9a-f]{64}$/.test(digest)
-    )
-  ) {
-    throw new Error('Hosted Tier B runtime receipt authority is invalid.');
-  }
-  return receipt;
+  return validateBoundTierBRuntimeReceipt(receipt, contract);
 }
 
 function verifyWorkflowSubjectImplementation(

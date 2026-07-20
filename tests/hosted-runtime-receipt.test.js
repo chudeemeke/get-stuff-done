@@ -55,6 +55,17 @@ function receiptOptions(overrides = {}) {
 }
 
 describe('hosted Tier B runtime receipt', () => {
+  test('keeps the hosted producer independent from uninstalled verifier dependencies', () => {
+    const source = fs.readFileSync(
+      path.join(PROJECT_ROOT, 'scripts', 'emit-hosted-runtime-receipt.js'),
+      'utf8'
+    );
+
+    expect(source).not.toContain("require('./verify-hosted-ci')");
+    expect(source).not.toContain("require('./verify-toolchain-authority')");
+    expect(source).toContain("require('./lib/hosted-evidence-binding')");
+  });
+
   test('emits only bounded runner observation and runtime claims', () => {
     const receipt = createTierBRuntimeReceipt(receiptOptions(), runtimeDependencies());
 

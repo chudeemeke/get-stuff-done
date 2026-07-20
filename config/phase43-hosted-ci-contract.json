@@ -215,12 +215,14 @@
   },
   "governedPaths": {
     "source": [
+      "scripts/emit-paired-binding-manifest.js",
       "scripts/emit-hosted-runtime-receipt.js",
       "scripts/lib/hosted-evidence-binding.js",
       "scripts/verify-hosted-ci.js",
       "scripts/verify-toolchain-authority.js",
       "tests/hosted-evidence-binding.test.js",
       "tests/hosted-runtime-receipt.test.js",
+      "tests/paired-binding-manifest.test.js",
       "tests/verify-hosted-ci.test.js",
       "tests/toolchain-authority.test.js",
       "tests/test-config-hygiene.test.js"

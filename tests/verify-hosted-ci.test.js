@@ -269,7 +269,14 @@ function makeSubjectCompliantWorkflow(workflowPath, contract) {
       ...originalSteps.filter(
         step =>
           !step.uses?.startsWith('actions/checkout@') &&
-          !step.uses?.startsWith(`${policy.securityPrelude.action}@`)
+          !step.uses?.startsWith(`${policy.securityPrelude.action}@`) &&
+          step.name !== policy.checkoutStep &&
+          step.name !== policy.verificationStep &&
+          !policy.performanceProfile.checkouts.some(
+            definition =>
+              step.name === definition.checkoutStep ||
+              step.name === definition.verificationStep
+          )
       ),
     ];
   }

@@ -46,7 +46,9 @@ OPTIONS
   -h, --help                  Show this help.
 
 EXAMPLES
-  node scripts/bench.js --paired --reference-worktree ../base --candidate-worktree . --runner-image windows-2025 --out perf-comparison.json
+  Derive the runner fingerprint:
+    node -e "const os=require('os');const p={win32:'windows',darwin:'macos'}[os.platform()]||os.platform();console.log([p,os.release(),os.version()].join(':'))"
+  node scripts/bench.js --paired --reference-worktree ../base --candidate-worktree . --runner-image "<fingerprint from command above>" --out perf-comparison.json
   node scripts/bench.js --platform linux --out perf-linux.json
   node scripts/bench.js --merge artifacts --require-platforms linux,macos,windows --out perf-baseline.json
 `);
@@ -790,6 +792,7 @@ module.exports = {
   normalizeHyperfineResults,
   parseHyperfineSample,
   parseArgs,
+  printHelp,
   quoteShellArg,
   resolveInputFiles,
 };

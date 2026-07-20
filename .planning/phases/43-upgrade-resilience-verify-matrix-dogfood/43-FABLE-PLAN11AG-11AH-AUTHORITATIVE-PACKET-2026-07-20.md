@@ -271,6 +271,15 @@ Plan 11AJ:
     the minimum additional trusted-workflow/ruleset control and owning phase.
 11. Should `perf-baseline.yml` remain declared historical and outside the 39-job
     authority topology while still receiving immutable pins?
+12. During paired capture, the trusted harness executes candidate-controlled
+    `bun run compose` under the same runner identity as the trusted bootstrap,
+    harness, sibling checkouts, and output paths. Read-only GitHub permissions,
+    absent secrets, and unpersisted credentials constrain external mutation but
+    do not create a filesystem boundary against a malicious fork candidate.
+    Does authoritative fork-PR performance evidence therefore require stronger
+    process/filesystem isolation, or should blocking paired authority be limited
+    to a narrower trusted-contributor event? Name the minimum defensible control
+    and whether 11AH or a later owner-gated phase must own it.
 
 ## Real Local Hyperfine Decision
 

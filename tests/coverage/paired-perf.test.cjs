@@ -145,6 +145,13 @@ test('rejects all semantic provenance, schedule, and derivative tampering', () =
       const { sha256: ignored, ...identity } = comparison.executionIdentity;
       void ignored;
       comparison.executionIdentity.sha256 = canonicalSha256(identity);
+      for (const metric of Object.values(comparison.metrics)) {
+        for (const run of [...metric.warmups, ...metric.pairs]) {
+          for (const sample of run.samples) {
+            sample.executionIdentitySha256 = comparison.executionIdentity.sha256;
+          }
+        }
+      }
     }, /observed runner image/],
     [comparison => { comparison.subjects.reference.lockSha256 = 'f'.repeat(64); }, /reference subject digest/],
     [comparison => { comparison.subjects.candidate.lockSha256 = 'f'.repeat(64); }, /candidate subject digest/],

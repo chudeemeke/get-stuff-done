@@ -140,6 +140,12 @@ test('aborts capture on every invalid sample receipt class', () => {
 test('rejects all semantic provenance, schedule, and derivative tampering', () => {
   const cases = [
     [comparison => { comparison.executionIdentity.cpu = 'changed'; }, /execution identity digest/],
+    [comparison => {
+      comparison.executionIdentity.runnerImageExpected = 'different-image';
+      const { sha256: ignored, ...identity } = comparison.executionIdentity;
+      void ignored;
+      comparison.executionIdentity.sha256 = canonicalSha256(identity);
+    }, /observed runner image/],
     [comparison => { comparison.subjects.reference.lockSha256 = 'f'.repeat(64); }, /reference subject digest/],
     [comparison => { comparison.subjects.candidate.lockSha256 = 'f'.repeat(64); }, /candidate subject digest/],
     [comparison => {

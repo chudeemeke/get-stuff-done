@@ -107,6 +107,16 @@ test('captures complete evidence and rejects invalid capture inputs', () => {
   expectError(() => capturePairedComparison(pairedSpec({ measuredPairs: 10.5 }), () => {}), /at least 10/);
   expectError(() => capturePairedComparison(pairedSpec({ warmupRuns: 0 }), () => {}), /at least 1/);
   expectError(() => capturePairedComparison(pairedSpec({ warmupRuns: 1.5 }), () => {}), /at least 1/);
+
+  for (const runnerImage of [null, '', ' fixture-image ', 'UNKNOWN']) {
+    const invalidIdentity = pairedSpec();
+    invalidIdentity.executionIdentity.runnerImage = runnerImage;
+    invalidIdentity.executionIdentity.runnerImageExpected = runnerImage;
+    expectError(
+      () => capturePairedComparison(invalidIdentity, request => receiptFor(request)),
+      /normalized non-placeholder/
+    );
+  }
 });
 
 test('aborts capture on every invalid sample receipt class', () => {

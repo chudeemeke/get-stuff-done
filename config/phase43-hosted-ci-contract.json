@@ -188,11 +188,38 @@
       "containers"
     ]
   },
+  "evidenceBinding": {
+    "schemaVersion": 1,
+    "authorityEvent": "pull_request",
+    "requiredAttempt": 1,
+    "standaloneArtifactNameTemplate": "runtime-receipt-{}",
+    "pairedArtifactNameTemplate": "paired-performance-{}",
+    "pairedWorkflow": ".github/workflows/ci.yml",
+    "pairedJob": "perf-budget",
+    "pairedManifest": {
+      "schemaVersion": 1,
+      "fields": [
+        "schemaVersion",
+        "bootstrap",
+        "harness",
+        "reference",
+        "candidate",
+        "tierBReceiptSha256",
+        "comparisonSha256"
+      ],
+      "subjectFields": [
+        "repository",
+        "sha"
+      ]
+    }
+  },
   "governedPaths": {
     "source": [
       "scripts/emit-hosted-runtime-receipt.js",
+      "scripts/lib/hosted-evidence-binding.js",
       "scripts/verify-hosted-ci.js",
       "scripts/verify-toolchain-authority.js",
+      "tests/hosted-evidence-binding.test.js",
       "tests/hosted-runtime-receipt.test.js",
       "tests/verify-hosted-ci.test.js",
       "tests/toolchain-authority.test.js",

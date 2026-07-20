@@ -69,7 +69,14 @@ const HYPERFINE_ASSETS = Object.freeze({
   'linux-x64': ['tar.gz', 'hyperfine', 'hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz'],
   'win32-x64': ['zip', 'hyperfine.exe', 'hyperfine-v1.20.0-x86_64-pc-windows-msvc.zip'],
 });
-const RUNTIME_SUBJECT_KEYS = new Set(['workflow', 'job', 'matrix', 'nodeMajor', 'requiredTools']);
+const RUNTIME_SUBJECT_KEYS = new Set([
+  'workflow',
+  'job',
+  'jobName',
+  'matrix',
+  'nodeMajor',
+  'requiredTools',
+]);
 const RUNTIME_REQUIREMENT_VALUES = new Set(['bun', 'node', 'both']);
 const RUNTIME_EVIDENCE_KEYS = new Set(['subject', 'bunVersion', 'nodeVersion', 'tools']);
 const EXECUTION_SUBJECT_KEYS = new Set([
@@ -320,6 +327,15 @@ function isBoundedToken(value, maximumLength = 100) {
   return true;
 }
 
+function isBoundedPrintable(value, maximumLength = 200) {
+  return (
+    typeof value === 'string' &&
+    value.length > 0 &&
+    value.length <= maximumLength &&
+    !/[\u0000-\u001f\u007f]/.test(value)
+  );
+}
+
 function isBoundedMatrixValue(value) {
   return (
     (typeof value === 'string' && value.length <= 100) ||
@@ -501,8 +517,8 @@ function validateToolchainAuthorityManifest(manifest) {
   if (!hasExactKeys(manifest, MANIFEST_KEYS)) {
     throw new Error('Toolchain authority manifest contains an unknown field or missing field.');
   }
-  if (manifest.schemaVersion !== 4) {
-    throw new Error('Toolchain authority manifest schema version must be 4.');
+  if (manifest.schemaVersion !== 5) {
+    throw new Error('Toolchain authority manifest schema version must be 5.');
   }
   if (
     !hasExactKeys(manifest.bun, BUN_KEYS) ||
@@ -609,6 +625,7 @@ function validateToolchainAuthorityManifest(manifest) {
         !hasExactKeys(authority, RUNTIME_SUBJECT_KEYS) ||
         !manifest.governedWorkflows.includes(authority.workflow) ||
         !isBoundedToken(authority.job) ||
+        !isBoundedPrintable(authority.jobName) ||
         !isBoundedMatrix(authority.matrix) ||
         !runtimeJobIdentitySet.has(`${authority.workflow}\0${authority.job}`) ||
         !manifest.node.declaredMajors.includes(authority.nodeMajor) ||

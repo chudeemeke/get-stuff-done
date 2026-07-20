@@ -11,6 +11,7 @@ const {
   parseToolchainAuthorityManifest,
   validateExecutionSubjectPolicy,
 } = require('./verify-toolchain-authority');
+const { validateEvidenceBindingPolicy } = require('./lib/hosted-evidence-binding');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const CONTRACT_PATH = 'config/phase43-hosted-ci-contract.json';
@@ -51,6 +52,7 @@ const CONTRACT_KEYS = new Set([
   'allowUnexpectedWorkflows',
   'allowUnexpectedJobs',
   'executionSubject',
+  'evidenceBinding',
   'runtimeReceipts',
   'governedPaths',
   'workflows',
@@ -344,6 +346,11 @@ function validateHostedContract(contract) {
     validateExecutionSubjectPolicy(contract.executionSubject);
   } catch {
     throw new Error('Hosted CI contract execution-subject authority is invalid.');
+  }
+  try {
+    validateEvidenceBindingPolicy(contract.evidenceBinding);
+  } catch {
+    throw new Error('Hosted CI contract evidence-binding authority is invalid.');
   }
   if (
     !hasClosedKeys(

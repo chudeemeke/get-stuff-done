@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "bun": {
     "semantics": "exact",
     "version": "1.3.5",
@@ -158,6 +158,7 @@
     "cousin-ubuntu-latest-node-20-npm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 20, npm)",
       "matrix": { "os": "ubuntu-latest", "node-version": 20, "package-manager": "npm" },
       "nodeMajor": 20,
       "requiredTools": []
@@ -165,6 +166,7 @@
     "cousin-ubuntu-latest-node-20-pnpm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 20, pnpm)",
       "matrix": { "os": "ubuntu-latest", "node-version": 20, "package-manager": "pnpm" },
       "nodeMajor": 20,
       "requiredTools": []
@@ -172,6 +174,7 @@
     "cousin-ubuntu-latest-node-20-bun": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 20, bun)",
       "matrix": { "os": "ubuntu-latest", "node-version": 20, "package-manager": "bun" },
       "nodeMajor": 20,
       "requiredTools": []
@@ -179,6 +182,7 @@
     "cousin-ubuntu-latest-node-22-npm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 22, npm)",
       "matrix": { "os": "ubuntu-latest", "node-version": 22, "package-manager": "npm" },
       "nodeMajor": 22,
       "requiredTools": []
@@ -186,6 +190,7 @@
     "cousin-ubuntu-latest-node-22-pnpm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 22, pnpm)",
       "matrix": { "os": "ubuntu-latest", "node-version": 22, "package-manager": "pnpm" },
       "nodeMajor": 22,
       "requiredTools": []
@@ -193,6 +198,7 @@
     "cousin-ubuntu-latest-node-22-bun": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 22, bun)",
       "matrix": { "os": "ubuntu-latest", "node-version": 22, "package-manager": "bun" },
       "nodeMajor": 22,
       "requiredTools": []
@@ -200,6 +206,7 @@
     "cousin-macos-15-node-20-npm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 20, npm)",
       "matrix": { "os": "macos-15", "node-version": 20, "package-manager": "npm" },
       "nodeMajor": 20,
       "requiredTools": []
@@ -207,6 +214,7 @@
     "cousin-macos-15-node-20-pnpm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 20, pnpm)",
       "matrix": { "os": "macos-15", "node-version": 20, "package-manager": "pnpm" },
       "nodeMajor": 20,
       "requiredTools": []
@@ -214,6 +222,7 @@
     "cousin-macos-15-node-20-bun": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 20, bun)",
       "matrix": { "os": "macos-15", "node-version": 20, "package-manager": "bun" },
       "nodeMajor": 20,
       "requiredTools": []
@@ -221,6 +230,7 @@
     "cousin-macos-15-node-22-npm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 22, npm)",
       "matrix": { "os": "macos-15", "node-version": 22, "package-manager": "npm" },
       "nodeMajor": 22,
       "requiredTools": []
@@ -228,6 +238,7 @@
     "cousin-macos-15-node-22-pnpm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 22, pnpm)",
       "matrix": { "os": "macos-15", "node-version": 22, "package-manager": "pnpm" },
       "nodeMajor": 22,
       "requiredTools": []
@@ -235,6 +246,7 @@
     "cousin-macos-15-node-22-bun": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 22, bun)",
       "matrix": { "os": "macos-15", "node-version": 22, "package-manager": "bun" },
       "nodeMajor": 22,
       "requiredTools": []
@@ -242,6 +254,7 @@
     "cousin-windows-latest-node-20-npm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 20, npm)",
       "matrix": { "os": "windows-latest", "node-version": 20, "package-manager": "npm" },
       "nodeMajor": 20,
       "requiredTools": []
@@ -249,6 +262,7 @@
     "cousin-windows-latest-node-20-pnpm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 20, pnpm)",
       "matrix": { "os": "windows-latest", "node-version": 20, "package-manager": "pnpm" },
       "nodeMajor": 20,
       "requiredTools": []
@@ -256,6 +270,7 @@
     "cousin-windows-latest-node-20-bun": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 20, bun)",
       "matrix": { "os": "windows-latest", "node-version": 20, "package-manager": "bun" },
       "nodeMajor": 20,
       "requiredTools": []
@@ -263,6 +278,7 @@
     "cousin-windows-latest-node-22-npm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 22, npm)",
       "matrix": { "os": "windows-latest", "node-version": 22, "package-manager": "npm" },
       "nodeMajor": 22,
       "requiredTools": []
@@ -270,6 +286,7 @@
     "cousin-windows-latest-node-22-pnpm": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 22, pnpm)",
       "matrix": { "os": "windows-latest", "node-version": 22, "package-manager": "pnpm" },
       "nodeMajor": 22,
       "requiredTools": []
@@ -277,6 +294,7 @@
     "cousin-windows-latest-node-22-bun": {
       "workflow": ".github/workflows/cousin-install.yml",
       "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 22, bun)",
       "matrix": { "os": "windows-latest", "node-version": 22, "package-manager": "bun" },
       "nodeMajor": 22,
       "requiredTools": []
@@ -284,6 +302,7 @@
     "ci-perf-linux": {
       "workflow": ".github/workflows/ci.yml",
       "job": "perf-budget",
+      "jobName": "Perf Budget (linux)",
       "matrix": { "os": "ubuntu-latest", "platform": "linux" },
       "nodeMajor": 22,
       "requiredTools": ["hyperfine"]
@@ -291,6 +310,7 @@
     "ci-perf-macos": {
       "workflow": ".github/workflows/ci.yml",
       "job": "perf-budget",
+      "jobName": "Perf Budget (macos)",
       "matrix": { "os": "macos-15", "platform": "macos" },
       "nodeMajor": 22,
       "requiredTools": ["hyperfine"]
@@ -298,6 +318,7 @@
     "ci-perf-windows": {
       "workflow": ".github/workflows/ci.yml",
       "job": "perf-budget",
+      "jobName": "Perf Budget (windows)",
       "matrix": { "os": "windows-latest", "platform": "windows" },
       "nodeMajor": 22,
       "requiredTools": ["hyperfine"]

@@ -44,7 +44,7 @@ function makeHyperfineAuthority() {
 
 function makeManifest() {
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
     bun: {
       semantics: 'exact',
       version: '1.3.5',
@@ -99,6 +99,7 @@ function makeManifest() {
       'node-20': {
         workflow: '.github/workflows/ci.yml',
         job: 'test-node-20',
+        jobName: 'Test Node 20',
         matrix: {},
         nodeMajor: 20,
         requiredTools: [],
@@ -106,6 +107,7 @@ function makeManifest() {
       'perf-linux': {
         workflow: '.github/workflows/ci.yml',
         job: 'perf-budget',
+        jobName: 'Perf Budget (linux)',
         matrix: {},
         nodeMajor: 22,
         requiredTools: ['hyperfine'],
@@ -214,7 +216,7 @@ describe('toolchain authority', () => {
       'step-security/harden-runner',
     ]);
     expect(manifest.governedWorkflows).toHaveLength(5);
-    expect(manifest.schemaVersion).toBe(4);
+    expect(manifest.schemaVersion).toBe(5);
     expect(manifest.runtimeTools.hyperfine).toEqual(makeHyperfineAuthority());
   });
 
@@ -229,7 +231,9 @@ describe('toolchain authority', () => {
 
     expect(governed).toContain('.bun-version');
     expect(governed).toContain('config/phase43-toolchain-authority.json');
+    expect(governed).toContain('scripts/lib/hosted-evidence-binding.js');
     expect(governed).toContain('scripts/verify-toolchain-authority.js');
+    expect(governed).toContain('tests/hosted-evidence-binding.test.js');
     expect(governed).toContain('tests/toolchain-authority.test.js');
   });
 
@@ -654,6 +658,14 @@ describe('toolchain authority', () => {
       ],
       [manifest => (manifest.runtimeSubjects = {}), 'runtime subject authority'],
       [manifest => (manifest.runtimeSubjects = null), 'runtime subject authority'],
+      [
+        manifest => delete manifest.runtimeSubjects['node-20'].jobName,
+        'runtime subject authority',
+      ],
+      [
+        manifest => (manifest.runtimeSubjects['node-20'].jobName = 'Unsafe\nName'),
+        'runtime subject authority',
+      ],
       [manifest => (manifest.runtimeRequirements = null), 'runtime requirement authority'],
       [
         manifest =>
@@ -1095,6 +1107,7 @@ describe('toolchain authority', () => {
       'matrix-node-20': {
         workflow: '.github/workflows/ci.yml',
         job: 'matrix',
+        jobName: 'Matrix (ubuntu-latest, Node 20)',
         matrix: { os: 'ubuntu-latest', node: 20 },
         nodeMajor: 20,
         requiredTools: [],
@@ -1102,6 +1115,7 @@ describe('toolchain authority', () => {
       'matrix-node-22': {
         workflow: '.github/workflows/ci.yml',
         job: 'matrix',
+        jobName: 'Matrix (ubuntu-latest, Node 22)',
         matrix: { os: 'ubuntu-latest', node: 22 },
         nodeMajor: 22,
         requiredTools: ['hyperfine'],
@@ -1166,6 +1180,7 @@ describe('toolchain authority', () => {
       bounded: {
         workflow: '.github/workflows/ci.yml',
         job: 'matrix',
+        jobName: 'Matrix (0)',
         matrix: { row: 0 },
         nodeMajor: 22,
         requiredTools: ['hyperfine'],
@@ -1214,6 +1229,7 @@ describe('toolchain authority', () => {
       duplicate: {
         workflow: '.github/workflows/ci.yml',
         job: 'matrix',
+        jobName: 'Matrix (Node 20)',
         matrix: { node: 20 },
         nodeMajor: 20,
         requiredTools: ['hyperfine'],

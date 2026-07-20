@@ -12,6 +12,7 @@ files_modified:
   - .github/workflows/ci.yml
   - .github/workflows/compat-matrix.yml
   - .github/workflows/cousin-install.yml
+  - .github/workflows/docs-link-availability.yml
   - .github/workflows/oversight-probes.yml
   - .github/workflows/upgrade-verifier.yml
   - .github/workflows/perf-baseline.yml
@@ -20,7 +21,9 @@ files_modified:
   - config/phase43-hosted-ci-contract.json
   - config/phase43-toolchain-authority.json
   - lychee.toml
+  - package.json
   - scripts/emit-hosted-runtime-receipt.js
+  - scripts/emit-paired-binding-manifest.js
   - scripts/install-hyperfine.js
   - scripts/lib/hosted-evidence-binding.js
   - scripts/lib/paired-perf.js
@@ -32,6 +35,8 @@ files_modified:
   - tests/hosted-evidence-binding.test.js
   - tests/hosted-runtime-receipt.test.js
   - tests/install-hyperfine.test.js
+  - tests/paired-binding-manifest.test.js
+  - tests/test-config-hygiene.test.js
   - tests/coverage/paired-perf.test.cjs
   - tests/toolchain-authority.test.js
   - tests/verify-hosted-ci.test.js

@@ -339,6 +339,7 @@ describe('paired benchmark scheduling', () => {
         platform: () => 'win32',
         architecture: () => 'x64',
         cpu: () => 'fixture-cpu',
+        runnerImage: () => 'windows-2025',
         now: () => '2026-07-20T00:00:00.000Z',
         createSandbox: () => ({ root: 'fixture-root', workspace: 'fixture-workspace' }),
         prepare: () => 0,

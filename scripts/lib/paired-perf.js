@@ -8,6 +8,17 @@ const WARNING_FRACTION = { numerator: 11n, denominator: 10n };
 const FAILURE_FRACTION = { numerator: 5n, denominator: 4n };
 const SCHEDULER = 'alternating-ab-ba-v1';
 const METRICS = ['install', 'compose'];
+const EXECUTION_IDENTITY_FIELDS = [
+  'platform',
+  'architecture',
+  'cpu',
+  'runnerImage',
+  'runnerImageExpected',
+  'nodeVersion',
+  'bunVersion',
+  'hyperfineVersion',
+];
+const PLACEHOLDER_IDENTITIES = new Set(['unknown', 'unavailable', 'n/a']);
 const SAMPLE_FIELDS = [
   'benchmarkExitCode',
   'controlsAfterSha256',
@@ -42,6 +53,19 @@ function sameValue(left, right) {
 
 function bindDigest(value) {
   return { ...value, sha256: canonicalSha256(value) };
+}
+
+function assertExecutionIdentity(identity) {
+  for (const field of EXECUTION_IDENTITY_FIELDS) {
+    const value = identity[field];
+    if (typeof value !== 'string' || value !== value.trim() ||
+        !value || PLACEHOLDER_IDENTITIES.has(value.toLowerCase())) {
+      throw new Error(`execution identity ${field} must be a normalized non-placeholder value`);
+    }
+  }
+  if (identity.runnerImage !== identity.runnerImageExpected) {
+    throw new Error('observed runner image does not match expected runner image');
+  }
 }
 
 function buildSchedule(seed, pairCount) {
@@ -140,6 +164,7 @@ function summarizeMetric(pairs) {
 
 function assertCaptureSpec(spec, execute) {
   if (typeof execute !== 'function') throw new Error('benchmark executor must be a function');
+  assertExecutionIdentity(spec.executionIdentity);
   if (spec.subjects.reference.commit === spec.subjects.candidate.commit) {
     throw new Error('reference and candidate must resolve to distinct commits');
   }
@@ -336,7 +361,8 @@ function validateMetricSemantics(metric, evidence, context) {
 }
 
 function validateComparisonSemantics(comparison) {
-  assertDigest('execution identity', comparison.executionIdentity);
+  const executionIdentity = assertDigest('execution identity', comparison.executionIdentity);
+  assertExecutionIdentity(executionIdentity);
   const reference = assertDigest('reference subject', comparison.subjects.reference);
   const candidate = assertDigest('candidate subject', comparison.subjects.candidate);
   if (reference.commit === candidate.commit) {

@@ -35,7 +35,7 @@ OPTIONS
   --paired                    Capture blocking same-run paired evidence.
   --reference-worktree <dir> Reference Git worktree; HEAD is resolved at execution.
   --candidate-worktree <dir> Candidate Git worktree; HEAD is resolved at execution.
-  --runner-image <id>         Non-placeholder runner image identity.
+  --runner-image <id>         Expected observed runner image or OS fingerprint.
   --pairs <n>                 Measured reference/candidate pairs. Minimum: 10.
   --platform <name>           Platform name for a one-platform artifact.
   --out <file>                Output JSON file.
@@ -180,6 +180,7 @@ function createPairedRuntime(overrides = {}) {
     platform: os.platform,
     architecture: os.arch,
     cpu: () => (os.cpus().at(0) || {}).model || 'unavailable',
+    runnerImage: () => [normalizedPlatform(os.platform()), os.release(), os.version()].join(':'),
     now: () => new Date().toISOString(),
     ...overrides,
   };
@@ -239,12 +240,27 @@ function resolveSharedControls(dependencies) {
   };
 }
 
-function resolveExecutionIdentity(runnerImage, dependencies) {
+function assertIdentityValue(value, label) {
+  const placeholders = new Set(['unknown', 'unavailable', 'n/a']);
+  if (typeof value !== 'string' || value !== value.trim() ||
+      !value || placeholders.has(value.toLowerCase())) {
+    throw new Error(`${label} must be a normalized non-placeholder identity`);
+  }
+  return value;
+}
+
+function resolveExecutionIdentity(runnerImageExpected, dependencies) {
+  const runnerImage = assertIdentityValue(dependencies.runnerImage(), 'observed runner image');
+  assertIdentityValue(runnerImageExpected, '--runner-image');
+  if (runnerImage !== runnerImageExpected) {
+    throw new Error(`Observed runner image '${runnerImage}' does not match expected runner image '${runnerImageExpected}'`);
+  }
   return {
     platform: normalizedPlatform(dependencies.platform()),
     architecture: dependencies.architecture(),
     cpu: dependencies.cpu(),
     runnerImage,
+    runnerImageExpected,
     nodeVersion: process.version,
     bunVersion: exactToolVersion(dependencies.run('bun', ['--version']), 'Bun'),
     hyperfineVersion: exactToolVersion(
@@ -258,9 +274,7 @@ function buildPairedCaptureContext(options, overrides = {}) {
   assertPositiveInteger(options.pairs, '--pairs');
   if (options.pairs < 10) throw new Error('--pairs must be at least 10');
   assertPositiveInteger(options.warmup, '--warmup');
-  if (!options.runnerImage || ['unknown', 'unavailable', 'n/a'].includes(options.runnerImage)) {
-    throw new Error('--runner-image must be a non-placeholder identity');
-  }
+  assertIdentityValue(options.runnerImage, '--runner-image');
 
   const dependencies = createPairedRuntime(overrides);
   const subjects = {
@@ -362,7 +376,7 @@ function createPairedBenchmarkExecutor(context, overrides = {}) {
   const runtime = createPairedRuntime(overrides);
   const dependencies = {
     resolveExecutionIdentity: overrides.resolveExecutionIdentity || (() => (
-      resolveExecutionIdentity(context.spec.executionIdentity.runnerImage, runtime)
+      resolveExecutionIdentity(context.spec.executionIdentity.runnerImageExpected, runtime)
     )),
     resolveControls: overrides.resolveControls || (() => resolveSharedControls(runtime)),
     resolveSubject: overrides.resolveSubject || (worktree => resolveSubject(worktree, runtime)),

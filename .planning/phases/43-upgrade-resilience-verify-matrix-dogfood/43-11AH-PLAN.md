@@ -39,11 +39,11 @@ autonomous: true
 must_haves:
   truths:
     - "diagnostic pull-request workflows are read-only and cannot create or append issue comments"
-    - "every governed job checks out and verifies its exact event subject; each PR performance job separately verifies the governed harness, base reference, and head candidate"
+    - "every governed job checks out and verifies its exact event subject; each PR performance job separately verifies the immutable bootstrap authority, governed harness, base reference, and head candidate"
     - "paired capture followed by check-perf --comparison is the sole blocking PR performance path on Linux, macOS, and Windows"
-    - "fork pull requests execute without secrets, write permissions, persisted credentials, cache publication, privileged triggers, or self-hosted runners"
+    - "fork pull requests execute without repository, organization, or environment secrets; write permissions; persisted credentials; candidate-step token exposure; cache publication; privileged triggers; or self-hosted runners"
     - "governed workflows consume the exact Bun pin, reviewed action/container identities, Node 22 for performance, and checksum-verified Hyperfine 1.20.0 assets"
-    - "the current PR topology expects contract-derived authority equivalent to 39 Tier A jobs, 21 Tier B runtime subjects, and three paired bundles for one run attempt"
+    - "the current PR topology expects contract-derived authority equivalent to 39 Tier A jobs, 21 Tier B runtime subjects, 18 standalone runtime artifacts, and three paired bundles across five first-attempt workflow runs"
     - "Tier A API authority, Tier B runtime observation, paired raw evidence, and artifact metadata remain separate until Plan 11AJ performs their validated join"
     - "the active pinned compatibility row fails closed while historical vetted rows remain informational"
     - "volatile decorative third-party availability is separated from blocking project-owned documentation correctness"
@@ -56,8 +56,8 @@ must_haves:
     - "tests/hosted-evidence-binding.test.js"
     - "43-11AH-SUMMARY.md"
   key_links:
-    - "event policy -> exact single or paired checkout profile -> adjacent commit verification"
-    - "trusted harness plus base/candidate subjects -> paired raw artifact -> check-perf --comparison"
+    - "event policy -> exact single or four-checkout performance profile -> adjacent commit verification"
+    - "trusted bootstrap and harness plus base/candidate subjects -> paired raw artifact -> check-perf --comparison"
     - "Jobs API Tier A plus runner Tier B plus paired bundle plus Artifacts API metadata -> Plan 11AJ hosted envelope"
     - "PR diagnostics -> normalized proposal artifact -> explicit idempotent mutation workflow"
     - "active upstream pin -> compat report row -> blocking workflow conclusion"
@@ -77,6 +77,7 @@ compatibility from blocking product authority.
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AF-SUMMARY.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AG-SUMMARY.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-GPT-5.6-SOL-PLAN11AH-READINESS-REVIEW-2026-07-20.md
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-GPT-5.6-SOL-PLAN11AH-CORRECTION-REVIEW-2026-07-20.md
 @.github/workflows/ci.yml
 @config/phase43-hosted-ci-contract.json
 </context>
@@ -90,22 +91,36 @@ compatibility from blocking product authority.
     RED: reject an event-agnostic PR-head expression used on push, a synthetic
     merge or branch ref, an absent repository/ref/path, persisted checkout
     credentials, and a single-checkout profile applied to paired performance.
-    Reject any paired profile missing a separately governed harness, immutable
-    base reference, immutable head candidate, or adjacent verification for all
-    three checkouts. Reject Tier B data that duplicates API-owned numeric job
-    ID, runner name, group, or labels as authority. Reject missing, duplicate,
+    Reject any paired profile missing a separately governed bootstrap authority,
+    measurement harness, immutable base reference, immutable head candidate, or
+    adjacent verification for all four checkouts. Reject a bootstrap/harness pin
+    that is not canonical, 40-hex, approved, locally publishable, or remotely
+    reachable under its event policy. Reject Tier B data that duplicates
+    API-owned numeric job ID, runner name, group, or labels as authority. Reject missing, duplicate,
     extraneous, cross-attempt, or mismatched Tier A, Tier B, paired-bundle, and
     artifact identities. Prove the current PR topology derives exactly 39 Tier
-    A jobs, 21 unique Tier B subjects, and three paired bundles without treating
-    those numbers as timeless constants.
+    A jobs, 21 unique Tier B subjects, 18 standalone runtime artifacts, and
+    three paired bundles without treating those numbers as timeless constants.
+    Model the hosted cycle as five exact-head workflow runs, each with its own
+    run ID and first attempt; reject independent latest-attempt selection.
 
     GREEN: version the hosted contract for explicit event and per-job checkout
     profiles. Single-subject PR jobs use head repository plus head SHA; push,
     schedule, and dispatch jobs use their exact governed event SHA. Each PR
-    performance subject uses three shallow, side-by-side checkouts: a canonical
-    repository at the immutable Fable-accepted 11AG harness commit, the PR base
-    repository at base SHA, and the PR head repository at head SHA. Require
+    performance subject uses four shallow, side-by-side checkouts: a canonical
+    repository at an immutable Plan 11AH bootstrap commit containing the
+    reviewed installer/toolchain authority, a canonical repository at the
+    immutable Fable-accepted 11AG measurement-harness commit, the PR base
+    repository at base SHA, and the PR head repository at head SHA. Create and
+    commit the bootstrap implementation before recording its 40-hex pin in a
+    later contract commit; do not attempt a self-referential commit pin. Require
     `persist-credentials: false`, explicit paths, and immediate HEAD checks.
+    For the current same-repository corrective branch, pre-public authority must
+    prove both trusted pins are ancestors that the exact authorized push will
+    publish. For later fork PRs, both pins must already resolve from the
+    canonical repository before execution. The bootstrap pin becomes authority
+    only after Fable accepts the final 11AH implementation and disposition; no
+    workflow executes during this plan.
     Performance has no blocking authority outside `pull_request`; non-PR skips
     are explicit contract outcomes rather than green performance claims.
 
@@ -135,9 +150,12 @@ compatibility from blocking product authority.
   <files>.github/dependabot.yml; .github/workflows/ci.yml; .github/workflows/compat-matrix.yml; .github/workflows/cousin-install.yml; .github/workflows/oversight-probes.yml; .github/workflows/upgrade-verifier.yml; .github/workflows/perf-baseline.yml; config/phase43-hosted-ci-contract.json; config/phase43-toolchain-authority.json; scripts/emit-hosted-runtime-receipt.js; scripts/install-hyperfine.js; scripts/verify-hosted-ci.js; scripts/verify-toolchain-authority.js; tests/ci-workflow.test.js; tests/hosted-runtime-receipt.test.js; tests/install-hyperfine.test.js; tests/toolchain-authority.test.js; tests/verify-hosted-ci.test.js</files>
   <action>
     RED: add structural workflow tests that reject default synthetic-merge
-    checkout, absent or late subject verification, candidate-owned benchmark
-    harness code, `pull_request_target`, self-hosted runners, secrets or write
-    permissions, persisted credentials, performance cache publication, Bun
+    checkout, absent or late subject verification, candidate-owned installer or
+    benchmark-harness code, a missing harness dependency bootstrap, installer
+    or harness execution from the wrong working directory, an unresolved trusted
+    pin, `pull_request_target`, self-hosted runners, repository/organization/
+    environment secrets, candidate-step token exposure, write permissions,
+    persisted credentials, performance cache publication, Bun
     `latest`, movable action tags, mutable Verdaccio, floating package-manager
     Hyperfine installation, missing checksum or resolved version, and a
     performance job without Node 22 plus exact Bun. Reject legacy
@@ -157,22 +175,41 @@ compatibility from blocking product authority.
     tag comments and Verdaccio by digest. Add GitHub Actions update automation
     that proposes pin changes rather than silently floating them.
 
-    For each PR performance subject, install Hyperfine 1.20.0 from the exact
-    OS/architecture release asset recorded with its reviewed SHA-256 in the
-    authority manifest; verify bytes before extraction and verify the resolved
-    executable version. Set up Node 22 and exact Bun. Execute `bench.js --paired`
-    from the governed harness against the verified base and head checkouts with
-    at least ten measured pairs, then execute `check-perf.js --comparison` as the
-    sole blocking performance step. Upload exactly one immutable, uniquely named
-    paired bundle containing the comparison, Tier B receipt, and closed binding
-    manifest. No non-PR event may claim a blocking performance verdict.
+    Permit the read-only automatic GitHub token only through a closed per-action
+    allowlist for reviewed pinned actions that require it, including checkout
+    and Secret Scan. Never expose it to candidate-controlled run steps and never
+    persist checkout credentials.
+
+    For each PR performance subject, execute the Hyperfine installer only from
+    the verified bootstrap checkout. Install Hyperfine 1.20.0 from the exact
+    OS/architecture release asset recorded there with its reviewed SHA-256;
+    verify bytes before extraction and verify the resolved executable version.
+    Bootstrap only the harness checkout with
+    `bun install --frozen-lockfile --ignore-scripts`; never install into or
+    mutate the clean base/candidate subjects. Set up Node 22 and exact Bun.
+    Execute `bench.js --paired` from the governed harness against the verified
+    base and head checkouts with at least ten measured pairs, then execute
+    `check-perf.js --comparison` from the harness as the sole blocking
+    performance step. Upload exactly one immutable, uniquely named paired bundle
+    containing the comparison, Tier B receipt, and closed binding manifest. No
+    non-PR event may claim a blocking performance verdict.
+
+    Retain `perf-baseline.yml` only as explicitly named manual historical-trend
+    capture. It is not a required check, does not feed `check-perf --comparison`,
+    and cannot publish or update repository authority. Even as a diagnostic
+    workflow, it must use the same reviewed immutable action and toolchain pins,
+    including a newly recorded exact `actions/download-artifact` identity; it
+    must not remain a movable-code or floating-Hyperfine exception.
 
     Emit one sanitized Tier B receipt for each of the 18 Cousin matrix subjects
-    and three performance subjects. Other jobs remain closed Tier A-only
-    exemptions. Publish bundles create-only and bind names and contents to run
-    ID, attempt, and logical subject. Co-update workflow topology, receipt and
-    paired cardinality, governed paths, toolchain authority, and verifier tests
-    in the same task. A workflow digest without matching step authority fails.
+    and three performance subjects. Upload the Cousin receipts as 18 standalone
+    immutable artifacts and carry each performance receipt inside its paired
+    bundle, yielding 21 runtime-bearing artifacts. Other jobs remain closed Tier
+    A-only exemptions. Publish artifacts create-only and bind names and contents
+    to their parent workflow run ID, first attempt, and logical subject.
+    Co-update workflow topology, receipt/artifact/paired cardinality, governed
+    paths, toolchain authority, and verifier tests in the same task. A workflow
+    digest without matching step authority fails.
   </action>
   <verify>
     <automated>bun run test -- tests/ci-workflow.test.js tests/hosted-runtime-receipt.test.js tests/install-hyperfine.test.js tests/toolchain-authority.test.js tests/verify-hosted-ci.test.js</automated>
@@ -254,7 +291,8 @@ expensive hosted cycle from repeating those governance failures.
   workflow bytes; no hosted workflow execution
 - focused four-metric coverage at or above 95% for every changed executable
   script
-- local fixture proof of current PR cardinality: 39 Tier A, 21 Tier B, and
-  three paired bundles, derived from the contract
+- local fixture proof of current PR cardinality: 39 Tier A, 21 Tier B, 18
+  standalone runtime artifacts, and three paired bundles across five distinct
+  first-attempt runs, derived from the contract
 - `git diff --check`
 </verification>

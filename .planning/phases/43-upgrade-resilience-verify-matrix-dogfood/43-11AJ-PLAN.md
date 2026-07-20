@@ -23,7 +23,7 @@ must_haves:
   truths:
     - "no external cycle starts without explicit user authorization against the exact corrective head"
     - "every governed job proves exact event-subject execution and all five workflows pass"
-    - "the current PR topology supplies contract-derived authority equivalent to 39 Jobs API Tier A records, 21 runner-emitted Tier B receipts, and three paired bundles for one run attempt"
+    - "the current PR topology supplies contract-derived authority equivalent to 39 Jobs API Tier A records, 21 runner-emitted Tier B receipts, 18 standalone runtime artifacts, and three paired bundles across five exact-head first-attempt workflow runs"
     - "each paired bundle is semantically revalidated and joined to its Tier A job, Tier B runtime, artifact API identity, governed harness, base reference, and head candidate without silently changing the existing budget"
     - "the formal Fable checkpoint consumes a committed passed envelope through Plan 11P authority"
     - "Plan 11R is summarized only after its inherited envelope and Fable obligations are actually fulfilled"
@@ -66,8 +66,12 @@ blocked 11R branch only when its missing obligations are true.
     GREEN: update only the tracked intent to the exact current workflow context
     names; do not mutate GitHub. Rerun the complete Plan 11AI local integration
     gate against this final local head and publish a new create-only
-    `pre-public-authority.json` receipt. Preserve the earlier Plan 11AI receipt
-    as predecessor evidence rather than replacing it.
+    `pre-public-authority.json` local corrective receipt. Prove the pinned
+    bootstrap and harness commits are ancestors included by the planned exact
+    same-repository branch push; for any later fork flow, require read-only API
+    proof that both pins already resolve from the canonical repository. Preserve
+    the earlier Plan 11AI receipt as predecessor evidence rather than replacing
+    it.
   </action>
   <acceptance_criteria>
     - tracked protection intent names only emitted, reviewed required contexts.
@@ -75,7 +79,7 @@ blocked 11R branch only when its missing obligations are true.
     - the final local head has a create-only passed integration receipt.
   </acceptance_criteria>
   <verify>
-    <automated>node scripts/verify-hosted-ci.js verify-pending --pr 23 --receipt .planning/evidence/hosted/pre-public-authority.json</automated>
+    <automated>node scripts/verify-phase43-corrective-gate.js --receipt .planning/evidence/hosted/pre-public-authority.json</automated>
   </verify>
   <done>false</done>
 </task>
@@ -84,8 +88,9 @@ blocked 11R branch only when its missing obligations are true.
   <name>Authorize the corrected external window</name>
   <files>None; this checkpoint performs no tracked write.</files>
   <action>
-    Present the exact corrective commit, final local receipt digest, changed
-    workflow permissions/topology, and planned single push-triggered
+    Present the exact corrective commit, immutable bootstrap and harness pins,
+    their reachability proof, final local receipt digest, changed workflow
+    permissions/topology, and planned single push-triggered
     five-workflow cycle. Separately present and record an approve/decline choice
     for: the phase-branch push and hosted cycle; live branch-protection context
     reconciliation; pushing the governance branch as its own PR; historical
@@ -96,8 +101,10 @@ blocked 11R branch only when its missing obligations are true.
   <verify>
     Read-only checks confirm PR #23 is still draft at the presented local
     corrective head after publication planning, billing is clear, the local
-    `pre-public-authority.json` receipt verifies strictly, and PR workflow permissions contain no diagnostic
-    issue-write path. The user's explicit authorization is recorded separately
+    `pre-public-authority.json` verifies strictly as a local corrective receipt,
+    both trusted pins satisfy their event-aware reachability contract, and PR
+    workflow permissions contain no diagnostic issue-write path. The user's
+    explicit authorization is recorded separately
     from those technical checks.
   </verify>
   <resume-signal>Record separate decisions for the corrective PR-head cycle, protection contexts, governance PR, comment cleanup, and upstream proposal.</resume-signal>
@@ -114,9 +121,14 @@ blocked 11R branch only when its missing obligations are true.
     authenticated upgrade, paired performance, docs policy, and read-only PR
     permissions. Derive the expected topology from the committed contract and
     require its current equivalent of 39 unique Tier A Jobs API records, 21
-    valid Tier B receipts, and three paired bundles from one run attempt. Query
-    the Artifacts API for each bundle ID, archive digest, run, and head binding;
-    download each bounded archive; reject traversal, duplicate, unknown,
+    valid Tier B receipts, 18 standalone runtime artifacts, and three paired
+    bundles. Treat the hosted cycle as five distinct exact-head workflow runs;
+    require each run and all its child evidence to have `run_attempt === 1`.
+    Never select or combine independent latest attempts; any rerun requires a
+    new owner authorization and successor evidence cycle. Query the Artifacts
+    API for all 21 runtime-bearing artifact IDs, archive digests, parent runs,
+    and head bindings; download each bounded archive; reject traversal,
+    duplicate, unknown,
     oversized, expired, or cross-run content; recompute file digests; and invoke
     the Plan 11AH pure binding boundary plus Plan 11AG semantic recomputation.
     Require exact harness, base repository/SHA, head repository/SHA, logical
@@ -127,8 +139,9 @@ blocked 11R branch only when its missing obligations are true.
     contexts to the already committed tracked intent and record the exact API
     response without weakening strictness or required reviews.
 
-    If paired performance exceeds 1.25, any workflow fails, the PR head moves,
-    a required receipt is absent, or an unapproved public mutation occurs,
+    If paired performance exceeds 1.25, any workflow fails, any run attempt is
+    not one, the PR head moves, a required receipt/artifact is absent, or an
+    unapproved public mutation occurs,
     persist bounded failure evidence and stop. Do not
     change a budget, rerun, comment, or manufacture an envelope.
   </action>
@@ -200,7 +213,8 @@ contract preserve authority across the external boundary.
 - blocking user authorization checkpoints above
 - one push-triggered five-workflow cycle only
 - contract-derived current PR topology equivalent to 39 Tier A records, 21 Tier
-  B receipts, and three paired bundles from one run attempt
+  B receipts, 18 standalone runtime artifacts, and three paired bundles across
+  five exact-head first-attempt workflow runs
 - Artifacts API identity plus bounded archive ingestion, digest recomputation,
   and pure semantic joins for every paired bundle
 - strict exact-subject hosted receipt verification

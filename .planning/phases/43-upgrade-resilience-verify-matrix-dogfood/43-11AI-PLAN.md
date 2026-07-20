@@ -11,6 +11,7 @@ files_modified:
   - config/phase43-corrective-gate.json
   - scripts/verify-phase43-corrective-gate.js
   - tests/phase43-corrective-gate.test.js
+  - tests/verify-hosted-ci.test.js
   - .planning/evidence/hosted/pre-retry-local-authority.json
   - .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AI-SUMMARY.md
 autonomous: true
@@ -49,12 +50,15 @@ pre-retry receipt without conflating local confidence with hosted authority.
 
 <task id="11AI-01" type="auto">
   <name>Build the fail-closed corrective integration gate</name>
-  <files>config/phase43-corrective-gate.json; scripts/verify-phase43-corrective-gate.js; tests/phase43-corrective-gate.test.js</files>
+  <files>config/phase43-corrective-gate.json; scripts/verify-phase43-corrective-gate.js; tests/phase43-corrective-gate.test.js; tests/verify-hosted-ci.test.js</files>
   <action>
     RED: reject missing summaries, dirty governed paths, a changed lock after
     install, any skipped known-failure check, sub-95 metric, absent toolchain
     pin, mutable workflow dependency, missing subject step, issue-write in PR CI,
     stale absolute perf authority, anonymous registry mode, or unvalidated SBOM.
+    Add cross-type fixtures proving the local corrective verifier rejects a
+    hosted envelope and the hosted verifier rejects a local corrective receipt;
+    neither verifier may become polymorphic across those authority types.
 
     GREEN: compose existing focused commands into one injectable orchestrator
     with bounded JSON output. The contract must include frozen install, Bun/native

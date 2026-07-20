@@ -6,9 +6,14 @@ const os = require('os');
 const path = require('path');
 
 const {
+  buildPairedCaptureContext,
   buildInstallHyperfineArgs,
+  capturePairedArtifact,
+  createPairedBenchmarkExecutor,
   mergeBaselineArtifacts,
   normalizeHyperfineResults,
+  parseHyperfineSample,
+  parseArgs,
 } = require('../scripts/bench');
 const { buildSchedule, capturePairedComparison } = require('../scripts/lib/paired-perf');
 const { pairedSpec, receiptFor } = require('./helpers/paired-perf-fixture');
@@ -41,6 +46,220 @@ function partialBaseline(platform) {
 }
 
 describe('paired benchmark scheduling', () => {
+  test('parses paired worktrees without caller-declared commit provenance', () => {
+    const options = parseArgs([
+      '--paired',
+      '--reference-worktree', 'reference',
+      '--candidate-worktree', 'candidate',
+      '--runner-image', 'windows-2025',
+      '--pairs', '12',
+      '--warmup', '2',
+      '--out', 'comparison.json',
+    ]);
+
+    expect(options.paired).toBe(true);
+    expect(options.referenceWorktree).toBe(path.resolve('reference'));
+    expect(options.candidateWorktree).toBe(path.resolve('candidate'));
+    expect(options.runnerImage).toBe('windows-2025');
+    expect(options.pairs).toBe(12);
+    expect(options.warmup).toBe(2);
+    expect(options).not.toHaveProperty('referenceCommit');
+    expect(options).not.toHaveProperty('candidateCommit');
+  });
+
+  test('resolves executed commits, subject digests, and one shared runtime identity', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-paired-context-'));
+    const referenceWorktree = path.join(root, 'reference');
+    const candidateWorktree = path.join(root, 'candidate');
+    const commits = new Map([
+      [referenceWorktree, '1'.repeat(40)],
+      [candidateWorktree, '2'.repeat(40)],
+    ]);
+
+    try {
+      for (const [worktree, version] of [[referenceWorktree, '1.6.1'], [candidateWorktree, '1.7.0']]) {
+        fs.mkdirSync(path.join(worktree, '.planning'), { recursive: true });
+        fs.writeFileSync(path.join(worktree, 'package.json'), JSON.stringify({ version }));
+        fs.writeFileSync(path.join(worktree, 'bun.lock'), `lock:${version}\n`);
+        fs.writeFileSync(path.join(worktree, '.planning', 'upstream-authority.json'), JSON.stringify({ version }));
+      }
+      const fakeRun = (command, args) => {
+        if (command === 'bun') return '1.3.5';
+        if (command === 'hyperfine') return 'hyperfine 1.20.0';
+        const worktree = args[1];
+        return args[2] === 'rev-parse' ? commits.get(worktree) : '';
+      };
+
+      const context = buildPairedCaptureContext({
+        referenceWorktree,
+        candidateWorktree,
+        runnerImage: 'windows-2025',
+        pairs: 10,
+        warmup: 1,
+      }, {
+        run: fakeRun,
+        platform: () => 'win32',
+        architecture: () => 'x64',
+        cpu: () => 'fixture-cpu',
+      });
+
+      expect(context.spec.subjects.reference.commit).toBe('1'.repeat(40));
+      expect(context.spec.subjects.candidate.commit).toBe('2'.repeat(40));
+      expect(context.spec.subjects.reference.lockSha256)
+        .not.toBe(context.spec.subjects.candidate.lockSha256);
+      expect(context.spec.executionIdentity).toEqual({
+        platform: 'windows',
+        architecture: 'x64',
+        cpu: 'fixture-cpu',
+        runnerImage: 'windows-2025',
+        nodeVersion: process.version,
+        bunVersion: '1.3.5',
+        hyperfineVersion: '1.20.0',
+      });
+      expect(context.spec.controls.harnessSha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(context.worktrees).toEqual({ reference: referenceWorktree, candidate: candidateWorktree });
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test('inspects, isolates, measures, and cleans every scheduled sample', () => {
+    const spec = pairedSpec();
+    const context = {
+      spec,
+      worktrees: { reference: 'reference-worktree', candidate: 'candidate-worktree' },
+    };
+    const events = [];
+    const subjectFor = worktree => (
+      worktree === context.worktrees.reference ? spec.subjects.reference : spec.subjects.candidate
+    );
+    const executor = createPairedBenchmarkExecutor(context, {
+      resolveExecutionIdentity: () => spec.executionIdentity,
+      resolveControls: () => spec.controls,
+      resolveSubject: worktree => subjectFor(worktree),
+      createSandbox: (worktree, request) => {
+        events.push(`create:${request.metric}:${request.phase}:${request.index}:${worktree}`);
+        return { root: `root-${events.length}`, workspace: `workspace-${events.length}` };
+      },
+      prepare: (metric, sandbox) => {
+        events.push(`prepare:${metric}:${sandbox.workspace}`);
+        return 0;
+      },
+      measure: (metric, sandbox, request) => {
+        events.push(`measure:${metric}:${sandbox.workspace}`);
+        return {
+          benchmarkExitCode: 0,
+          durationNs: request.subject === 'reference' ? 100_000_000 : 105_000_000,
+        };
+      },
+      cleanup: sandbox => events.push(`cleanup:${sandbox.root}`),
+    });
+
+    const comparison = capturePairedComparison(spec, executor);
+
+    expect(comparison.verdict).toBe('pass');
+    expect(events.filter(event => event.startsWith('create:'))).toHaveLength(44);
+    expect(events.filter(event => event.startsWith('prepare:'))).toHaveLength(44);
+    expect(events.filter(event => event.startsWith('measure:'))).toHaveLength(44);
+    expect(events.filter(event => event.startsWith('cleanup:'))).toHaveLength(44);
+  });
+
+  test('accepts exactly one successful raw Hyperfine sample in integer nanoseconds', () => {
+    expect(parseHyperfineSample({
+      results: [{ times: [0.125], exit_codes: [0] }],
+    })).toEqual({ benchmarkExitCode: 0, durationNs: 125_000_000 });
+
+    expect(() => parseHyperfineSample({
+      results: [{ times: [0.125, 0.126], exit_codes: [0, 0] }],
+    })).toThrow(/exactly one raw sample/);
+    expect(() => parseHyperfineSample({
+      results: [{ times: [0.125], exit_codes: [1] }],
+    })).toThrow(/benchmark exit code/);
+  });
+
+  test('writes schema-valid paired evidence only after the complete capture succeeds', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-paired-artifact-'));
+    const referenceWorktree = path.join(root, 'reference');
+    const candidateWorktree = path.join(root, 'candidate');
+    const out = path.join(root, 'comparison.json');
+    const commits = new Map([
+      [referenceWorktree, '1'.repeat(40)],
+      [candidateWorktree, '2'.repeat(40)],
+    ]);
+
+    try {
+      for (const [worktree, version] of [[referenceWorktree, '1.6.1'], [candidateWorktree, '1.7.0']]) {
+        fs.mkdirSync(path.join(worktree, '.planning'), { recursive: true });
+        fs.writeFileSync(path.join(worktree, 'package.json'), JSON.stringify({ version }));
+        fs.writeFileSync(path.join(worktree, 'bun.lock'), `lock:${version}\n`);
+        fs.writeFileSync(path.join(worktree, '.planning', 'upstream-authority.json'), JSON.stringify({ version }));
+      }
+      const fakeRun = (command, args) => {
+        if (command === 'bun') return '1.3.5';
+        if (command === 'hyperfine') return 'hyperfine 1.20.0';
+        const worktree = args[1];
+        return args[2] === 'rev-parse' ? commits.get(worktree) : '';
+      };
+      let samples = 0;
+      const comparison = capturePairedArtifact({
+        paired: true,
+        referenceWorktree,
+        candidateWorktree,
+        runnerImage: 'windows-2025',
+        pairs: 10,
+        warmup: 1,
+        out,
+      }, {
+        run: fakeRun,
+        platform: () => 'win32',
+        architecture: () => 'x64',
+        cpu: () => 'fixture-cpu',
+        now: () => '2026-07-20T00:00:00.000Z',
+        createSandbox: () => ({ root: 'fixture-root', workspace: 'fixture-workspace' }),
+        prepare: () => 0,
+        measure: (metric, sandbox, request) => {
+          void metric;
+          void sandbox;
+          samples++;
+          return {
+            benchmarkExitCode: 0,
+            durationNs: request.subject === 'reference' ? 100_000_000 : 105_000_000,
+          };
+        },
+        cleanup: () => {},
+      });
+
+      expect(samples).toBe(44);
+      expect(JSON.parse(fs.readFileSync(out, 'utf8'))).toEqual(comparison);
+      expect(comparison.authority).toBe('paired-blocking');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test('aborts the complete capture and cleans the sandbox when a sample fails', () => {
+    const spec = pairedSpec();
+    let cleanups = 0;
+    const context = {
+      spec,
+      worktrees: { reference: 'reference-worktree', candidate: 'candidate-worktree' },
+    };
+    const executor = createPairedBenchmarkExecutor(context, {
+      resolveExecutionIdentity: () => spec.executionIdentity,
+      resolveControls: () => spec.controls,
+      resolveSubject: worktree => (
+        worktree === context.worktrees.reference ? spec.subjects.reference : spec.subjects.candidate
+      ),
+      createSandbox: () => ({ root: 'fixture-root', workspace: 'fixture-workspace' }),
+      prepare: () => 0,
+      measure: () => ({ benchmarkExitCode: 1, durationNs: 1 }),
+      cleanup: () => { cleanups++; },
+    });
+
+    expect(() => capturePairedComparison(spec, executor)).toThrow(/sample benchmark failed/);
+    expect(cleanups).toBe(1);
+  });
+
   test('derives the first order from the recorded seed and then alternates', () => {
     expect(buildSchedule('00'.padEnd(64, '0'), 6)).toEqual(['AB', 'BA', 'AB', 'BA', 'AB', 'BA']);
     expect(buildSchedule('ff'.padEnd(64, '0'), 6)).toEqual(['BA', 'AB', 'BA', 'AB', 'BA', 'AB']);

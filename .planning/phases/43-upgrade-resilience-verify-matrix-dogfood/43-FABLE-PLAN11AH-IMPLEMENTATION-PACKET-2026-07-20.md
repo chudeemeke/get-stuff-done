@@ -4,9 +4,10 @@
 
 Fable is the authoritative lead architect and implementation reviewer for this
 checkpoint. Review the repository at implementation revision
-`30a51363ecad02bc090edb3c98cd215a509f64e6`. Do not infer correctness from this
-packet. Inspect the exact diff, contracts, workflows, tests, and prior binding
-review before returning a verdict.
+`2d592060a25e6dd77aa7193ff59159f289d670be`, plus the durable later-plan
+disposition at `1ee33cbb2fc2f94a08d78eaa406b28343ac26533`. Do not infer
+correctness from this packet. Inspect the exact diff, contracts, workflows,
+tests, prior binding review, and Sol rejection before returning a verdict.
 
 The prior authoritative architecture review is
 `43-FABLE-PLAN11AG-11AH-AUTHORITATIVE-REVIEW-2026-07-20.md`, whose preserved
@@ -32,12 +33,14 @@ the project end state.
 ## Exact Review Subject
 
 - Baseline before Plan 11AH implementation: `1feccefc19d3906235e9b5ef57843c1e54641430`
-- Product implementation revision: `30a51363ecad02bc090edb3c98cd215a509f64e6`
+- Initial implementation revision rejected by Sol: `30a51363ecad02bc090edb3c98cd215a509f64e6`
+- Corrected product implementation revision: `2d592060a25e6dd77aa7193ff59159f289d670be`
+- Later-plan issue-mutation disposition: `1ee33cbb2fc2f94a08d78eaa406b28343ac26533`
 - Trusted bootstrap pin: `5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce`
 - Accepted measurement-harness pin: `35cbe0883a65409b13f9b7cc6347c793df2a2f15`
 - Branch: `phase43-upgrade-resilience-20260703`
 
-Both trusted pins are ancestors of the implementation revision. The branch and
+Both trusted pins are ancestors of the corrected implementation revision. The branch and
 pins remain local and unpushed. Their canonical remote reachability is therefore
 not claimed; an owner-authorized push must publish this exact ancestry before a
 workflow can rely on it.
@@ -45,11 +48,11 @@ workflow can rely on it.
 Inspect with:
 
 ```text
-git diff --stat 1feccefc19d3906235e9b5ef57843c1e54641430..30a51363ecad02bc090edb3c98cd215a509f64e6
-git diff 1feccefc19d3906235e9b5ef57843c1e54641430..30a51363ecad02bc090edb3c98cd215a509f64e6
-git log --oneline 1feccefc19d3906235e9b5ef57843c1e54641430..30a51363ecad02bc090edb3c98cd215a509f64e6
-git merge-base --is-ancestor 5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce 30a51363ecad02bc090edb3c98cd215a509f64e6
-git merge-base --is-ancestor 35cbe0883a65409b13f9b7cc6347c793df2a2f15 30a51363ecad02bc090edb3c98cd215a509f64e6
+git diff --stat 1feccefc19d3906235e9b5ef57843c1e54641430..2d592060a25e6dd77aa7193ff59159f289d670be
+git diff 1feccefc19d3906235e9b5ef57843c1e54641430..2d592060a25e6dd77aa7193ff59159f289d670be
+git log --oneline 1feccefc19d3906235e9b5ef57843c1e54641430..1ee33cbb2fc2f94a08d78eaa406b28343ac26533
+git merge-base --is-ancestor 5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce 2d592060a25e6dd77aa7193ff59159f289d670be
+git merge-base --is-ancestor 35cbe0883a65409b13f9b7cc6347c793df2a2f15 2d592060a25e6dd77aa7193ff59159f289d670be
 ```
 
 ## Implemented Architecture
@@ -68,13 +71,21 @@ git merge-base --is-ancestor 35cbe0883a65409b13f9b7cc6347c793df2a2f15 30a51363ec
 - Tier A Jobs API identity, Tier B bounded runner observation, paired raw
   evidence, binding manifests, and Artifacts API metadata are separate inputs
   to one pure join boundary.
+- The pure join parses and hashes bounded raw Tier B receipt and comparison
+  bytes, compares them with their parsed records and manifest digests,
+  re-adjudicates raw paired samples, and binds comparison subjects and runtime
+  identity before returning authority.
 - Current topology is contract-derived as 39 Tier A jobs, 21 Tier B subjects,
   18 standalone Cousin artifacts, and three paired bundles across five exact-
   head first-attempt workflow runs.
+- The legacy latest-attempt collector is removed. `collect` fails before I/O
+  until the explicit Plan 11AJ owner-authorization gate; 11AJ owns the first
+  live exact-cycle collector.
 
 ### Reproducible Execution
 
-- Governed actions use reviewed immutable SHAs, Verdaccio uses an immutable
+- Every repository workflow action use is covered by an all-workflow immutable
+  pin test; two older floating-tag workflows were corrected. Verdaccio uses an immutable
   digest, Bun comes from `.bun-version`, and Hyperfine 1.20.0 assets have exact
   platform identities and SHA-256 checks.
 - Paired performance installs dependencies only in the trusted harness, leaves
@@ -96,10 +107,15 @@ git merge-base --is-ancestor 35cbe0883a65409b13f9b7cc6347c793df2a2f15 30a51363ec
   workflow/job scope, and non-allowlisted action inputs/environments. It also
   rejects token-shaped bindings even when they hide the token behind another
   expression or literal.
+- Workflow/job token-shaped keys, reusable-workflow secret forwarding, and job
+  environment authority are rejected. Fork PR dependency-cache publication is
+  disabled; trusted same-repository and non-PR events retain caching.
 - Upload/download artifact actions remain outside the `GITHUB_TOKEN` allowlist.
 - Diagnostic PR workflows emit normalized proposal artifacts and summaries.
   Issue mutation is isolated to a manual, preview-default workflow requiring an
   explicit apply boolean and exact confirmation token.
+- Windows flake proposals record the exact event subject, not the synthetic PR
+  merge SHA.
 
 ### Truthful Compatibility And Documentation
 
@@ -124,6 +140,26 @@ git merge-base --is-ancestor 35cbe0883a65409b13f9b7cc6347c793df2a2f15 30a51363ec
 | B-F6 | All four performance checkouts preflight `package.json`, `bun.lock`, and `.planning/upstream-authority.json` before measurement. |
 | B-F7 | The pure evidence-binding module remains bounded; no broad Phase 44 verifier-policy refactor was absorbed. |
 
+## Sol Rejection Disposition
+
+The advisory review
+`43-GPT-5.6-SOL-PLAN11AH-IMPLEMENTATION-REVIEW-2026-07-20.md` rejected
+`30a51363` with five closure blockers. Revision `2d592060` dispositions them as
+follows:
+
+| Sol finding | Corrected disposition |
+| --- | --- |
+| Raw paired evidence absent from the pure join | Raw receipt/comparison bytes are bounded, decoded, hashed, matched to parsed records and manifests, semantically re-adjudicated, and bound to expected subjects/runtime identity. |
+| Legacy collector selects independent latest attempts | Public collection now fails closed before I/O until Plan 11AJ; the old passed-envelope implementation was removed. |
+| Inherited token scopes are incomplete | Workflow/job token keys, reusable secrets, and job environments now fail closed in addition to expression and step checks. |
+| Fork PR jobs can publish caches | Every PR-capable dependency-cache step has an exact trusted-head/non-PR condition. |
+| Windows flake records merge SHA | The flake command now receives the event-aware exact head expression. |
+
+Sol classified record-level issue-mutation preview and stale-closure ownership as
+a later-plan follow-up. Revision `1ee33cbb` makes those explicit Plan 11AJ
+pre-authorization acceptance criteria; the workflow remains manual, default-off,
+unrun, and owner-gated.
+
 ## Chronological Implementation Slices
 
 1. `b0bd9a5d` removes the floating ratio API.
@@ -141,26 +177,31 @@ git merge-base --is-ancestor 35cbe0883a65409b13f9b7cc6347c793df2a2f15 30a51363ec
 13. `459768be` gates public issue mutations.
 14. `76714a31` enforces compatibility and link authority.
 15. `30a51363` enforces automatic-token authority.
+16. `909651b8` records Sol's implementation rejection and evidence limits.
+17. `2d592060` closes the five reproduced evidence-authority blockers and all-workflow pin gap.
+18. `1ee33cbb` gates issue-mutation record validation and ownership in Plan 11AJ.
 
 `3dc067e5` is an adjacent backlog-only commit for validator scoping defects. It
 does not alter the Plan 11AH product implementation.
 
 ## Local Verification Evidence
 
-- Canonical full Bun suite: 1,647 passed, zero failed, 5,554 assertions across
+- Canonical full Bun suite: 1,648 passed, zero failed, 5,597 assertions across
   63 files.
 - Repository compatibility: 154 passed, zero failed across 34 suites.
 - Phase 43 verifier c8 gate: all six included executable files exceed 95% for
   statements, branches, functions, and lines independently.
-- Changed `verify-toolchain-authority.js`: 97.44% statements, 95.23% branches,
-  100% functions, and 97.44% lines.
-- Automatic-token and hosted-contract focused gate: 169 passed before the
-  additional indirect-context fixture; final Phase 43 verifier gate passed 174
-  tests across seven suites.
+- Corrected `hosted-evidence-binding.js`: 98.48% statements, 95.88% branches,
+  100% functions, and 98.48% lines. Corrected
+  `verify-toolchain-authority.js`: 97.47% statements, 95.44% branches, 100%
+  functions, and 97.47% lines.
+- Corrected focused authority gate: 174 passed, zero failed, 1,161 assertions.
+  The final Phase 43 c8 verifier gate also passed 174 tests across seven suites.
 - Static toolchain authority: `{ "mode": "static", "ok": true,
   "diagnostics": [] }`.
-- Full ESLint: exit zero; changed files have zero warnings. Repository baseline
-  warnings remain outside this plan.
+- Full ESLint: exit zero with 219 repository-baseline warnings. Changed-file
+  ESLint has zero errors; its 12 warnings are pre-existing lines in
+  `verify-hosted-ci.js`, not findings introduced by the correction.
 - Workflow lint, documentation lint, and `git diff --check`: passed.
 - Generated coverage files were removed after the passing evidence was read.
 
@@ -175,6 +216,11 @@ does not alter the Plan 11AH product implementation.
   the exact branch ancestry has not been owner-authorized for publication.
 - A green PR check remains a claim until the later owner-run collector validates
   the exact first-attempt cycle; live ruleset changes remain owner-gated.
+- The current `collect` command intentionally cannot create an envelope. Plan
+  11AJ must implement and test the exact-cycle artifact/API adapter before that
+  activation gate can change.
+- Issue-proposal record-level preview and bot-ownership checks are not claimed;
+  Plan 11AJ now requires them before live mutation authorization.
 - The scheduled decorative-link workflow is source-verified but has not run.
 - Plan 11AH is not complete until this implementation review is dispositioned.
 
@@ -188,12 +234,15 @@ does not alter the Plan 11AH product implementation.
 3. Verify B-F1 through B-F7 against code and tests, especially token exposure,
    same-repository performance authority, four-checkout trust, exact attempt
    joining, and Tier A/Tier B separation.
-4. Decide whether `5c813db4` may become the active trusted bootstrap authority
+4. Reproduce and disposition each Sol closure finding. In particular, challenge
+   whether raw evidence recomputation and the inactive collector fully close the
+   authority gap without pulling 11AJ implementation into 11AH.
+5. Decide whether `5c813db4` may become the active trusted bootstrap authority
    after the exact reviewed ancestry is published, or name the required
    correction before activation.
-5. Challenge the structural workflow tests. State whether any green test can
+6. Challenge the structural workflow tests. State whether any green test can
    conceal a behaviorally false workflow conclusion.
-6. Check that the implementation did not absorb Phase 44's broader refactor or
+7. Check that the implementation did not absorb Phase 44's broader refactor or
    11AI/11AJ owner-gated work.
-7. Rerun any focused commands needed for confidence and report exact observed
+8. Rerun any focused commands needed for confidence and report exact observed
    results. Do not edit files.

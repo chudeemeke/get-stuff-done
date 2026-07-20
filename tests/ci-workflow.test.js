@@ -544,7 +544,7 @@ describe('Phase 43 upgrade verifier workflow', () => {
 });
 
 describe('Phase 43 compat matrix workflow', () => {
-  test('compat matrix validates vetted pins, runs report-only matrix, and uploads evidence', () => {
+  test('compat matrix blocks on the active pin while retaining historical evidence', () => {
     const workflow = readWorkflow('compat-matrix.yml');
 
     expect(workflow).toContain('schedule:');
@@ -569,8 +569,9 @@ describe('Phase 43 compat matrix workflow', () => {
     expect(workflow).toContain('bun install --frozen-lockfile --ignore-scripts');
     expect(workflow).toContain('node scripts/vetted-upstream-versions.js --validate');
     expect(workflow).toContain('node scripts/run-compat-matrix.js --manifest .planning/vetted-upstream-versions.json --json --report compat-matrix-report.json');
-    expect(workflow).toContain('Compatibility matrix reported blocking drift; workflow remains informational per AF-7.');
-    expect(workflow).toContain('exit 0');
+    expect(workflow).not.toContain('Compatibility matrix reported blocking drift; workflow remains informational per AF-7.');
+    expect(workflow).not.toContain('set +e');
+    expect(workflow).not.toContain('exit 0');
     expect(workflow).not.toContain('continue-on-error: true');
     expect(workflow).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
     expect(workflow).toContain('compat-matrix-report.json');

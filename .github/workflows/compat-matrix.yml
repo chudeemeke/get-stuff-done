@@ -71,15 +71,7 @@ jobs:
         run: node scripts/vetted-upstream-versions.js --validate
 
       - name: Run compat matrix
-        shell: bash
-        run: |
-          set +e
-          node scripts/run-compat-matrix.js --manifest .planning/vetted-upstream-versions.json --json --report compat-matrix-report.json
-          status=$?
-          if [ "$status" -ne 0 ]; then
-            echo "Compatibility matrix reported blocking drift; workflow remains informational per AF-7."
-          fi
-          exit 0
+        run: node scripts/run-compat-matrix.js --manifest .planning/vetted-upstream-versions.json --json --report compat-matrix-report.json
 
       - name: Upload compat matrix report
         if: always()

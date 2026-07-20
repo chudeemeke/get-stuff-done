@@ -7,6 +7,13 @@ const PACKAGE_JSON = path.join(PROJECT_ROOT, 'package.json');
 const LINT_DOCS = path.join(PROJECT_ROOT, 'scripts', 'lint-docs.js');
 const MARKDOWNLINT_CONFIG = path.join(PROJECT_ROOT, '.markdownlint-cli2.yaml');
 const LYCHEE_CONFIG = path.join(PROJECT_ROOT, 'lychee.toml');
+const CI_WORKFLOW = path.join(PROJECT_ROOT, '.github', 'workflows', 'ci.yml');
+const AVAILABILITY_WORKFLOW = path.join(
+  PROJECT_ROOT,
+  '.github',
+  'workflows',
+  'docs-link-availability.yml'
+);
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -51,5 +58,36 @@ describe('Phase 42 docs gate package contract', () => {
     expect(lychee).toContain('^overlay/get-shit-done/');
     expect(lychee).not.toContain('.planning/**');
     expect(lychee).not.toContain('docs/**');
+  });
+
+  test('project-owned documentation failures remain blocking', () => {
+    const workflow = readText(CI_WORKFLOW);
+    const lychee = readText(LYCHEE_CONFIG);
+
+    expect(workflow).toContain('name: Docs Gates');
+    expect(workflow).toContain('fail: "true"');
+    expect(workflow).toContain('failIfEmpty: "true"');
+    expect(lychee).not.toContain('500');
+    expect(lychee).not.toContain('400..=599');
+  });
+
+  test('decorative third-party availability is scoped to a read-only scheduled report', () => {
+    const lychee = readText(LYCHEE_CONFIG);
+    const workflow = readText(AVAILABILITY_WORKFLOW);
+
+    expect(lychee).toContain('^https://api\\\\.star-history\\\\.com/');
+    expect(workflow).toContain('schedule:');
+    expect(workflow).toContain('workflow_dispatch:');
+    expect(workflow).not.toContain('pull_request:');
+    expect(workflow).not.toContain('push:');
+    expect(workflow).toContain('permissions:\n  contents: read');
+    expect(workflow).not.toContain('issues: write');
+    expect(workflow).toContain('--retry 3');
+    expect(workflow).toContain('404|410');
+    expect(workflow).toContain('link-rot-candidate');
+    expect(workflow).toContain('availability-degradation');
+    expect(workflow).toContain('recurrence');
+    expect(workflow).toContain('GITHUB_STEP_SUMMARY');
+    expect(workflow).toContain('decorative-link-availability-${{ github.run_id }}');
   });
 });

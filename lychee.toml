@@ -13,6 +13,8 @@ exclude_path = [
 exclude = [
   # Localhost URLs in command templates are examples, not public documentation links.
   "^http://localhost(:[0-9]+)?(/|$)",
+  # Decorative chart availability is monitored by docs-link-availability.yml.
+  "^https://api\\.star-history\\.com/",
 ]
 
 accept = [

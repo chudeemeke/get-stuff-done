@@ -299,8 +299,8 @@ function expectedWorkflowJobs(workflowContract) {
 }
 
 function validateHostedContract(contract) {
-  if (!contract || contract.schemaVersion !== 4 || contract.envelopeSchemaVersion !== 2) {
-    throw new Error('Hosted CI contract must use schema version 4 and envelope version 2.');
+  if (!contract || contract.schemaVersion !== 5 || contract.envelopeSchemaVersion !== 2) {
+    throw new Error('Hosted CI contract must use schema version 5 and envelope version 2.');
   }
   if (Object.keys(contract).some(key => !CONTRACT_KEYS.has(key))) {
     throw new Error('Hosted CI contract contains an unknown field.');
@@ -532,6 +532,18 @@ function verifyWorkflowSubjectImplementation(
   }
   const checkoutInputOverrides = Reflect.get(policy.checkoutInputs, workflowPath) || {};
   const jobs = workflow.jobs || {};
+  const profileAssignments = Reflect.get(policy.jobProfiles, workflowPath);
+  const jobIds = Object.keys(jobs).sort();
+  const assignedJobIds = profileAssignments &&
+    typeof profileAssignments === 'object' &&
+    !Array.isArray(profileAssignments)
+    ? Object.keys(profileAssignments).sort()
+    : [];
+  if (JSON.stringify(jobIds) !== JSON.stringify(assignedJobIds)) {
+    throw new Error(
+      `Workflow ${workflowName} execution-subject profile assignments do not match its jobs.`
+    );
+  }
   if (Object.keys(checkoutInputOverrides).some(jobId => !Reflect.get(jobs, jobId))) {
     throw new Error(
       `Workflow ${workflowName} execution-subject checkout-input authority names an unknown job.`
@@ -539,24 +551,31 @@ function verifyWorkflowSubjectImplementation(
   }
   for (const [jobId, job] of Object.entries(workflow.jobs || {})) {
     const steps = Array.isArray(job?.steps) ? job.steps : [];
-    const checkouts = steps.filter(step => step?.name === policy.checkoutStep);
+    const profile = Reflect.get(profileAssignments, jobId);
+    const isPaired = profile === policy.performanceProfile.profile;
+    const definitions = isPaired
+      ? policy.performanceProfile.checkouts
+      : [{
+          checkoutStep: policy.checkoutStep,
+          verificationStep: policy.verificationStep,
+          repository: policy.checkoutRepository,
+          ref: policy.checkoutRef,
+          path: policy.checkoutPath,
+          persistCredentials: policy.persistCredentials,
+          fetchDepth: policy.fetchDepth,
+        }];
+    const controlNames = new Set(
+      definitions.flatMap(definition => [definition.checkoutStep, definition.verificationStep])
+    );
     const checkoutActions = steps.filter(step =>
       step?.uses?.startsWith(`${policy.checkoutAction}@`)
     );
-    const verifications = steps.filter(step => step?.name === policy.verificationStep);
+    const namedControls = steps.filter(step => controlNames.has(step?.name));
     const securityPreludes = steps.filter(step =>
       step?.uses?.startsWith(`${policy.securityPrelude.action}@`)
     );
     const securityPrelude = securityPreludes[0];
     const hasSecurityPrelude = securityPreludes.length === 1;
-    const checkout = checkouts[0];
-    const verification = verifications[0];
-    const checkoutIndex = steps.indexOf(checkout);
-    const verificationIndex = steps.indexOf(verification);
-    const expectedCheckoutInputs = {
-      ref: policy.checkoutRef,
-      ...(Reflect.get(checkoutInputOverrides, jobId) || {}),
-    };
     const preludeInputs = securityPrelude?.with;
     const preludeInputsValid =
       preludeInputs &&
@@ -566,51 +585,65 @@ function verifyWorkflowSubjectImplementation(
       Object.entries(preludeInputs).every(([key, value]) =>
         Reflect.get(policy.securityPrelude.allowedInputs, key)?.includes(value)
       );
+    const controlStart = hasSecurityPrelude ? 1 : 0;
+    const expandedProfileJobNames = isPaired
+      ? expandWorkflowJobNames({ jobs: { [jobId]: job } })
+      : [];
+    const pairsValid = definitions.every((definition, pairIndex) => {
+      const checkout = steps[controlStart + pairIndex * 2];
+      const verification = steps[controlStart + pairIndex * 2 + 1];
+      const expectedCheckoutInputs = {
+        repository: definition.repository,
+        ref: definition.ref,
+        path: definition.path,
+        'persist-credentials': definition.persistCredentials,
+        'fetch-depth': definition.fetchDepth,
+        ...(!isPaired ? Reflect.get(checkoutInputOverrides, jobId) || {} : {}),
+      };
+      return (
+        hasClosedKeys(checkout, SUBJECT_CHECKOUT_REQUIRED_KEYS, SUBJECT_CHECKOUT_ALLOWED_KEYS) &&
+        checkout.name === definition.checkoutStep &&
+        checkout.uses === actionUses.checkout &&
+        checkout.with &&
+        Object.keys(checkout.with).length === Object.keys(expectedCheckoutInputs).length &&
+        Object.entries(expectedCheckoutInputs).every(
+          ([key, value]) => Reflect.get(checkout.with, key) === value
+        ) &&
+        (!Object.prototype.hasOwnProperty.call(checkout, 'continue-on-error') ||
+          checkout['continue-on-error'] === false) &&
+        hasClosedKeys(
+          verification,
+          SUBJECT_VERIFICATION_REQUIRED_KEYS,
+          SUBJECT_VERIFICATION_ALLOWED_KEYS
+        ) &&
+        verification.name === definition.verificationStep &&
+        verification.shell === policy.verificationShell &&
+        verification.env &&
+        Object.keys(verification.env).length === 2 &&
+        verification.env[policy.expectedSubjectEnvironment] === definition.ref &&
+        verification.env[policy.subjectPathEnvironment] === definition.path &&
+        verification.run === policy.verificationRun &&
+        (!Object.prototype.hasOwnProperty.call(verification, 'continue-on-error') ||
+          verification['continue-on-error'] === false)
+      );
+    });
     if (
-      checkouts.length !== 1 ||
-      checkoutActions.length !== 1 ||
-      checkoutActions[0] !== checkout ||
-      verifications.length !== 1 ||
+      !['single-subject', policy.performanceProfile.profile].includes(profile) ||
+      (isPaired &&
+        JSON.stringify(expandedProfileJobNames) !==
+          JSON.stringify(policy.performanceProfile.jobNames)) ||
+      checkoutActions.length !== definitions.length ||
+      namedControls.length !== definitions.length * 2 ||
       securityPreludes.length > 1 ||
       (hasSecurityPrelude &&
         (steps.indexOf(securityPrelude) !== 0 ||
           !hasClosedKeys(securityPrelude, SECURITY_PRELUDE_KEYS, SECURITY_PRELUDE_KEYS) ||
           securityPrelude.uses !== actionUses.securityPrelude ||
           !preludeInputsValid)) ||
-      checkoutIndex !== (hasSecurityPrelude ? 1 : 0) ||
-      verificationIndex !== checkoutIndex + 1 ||
       hasSubjectEnvironmentOverride(job?.env) ||
       steps.some(step => hasSubjectEnvironmentOverride(step?.env)) ||
       hasInheritedWorkingDirectory(job) ||
-      !hasClosedKeys(
-        checkout,
-        SUBJECT_CHECKOUT_REQUIRED_KEYS,
-        SUBJECT_CHECKOUT_ALLOWED_KEYS
-      ) ||
-      checkout.uses !== actionUses.checkout ||
-      !checkout.with ||
-      Object.keys(checkout.with).length !== Object.keys(expectedCheckoutInputs).length ||
-      Object.entries(expectedCheckoutInputs).some(
-        ([key, value]) => Reflect.get(checkout.with, key) !== value
-      ) ||
-      (Object.prototype.hasOwnProperty.call(checkout, 'continue-on-error') &&
-        checkout['continue-on-error'] !== false) ||
-      !hasClosedKeys(
-        verification,
-        SUBJECT_VERIFICATION_REQUIRED_KEYS,
-        SUBJECT_VERIFICATION_ALLOWED_KEYS
-      ) ||
-      verification.shell !== policy.verificationShell ||
-      !verification.env ||
-      Object.keys(verification.env).length !== 1 ||
-      !Object.prototype.hasOwnProperty.call(
-        verification.env,
-        policy.expectedSubjectEnvironment
-      ) ||
-      verification.env?.[policy.expectedSubjectEnvironment] !== policy.expectedSubjectExpression ||
-      verification.run !== policy.verificationRun ||
-      (Object.prototype.hasOwnProperty.call(verification, 'continue-on-error') &&
-        verification['continue-on-error'] !== false)
+      !pairsValid
     ) {
       throw new Error(
         `Workflow ${workflowName} job ${jobId} execution-subject implementation does not match the contract.`
@@ -728,6 +761,10 @@ function verifyWorkflowTopology(contract, readWorkflow) {
   const toolchainWorkflowPaths = [...toolchainManifest.governedWorkflows].sort();
   if (JSON.stringify(hostedWorkflowPaths) !== JSON.stringify(toolchainWorkflowPaths)) {
     throw new Error('Hosted and toolchain authority workflow sets do not match.');
+  }
+  const profileWorkflowPaths = Object.keys(contract.executionSubject.jobProfiles).sort();
+  if (JSON.stringify(hostedWorkflowPaths) !== JSON.stringify(profileWorkflowPaths)) {
+    throw new Error('Hosted workflow and execution-subject profile sets do not match.');
   }
   const checkoutPin = toolchainManifest.githubActions.pins[contract.executionSubject.checkoutAction];
   if (!checkoutPin) {
@@ -1054,11 +1091,25 @@ function inspectExecutionSubject(policy, job, authority) {
     return { code: 'execution_subject_job_url_invalid', evidence: null };
   }
   const steps = Array.isArray(job.steps) ? job.steps : [];
-  const matches = steps.filter(step => step.name === policy.verificationStep);
-  if (matches.length === 0) return { code: 'execution_subject_step_missing', evidence: null };
-  if (matches.length !== 1) return { code: 'execution_subject_step_ambiguous', evidence: null };
+  const isPaired = policy.performanceProfile?.jobNames?.includes(job.name) === true;
+  const definitions = isPaired
+    ? policy.performanceProfile.checkouts
+    : [{
+        checkoutStep: policy.checkoutStep,
+        verificationStep: policy.verificationStep,
+      }];
+  const pairs = definitions.map(definition => ({
+    checkout: steps.filter(step => step.name === definition.checkoutStep),
+    verification: steps.filter(step => step.name === definition.verificationStep),
+  }));
+  if (pairs.some(pair => pair.checkout.length === 0 || pair.verification.length === 0)) {
+    return { code: 'execution_subject_step_missing', evidence: null };
+  }
+  if (pairs.some(pair => pair.checkout.length !== 1 || pair.verification.length !== 1)) {
+    return { code: 'execution_subject_step_ambiguous', evidence: null };
+  }
 
-  const step = matches[0];
+  const step = pairs[pairs.length - 1].verification[0];
   const evidence = {
     jobId: job.id,
     job: job.name,
@@ -1070,19 +1121,31 @@ function inspectExecutionSubject(policy, job, authority) {
     conclusion: step.conclusion,
     url: job.html_url,
   };
-  if (step.status !== 'completed' || step.conclusion !== 'success') {
+  if (
+    pairs.some(
+      pair =>
+        pair.verification[0].status !== 'completed' ||
+        pair.verification[0].conclusion !== 'success'
+    )
+  ) {
     return { code: 'execution_subject_step_not_successful', evidence };
   }
-  const checkouts = steps.filter(step => step.name === policy.checkoutStep);
   if (
-    checkouts.length !== 1 ||
-    !Number.isInteger(checkouts[0].number) ||
-    !Number.isInteger(step.number) ||
-    step.number !== checkouts[0].number + 1
+    pairs.some(
+      pair =>
+        !Number.isInteger(pair.checkout[0].number) ||
+        !Number.isInteger(pair.verification[0].number) ||
+        pair.verification[0].number !== pair.checkout[0].number + 1
+    )
   ) {
     return { code: 'execution_subject_step_order_invalid', evidence };
   }
-  if (checkouts[0].status !== 'completed' || checkouts[0].conclusion !== 'success') {
+  if (
+    pairs.some(
+      pair =>
+        pair.checkout[0].status !== 'completed' || pair.checkout[0].conclusion !== 'success'
+    )
+  ) {
     return { code: 'execution_subject_checkout_not_successful', evidence };
   }
   return { code: null, evidence };

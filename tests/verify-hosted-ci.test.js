@@ -39,6 +39,8 @@ const TOOLCHAIN_MANIFEST_PATH = path.join(
   'phase43-toolchain-authority.json'
 );
 const EXPECTED_HEAD = '64f137a110e985c86b08acb3140bc8b982d34843';
+const BOOTSTRAP_SHA = '5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce';
+const HARNESS_SHA = '35cbe0883a65409b13f9b7cc6347c793df2a2f15';
 const BILLING_MESSAGE = 'The job was not started because your account is locked due to a billing issue.';
 const SUBJECT_CHECKOUT_STEP = 'Checkout exact event subject';
 const SUBJECT_VERIFY_STEP = 'Verify execution subject';
@@ -168,9 +170,19 @@ function makeSuccessfulInput(contract = makeContract()) {
   for (const run of runs) {
     const workflow = contract.workflows.find(candidate => candidate.name === run.name);
     const names = workflow.requiredJobs || COUSIN_JOBS;
-    jobsByRun[run.id] = names.map((name, index) =>
-      makeJob(run.id * 100 + index, name, { run_id: run.id })
-    );
+    jobsByRun[run.id] = names.map((name, index) => {
+      const performance = contract.executionSubject?.performanceProfile;
+      const steps = performance?.jobNames?.includes(name)
+        ? performance.checkouts.flatMap((checkout, checkoutIndex) => [
+            makeStep(checkoutIndex * 2 + 1, checkout.checkoutStep),
+            makeStep(checkoutIndex * 2 + 2, checkout.verificationStep),
+          ])
+        : undefined;
+      return makeJob(run.id * 100 + index, name, {
+        run_id: run.id,
+        ...(steps ? { steps } : {}),
+      });
+    });
   }
 
   return {
@@ -208,30 +220,52 @@ function makeSubjectCompliantWorkflow(workflowPath, contract) {
   const toolchainManifest = JSON.parse(fs.readFileSync(TOOLCHAIN_MANIFEST_PATH, 'utf8'));
   const checkoutUses = `${policy.checkoutAction}@${toolchainManifest.githubActions.pins[policy.checkoutAction].sha}`;
   const securityUses = `${policy.securityPrelude.action}@${toolchainManifest.githubActions.pins[policy.securityPrelude.action].sha}`;
+  const makeSubjectPair = definition => [
+    {
+      name: definition.checkoutStep,
+      uses: checkoutUses,
+      with: {
+        repository: definition.repository,
+        ref: definition.ref,
+        path: definition.path,
+        'persist-credentials': definition.persistCredentials,
+        'fetch-depth': definition.fetchDepth,
+        ...(definition.inputs || {}),
+      },
+    },
+    {
+      name: definition.verificationStep,
+      shell: policy.verificationShell,
+      env: {
+        [policy.expectedSubjectEnvironment]: definition.ref,
+        [policy.subjectPathEnvironment]: definition.path,
+      },
+      run: policy.verificationRun,
+    },
+  ];
   for (const [jobId, job] of Object.entries(document.jobs)) {
     const originalSteps = job.steps || [];
     const hasSecurityPrelude = originalSteps[0]?.uses?.startsWith(
       `${policy.securityPrelude.action}@`
     );
-    const checkoutInputs = {
-      ref: policy.checkoutRef,
-      ...(policy.checkoutInputs[workflowPath]?.[jobId] || {}),
-    };
+    const profile = policy.jobProfiles[workflowPath][jobId];
+    const controls = profile === policy.performanceProfile.profile
+      ? policy.performanceProfile.checkouts.flatMap(makeSubjectPair)
+      : makeSubjectPair({
+          checkoutStep: policy.checkoutStep,
+          verificationStep: policy.verificationStep,
+          repository: policy.checkoutRepository,
+          ref: policy.checkoutRef,
+          path: policy.checkoutPath,
+          persistCredentials: policy.persistCredentials,
+          fetchDepth: policy.fetchDepth,
+          inputs: policy.checkoutInputs[workflowPath]?.[jobId] || {},
+        });
     job.steps = [
       ...(hasSecurityPrelude
         ? [{ uses: securityUses, with: { ...originalSteps[0].with } }]
         : []),
-      {
-        name: policy.checkoutStep,
-        uses: checkoutUses,
-        with: checkoutInputs,
-      },
-      {
-        name: policy.verificationStep,
-        shell: policy.verificationShell,
-        env: { [policy.expectedSubjectEnvironment]: policy.expectedSubjectExpression },
-        run: policy.verificationRun,
-      },
+      ...controls,
       ...originalSteps.filter(
         step =>
           !step.uses?.startsWith('actions/checkout@') &&
@@ -265,49 +299,73 @@ describe('hosted CI verdict authority', () => {
   test('requires versioned execution-subject authority in the hosted contract', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
 
-    expect(contract.schemaVersion).toBe(4);
+    expect(contract.schemaVersion).toBe(5);
     expect(contract.envelopeSchemaVersion).toBe(2);
-    expect(contract.executionSubject).toEqual({
-      checkoutStep: SUBJECT_CHECKOUT_STEP,
-      verificationStep: SUBJECT_VERIFY_STEP,
-      requireAdjacent: true,
-      checkoutAction: 'actions/checkout',
-      checkoutRef: '${{ github.event.pull_request.head.sha }}',
-      verificationShell: 'bash',
-      expectedSubjectEnvironment: 'GSD_EXPECTED_SUBJECT',
-      expectedSubjectExpression: '${{ github.event.pull_request.head.sha }}',
-      verificationRun: [
-        'actual="$(git rev-parse HEAD)"',
-        'if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then',
-        '  echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"',
-        '  exit 1',
-        'fi',
-      ].join('\n'),
-      securityPrelude: {
-        action: 'step-security/harden-runner',
-        allowedInputs: { 'egress-policy': ['audit', 'block'] },
-      },
-      checkoutInputs: {
-        '.github/workflows/ci.yml': {
-          'secret-scan': { 'fetch-depth': 0 },
+    expect(contract.executionSubject).toMatchObject({
+      schemaVersion: 2,
+      defaultProfile: 'single-subject',
+      checkoutRepository:
+        "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}",
+      checkoutRef:
+        "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}",
+      checkoutPath: '.',
+      persistCredentials: false,
+      eventSubjects: {
+        pull_request: {
+          repository: '${{ github.event.pull_request.head.repo.full_name }}',
+          ref: '${{ github.event.pull_request.head.sha }}',
         },
+        push: { repository: '${{ github.repository }}', ref: '${{ github.sha }}' },
+        schedule: { repository: '${{ github.repository }}', ref: '${{ github.sha }}' },
+        workflow_dispatch: { repository: '${{ github.repository }}', ref: '${{ github.sha }}' },
+      },
+      evidenceAuthority: {
+        checkNames: 'claim-only',
+        prWorkflowDefinitions: 'claim-only',
+        mergeEvidence: 'owner-run-collector',
       },
     });
-    expect(() => validateHostedContract({ ...contract, schemaVersion: 2 })).toThrow(
-      'schema version 4'
+    expect(contract.executionSubject.performanceProfile).toMatchObject({
+      authorityEvent: 'pull_request',
+      authorityScope: 'same-repository-head',
+      forkOutcome: 'no-authority',
+      nonPullRequestOutcome: 'no-authority',
+      bootstrapActivationGate: 'fable-accepted-final-11ah',
+      jobNames: ['Perf Budget (linux)', 'Perf Budget (macos)', 'Perf Budget (windows)'],
+    });
+    expect(
+      contract.executionSubject.performanceProfile.checkouts.map(checkout => checkout.ref)
+    ).toEqual([
+      BOOTSTRAP_SHA,
+      HARNESS_SHA,
+      '${{ github.event.pull_request.base.sha }}',
+      '${{ github.event.pull_request.head.sha }}',
+    ]);
+    expect(() => validateHostedContract({ ...contract, schemaVersion: 4 })).toThrow(
+      'schema version 5'
     );
     expect(() =>
       validateHostedContract({
         ...contract,
-        executionSubject: { ...contract.executionSubject, requireAdjacent: false },
+        executionSubject: {
+          ...contract.executionSubject,
+          checkoutRef: '${{ github.event.pull_request.head.sha }}',
+        },
       })
     ).toThrow('execution-subject authority');
+    const wrongPerformanceProfile = structuredClone(contract);
+    wrongPerformanceProfile.executionSubject.jobProfiles['.github/workflows/ci.yml'][
+      'perf-budget'
+    ] = 'single-subject';
+    expect(() => validateHostedContract(wrongPerformanceProfile)).toThrow(
+      'execution-subject authority'
+    );
   });
 
   test('declares one closed security prelude and one checkout-input exception', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
 
-    expect(contract.schemaVersion).toBe(4);
+    expect(contract.schemaVersion).toBe(5);
     expect(contract.executionSubject.securityPrelude).toEqual({
       action: 'step-security/harden-runner',
       allowedInputs: { 'egress-policy': ['audit', 'block'] },
@@ -480,6 +538,52 @@ describe('hosted CI verdict authority', () => {
           step => step.name === SUBJECT_CHECKOUT_STEP
         );
         delete checkout.with['fetch-depth'];
+      },
+    ];
+
+    for (const mutate of cases) {
+      expect(verifyMutation(mutate)).toThrow('execution-subject implementation');
+    }
+  });
+
+  test('rejects incomplete, reordered, or weakened paired-performance controls', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const verifyMutation = mutate => {
+      const documents = new Map(
+        contract.workflows.map(authority => [
+          authority.path,
+          yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+        ])
+      );
+      mutate(documents.get(WORKFLOW_PATHS.CI).jobs['perf-budget'].steps);
+      return () =>
+        verifyWorkflowTopology(contract, filePath =>
+          filePath === 'config/phase43-toolchain-authority.json'
+            ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+            : yaml.dump(documents.get(filePath))
+        );
+    };
+    const performance = contract.executionSubject.performanceProfile;
+    const cases = [
+      steps => {
+        const index = steps.findIndex(step => step.name === performance.checkouts[1].verificationStep);
+        steps.splice(index, 1);
+      },
+      steps => {
+        const index = steps.findIndex(step => step.name === performance.checkouts[2].verificationStep);
+        steps.splice(index, 0, { run: 'echo intervening payload' });
+      },
+      steps => {
+        const checkout = steps.find(step => step.name === performance.checkouts[3].checkoutStep);
+        checkout.with['persist-credentials'] = true;
+      },
+      steps => {
+        const checkout = steps.find(step => step.name === performance.checkouts[0].checkoutStep);
+        delete checkout.with.path;
+      },
+      steps => {
+        const checkout = steps.find(step => step.name === performance.checkouts[1].checkoutStep);
+        checkout.with.ref = '${{ github.event.pull_request.head.sha }}';
       },
     ];
 
@@ -842,7 +946,7 @@ describe('hosted CI verdict authority', () => {
       validateHostedContract({ ...contract, repository: 'attacker/mirror' })
     ).toThrow('repository authority');
     expect(() => validateHostedContract({ ...contract, schemaVersion: 1 })).toThrow(
-      'schema version 4'
+      'schema version 5'
     );
     expect(() => validateHostedContract({ ...contract, contractPath: 'config/other.json' })).toThrow(
       'path authority'
@@ -953,7 +1057,7 @@ describe('hosted CI verdict authority', () => {
     expect(validateHostedEnvelope(envelope, contract)).toBe(envelope);
     expect(envelope).toMatchObject({
       schemaVersion: 2,
-      contractSchemaVersion: 4,
+      contractSchemaVersion: 5,
       repository: contract.repository,
       pullRequest: 23,
       checkedCommit: EXPECTED_HEAD,
@@ -1142,6 +1246,52 @@ describe('hosted CI verdict authority', () => {
         'execution_subject_checkout_not_successful'
       );
     }
+  });
+
+  test('requires every paired-performance checkout and verification to succeed in order', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const performance = contract.executionSubject.performanceProfile;
+    const makeMutation = mutate => {
+      const input = makeSuccessfulInput(contract);
+      const performanceJob = input.jobsByRun[input.runs[0].id].find(
+        job => job.name === performance.jobNames[0]
+      );
+      mutate(performanceJob.steps);
+      return evaluateHostedVerdict(input, contract);
+    };
+
+    expect(evaluateHostedVerdict(makeSuccessfulInput(contract), contract).verdict).toBe('passed');
+    expect(
+      makeMutation(steps => {
+        const index = steps.findIndex(
+          step => step.name === performance.checkouts[1].verificationStep
+        );
+        steps.splice(index, 1);
+      }).diagnostics
+    ).toContainEqual(
+      expect.objectContaining({ code: 'execution_subject_step_missing', job: performance.jobNames[0] })
+    );
+    expect(
+      makeMutation(steps => {
+        steps.find(step => step.name === performance.checkouts[2].checkoutStep).conclusion =
+          'failure';
+      }).diagnostics
+    ).toContainEqual(
+      expect.objectContaining({
+        code: 'execution_subject_checkout_not_successful',
+        job: performance.jobNames[0],
+      })
+    );
+    expect(
+      makeMutation(steps => {
+        steps.find(step => step.name === performance.checkouts[3].verificationStep).number += 1;
+      }).diagnostics
+    ).toContainEqual(
+      expect.objectContaining({
+        code: 'execution_subject_step_order_invalid',
+        job: performance.jobNames[0],
+      })
+    );
   });
 
   test('requires subject verification immediately after the governed checkout step', () => {

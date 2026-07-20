@@ -4,6 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const { TextDecoder } = require('util');
 const yaml = require('js-yaml');
+const {
+  validateEvidenceAuthorityPolicy,
+  validateEventSubjectPolicies,
+} = require('./lib/hosted-evidence-binding');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const MANIFEST_PATH = 'config/phase43-toolchain-authority.json';
@@ -69,19 +73,52 @@ const RUNTIME_SUBJECT_KEYS = new Set(['workflow', 'job', 'matrix', 'nodeMajor', 
 const RUNTIME_REQUIREMENT_VALUES = new Set(['bun', 'node', 'both']);
 const RUNTIME_EVIDENCE_KEYS = new Set(['subject', 'bunVersion', 'nodeVersion', 'tools']);
 const EXECUTION_SUBJECT_KEYS = new Set([
+  'schemaVersion',
+  'defaultProfile',
   'checkoutStep',
   'verificationStep',
   'requireAdjacent',
   'checkoutAction',
+  'checkoutRepository',
   'checkoutRef',
+  'checkoutPath',
+  'persistCredentials',
+  'fetchDepth',
   'verificationShell',
   'expectedSubjectEnvironment',
+  'subjectPathEnvironment',
   'expectedSubjectExpression',
   'verificationRun',
   'securityPrelude',
   'checkoutInputs',
+  'eventSubjects',
+  'evidenceAuthority',
+  'performanceProfile',
+  'jobProfiles',
 ]);
 const SECURITY_PRELUDE_KEYS = new Set(['action', 'allowedInputs']);
+const PERFORMANCE_PROFILE_KEYS = new Set([
+  'profile',
+  'authorityEvent',
+  'authorityScope',
+  'authorityCondition',
+  'forkOutcome',
+  'nonPullRequestOutcome',
+  'bootstrapActivationGate',
+  'jobNames',
+  'checkouts',
+  'requiredFiles',
+]);
+const PERFORMANCE_CHECKOUT_KEYS = new Set([
+  'id',
+  'checkoutStep',
+  'verificationStep',
+  'repository',
+  'ref',
+  'path',
+  'persistCredentials',
+  'fetchDepth',
+]);
 const CONTROL_CHECKOUT_KEYS = new Set(['name', 'uses', 'with', 'continue-on-error']);
 
 function hasExactKeys(value, keys) {
@@ -108,19 +145,90 @@ function hasUpdateTrigger(value) {
 }
 
 function validateExecutionSubjectPolicy(policy) {
+  const expectedCheckouts = [
+    {
+      id: 'bootstrap',
+      checkoutStep: 'Checkout trusted bootstrap',
+      verificationStep: 'Verify trusted bootstrap',
+      repository: '${{ github.repository }}',
+      ref: '5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce',
+      path: 'authority-bootstrap',
+    },
+    {
+      id: 'harness',
+      checkoutStep: 'Checkout trusted measurement harness',
+      verificationStep: 'Verify trusted measurement harness',
+      repository: '${{ github.repository }}',
+      ref: '35cbe0883a65409b13f9b7cc6347c793df2a2f15',
+      path: 'measurement-harness',
+    },
+    {
+      id: 'reference',
+      checkoutStep: 'Checkout exact pull request base',
+      verificationStep: 'Verify exact pull request base',
+      repository: '${{ github.event.pull_request.base.repo.full_name }}',
+      ref: '${{ github.event.pull_request.base.sha }}',
+      path: 'reference',
+    },
+    {
+      id: 'candidate',
+      checkoutStep: 'Checkout exact pull request head',
+      verificationStep: 'Verify exact pull request head',
+      repository: '${{ github.event.pull_request.head.repo.full_name }}',
+      ref: '${{ github.event.pull_request.head.sha }}',
+      path: 'candidate',
+    },
+  ];
+  let eventSubjectsValid = true;
+  let evidenceAuthorityValid = true;
+  try {
+    validateEventSubjectPolicies(policy?.eventSubjects);
+  } catch {
+    eventSubjectsValid = false;
+  }
+  try {
+    validateEvidenceAuthorityPolicy(policy?.evidenceAuthority);
+  } catch {
+    evidenceAuthorityValid = false;
+  }
+  const performance = policy?.performanceProfile;
+  const performanceCheckouts = Array.isArray(performance?.checkouts)
+    ? performance.checkouts
+    : [];
+  const jobProfileEntries = policy?.jobProfiles &&
+    typeof policy.jobProfiles === 'object' &&
+    !Array.isArray(policy.jobProfiles)
+    ? Object.entries(policy.jobProfiles)
+    : [];
+  const pairedProfileAssignments = jobProfileEntries.flatMap(([workflow, assignments]) =>
+    assignments && typeof assignments === 'object' && !Array.isArray(assignments)
+      ? Object.entries(assignments)
+          .filter(([, profile]) => profile === 'paired-performance')
+          .map(([job]) => ({ workflow, job }))
+      : []
+  );
   if (
     !hasExactKeys(policy, EXECUTION_SUBJECT_KEYS) ||
+    policy.schemaVersion !== 2 ||
+    policy.defaultProfile !== 'single-subject' ||
     policy.checkoutStep !== 'Checkout exact event subject' ||
     policy.verificationStep !== 'Verify execution subject' ||
     policy.requireAdjacent !== true ||
     policy.checkoutAction !== 'actions/checkout' ||
-    policy.checkoutRef !== '${{ github.event.pull_request.head.sha }}' ||
+    policy.checkoutRepository !==
+      "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}" ||
+    policy.checkoutRef !==
+      "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}" ||
+    policy.checkoutPath !== '.' ||
+    policy.persistCredentials !== false ||
+    policy.fetchDepth !== 1 ||
     policy.verificationShell !== 'bash' ||
     policy.expectedSubjectEnvironment !== 'GSD_EXPECTED_SUBJECT' ||
-    policy.expectedSubjectExpression !== '${{ github.event.pull_request.head.sha }}' ||
+    policy.subjectPathEnvironment !== 'GSD_SUBJECT_PATH' ||
+    policy.expectedSubjectExpression !== policy.checkoutRef ||
     policy.verificationRun !==
       [
-        'actual="$(git rev-parse HEAD)"',
+        'actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"',
         'if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then',
         '  echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"',
         '  exit 1',
@@ -135,7 +243,55 @@ function validateExecutionSubjectPolicy(policy) {
         '.github/workflows/ci.yml': {
           'secret-scan': { 'fetch-depth': 0 },
         },
-      })
+      }) ||
+    !eventSubjectsValid ||
+    !evidenceAuthorityValid ||
+    !hasExactKeys(performance, PERFORMANCE_PROFILE_KEYS) ||
+    performance.profile !== 'paired-performance' ||
+    performance.authorityEvent !== 'pull_request' ||
+    performance.authorityScope !== 'same-repository-head' ||
+    performance.authorityCondition !==
+      "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}" ||
+    performance.forkOutcome !== 'no-authority' ||
+    performance.nonPullRequestOutcome !== 'no-authority' ||
+    performance.bootstrapActivationGate !== 'fable-accepted-final-11ah' ||
+    JSON.stringify(performance.jobNames) !==
+      JSON.stringify(['Perf Budget (linux)', 'Perf Budget (macos)', 'Perf Budget (windows)']) ||
+    performanceCheckouts.length !== expectedCheckouts.length ||
+    performanceCheckouts.some((checkout, index) => {
+      const expected = expectedCheckouts.at(index);
+      return (
+        !hasExactKeys(checkout, PERFORMANCE_CHECKOUT_KEYS) ||
+        checkout.id !== expected.id ||
+        checkout.checkoutStep !== expected.checkoutStep ||
+        checkout.verificationStep !== expected.verificationStep ||
+        checkout.repository !== expected.repository ||
+        checkout.ref !== expected.ref ||
+        checkout.path !== expected.path ||
+        checkout.persistCredentials !== false ||
+        checkout.fetchDepth !== 1
+      );
+    }) ||
+    JSON.stringify(performance.requiredFiles) !==
+      JSON.stringify(['package.json', 'bun.lock', '.planning/upstream-authority.json']) ||
+    jobProfileEntries.length === 0 ||
+    jobProfileEntries.some(
+      ([workflow, assignments]) =>
+        typeof workflow !== 'string' ||
+        !workflow.startsWith('.github/workflows/') ||
+        !assignments ||
+        typeof assignments !== 'object' ||
+        Array.isArray(assignments) ||
+        Object.keys(assignments).length === 0 ||
+        Object.entries(assignments).some(
+          ([job, profile]) =>
+            !isBoundedToken(job) ||
+            !['single-subject', 'paired-performance'].includes(profile)
+        )
+    ) ||
+    pairedProfileAssignments.length !== 1 ||
+    pairedProfileAssignments[0]?.workflow !== '.github/workflows/ci.yml' ||
+    pairedProfileAssignments[0]?.job !== 'perf-budget'
   ) {
     throw new Error('Execution-subject control-step authority is invalid.');
   }
@@ -582,23 +738,45 @@ function isExactControlStep(step, index, steps, policy, checkoutUses, workflow, 
   const checkout = steps[index - 1];
   const allowedStepKeys = new Set(['name', 'shell', 'env', 'run', 'continue-on-error']);
   const workflowCheckoutInputs = Reflect.get(policy.checkoutInputs, workflow) || {};
+  const profile = Reflect.get(Reflect.get(policy.jobProfiles, workflow) || {}, jobId) ||
+    policy.defaultProfile;
+  const definitions = profile === policy.performanceProfile.profile
+    ? policy.performanceProfile.checkouts
+    : [{
+        checkoutStep: policy.checkoutStep,
+        verificationStep: policy.verificationStep,
+        repository: policy.checkoutRepository,
+        ref: policy.checkoutRef,
+        path: policy.checkoutPath,
+        persistCredentials: policy.persistCredentials,
+        fetchDepth: policy.fetchDepth,
+      }];
+  const definition = definitions.find(candidate => candidate.verificationStep === step?.name);
+  if (!definition) return false;
   const expectedCheckoutInputs = {
-    ref: policy.checkoutRef,
-    ...(Reflect.get(workflowCheckoutInputs, jobId) || {}),
+    repository: definition.repository,
+    ref: definition.ref,
+    path: definition.path,
+    'persist-credentials': definition.persistCredentials,
+    'fetch-depth': definition.fetchDepth,
+    ...(profile === policy.defaultProfile
+      ? Reflect.get(workflowCheckoutInputs, jobId) || {}
+      : {}),
   };
   return (
     step &&
     typeof step === 'object' &&
     Object.keys(step).every(key => allowedStepKeys.has(key)) &&
-    step.name === policy.verificationStep &&
+    step.name === definition.verificationStep &&
     step.shell === policy.verificationShell &&
     step.run === policy.verificationRun &&
     step.env &&
-    Object.keys(step.env).length === 1 &&
-    step.env[policy.expectedSubjectEnvironment] === policy.expectedSubjectExpression &&
+    Object.keys(step.env).length === 2 &&
+    step.env[policy.expectedSubjectEnvironment] === definition.ref &&
+    step.env[policy.subjectPathEnvironment] === definition.path &&
     (!Object.prototype.hasOwnProperty.call(step, 'continue-on-error') ||
       step['continue-on-error'] === false) &&
-    checkout?.name === policy.checkoutStep &&
+    checkout?.name === definition.checkoutStep &&
     checkout?.uses === checkoutUses &&
     hasOnlyKeys(checkout, CONTROL_CHECKOUT_KEYS) &&
     checkout.with &&

@@ -8,6 +8,7 @@ const path = require('path');
 const {
   evaluateToolchainAuthority,
   runCli,
+  validateExecutionSubjectPolicy,
   validateToolchainAuthorityManifest,
   verifyToolchainAuthority,
 } = require('../scripts/verify-toolchain-authority');
@@ -156,32 +157,13 @@ function makeCompliantWorkflow() {
 }
 
 function makeExecutionSubjectPolicy() {
-  return {
-    checkoutStep: 'Checkout exact event subject',
-    verificationStep: 'Verify execution subject',
-    requireAdjacent: true,
-    checkoutAction: 'actions/checkout',
-    checkoutRef: '${{ github.event.pull_request.head.sha }}',
-    verificationShell: 'bash',
-    expectedSubjectEnvironment: 'GSD_EXPECTED_SUBJECT',
-    expectedSubjectExpression: '${{ github.event.pull_request.head.sha }}',
-    verificationRun: [
-      'actual="$(git rev-parse HEAD)"',
-      'if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then',
-      '  echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"',
-      '  exit 1',
-      'fi',
-    ].join('\n'),
-    securityPrelude: {
-      action: 'step-security/harden-runner',
-      allowedInputs: { 'egress-policy': ['audit', 'block'] },
-    },
-    checkoutInputs: {
-      '.github/workflows/ci.yml': {
-        'secret-scan': { 'fetch-depth': 0 },
-      },
-    },
-  };
+  const contract = JSON.parse(
+    fs.readFileSync(
+      path.join(PROJECT_ROOT, 'config', 'phase43-hosted-ci-contract.json'),
+      'utf8'
+    )
+  );
+  return structuredClone(contract.executionSubject);
 }
 
 function makeControlSteps(policy = makeExecutionSubjectPolicy()) {
@@ -189,12 +171,21 @@ function makeControlSteps(policy = makeExecutionSubjectPolicy()) {
     {
       name: policy.checkoutStep,
       uses: 'actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10',
-      with: { ref: policy.checkoutRef },
+      with: {
+        repository: policy.checkoutRepository,
+        ref: policy.checkoutRef,
+        path: policy.checkoutPath,
+        'persist-credentials': policy.persistCredentials,
+        'fetch-depth': policy.fetchDepth,
+      },
     },
     {
       name: policy.verificationStep,
       shell: policy.verificationShell,
-      env: { [policy.expectedSubjectEnvironment]: policy.expectedSubjectExpression },
+      env: {
+        [policy.expectedSubjectEnvironment]: policy.expectedSubjectExpression,
+        [policy.subjectPathEnvironment]: policy.checkoutPath,
+      },
       run: policy.verificationRun,
     },
   ];
@@ -240,6 +231,25 @@ describe('toolchain authority', () => {
     expect(governed).toContain('config/phase43-toolchain-authority.json');
     expect(governed).toContain('scripts/verify-toolchain-authority.js');
     expect(governed).toContain('tests/toolchain-authority.test.js');
+  });
+
+  test('rejects malformed nested execution-subject authority records', () => {
+    const mutations = [
+      policy => (policy.eventSubjects = null),
+      policy => (policy.evidenceAuthority.checkNames = 'blocking-authority'),
+      policy => (policy.performanceProfile.checkouts = null),
+      policy => (policy.jobProfiles = null),
+      policy => (policy.jobProfiles['.github/workflows/ci.yml'] = null),
+      policy => policy.performanceProfile.jobNames.pop(),
+    ];
+
+    for (const mutate of mutations) {
+      const policy = makeExecutionSubjectPolicy();
+      mutate(policy);
+      expect(() => validateExecutionSubjectPolicy(policy)).toThrow(
+        'Execution-subject control-step authority is invalid.'
+      );
+    }
   });
 
   test('static repository verification parses workflows and reports current drift', () => {

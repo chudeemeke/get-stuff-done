@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "envelopeSchemaVersion": 2,
   "repository": "chudeemeke/get-stuff-done",
   "contractPath": "config/phase43-hosted-ci-contract.json",
@@ -10,15 +10,22 @@
   "allowUnexpectedWorkflows": false,
   "allowUnexpectedJobs": false,
   "executionSubject": {
+    "schemaVersion": 2,
+    "defaultProfile": "single-subject",
     "checkoutStep": "Checkout exact event subject",
     "verificationStep": "Verify execution subject",
     "requireAdjacent": true,
     "checkoutAction": "actions/checkout",
-    "checkoutRef": "${{ github.event.pull_request.head.sha }}",
+    "checkoutRepository": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}",
+    "checkoutRef": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}",
+    "checkoutPath": ".",
+    "persistCredentials": false,
+    "fetchDepth": 1,
     "verificationShell": "bash",
     "expectedSubjectEnvironment": "GSD_EXPECTED_SUBJECT",
-    "expectedSubjectExpression": "${{ github.event.pull_request.head.sha }}",
-    "verificationRun": "actual=\"$(git rev-parse HEAD)\"\nif [ \"$actual\" != \"$GSD_EXPECTED_SUBJECT\" ]; then\n  echo \"::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual\"\n  exit 1\nfi",
+    "subjectPathEnvironment": "GSD_SUBJECT_PATH",
+    "expectedSubjectExpression": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}",
+    "verificationRun": "actual=\"$(git -C \"$GSD_SUBJECT_PATH\" rev-parse HEAD)\"\nif [ \"$actual\" != \"$GSD_EXPECTED_SUBJECT\" ]; then\n  echo \"::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual\"\n  exit 1\nfi",
     "securityPrelude": {
       "action": "step-security/harden-runner",
       "allowedInputs": {
@@ -30,6 +37,118 @@
         "secret-scan": {
           "fetch-depth": 0
         }
+      }
+    },
+    "eventSubjects": {
+      "pull_request": {
+        "repository": "${{ github.event.pull_request.head.repo.full_name }}",
+        "ref": "${{ github.event.pull_request.head.sha }}"
+      },
+      "push": {
+        "repository": "${{ github.repository }}",
+        "ref": "${{ github.sha }}"
+      },
+      "schedule": {
+        "repository": "${{ github.repository }}",
+        "ref": "${{ github.sha }}"
+      },
+      "workflow_dispatch": {
+        "repository": "${{ github.repository }}",
+        "ref": "${{ github.sha }}"
+      }
+    },
+    "evidenceAuthority": {
+      "checkNames": "claim-only",
+      "prWorkflowDefinitions": "claim-only",
+      "mergeEvidence": "owner-run-collector"
+    },
+    "performanceProfile": {
+      "profile": "paired-performance",
+      "authorityEvent": "pull_request",
+      "authorityScope": "same-repository-head",
+      "authorityCondition": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}",
+      "forkOutcome": "no-authority",
+      "nonPullRequestOutcome": "no-authority",
+      "bootstrapActivationGate": "fable-accepted-final-11ah",
+      "jobNames": [
+        "Perf Budget (linux)",
+        "Perf Budget (macos)",
+        "Perf Budget (windows)"
+      ],
+      "checkouts": [
+        {
+          "id": "bootstrap",
+          "checkoutStep": "Checkout trusted bootstrap",
+          "verificationStep": "Verify trusted bootstrap",
+          "repository": "${{ github.repository }}",
+          "ref": "5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce",
+          "path": "authority-bootstrap",
+          "persistCredentials": false,
+          "fetchDepth": 1
+        },
+        {
+          "id": "harness",
+          "checkoutStep": "Checkout trusted measurement harness",
+          "verificationStep": "Verify trusted measurement harness",
+          "repository": "${{ github.repository }}",
+          "ref": "35cbe0883a65409b13f9b7cc6347c793df2a2f15",
+          "path": "measurement-harness",
+          "persistCredentials": false,
+          "fetchDepth": 1
+        },
+        {
+          "id": "reference",
+          "checkoutStep": "Checkout exact pull request base",
+          "verificationStep": "Verify exact pull request base",
+          "repository": "${{ github.event.pull_request.base.repo.full_name }}",
+          "ref": "${{ github.event.pull_request.base.sha }}",
+          "path": "reference",
+          "persistCredentials": false,
+          "fetchDepth": 1
+        },
+        {
+          "id": "candidate",
+          "checkoutStep": "Checkout exact pull request head",
+          "verificationStep": "Verify exact pull request head",
+          "repository": "${{ github.event.pull_request.head.repo.full_name }}",
+          "ref": "${{ github.event.pull_request.head.sha }}",
+          "path": "candidate",
+          "persistCredentials": false,
+          "fetchDepth": 1
+        }
+      ],
+      "requiredFiles": [
+        "package.json",
+        "bun.lock",
+        ".planning/upstream-authority.json"
+      ]
+    },
+    "jobProfiles": {
+      ".github/workflows/ci.yml": {
+        "workflow-lint": "single-subject",
+        "secret-scan": "single-subject",
+        "audit-ci": "single-subject",
+        "docs-gates": "single-subject",
+        "osv-scanner": "single-subject",
+        "lint": "single-subject",
+        "test": "single-subject",
+        "perf-budget": "paired-performance",
+        "parity": "single-subject",
+        "upstream-compat": "single-subject",
+        "boundary-check": "single-subject",
+        "override-check": "single-subject"
+      },
+      ".github/workflows/compat-matrix.yml": {
+        "compat-matrix": "single-subject"
+      },
+      ".github/workflows/cousin-install.yml": {
+        "cousin-install": "single-subject"
+      },
+      ".github/workflows/oversight-probes.yml": {
+        "verify-oversight-probes": "single-subject"
+      },
+      ".github/workflows/upgrade-verifier.yml": {
+        "upgrade-verifier": "single-subject"
       }
     }
   },

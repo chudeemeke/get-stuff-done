@@ -135,7 +135,7 @@
       "osv-scanner": "both",
       "lint": "bun",
       "test": "bun",
-      "perf-budget": "bun",
+      "perf-budget": "both",
       "parity": "bun",
       "upstream-compat": "bun",
       "boundary-check": "bun",

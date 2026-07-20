@@ -218,6 +218,7 @@ describe('toolchain authority', () => {
     expect(manifest.governedWorkflows).toHaveLength(5);
     expect(manifest.schemaVersion).toBe(5);
     expect(manifest.runtimeTools.hyperfine).toEqual(makeHyperfineAuthority());
+    expect(manifest.runtimeRequirements['.github/workflows/ci.yml']['perf-budget']).toBe('both');
   });
 
   test('hosted authority governs every toolchain authority input', () => {

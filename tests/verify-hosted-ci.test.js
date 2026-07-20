@@ -626,6 +626,39 @@ describe('hosted CI verdict authority', () => {
     }
   });
 
+  test('requires the exact same-repository authority condition on paired jobs', () => {
+    const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    const verifyCondition = condition => {
+      const documents = new Map(
+        contract.workflows.map(authority => [
+          authority.path,
+          yaml.load(makeSubjectCompliantWorkflow(authority.path, contract)),
+        ])
+      );
+      const job = documents.get(WORKFLOW_PATHS.CI).jobs['perf-budget'];
+      if (condition === null) delete job.if;
+      else job.if = condition;
+      return () =>
+        verifyWorkflowTopology(contract, filePath =>
+          filePath === 'config/phase43-toolchain-authority.json'
+            ? fs.readFileSync(TOOLCHAIN_MANIFEST_PATH)
+            : yaml.dump(documents.get(filePath))
+        );
+    };
+
+    expect(verifyCondition(contract.executionSubject.performanceProfile.authorityCondition)()).toEqual({
+      workflows: 5,
+      jobs: 39,
+    });
+    for (const condition of [
+      null,
+      "${{ github.event_name == 'pull_request' }}",
+      "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}",
+    ]) {
+      expect(verifyCondition(condition)).toThrow('execution-subject implementation');
+    }
+  });
+
   test('validates scalar matrix values and rejects closed contract boundary drift', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
     const scalarMatrix = structuredClone(contract);

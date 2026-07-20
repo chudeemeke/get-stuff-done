@@ -28,6 +28,13 @@ function readAllWorkflowText() {
     .join('\n');
 }
 
+function readPerfBudgetJob() {
+  const workflow = readCiWorkflow();
+  const start = workflow.indexOf('  perf-budget:');
+  const end = workflow.indexOf('\n  parity:', start);
+  return workflow.slice(start, end);
+}
+
 function findBareBunTestCommands(workflowText) {
   return workflowText
     .split('\n')
@@ -159,14 +166,13 @@ describe('Phase 41 validation workflows', () => {
   });
 });
 
-describe('Phase 42 perf budget workflow', () => {
-  test('perf-budget job compares fresh metrics against committed thresholds on pinned runners', () => {
-    const workflow = readCiWorkflow();
-    const perfJobStart = workflow.indexOf('perf-budget:');
-    const parityJobStart = workflow.indexOf('\n  parity:', perfJobStart);
-    const perfJob = workflow.slice(perfJobStart, parityJobStart);
+describe('Phase 43 paired performance workflow', () => {
+  test('limits blocking authority to same-repository pull request heads', () => {
+    const perfJob = readPerfBudgetJob();
 
-    expect(perfJobStart).toBeGreaterThan(-1);
+    expect(perfJob).toContain(
+      "if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}"
+    );
     expect(perfJob).toContain('name: Perf Budget (${{ matrix.platform }})');
     expect(perfJob).toContain('runs-on: ${{ matrix.os }}');
     expect(perfJob).toContain('os: ubuntu-latest');
@@ -176,8 +182,98 @@ describe('Phase 42 perf budget workflow', () => {
     expect(perfJob).toContain('os: windows-latest');
     expect(perfJob).toContain('platform: windows');
     expect(perfJob).not.toContain('macos-latest');
-    expect(perfJob).toContain('node scripts/bench.js --platform ${{ matrix.platform }} --runs 3 --warmup 1 --out perf-current.json');
-    expect(perfJob).toContain('node scripts/check-perf.js --baseline perf-baseline.json --current perf-current.json --platform ${{ matrix.platform }} --warn-ratio 1.10 --fail-ratio 1.25');
+    expect(perfJob).not.toContain('pull_request_target');
+    expect(perfJob).not.toContain('self-hosted');
+    expect(perfJob).not.toContain('secrets.');
+    for (const permission of ['contents: write', 'issues: write', 'actions: write', 'pull-requests: write']) {
+      expect(perfJob).not.toContain(permission);
+    }
+    expect(perfJob).not.toContain('actions/cache@');
+  });
+
+  test('verifies all four immutable subjects and preflights their authority files', () => {
+    const perfJob = readPerfBudgetJob();
+
+    expect(perfJob.split(`actions/checkout@${ACTION_PINS.checkout}`).length - 1).toBe(4);
+    expect(perfJob.match(/persist-credentials: false/g)).toHaveLength(4);
+    expect(perfJob.match(/fetch-depth: 1/g)).toHaveLength(4);
+    for (const expected of [
+      'name: Checkout trusted bootstrap',
+      'name: Verify trusted bootstrap',
+      'ref: 5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce',
+      'path: authority-bootstrap',
+      'name: Checkout trusted measurement harness',
+      'name: Verify trusted measurement harness',
+      'ref: 35cbe0883a65409b13f9b7cc6347c793df2a2f15',
+      'path: measurement-harness',
+      'name: Checkout exact pull request base',
+      'name: Verify exact pull request base',
+      'repository: ${{ github.event.pull_request.base.repo.full_name }}',
+      'ref: ${{ github.event.pull_request.base.sha }}',
+      'path: reference',
+      'name: Checkout exact pull request head',
+      'name: Verify exact pull request head',
+      'repository: ${{ github.event.pull_request.head.repo.full_name }}',
+      'ref: ${{ github.event.pull_request.head.sha }}',
+      'path: candidate',
+    ]) {
+      expect(perfJob).toContain(expected);
+    }
+    expect(perfJob).toContain('for subject in authority-bootstrap measurement-harness reference candidate; do');
+    expect(perfJob).toContain("for required in package.json bun.lock .planning/upstream-authority.json; do");
+    expect(perfJob.indexOf('name: Preflight paired authority files')).toBeLessThan(
+      perfJob.indexOf('name: Install reviewed Hyperfine')
+    );
+    expect(perfJob).toContain('cp authority-bootstrap/.bun-version .bun-version');
+    expect(perfJob).not.toContain('cp candidate/.bun-version');
+  });
+
+  test('uses only trusted paired controls and uploads one closed evidence bundle', () => {
+    const perfJob = readPerfBudgetJob();
+
+    expect(perfJob).toContain(`actions/setup-node@${ACTION_PINS.setupNode}`);
+    expect(perfJob).toContain('node-version: "22"');
+    expect(perfJob).toContain(`oven-sh/setup-bun@${ACTION_PINS.setupBun}`);
+    expect(perfJob).toContain('bun-version-file: .bun-version');
+    expect(perfJob).toContain('node authority-bootstrap/scripts/install-hyperfine.js');
+    expect(perfJob).not.toContain('apt-get');
+    expect(perfJob).not.toContain('brew install');
+    expect(perfJob).not.toContain('choco install');
+    expect(perfJob.match(/bun install --frozen-lockfile --ignore-scripts/g)).toHaveLength(1);
+    expect(perfJob).toContain('working-directory: measurement-harness');
+    expect(perfJob).toContain('node measurement-harness/scripts/bench.js');
+    expect(perfJob).toContain('--paired');
+    expect(perfJob).toContain('--reference-worktree "$GITHUB_WORKSPACE/reference"');
+    expect(perfJob).toContain('--candidate-worktree "$GITHUB_WORKSPACE/candidate"');
+    expect(perfJob).toContain('--pairs 10');
+    expect(perfJob).toContain('--warmup 3');
+    expect(perfJob).toContain('node measurement-harness/scripts/check-perf.js');
+    expect(perfJob).toContain('--comparison "$GITHUB_WORKSPACE/evidence-bundle/comparison.json"');
+    expect(perfJob).not.toContain('--baseline');
+    expect(perfJob).not.toContain('--current');
+    expect(perfJob).not.toContain('--warn-ratio');
+    expect(perfJob).not.toContain('--fail-ratio');
+
+    expect(perfJob).toContain('candidate/scripts/emit-hosted-runtime-receipt.js');
+    expect(perfJob).toContain('candidate/scripts/emit-paired-binding-manifest.js');
+    expect(perfJob).toContain('node evidence-producer/scripts/emit-hosted-runtime-receipt.js');
+    expect(perfJob).toContain('node evidence-producer/scripts/emit-paired-binding-manifest.js');
+    expect(perfJob).toContain('--tool hyperfine');
+    expect(perfJob).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
+    expect(perfJob.match(/actions\/upload-artifact@/g)).toHaveLength(1);
+    expect(perfJob).toContain('name: paired-performance-ci-perf-${{ matrix.platform }}');
+    for (const file of [
+      'evidence-producer/artifacts/comparison.json',
+      'evidence-producer/artifacts/runtime-receipt.json',
+      'evidence-producer/artifacts/binding-manifest.json',
+    ]) {
+      expect(perfJob).toContain(file);
+    }
+    expect(perfJob).toContain('if-no-files-found: error');
+    expect(perfJob).toContain('overwrite: false');
+    expect(perfJob.indexOf('name: Enforce paired performance budget')).toBeLessThan(
+      perfJob.indexOf('name: Stage bounded evidence producer')
+    );
   });
 });
 

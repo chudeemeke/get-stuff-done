@@ -549,6 +549,8 @@ function verifyWorkflowSubjectImplementation(
     const steps = Array.isArray(job?.steps) ? job.steps : [];
     const profile = Reflect.get(profileAssignments, jobId);
     const isPaired = profile === policy.performanceProfile.profile;
+    const pairedAuthorityConditionValid =
+      !isPaired || job.if === policy.performanceProfile.authorityCondition;
     const definitions = isPaired
       ? policy.performanceProfile.checkouts
       : [{
@@ -639,6 +641,7 @@ function verifyWorkflowSubjectImplementation(
       hasSubjectEnvironmentOverride(job?.env) ||
       steps.some(step => hasSubjectEnvironmentOverride(step?.env)) ||
       hasInheritedWorkingDirectory(job) ||
+      !pairedAuthorityConditionValid ||
       !pairsValid
     ) {
       throw new Error(

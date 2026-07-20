@@ -62,6 +62,7 @@ function metricEvidence() {
       diagnostics: {
         pairRatios: pairs.map(() => 1.05),
         medianPairRatio: 1.05,
+        pairRatioMad: 0,
         meanAbsoluteDeltaNs: 5_000_000,
         abCandidateMeanNs: 105_000_004,
         baCandidateMeanNs: 105_000_005,
@@ -80,6 +81,7 @@ function validComparison() {
       architecture: 'x64',
       cpu: 'fixture-cpu',
       runnerImage: 'fixture-image',
+      runnerImageExpected: 'fixture-image',
       nodeVersion: 'v22.17.1',
       bunVersion: '1.3.5',
       hyperfineVersion: '1.20.0',
@@ -137,7 +139,7 @@ describe('paired performance comparison schema', () => {
 
   test('requires a complete non-placeholder execution identity', () => {
     const validate = compileSchema();
-    for (const field of ['platform', 'architecture', 'cpu', 'runnerImage', 'nodeVersion', 'bunVersion', 'hyperfineVersion', 'sha256']) {
+    for (const field of ['platform', 'architecture', 'cpu', 'runnerImage', 'runnerImageExpected', 'nodeVersion', 'bunVersion', 'hyperfineVersion', 'sha256']) {
       const comparison = validComparison();
       delete comparison.executionIdentity[field];
       expect(validate(comparison)).toBe(false);
@@ -242,6 +244,10 @@ describe('paired performance comparison schema', () => {
     const incomplete = validComparison();
     delete incomplete.metrics.install.summary.diagnostics.medianPairRatio;
     expect(validate(incomplete)).toBe(false);
+
+    const missingDispersion = validComparison();
+    delete missingDispersion.metrics.install.summary.diagnostics.pairRatioMad;
+    expect(validate(missingDispersion)).toBe(false);
 
     const tooFewPairRatios = validComparison();
     tooFewPairRatios.metrics.compose.summary.diagnostics.pairRatios.pop();

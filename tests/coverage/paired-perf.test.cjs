@@ -60,8 +60,32 @@ test('derives deterministic schedules, hashes, summaries, and strict statuses', 
   assert.equal(summary.candidateMeanNs, 120);
   assert.equal(summary.ratio, 1.2);
   assert.equal(summary.diagnostics.medianPairRatio, 1.2);
+  assert.ok(Math.abs(summary.diagnostics.pairRatioMad - 0.1) < Number.EPSILON);
   assert.equal(summary.diagnostics.abCandidateMeanNs, 120);
   assert.equal(summary.diagnostics.baCandidateMeanNs, 120);
+});
+
+test('uses exact aggregate status arithmetic and independent warmup alternation', () => {
+  const referenceDurations = Array(10).fill(7_000_000_000_000_000);
+  const candidateDurations = Array(10).fill(8_750_000_000_000_000);
+  candidateDurations[9] += 1;
+  const pairs = referenceDurations.map((durationNs, index) => ({
+    order: index % 2 === 0 ? 'AB' : 'BA',
+    samples: [
+      { subject: 'reference', durationNs },
+      { subject: 'candidate', durationNs: candidateDurations[index] },
+    ],
+  }));
+  assert.equal(summarizeMetric(pairs).status, 'fail');
+
+  const comparison = capturePairedComparison(
+    pairedSpec({ measuredPairs: 11, warmupRuns: 12 }),
+    request => receiptFor(request)
+  );
+  const observed = comparison.metrics.install.warmups.map(warmup => (
+    warmup.samples.at(0).subject === 'reference' ? 'AB' : 'BA'
+  ));
+  assert.deepEqual(observed, buildSchedule(comparison.policy.seed, 12));
 });
 
 test('captures complete evidence and rejects invalid capture inputs', () => {

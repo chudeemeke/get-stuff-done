@@ -15,6 +15,7 @@ function pairedSpec(overrides = {}) {
       architecture: 'x64',
       cpu: 'fixture-cpu',
       runnerImage: 'fixture-image',
+      runnerImageExpected: 'fixture-image',
       nodeVersion: 'v22.17.1',
       bunVersion: '1.3.5',
       hyperfineVersion: '1.20.0',

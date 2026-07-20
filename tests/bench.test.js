@@ -101,6 +101,7 @@ describe('paired benchmark scheduling', () => {
         platform: () => 'win32',
         architecture: () => 'x64',
         cpu: () => 'fixture-cpu',
+        runnerImage: () => 'windows-2025',
       });
 
       expect(context.spec.subjects.reference.commit).toBe('1'.repeat(40));
@@ -112,12 +113,27 @@ describe('paired benchmark scheduling', () => {
         architecture: 'x64',
         cpu: 'fixture-cpu',
         runnerImage: 'windows-2025',
+        runnerImageExpected: 'windows-2025',
         nodeVersion: process.version,
         bunVersion: '1.3.5',
         hyperfineVersion: '1.20.0',
       });
       expect(context.spec.controls.harnessSha256).toMatch(/^[a-f0-9]{64}$/);
       expect(context.worktrees).toEqual({ reference: referenceWorktree, candidate: candidateWorktree });
+
+      expect(() => buildPairedCaptureContext({
+        referenceWorktree,
+        candidateWorktree,
+        runnerImage: 'windows-2025',
+        pairs: 10,
+        warmup: 1,
+      }, {
+        run: fakeRun,
+        platform: () => 'win32',
+        architecture: () => 'x64',
+        cpu: () => 'fixture-cpu',
+        runnerImage: () => 'ubuntu-24.04',
+      })).toThrow(/expected runner image/i);
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }
@@ -162,6 +178,115 @@ describe('paired benchmark scheduling', () => {
     expect(events.filter(event => event.startsWith('prepare:'))).toHaveLength(44);
     expect(events.filter(event => event.startsWith('measure:'))).toHaveLength(44);
     expect(events.filter(event => event.startsWith('cleanup:'))).toHaveLength(44);
+  });
+
+  test('runs production preparation and exactly one Hyperfine command per scheduled sample', () => {
+    const spec = pairedSpec();
+    const context = {
+      spec,
+      worktrees: { reference: 'reference-worktree', candidate: 'candidate-worktree' },
+    };
+    const calls = [];
+    const executor = createPairedBenchmarkExecutor(context, {
+      resolveExecutionIdentity: () => spec.executionIdentity,
+      resolveControls: () => spec.controls,
+      resolveSubject: worktree => (
+        worktree === context.worktrees.reference ? spec.subjects.reference : spec.subjects.candidate
+      ),
+      createSandbox: (worktree, request) => ({
+        root: `root-${request.metric}-${request.phase}-${request.index}-${request.subject}`,
+        workspace: `workspace-${worktree}`,
+      }),
+      spawn: (command, args, options) => {
+        calls.push({ command, args, options });
+        return { status: 0, stderr: '' };
+      },
+      readJson: () => ({ results: [{ times: [0.125], exit_codes: [0] }] }),
+      cleanup: () => {},
+    });
+
+    capturePairedComparison(spec, executor);
+
+    const hyperfineCalls = calls.filter(call => call.command === 'hyperfine');
+    const preparationCalls = calls.filter(call => call.command === 'bun');
+    expect(hyperfineCalls).toHaveLength(44);
+    expect(preparationCalls).toHaveLength(22);
+    for (const call of hyperfineCalls) {
+      expect(call.args.slice(0, 4)).toEqual(['--warmup', '0', '--runs', '1']);
+      expect(call.args.filter(arg => arg === '--export-json')).toHaveLength(1);
+      expect(['bun install --frozen-lockfile --ignore-scripts', 'bun run compose'])
+        .toContain(call.args.at(-1));
+      expect(call.options.cwd).toMatch(/^workspace-/);
+    }
+    for (const call of preparationCalls) {
+      expect(call.args).toEqual(['install', '--frozen-lockfile', '--ignore-scripts']);
+      expect(call.options.cwd).toMatch(/^workspace-/);
+    }
+  });
+
+  test('rejects observed identity, control, and subject drift after measurement', () => {
+    const spec = pairedSpec();
+    const context = {
+      spec,
+      worktrees: { reference: 'reference-worktree', candidate: 'candidate-worktree' },
+    };
+    const cases = [
+      {
+        pattern: /execution identity changed/,
+        overrides: {
+          resolveExecutionIdentity: (() => {
+            let calls = 0;
+            return () => calls++ === 0 ? spec.executionIdentity : { ...spec.executionIdentity, cpu: 'changed' };
+          })(),
+          resolveControls: () => spec.controls,
+          resolveSubject: worktree => (
+            worktree === context.worktrees.reference ? spec.subjects.reference : spec.subjects.candidate
+          ),
+        },
+      },
+      {
+        pattern: /shared controls changed/,
+        overrides: {
+          resolveExecutionIdentity: () => spec.executionIdentity,
+          resolveControls: (() => {
+            let calls = 0;
+            return () => calls++ === 0 ? spec.controls : { ...spec.controls, workloadSha256: 'f'.repeat(64) };
+          })(),
+          resolveSubject: worktree => (
+            worktree === context.worktrees.reference ? spec.subjects.reference : spec.subjects.candidate
+          ),
+        },
+      },
+      {
+        pattern: /reference subject changed/,
+        overrides: {
+          resolveExecutionIdentity: () => spec.executionIdentity,
+          resolveControls: () => spec.controls,
+          resolveSubject: (() => {
+            let calls = 0;
+            return worktree => {
+              const subject = worktree === context.worktrees.reference
+                ? spec.subjects.reference
+                : spec.subjects.candidate;
+              return calls++ === 0 ? subject : { ...subject, lockSha256: 'f'.repeat(64) };
+            };
+          })(),
+        },
+      },
+    ];
+
+    for (const fixture of cases) {
+      let cleanups = 0;
+      const executor = createPairedBenchmarkExecutor(context, {
+        ...fixture.overrides,
+        createSandbox: () => ({ root: 'fixture-root', workspace: 'fixture-workspace' }),
+        prepare: () => 0,
+        measure: () => ({ benchmarkExitCode: 0, durationNs: 100_000_000 }),
+        cleanup: () => { cleanups++; },
+      });
+      expect(() => capturePairedComparison(spec, executor)).toThrow(fixture.pattern);
+      expect(cleanups).toBe(1);
+    }
   });
 
   test('accepts exactly one successful raw Hyperfine sample in integer nanoseconds', () => {
@@ -263,6 +388,17 @@ describe('paired benchmark scheduling', () => {
   test('derives the first order from the recorded seed and then alternates', () => {
     expect(buildSchedule('00'.padEnd(64, '0'), 6)).toEqual(['AB', 'BA', 'AB', 'BA', 'AB', 'BA']);
     expect(buildSchedule('ff'.padEnd(64, '0'), 6)).toEqual(['BA', 'AB', 'BA', 'AB', 'BA', 'AB']);
+  });
+
+  test('alternates warmups independently when warmups exceed an odd measured-pair count', () => {
+    const comparison = capturePairedComparison(
+      pairedSpec({ measuredPairs: 11, warmupRuns: 12 }),
+      request => receiptFor(request)
+    );
+    const observed = comparison.metrics.install.warmups.map(warmup => (
+      warmup.samples.at(0).subject === 'reference' ? 'AB' : 'BA'
+    ));
+    expect(observed).toEqual(buildSchedule(comparison.policy.seed, 12));
   });
 
   test('captures complete deterministic evidence through one benchmark executor', () => {

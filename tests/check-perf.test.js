@@ -8,9 +8,10 @@ const { spawnSync } = require('child_process');
 const {
   adjudicatePairedComparison,
   canonicalSha256,
+  capturePairedComparison,
   summarizeMetric,
 } = require('../scripts/lib/paired-perf');
-const { captureFixture } = require('./helpers/paired-perf-fixture');
+const { captureFixture, pairedSpec, receiptFor } = require('./helpers/paired-perf-fixture');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const CHECK_PERF = path.join(PROJECT_ROOT, 'scripts', 'check-perf.js');
@@ -150,6 +151,7 @@ describe('paired performance adjudication', () => {
           return candidate.durationNs / reference.durationNs;
         }),
         medianPairRatio: (109 / 104 + 110 / 105) / 2,
+        pairRatioMad: 0.001145317940260293,
         meanAbsoluteDeltaNs: 5,
         abCandidateMeanNs: 109,
         baCandidateMeanNs: 110,
@@ -174,6 +176,23 @@ describe('paired performance adjudication', () => {
     const tamperedVerdict = structuredClone(comparison);
     tamperedVerdict.verdict = 'fail';
     expect(() => adjudicatePairedComparison(tamperedVerdict)).toThrow(/stored verdict/);
+  });
+
+  test('uses exact aggregate arithmetic at the blocking failure boundary', () => {
+    const referenceDurations = Array(10).fill(7_000_000_000_000_000);
+    const candidateDurations = Array(10).fill(8_750_000_000_000_000);
+    candidateDurations[9] += 1;
+    const comparison = capturePairedComparison(pairedSpec(), request => receiptFor(request, {
+      durationNs: request.subject === 'reference'
+        ? referenceDurations[request.index]
+        : candidateDurations[request.index],
+    }));
+
+    expect(comparison.metrics.install.summary.ratio).toBe(1.25);
+    expect(comparison.metrics.install.summary.status).toBe('fail');
+    const result = runPairedCheck(comparison);
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('Paired perf budget failure');
   });
 
   test('rejects provenance, schedule, commit, and receipt tampering', () => {
@@ -261,16 +280,18 @@ describe('check-perf CLI', () => {
     expect(boundary.output).not.toContain('::error');
   });
 
-  test('fails compose and install ratios greater than failure threshold', () => {
+  test('reports historical failures without granting them blocking authority', () => {
     const compose = runCheck({ currentValue: current('linux', { compose: 1260 }) });
     const install = runCheck({ currentValue: current('linux', { install: 1260 }) });
 
-    expect(compose.status).toBe(1);
-    expect(compose.output).toContain('::error');
+    expect(compose.status).toBe(0);
+    expect(compose.output).toContain('Historical perf diagnostic');
+    expect(compose.output).not.toContain('::error');
     expect(compose.output).toContain('linux compose');
 
-    expect(install.status).toBe(1);
-    expect(install.output).toContain('::error');
+    expect(install.status).toBe(0);
+    expect(install.output).toContain('Historical perf diagnostic');
+    expect(install.output).not.toContain('::error');
     expect(install.output).toContain('linux install');
   });
 
@@ -312,7 +333,7 @@ describe('check-perf CLI', () => {
     expect(targeted.output).toContain('acceptedRegressions');
     expect(targeted.output).not.toContain('::error');
 
-    expect(untargeted.status).toBe(1);
+    expect(untargeted.status).toBe(0);
     expect(untargeted.output).toContain('acceptedRegressions');
 
     expect(globalScope.status).toBe(0);

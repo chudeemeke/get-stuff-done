@@ -386,7 +386,7 @@ describe('hosted CI verdict authority', () => {
     expect(contract.schemaVersion).toBe(5);
     expect(contract.executionSubject.securityPrelude).toEqual({
       action: 'step-security/harden-runner',
-      allowedInputs: { 'egress-policy': ['audit', 'block'] },
+      allowedInputs: { 'egress-policy': ['audit', 'block'], token: [''] },
     });
     expect(contract.executionSubject.checkoutInputs).toEqual({
       '.github/workflows/ci.yml': {

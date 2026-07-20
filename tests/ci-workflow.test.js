@@ -1,6 +1,7 @@
 const { describe, expect, test } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
+const yaml = require('js-yaml');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const WORKFLOWS_DIR = path.join(PROJECT_ROOT, '.github', 'workflows');
@@ -13,11 +14,18 @@ const ACTION_PINS = {
   gitleaks: 'e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e',
   hardenRunner: 'bf7454d06d71f1098171f2acdf0cd4708d7b5920',
   lychee: 'e7477775783ea5526144ba13e8db5eec57747ce8',
-  osv: '9a498708959aeaef5ef730655706c5a1df1edbc2',
   setupNode: '249970729cb0ef3589644e2896645e5dc5ba9c38',
   setupBun: '0c5077e51419868618aeaa5fe8019c62421857d6',
   uploadArtifact: '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
 };
+const OSV_IMAGE = 'ghcr.io/google/osv-scanner-action';
+const OSV_IMAGE_DIGEST = 'sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba';
+const ACTION_TOKEN_DEFAULTS = new Map([
+  ['actions/setup-node', 'token'],
+  ['lycheeverse/lychee-action', 'token'],
+  ['oven-sh/setup-bun', 'token'],
+  ['step-security/harden-runner', 'token'],
+]);
 
 function readCiWorkflow() {
   return fs.readFileSync(CI_WORKFLOW, 'utf8');
@@ -68,12 +76,30 @@ describe('CI workflow security action contracts', () => {
     expect(gitleaksStep).toContain('GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}');
   });
 
-  test('OSV scanner action is pinned to the reviewed immutable commit', () => {
+  test('OSV scanner executes the reviewed container by immutable digest', () => {
     const workflow = readCiWorkflow();
-
-    expect(workflow).toContain(
-      `uses: google/osv-scanner-action/osv-scanner-action@${ACTION_PINS.osv}`
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(PROJECT_ROOT, 'config', 'phase43-toolchain-authority.json'), 'utf8')
     );
+
+    expect(manifest.containers.pins[OSV_IMAGE].digest).toBe(OSV_IMAGE_DIGEST);
+    expect(workflow).toContain(`uses: docker://${OSV_IMAGE}@${OSV_IMAGE_DIGEST}`);
+    expect(workflow).not.toContain('google/osv-scanner-action/osv-scanner-action@');
+  });
+
+  test('suppresses automatic token defaults exposed by pinned action metadata', () => {
+    for (const fileName of workflowFiles()) {
+      const document = yaml.load(readWorkflow(fileName));
+      for (const job of Object.values(document.jobs || {})) {
+        for (const step of job.steps || []) {
+          if (typeof step?.uses !== 'string') continue;
+          const action = step.uses.slice(0, step.uses.lastIndexOf('@'));
+          const tokenInput = ACTION_TOKEN_DEFAULTS.get(action);
+          if (!tokenInput) continue;
+          expect(step.with?.[tokenInput]).toBe('');
+        }
+      }
+    }
   });
 
   test('first-party Node actions use reviewed Node 24-compatible commits', () => {
@@ -121,6 +147,10 @@ describe('Phase 43 reproducible workflow toolchains', () => {
 
     expect(usages.length).toBeGreaterThan(0);
     for (const usage of usages) {
+      if (usage.action.startsWith('docker://')) {
+        expect(`${usage.action}@${usage.ref}`).toBe(`docker://${OSV_IMAGE}@${OSV_IMAGE_DIGEST}`);
+        continue;
+      }
       expect(usage.ref).toMatch(/^[0-9a-f]{40}$/);
       expect(usage.ref).toBe(actionAuthority[usage.action]?.sha);
     }

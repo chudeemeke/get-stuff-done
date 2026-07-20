@@ -69,9 +69,19 @@ function makeManifest() {
           sha: 'e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e',
           updateTrigger: 'resolve tag v3 and review release notes',
         },
+        'lycheeverse/lychee-action': {
+          tag: 'v2',
+          sha: 'e7477775783ea5526144ba13e8db5eec57747ce8',
+          updateTrigger: 'resolve tag v2 and review release notes',
+        },
         'oven-sh/setup-bun': {
           tag: 'v2',
           sha: '0c5077e51419868618aeaa5fe8019c62421857d6',
+          updateTrigger: 'resolve tag v2 and review release notes',
+        },
+        'step-security/harden-runner': {
+          tag: 'v2',
+          sha: 'bf7454d06d71f1098171f2acdf0cd4708d7b5920',
           updateTrigger: 'resolve tag v2 and review release notes',
         },
       },
@@ -79,6 +89,11 @@ function makeManifest() {
     containers: {
       semantics: 'exact-digest',
       pins: {
+        'ghcr.io/google/osv-scanner-action': {
+          tag: 'v2.3.8',
+          digest: 'sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba',
+          updateTrigger: 'resolve v2.3.8 and review the scanner image plus entrypoint',
+        },
         'verdaccio/verdaccio': {
           tag: '6',
           digest: 'sha256:bcd0dc5f10d0b9cca5a21b1f4fb3b08c6d90978bc87b8b46402abb271e0d573a',
@@ -145,11 +160,11 @@ function makeCompliantWorkflow() {
   };
   const setupBun = {
     uses: 'oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6',
-    with: { 'bun-version-file': '.bun-version' },
+    with: { 'bun-version-file': '.bun-version', token: '' },
   };
   const setupNode = nodeVersion => ({
     uses: 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38',
-    with: { 'node-version': nodeVersion },
+    with: { 'node-version': nodeVersion, token: '' },
   });
   return {
     permissions: { contents: 'read' },
@@ -217,7 +232,6 @@ describe('toolchain authority', () => {
       'actions/setup-node',
       'actions/upload-artifact',
       'gitleaks/gitleaks-action',
-      'google/osv-scanner-action/osv-scanner-action',
       'lycheeverse/lychee-action',
       'oven-sh/setup-bun',
       'step-security/harden-runner',
@@ -226,6 +240,9 @@ describe('toolchain authority', () => {
     expect(manifest.schemaVersion).toBe(5);
     expect(manifest.runtimeTools.hyperfine).toEqual(makeHyperfineAuthority());
     expect(manifest.runtimeRequirements['.github/workflows/ci.yml']['perf-budget']).toBe('both');
+    expect(manifest.containers.pins['ghcr.io/google/osv-scanner-action'].digest).toBe(
+      'sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba'
+    );
   });
 
   test('hosted authority governs every toolchain authority input', () => {
@@ -272,6 +289,12 @@ describe('toolchain authority', () => {
     ]);
     expect(policy.allowlist.map(entry => entry.action)).not.toContain('actions/upload-artifact');
     expect(policy.allowlist.map(entry => entry.action)).not.toContain('actions/download-artifact');
+    expect(policy.requiredSuppressions.map(entry => [entry.action, entry.input, entry.value])).toEqual([
+      ['actions/setup-node', 'token', ''],
+      ['lycheeverse/lychee-action', 'token', ''],
+      ['oven-sh/setup-bun', 'token', ''],
+      ['step-security/harden-runner', 'token', ''],
+    ]);
   });
 
   test('rejects malformed nested execution-subject authority records', () => {
@@ -289,6 +312,8 @@ describe('toolchain authority', () => {
         reason: 'Not demonstrated.',
       }),
       policy => delete policy.automaticTokenPolicy.allowlist[1].reason,
+      policy => policy.automaticTokenPolicy.requiredSuppressions.pop(),
+      policy => (policy.automaticTokenPolicy.requiredSuppressions[0].value = 'not-empty'),
     ];
 
     for (const mutate of mutations) {
@@ -348,6 +373,28 @@ describe('toolchain authority', () => {
       code: 'workflow_permissions_not_read_only',
       workflow: '.github/workflows/ci.yml',
       job: 'perf-budget',
+    });
+  });
+
+  test('rejects an omitted suppression for a pinned action token default', () => {
+    const workflow = makeCompliantWorkflow();
+    delete workflow.jobs['test-node-20'].steps[1].with.token;
+
+    const result = evaluateToolchainAuthority({
+      manifest: makeManifest(),
+      bunVersion: '1.3.5',
+      workflows: { '.github/workflows/ci.yml': workflow },
+      executionSubject: makeExecutionSubjectPolicy(),
+      runtimeEvidence: makeRuntimeEvidence(),
+    });
+
+    expect(result.diagnostics).toContainEqual({
+      code: 'automatic_token_default_not_suppressed',
+      workflow: '.github/workflows/ci.yml',
+      job: 'test-node-20',
+      step: 1,
+      action: 'actions/setup-node',
+      key: 'token',
     });
   });
 
@@ -912,7 +959,7 @@ describe('toolchain authority', () => {
     const ambiguous = makeCompliantWorkflow();
     ambiguous.jobs['test-node-20'].steps.splice(2, 0, {
       uses: 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38',
-      with: { 'node-version': '20' },
+      with: { 'node-version': '20', token: '' },
     });
     const ambiguousResult = evaluateToolchainAuthority({
       manifest: makeManifest(),
@@ -1171,7 +1218,7 @@ describe('toolchain authority', () => {
       steps: [
         {
           uses: 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38',
-          with: { 'node-version': '22' },
+          with: { 'node-version': '22', token: '' },
         },
         { run: 'npm test' },
       ],
@@ -1289,11 +1336,11 @@ describe('toolchain authority', () => {
             { uses: 'actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10' },
             {
               uses: 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38',
-              with: { 'node-version': '${{ matrix.node }}' },
+              with: { 'node-version': '${{ matrix.node }}', token: '' },
             },
             {
               uses: 'oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6',
-              with: { 'bun-version-file': '.bun-version' },
+              with: { 'bun-version-file': '.bun-version', token: '' },
             },
             { run: 'node --version && bun --version' },
           ],
@@ -1353,7 +1400,7 @@ describe('toolchain authority', () => {
           steps: [
             {
               uses: 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38',
-              with: { 'node-version': '22' },
+              with: { 'node-version': '22', token: '' },
             },
           ],
         },
@@ -1402,7 +1449,7 @@ describe('toolchain authority', () => {
           steps: [
             {
               uses: 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38',
-              with: { 'node-version': '${{ matrix.node }}' },
+              with: { 'node-version': '${{ matrix.node }}', token: '' },
             },
           ],
         },
@@ -1433,7 +1480,7 @@ describe('toolchain authority', () => {
     const workflow = makeCompliantWorkflow();
     workflow.jobs['perf-budget'].steps.push({
       uses: 'oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6',
-      with: { 'bun-version-file': '.bun-version' },
+      with: { 'bun-version-file': '.bun-version', token: '' },
     });
 
     const result = evaluateToolchainAuthority({

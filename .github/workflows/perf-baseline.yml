@@ -28,9 +28,11 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "22"
+          token: ""
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - name: Install dependencies
         run: bun install --frozen-lockfile --ignore-scripts
       - name: Install reviewed Hyperfine
@@ -65,6 +67,7 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "22"
+          token: ""
       # First-run protocol:
       # 1. Register this workflow on the default branch.
       # 2. Run: gh workflow run perf-baseline.yml --ref <phase-41-ref>.

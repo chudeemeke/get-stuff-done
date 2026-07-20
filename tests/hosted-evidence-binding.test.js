@@ -416,6 +416,23 @@ describe('hosted evidence binding', () => {
     expect(paired.paired.adjudication.verdict).toBe('pass');
   });
 
+  test('rejects a caller-supplied canonical repository that differs from the contract', () => {
+    const fixture = joinFixture();
+    const attackerRepository = 'attacker/other-repository';
+    fixture.event.canonicalRepository = attackerRepository;
+    fixture.event.base.repository = attackerRepository;
+    fixture.event.head.repository = attackerRepository;
+    for (const artifact of fixture.artifacts.filter(candidate => candidate.manifest)) {
+      for (const field of ['bootstrap', 'harness', 'reference', 'candidate']) {
+        artifact.manifest[field].repository = attackerRepository;
+      }
+    }
+
+    expect(() => joinHostedEvidence(fixture)).toThrow(
+      'Hosted evidence join canonical repository does not match the contract.'
+    );
+  });
+
   test('returns an explicit no-authority outcome for a fork without accepting evidence', () => {
     const fixture = joinFixture();
     fixture.event.head.repository = 'contributor/get-stuff-done';

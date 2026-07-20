@@ -432,13 +432,16 @@ function validatePairedBindingManifest(manifest, policy) {
   return manifest;
 }
 
-function validateJoinEvent(event, policy) {
+function validateJoinEvent(event, policy, contractRepository) {
   if (
     !hasExactFields(event, EVENT_FIELDS) ||
     event.name !== policy.authorityEvent ||
     !isCanonicalRepository(event.canonicalRepository)
   ) {
     throw new Error('Hosted evidence join event is invalid.');
+  }
+  if (event.canonicalRepository !== contractRepository) {
+    throw new Error('Hosted evidence join canonical repository does not match the contract.');
   }
   validateSubjectIdentity(event.base);
   validateSubjectIdentity(event.head);
@@ -640,8 +643,8 @@ function expectedPairedSubjects(contract, event) {
     throw new Error('Hosted evidence join paired checkout authority is invalid.');
   }
   return {
-    bootstrap: { repository: event.canonicalRepository, sha: bootstrap.ref },
-    harness: { repository: event.canonicalRepository, sha: harness.ref },
+    bootstrap: { repository: contract.repository, sha: bootstrap.ref },
+    harness: { repository: contract.repository, sha: harness.ref },
     reference: event.base,
     candidate: event.head,
   };
@@ -808,7 +811,11 @@ function joinHostedEvidence(input) {
     throw new Error('Hosted evidence join input is invalid.');
   }
   const topology = deriveEvidenceTopology(input.hostedContract, input.toolchainAuthority);
-  const authority = validateJoinEvent(input.event, input.hostedContract.evidenceBinding);
+  const authority = validateJoinEvent(
+    input.event,
+    input.hostedContract.evidenceBinding,
+    input.hostedContract.repository
+  );
   if (authority.authority === 'none') {
     if (
       !Array.isArray(input.runs) ||

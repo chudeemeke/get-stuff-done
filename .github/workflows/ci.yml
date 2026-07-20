@@ -36,6 +36,7 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "22"
+          token: ""
       - name: Run actionlint
         run: bash scripts/lint-workflows.sh
 
@@ -48,6 +49,7 @@ jobs:
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2
         with:
           egress-policy: audit
+          token: ""
       - name: Checkout exact event subject
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
@@ -85,6 +87,7 @@ jobs:
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2
         with:
           egress-policy: audit
+          token: ""
       - name: Checkout exact event subject
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
@@ -107,9 +110,11 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "22"
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: npm install --package-lock-only --ignore-scripts
       - run: bun run audit:ci
@@ -142,6 +147,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run lint:docs
       - name: Collect tracked markdown link targets
@@ -153,6 +159,7 @@ jobs:
       - name: Check markdown links
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
+          token: ""
           args: --config lychee.toml --files-from .lychee-targets --no-progress --verbose
           fail: "true"
           failIfEmpty: "true"
@@ -166,6 +173,7 @@ jobs:
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2
         with:
           egress-policy: audit
+          token: ""
       - name: Checkout exact event subject
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
@@ -188,18 +196,19 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "22"
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
-      # Direct action usage is intentional. OSV's reusable workflow is the
-      # general recommendation, but this job needs same-job harden-runner
-      # telemetry plus local medium/low triage.
+      # The reviewed action revision delegates to this image. Invoke the exact
+      # digest directly so the effective scanner identity cannot move with a tag.
       - name: Run OSV scanner against bun.lock
         continue-on-error: true
-        uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+        uses: docker://ghcr.io/google/osv-scanner-action@sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba # v2.3.8
         with:
-          scan-args: |-
+          args: |-
             scan
             source
             --lockfile=bun.lock
@@ -258,6 +267,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
       - run: bun run lint
@@ -297,6 +307,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - name: Cache bun dependencies
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
@@ -472,9 +483,11 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "22"
+          token: ""
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - name: Install reviewed Hyperfine
         shell: bash
         run: |
@@ -571,6 +584,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
       - run: bun run sbom
@@ -616,6 +630,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - name: Cache bun dependencies
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
@@ -658,6 +673,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
       - name: Check boundary violations
@@ -694,6 +710,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
       - name: Check override staleness

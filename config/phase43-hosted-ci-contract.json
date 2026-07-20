@@ -29,11 +29,12 @@
     "securityPrelude": {
       "action": "step-security/harden-runner",
       "allowedInputs": {
-        "egress-policy": ["audit", "block"]
+        "egress-policy": ["audit", "block"],
+        "token": [""]
       }
     },
     "automaticTokenPolicy": {
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "requiredPermissions": {
         "contents": "read"
       },
@@ -49,6 +50,32 @@
           "key": "GITHUB_TOKEN",
           "value": "${{ secrets.GITHUB_TOKEN }}",
           "reason": "Read-only pull-request metadata access required by the pinned Secret Scan action."
+        }
+      ],
+      "requiredSuppressions": [
+        {
+          "action": "actions/setup-node",
+          "input": "token",
+          "value": "",
+          "reason": "Pinned metadata otherwise defaults this setup action to github.token."
+        },
+        {
+          "action": "lycheeverse/lychee-action",
+          "input": "token",
+          "value": "",
+          "reason": "Pinned metadata otherwise defaults this documentation action to github.token."
+        },
+        {
+          "action": "oven-sh/setup-bun",
+          "input": "token",
+          "value": "",
+          "reason": "Pinned metadata otherwise defaults this setup action to github.token."
+        },
+        {
+          "action": "step-security/harden-runner",
+          "input": "token",
+          "value": "",
+          "reason": "Pinned metadata otherwise defaults this security action to github.token."
         }
       ]
     },

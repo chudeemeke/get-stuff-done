@@ -44,11 +44,6 @@
         "sha": "e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e",
         "updateTrigger": "resolve tag v3 and review release notes"
       },
-      "google/osv-scanner-action/osv-scanner-action": {
-        "tag": "v2.3.8",
-        "sha": "9a498708959aeaef5ef730655706c5a1df1edbc2",
-        "updateTrigger": "resolve tag v2.3.8 and review release notes"
-      },
       "lycheeverse/lychee-action": {
         "tag": "v2",
         "sha": "e7477775783ea5526144ba13e8db5eec57747ce8",
@@ -69,6 +64,11 @@
   "containers": {
     "semantics": "exact-digest",
     "pins": {
+      "ghcr.io/google/osv-scanner-action": {
+        "tag": "v2.3.8",
+        "digest": "sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba",
+        "updateTrigger": "resolve v2.3.8 and review the scanner image plus entrypoint"
+      },
       "verdaccio/verdaccio": {
         "tag": "6",
         "digest": "sha256:bcd0dc5f10d0b9cca5a21b1f4fb3b08c6d90978bc87b8b46402abb271e0d573a",

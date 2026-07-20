@@ -22,8 +22,8 @@ const MAX_RUNTIME_EVIDENCE_BYTES = 256 * 1024;
 const MAX_BUN_VERSION_BYTES = 128;
 const MAX_MATRIX_DIMENSIONS = 10;
 const MAX_RUNTIME_MATRIX_ROWS = MAX_RUNTIME_EVIDENCE;
-const SETUP_BUN_INPUT_KEYS = new Set(['bun-version-file']);
-const SETUP_NODE_INPUT_KEYS = new Set(['node-version']);
+const SETUP_BUN_INPUT_KEYS = new Set(['bun-version-file', 'token']);
+const SETUP_NODE_INPUT_KEYS = new Set(['node-version', 'token']);
 const HELP = [
   'Usage:',
   '  node scripts/verify-toolchain-authority.js [--mode static|local-runtime] [--runtime-evidence <path>]',
@@ -109,6 +109,7 @@ const AUTOMATIC_TOKEN_POLICY_KEYS = new Set([
   'schemaVersion',
   'requiredPermissions',
   'allowlist',
+  'requiredSuppressions',
 ]);
 const AUTOMATIC_TOKEN_IMPLICIT_ENTRY_KEYS = new Set(['action', 'exposure', 'reason']);
 const AUTOMATIC_TOKEN_EXPLICIT_ENTRY_KEYS = new Set([
@@ -118,6 +119,18 @@ const AUTOMATIC_TOKEN_EXPLICIT_ENTRY_KEYS = new Set([
   'value',
   'reason',
 ]);
+const AUTOMATIC_TOKEN_SUPPRESSION_ENTRY_KEYS = new Set([
+  'action',
+  'input',
+  'value',
+  'reason',
+]);
+const AUTOMATIC_TOKEN_DEFAULT_INPUTS = Object.freeze({
+  'actions/setup-node': 'token',
+  'lycheeverse/lychee-action': 'token',
+  'oven-sh/setup-bun': 'token',
+  'step-security/harden-runner': 'token',
+});
 const PERFORMANCE_PROFILE_KEYS = new Set([
   'profile',
   'authorityEvent',
@@ -144,11 +157,15 @@ const CONTROL_CHECKOUT_KEYS = new Set(['name', 'uses', 'with', 'continue-on-erro
 
 function validateAutomaticTokenPolicy(policy) {
   const entries = Array.isArray(policy?.allowlist) ? policy.allowlist : [];
+  const suppressions = Array.isArray(policy?.requiredSuppressions)
+    ? policy.requiredSuppressions
+    : [];
   const checkout = entries.find(entry => entry?.action === 'actions/checkout');
   const secretScan = entries.find(entry => entry?.action === 'gitleaks/gitleaks-action');
+  const expectedSuppressions = Object.entries(AUTOMATIC_TOKEN_DEFAULT_INPUTS);
   if (
     !hasExactKeys(policy, AUTOMATIC_TOKEN_POLICY_KEYS) ||
-    policy.schemaVersion !== 1 ||
+    policy.schemaVersion !== 2 ||
     JSON.stringify(policy.requiredPermissions) !== JSON.stringify({ contents: 'read' }) ||
     entries.length !== 2 ||
     new Set(entries.map(entry => entry?.action)).size !== entries.length ||
@@ -159,7 +176,21 @@ function validateAutomaticTokenPolicy(policy) {
     secretScan.exposure !== 'env' ||
     secretScan.key !== 'GITHUB_TOKEN' ||
     secretScan.value !== '${{ secrets.GITHUB_TOKEN }}' ||
-    !isBoundedPrintable(secretScan.reason)
+    !isBoundedPrintable(secretScan.reason) ||
+    suppressions.length !== expectedSuppressions.length ||
+    new Set(suppressions.map(entry => `${entry?.action}\0${entry?.input}`)).size !==
+      suppressions.length ||
+    suppressions.some(
+      entry =>
+        !hasExactKeys(entry, AUTOMATIC_TOKEN_SUPPRESSION_ENTRY_KEYS) ||
+        Reflect.get(AUTOMATIC_TOKEN_DEFAULT_INPUTS, entry.action) !== entry.input ||
+        entry.value !== '' ||
+        !isBoundedPrintable(entry.reason)
+    ) ||
+    expectedSuppressions.some(
+      ([action, input]) =>
+        !suppressions.some(entry => entry.action === action && entry.input === input)
+    )
   ) {
     throw new Error('Automatic GitHub-token authority is invalid.');
   }
@@ -288,7 +319,7 @@ function validateExecutionSubjectPolicy(policy) {
     !hasExactKeys(policy.securityPrelude, SECURITY_PRELUDE_KEYS) ||
     policy.securityPrelude.action !== 'step-security/harden-runner' ||
     JSON.stringify(policy.securityPrelude.allowedInputs) !==
-      JSON.stringify({ 'egress-policy': ['audit', 'block'] }) ||
+      JSON.stringify({ 'egress-policy': ['audit', 'block'], token: [''] }) ||
     !automaticTokenPolicyValid ||
     JSON.stringify(policy.checkoutInputs) !==
       JSON.stringify({
@@ -868,6 +899,12 @@ function tokenBindingAllowed(policy, action, exposure, key, value) {
   );
 }
 
+function tokenDefaultSuppressed(policy, action, key, value) {
+  return policy.requiredSuppressions.some(
+    entry => entry.action === action && entry.input === key && entry.value === value
+  );
+}
+
 function evaluateAutomaticTokenPolicy(document, policy, workflow, actionPins, diagnostics) {
   if (!isReadOnlyPermissions(document?.permissions, policy.requiredPermissions)) {
     diagnostics.add({ code: 'workflow_permissions_not_read_only', workflow });
@@ -876,6 +913,15 @@ function evaluateAutomaticTokenPolicy(document, policy, workflow, actionPins, di
     if (!actionPins.has(entry.action)) {
       diagnostics.add({
         code: 'automatic_token_allowlist_action_not_pinned',
+        workflow,
+        action: entry.action,
+      });
+    }
+  }
+  for (const entry of policy.requiredSuppressions) {
+    if (!actionPins.has(entry.action)) {
+      diagnostics.add({
+        code: 'automatic_token_suppression_action_not_pinned',
         workflow,
         action: entry.action,
       });
@@ -913,6 +959,21 @@ function evaluateAutomaticTokenPolicy(document, policy, workflow, actionPins, di
     for (const [stepIndex, step] of steps.entries()) {
       if (!step || typeof step !== 'object' || Array.isArray(step)) continue;
       const action = actionNameFromUses(step.uses);
+      for (const suppression of policy.requiredSuppressions) {
+        if (
+          action === suppression.action &&
+          step.with?.[suppression.input] !== suppression.value
+        ) {
+          diagnostics.add({
+            code: 'automatic_token_default_not_suppressed',
+            workflow,
+            job: jobId,
+            step: stepIndex,
+            action,
+            key: suppression.input,
+          });
+        }
+      }
       const tokenReferences = collectSensitiveTokenReferences(step);
       if (typeof step.run === 'string' && tokenReferences.length > 0) {
         diagnostics.add({
@@ -940,6 +1001,7 @@ function evaluateAutomaticTokenPolicy(document, policy, workflow, actionPins, di
         if (!bindings || typeof bindings !== 'object' || Array.isArray(bindings)) continue;
         for (const [key, value] of Object.entries(bindings)) {
           if (!isTokenBindingKey(key) || hasSensitiveTokenExpression(value)) continue;
+          if (action && tokenDefaultSuppressed(policy, action, key, value)) continue;
           if (!action || !tokenBindingAllowed(policy, action, location, key, value)) {
             reportForbidden(jobId, stepIndex, action, location, key);
           }
@@ -1227,6 +1289,7 @@ function evaluateToolchainAuthority(input) {
           !hasOnlyKeys(step.with, SETUP_BUN_INPUT_KEYS) ||
           Object.keys(step.with || {}).length !== SETUP_BUN_INPUT_KEYS.size ||
           step.with?.['bun-version-file'] !== input.manifest.bun.versionFile ||
+          step.with?.token !== '' ||
           Object.prototype.hasOwnProperty.call(step.with || {}, 'bun-version'))
       ) {
         diagnostics.add({
@@ -1290,6 +1353,7 @@ function evaluateToolchainAuthority(input) {
           !isUnconditionalBlockingStep(setupNodeStep) ||
           !hasOnlyKeys(setupNodeStep.with, SETUP_NODE_INPUT_KEYS) ||
           Object.keys(setupNodeStep.with || {}).length !== SETUP_NODE_INPUT_KEYS.size ||
+          setupNodeStep.with?.token !== '' ||
           resolvedMajors.some(
             major => major === null || !input.manifest.node.declaredMajors.includes(major)
           )

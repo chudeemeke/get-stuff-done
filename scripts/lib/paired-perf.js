@@ -8,16 +8,6 @@ const WARNING_FRACTION = { numerator: 11n, denominator: 10n };
 const FAILURE_FRACTION = { numerator: 5n, denominator: 4n };
 const SCHEDULER = 'alternating-ab-ba-v1';
 const METRICS = ['install', 'compose'];
-const EXECUTION_IDENTITY_FIELDS = [
-  'platform',
-  'architecture',
-  'cpu',
-  'runnerImage',
-  'runnerImageExpected',
-  'nodeVersion',
-  'bunVersion',
-  'hyperfineVersion',
-];
 const PLACEHOLDER_IDENTITIES = new Set(['unknown', 'unavailable', 'n/a']);
 const SAMPLE_FIELDS = [
   'benchmarkExitCode',
@@ -56,8 +46,17 @@ function bindDigest(value) {
 }
 
 function assertExecutionIdentity(identity) {
-  for (const field of EXECUTION_IDENTITY_FIELDS) {
-    const value = identity[field];
+  const fields = [
+    ['platform', identity.platform],
+    ['architecture', identity.architecture],
+    ['cpu', identity.cpu],
+    ['runnerImage', identity.runnerImage],
+    ['runnerImageExpected', identity.runnerImageExpected],
+    ['nodeVersion', identity.nodeVersion],
+    ['bunVersion', identity.bunVersion],
+    ['hyperfineVersion', identity.hyperfineVersion],
+  ];
+  for (const [field, value] of fields) {
     if (typeof value !== 'string' || value !== value.trim() ||
         !value || PLACEHOLDER_IDENTITIES.has(value.toLowerCase())) {
       throw new Error(`execution identity ${field} must be a normalized non-placeholder value`);

@@ -48,6 +48,28 @@ const RUNTIME_SUBJECT_FIELDS = [
   'requiredTools',
 ];
 const MAX_EVIDENCE_IDENTITIES = 100;
+const EVENT_FIELDS = ['name', 'canonicalRepository', 'base', 'head'];
+const RUN_FIELDS = ['workflow', 'runId', 'attempt', 'event', 'headSha'];
+const ARTIFACT_FIELDS = [
+  'artifactId',
+  'name',
+  'workflow',
+  'runId',
+  'headSha',
+  'archiveSha256',
+  'tierBReceiptSha256',
+  'receipt',
+  'manifest',
+  'comparisonSha256',
+];
+const JOIN_INPUT_FIELDS = [
+  'hostedContract',
+  'toolchainAuthority',
+  'event',
+  'runs',
+  'tierA',
+  'artifacts',
+];
 
 function hasExactFields(value, fields) {
   return (
@@ -80,12 +102,13 @@ function validateEventSubjectPolicies(policies) {
 }
 
 function isCanonicalRepository(value) {
-  if (typeof value !== 'string') return false;
+  if (typeof value !== 'string' || value.length > 201) return false;
   const segments = value.split('/');
   return (
     segments.length === 2 &&
     segments.every(
       segment =>
+        segment.length <= 100 &&
         segment !== '.' &&
         segment !== '..' &&
         /^[A-Za-z0-9_.-]+$/.test(segment)
@@ -302,10 +325,415 @@ function deriveEvidenceTopology(hostedContract, toolchainAuthority) {
   };
 }
 
+function isPositiveSafeInteger(value) {
+  return Number.isSafeInteger(value) && value > 0;
+}
+
+function isCommitSha(value) {
+  return typeof value === 'string' && /^[0-9a-f]{40}$/.test(value);
+}
+
+function isSha256(value) {
+  return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);
+}
+
+function isResolvedSemver(value) {
+  if (typeof value !== 'string' || value.length === 0 || value.length > 128) return false;
+  // The bounded input makes the optional prerelease/build groups non-amplifying.
+  // eslint-disable-next-line security/detect-unsafe-regex
+  return /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(value);
+}
+
+function validateSubjectIdentity(subject) {
+  if (
+    !hasExactFields(subject, PAIRED_SUBJECT_FIELDS) ||
+    !isCanonicalRepository(subject.repository) ||
+    !isCommitSha(subject.sha)
+  ) {
+    throw new Error('Hosted paired binding manifest subject is invalid.');
+  }
+  return subject;
+}
+
+function validatePairedBindingManifest(manifest, policy) {
+  validateEvidenceBindingPolicy(policy);
+  if (
+    !hasExactFields(manifest, policy.pairedManifest.fields) ||
+    manifest.schemaVersion !== policy.pairedManifest.schemaVersion
+  ) {
+    throw new Error('Hosted paired binding manifest is invalid.');
+  }
+  for (const field of ['bootstrap', 'harness', 'reference', 'candidate']) {
+    validateSubjectIdentity(Reflect.get(manifest, field));
+  }
+  if (!isSha256(manifest.tierBReceiptSha256) || !isSha256(manifest.comparisonSha256)) {
+    throw new Error('Hosted paired binding manifest digest is invalid.');
+  }
+  return manifest;
+}
+
+function validateJoinEvent(event, policy) {
+  if (
+    !hasExactFields(event, EVENT_FIELDS) ||
+    event.name !== policy.authorityEvent ||
+    !isCanonicalRepository(event.canonicalRepository)
+  ) {
+    throw new Error('Hosted evidence join event is invalid.');
+  }
+  validateSubjectIdentity(event.base);
+  validateSubjectIdentity(event.head);
+  if (event.base.repository !== event.canonicalRepository) {
+    throw new Error('Hosted evidence join base repository is not canonical.');
+  }
+  return classifyPairedPerformanceAuthority({
+    canonicalRepository: event.canonicalRepository,
+    event: event.name,
+    headRepository: event.head.repository,
+  });
+}
+
+function validateTierARecord(record, contract) {
+  const fields = ['workflow', ...contract.runtimeReceipts.tierAFields];
+  if (
+    !hasExactFields(record, fields) ||
+    record.schemaVersion !== contract.runtimeReceipts.schemaVersion ||
+    !isBoundedPrintable(record.workflow) ||
+    !isPositiveSafeInteger(record.jobId) ||
+    !isPositiveSafeInteger(record.runId) ||
+    !isPositiveSafeInteger(record.attempt) ||
+    !isBoundedPrintable(record.job) ||
+    !isPositiveSafeInteger(record.runnerId) ||
+    !isBoundedPrintable(record.runnerName) ||
+    !isPositiveSafeInteger(record.runnerGroupId) ||
+    !isBoundedPrintable(record.runnerGroupName) ||
+    !Array.isArray(record.runnerLabels) ||
+    record.runnerLabels.length === 0 ||
+    record.runnerLabels.length > 50 ||
+    record.runnerLabels.some(label => !isBoundedPrintable(label, 100)) ||
+    new Set(record.runnerLabels).size !== record.runnerLabels.length
+  ) {
+    throw new Error('Hosted evidence join Tier A record is invalid.');
+  }
+  return record;
+}
+
+function isClosedVersionMap(value, validator) {
+  return (
+    value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.keys(value).length <= 20 &&
+    Object.entries(value).every(([key, item]) => validator(key, item))
+  );
+}
+
+function validateTierBRecord(record, contract) {
+  const hostedImageAbsent =
+    record?.hostedImageName === null && record?.hostedImageVersion === null;
+  const hostedImagePresent =
+    isBoundedPrintable(record?.hostedImageName, 100) &&
+    isBoundedPrintable(record?.hostedImageVersion, 100);
+  if (
+    !hasExactFields(record, contract.runtimeReceipts.tierBFields) ||
+    record.schemaVersion !== contract.runtimeReceipts.schemaVersion ||
+    !isBoundedToken(record.subject) ||
+    !isBoundedPrintable(record.event, 50) ||
+    !isPositiveSafeInteger(record.runId) ||
+    !isPositiveSafeInteger(record.attempt) ||
+    !['linux', 'macos', 'windows'].includes(record.os) ||
+    !isBoundedPrintable(record.osVersion, 100) ||
+    !['x64', 'arm64', 'x86'].includes(record.architecture) ||
+    !isBoundedPrintable(record.runnerImage, 300) ||
+    !record.runnerImage.startsWith(`${record.os}:${record.osVersion}:`) ||
+    (!hostedImageAbsent && !hostedImagePresent) ||
+    !isResolvedSemver(record.nodeVersion) ||
+    !isResolvedSemver(record.bunVersion) ||
+    !isClosedVersionMap(
+      record.tools,
+      (tool, version) => isBoundedToken(tool) && isResolvedSemver(version)
+    ) ||
+    !isClosedVersionMap(
+      record.containers,
+      (image, digest) =>
+        /^[a-z0-9._/-]{1,200}$/.test(image) && /^sha256:[0-9a-f]{64}$/.test(digest)
+    )
+  ) {
+    throw new Error('Hosted evidence join Tier B record is invalid.');
+  }
+  return record;
+}
+
+function expectedRuntimeOs(authority) {
+  const runner = authority?.matrix?.platform || authority?.matrix?.os;
+  if (runner === 'linux' || runner?.startsWith('ubuntu')) return 'linux';
+  if (runner === 'macos' || runner?.startsWith('macos')) return 'macos';
+  if (runner === 'windows' || runner?.startsWith('windows')) return 'windows';
+  return null;
+}
+
+function validateRuntimeAuthority(record, subject, toolchainAuthority) {
+  const authority = Reflect.get(toolchainAuthority?.runtimeSubjects || {}, subject);
+  const requiredTools = Array.isArray(authority?.requiredTools)
+    ? [...authority.requiredTools].sort()
+    : [];
+  const actualTools = Object.keys(record.tools).sort();
+  const nodeMajor = Number(record.nodeVersion.slice(0, record.nodeVersion.indexOf('.')));
+  const toolsMatch =
+    JSON.stringify(actualTools) === JSON.stringify(requiredTools) &&
+    requiredTools.every(
+      tool =>
+        Reflect.get(record.tools, tool) ===
+        Reflect.get(toolchainAuthority?.runtimeTools || {}, tool)?.version
+    );
+  const containersMatch = Object.entries(record.containers).every(
+    ([image, digest]) =>
+      Reflect.get(toolchainAuthority?.containers?.pins || {}, image)?.digest === digest
+  );
+  if (
+    !authority ||
+    record.os !== expectedRuntimeOs(authority) ||
+    nodeMajor !== authority.nodeMajor ||
+    record.bunVersion !== toolchainAuthority?.bun?.version ||
+    !toolsMatch ||
+    !containersMatch
+  ) {
+    throw new Error('Hosted Tier B runtime authority does not match its subject.');
+  }
+  return record;
+}
+
+function validateRunSet(runs, topology, event) {
+  if (!Array.isArray(runs) || runs.length !== topology.cycle.workflows.length) {
+    throw new Error('Hosted evidence join run cardinality is invalid.');
+  }
+  const expectedWorkflows = new Set(topology.cycle.workflows.map(workflow => workflow.path));
+  const byWorkflow = new Map();
+  const runIds = new Set();
+  for (const run of runs) {
+    if (
+      !hasExactFields(run, RUN_FIELDS) ||
+      !expectedWorkflows.has(run.workflow) ||
+      byWorkflow.has(run.workflow) ||
+      !isPositiveSafeInteger(run.runId) ||
+      runIds.has(run.runId) ||
+      run.attempt !== topology.cycle.requiredAttempt ||
+      run.event !== topology.cycle.event ||
+      run.headSha !== event.head.sha
+    ) {
+      throw new Error('Hosted evidence join run identity is invalid or duplicated.');
+    }
+    byWorkflow.set(run.workflow, run);
+    runIds.add(run.runId);
+  }
+  return byWorkflow;
+}
+
+function validateTierASet(records, topology, runsByWorkflow, contract) {
+  if (!Array.isArray(records) || records.length !== topology.tierAJobs.length) {
+    throw new Error('Hosted evidence join Tier A cardinality is invalid.');
+  }
+  const expected = new Set(
+    topology.tierAJobs.map(record => `${record.workflow}\0${record.job}`)
+  );
+  const byIdentity = new Map();
+  const jobIds = new Set();
+  for (const record of records) {
+    validateTierARecord(record, contract);
+    const identity = `${record.workflow}\0${record.job}`;
+    const run = runsByWorkflow.get(record.workflow);
+    if (
+      !expected.has(identity) ||
+      byIdentity.has(identity) ||
+      jobIds.has(record.jobId) ||
+      record.runId !== run?.runId ||
+      record.attempt !== run.attempt
+    ) {
+      throw new Error('Hosted evidence join Tier A identity is invalid or duplicated.');
+    }
+    byIdentity.set(identity, record);
+    jobIds.add(record.jobId);
+  }
+  return byIdentity;
+}
+
+function expectedPairedSubjects(contract, event) {
+  const checkouts = contract?.executionSubject?.performanceProfile?.checkouts;
+  if (!Array.isArray(checkouts) || checkouts.length !== 4) {
+    throw new Error('Hosted evidence join paired checkout authority is invalid.');
+  }
+  const byId = new Map(checkouts.map(checkout => [checkout?.id, checkout]));
+  if (byId.size !== 4 || !['bootstrap', 'harness', 'reference', 'candidate'].every(id => byId.has(id))) {
+    throw new Error('Hosted evidence join paired checkout authority is invalid.');
+  }
+  const bootstrap = byId.get('bootstrap');
+  const harness = byId.get('harness');
+  if (!isCommitSha(bootstrap.ref) || !isCommitSha(harness.ref)) {
+    throw new Error('Hosted evidence join paired checkout authority is invalid.');
+  }
+  return {
+    bootstrap: { repository: event.canonicalRepository, sha: bootstrap.ref },
+    harness: { repository: event.canonicalRepository, sha: harness.ref },
+    reference: event.base,
+    candidate: event.head,
+  };
+}
+
+function subjectsEqual(actual, expected) {
+  return actual.repository === expected.repository && actual.sha === expected.sha;
+}
+
+function validateArtifactRecord(record) {
+  if (
+    !hasExactFields(record, ARTIFACT_FIELDS) ||
+    !isPositiveSafeInteger(record.artifactId) ||
+    !isBoundedToken(record.name) ||
+    !isBoundedPrintable(record.workflow) ||
+    !isPositiveSafeInteger(record.runId) ||
+    !isCommitSha(record.headSha) ||
+    !isSha256(record.archiveSha256) ||
+    !isSha256(record.tierBReceiptSha256)
+  ) {
+    throw new Error('Hosted evidence join artifact record is invalid.');
+  }
+  return record;
+}
+
+function validatePairedArtifact(record, expectedSubjects, policy) {
+  validatePairedBindingManifest(record.manifest, policy);
+  if (
+    !isSha256(record.comparisonSha256) ||
+    record.manifest.tierBReceiptSha256 !== record.tierBReceiptSha256 ||
+    record.manifest.comparisonSha256 !== record.comparisonSha256 ||
+    !['bootstrap', 'harness', 'reference', 'candidate'].every(field =>
+      subjectsEqual(Reflect.get(record.manifest, field), Reflect.get(expectedSubjects, field))
+    )
+  ) {
+    throw new Error('Hosted paired evidence binding is invalid.');
+  }
+}
+
+function validateArtifactSet(
+  records,
+  topology,
+  runsByWorkflow,
+  tierAByIdentity,
+  contract,
+  toolchainAuthority,
+  event
+) {
+  if (!Array.isArray(records) || records.length !== topology.runtimeArtifacts.length) {
+    throw new Error('Hosted evidence join artifact cardinality is invalid.');
+  }
+  const expectedByName = new Map(topology.runtimeArtifacts.map(record => [record.name, record]));
+  const expectedSubjects = expectedPairedSubjects(contract, event);
+  const artifactIds = new Set();
+  const seenNames = new Set();
+  const bindings = new Map();
+  for (const record of records) {
+    validateArtifactRecord(record);
+    const expected = expectedByName.get(record.name);
+    const run = runsByWorkflow.get(record.workflow);
+    if (
+      !expected ||
+      seenNames.has(record.name) ||
+      artifactIds.has(record.artifactId) ||
+      record.workflow !== expected.workflow ||
+      record.runId !== run?.runId ||
+      record.headSha !== event.head.sha
+    ) {
+      throw new Error('Hosted evidence join artifact identity is invalid or duplicated.');
+    }
+    validateTierBRecord(record.receipt, contract);
+    validateRuntimeAuthority(record.receipt, expected.subject, toolchainAuthority);
+    if (
+      record.receipt.subject !== expected.subject ||
+      record.receipt.event !== event.name ||
+      record.receipt.runId !== run.runId ||
+      record.receipt.attempt !== run.attempt
+    ) {
+      throw new Error('Hosted evidence join Tier B identity is invalid.');
+    }
+    const tierA = tierAByIdentity.get(`${expected.workflow}\0${expected.job}`);
+    if (expected.kind === 'paired') {
+      validatePairedArtifact(record, expectedSubjects, contract.evidenceBinding);
+    } else if (record.manifest !== null || record.comparisonSha256 !== null) {
+      throw new Error('Hosted standalone runtime artifact contains paired evidence.');
+    }
+    seenNames.add(record.name);
+    artifactIds.add(record.artifactId);
+    bindings.set(record.name, {
+      subject: expected.subject,
+      kind: expected.kind,
+      tierA,
+      tierB: record.receipt,
+      artifact: {
+        artifactId: record.artifactId,
+        name: record.name,
+        workflow: record.workflow,
+        runId: record.runId,
+        headSha: record.headSha,
+        archiveSha256: record.archiveSha256,
+        tierBReceiptSha256: record.tierBReceiptSha256,
+      },
+      paired:
+        expected.kind === 'paired'
+          ? { manifest: record.manifest, comparisonSha256: record.comparisonSha256 }
+          : null,
+    });
+  }
+  return bindings;
+}
+
+function joinHostedEvidence(input) {
+  if (!hasExactFields(input, JOIN_INPUT_FIELDS)) {
+    throw new Error('Hosted evidence join input is invalid.');
+  }
+  const topology = deriveEvidenceTopology(input.hostedContract, input.toolchainAuthority);
+  const authority = validateJoinEvent(input.event, input.hostedContract.evidenceBinding);
+  if (authority.authority === 'none') {
+    if (
+      !Array.isArray(input.runs) ||
+      !Array.isArray(input.tierA) ||
+      !Array.isArray(input.artifacts) ||
+      input.runs.length > 0 ||
+      input.tierA.length > 0 ||
+      input.artifacts.length > 0
+    ) {
+      throw new Error('Hosted no-authority evidence must be empty.');
+    }
+    return { authority, runs: [], jobs: [], runtime: [] };
+  }
+
+  const runsByWorkflow = validateRunSet(input.runs, topology, input.event);
+  const tierAByIdentity = validateTierASet(
+    input.tierA,
+    topology,
+    runsByWorkflow,
+    input.hostedContract
+  );
+  const artifactsByName = validateArtifactSet(
+    input.artifacts,
+    topology,
+    runsByWorkflow,
+    tierAByIdentity,
+    input.hostedContract,
+    input.toolchainAuthority,
+    input.event
+  );
+  return {
+    authority,
+    runs: topology.cycle.workflows.map(workflow => runsByWorkflow.get(workflow.path)),
+    jobs: topology.tierAJobs.map(job => tierAByIdentity.get(`${job.workflow}\0${job.job}`)),
+    runtime: topology.runtimeArtifacts.map(artifact => artifactsByName.get(artifact.name)),
+  };
+}
+
 module.exports = {
   classifyPairedPerformanceAuthority,
   deriveEvidenceTopology,
+  joinHostedEvidence,
   validateEvidenceAuthorityPolicy,
   validateEvidenceBindingPolicy,
   validateEventSubjectPolicies,
+  validatePairedBindingManifest,
 };

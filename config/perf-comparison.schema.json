@@ -33,6 +33,7 @@
         "architecture",
         "cpu",
         "runnerImage",
+        "runnerImageExpected",
         "nodeVersion",
         "bunVersion",
         "hyperfineVersion",
@@ -43,6 +44,7 @@
         "architecture": { "$ref": "#/definitions/identityValue" },
         "cpu": { "$ref": "#/definitions/identityValue" },
         "runnerImage": { "$ref": "#/definitions/identityValue" },
+        "runnerImageExpected": { "$ref": "#/definitions/identityValue" },
         "nodeVersion": { "$ref": "#/definitions/identityValue" },
         "bunVersion": { "$ref": "#/definitions/identityValue" },
         "hyperfineVersion": { "$ref": "#/definitions/identityValue" },
@@ -207,6 +209,7 @@
       "required": [
         "pairRatios",
         "medianPairRatio",
+        "pairRatioMad",
         "meanAbsoluteDeltaNs",
         "abCandidateMeanNs",
         "baCandidateMeanNs"
@@ -218,6 +221,7 @@
           "items": { "type": "number", "exclusiveMinimum": 0 }
         },
         "medianPairRatio": { "type": "number", "exclusiveMinimum": 0 },
+        "pairRatioMad": { "type": "number", "minimum": 0 },
         "meanAbsoluteDeltaNs": { "type": "number", "minimum": 0 },
         "abCandidateMeanNs": { "type": "number", "exclusiveMinimum": 0 },
         "baCandidateMeanNs": { "type": "number", "exclusiveMinimum": 0 }

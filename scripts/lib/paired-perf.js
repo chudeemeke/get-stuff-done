@@ -4,6 +4,8 @@ const crypto = require('crypto');
 
 const WARNING_RATIO = 1.10;
 const FAILURE_RATIO = 1.25;
+const WARNING_FRACTION = { numerator: 11n, denominator: 10n };
+const FAILURE_FRACTION = { numerator: 5n, denominator: 4n };
 const SCHEDULER = 'alternating-ab-ba-v1';
 const METRICS = ['install', 'compose'];
 const SAMPLE_FIELDS = [
@@ -62,8 +64,12 @@ function deriveSeed(controls, subjects) {
   return canonicalSha256({ controls, subjects });
 }
 
-function mean(values) {
-  return values.reduce((total, value) => total + value, 0) / values.length;
+function integerTotal(values) {
+  return values.reduce((total, value) => total + BigInt(value), 0n);
+}
+
+function integerMean(values) {
+  return Number(integerTotal(values)) / values.length;
 }
 
 function median(values) {
@@ -84,31 +90,48 @@ function statusForRatio(ratio) {
   return 'pass';
 }
 
+function exceedsFraction(candidateTotal, referenceTotal, fraction) {
+  return candidateTotal * fraction.denominator > referenceTotal * fraction.numerator;
+}
+
+function statusForTotals(referenceTotal, candidateTotal) {
+  if (exceedsFraction(candidateTotal, referenceTotal, FAILURE_FRACTION)) return 'fail';
+  if (exceedsFraction(candidateTotal, referenceTotal, WARNING_FRACTION)) return 'warn';
+  return 'pass';
+}
+
 function summarizeMetric(pairs) {
   const referenceDurations = pairs.map(pair => sampleFor(pair, 'reference').durationNs);
   const candidateDurations = pairs.map(pair => sampleFor(pair, 'candidate').durationNs);
   const pairRatios = pairs.map((pair) => (
     sampleFor(pair, 'candidate').durationNs / sampleFor(pair, 'reference').durationNs
   ));
-  const referenceMeanNs = mean(referenceDurations);
-  const candidateMeanNs = mean(candidateDurations);
-  const ratio = candidateMeanNs / referenceMeanNs;
+  const referenceTotal = integerTotal(referenceDurations);
+  const candidateTotal = integerTotal(candidateDurations);
+  const referenceMeanNs = Number(referenceTotal) / referenceDurations.length;
+  const candidateMeanNs = Number(candidateTotal) / candidateDurations.length;
+  const ratio = Number(candidateTotal) / Number(referenceTotal);
+  const medianPairRatio = median(pairRatios);
+  const absoluteDeltas = pairs.map((pair) => {
+    const candidate = BigInt(sampleFor(pair, 'candidate').durationNs);
+    const reference = BigInt(sampleFor(pair, 'reference').durationNs);
+    return candidate >= reference ? candidate - reference : reference - candidate;
+  });
 
   return {
     referenceMeanNs,
     candidateMeanNs,
     ratio,
-    status: statusForRatio(ratio),
+    status: statusForTotals(referenceTotal, candidateTotal),
     diagnostics: {
       pairRatios,
-      medianPairRatio: median(pairRatios),
-      meanAbsoluteDeltaNs: mean(pairs.map((pair) => Math.abs(
-        sampleFor(pair, 'candidate').durationNs - sampleFor(pair, 'reference').durationNs
-      ))),
-      abCandidateMeanNs: mean(pairs
+      medianPairRatio,
+      pairRatioMad: median(pairRatios.map(value => Math.abs(value - medianPairRatio))),
+      meanAbsoluteDeltaNs: Number(integerTotal(absoluteDeltas)) / absoluteDeltas.length,
+      abCandidateMeanNs: integerMean(pairs
         .filter(pair => pair.order === 'AB')
         .map(pair => sampleFor(pair, 'candidate').durationNs)),
-      baCandidateMeanNs: mean(pairs
+      baCandidateMeanNs: integerMean(pairs
         .filter(pair => pair.order === 'BA')
         .map(pair => sampleFor(pair, 'candidate').durationNs)),
     },
@@ -183,6 +206,7 @@ function executePair({ metric, phase, index, order, executionIdentity, controls,
 
 function captureMetric(metric, context) {
   const schedule = buildSchedule(context.policy.seed, context.policy.measuredPairs);
+  const warmupSchedule = buildSchedule(context.policy.seed, context.policy.warmupRuns);
   const warmups = Array.from({ length: context.policy.warmupRuns }, (_, index) => ({
     index,
     samples: executePair({
@@ -190,7 +214,7 @@ function captureMetric(metric, context) {
       metric,
       phase: 'warmup',
       index,
-      order: schedule.at(index % schedule.length),
+      order: warmupSchedule.at(index),
     }),
   }));
   const pairs = schedule.map((order, index) => ({
@@ -289,9 +313,10 @@ function validateMetricSemantics(metric, evidence, context) {
   }
 
   const schedule = buildSchedule(context.policy.seed, context.policy.measuredPairs);
+  const warmupSchedule = buildSchedule(context.policy.seed, context.policy.warmupRuns);
   for (const [index, warmup] of evidence.warmups.entries()) {
     if (warmup.index !== index) throw new Error(`${metric} warmup indices must be consecutive`);
-    validateSampleSequence(warmup.samples, schedule.at(index % schedule.length), {
+    validateSampleSequence(warmup.samples, warmupSchedule.at(index), {
       ...context,
       metric,
       phase: 'warmup',

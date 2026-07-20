@@ -162,12 +162,14 @@ describe('test-config hygiene (meta-test)', () => {
     expect(pkg.scripts).not.toHaveProperty('test:coverage');
   });
 
-  test('Phase 43 verifier coverage remains frozen to the two entry modules', () => {
+  test('Phase 43 hosted coverage governs every current executable boundary', () => {
     const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
     const coverageScript = pkg.scripts['test:coverage:phase43-verifiers'];
     const includes = [...coverageScript.matchAll(/--include=([^']+)'/g)].map(match => match[1]);
 
     expect(includes).toEqual([
+      '**/scripts/install-hyperfine.js',
+      '**/scripts/lib/hosted-evidence-binding.js',
       '**/scripts/verify-hosted-ci.js',
       '**/scripts/verify-toolchain-authority.js',
     ]);

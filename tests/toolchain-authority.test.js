@@ -11,6 +11,7 @@ const {
   validateToolchainAuthorityManifest,
   verifyToolchainAuthority,
 } = require('../scripts/verify-toolchain-authority');
+const { selectHyperfineAsset } = require('../scripts/install-hyperfine');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const MAX_GOVERNED_WORKFLOW_BYTES = 256 * 1024;
@@ -18,9 +19,31 @@ const MAX_TOOLCHAIN_MANIFEST_BYTES = 256 * 1024;
 const MAX_RUNTIME_EVIDENCE_BYTES = 256 * 1024;
 const MAX_BUN_VERSION_BYTES = 128;
 
+function makeHyperfineAuthority() {
+  return {
+    semantics: 'exact-release-assets',
+    version: '1.20.0',
+    installer: 'scripts/install-hyperfine.js',
+    releaseUrl: 'https://github.com/sharkdp/hyperfine/releases/tag/v1.20.0',
+    assets: Object.fromEntries(
+      [
+        ['darwin-arm64', 'darwin', 'arm64'],
+        ['darwin-x64', 'darwin', 'x64'],
+        ['linux-arm64', 'linux', 'arm64'],
+        ['linux-x64', 'linux', 'x64'],
+        ['win32-x64', 'win32', 'x64'],
+      ].map(([key, platform, architecture]) => [
+        key,
+        selectHyperfineAsset(platform, architecture),
+      ])
+    ),
+    updateTrigger: 'review a new Hyperfine release and rerun installer plus paired gates',
+  };
+}
+
 function makeManifest() {
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     bun: {
       semantics: 'exact',
       version: '1.3.5',
@@ -63,11 +86,7 @@ function makeManifest() {
       requireResolvedPatch: true,
     },
     runtimeTools: {
-      hyperfine: {
-        semantics: 'recorded-runtime',
-        versionPattern: 'semver',
-        updateTrigger: 'record the resolved version in every benchmark receipt',
-      },
+      hyperfine: makeHyperfineAuthority(),
     },
     runtimeRequirements: {
       '.github/workflows/ci.yml': {
@@ -182,7 +201,7 @@ function makeControlSteps(policy = makeExecutionSubjectPolicy()) {
 }
 
 describe('toolchain authority', () => {
-  test('repository manifest owns exact execution pins and ranged runtime policy', () => {
+  test('repository manifest owns exact execution pins and reviewed runtime assets', () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(PROJECT_ROOT, 'config', 'phase43-toolchain-authority.json'), 'utf8')
     );
@@ -204,7 +223,8 @@ describe('toolchain authority', () => {
       'step-security/harden-runner',
     ]);
     expect(manifest.governedWorkflows).toHaveLength(5);
-    expect(manifest.runtimeTools.hyperfine.semantics).toBe('recorded-runtime');
+    expect(manifest.schemaVersion).toBe(4);
+    expect(manifest.runtimeTools.hyperfine).toEqual(makeHyperfineAuthority());
   });
 
   test('hosted authority governs every toolchain authority input', () => {
@@ -581,7 +601,46 @@ describe('toolchain authority', () => {
       [manifest => (manifest.node.declaredMajors = [22]), 'Node authority'],
       [
         manifest => (manifest.runtimeTools.hyperfine.semantics = 'exact'),
-        'recorded-runtime authority',
+        'exact runtime authority',
+      ],
+      [manifest => (manifest.runtimeTools = null), 'exact runtime authority'],
+      [manifest => (manifest.runtimeTools = []), 'exact runtime authority'],
+      [manifest => (manifest.runtimeTools.other = {}), 'exact runtime authority'],
+      [manifest => (manifest.runtimeTools.hyperfine.extra = true), 'exact runtime authority'],
+      [manifest => (manifest.runtimeTools.hyperfine.version = '1.20.1'), 'exact runtime authority'],
+      [manifest => (manifest.runtimeTools.hyperfine.installer = '../installer.js'), 'exact runtime authority'],
+      [manifest => (manifest.runtimeTools.hyperfine.releaseUrl = 'https://example.com'), 'exact runtime authority'],
+      [manifest => (manifest.runtimeTools.hyperfine.updateTrigger = ''), 'exact runtime authority'],
+      [manifest => (manifest.runtimeTools.hyperfine.assets = null), 'exact runtime authority'],
+      [manifest => (manifest.runtimeTools.hyperfine.assets = []), 'exact runtime authority'],
+      [manifest => delete manifest.runtimeTools.hyperfine.assets['linux-x64'], 'exact runtime authority'],
+      [
+        manifest => (manifest.runtimeTools.hyperfine.assets['linux-x64'].extra = true),
+        'exact runtime authority',
+      ],
+      [
+        manifest => (manifest.runtimeTools.hyperfine.assets['linux-x64'].archiveFormat = 'zip'),
+        'exact runtime authority',
+      ],
+      [
+        manifest => (manifest.runtimeTools.hyperfine.assets['linux-x64'].executable = 'other'),
+        'exact runtime authority',
+      ],
+      [
+        manifest => (manifest.runtimeTools.hyperfine.assets['linux-x64'].name = 'other.tar.gz'),
+        'exact runtime authority',
+      ],
+      [
+        manifest => (manifest.runtimeTools.hyperfine.assets['linux-x64'].sha256 = 'latest'),
+        'exact runtime authority',
+      ],
+      [
+        manifest => (manifest.runtimeTools.hyperfine.assets['linux-x64'].url = 'https://example.com'),
+        'exact runtime authority',
+      ],
+      [
+        manifest => (manifest.runtimeTools.hyperfine.assets['linux-x64'].version = '1.20.1'),
+        'exact runtime authority',
       ],
       [manifest => (manifest.runtimeSubjects = {}), 'runtime subject authority'],
       [manifest => (manifest.runtimeSubjects = null), 'runtime subject authority'],
@@ -1539,7 +1598,7 @@ describe('toolchain authority', () => {
     });
   });
 
-  test('accepts exact execution pins and recorded compatibility runtimes', () => {
+  test('accepts exact execution pins and exact governed runtimes', () => {
     const manifest = makeManifest();
     const result = evaluateToolchainAuthority({
       manifest,
@@ -1569,7 +1628,7 @@ describe('toolchain authority', () => {
     });
   });
 
-  test('applies SemVer identifier rules to recorded runtime versions', () => {
+  test('requires runtime versions to be resolved and equal exact authority', () => {
     const evaluateVersion = version => {
       const evidence = makeRuntimeEvidence();
       evidence[1].tools.hyperfine = version;
@@ -1581,7 +1640,16 @@ describe('toolchain authority', () => {
       });
     };
 
-    expect(evaluateVersion('1.20.0-rc.1+build.7')).toEqual({ ok: true, diagnostics: [] });
+    expect(evaluateVersion('1.20.0')).toEqual({ ok: true, diagnostics: [] });
+    for (const version of ['1.20.1', '1.20.0-rc.1+build.7']) {
+      expect(evaluateVersion(version).diagnostics).toContainEqual({
+        code: 'runtime_tool_version_mismatch',
+        subject: 'perf-linux',
+        tool: 'hyperfine',
+        expected: '1.20.0',
+        actual: version,
+      });
+    }
     for (const version of [
       '',
       '12345678901.20.0',

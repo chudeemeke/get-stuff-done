@@ -42,7 +42,29 @@ const COLLECTION_KEYS = new Set(['semantics', 'pins']);
 const ACTION_PIN_KEYS = new Set(['tag', 'sha', 'updateTrigger']);
 const CONTAINER_PIN_KEYS = new Set(['tag', 'digest', 'updateTrigger']);
 const NODE_KEYS = new Set(['semantics', 'declaredMajors', 'requireResolvedPatch']);
-const RUNTIME_TOOL_KEYS = new Set(['semantics', 'versionPattern', 'updateTrigger']);
+const RUNTIME_TOOL_KEYS = new Set([
+  'semantics',
+  'version',
+  'installer',
+  'releaseUrl',
+  'assets',
+  'updateTrigger',
+]);
+const RUNTIME_TOOL_ASSET_KEYS = new Set([
+  'archiveFormat',
+  'executable',
+  'name',
+  'sha256',
+  'url',
+  'version',
+]);
+const HYPERFINE_ASSETS = Object.freeze({
+  'darwin-arm64': ['tar.gz', 'hyperfine', 'hyperfine-v1.20.0-aarch64-apple-darwin.tar.gz'],
+  'darwin-x64': ['tar.gz', 'hyperfine', 'hyperfine-v1.20.0-x86_64-apple-darwin.tar.gz'],
+  'linux-arm64': ['tar.gz', 'hyperfine', 'hyperfine-v1.20.0-aarch64-unknown-linux-gnu.tar.gz'],
+  'linux-x64': ['tar.gz', 'hyperfine', 'hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz'],
+  'win32-x64': ['zip', 'hyperfine.exe', 'hyperfine-v1.20.0-x86_64-pc-windows-msvc.zip'],
+});
 const RUNTIME_SUBJECT_KEYS = new Set(['workflow', 'job', 'matrix', 'nodeMajor', 'requiredTools']);
 const RUNTIME_REQUIREMENT_VALUES = new Set(['bun', 'node', 'both']);
 const RUNTIME_EVIDENCE_KEYS = new Set(['subject', 'bunVersion', 'nodeVersion', 'tools']);
@@ -277,12 +299,54 @@ function validatePins(pins, keys, validateIdentity, label) {
   }
 }
 
+function validateRuntimeTools(runtimeTools) {
+  if (
+    !runtimeTools ||
+    typeof runtimeTools !== 'object' ||
+    Array.isArray(runtimeTools) ||
+    JSON.stringify(Object.keys(runtimeTools)) !== JSON.stringify(['hyperfine'])
+  ) {
+    throw new Error('Toolchain exact runtime authority is invalid.');
+  }
+  const hyperfine = runtimeTools.hyperfine;
+  const assetEntries = hyperfine?.assets &&
+    typeof hyperfine.assets === 'object' &&
+    !Array.isArray(hyperfine.assets)
+    ? Object.entries(hyperfine.assets)
+    : [];
+  if (
+    !hasExactKeys(hyperfine, RUNTIME_TOOL_KEYS) ||
+    hyperfine.semantics !== 'exact-release-assets' ||
+    hyperfine.version !== '1.20.0' ||
+    hyperfine.installer !== 'scripts/install-hyperfine.js' ||
+    hyperfine.releaseUrl !== 'https://github.com/sharkdp/hyperfine/releases/tag/v1.20.0' ||
+    !hasUpdateTrigger(hyperfine.updateTrigger) ||
+    JSON.stringify(assetEntries.map(([key]) => key).sort()) !==
+      JSON.stringify(Object.keys(HYPERFINE_ASSETS).sort()) ||
+    assetEntries.some(([key, asset]) => {
+      const expected = Reflect.get(HYPERFINE_ASSETS, key);
+      return (
+        !hasExactKeys(asset, RUNTIME_TOOL_ASSET_KEYS) ||
+        asset.archiveFormat !== expected[0] ||
+        asset.executable !== expected[1] ||
+        asset.name !== expected[2] ||
+        !/^[0-9a-f]{64}$/.test(asset.sha256 || '') ||
+        asset.url !==
+          `https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/${asset.name}` ||
+        asset.version !== hyperfine.version
+      );
+    })
+  ) {
+    throw new Error('Toolchain exact runtime authority is invalid.');
+  }
+}
+
 function validateToolchainAuthorityManifest(manifest) {
   if (!hasExactKeys(manifest, MANIFEST_KEYS)) {
     throw new Error('Toolchain authority manifest contains an unknown field or missing field.');
   }
-  if (manifest.schemaVersion !== 3) {
-    throw new Error('Toolchain authority manifest schema version must be 3.');
+  if (manifest.schemaVersion !== 4) {
+    throw new Error('Toolchain authority manifest schema version must be 4.');
   }
   if (
     !hasExactKeys(manifest.bun, BUN_KEYS) ||
@@ -325,21 +389,7 @@ function validateToolchainAuthorityManifest(manifest) {
   ) {
     throw new Error('Toolchain Node authority is invalid.');
   }
-  if (
-    !manifest.runtimeTools ||
-    typeof manifest.runtimeTools !== 'object' ||
-    Array.isArray(manifest.runtimeTools) ||
-    Object.keys(manifest.runtimeTools).length === 0 ||
-    Object.values(manifest.runtimeTools).some(
-      tool =>
-        !hasExactKeys(tool, RUNTIME_TOOL_KEYS) ||
-        tool.semantics !== 'recorded-runtime' ||
-        tool.versionPattern !== 'semver' ||
-        !hasUpdateTrigger(tool.updateTrigger)
-    )
-  ) {
-    throw new Error('Toolchain recorded-runtime authority is invalid.');
-  }
+  validateRuntimeTools(manifest.runtimeTools);
   if (
     !Array.isArray(manifest.governedWorkflows) ||
     manifest.governedWorkflows.length === 0 ||
@@ -774,7 +824,8 @@ function evaluateToolchainAuthority(input) {
           )
       );
       const isRuntimeSubjectJob = runtimePolicies.some(policy => policy.job === job.id);
-      const requirement = input.manifest.runtimeRequirements[workflow]?.[job.id];
+      const workflowRequirements = Reflect.get(input.manifest.runtimeRequirements, workflow);
+      const requirement = workflowRequirements ? Reflect.get(workflowRequirements, job.id) : undefined;
       const setupBunSteps = job.steps.filter(step =>
         step.uses?.startsWith('oven-sh/setup-bun@')
       );
@@ -937,11 +988,19 @@ function evaluateToolchainAuthority(input) {
         const authority = runtimeTools.get(tool);
         if (!authority) {
           diagnostics.add({ code: 'runtime_tool_not_governed', subject, tool });
-        } else if (authority.versionPattern === 'semver' && !isResolvedSemver(version)) {
+        } else if (!isResolvedSemver(version)) {
           diagnostics.add({
             code: 'runtime_tool_version_not_resolved',
             subject,
             tool,
+            actual: version,
+          });
+        } else if (version !== authority.version) {
+          diagnostics.add({
+            code: 'runtime_tool_version_mismatch',
+            subject,
+            tool,
+            expected: authority.version,
             actual: version,
           });
         }

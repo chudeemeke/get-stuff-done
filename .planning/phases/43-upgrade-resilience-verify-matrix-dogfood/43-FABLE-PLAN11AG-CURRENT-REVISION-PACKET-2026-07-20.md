@@ -32,9 +32,13 @@ accepting a regression remains owner-only.
 Plan 11AG owns the local schema, pure adjudication domain, process/filesystem
 capture adapter, CLI adapter, and fixture-backed proof. Plan 11AH owns hosted
 workflow wiring, trusted checkout/harness/run identity, artifact origin, and
-upload binding. Plan 11AI owns one real integrated Hyperfine receipt. Do not
-transfer later-plan deliverables into 11AG, but reject any local contract that
-would make those later deliverables misleading or impossible to trust.
+upload binding, including the three hosted performance subjects. Plan 11AI
+owns the full local corrective-gate integration and a create-only local
+pre-retry receipt that includes paired-performance fixtures. Neither later
+plan, while still unexecuted, proves a real timing result or hosted authority;
+that requires a separately authorized hosted run. Do not transfer later-plan
+deliverables into 11AG, but reject any local contract that would make those
+later deliverables misleading or impossible to trust.
 
 ## Authoritative Scope
 
@@ -164,7 +168,8 @@ identity/control/subject drift.
 
 Challenge whether install and compose preparation semantics are comparable
 between subjects and whether fixture-backed process tests are sufficient for
-11AG without confusing them with the real 11AI receipt.
+11AG without confusing them with the broader local 11AI corrective-gate
+receipt.
 
 ### Historical Compatibility
 
@@ -242,8 +247,8 @@ both preserved; neither has been rewritten after the fact.
 - No push, PR, hosted run, merge, release, package publication, credential
   change, repository visibility mutation, or branch-protection change is
   authorized or claimed.
-- Plan 11AG does not prove the Plan 11AH workflow or the Plan 11AI integrated
-  receipt.
+- Plan 11AG does not prove the Plan 11AH workflow or the Plan 11AI local
+  pre-retry corrective-gate receipt.
 - A green local gate is not a substitute for the final hosted PR evidence
   contract.
 
@@ -258,8 +263,8 @@ both preserved; neither has been rewritten after the fact.
 4. Can malformed, tampered, caller-controlled, historical, or derivative data
    become blocking authority or suppress a real paired failure?
 5. Is the one deep executor port appropriately SOLID and sufficiently isolated?
-6. Are the process adapter tests enough for 11AG without requiring the real
-   11AI receipt?
+6. Are the process adapter tests enough for 11AG without requiring the broader
+   local 11AI corrective-gate receipt?
 7. Can Plan 11AG be closed locally now, or what minimum revision is required?
 8. List later-plan follow-ups separately so they cannot be mistaken for 11AG
    blockers.

@@ -78,6 +78,7 @@ compatibility from blocking product authority.
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AG-SUMMARY.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-GPT-5.6-SOL-PLAN11AH-READINESS-REVIEW-2026-07-20.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-GPT-5.6-SOL-PLAN11AH-CORRECTION-REVIEW-2026-07-20.md
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-PLAN11AG-11AH-AUTHORITATIVE-PACKET-2026-07-20.md
 @.github/workflows/ci.yml
 @config/phase43-hosted-ci-contract.json
 </context>

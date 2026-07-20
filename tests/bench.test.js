@@ -14,8 +14,9 @@ const {
   normalizeHyperfineResults,
   parseHyperfineSample,
   parseArgs,
+  printHelp,
 } = require('../scripts/bench');
-const { buildSchedule, capturePairedComparison } = require('../scripts/lib/paired-perf');
+const { buildSchedule, canonicalSha256, capturePairedComparison } = require('../scripts/lib/paired-perf');
 const { pairedSpec, receiptFor } = require('./helpers/paired-perf-fixture');
 
 function hyperfineResult(command, overrides = {}) {
@@ -134,6 +135,25 @@ describe('paired benchmark scheduling', () => {
         cpu: () => 'fixture-cpu',
         runnerImage: () => 'ubuntu-24.04',
       })).toThrow(/expected runner image/i);
+
+      expect(() => buildPairedCaptureContext({
+        referenceWorktree,
+        candidateWorktree,
+        runnerImage: 'windows-2025',
+        pairs: 10,
+        warmup: 1,
+      }, {
+        run: (command, args) => {
+          if (command === 'bun') return '1.3.5';
+          if (command === 'hyperfine') return 'hyperfine 1.20.0';
+          const worktree = args[1];
+          return args[2] === 'rev-parse' ? commits.get(worktree) : ' M package.json';
+        },
+        platform: () => 'win32',
+        architecture: () => 'x64',
+        cpu: () => 'fixture-cpu',
+        runnerImage: () => 'windows-2025',
+      })).toThrow(/worktree is not clean/i);
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }
@@ -222,6 +242,53 @@ describe('paired benchmark scheduling', () => {
       expect(call.args).toEqual(['install', '--frozen-lockfile', '--ignore-scripts']);
       expect(call.options.cwd).toMatch(/^workspace-/);
     }
+
+    const composeSequence = calls.filter(call => (
+      call.command === 'bun' ||
+      (call.command === 'hyperfine' && call.args.at(-1) === 'bun run compose')
+    ));
+    for (let index = 0; index < composeSequence.length; index += 2) {
+      expect(composeSequence[index].command).toBe('bun');
+      expect(composeSequence[index + 1].command).toBe('hyperfine');
+    }
+  });
+
+  test('aborts after a production preparation failure without invoking Hyperfine', () => {
+    const spec = pairedSpec();
+    const context = {
+      spec,
+      worktrees: { reference: 'reference-worktree', candidate: 'candidate-worktree' },
+    };
+    const commands = [];
+    let cleanups = 0;
+    const executor = createPairedBenchmarkExecutor(context, {
+      resolveExecutionIdentity: () => spec.executionIdentity,
+      resolveControls: () => spec.controls,
+      resolveSubject: () => spec.subjects.reference,
+      createSandbox: () => ({ root: 'fixture-root', workspace: 'fixture-workspace' }),
+      spawn: (command) => {
+        commands.push(command);
+        return { status: 1, stderr: 'fixture preparation failure' };
+      },
+      readJson: () => {
+        throw new Error('Hyperfine output must not be read after preparation failure');
+      },
+      cleanup: () => { cleanups++; },
+    });
+
+    expect(() => executor({
+      metric: 'compose',
+      phase: 'measure',
+      index: 0,
+      order: 'AB',
+      subject: 'reference',
+      executionIdentitySha256: canonicalSha256(spec.executionIdentity),
+      controlsSha256: canonicalSha256(spec.controls),
+      subjectSha256: canonicalSha256(spec.subjects.reference),
+      commit: spec.subjects.reference.commit,
+    })).toThrow(/sample preparation failed/);
+    expect(commands).toEqual(['bun']);
+    expect(cleanups).toBe(1);
   });
 
   test('rejects observed identity, control, and subject drift after measurement', () => {
@@ -433,6 +500,18 @@ describe('paired benchmark scheduling', () => {
       return receiptFor(request);
     })).toThrow(/distinct commits/);
     expect(calls).toBe(0);
+  });
+});
+
+describe('paired benchmark help', () => {
+  test('documents how to derive the exact observed runner fingerprint', () => {
+    let output = '';
+    printHelp({ write: value => { output += value; } });
+
+    expect(output).toContain('Derive the runner fingerprint');
+    expect(output).toContain("os.release()");
+    expect(output).toContain('--runner-image "<fingerprint from command above>"');
+    expect(output).not.toContain('--runner-image windows-2025');
   });
 });
 

@@ -107,12 +107,6 @@ function sampleFor(pair, subject) {
   return pair.samples.find(sample => sample.subject === subject);
 }
 
-function statusForRatio(ratio) {
-  if (ratio > FAILURE_RATIO) return 'fail';
-  if (ratio > WARNING_RATIO) return 'warn';
-  return 'pass';
-}
-
 function exceedsFraction(candidateTotal, referenceTotal, fraction) {
   return candidateTotal * fraction.denominator > referenceTotal * fraction.numerator;
 }
@@ -429,7 +423,6 @@ module.exports = {
   buildSchedule,
   canonicalSha256,
   capturePairedComparison,
-  statusForRatio,
   summarizeMetric,
   validateComparisonSemantics,
 };

@@ -2,6 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const pairedPerf = require('../../scripts/lib/paired-perf');
 const {
   FAILURE_RATIO,
   WARNING_RATIO,
@@ -9,10 +10,9 @@ const {
   buildSchedule,
   canonicalSha256,
   capturePairedComparison,
-  statusForRatio,
   summarizeMetric,
   validateComparisonSemantics,
-} = require('../../scripts/lib/paired-perf');
+} = pairedPerf;
 const {
   captureFixture,
   pairedSpec,
@@ -36,6 +36,10 @@ function rebindSubject(subject) {
   subject.sha256 = canonicalSha256(payload);
 }
 
+test('does not expose the unused floating-point status classifier', () => {
+  assert.equal(Object.hasOwn(pairedPerf, 'statusForRatio'), false);
+});
+
 test('derives deterministic schedules, hashes, summaries, and strict statuses', () => {
   assert.equal(canonicalSha256({ b: 2, a: 1 }), canonicalSha256({ a: 1, b: 2 }));
   assert.notEqual(canonicalSha256([1, 2]), canonicalSha256([2, 1]));
@@ -44,11 +48,6 @@ test('derives deterministic schedules, hashes, summaries, and strict statuses', 
   expectError(() => buildSchedule('invalid', 3), /scheduler seed/);
   expectError(() => buildSchedule('00'.padEnd(64, '0'), 0), /pair count/);
   expectError(() => buildSchedule('00'.padEnd(64, '0'), 1.5), /pair count/);
-
-  assert.equal(statusForRatio(WARNING_RATIO), 'pass');
-  assert.equal(statusForRatio(WARNING_RATIO + 0.01), 'warn');
-  assert.equal(statusForRatio(FAILURE_RATIO), 'warn');
-  assert.equal(statusForRatio(FAILURE_RATIO + 0.01), 'fail');
 
   const pairs = [
     { order: 'AB', samples: [{ subject: 'reference', durationNs: 100 }, { subject: 'candidate', durationNs: 110 }] },

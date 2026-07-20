@@ -5,7 +5,12 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
-const { summarizeMetric } = require('../scripts/lib/paired-perf');
+const {
+  adjudicatePairedComparison,
+  canonicalSha256,
+  summarizeMetric,
+} = require('../scripts/lib/paired-perf');
+const { captureFixture } = require('./helpers/paired-perf-fixture');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const CHECK_PERF = path.join(PROJECT_ROOT, 'scripts', 'check-perf.js');
@@ -131,6 +136,48 @@ describe('paired performance adjudication', () => {
         baCandidateMeanNs: 110,
       },
     });
+  });
+
+  test('rejects stored summaries or verdicts that differ from raw-sample recomputation', () => {
+    const comparison = captureFixture();
+    expect(adjudicatePairedComparison(comparison)).toEqual({
+      metrics: {
+        install: comparison.metrics.install.summary,
+        compose: comparison.metrics.compose.summary,
+      },
+      verdict: 'pass',
+    });
+
+    const tamperedSummary = structuredClone(comparison);
+    tamperedSummary.metrics.install.summary.ratio = 1.26;
+    expect(() => adjudicatePairedComparison(tamperedSummary)).toThrow(/stored install summary/);
+
+    const tamperedVerdict = structuredClone(comparison);
+    tamperedVerdict.verdict = 'fail';
+    expect(() => adjudicatePairedComparison(tamperedVerdict)).toThrow(/stored verdict/);
+  });
+
+  test('rejects provenance, schedule, commit, and receipt tampering', () => {
+    const comparison = captureFixture();
+
+    const identity = structuredClone(comparison);
+    identity.executionIdentity.cpu = 'different-cpu';
+    expect(() => adjudicatePairedComparison(identity)).toThrow(/execution identity digest/);
+
+    const schedule = structuredClone(comparison);
+    schedule.metrics.install.pairs[0].order = schedule.metrics.install.pairs[0].order === 'AB' ? 'BA' : 'AB';
+    expect(() => adjudicatePairedComparison(schedule)).toThrow(/schedule/);
+
+    const receipt = structuredClone(comparison);
+    receipt.metrics.compose.pairs[0].samples[0].controlsAfterSha256 = 'f'.repeat(64);
+    expect(() => adjudicatePairedComparison(receipt)).toThrow(/controls changed/);
+
+    const duplicateCommit = structuredClone(comparison);
+    duplicateCommit.subjects.candidate.commit = duplicateCommit.subjects.reference.commit;
+    const { sha256: ignored, ...candidate } = duplicateCommit.subjects.candidate;
+    void ignored;
+    duplicateCommit.subjects.candidate.sha256 = canonicalSha256(candidate);
+    expect(() => adjudicatePairedComparison(duplicateCommit)).toThrow(/distinct commits/);
   });
 });
 

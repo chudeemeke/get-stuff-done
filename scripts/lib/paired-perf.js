@@ -1,7 +1,46 @@
 'use strict';
 
+const crypto = require('crypto');
+
 const WARNING_RATIO = 1.10;
 const FAILURE_RATIO = 1.25;
+const SCHEDULER = 'alternating-ab-ba-v1';
+const METRICS = ['install', 'compose'];
+const SAMPLE_FIELDS = [
+  'benchmarkExitCode',
+  'controlsAfterSha256',
+  'controlsBeforeSha256',
+  'dirty',
+  'durationNs',
+  'executionIdentitySha256',
+  'preparationExitCode',
+  'resolvedCommit',
+  'subject',
+  'subjectAfterSha256',
+  'subjectBeforeSha256',
+];
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value === null || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, child]) => [key, canonicalize(child)])
+  );
+}
+
+function canonicalSha256(value) {
+  return crypto.createHash('sha256').update(JSON.stringify(canonicalize(value))).digest('hex');
+}
+
+function sameValue(left, right) {
+  return JSON.stringify(canonicalize(left)) === JSON.stringify(canonicalize(right));
+}
+
+function bindDigest(value) {
+  return { ...value, sha256: canonicalSha256(value) };
+}
 
 function buildSchedule(seed, pairCount) {
   if (!/^[a-f0-9]{64}$/.test(seed)) {
@@ -17,6 +56,10 @@ function buildSchedule(seed, pairCount) {
       ? firstOrder
       : firstOrder === 'AB' ? 'BA' : 'AB'
   ));
+}
+
+function deriveSeed(controls, subjects) {
+  return canonicalSha256({ controls, subjects });
 }
 
 function mean(values) {
@@ -72,10 +115,271 @@ function summarizeMetric(pairs) {
   };
 }
 
+function assertCaptureSpec(spec, execute) {
+  if (typeof execute !== 'function') throw new Error('benchmark executor must be a function');
+  if (spec.subjects.reference.commit === spec.subjects.candidate.commit) {
+    throw new Error('reference and candidate must resolve to distinct commits');
+  }
+  if (!Number.isInteger(spec.measuredPairs) || spec.measuredPairs < 10) {
+    throw new Error('measuredPairs must be at least 10');
+  }
+  if (!Number.isInteger(spec.warmupRuns) || spec.warmupRuns < 1) {
+    throw new Error('warmupRuns must be at least 1');
+  }
+}
+
+function assertSampleReceipt(sample, request) {
+  if (!sample || typeof sample !== 'object' || Array.isArray(sample)) {
+    throw new Error(`${request.metric} ${request.phase} ${request.index} returned no sample receipt`);
+  }
+  if (JSON.stringify(Object.keys(sample).sort()) !== JSON.stringify(SAMPLE_FIELDS)) {
+    throw new Error(`${request.metric} ${request.phase} ${request.index} returned an incomplete sample receipt`);
+  }
+  if (sample.subject !== request.subject) throw new Error('sample subject does not match the scheduled subject');
+  if (sample.executionIdentitySha256 !== request.executionIdentitySha256) {
+    throw new Error('sample execution identity does not match the comparison identity');
+  }
+  if (sample.resolvedCommit !== request.commit) throw new Error('sample resolved commit does not match the subject');
+  if (sample.dirty !== false) throw new Error('sample worktree must be clean');
+  if (sample.preparationExitCode !== 0) throw new Error('sample preparation failed');
+  if (sample.benchmarkExitCode !== 0) throw new Error('sample benchmark failed');
+  if (!Number.isSafeInteger(sample.durationNs) || sample.durationNs <= 0) {
+    throw new Error('sample durationNs must be a positive safe integer');
+  }
+  if (sample.controlsBeforeSha256 !== request.controlsSha256 ||
+      sample.controlsAfterSha256 !== request.controlsSha256) {
+    throw new Error('sample controls changed or do not match the comparison controls');
+  }
+  if (sample.subjectBeforeSha256 !== request.subjectSha256 ||
+      sample.subjectAfterSha256 !== request.subjectSha256) {
+    throw new Error('sample subject changed or does not match the comparison subject');
+  }
+}
+
+function subjectsForOrder(order) {
+  return order === 'AB' ? ['reference', 'candidate'] : ['candidate', 'reference'];
+}
+
+function executePair({ metric, phase, index, order, executionIdentity, controls, subjects, execute }) {
+  const samples = subjectsForOrder(order).map(subject => {
+    const boundSubject = subject === 'reference' ? subjects.reference : subjects.candidate;
+    const request = {
+      metric,
+      phase,
+      index,
+      order,
+      subject,
+      executionIdentitySha256: executionIdentity.sha256,
+      controlsSha256: controls.sha256,
+      subjectSha256: boundSubject.sha256,
+      commit: boundSubject.commit,
+    };
+    const sample = execute(request);
+    assertSampleReceipt(sample, request);
+    return sample;
+  });
+  return samples;
+}
+
+function captureMetric(metric, context) {
+  const schedule = buildSchedule(context.policy.seed, context.policy.measuredPairs);
+  const warmups = Array.from({ length: context.policy.warmupRuns }, (_, index) => ({
+    index,
+    samples: executePair({
+      ...context,
+      metric,
+      phase: 'warmup',
+      index,
+      order: schedule.at(index % schedule.length),
+    }),
+  }));
+  const pairs = schedule.map((order, index) => ({
+    index,
+    order,
+    samples: executePair({ ...context, metric, phase: 'measure', index, order }),
+  }));
+  return { warmups, pairs, summary: summarizeMetric(pairs) };
+}
+
+function aggregateVerdict(metrics) {
+  const statuses = [metrics.install.summary.status, metrics.compose.summary.status];
+  if (statuses.includes('fail')) return 'fail';
+  if (statuses.includes('warn')) return 'warn';
+  return 'pass';
+}
+
+function capturePairedComparison(spec, execute) {
+  assertCaptureSpec(spec, execute);
+  const executionIdentity = bindDigest(spec.executionIdentity);
+  const subjects = {
+    reference: bindDigest(spec.subjects.reference),
+    candidate: bindDigest(spec.subjects.candidate),
+  };
+  const seed = deriveSeed(spec.controls, spec.subjects);
+  const policy = {
+    measuredPairs: spec.measuredPairs,
+    warmupRuns: spec.warmupRuns,
+    warningRatio: WARNING_RATIO,
+    failureRatio: FAILURE_RATIO,
+    scheduler: SCHEDULER,
+    seed,
+  };
+  const controls = bindDigest({
+    ...spec.controls,
+    policySha256: canonicalSha256(policy),
+  });
+  const context = { executionIdentity, controls, policy, subjects, execute };
+  const metrics = Object.fromEntries(METRICS.map(metric => [metric, captureMetric(metric, context)]));
+
+  const comparison = {
+    schemaVersion: 1,
+    authority: 'paired-blocking',
+    capturedAt: spec.capturedAt,
+    executionIdentity,
+    controls,
+    policy,
+    subjects,
+    metrics,
+    verdict: aggregateVerdict(metrics),
+  };
+  validateComparisonSemantics(comparison);
+  return comparison;
+}
+
+function splitDigest(value) {
+  const { sha256, ...payload } = value;
+  return { sha256, payload };
+}
+
+function assertDigest(label, value) {
+  const { sha256, payload } = splitDigest(value);
+  if (sha256 !== canonicalSha256(payload)) {
+    throw new Error(`${label} digest does not match its recorded fields`);
+  }
+  return payload;
+}
+
+function validateSampleSequence(samples, order, context) {
+  const expectedSubjects = subjectsForOrder(order);
+  for (const [position, sample] of samples.entries()) {
+    const subject = expectedSubjects.at(position);
+    if (sample.subject !== subject) {
+      throw new Error(`${context.metric} ${context.phase} ${context.index} sample order does not match schedule`);
+    }
+    const boundSubject = subject === 'reference' ? context.subjects.reference : context.subjects.candidate;
+    assertSampleReceipt(sample, {
+      metric: context.metric,
+      phase: context.phase,
+      index: context.index,
+      subject,
+      executionIdentitySha256: context.executionIdentity.sha256,
+      controlsSha256: context.controls.sha256,
+      subjectSha256: boundSubject.sha256,
+      commit: boundSubject.commit,
+    });
+  }
+}
+
+function validateMetricSemantics(metric, evidence, context) {
+  if (evidence.warmups.length !== context.policy.warmupRuns) {
+    throw new Error(`${metric} warmup count does not match policy`);
+  }
+  if (evidence.pairs.length !== context.policy.measuredPairs) {
+    throw new Error(`${metric} pair count does not match policy`);
+  }
+
+  const schedule = buildSchedule(context.policy.seed, context.policy.measuredPairs);
+  for (const [index, warmup] of evidence.warmups.entries()) {
+    if (warmup.index !== index) throw new Error(`${metric} warmup indices must be consecutive`);
+    validateSampleSequence(warmup.samples, schedule.at(index % schedule.length), {
+      ...context,
+      metric,
+      phase: 'warmup',
+      index,
+    });
+  }
+  for (const [index, pair] of evidence.pairs.entries()) {
+    if (pair.index !== index) throw new Error(`${metric} pair indices must be consecutive`);
+    if (pair.order !== schedule.at(index)) throw new Error(`${metric} order does not match deterministic schedule`);
+    validateSampleSequence(pair.samples, pair.order, {
+      ...context,
+      metric,
+      phase: 'measure',
+      index,
+    });
+  }
+}
+
+function validateComparisonSemantics(comparison) {
+  assertDigest('execution identity', comparison.executionIdentity);
+  const reference = assertDigest('reference subject', comparison.subjects.reference);
+  const candidate = assertDigest('candidate subject', comparison.subjects.candidate);
+  if (reference.commit === candidate.commit) {
+    throw new Error('reference and candidate must resolve to distinct commits');
+  }
+
+  const { sha256: controlsSha256, policySha256, ...baseControls } = comparison.controls;
+  const expectedSeed = deriveSeed(baseControls, { reference, candidate });
+  if (comparison.policy.seed !== expectedSeed) throw new Error('policy seed does not match bound inputs');
+  if (comparison.policy.scheduler !== SCHEDULER ||
+      comparison.policy.warningRatio !== WARNING_RATIO ||
+      comparison.policy.failureRatio !== FAILURE_RATIO) {
+    throw new Error('paired performance policy does not match fixed authority');
+  }
+  if (!Number.isInteger(comparison.policy.measuredPairs) || comparison.policy.measuredPairs < 10 ||
+      !Number.isInteger(comparison.policy.warmupRuns) || comparison.policy.warmupRuns < 1) {
+    throw new Error('paired performance policy has invalid run counts');
+  }
+  if (policySha256 !== canonicalSha256(comparison.policy)) {
+    throw new Error('policy digest does not match the recorded policy');
+  }
+  const controlsPayload = { ...baseControls, policySha256 };
+  if (controlsSha256 !== canonicalSha256(controlsPayload)) {
+    throw new Error('controls digest does not match its recorded fields');
+  }
+
+  const context = {
+    executionIdentity: comparison.executionIdentity,
+    controls: comparison.controls,
+    policy: comparison.policy,
+    subjects: comparison.subjects,
+  };
+  validateMetricSemantics('install', comparison.metrics.install, context);
+  validateMetricSemantics('compose', comparison.metrics.compose, context);
+}
+
+function adjudicatePairedComparison(comparison) {
+  validateComparisonSemantics(comparison);
+  const metrics = {
+    install: summarizeMetric(comparison.metrics.install.pairs),
+    compose: summarizeMetric(comparison.metrics.compose.pairs),
+  };
+  if (!sameValue(comparison.metrics.install.summary, metrics.install)) {
+    throw new Error('stored install summary does not match raw samples');
+  }
+  if (!sameValue(comparison.metrics.compose.summary, metrics.compose)) {
+    throw new Error('stored compose summary does not match raw samples');
+  }
+
+  const verdict = aggregateVerdict({
+    install: { summary: metrics.install },
+    compose: { summary: metrics.compose },
+  });
+  if (comparison.verdict !== verdict) {
+    throw new Error('stored verdict does not match raw samples');
+  }
+  return { metrics, verdict };
+}
+
 module.exports = {
   FAILURE_RATIO,
+  SCHEDULER,
   WARNING_RATIO,
+  adjudicatePairedComparison,
   buildSchedule,
+  canonicalSha256,
+  capturePairedComparison,
   statusForRatio,
   summarizeMetric,
+  validateComparisonSemantics,
 };

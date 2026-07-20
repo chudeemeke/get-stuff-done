@@ -10,7 +10,8 @@ const {
   mergeBaselineArtifacts,
   normalizeHyperfineResults,
 } = require('../scripts/bench');
-const { buildSchedule } = require('../scripts/lib/paired-perf');
+const { buildSchedule, capturePairedComparison } = require('../scripts/lib/paired-perf');
+const { pairedSpec, receiptFor } = require('./helpers/paired-perf-fixture');
 
 function hyperfineResult(command, overrides = {}) {
   return {
@@ -43,6 +44,39 @@ describe('paired benchmark scheduling', () => {
   test('derives the first order from the recorded seed and then alternates', () => {
     expect(buildSchedule('00'.padEnd(64, '0'), 6)).toEqual(['AB', 'BA', 'AB', 'BA', 'AB', 'BA']);
     expect(buildSchedule('ff'.padEnd(64, '0'), 6)).toEqual(['BA', 'AB', 'BA', 'AB', 'BA', 'AB']);
+  });
+
+  test('captures complete deterministic evidence through one benchmark executor', () => {
+    const spec = pairedSpec();
+    const calls = [];
+    const execute = request => {
+      calls.push(request);
+      return receiptFor(request);
+    };
+
+    const first = capturePairedComparison(spec, execute);
+    const second = capturePairedComparison(spec, execute);
+
+    expect(calls).toHaveLength(88);
+    expect(first).toEqual(second);
+    expect(first.metrics.install.pairs).toHaveLength(10);
+    expect(first.metrics.compose.pairs.map(pair => pair.order)).toEqual(
+      buildSchedule(first.policy.seed, 10)
+    );
+    expect(first.metrics.install.summary.ratio).toBe(1.05);
+    expect(first.verdict).toBe('pass');
+  });
+
+  test('rejects indistinguishable subjects before invoking the benchmark executor', () => {
+    const spec = pairedSpec();
+    spec.subjects.candidate.commit = spec.subjects.reference.commit;
+    let calls = 0;
+
+    expect(() => capturePairedComparison(spec, request => {
+      calls++;
+      return receiptFor(request);
+    })).toThrow(/distinct commits/);
+    expect(calls).toBe(0);
   });
 });
 

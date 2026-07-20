@@ -19,6 +19,11 @@
         "sha": "df4cb1c069e1874edd31b4311f1884172cec0e10",
         "updateTrigger": "resolve tag v6 and review release notes"
       },
+      "actions/download-artifact": {
+        "tag": "v8",
+        "sha": "3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",
+        "updateTrigger": "resolve tag v8 and review release notes"
+      },
       "actions/github-script": {
         "tag": "v8",
         "sha": "ed597411d8f924073f98dfc5c65a23a2325f34cd",

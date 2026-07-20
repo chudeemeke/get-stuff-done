@@ -6,7 +6,14 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 const WORKFLOWS_DIR = path.join(PROJECT_ROOT, '.github', 'workflows');
 const CI_WORKFLOW = path.join(WORKFLOWS_DIR, 'ci.yml');
 const ACTION_PINS = {
+  cache: 'caa296126883cff596d87d8935842f9db880ef25',
   checkout: 'df4cb1c069e1874edd31b4311f1884172cec0e10',
+  downloadArtifact: '3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c',
+  githubScript: 'ed597411d8f924073f98dfc5c65a23a2325f34cd',
+  gitleaks: 'e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e',
+  hardenRunner: 'bf7454d06d71f1098171f2acdf0cd4708d7b5920',
+  lychee: 'e7477775783ea5526144ba13e8db5eec57747ce8',
+  osv: '9a498708959aeaef5ef730655706c5a1df1edbc2',
   setupNode: '249970729cb0ef3589644e2896645e5dc5ba9c38',
   setupBun: '0c5077e51419868618aeaa5fe8019c62421857d6',
   uploadArtifact: '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
@@ -46,7 +53,7 @@ function findBareBunTestCommands(workflowText) {
 describe('CI workflow security action contracts', () => {
   test('gitleaks receives the GitHub token required for pull request scans', () => {
     const workflow = readCiWorkflow();
-    const gitleaksStepMarker = 'uses: gitleaks/gitleaks-action@v3';
+    const gitleaksStepMarker = `uses: gitleaks/gitleaks-action@${ACTION_PINS.gitleaks}`;
     const gitleaksStep = workflow.slice(workflow.indexOf(gitleaksStepMarker));
 
     expect(workflow).toContain(gitleaksStepMarker);
@@ -54,24 +61,23 @@ describe('CI workflow security action contracts', () => {
     expect(gitleaksStep).toContain('GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}');
   });
 
-  test('OSV scanner action is pinned to a resolvable concrete v2 tag', () => {
+  test('OSV scanner action is pinned to the reviewed immutable commit', () => {
     const workflow = readCiWorkflow();
 
-    expect(workflow).toContain('uses: google/osv-scanner-action/osv-scanner-action@v2.3.8');
-    expect(workflow).not.toContain('uses: google/osv-scanner-action/osv-scanner-action@v2\n');
+    expect(workflow).toContain(
+      `uses: google/osv-scanner-action/osv-scanner-action@${ACTION_PINS.osv}`
+    );
   });
 
-  test('first-party Node actions use Node 24-compatible majors', () => {
-    const workflows = readAllWorkflowText();
+  test('first-party Node actions use reviewed Node 24-compatible commits', () => {
+    const workflows = ['ci.yml', 'compat-matrix.yml', 'cousin-install.yml', 'perf-baseline.yml']
+      .map(readWorkflow)
+      .join('\n');
 
-    expect(workflows).toContain('actions/setup-node@v6');
-    expect(workflows).not.toContain('actions/setup-node@v4');
-    expect(workflows).toContain('actions/upload-artifact@v7');
-    expect(workflows).not.toContain('actions/upload-artifact@v4');
-    expect(workflows).toContain('actions/download-artifact@v8');
-    expect(workflows).not.toContain('actions/download-artifact@v4');
-    expect(workflows).toContain('actions/github-script@v8');
-    expect(workflows).not.toContain('actions/github-script@v7');
+    expect(workflows).toContain(`actions/setup-node@${ACTION_PINS.setupNode}`);
+    expect(workflows).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
+    expect(workflows).toContain(`actions/download-artifact@${ACTION_PINS.downloadArtifact}`);
+    expect(workflows).toContain(`actions/github-script@${ACTION_PINS.githubScript}`);
   });
 
   test('macOS runners are pinned away from macos-latest migration', () => {
@@ -82,6 +88,73 @@ describe('CI workflow security action contracts', () => {
     expect(workflows).not.toContain('macos-latest');
     expect(ciWorkflow).toContain('macos-15');
     expect(perfWorkflow).toContain('os: macos-15');
+  });
+});
+
+describe('Phase 43 reproducible workflow toolchains', () => {
+  const governedFiles = [
+    'ci.yml',
+    'compat-matrix.yml',
+    'cousin-install.yml',
+    'oversight-probes.yml',
+    'upgrade-verifier.yml',
+    'perf-baseline.yml',
+  ];
+
+  test('all governed and historical workflow actions use reviewed immutable commits', () => {
+    const actionAuthority = JSON.parse(
+      fs.readFileSync(path.join(PROJECT_ROOT, 'config', 'phase43-toolchain-authority.json'), 'utf8')
+    ).githubActions.pins;
+    const usages = governedFiles.flatMap(fileName =>
+      [...readWorkflow(fileName).matchAll(/uses:\s+([^\s@]+)@([^\s#]+)/g)].map(match => ({
+        fileName,
+        action: match[1],
+        ref: match[2],
+      }))
+    );
+
+    expect(usages.length).toBeGreaterThan(0);
+    for (const usage of usages) {
+      expect(usage.ref).toMatch(/^[0-9a-f]{40}$/);
+      expect(usage.ref).toBe(actionAuthority[usage.action]?.sha);
+    }
+  });
+
+  test('all governed Bun setup consumes the exact version file', () => {
+    const workflows = governedFiles.map(readWorkflow).join('\n');
+    const setupCount = workflows.split(`oven-sh/setup-bun@${ACTION_PINS.setupBun}`).length - 1;
+    const versionFileCount = workflows.split('bun-version-file: .bun-version').length - 1;
+
+    expect(setupCount).toBeGreaterThan(0);
+    expect(versionFileCount).toBe(setupCount);
+    expect(workflows).not.toContain('bun-version: latest');
+  });
+
+  test('pins Verdaccio and keeps historical performance capture on reviewed Hyperfine', () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(PROJECT_ROOT, 'config', 'phase43-toolchain-authority.json'), 'utf8')
+    );
+    const upgrade = readWorkflow('upgrade-verifier.yml');
+    const historical = readWorkflow('perf-baseline.yml');
+
+    expect(upgrade).toContain(
+      `image: verdaccio/verdaccio@${manifest.containers.pins['verdaccio/verdaccio'].digest}`
+    );
+    expect(historical).toContain('node scripts/install-hyperfine.js');
+    for (const command of ['apt-get install', 'brew install', 'choco install']) {
+      expect(historical).not.toContain(command);
+    }
+  });
+
+  test('proposes GitHub Actions pin updates through Dependabot', () => {
+    const dependabotPath = path.join(PROJECT_ROOT, '.github', 'dependabot.yml');
+
+    expect(fs.existsSync(dependabotPath)).toBe(true);
+    if (!fs.existsSync(dependabotPath)) return;
+    const dependabot = fs.readFileSync(dependabotPath, 'utf8');
+    expect(dependabot).toContain('package-ecosystem: "github-actions"');
+    expect(dependabot).toContain('directory: "/"');
+    expect(dependabot).toContain('interval: "weekly"');
   });
 });
 
@@ -290,7 +363,7 @@ describe('Phase 42 oversight probes workflow', () => {
     expect(workflow).toContain('overlay/agents/gsd-oversight-planning.md');
     expect(workflow).toContain('scripts/verify-oversight-probes.js');
     expect(workflow).toContain('tests/verify-oversight-probes.test.js');
-    expect(workflow).toContain('uses: oven-sh/setup-bun@v2');
+    expect(workflow).toContain(`uses: oven-sh/setup-bun@${ACTION_PINS.setupBun}`);
     expect(workflow).toContain('node scripts/verify-oversight-probes.js');
   });
 });
@@ -368,10 +441,10 @@ describe('Phase 42 docs gates workflow', () => {
 
     expect(docsJobStart).toBeGreaterThan(-1);
     expect(docsJob).toContain('name: Docs Gates');
-    expect(docsJob).toContain('uses: oven-sh/setup-bun@v2');
+    expect(docsJob).toContain(`uses: oven-sh/setup-bun@${ACTION_PINS.setupBun}`);
     expect(docsJob).toContain('bun install --frozen-lockfile --ignore-scripts');
     expect(docsJob).toContain('bun run lint:docs');
-    expect(docsJob).toContain('lycheeverse/lychee-action@v2');
+    expect(docsJob).toContain(`lycheeverse/lychee-action@${ACTION_PINS.lychee}`);
     expect(docsJob).toContain('--files-from .lychee-targets');
     expect(docsJob).toContain('ls-files "*.md"');
     expect(docsJob).not.toContain('**/*.md');
@@ -400,14 +473,16 @@ describe('Phase 43 upgrade verifier workflow', () => {
     expect(workflow).toContain('overlay/**');
     expect(workflow).toContain('overrides/**');
     expect(workflow).toContain('runs-on: ubuntu-latest');
-    expect(workflow).toContain('verdaccio/verdaccio:6');
+    expect(workflow).toContain(
+      'verdaccio/verdaccio@sha256:bcd0dc5f10d0b9cca5a21b1f4fb3b08c6d90978bc87b8b46402abb271e0d573a'
+    );
     expect(workflow).toContain('4873:4873');
-    expect(workflow).toContain('actions/setup-node@v6');
+    expect(workflow).toContain(`actions/setup-node@${ACTION_PINS.setupNode}`);
     expect(workflow).toContain('node-version: "22"');
-    expect(workflow).toContain('oven-sh/setup-bun@v2');
+    expect(workflow).toContain(`oven-sh/setup-bun@${ACTION_PINS.setupBun}`);
     expect(workflow).toContain('bun install --frozen-lockfile --ignore-scripts');
     expect(workflow).toContain('bun run verify-upgrade --from 1.5.0 --to 1.6.1 --registry-url http://localhost:4873/ --json --report upgrade-report.json');
-    expect(workflow).toContain('actions/upload-artifact@v7');
+    expect(workflow).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
     expect(workflow).toContain('upgrade-report.json');
   });
 });
@@ -432,16 +507,16 @@ describe('Phase 43 compat matrix workflow', () => {
     expect(workflow).toContain('tests/helpers/**');
     expect(workflow).toContain('overlay/**');
     expect(workflow).toContain('overrides/**');
-    expect(workflow).toContain('actions/setup-node@v6');
+    expect(workflow).toContain(`actions/setup-node@${ACTION_PINS.setupNode}`);
     expect(workflow).toContain('node-version: "22"');
-    expect(workflow).toContain('oven-sh/setup-bun@v2');
+    expect(workflow).toContain(`oven-sh/setup-bun@${ACTION_PINS.setupBun}`);
     expect(workflow).toContain('bun install --frozen-lockfile --ignore-scripts');
     expect(workflow).toContain('node scripts/vetted-upstream-versions.js --validate');
     expect(workflow).toContain('node scripts/run-compat-matrix.js --manifest .planning/vetted-upstream-versions.json --json --report compat-matrix-report.json');
     expect(workflow).toContain('Compatibility matrix reported blocking drift; workflow remains informational per AF-7.');
     expect(workflow).toContain('exit 0');
     expect(workflow).not.toContain('continue-on-error: true');
-    expect(workflow).toContain('actions/upload-artifact@v7');
+    expect(workflow).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
     expect(workflow).toContain('compat-matrix-report.json');
     expect(workflow).toContain('if-no-files-found: error');
   });
@@ -453,6 +528,6 @@ describe('Phase 43 SBOM evidence workflow', () => {
 
     expect(workflow).toContain('bun run sbom');
     expect(workflow).toContain('dist/bom.json');
-    expect(workflow).toContain('actions/upload-artifact@v7');
+    expect(workflow).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
   });
 });

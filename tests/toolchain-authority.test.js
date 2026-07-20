@@ -206,6 +206,7 @@ describe('toolchain authority', () => {
     expect(Object.keys(manifest.githubActions.pins).sort()).toEqual([
       'actions/cache',
       'actions/checkout',
+      'actions/download-artifact',
       'actions/github-script',
       'actions/setup-node',
       'actions/upload-artifact',
@@ -262,10 +263,8 @@ describe('toolchain authority', () => {
     const codes = result.diagnostics.map(diagnostic => diagnostic.code);
 
     expect(result.mode).toBe('static');
-    expect(result.ok).toBe(false);
-    expect(codes).toContain('action_ref_not_pinned');
-    expect(codes).toContain('bun_setup_not_authoritative');
-    expect(codes).toContain('container_ref_not_pinned');
+    expect(result.ok).toBe(true);
+    expect(codes).toEqual([]);
     expect(codes).not.toContain('node_major_evidence_missing');
   });
 

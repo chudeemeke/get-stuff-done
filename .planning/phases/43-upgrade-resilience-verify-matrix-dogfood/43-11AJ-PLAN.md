@@ -23,8 +23,8 @@ must_haves:
   truths:
     - "no external cycle starts without explicit user authorization against the exact corrective head"
     - "every governed job proves exact event-subject execution and all five workflows pass"
-    - "all governed jobs carry Tier A runner identity and all 21 runtime subjects carry valid Tier B receipts"
-    - "paired performance evidence is dispositioned without silently changing the existing budget"
+    - "the current PR topology supplies contract-derived authority equivalent to 39 Jobs API Tier A records, 21 runner-emitted Tier B receipts, and three paired bundles for one run attempt"
+    - "each paired bundle is semantically revalidated and joined to its Tier A job, Tier B runtime, artifact API identity, governed harness, base reference, and head candidate without silently changing the existing budget"
     - "the formal Fable checkpoint consumes a committed passed envelope through Plan 11P authority"
     - "Plan 11R is summarized only after its inherited envelope and Fable obligations are actually fulfilled"
   artifacts:
@@ -49,6 +49,7 @@ blocked 11R branch only when its missing obligations are true.
 <context>
 @.planning/evidence/hosted/pre-retry-local-authority.json
 @.planning/evidence/hosted/first-real-run-failure.json
+@.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AH-SUMMARY.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11R-PLAN.md
 @.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-FABLE-WHOLE-PROJECT-REVIEW-2026-07-14.md
 @config/phase43-hosted-ci-contract.json
@@ -111,10 +112,18 @@ blocked 11R branch only when its missing obligations are true.
     governed runs; do not manually multiply runs. Require all expected jobs,
     successful execution-subject steps, pinned authority, active compatibility,
     authenticated upgrade, paired performance, docs policy, and read-only PR
-    permissions. Require Tier A runner metadata for every governed job and a
-    valid Tier B receipt for all 18 Cousin and three performance subjects; this
-    is the first permitted `hosted-runtime` consumption. Run the strict collector
-    create-only. If separately approved, reconcile live branch-protection
+    permissions. Derive the expected topology from the committed contract and
+    require its current equivalent of 39 unique Tier A Jobs API records, 21
+    valid Tier B receipts, and three paired bundles from one run attempt. Query
+    the Artifacts API for each bundle ID, archive digest, run, and head binding;
+    download each bounded archive; reject traversal, duplicate, unknown,
+    oversized, expired, or cross-run content; recompute file digests; and invoke
+    the Plan 11AH pure binding boundary plus Plan 11AG semantic recomputation.
+    Require exact harness, base repository/SHA, head repository/SHA, logical
+    runtime subject, Tier A job, Tier B runtime, and artifact metadata equality.
+    Producer-authored copies of API authority are claims only. This is the first
+    permitted `hosted-runtime` consumption. Run the strict collector create-only.
+    If separately approved, reconcile live branch-protection
     contexts to the already committed tracked intent and record the exact API
     response without weakening strictness or required reviews.
 
@@ -190,7 +199,10 @@ contract preserve authority across the external boundary.
 <verification>
 - blocking user authorization checkpoints above
 - one push-triggered five-workflow cycle only
-- Tier A runner metadata for all governed jobs and Tier B receipts for all 21 runtime subjects
+- contract-derived current PR topology equivalent to 39 Tier A records, 21 Tier
+  B receipts, and three paired bundles from one run attempt
+- Artifacts API identity plus bounded archive ingestion, digest recomputation,
+  and pure semantic joins for every paired bundle
 - strict exact-subject hosted receipt verification
 - formal subject-bound Fable receipt verification
 - truthful 11R supersession summary after, never before, both authorities pass

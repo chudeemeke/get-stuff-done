@@ -319,7 +319,7 @@ describe('hosted CI verdict authority', () => {
     expect(contract.schemaVersion).toBe(5);
     expect(contract.envelopeSchemaVersion).toBe(2);
     expect(contract.executionSubject).toMatchObject({
-      schemaVersion: 2,
+      schemaVersion: 3,
       defaultProfile: 'single-subject',
       checkoutRepository:
         "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}",

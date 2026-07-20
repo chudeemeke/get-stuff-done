@@ -64,6 +64,11 @@ function makeManifest() {
           sha: '249970729cb0ef3589644e2896645e5dc5ba9c38',
           updateTrigger: 'resolve tag v6 and review release notes',
         },
+        'gitleaks/gitleaks-action': {
+          tag: 'v3',
+          sha: 'e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e',
+          updateTrigger: 'resolve tag v3 and review release notes',
+        },
         'oven-sh/setup-bun': {
           tag: 'v2',
           sha: '0c5077e51419868618aeaa5fe8019c62421857d6',
@@ -147,6 +152,7 @@ function makeCompliantWorkflow() {
     with: { 'node-version': nodeVersion },
   });
   return {
+    permissions: { contents: 'read' },
     jobs: {
       'test-node-20': {
         steps: [checkout, setupNode('20'), setupBun, { run: 'node --version && bun test' }],
@@ -239,6 +245,35 @@ describe('toolchain authority', () => {
     expect(governed).toContain('tests/toolchain-authority.test.js');
   });
 
+  test('declares a closed and reasoned automatic-token allowlist', () => {
+    const contract = JSON.parse(
+      fs.readFileSync(
+        path.join(PROJECT_ROOT, 'config', 'phase43-hosted-ci-contract.json'),
+        'utf8'
+      )
+    );
+    const policy = contract.executionSubject.automaticTokenPolicy;
+
+    expect(contract.executionSubject.schemaVersion).toBe(3);
+    expect(policy.requiredPermissions).toEqual({ contents: 'read' });
+    expect(policy.allowlist).toEqual([
+      {
+        action: 'actions/checkout',
+        exposure: 'implicit-action-default',
+        reason: 'Read-only clone authentication; governed checkouts never persist credentials.',
+      },
+      {
+        action: 'gitleaks/gitleaks-action',
+        exposure: 'env',
+        key: 'GITHUB_TOKEN',
+        value: '${{ secrets.GITHUB_TOKEN }}',
+        reason: 'Read-only pull-request metadata access required by the pinned Secret Scan action.',
+      },
+    ]);
+    expect(policy.allowlist.map(entry => entry.action)).not.toContain('actions/upload-artifact');
+    expect(policy.allowlist.map(entry => entry.action)).not.toContain('actions/download-artifact');
+  });
+
   test('rejects malformed nested execution-subject authority records', () => {
     const mutations = [
       policy => (policy.eventSubjects = null),
@@ -247,6 +282,13 @@ describe('toolchain authority', () => {
       policy => (policy.jobProfiles = null),
       policy => (policy.jobProfiles['.github/workflows/ci.yml'] = null),
       policy => policy.performanceProfile.jobNames.pop(),
+      policy => (policy.automaticTokenPolicy = null),
+      policy => policy.automaticTokenPolicy.allowlist.push({
+        action: 'actions/upload-artifact',
+        exposure: 'implicit-action-default',
+        reason: 'Not demonstrated.',
+      }),
+      policy => delete policy.automaticTokenPolicy.allowlist[1].reason,
     ];
 
     for (const mutate of mutations) {
@@ -266,6 +308,109 @@ describe('toolchain authority', () => {
     expect(result.ok).toBe(true);
     expect(codes).toEqual([]);
     expect(codes).not.toContain('node_major_evidence_missing');
+  });
+
+  test('rejects automatic-token exposure outside pinned allowlisted actions and read-only permissions', () => {
+    const manifest = makeManifest();
+    const policy = makeExecutionSubjectPolicy();
+    const workflow = makeCompliantWorkflow();
+    workflow.permissions = { contents: 'read' };
+    workflow.jobs['test-node-20'].steps.push({
+      run: 'printf %s "${{ secrets.GITHUB_TOKEN }}"',
+    });
+    workflow.jobs['perf-budget'].steps[1].with.token = '${{ github.token }}';
+    workflow.jobs['perf-budget'].permissions = { contents: 'write' };
+
+    const result = evaluateToolchainAuthority({
+      manifest,
+      bunVersion: '1.3.5',
+      workflows: { '.github/workflows/ci.yml': workflow },
+      executionSubject: policy,
+      runtimeEvidence: makeRuntimeEvidence(),
+    });
+
+    expect(result.diagnostics).toContainEqual({
+      code: 'automatic_token_in_run_step',
+      workflow: '.github/workflows/ci.yml',
+      job: 'test-node-20',
+      step: 4,
+    });
+    expect(result.diagnostics).toContainEqual({
+      code: 'automatic_token_exposure_not_allowlisted',
+      workflow: '.github/workflows/ci.yml',
+      job: 'perf-budget',
+      step: 1,
+      action: 'actions/setup-node',
+      location: 'with',
+      key: 'token',
+    });
+    expect(result.diagnostics).toContainEqual({
+      code: 'workflow_permissions_not_read_only',
+      workflow: '.github/workflows/ci.yml',
+      job: 'perf-budget',
+    });
+  });
+
+  test('rejects indirect token contexts and token-shaped bindings outside the allowlist', () => {
+    const workflow = makeCompliantWorkflow();
+    workflow.env = { DEPLOY_KEY: '${{ secrets.DEPLOY_KEY }}' };
+    workflow.jobs['test-node-20'].env = { CONTEXT: '${{ toJSON(github) }}' };
+    workflow.jobs['test-node-20'].steps.push(
+      { uses: 'actions/setup-node', with: { token: 'opaque' } },
+      { uses: './local-action', env: { ACCESS_TOKEN: 0 } },
+      {
+        uses: 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38',
+        if: '${{ github["token"] }}',
+      },
+      null,
+      []
+    );
+    workflow.jobs.invalid = null;
+
+    const result = evaluateToolchainAuthority({
+      manifest: makeManifest(),
+      bunVersion: '1.3.5',
+      workflows: { '.github/workflows/ci.yml': workflow },
+      executionSubject: makeExecutionSubjectPolicy(),
+      runtimeEvidence: makeRuntimeEvidence(),
+    });
+
+    expect(result.diagnostics).toContainEqual({
+      code: 'automatic_token_workflow_scope_exposure',
+      workflow: '.github/workflows/ci.yml',
+    });
+    expect(result.diagnostics).toContainEqual({
+      code: 'automatic_token_job_scope_exposure',
+      workflow: '.github/workflows/ci.yml',
+      job: 'test-node-20',
+    });
+    expect(result.diagnostics).toContainEqual({
+      code: 'automatic_token_exposure_not_allowlisted',
+      workflow: '.github/workflows/ci.yml',
+      job: 'test-node-20',
+      step: 4,
+      action: 'actions/setup-node',
+      location: 'with',
+      key: 'token',
+    });
+    expect(result.diagnostics).toContainEqual({
+      code: 'automatic_token_exposure_not_allowlisted',
+      workflow: '.github/workflows/ci.yml',
+      job: 'test-node-20',
+      step: 5,
+      action: null,
+      location: 'env',
+      key: 'ACCESS_TOKEN',
+    });
+    expect(result.diagnostics).toContainEqual({
+      code: 'automatic_token_exposure_not_allowlisted',
+      workflow: '.github/workflows/ci.yml',
+      job: 'test-node-20',
+      step: 6,
+      action: 'actions/setup-node',
+      location: 'if',
+      key: 'value',
+    });
   });
 
   test('bounds and strictly decodes the toolchain manifest before parsing', () => {

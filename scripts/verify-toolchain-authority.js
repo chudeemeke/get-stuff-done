@@ -97,6 +97,7 @@ const EXECUTION_SUBJECT_KEYS = new Set([
   'expectedSubjectExpression',
   'verificationRun',
   'securityPrelude',
+  'automaticTokenPolicy',
   'checkoutInputs',
   'eventSubjects',
   'evidenceAuthority',
@@ -104,6 +105,19 @@ const EXECUTION_SUBJECT_KEYS = new Set([
   'jobProfiles',
 ]);
 const SECURITY_PRELUDE_KEYS = new Set(['action', 'allowedInputs']);
+const AUTOMATIC_TOKEN_POLICY_KEYS = new Set([
+  'schemaVersion',
+  'requiredPermissions',
+  'allowlist',
+]);
+const AUTOMATIC_TOKEN_IMPLICIT_ENTRY_KEYS = new Set(['action', 'exposure', 'reason']);
+const AUTOMATIC_TOKEN_EXPLICIT_ENTRY_KEYS = new Set([
+  'action',
+  'exposure',
+  'key',
+  'value',
+  'reason',
+]);
 const PERFORMANCE_PROFILE_KEYS = new Set([
   'profile',
   'authorityEvent',
@@ -127,6 +141,30 @@ const PERFORMANCE_CHECKOUT_KEYS = new Set([
   'fetchDepth',
 ]);
 const CONTROL_CHECKOUT_KEYS = new Set(['name', 'uses', 'with', 'continue-on-error']);
+
+function validateAutomaticTokenPolicy(policy) {
+  const entries = Array.isArray(policy?.allowlist) ? policy.allowlist : [];
+  const checkout = entries.find(entry => entry?.action === 'actions/checkout');
+  const secretScan = entries.find(entry => entry?.action === 'gitleaks/gitleaks-action');
+  if (
+    !hasExactKeys(policy, AUTOMATIC_TOKEN_POLICY_KEYS) ||
+    policy.schemaVersion !== 1 ||
+    JSON.stringify(policy.requiredPermissions) !== JSON.stringify({ contents: 'read' }) ||
+    entries.length !== 2 ||
+    new Set(entries.map(entry => entry?.action)).size !== entries.length ||
+    !hasExactKeys(checkout, AUTOMATIC_TOKEN_IMPLICIT_ENTRY_KEYS) ||
+    checkout.exposure !== 'implicit-action-default' ||
+    !isBoundedPrintable(checkout.reason) ||
+    !hasExactKeys(secretScan, AUTOMATIC_TOKEN_EXPLICIT_ENTRY_KEYS) ||
+    secretScan.exposure !== 'env' ||
+    secretScan.key !== 'GITHUB_TOKEN' ||
+    secretScan.value !== '${{ secrets.GITHUB_TOKEN }}' ||
+    !isBoundedPrintable(secretScan.reason)
+  ) {
+    throw new Error('Automatic GitHub-token authority is invalid.');
+  }
+  return policy;
+}
 
 function hasExactKeys(value, keys) {
   return (
@@ -188,6 +226,7 @@ function validateExecutionSubjectPolicy(policy) {
   ];
   let eventSubjectsValid = true;
   let evidenceAuthorityValid = true;
+  let automaticTokenPolicyValid = true;
   try {
     validateEventSubjectPolicies(policy?.eventSubjects);
   } catch {
@@ -197,6 +236,11 @@ function validateExecutionSubjectPolicy(policy) {
     validateEvidenceAuthorityPolicy(policy?.evidenceAuthority);
   } catch {
     evidenceAuthorityValid = false;
+  }
+  try {
+    validateAutomaticTokenPolicy(policy?.automaticTokenPolicy);
+  } catch {
+    automaticTokenPolicyValid = false;
   }
   const performance = policy?.performanceProfile;
   const performanceCheckouts = Array.isArray(performance?.checkouts)
@@ -216,7 +260,7 @@ function validateExecutionSubjectPolicy(policy) {
   );
   if (
     !hasExactKeys(policy, EXECUTION_SUBJECT_KEYS) ||
-    policy.schemaVersion !== 2 ||
+    policy.schemaVersion !== 3 ||
     policy.defaultProfile !== 'single-subject' ||
     policy.checkoutStep !== 'Checkout exact event subject' ||
     policy.verificationStep !== 'Verify execution subject' ||
@@ -245,6 +289,7 @@ function validateExecutionSubjectPolicy(policy) {
     policy.securityPrelude.action !== 'step-security/harden-runner' ||
     JSON.stringify(policy.securityPrelude.allowedInputs) !==
       JSON.stringify({ 'egress-policy': ['audit', 'block'] }) ||
+    !automaticTokenPolicyValid ||
     JSON.stringify(policy.checkoutInputs) !==
       JSON.stringify({
         '.github/workflows/ci.yml': {
@@ -750,6 +795,163 @@ function collectWorkflowDependencies(document) {
   return result;
 }
 
+function actionNameFromUses(uses) {
+  if (typeof uses !== 'string' || uses.startsWith('docker://') || uses.startsWith('./')) {
+    return null;
+  }
+  const separator = uses.lastIndexOf('@');
+  return separator === -1 ? uses : uses.slice(0, separator);
+}
+
+function hasSensitiveTokenExpression(value) {
+  if (typeof value !== 'string') return false;
+  for (const match of value.matchAll(/\$\{\{([\s\S]*?)\}\}/g)) {
+    const expression = match[1];
+    if (
+      /\bsecrets\b/i.test(expression) ||
+      /\bgithub\s*(?:\.\s*token|\[\s*['"]token['"]\s*\])/i.test(expression) ||
+      /\btoJSON\s*\(\s*github\s*\)/i.test(expression)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isTokenBindingKey(key) {
+  return /^(?:github[-_]?token|token|auth[-_]?token|access[-_]?token)$/i.test(key);
+}
+
+function collectSensitiveTokenReferences(value) {
+  const references = [];
+  const seen = new WeakSet();
+  const visit = (current, location) => {
+    if (references.length > MAX_DIAGNOSTICS) return;
+    if (typeof current === 'string') {
+      if (hasSensitiveTokenExpression(current)) references.push({ location, value: current });
+      return;
+    }
+    if (!current || typeof current !== 'object' || seen.has(current)) return;
+    seen.add(current);
+    for (const [key, child] of Object.entries(current)) visit(child, [...location, key]);
+  };
+  visit(value, []);
+  return references;
+}
+
+function isReadOnlyPermissions(value, required) {
+  return value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    JSON.stringify(value) === JSON.stringify(required);
+}
+
+function tokenBindingAllowed(policy, action, exposure, key, value) {
+  return policy.allowlist.some(entry =>
+    entry.action === action &&
+    entry.exposure === exposure &&
+    entry.key === key &&
+    entry.value === value
+  );
+}
+
+function evaluateAutomaticTokenPolicy(document, policy, workflow, actionPins, diagnostics) {
+  if (!isReadOnlyPermissions(document?.permissions, policy.requiredPermissions)) {
+    diagnostics.add({ code: 'workflow_permissions_not_read_only', workflow });
+  }
+  for (const entry of policy.allowlist) {
+    if (!actionPins.has(entry.action)) {
+      diagnostics.add({
+        code: 'automatic_token_allowlist_action_not_pinned',
+        workflow,
+        action: entry.action,
+      });
+    }
+  }
+
+  const jobs = document?.jobs && typeof document.jobs === 'object' && !Array.isArray(document.jobs)
+    ? document.jobs
+    : {};
+  const reported = new Set();
+  const reportForbidden = (job, step, action, location, key) => {
+    const identity = [job, step, action, location, key].join('\0');
+    if (reported.has(identity)) return;
+    reported.add(identity);
+    diagnostics.add({
+      code: 'automatic_token_exposure_not_allowlisted',
+      workflow,
+      job,
+      step,
+      action,
+      location,
+      key,
+    });
+  };
+
+  for (const [jobId, job] of Object.entries(jobs)) {
+    if (!job || typeof job !== 'object' || Array.isArray(job)) continue;
+    if (
+      Object.prototype.hasOwnProperty.call(job, 'permissions') &&
+      !isReadOnlyPermissions(job.permissions, policy.requiredPermissions)
+    ) {
+      diagnostics.add({ code: 'workflow_permissions_not_read_only', workflow, job: jobId });
+    }
+    const steps = Array.isArray(job.steps) ? job.steps : [];
+    for (const [stepIndex, step] of steps.entries()) {
+      if (!step || typeof step !== 'object' || Array.isArray(step)) continue;
+      const action = actionNameFromUses(step.uses);
+      const tokenReferences = collectSensitiveTokenReferences(step);
+      if (typeof step.run === 'string' && tokenReferences.length > 0) {
+        diagnostics.add({
+          code: 'automatic_token_in_run_step',
+          workflow,
+          job: jobId,
+          step: stepIndex,
+        });
+        continue;
+      }
+      for (const reference of tokenReferences) {
+        const [location, key] = reference.location;
+        if (
+          action &&
+          reference.location.length === 2 &&
+          ['env', 'with'].includes(location) &&
+          tokenBindingAllowed(policy, action, location, key, reference.value)
+        ) {
+          continue;
+        }
+        reportForbidden(jobId, stepIndex, action, location || 'step', key || 'value');
+      }
+      for (const location of ['env', 'with']) {
+        const bindings = Reflect.get(step, location);
+        if (!bindings || typeof bindings !== 'object' || Array.isArray(bindings)) continue;
+        for (const [key, value] of Object.entries(bindings)) {
+          if (!isTokenBindingKey(key) || hasSensitiveTokenExpression(value)) continue;
+          if (!action || !tokenBindingAllowed(policy, action, location, key, value)) {
+            reportForbidden(jobId, stepIndex, action, location, key);
+          }
+        }
+      }
+    }
+  }
+
+  const workflowLevel = { ...document, jobs: undefined };
+  if (collectSensitiveTokenReferences(workflowLevel).length > 0) {
+    diagnostics.add({ code: 'automatic_token_workflow_scope_exposure', workflow });
+  }
+  for (const [jobId, job] of Object.entries(jobs)) {
+    if (!job || typeof job !== 'object' || Array.isArray(job)) continue;
+    const jobLevel = { ...job, steps: undefined };
+    if (collectSensitiveTokenReferences(jobLevel).length > 0) {
+      diagnostics.add({
+        code: 'automatic_token_job_scope_exposure',
+        workflow,
+        job: jobId,
+      });
+    }
+  }
+}
+
 function isExactControlStep(step, index, steps, policy, checkoutUses, workflow, jobId) {
   if (!policy || index < 1) return false;
   const checkout = steps[index - 1];
@@ -900,6 +1102,15 @@ function evaluateToolchainAuthority(input) {
     if (!document || typeof document !== 'object') {
       diagnostics.add({ code: 'governed_workflow_missing', workflow });
       continue;
+    }
+    if (executionSubject) {
+      evaluateAutomaticTokenPolicy(
+        document,
+        executionSubject.automaticTokenPolicy,
+        workflow,
+        actionPins,
+        diagnostics
+      );
     }
     const dependencies = collectWorkflowDependencies(document);
     const jobsById = new Map(dependencies.jobs.map(job => [job.id, job]));

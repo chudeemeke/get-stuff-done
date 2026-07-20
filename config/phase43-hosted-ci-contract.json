@@ -10,7 +10,7 @@
   "allowUnexpectedWorkflows": false,
   "allowUnexpectedJobs": false,
   "executionSubject": {
-    "schemaVersion": 2,
+    "schemaVersion": 3,
     "defaultProfile": "single-subject",
     "checkoutStep": "Checkout exact event subject",
     "verificationStep": "Verify execution subject",
@@ -31,6 +31,26 @@
       "allowedInputs": {
         "egress-policy": ["audit", "block"]
       }
+    },
+    "automaticTokenPolicy": {
+      "schemaVersion": 1,
+      "requiredPermissions": {
+        "contents": "read"
+      },
+      "allowlist": [
+        {
+          "action": "actions/checkout",
+          "exposure": "implicit-action-default",
+          "reason": "Read-only clone authentication; governed checkouts never persist credentials."
+        },
+        {
+          "action": "gitleaks/gitleaks-action",
+          "exposure": "env",
+          "key": "GITHUB_TOKEN",
+          "value": "${{ secrets.GITHUB_TOKEN }}",
+          "reason": "Read-only pull-request metadata access required by the pinned Secret Scan action."
+        }
+      ]
     },
     "checkoutInputs": {
       ".github/workflows/ci.yml": {

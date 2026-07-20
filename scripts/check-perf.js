@@ -4,23 +4,26 @@
 const fs = require('fs');
 const path = require('path');
 const Ajv = require('ajv');
+const { adjudicatePairedComparison } = require('./lib/paired-perf');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const VALID_PLATFORMS = new Set(['linux', 'macos', 'windows']);
 const METRICS = ['install', 'compose'];
 
 function printHelp(stream = process.stdout) {
-  stream.write(`check-perf - compare current performance metrics to the committed baseline
+  stream.write(`check-perf - adjudicate paired evidence or inspect historical baseline drift
 
 USAGE
+  node scripts/check-perf.js --comparison <file>
   node scripts/check-perf.js --baseline <file> --current <file> --platform <linux|macos|windows>
 
 OPTIONS
-  --baseline <file>       Baseline JSON file, usually perf-baseline.json.
-  --current <file>        Current one-platform JSON artifact from scripts/bench.js.
-  --platform <name>       Platform to compare: linux, macos, or windows.
-  --warn-ratio <number>   Warning threshold. Default: 1.10.
-  --fail-ratio <number>   Failure threshold. Default: 1.25.
+  --comparison <file>     Paired same-run artifact used for blocking authority.
+  --baseline <file>       Historical baseline JSON file (diagnostic mode only).
+  --current <file>        Historical one-platform artifact (diagnostic mode only).
+  --platform <name>       Historical platform: linux, macos, or windows.
+  --warn-ratio <number>   Historical warning threshold. Default: 1.10.
+  --fail-ratio <number>   Historical failure threshold. Default: 1.25.
   -h, --help              Show this help.
 `);
 }
@@ -29,6 +32,7 @@ function parseArgs(argv) {
   const options = {
     warnRatio: 1.10,
     failRatio: 1.25,
+    thresholdOverride: false,
     help: false,
   };
   const args = [...argv];
@@ -40,6 +44,9 @@ function parseArgs(argv) {
 
     if (arg === '-h' || arg === '--help') {
       options.help = true;
+    } else if (flag === '--comparison' && value) {
+      options.comparison = path.resolve(value);
+      if (inlineValue === undefined) args.shift();
     } else if (flag === '--baseline' && value) {
       options.baseline = path.resolve(value);
       if (inlineValue === undefined) args.shift();
@@ -51,9 +58,11 @@ function parseArgs(argv) {
       if (inlineValue === undefined) args.shift();
     } else if (flag === '--warn-ratio' && value) {
       options.warnRatio = Number(value);
+      options.thresholdOverride = true;
       if (inlineValue === undefined) args.shift();
     } else if (flag === '--fail-ratio' && value) {
       options.failRatio = Number(value);
+      options.thresholdOverride = true;
       if (inlineValue === undefined) args.shift();
     } else {
       throw new Error(`Unknown or incomplete option: ${arg}`);
@@ -98,6 +107,24 @@ function validateBaselineShape(baseline) {
 
   if (!validate(baseline)) {
     throw new Error(`Invalid perf baseline: ${formatAjvErrors(validate.errors)}`);
+  }
+}
+
+function validateComparisonShape(comparison) {
+  const schemaPath = path.join(PROJECT_ROOT, 'config', 'perf-comparison.schema.json');
+  const schema = readJson(schemaPath);
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  const validate = ajv.compile(schema);
+
+  if (!validate(comparison)) {
+    throw new Error(`Invalid paired comparison: ${formatAjvErrors(validate.errors)}`);
+  }
+}
+
+function assertPairedInputs(options) {
+  if (!options.comparison) throw new Error('--comparison is required');
+  if (options.baseline || options.current || options.platform || options.thresholdOverride) {
+    throw new Error('--comparison cannot be mixed with historical inputs or threshold overrides');
   }
 }
 
@@ -229,12 +256,35 @@ function runComparison(options, baseline, current) {
   return results.some(result => result.status === 'fail') ? 1 : 0;
 }
 
+function printPairedMetric(metric, summary, stream = process.stdout) {
+  const line = `paired ${metric}: reference=${summary.referenceMeanNs}ns candidate=${summary.candidateMeanNs}ns ratio=${formatRatio(summary.ratio)}`;
+  stream.write(`${line}\n`);
+  if (summary.status === 'fail') {
+    stream.write(`::error title=Paired perf budget failure::${line}\n`);
+  } else if (summary.status === 'warn') {
+    stream.write(`::warning title=Paired perf budget warning::${line}\n`);
+  }
+}
+
+function runPairedComparison(comparison) {
+  validateComparisonShape(comparison);
+  const result = adjudicatePairedComparison(comparison);
+  printPairedMetric('install', result.metrics.install);
+  printPairedMetric('compose', result.metrics.compose);
+  return result.verdict === 'fail' ? 1 : 0;
+}
+
 function main(argv = process.argv.slice(2)) {
   try {
     const options = parseArgs(argv);
     if (options.help) {
       printHelp();
       return 0;
+    }
+
+    if (options.comparison) {
+      assertPairedInputs(options);
+      return runPairedComparison(readJson(options.comparison));
     }
 
     const baseline = readJson(options.baseline);
@@ -258,4 +308,5 @@ module.exports = {
   main,
   matchesAcceptedRegression,
   parseArgs,
+  runPairedComparison,
 };

@@ -89,6 +89,25 @@ function runCheck({ baselineValue = baseline(), currentValue = current('linux'),
   }
 }
 
+function runPairedCheck(comparisonValue, extraArgs = []) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-check-paired-perf-'));
+  const comparisonPath = path.join(dir, 'comparison.json');
+
+  try {
+    fs.writeFileSync(comparisonPath, JSON.stringify(comparisonValue, null, 2));
+    const result = spawnSync('node', [CHECK_PERF, '--comparison', comparisonPath, ...extraArgs], {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8',
+    });
+    return {
+      status: result.status,
+      output: `${result.stdout || ''}${result.stderr || ''}`,
+    };
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 function acceptedRegression(overrides = {}) {
   return {
     reason: 'Reviewed temporary CI runner migration cost',
@@ -182,6 +201,42 @@ describe('paired performance adjudication', () => {
 });
 
 describe('check-perf CLI', () => {
+  test('uses validated paired evidence as the strict blocking verdict', () => {
+    const pass = runPairedCheck(captureFixture({ candidateDurationNs: 110_000_000 }));
+    const warning = runPairedCheck(captureFixture({ candidateDurationNs: 111_000_000 }));
+    const boundary = runPairedCheck(captureFixture({ candidateDurationNs: 125_000_000 }));
+    const failure = runPairedCheck(captureFixture({ candidateDurationNs: 126_000_000 }));
+
+    expect(pass.status).toBe(0);
+    expect(pass.output).not.toContain('::warning');
+    expect(warning.status).toBe(0);
+    expect(warning.output).toContain('::warning');
+    expect(boundary.status).toBe(0);
+    expect(boundary.output).toContain('::warning');
+    expect(failure.status).toBe(1);
+    expect(failure.output).toContain('::error');
+  });
+
+  test('rejects mixed modes, threshold overrides, and structurally invalid paired evidence', () => {
+    for (const extraArgs of [
+      ['--baseline', 'historical.json'],
+      ['--current', 'current.json'],
+      ['--platform', 'linux'],
+      ['--warn-ratio', '9'],
+      ['--fail-ratio', '9'],
+    ]) {
+      const result = runPairedCheck(captureFixture(), extraArgs);
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('cannot be mixed');
+    }
+
+    const invalid = captureFixture();
+    invalid.acceptedRegressions = [];
+    const result = runPairedCheck(invalid);
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('Invalid paired comparison');
+  });
+
   test('passes compose ratios below or exactly at warning threshold without annotations', () => {
     for (const ratio of [1.09, 1.10]) {
       const result = runCheck({ currentValue: current('linux', { compose: Math.round(1000 * ratio) }) });

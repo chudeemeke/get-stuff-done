@@ -17,6 +17,9 @@ exclude = [
   # 2026-08-23 across PRs #33/#35; the URL answers 200 in ~1s from residential
   # IPs). Verified alive at exclusion time; re-check if the reference changes.
   '^https://slsa\.dev/',
+  # contribute.cncf.io resets connections from GitHub runners (PR #35 run 32671249795,
+  # 2026-08-23) while answering 200 from other networks. Same runner-hostile class.
+  '^https://contribute\.cncf\.io/',
 ]
 
 accept = [

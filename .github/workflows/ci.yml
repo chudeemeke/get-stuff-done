@@ -371,13 +371,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # macOS hosted runners show +/-40% timing noise (2026-08-23 rebaseline stddev 42% of mean); its fail ratio is looser. Durable variance-aware policy is Phase 43 scope.
         include:
           - os: ubuntu-latest
             platform: linux
+            fail_ratio: "1.25"
           - os: macos-15
             platform: macos
+            fail_ratio: "2.5"
           - os: windows-latest
             platform: windows
+            fail_ratio: "1.25"
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
@@ -407,7 +411,7 @@ jobs:
       - name: Capture current install and compose metrics
         run: node scripts/bench.js --platform ${{ matrix.platform }} --runs 3 --warmup 1 --out perf-current.json
       - name: Enforce perf budget
-        run: node scripts/check-perf.js --baseline perf-baseline.json --current perf-current.json --platform ${{ matrix.platform }} --warn-ratio 1.10 --fail-ratio 1.25
+        run: node scripts/check-perf.js --baseline perf-baseline.json --current perf-current.json --platform ${{ matrix.platform }} --warn-ratio 1.10 --fail-ratio ${{ matrix.fail_ratio }}
 
   parity:
     name: Source Parity Check

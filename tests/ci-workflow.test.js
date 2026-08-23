@@ -138,7 +138,9 @@ describe('Phase 42 perf budget workflow', () => {
     expect(perfJob).toContain('platform: windows');
     expect(perfJob).not.toContain('macos-latest');
     expect(perfJob).toContain('node scripts/bench.js --platform ${{ matrix.platform }} --runs 3 --warmup 1 --out perf-current.json');
-    expect(perfJob).toContain('node scripts/check-perf.js --baseline perf-baseline.json --current perf-current.json --platform ${{ matrix.platform }} --warn-ratio 1.10 --fail-ratio 1.25');
+    expect(perfJob).toContain('node scripts/check-perf.js --baseline perf-baseline.json --current perf-current.json --platform ${{ matrix.platform }} --warn-ratio 1.10 --fail-ratio ${{ matrix.fail_ratio }}');
+    expect(perfJob).toContain('fail_ratio: "1.25"');
+    expect(perfJob).toContain('fail_ratio: "2.5"');
   });
 });
 

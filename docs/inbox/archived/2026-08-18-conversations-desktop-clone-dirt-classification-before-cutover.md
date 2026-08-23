@@ -129,7 +129,7 @@ delta.
 This is recorded and owned in `conversations` at
 `.planning/phases/20-wsl-linux-workspace-migration/deferred-items.md`, **item 4**,
 with a user disposition already taken on 2026-08-17: *investigate and fix during
-`get-stuff-done` cutover preparation*. 
+`get-stuff-done` cutover preparation*.
 
 **Do not act on it now, and do not treat it as part of this filing's ask.** It is
 mentioned only so that a session hitting the `git status` failure recognises it as

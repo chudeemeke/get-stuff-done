@@ -1,92 +1,61 @@
 {
   "metadata": {
-    "capturedAt": "2026-07-03T04:48:43.893Z",
+    "capturedAt": "2026-08-23T21:23:39.491Z",
     "nodeVersion": "per-platform",
     "bunVersion": "per-platform",
     "upstreamVersion": "1.5.0",
     "hyperfineVersion": "per-platform",
-    "source": "merge:.planning\\perf\\artifacts\\run-28638612289"
+    "source": "merge:artifacts"
   },
   "platforms": {
     "linux": {
       "install": {
-        "mean_ms": 133,
-        "stddev_ms": 3,
-        "min_ms": 131,
-        "max_ms": 138,
+        "mean_ms": 156,
+        "stddev_ms": 1,
+        "min_ms": 155,
+        "max_ms": 158,
         "samples": 5
       },
       "compose": {
-        "mean_ms": 232,
-        "stddev_ms": 3,
-        "min_ms": 228,
-        "max_ms": 237,
+        "mean_ms": 244,
+        "stddev_ms": 5,
+        "min_ms": 238,
+        "max_ms": 250,
         "samples": 5
       }
     },
     "macos": {
       "install": {
-        "mean_ms": 134,
-        "stddev_ms": 45,
-        "min_ms": 99,
-        "max_ms": 213,
+        "mean_ms": 173,
+        "stddev_ms": 72,
+        "min_ms": 131,
+        "max_ms": 301,
         "samples": 5
       },
       "compose": {
-        "mean_ms": 370,
-        "stddev_ms": 31,
-        "min_ms": 336,
-        "max_ms": 403,
+        "mean_ms": 243,
+        "stddev_ms": 15,
+        "min_ms": 233,
+        "max_ms": 270,
         "samples": 5
       }
     },
     "windows": {
       "install": {
-        "mean_ms": 10203,
-        "stddev_ms": 2264,
-        "min_ms": 8686,
-        "max_ms": 14153,
+        "mean_ms": 14084,
+        "stddev_ms": 436,
+        "min_ms": 13576,
+        "max_ms": 14657,
         "samples": 5
       },
       "compose": {
-        "mean_ms": 595,
-        "stddev_ms": 23,
-        "min_ms": 571,
-        "max_ms": 630,
+        "mean_ms": 678,
+        "stddev_ms": 30,
+        "min_ms": 652,
+        "max_ms": 712,
         "samples": 5
       }
     }
   },
-  "acceptedRegressions": [
-    {
-      "reason": "macos-15-arm64 install benchmark variance in PR #18 run 28645820292 measured 176ms vs 134ms baseline (1.31x), while the 42ms delta remained within the 45ms baseline stddev. Rebaseline or variance-aware policy should replace this temporary exception if it recurs.",
-      "reviewer": "Chude",
-      "reviewedDate": "2026-07-03",
-      "ticket": "PR-18/run-28645820292",
-      "platform": "macos",
-      "metric": "install",
-      "maxRatio": 1.4,
-      "expiresOn": "2026-07-10"
-    },
-    {
-      "reason": "macos-15-arm64 install benchmark variance recurred in PR #19 run 28647664953 after non-performance Plan 04 changes, measuring 228ms vs 134ms baseline (1.70x) on runner image 20260623.0190. This temporary exception keeps the gate scoped while Phase 43/44 replaces it with rebaseline or variance-aware policy.",
-      "reviewer": "Chude",
-      "reviewedDate": "2026-07-03",
-      "ticket": "PR-19/run-28647664953",
-      "platform": "macos",
-      "metric": "install",
-      "maxRatio": 1.8,
-      "expiresOn": "2026-07-10"
-    },
-    {
-      "reason": "macos-15-arm64 compose benchmark variance recurred in PR #20 run 28651494074 after non-performance Plan 03 cousin-install CI and docs changes, measuring 499ms vs 370ms baseline (1.35x) on runner image 20260630.0202.1 with 96.6ms stddev. This temporary exception keeps the gate scoped while Phase 43/44 replaces repeated macOS variance exceptions with rebaseline or variance-aware policy.",
-      "reviewer": "Chude",
-      "reviewedDate": "2026-07-03",
-      "ticket": "PR-20/run-28651494074",
-      "platform": "macos",
-      "metric": "compose",
-      "maxRatio": 1.5,
-      "expiresOn": "2026-07-10"
-    }
-  ]
+  "acceptedRegressions": []
 }

@@ -20,6 +20,9 @@ exclude = [
   # contribute.cncf.io resets connections from GitHub runners (PR #35 run 32671249795,
   # 2026-08-23) while answering 200 from other networks. Same runner-hostile class.
   '^https://contribute\.cncf\.io/',
+  # scorecard.dev: connection failed from a runner on PR #33 run 32673327547 (2026-08-24)
+  # while PR #24 passed the same check minutes earlier. Same runner-hostile class.
+  '^https://scorecard\.dev/',
 ]
 
 accept = [

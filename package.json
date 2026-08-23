@@ -42,7 +42,7 @@
     "url": "https://github.com/chudeemeke/get-stuff-done/issues"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.9.0"
   },
   "dependencies": {
     "@anthropic-ai/claude-code": "^2.1.197",

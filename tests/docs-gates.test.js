@@ -19,7 +19,7 @@ describe('Phase 42 docs gate package contract', () => {
     expect(pkg.scripts['lint:docs']).toBe('node scripts/lint-docs.js');
     // Phase 42 contract: an exact pin (no range), so the docs gate is
     // reproducible. The specific version moves with security bumps.
-    expect(pkg.devDependencies['markdownlint-cli2']).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(pkg.devDependencies['markdownlint-cli2']).toMatch(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/);
   });
 
   test('docs lint script uses tracked markdown targets with narrow generated exclusions', () => {

@@ -1,7 +1,8 @@
 node_modules/
 .DS_Store
 TO-DOS.md
-CLAUDE.md
+# CLAUDE.md is tracked: it is the skin-discipline behavioral contract loaded
+# by Claude Code in every session in this CWD.
 /research.claude/
 commands.html
 

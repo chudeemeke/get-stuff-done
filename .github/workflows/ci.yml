@@ -371,7 +371,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macOS hosted runners show +/-40% timing noise (2026-08-23 rebaseline stddev 42% of mean); its fail ratio is looser. Durable variance-aware policy is Phase 43 scope.
+        # macOS and Windows hosted runners show +/-40-50% install timing noise (2026-08-23: macOS stddev 42% of mean; Windows install 10.5-23.4s across 9 runs); their fail ratios are looser. Durable variance-aware policy is Phase 43 scope.
         include:
           - os: ubuntu-latest
             platform: linux
@@ -381,7 +381,7 @@ jobs:
             fail_ratio: "2.5"
           - os: windows-latest
             platform: windows
-            fail_ratio: "1.25"
+            fail_ratio: "2.5"
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2

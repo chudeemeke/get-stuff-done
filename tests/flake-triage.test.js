@@ -46,6 +46,24 @@ const JUNIT_WITH_FAILURE = `<?xml version="1.0" encoding="UTF-8"?>
 </testsuites>
 `;
 
+// Real bun 1.3.x output shape: passing testcases are SELF-CLOSING, and a timeout
+// failure is a self-closing <failure/> with no body. Captured verbatim from the
+// windows-latest JUnit artifact of run 32897419319 (commit e7943b47), which the
+// original paired-tag-only parser reported as "No JUnit failure events found".
+const JUNIT_BUN_SELF_CLOSING = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="3" failures="1">
+  <testsuite name="_detectGit direct tests" file="tests\platform-internal.test.js" tests="2" failures="1">
+    <testcase name="git available: returns available=true with path and version strings" classname="_detectGit direct tests" time="5.002067" file="tests\platform-internal.test.js" line="327" assertions="1">
+      <failure type="TimeoutError" message="test timed out" />
+    </testcase>
+    <testcase name="_detectGit returns object with expected shape" classname="_detectGit direct tests" time="2.078795" file="tests\platform-internal.test.js" line="336" assertions="4" />
+  </testsuite>
+  <testsuite name="audit-check" file="tests\audit-check.test.js" tests="1" failures="0">
+    <testcase name="valid empty suppressions array passes" classname="audit-check" time="0.4" file="tests\audit-check.test.js" line="12" assertions="1" />
+  </testsuite>
+</testsuites>
+`;
+
 describe('JUnit flake parsing', () => {
   test('parses a JUnit failure into the D-10 dedup key', () => {
     const events = parseJunitFailures(JUNIT_WITH_FAILURE, {
@@ -67,6 +85,30 @@ describe('JUnit flake parsing', () => {
         failureMessage: 'expected retry to pass',
       },
     ]);
+  });
+
+  test('detects a self-closing bun <failure/> element', () => {
+    const events = parseJunitFailures(JUNIT_BUN_SELF_CLOSING, { platform: 'windows-latest' });
+
+    expect(events).toHaveLength(1);
+    expect(events[0].testName).toBe('git available: returns available=true with path and version strings');
+    expect(events[0].failureMessage).toBe('test timed out');
+  });
+
+  test('does not attribute a failure to a preceding self-closing testcase', () => {
+    const events = parseJunitFailures(JUNIT_BUN_SELF_CLOSING, { platform: 'windows-latest' });
+
+    // Regression: `<testcase ... />` was parsed as an opening tag, so a passing test's
+    // "body" ran on to a later `</testcase>` and stole that failure.
+    expect(events.map((event) => event.testFilePath)).toEqual(['tests\platform-internal.test.js']);
+    expect(events.some((event) => event.testFilePath.includes('audit-check'))).toBe(false);
+  });
+
+  test('still parses a paired <failure>...</failure> element', () => {
+    const events = parseJunitFailures(JUNIT_WITH_FAILURE, { platform: 'windows' });
+
+    expect(events).toHaveLength(1);
+    expect(events[0].failureMessage).toBe('expected retry to pass');
   });
 
   test('adds rel-03-candidate after three hits in fourteen days', () => {

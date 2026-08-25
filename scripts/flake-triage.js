@@ -101,20 +101,31 @@ function buildFlakeLabels({ testFilePath, platform, recentHits = 1 }) {
 
 function parseJunitFailures(xml, options = {}) {
   const platform = options.platform || 'unknown';
-  const testcasePattern = /<testcase\b([^>]*)>([\s\S]*?)<\/testcase>/g;
+  // A passing bun testcase is self-closing (`<testcase name="..." />`). Treating it as
+  // an opening tag let `[^>]*` swallow the `/`, so its "body" ran on to a LATER
+  // testcase's `</testcase>` and any failure found there was attributed to the wrong
+  // test. Match self-closing and paired forms distinctly so bodies stay owned.
+  const testcasePattern = /<testcase\b([^>]*?)(?:\/>|>([\s\S]*?)<\/testcase>)/g;
   const failures = [];
   let testcaseMatch;
 
   while ((testcaseMatch = testcasePattern.exec(xml)) !== null) {
     const testcaseAttrs = parseAttributes(testcaseMatch[1]);
-    const body = testcaseMatch[2];
-    const failureMatch = /<(failure|error)\b([^>]*)>([\s\S]*?)<\/\1>/.exec(body);
+    const body = testcaseMatch[2] || '';
+    // bun emits a self-closing failure element (`<failure type="TimeoutError"
+    // message="test timed out" />`); other JUnit writers emit a paired element with a
+    // body. Match both. Accepting only the paired form silently dropped every bun
+    // timeout -- the dominant Windows failure mode this triage exists to track -- and
+    // the step still exited green, so the blindness was invisible.
+    const failureMatch =
+      /<(failure|error)\b([^>]*?)\/>/.exec(body) ||
+      /<(failure|error)\b([^>]*)>([\s\S]*?)<\/\1>/.exec(body);
     if (!failureMatch) continue;
 
     const failureAttrs = parseAttributes(failureMatch[2]);
     const testFilePath = testcaseAttrs.file || testcaseAttrs.classname || testcaseAttrs.name || '(unknown test file)';
     const testName = testcaseAttrs.name || '(unknown test)';
-    const failureMessage = failureAttrs.message || stripXmlTags(failureMatch[3]);
+    const failureMessage = failureAttrs.message || stripXmlTags(failureMatch[3] || '');
     const key = `${testFilePath}::${testName}::${platform}`;
 
     failures.push({

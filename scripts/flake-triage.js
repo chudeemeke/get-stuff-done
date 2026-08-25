@@ -104,8 +104,10 @@ function parseJunitFailures(xml, options = {}) {
   // A passing bun testcase is self-closing (`<testcase name="..." />`). Treating it as
   // an opening tag let `[^>]*` swallow the `/`, so its "body" ran on to a LATER
   // testcase's `</testcase>` and any failure found there was attributed to the wrong
-  // test. Match self-closing and paired forms distinctly so bodies stay owned.
-  const testcasePattern = /<testcase\b([^>]*?)(?:\/>|>([\s\S]*?)<\/testcase>)/g;
+  // test. Match self-closing and paired forms distinctly so bodies stay owned, and
+  // skip quoted attribute values as units so a `/>` inside a test name cannot end the
+  // tag early (bun puts test names, which may contain markup, in `name="..."`).
+  const testcasePattern = /<testcase\b((?:"[^"]*"|'[^']*'|[^>"'])*?)(?:\/>|>([\s\S]*?)<\/testcase>)/g;
   const failures = [];
   let testcaseMatch;
 
@@ -114,12 +116,14 @@ function parseJunitFailures(xml, options = {}) {
     const body = testcaseMatch[2] || '';
     // bun emits a self-closing failure element (`<failure type="TimeoutError"
     // message="test timed out" />`); other JUnit writers emit a paired element with a
-    // body. Match both. Accepting only the paired form silently dropped every bun
-    // timeout -- the dominant Windows failure mode this triage exists to track -- and
-    // the step still exited green, so the blindness was invisible.
-    const failureMatch =
-      /<(failure|error)\b([^>]*?)\/>/.exec(body) ||
-      /<(failure|error)\b([^>]*)>([\s\S]*?)<\/\1>/.exec(body);
+    // body. One alternation matches both so DOCUMENT ORDER is preserved -- trying a
+    // self-closing pattern first would let a trailing `<error ... />` outrank an
+    // earlier real `<failure>`. Attribute values are skipped as units because a legal
+    // unescaped `/>` inside a quoted value would otherwise end the tag early and drop
+    // the failure. Matching only the paired form silently dropped every bun timeout --
+    // the dominant Windows failure mode this triage exists to track -- while the step
+    // still exited 0, so the blindness was invisible.
+    const failureMatch = /<(failure|error)\b((?:"[^"]*"|'[^']*'|[^>"'])*?)(?:\/>|>([\s\S]*?)<\/\1>)/.exec(body);
     if (!failureMatch) continue;
 
     const failureAttrs = parseAttributes(failureMatch[2]);

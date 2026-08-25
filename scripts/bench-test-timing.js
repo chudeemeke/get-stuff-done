@@ -215,11 +215,11 @@ function capturePlatformTiming({ platform, out, runs: runCount }) {
   try {
     for (let i = 0; i < runCount; i++) {
       const xmlPath = path.join(tempDir, `junit-${i}.xml`);
-      run('bun', ['test', '--reporter=junit', '--reporter-outfile', xmlPath], {
-        env: {
-          ...process.env,
-          BUN_TEST_TIMEOUT: process.env.BUN_TEST_TIMEOUT || '30000',
-        },
+      // --timeout, not BUN_TEST_TIMEOUT: bun ignores that env var entirely. The override
+      // below is this script's own knob and is deliberately NOT named BUN_TEST_TIMEOUT,
+      // so nobody reads it as evidence that bun honours such a variable.
+      run('bun', ['test', '--timeout', process.env.GSD_BENCH_TEST_TIMEOUT_MS || '30000', '--reporter=junit', '--reporter-outfile', xmlPath], {
+        env: { ...process.env },
         stdio: ['ignore', 'pipe', 'inherit'],
       });
       parsedRuns.push(parseJUnitTiming(fs.readFileSync(xmlPath, 'utf-8')));

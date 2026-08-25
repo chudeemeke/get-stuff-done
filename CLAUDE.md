@@ -34,9 +34,18 @@ run this check first:
 #    INSTALL.md, UPGRADING.md, SECURITY.md, CLAUDE.md)? -> fork-owned.
 # 2. Otherwise, run the upstream-shadow check:
 TARGET=path/relative/to/repo/root
-ls "node_modules/@opengsd/gsd-core/$TARGET" 2>/dev/null && \
-  echo "STOP - upstream has this path. Editing it violates skin discipline." || \
+UPSTREAM=node_modules/@opengsd/gsd-core
+
+# Fail closed: without upstream on disk the shadow check cannot answer, and a
+# bare `ls` miss would read as "safe to edit" for EVERY path in the repo.
+if [ ! -f "$UPSTREAM/package.json" ]; then
+  echo "FAIL-CLOSED - upstream is not installed ($UPSTREAM). Run bun install"
+  echo "               and re-run this check. Do NOT edit until it answers."
+elif [ -e "$UPSTREAM/$TARGET" ]; then
+  echo "STOP - upstream has this path. Editing it violates skin discipline."
+else
   echo "OK - upstream does not have this path; safe to edit fork-side."
+fi
 ```
 
 If step 2 says STOP, **do not edit**. The right action is one of:

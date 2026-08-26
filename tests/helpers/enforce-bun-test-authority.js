@@ -44,8 +44,20 @@ function runAuthorityGuard(environment, argv, ports) {
   }
 }
 
+// Deliberately NOT process.argv. A bun preload runs once per discovered test file, and bun
+// puts the file it is currently loading into argv. Routing on that made the guidance depend
+// on filesystem iteration order: on macos-15 bun reached tests/phase.test.cjs first, so a
+// plain `bun test` was told "Run Node-native contracts with node --test" instead of "Use bun
+// run test", and the same command produced different advice on ubuntu and windows.
+//
+// The preload only ever guards one situation — the process was started as bare `bun test`
+// without the adapter-owned authority variable — so it states that situation directly. The
+// .test.cjs route stays reachable through assertCanonicalBunTestInvocation for callers that
+// pass a real command line, which is what its unit test exercises.
+const BARE_BUN_TEST_INVOCATION = ['bun', 'test'];
+
 if (!hasFunctionalTestAuthority(process.env)) {
-  runAuthorityGuard(process.env, process.argv, {
+  runAuthorityGuard(process.env, BARE_BUN_TEST_INVOCATION, {
     stderr: synchronousStderr,
     process,
   });

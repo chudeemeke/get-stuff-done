@@ -62,6 +62,11 @@ describe('Bun test authority preload', () => {
     // only "Received length: 0" and hides what bun actually printed, which left a macOS-only
     // failure undiagnosable from CI logs alone. toContain prints the received output.
     expect(output).toContain('bare bun test crosses the Bun/Node test-authority boundary');
+    // The preload must not route on process.argv. bun runs it once per discovered file and
+    // injects that file into argv, so routing made the message depend on filesystem order:
+    // macos-15 reached tests/phase.test.cjs first and emitted the Node-native guidance for a
+    // plain `bun test`, while ubuntu and windows emitted the correct line.
+    expect(output).not.toContain('Run Node-native contracts with node --test');
     expect(matches).toHaveLength(1);
   });
 });

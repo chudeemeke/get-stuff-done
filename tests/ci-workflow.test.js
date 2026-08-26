@@ -601,7 +601,16 @@ describe('Phase 43 upgrade verifier workflow', () => {
     expect(workflow).toContain('node-version: "22"');
     expect(workflow).toContain(`oven-sh/setup-bun@${ACTION_PINS.setupBun}`);
     expect(workflow).toContain('bun install --frozen-lockfile --ignore-scripts');
-    expect(workflow).toContain('bun run verify-upgrade --from 1.5.0 --to 1.6.1 --registry-url http://localhost:4873/ --json --report upgrade-report.json');
+    // verify-upgrade fails with exitClassification "source_pin_mismatch" unless --from equals
+    // the upstream pin in the checkout, so --from is derived from package.json rather than
+    // written as a literal. The previous literal asserted the command matched itself, which is
+    // why the pin bump in 689fa9eb moved the pin to 1.6.1 while the workflow kept sending
+    // --from 1.5.0, and every upgrade-verifier run failed for weeks without this gate noticing.
+    const pkg = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf8'));
+    const upstreamPin = pkg.devDependencies['@opengsd/gsd-core'];
+    expect(upstreamPin).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(workflow).toContain(`bun run verify-upgrade --from ${upstreamPin} --to `);
+    expect(workflow).toContain('--registry-url http://localhost:4873/ --json --report upgrade-report.json');
     expect(workflow).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
     expect(workflow).toContain('upgrade-report.json');
   });

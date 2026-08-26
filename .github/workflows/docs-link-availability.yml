@@ -62,6 +62,10 @@ jobs:
               2??) classification="healthy" ;;
               *) classification="availability-observation" ;;
             esac
+            # The single quotes are deliberate: the backticks are literal Markdown code spans
+            # for the table cell, and the %s placeholders must reach printf unexpanded. The
+            # values are passed as arguments, so nothing here needs shell expansion.
+            # shellcheck disable=SC2016
             printf '| `%s` | `%s` | `%s` | %s |\n' "$key" "$code" "$classification" "$url" \
               >> decorative-link-availability.md
           done < decorative-links.txt

@@ -173,6 +173,11 @@ function readFileBuffer(filePath) {
   return fs.readFileSync(filePath);
 }
 
+function normalizeIdentityText(value) {
+  if (typeof value !== 'string') return '';
+  return value.replace(/\s+/g, ' ').trim();
+}
+
 function createPairedRuntime(overrides = {}) {
   return {
     run,
@@ -181,7 +186,12 @@ function createPairedRuntime(overrides = {}) {
     readJson,
     platform: os.platform,
     architecture: os.arch,
-    cpu: () => (os.cpus().at(0) || {}).model || 'unavailable',
+    // Windows reports a space-padded CPU model ("AMD EPYC 7763 64-Core Processor       ") and
+    // can carry doubled internal spaces. assertExecutionIdentity rejects any value where
+    // `value !== value.trim()`, so the raw model failed the paired capture on windows-latest
+    // while passing on linux and macos. Normalizing belongs at the capture site: the validator
+    // is correctly demanding an already-normalized identity.
+    cpu: () => normalizeIdentityText((os.cpus().at(0) || {}).model) || 'unavailable',
     runnerImage: () => [normalizedPlatform(os.platform()), os.release(), os.version()].join(':'),
     now: () => new Date().toISOString(),
     ...overrides,
@@ -790,6 +800,7 @@ module.exports = {
   main,
   mergeBaselineArtifacts,
   normalizeHyperfineResults,
+  normalizeIdentityText,
   parseHyperfineSample,
   parseArgs,
   printHelp,

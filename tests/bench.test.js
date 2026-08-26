@@ -12,6 +12,7 @@ const {
   createPairedBenchmarkExecutor,
   mergeBaselineArtifacts,
   normalizeHyperfineResults,
+  normalizeIdentityText,
   parseHyperfineSample,
   parseArgs,
   printHelp,
@@ -595,5 +596,38 @@ describe('bench baseline merge', () => {
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe('paired execution identity normalization', () => {
+  // Regression: the Windows paired capture aborted with
+  // "execution identity cpu must be a normalized non-placeholder value".
+  // assertExecutionIdentity in scripts/lib/paired-perf.js rejects any value where
+  // `value !== value.trim()`, and Windows reports a space-padded CPU model, so the raw
+  // os.cpus()[0].model failed on windows-latest while passing on linux and macos.
+  const REAL_WINDOWS_CPU_MODEL = 'AMD EPYC 7763 64-Core Processor                 ';
+
+  test('a space-padded Windows CPU model becomes a valid identity value', () => {
+    const normalized = normalizeIdentityText(REAL_WINDOWS_CPU_MODEL);
+
+    // Prove the raw value would have been rejected, so this test cannot pass vacuously.
+    expect(REAL_WINDOWS_CPU_MODEL).not.toBe(REAL_WINDOWS_CPU_MODEL.trim());
+
+    // The three conditions assertExecutionIdentity enforces.
+    expect(normalized).toBe(normalized.trim());
+    expect(normalized).not.toBe('');
+    expect(['unknown', 'unavailable', 'n/a']).not.toContain(normalized.toLowerCase());
+
+    expect(normalized).toBe('AMD EPYC 7763 64-Core Processor');
+  });
+
+  test('collapses doubled internal whitespace and tabs', () => {
+    expect(normalizeIdentityText('Intel(R)  Xeon(R)\tPlatinum 8370C')).toBe('Intel(R) Xeon(R) Platinum 8370C');
+  });
+
+  test('non-string and empty input fall through to the caller default', () => {
+    expect(normalizeIdentityText(undefined)).toBe('');
+    expect(normalizeIdentityText(null)).toBe('');
+    expect(normalizeIdentityText('   ')).toBe('');
   });
 });

@@ -188,7 +188,11 @@ describe('test-config hygiene (meta-test)', () => {
     const gitignore = fs.readFileSync(GITIGNORE_PATH, 'utf8');
 
     expect(pkg.scripts['phase43:hosted-verdict']).toBe('node scripts/verify-hosted-ci.js');
-    expect(pkg.devDependencies['js-yaml']).toBe('5.2.0');
+    // The YAML parser behind hosted-CI verdicts must be an exact pin, never a range, so the
+    // envelope authority is reproducible. The pin moves only on a deliberate bump: 5.2.0 ->
+    // 5.4.0 on 2026-08-26 to clear GHSA advisory 1139509 (high, js-yaml >=5.0.0 <=5.2.1).
+    expect(pkg.devDependencies['js-yaml']).toBe('5.4.0');
+    expect(pkg.devDependencies['js-yaml']).toMatch(/^\d+\.\d+\.\d+$/);
     expect(contract.evidenceDirectory).toBe('.planning/evidence/hosted');
     expect(gitignore).not.toContain('.planning/evidence/phase43-hosted-verdict.json');
     expect(gitignore).not.toContain(contract.evidenceDirectory);

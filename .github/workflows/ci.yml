@@ -278,8 +278,6 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-    env:
-      BUN_TEST_TIMEOUT: 30000
     strategy:
       fail-fast: false
       matrix:
@@ -321,7 +319,7 @@ jobs:
       - name: Guard against test files in dist/
         run: node scripts/check-no-test-files-in-dist.js
       - name: Run tests with coverage and JUnit output
-        run: bun run test:coverage:bun -- --reporter=junit --reporter-outfile test-results.xml
+        run: bun run test:coverage:bun -- --timeout 30000 --reporter=junit --reporter-outfile test-results.xml
       - name: Upload test results on failure
         if: ${{ failure() && hashFiles('test-results.xml') != '' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -381,6 +379,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # macOS and Windows hosted runners show +/-40-50% install timing noise (2026-08-23: macOS
+        # stddev 42% of mean; Windows install 10.5-23.4s across 9 runs). main mitigated that with
+        # per-platform loosened ratios against a stored baseline (linux 1.25, macos/windows 2.5).
+        # Phase 43 replaces that with paired measurement: reference (PR base) and candidate (PR
+        # head) are benchmarked in the same job on the same runner, so runner-to-runner drift
+        # cancels instead of being absorbed by a loosened threshold. The floating-ratio API was
+        # removed in b0bd9a5d, so no per-platform ratio value is read here any more.
         include:
           - os: ubuntu-latest
             platform: linux

@@ -65,6 +65,23 @@ function findBareBunTestCommands(workflowText) {
     .filter(command => command === 'bun test' || command.startsWith('bun test '));
 }
 
+describe('bun per-test timeout is applied by flag, not env', () => {
+  // bun ignores BUN_TEST_TIMEOUT. Verified on bun 1.3.5: a 7s test dies at 5000ms with the
+  // env var set and passes with `--timeout 30000`. The env var lived in these workflows for
+  // months while every test stayed capped at bun's 5s default, because verification checked
+  // that the string was present in the YAML rather than that it had any effect.
+  test('workflows running bun test pass --timeout explicitly', () => {
+    for (const fileName of ['ci.yml', '10x-validation.yml']) {
+      const workflow = readWorkflow(fileName);
+      expect(workflow).toContain('--timeout 30000');
+    }
+  });
+
+  test('no workflow reintroduces the ineffective BUN_TEST_TIMEOUT env var', () => {
+    expect(readAllWorkflowText()).not.toContain('BUN_TEST_TIMEOUT:');
+  });
+});
+
 describe('CI workflow security action contracts', () => {
   test('gitleaks receives the GitHub token required for pull request scans', () => {
     const workflow = readCiWorkflow();
@@ -234,7 +251,7 @@ describe('CI workflow informational gates', () => {
     const workflows = readAllWorkflowText();
 
     expect(workflow).toContain(
-      'bun run test:coverage:bun -- --reporter=junit --reporter-outfile test-results.xml'
+      'bun run test:coverage:bun -- --timeout 30000 --reporter=junit --reporter-outfile test-results.xml'
     );
     expect(findBareBunTestCommands(workflows)).toEqual([]);
   });

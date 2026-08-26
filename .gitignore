@@ -1,7 +1,11 @@
 node_modules/
 .DS_Store
 TO-DOS.md
+# Ignore CLAUDE.md at every depth (an upstream-shadow copy under .upstream/ or
+# overlay/ must never become committable), then un-ignore the root one: it is
+# the skin-discipline behavioral contract loaded by Claude Code in this CWD.
 CLAUDE.md
+!/CLAUDE.md
 /research.claude/
 commands.html
 

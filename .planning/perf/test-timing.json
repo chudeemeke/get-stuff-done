@@ -1,19 +1,19 @@
 {
   "metadata": {
-    "capturedAt": "2026-07-03T04:48:43.893Z",
+    "capturedAt": "2026-08-23T21:23:39.543Z",
     "nodeVersion": "per-platform",
     "bunVersion": "per-platform",
     "upstreamVersion": "1.5.0",
     "runs": 5,
-    "source": "merge:.planning\\perf\\artifacts\\run-28638612289"
+    "source": "merge:artifacts"
   },
   "platforms": {
     "linux": {
       "total": {
-        "mean_ms": 38351,
-        "stddev_ms": 931,
-        "min_ms": 37437,
-        "max_ms": 40138,
+        "mean_ms": 31461,
+        "stddev_ms": 305,
+        "min_ms": 31075,
+        "max_ms": 31908,
         "samples": 5
       },
       "files": {
@@ -32,10 +32,10 @@
           "samples": 5
         },
         "_detectGit direct tests": {
-          "mean_ms": 7,
+          "mean_ms": 6,
           "stddev_ms": 0,
           "min_ms": 6,
-          "max_ms": 7,
+          "max_ms": 6,
           "samples": 5
         },
         "_detectNodeVersion direct tests": {
@@ -74,10 +74,10 @@
           "samples": 5
         },
         "7-day throttle": {
-          "mean_ms": 8825,
-          "stddev_ms": 6,
-          "min_ms": 8816,
-          "max_ms": 8831,
+          "mean_ms": 8787,
+          "stddev_ms": 8,
+          "min_ms": 8776,
+          "max_ms": 8798,
           "samples": 5
         },
         "accepts valid branch names": {
@@ -105,7 +105,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "accepts valid tag names": {
@@ -130,17 +130,17 @@
           "samples": 5
         },
         "assessConflictRiskByOverlap": {
-          "mean_ms": 57,
-          "stddev_ms": 1,
-          "min_ms": 56,
-          "max_ms": 60,
+          "mean_ms": 54,
+          "stddev_ms": 2,
+          "min_ms": 52,
+          "max_ms": 57,
           "samples": 5
         },
         "audit suppression validation": {
-          "mean_ms": 59,
-          "stddev_ms": 5,
-          "min_ms": 53,
-          "max_ms": 67,
+          "mean_ms": 43,
+          "stddev_ms": 2,
+          "min_ms": 40,
+          "max_ms": 45,
           "samples": 5
         },
         "audit-ci binary discovery": {
@@ -165,17 +165,17 @@
           "samples": 5
         },
         "bench baseline merge": {
-          "mean_ms": 1,
-          "stddev_ms": 1,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 3,
+          "max_ms": 0,
           "samples": 5
         },
         "bench hyperfine normalization": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "bench-test-timing JUnit parsing": {
@@ -193,31 +193,31 @@
           "samples": 5
         },
         "bin/gsd.js launcher": {
-          "mean_ms": 5,
-          "stddev_ms": 1,
-          "min_ms": 4,
-          "max_ms": 7,
+          "mean_ms": 2,
+          "stddev_ms": 0,
+          "min_ms": 2,
+          "max_ms": 3,
           "samples": 5
         },
         "bin/install.js module exports": {
-          "mean_ms": 27,
-          "stddev_ms": 3,
-          "min_ms": 24,
-          "max_ms": 30,
+          "mean_ms": 17,
+          "stddev_ms": 1,
+          "min_ms": 15,
+          "max_ms": 19,
           "samples": 5
         },
         "bin/preview-update-cli.js (SRP extraction)": {
-          "mean_ms": 385,
-          "stddev_ms": 12,
-          "min_ms": 367,
-          "max_ms": 402,
+          "mean_ms": 328,
+          "stddev_ms": 18,
+          "min_ms": 310,
+          "max_ms": 361,
           "samples": 5
         },
         "boundary violations": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "brand()": {
@@ -249,7 +249,7 @@
           "samples": 5
         },
         "check-boundary coverage": {
-          "mean_ms": 8,
+          "mean_ms": 7,
           "stddev_ms": 0,
           "min_ms": 7,
           "max_ms": 8,
@@ -270,10 +270,17 @@
           "samples": 5
         },
         "check-overrides subprocess integration": {
-          "mean_ms": 32,
-          "stddev_ms": 1,
-          "min_ms": 31,
-          "max_ms": 34,
+          "mean_ms": 22,
+          "stddev_ms": 0,
+          "min_ms": 21,
+          "max_ms": 22,
+          "samples": 5
+        },
+        "check-perf CLI": {
+          "mean_ms": 967,
+          "stddev_ms": 12,
+          "min_ms": 951,
+          "max_ms": 987,
           "samples": 5
         },
         "checkAuthorAnomaly": {
@@ -334,9 +341,9 @@
         },
         "CI workflow security action contracts": {
           "mean_ms": 0,
-          "stddev_ms": 0,
+          "stddev_ms": 1,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 2,
           "samples": 5
         },
         "classifyCommit": {
@@ -361,38 +368,38 @@
           "samples": 5
         },
         "CLI entry block": {
-          "mean_ms": 807,
-          "stddev_ms": 6,
-          "min_ms": 800,
-          "max_ms": 818,
+          "mean_ms": 725,
+          "stddev_ms": 10,
+          "min_ms": 712,
+          "max_ms": 736,
           "samples": 5
         },
         "CLI entry subprocess": {
-          "mean_ms": 1219,
-          "stddev_ms": 840,
-          "min_ms": 770,
-          "max_ms": 2898,
+          "mean_ms": 782,
+          "stddev_ms": 155,
+          "min_ms": 631,
+          "max_ms": 1059,
           "samples": 5
         },
         "CLI entry: default args": {
-          "mean_ms": 99,
-          "stddev_ms": 8,
-          "min_ms": 90,
-          "max_ms": 109,
+          "mean_ms": 70,
+          "stddev_ms": 3,
+          "min_ms": 65,
+          "max_ms": 74,
           "samples": 5
         },
         "CLI exit codes": {
-          "mean_ms": 224,
-          "stddev_ms": 8,
-          "min_ms": 213,
-          "max_ms": 237,
+          "mean_ms": 156,
+          "stddev_ms": 2,
+          "min_ms": 153,
+          "max_ms": 158,
           "samples": 5
         },
         "CLI flags (COMP-09)": {
-          "mean_ms": 1198,
-          "stddev_ms": 15,
-          "min_ms": 1183,
-          "max_ms": 1223,
+          "mean_ms": 1029,
+          "stddev_ms": 14,
+          "min_ms": 1014,
+          "max_ms": 1049,
           "samples": 5
         },
         "cmd default on Windows": {
@@ -403,17 +410,17 @@
           "samples": 5
         },
         "cmdConfigEnsureSection (direct)": {
-          "mean_ms": 0,
+          "mean_ms": 1,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "cmdConfigEnsureSection (subprocess)": {
-          "mean_ms": 197,
-          "stddev_ms": 7,
-          "min_ms": 188,
-          "max_ms": 208,
+          "mean_ms": 145,
+          "stddev_ms": 3,
+          "min_ms": 141,
+          "max_ms": 149,
           "samples": 5
         },
         "cmdConfigGet (direct)": {
@@ -431,10 +438,10 @@
           "samples": 5
         },
         "cmdConfigGet error paths (subprocess)": {
-          "mean_ms": 147,
-          "stddev_ms": 7,
-          "min_ms": 140,
-          "max_ms": 158,
+          "mean_ms": 87,
+          "stddev_ms": 2,
+          "min_ms": 83,
+          "max_ms": 89,
           "samples": 5
         },
         "cmdConfigSet (direct)": {
@@ -445,17 +452,17 @@
           "samples": 5
         },
         "cmdConfigSet error paths (direct)": {
-          "mean_ms": 101,
-          "stddev_ms": 6,
-          "min_ms": 93,
-          "max_ms": 109,
+          "mean_ms": 58,
+          "stddev_ms": 2,
+          "min_ms": 55,
+          "max_ms": 60,
           "samples": 5
         },
         "cmdFrontmatterGet (direct)": {
-          "mean_ms": 0,
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 1,
+          "max_ms": 1,
           "samples": 5
         },
         "cmdFrontmatterMerge (direct)": {
@@ -480,45 +487,45 @@
           "samples": 5
         },
         "cmdSyncCheckpointCleanup direct (overlay coverage)": {
-          "mean_ms": 47,
+          "mean_ms": 45,
           "stddev_ms": 1,
-          "min_ms": 46,
-          "max_ms": 49,
+          "min_ms": 43,
+          "max_ms": 46,
           "samples": 5
         },
         "cmdSyncCheckpointCreate direct (overlay coverage)": {
-          "mean_ms": 21,
+          "mean_ms": 20,
           "stddev_ms": 0,
-          "min_ms": 21,
-          "max_ms": 22,
+          "min_ms": 20,
+          "max_ms": 20,
           "samples": 5
         },
         "cmdSyncCheckpointList direct (overlay coverage)": {
-          "mean_ms": 40,
+          "mean_ms": 38,
           "stddev_ms": 1,
-          "min_ms": 39,
-          "max_ms": 42,
+          "min_ms": 37,
+          "max_ms": 40,
           "samples": 5
         },
         "cmdSyncPreview direct (overlay coverage)": {
-          "mean_ms": 528,
-          "stddev_ms": 9,
-          "min_ms": 514,
-          "max_ms": 542,
+          "mean_ms": 498,
+          "stddev_ms": 8,
+          "min_ms": 490,
+          "max_ms": 513,
           "samples": 5
         },
         "cmdTemplateFill()": {
-          "mean_ms": 1,
+          "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "cmdTemplateSelect()": {
-          "mean_ms": 1,
+          "mean_ms": 0,
           "stddev_ms": 0,
-          "min_ms": 1,
-          "max_ms": 1,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "color support detection": {
@@ -560,7 +567,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "compose pipeline error paths": {
@@ -578,16 +585,16 @@
           "samples": 5
         },
         "composed runtime GSD overrides": {
-          "mean_ms": 507,
-          "stddev_ms": 7,
-          "min_ms": 497,
-          "max_ms": 513,
+          "mean_ms": 492,
+          "stddev_ms": 6,
+          "min_ms": 482,
+          "max_ms": 500,
           "samples": 5
         },
         "computeDelta additive outputs": {
           "mean_ms": 10,
           "stddev_ms": 0,
-          "min_ms": 10,
+          "min_ms": 9,
           "max_ms": 10,
           "samples": 5
         },
@@ -654,6 +661,27 @@
           "max_ms": 0,
           "samples": 5
         },
+        "cousin smoke CLI contract": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 1,
+          "samples": 5
+        },
+        "cousin smoke isolated install execution": {
+          "mean_ms": 2,
+          "stddev_ms": 0,
+          "min_ms": 2,
+          "max_ms": 2,
+          "samples": 5
+        },
+        "cousin smoke repository contract": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
         "createTheme()": {
           "mean_ms": 0,
           "stddev_ms": 0,
@@ -697,10 +725,10 @@
           "samples": 5
         },
         "detectPlatform aggregate direct tests": {
-          "mean_ms": 10,
+          "mean_ms": 9,
           "stddev_ms": 0,
           "min_ms": 9,
-          "max_ms": 10,
+          "max_ms": 9,
           "samples": 5
         },
         "detectTerminal": {
@@ -739,24 +767,24 @@
           "samples": 5
         },
         "dist: gsd-tools bundled (regression guard for GAP-1)": {
-          "mean_ms": 78,
-          "stddev_ms": 4,
-          "min_ms": 73,
-          "max_ms": 84,
+          "mean_ms": 54,
+          "stddev_ms": 5,
+          "min_ms": 50,
+          "max_ms": 64,
           "samples": 5
         },
         "environment flags": {
           "mean_ms": 12,
           "stddev_ms": 0,
           "min_ms": 12,
-          "max_ms": 13,
+          "max_ms": 12,
           "samples": 5
         },
         "error()": {
-          "mean_ms": 62,
-          "stddev_ms": 4,
-          "min_ms": 58,
-          "max_ms": 69,
+          "mean_ms": 42,
+          "stddev_ms": 1,
+          "min_ms": 40,
+          "max_ms": 44,
           "samples": 5
         },
         "error() in-process coverage": {
@@ -774,10 +802,10 @@
           "samples": 5
         },
         "execGit()": {
-          "mean_ms": 100,
-          "stddev_ms": 3,
-          "min_ms": 94,
-          "max_ms": 103,
+          "mean_ms": 94,
+          "stddev_ms": 2,
+          "min_ms": 92,
+          "max_ms": 96,
           "samples": 5
         },
         "expandTilde()": {
@@ -795,10 +823,10 @@
           "samples": 5
         },
         "extractFrontmatter": {
-          "mean_ms": 0,
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 1,
+          "max_ms": 1,
           "samples": 5
         },
         "failureGuidance": {
@@ -832,8 +860,8 @@
         "filter() category exclusion (FEAT-01)": {
           "mean_ms": 11,
           "stddev_ms": 0,
-          "min_ms": 11,
-          "max_ms": 12,
+          "min_ms": 10,
+          "max_ms": 11,
           "samples": 5
         },
         "filter() cross-category isolation and warnings": {
@@ -928,17 +956,17 @@
           "samples": 5
         },
         "fresh override": {
-          "mean_ms": 1,
+          "mean_ms": 0,
           "stddev_ms": 0,
-          "min_ms": 1,
-          "max_ms": 1,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "frontmatter CLI (subprocess)": {
-          "mean_ms": 449,
-          "stddev_ms": 13,
-          "min_ms": 431,
-          "max_ms": 464,
+          "mean_ms": 256,
+          "stddev_ms": 6,
+          "min_ms": 249,
+          "max_ms": 265,
           "samples": 5
         },
         "FRONTMATTER_SCHEMAS": {
@@ -949,10 +977,10 @@
           "samples": 5
         },
         "full script run against real project": {
-          "mean_ms": 323,
-          "stddev_ms": 5,
-          "min_ms": 317,
-          "max_ms": 330,
+          "mean_ms": 258,
+          "stddev_ms": 4,
+          "min_ms": 253,
+          "max_ms": 265,
           "samples": 5
         },
         "generateCredits": {
@@ -984,17 +1012,17 @@
           "samples": 5
         },
         "getCommitsInRange": {
-          "mean_ms": 78,
-          "stddev_ms": 1,
-          "min_ms": 76,
-          "max_ms": 79,
+          "mean_ms": 73,
+          "stddev_ms": 2,
+          "min_ms": 71,
+          "max_ms": 76,
           "samples": 5
         },
         "getConfigPath()": {
-          "mean_ms": 1,
-          "stddev_ms": 1,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 2,
+          "max_ms": 0,
           "samples": 5
         },
         "getConfigValue()": {
@@ -1012,10 +1040,10 @@
           "samples": 5
         },
         "getFilesForCommit": {
-          "mean_ms": 57,
-          "stddev_ms": 1,
-          "min_ms": 56,
-          "max_ms": 58,
+          "mean_ms": 54,
+          "stddev_ms": 2,
+          "min_ms": 52,
+          "max_ms": 57,
           "samples": 5
         },
         "getMilestoneInfo()": {
@@ -1117,10 +1145,10 @@
           "samples": 5
         },
         "history-digest command": {
-          "mean_ms": 295,
-          "stddev_ms": 8,
-          "min_ms": 282,
-          "max_ms": 304,
+          "mean_ms": 183,
+          "stddev_ms": 4,
+          "min_ms": 177,
+          "max_ms": 187,
           "samples": 5
         },
         "hooks/dist build verification": {
@@ -1131,24 +1159,24 @@
           "samples": 5
         },
         "hooks/dist/gsd-check-update.js (bundled)": {
-          "mean_ms": 218,
-          "stddev_ms": 14,
-          "min_ms": 202,
-          "max_ms": 239,
+          "mean_ms": 173,
+          "stddev_ms": 5,
+          "min_ms": 166,
+          "max_ms": 180,
           "samples": 5
         },
         "hooks/dist/gsd-statusline.js (bundled)": {
-          "mean_ms": 470,
-          "stddev_ms": 16,
-          "min_ms": 447,
-          "max_ms": 490,
+          "mean_ms": 364,
+          "stddev_ms": 10,
+          "min_ms": 347,
+          "max_ms": 373,
           "samples": 5
         },
         "hooks/dist/pre-compact.js (bundled)": {
-          "mean_ms": 156,
-          "stddev_ms": 5,
-          "min_ms": 150,
-          "max_ms": 163,
+          "mean_ms": 103,
+          "stddev_ms": 4,
+          "min_ms": 95,
+          "max_ms": 108,
           "samples": 5
         },
         "hooks/index.js manifest (invariants)": {
@@ -1159,59 +1187,59 @@
           "samples": 5
         },
         "hooks/pre-compact.js": {
-          "mean_ms": 267,
-          "stddev_ms": 9,
-          "min_ms": 258,
-          "max_ms": 281,
+          "mean_ms": 178,
+          "stddev_ms": 2,
+          "min_ms": 176,
+          "max_ms": 181,
           "samples": 5
         },
         "init commands": {
-          "mean_ms": 703,
-          "stddev_ms": 13,
-          "min_ms": 688,
-          "max_ms": 719,
+          "mean_ms": 429,
+          "stddev_ms": 4,
+          "min_ms": 425,
+          "max_ms": 435,
           "samples": 5
         },
         "INST-01: subprocess delegation": {
-          "mean_ms": 713,
-          "stddev_ms": 9,
-          "min_ms": 704,
-          "max_ms": 729,
+          "mean_ms": 443,
+          "stddev_ms": 5,
+          "min_ms": 437,
+          "max_ms": 451,
           "samples": 5
         },
         "INST-02: overlay files copied": {
-          "mean_ms": 716,
-          "stddev_ms": 17,
-          "min_ms": 690,
-          "max_ms": 740,
+          "mean_ms": 442,
+          "stddev_ms": 4,
+          "min_ms": 435,
+          "max_ms": 448,
           "samples": 5
         },
         "INST-03: .install-meta.json written": {
-          "mean_ms": 729,
-          "stddev_ms": 35,
-          "min_ms": 705,
-          "max_ms": 799,
+          "mean_ms": 437,
+          "stddev_ms": 7,
+          "min_ms": 426,
+          "max_ms": 445,
           "samples": 5
         },
         "INST-04: --uninstall": {
-          "mean_ms": 827,
-          "stddev_ms": 14,
-          "min_ms": 811,
-          "max_ms": 852,
+          "mean_ms": 516,
+          "stddev_ms": 6,
+          "min_ms": 509,
+          "max_ms": 526,
           "samples": 5
         },
         "INST-05: v2.x detection": {
-          "mean_ms": 1060,
-          "stddev_ms": 17,
-          "min_ms": 1043,
-          "max_ms": 1086,
+          "mean_ms": 662,
+          "stddev_ms": 5,
+          "min_ms": 656,
+          "max_ms": 671,
           "samples": 5
         },
         "INST-05b: negative v2.x detection": {
-          "mean_ms": 707,
-          "stddev_ms": 8,
-          "min_ms": 693,
-          "max_ms": 714,
+          "mean_ms": 442,
+          "stddev_ms": 5,
+          "min_ms": 434,
+          "max_ms": 447,
           "samples": 5
         },
         "INST-05c: safety guard (isSafeToClean)": {
@@ -1222,9 +1250,9 @@
           "samples": 5
         },
         "installCodexConfig": {
-          "mean_ms": 2,
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 2,
+          "min_ms": 1,
           "max_ms": 2,
           "samples": 5
         },
@@ -1257,10 +1285,10 @@
           "samples": 5
         },
         "isGitIgnored()": {
-          "mean_ms": 30,
+          "mean_ms": 29,
           "stddev_ms": 1,
           "min_ms": 29,
-          "max_ms": 32,
+          "max_ms": 31,
           "samples": 5
         },
         "isSafeToClean": {
@@ -1278,24 +1306,24 @@
           "samples": 5
         },
         "JUnit flake parsing": {
-          "mean_ms": 1,
-          "stddev_ms": 0,
-          "min_ms": 1,
-          "max_ms": 1,
-          "samples": 5
-        },
-        "letter-suffix phase sorting": {
-          "mean_ms": 50,
-          "stddev_ms": 4,
-          "min_ms": 47,
-          "max_ms": 57,
-          "samples": 5
-        },
-        "loadConfig()": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
           "max_ms": 0,
+          "samples": 5
+        },
+        "letter-suffix phase sorting": {
+          "mean_ms": 30,
+          "stddev_ms": 0,
+          "min_ms": 29,
+          "max_ms": 30,
+          "samples": 5
+        },
+        "loadConfig()": {
+          "mean_ms": 1,
+          "stddev_ms": 0,
+          "min_ms": 1,
+          "max_ms": 1,
           "samples": 5
         },
         "loadKnownAuthors": {
@@ -1334,10 +1362,10 @@
           "samples": 5
         },
         "milestone complete command": {
-          "mean_ms": 103,
-          "stddev_ms": 7,
-          "min_ms": 94,
-          "max_ms": 112,
+          "mean_ms": 61,
+          "stddev_ms": 2,
+          "min_ms": 59,
+          "max_ms": 64,
           "samples": 5
         },
         "missing REASON.md": {
@@ -1371,7 +1399,7 @@
         "no boundary violations": {
           "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 0,
+          "min_ms": 1,
           "max_ms": 1,
           "samples": 5
         },
@@ -1379,7 +1407,7 @@
           "mean_ms": 12,
           "stddev_ms": 0,
           "min_ms": 12,
-          "max_ms": 13,
+          "max_ms": 12,
           "samples": 5
         },
         "normalisePlatform": {
@@ -1418,10 +1446,10 @@
           "samples": 5
         },
         "OSV triage CLI": {
-          "mean_ms": 29,
-          "stddev_ms": 0,
-          "min_ms": 28,
-          "max_ms": 29,
+          "mean_ms": 21,
+          "stddev_ms": 1,
+          "min_ms": 20,
+          "max_ms": 22,
           "samples": 5
         },
         "OSV triage normalization": {
@@ -1432,10 +1460,10 @@
           "samples": 5
         },
         "output()": {
-          "mean_ms": 312,
-          "stddev_ms": 10,
-          "min_ms": 305,
-          "max_ms": 331,
+          "mean_ms": 212,
+          "stddev_ms": 2,
+          "min_ms": 208,
+          "max_ms": 215,
           "samples": 5
         },
         "output() in-process coverage": {
@@ -1446,10 +1474,10 @@
           "samples": 5
         },
         "overlay/hooks/gsd-check-update.js (maintainer path)": {
-          "mean_ms": 621,
-          "stddev_ms": 23,
-          "min_ms": 593,
-          "max_ms": 652,
+          "mean_ms": 554,
+          "stddev_ms": 4,
+          "min_ms": 550,
+          "max_ms": 560,
           "samples": 5
         },
         "overlay/hooks/gsd-check-update.js (timeout and paths)": {
@@ -1460,10 +1488,10 @@
           "samples": 5
         },
         "overlay/hooks/gsd-statusline.js (maintainer notification)": {
-          "mean_ms": 786,
-          "stddev_ms": 15,
-          "min_ms": 763,
-          "max_ms": 803,
+          "mean_ms": 700,
+          "stddev_ms": 6,
+          "min_ms": 695,
+          "max_ms": 710,
           "samples": 5
         },
         "overlay/hooks/gsd-statusline.js (timeout and paths)": {
@@ -1495,17 +1523,17 @@
           "samples": 5
         },
         "override() file replacement (OVER-01)": {
-          "mean_ms": 14,
-          "stddev_ms": 0,
-          "min_ms": 14,
-          "max_ms": 15,
+          "mean_ms": 12,
+          "stddev_ms": 1,
+          "min_ms": 10,
+          "max_ms": 14,
           "samples": 5
         },
         "override() REASON.md enforcement (OVER-02)": {
-          "mean_ms": 10,
+          "mean_ms": 8,
           "stddev_ms": 1,
-          "min_ms": 7,
-          "max_ms": 11,
+          "min_ms": 8,
+          "max_ms": 10,
           "samples": 5
         },
         "override() zero overrides day one (OVER-04)": {
@@ -1516,17 +1544,24 @@
           "samples": 5
         },
         "overrides/hooks/gsd-check-update.js": {
-          "mean_ms": 1407,
-          "stddev_ms": 10,
-          "min_ms": 1396,
-          "max_ms": 1425,
+          "mean_ms": 1188,
+          "stddev_ms": 91,
+          "min_ms": 1105,
+          "max_ms": 1337,
           "samples": 5
         },
         "overrides/hooks/gsd-statusline.js": {
-          "mean_ms": 553,
-          "stddev_ms": 13,
-          "min_ms": 535,
-          "max_ms": 570,
+          "mean_ms": 492,
+          "stddev_ms": 3,
+          "min_ms": 489,
+          "max_ms": 498,
+          "samples": 5
+        },
+        "oversight trigger contract": {
+          "mean_ms": 21,
+          "stddev_ms": 1,
+          "min_ms": 20,
+          "max_ms": 22,
           "samples": 5
         },
         "package.json files array": {
@@ -1586,66 +1621,108 @@
           "samples": 5
         },
         "perf-baseline schema": {
-          "mean_ms": 95,
-          "stddev_ms": 4,
-          "min_ms": 89,
-          "max_ms": 100,
+          "mean_ms": 106,
+          "stddev_ms": 7,
+          "min_ms": 96,
+          "max_ms": 116,
           "samples": 5
         },
         "Phase 29: Prototype Gate": {
-          "mean_ms": 1219,
-          "stddev_ms": 4,
-          "min_ms": 1212,
-          "max_ms": 1224,
+          "mean_ms": 904,
+          "stddev_ms": 3,
+          "min_ms": 901,
+          "max_ms": 907,
+          "samples": 5
+        },
+        "Phase 41 validation workflows": {
+          "mean_ms": 0,
+          "stddev_ms": 1,
+          "min_ms": 0,
+          "max_ms": 2,
+          "samples": 5
+        },
+        "Phase 42 cousin install workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 docs gate package contract": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 docs gates workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 oversight probes workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 perf budget workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "phase add command": {
-          "mean_ms": 145,
-          "stddev_ms": 5,
-          "min_ms": 140,
-          "max_ms": 154,
+          "mean_ms": 87,
+          "stddev_ms": 1,
+          "min_ms": 86,
+          "max_ms": 89,
           "samples": 5
         },
         "phase complete command": {
-          "mean_ms": 154,
-          "stddev_ms": 8,
-          "min_ms": 145,
-          "max_ms": 167,
+          "mean_ms": 215,
+          "stddev_ms": 4,
+          "min_ms": 211,
+          "max_ms": 221,
           "samples": 5
         },
         "phase insert command": {
-          "mean_ms": 294,
-          "stddev_ms": 6,
-          "min_ms": 283,
-          "max_ms": 300,
+          "mean_ms": 177,
+          "stddev_ms": 2,
+          "min_ms": 174,
+          "max_ms": 180,
           "samples": 5
         },
         "phase next-decimal command": {
-          "mean_ms": 252,
-          "stddev_ms": 8,
-          "min_ms": 240,
-          "max_ms": 262,
+          "mean_ms": 146,
+          "stddev_ms": 2,
+          "min_ms": 143,
+          "max_ms": 149,
           "samples": 5
         },
         "phase remove command": {
-          "mean_ms": 264,
-          "stddev_ms": 6,
-          "min_ms": 253,
-          "max_ms": 271,
+          "mean_ms": 161,
+          "stddev_ms": 2,
+          "min_ms": 159,
+          "max_ms": 164,
           "samples": 5
         },
         "phase-plan-index command": {
-          "mean_ms": 292,
-          "stddev_ms": 7,
-          "min_ms": 287,
-          "max_ms": 305,
+          "mean_ms": 177,
+          "stddev_ms": 3,
+          "min_ms": 174,
+          "max_ms": 181,
           "samples": 5
         },
         "phases list command": {
-          "mean_ms": 298,
-          "stddev_ms": 8,
-          "min_ms": 287,
-          "max_ms": 311,
+          "mean_ms": 177,
+          "stddev_ms": 3,
+          "min_ms": 172,
+          "max_ms": 180,
           "samples": 5
         },
         "pipeline stage exports (COMP-10)": {
@@ -1684,10 +1761,10 @@
           "samples": 5
         },
         "progress command": {
-          "mean_ms": 294,
-          "stddev_ms": 7,
-          "min_ms": 284,
-          "max_ms": 303,
+          "mean_ms": 179,
+          "stddev_ms": 3,
+          "min_ms": 176,
+          "max_ms": 185,
           "samples": 5
         },
         "Read-only safety": {
@@ -1775,10 +1852,10 @@
           "samples": 5
         },
         "REL-03 source scanning": {
-          "mean_ms": 1,
+          "mean_ms": 0,
           "stddev_ms": 0,
-          "min_ms": 1,
-          "max_ms": 1,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "relative()": {
@@ -1803,17 +1880,17 @@
           "samples": 5
         },
         "requireValid()": {
-          "mean_ms": 30,
+          "mean_ms": 22,
           "stddev_ms": 1,
-          "min_ms": 29,
-          "max_ms": 31,
+          "min_ms": 21,
+          "max_ms": 23,
           "samples": 5
         },
         "resolve()": {
           "mean_ms": 20,
           "stddev_ms": 0,
           "min_ms": 20,
-          "max_ms": 21,
+          "max_ms": 20,
           "samples": 5
         },
         "resolve() additional error paths": {
@@ -1827,7 +1904,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "resolveModelInternal()": {
@@ -1847,29 +1924,29 @@
         "return shape and caching": {
           "mean_ms": 14,
           "stddev_ms": 0,
-          "min_ms": 14,
+          "min_ms": 13,
           "max_ms": 14,
           "samples": 5
         },
         "roadmap analyze command": {
-          "mean_ms": 248,
-          "stddev_ms": 8,
-          "min_ms": 236,
-          "max_ms": 258,
+          "mean_ms": 150,
+          "stddev_ms": 3,
+          "min_ms": 147,
+          "max_ms": 155,
           "samples": 5
         },
         "roadmap get-phase command": {
-          "mean_ms": 348,
-          "stddev_ms": 4,
-          "min_ms": 342,
-          "max_ms": 353,
+          "mean_ms": 204,
+          "stddev_ms": 3,
+          "min_ms": 200,
+          "max_ms": 208,
           "samples": 5
         },
         "roadmap update-plan-progress command": {
-          "mean_ms": 50,
-          "stddev_ms": 2,
-          "min_ms": 48,
-          "max_ms": 53,
+          "mean_ms": 31,
+          "stddev_ms": 1,
+          "min_ms": 30,
+          "max_ms": 32,
           "samples": 5
         },
         "run-upstream-compat output parsing": {
@@ -1883,7 +1960,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "run-upstream-compat-ci": {
@@ -1894,17 +1971,17 @@
           "samples": 5
         },
         "runCLI": {
-          "mean_ms": 719,
-          "stddev_ms": 21,
-          "min_ms": 679,
-          "max_ms": 735,
+          "mean_ms": 602,
+          "stddev_ms": 11,
+          "min_ms": 582,
+          "max_ms": 612,
           "samples": 5
         },
         "runCLI structured result": {
-          "mean_ms": 350,
-          "stddev_ms": 10,
-          "min_ms": 337,
-          "max_ms": 360,
+          "mean_ms": 294,
+          "stddev_ms": 7,
+          "min_ms": 283,
+          "max_ms": 304,
           "samples": 5
         },
         "runFallbackChecks": {
@@ -1922,24 +1999,24 @@
           "samples": 5
         },
         "runPreviewScan default file list coverage": {
-          "mean_ms": 3,
-          "stddev_ms": 1,
-          "min_ms": 1,
-          "max_ms": 4,
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "runPreviewScan() fallback path": {
-          "mean_ms": 4,
-          "stddev_ms": 2,
-          "min_ms": 3,
-          "max_ms": 7,
+          "mean_ms": 1,
+          "stddev_ms": 0,
+          "min_ms": 1,
+          "max_ms": 2,
           "samples": 5
         },
         "runPreviewScan() with explicit file list": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "runSupplyChainChecks": {
@@ -1947,6 +2024,13 @@
           "stddev_ms": 0,
           "min_ms": 0,
           "max_ms": 0,
+          "samples": 5
+        },
+        "runtime package provenance output": {
+          "mean_ms": 175,
+          "stddev_ms": 4,
+          "min_ms": 169,
+          "max_ms": 179,
           "samples": 5
         },
         "safeReadFile()": {
@@ -1964,10 +2048,10 @@
           "samples": 5
         },
         "scaffold command": {
-          "mean_ms": 259,
-          "stddev_ms": 10,
-          "min_ms": 247,
-          "max_ms": 271,
+          "mean_ms": 147,
+          "stddev_ms": 1,
+          "min_ms": 146,
+          "max_ms": 149,
           "samples": 5
         },
         "schema-config parity": {
@@ -1981,18 +2065,18 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "seedKnownAuthors": {
-          "mean_ms": 37,
-          "stddev_ms": 1,
-          "min_ms": 36,
-          "max_ms": 39,
+          "mean_ms": 35,
+          "stddev_ms": 2,
+          "min_ms": 34,
+          "max_ms": 38,
           "samples": 5
         },
         "seedKnownAuthors edge cases": {
-          "mean_ms": 2,
+          "mean_ms": 1,
           "stddev_ms": 0,
           "min_ms": 1,
           "max_ms": 2,
@@ -2020,10 +2104,10 @@
           "samples": 5
         },
         "SKIP_CONFIG_VALIDATION escape hatch": {
-          "mean_ms": 57,
-          "stddev_ms": 3,
-          "min_ms": 54,
-          "max_ms": 60,
+          "mean_ms": 37,
+          "stddev_ms": 1,
+          "min_ms": 36,
+          "max_ms": 38,
           "samples": 5
         },
         "sortSubstitutions": {
@@ -2048,17 +2132,17 @@
           "samples": 5
         },
         "state mutation commands": {
-          "mean_ms": 245,
-          "stddev_ms": 11,
-          "min_ms": 234,
-          "max_ms": 265,
+          "mean_ms": 148,
+          "stddev_ms": 4,
+          "min_ms": 141,
+          "max_ms": 153,
           "samples": 5
         },
         "state-snapshot command": {
-          "mean_ms": 395,
-          "stddev_ms": 12,
-          "min_ms": 375,
-          "max_ms": 409,
+          "mean_ms": 240,
+          "stddev_ms": 3,
+          "min_ms": 235,
+          "max_ms": 244,
           "samples": 5
         },
         "static methods": {
@@ -2083,17 +2167,17 @@
           "samples": 5
         },
         "subprocess timeout helpers": {
-          "mean_ms": 171,
-          "stddev_ms": 3,
-          "min_ms": 166,
-          "max_ms": 176,
+          "mean_ms": 131,
+          "stddev_ms": 2,
+          "min_ms": 128,
+          "max_ms": 133,
           "samples": 5
         },
         "summary-extract command": {
-          "mean_ms": 248,
-          "stddev_ms": 4,
-          "min_ms": 243,
-          "max_ms": 255,
+          "mean_ms": 147,
+          "stddev_ms": 1,
+          "min_ms": 145,
+          "max_ms": 148,
           "samples": 5
         },
         "supports256Color()": {
@@ -2111,31 +2195,31 @@
           "samples": 5
         },
         "sync-checkpoint command": {
-          "mean_ms": 644,
-          "stddev_ms": 12,
-          "min_ms": 632,
-          "max_ms": 663,
+          "mean_ms": 427,
+          "stddev_ms": 3,
+          "min_ms": 424,
+          "max_ms": 431,
           "samples": 5
         },
         "sync-preview command": {
-          "mean_ms": 437,
-          "stddev_ms": 11,
-          "min_ms": 421,
-          "max_ms": 450,
+          "mean_ms": 321,
+          "stddev_ms": 8,
+          "min_ms": 310,
+          "max_ms": 331,
           "samples": 5
         },
         "sync-preview selective filtering CLI": {
-          "mean_ms": 437,
-          "stddev_ms": 9,
-          "min_ms": 420,
-          "max_ms": 449,
+          "mean_ms": 337,
+          "stddev_ms": 5,
+          "min_ms": 330,
+          "max_ms": 343,
           "samples": 5
         },
         "sync-preview supply chain integration": {
-          "mean_ms": 187,
-          "stddev_ms": 5,
-          "min_ms": 181,
-          "max_ms": 197,
+          "mean_ms": 139,
+          "stddev_ms": 1,
+          "min_ms": 138,
+          "max_ms": 141,
           "samples": 5
         },
         "system information": {
@@ -2146,10 +2230,10 @@
           "samples": 5
         },
         "template CLI integration": {
-          "mean_ms": 203,
-          "stddev_ms": 3,
-          "min_ms": 199,
-          "max_ms": 206,
+          "mean_ms": 117,
+          "stddev_ms": 1,
+          "min_ms": 115,
+          "max_ms": 119,
           "samples": 5
         },
         "TERM detection": {
@@ -2188,395 +2272,423 @@
           "samples": 5
         },
         "test-config hygiene (meta-test)": {
-          "mean_ms": 23,
-          "stddev_ms": 1,
-          "min_ms": 22,
-          "max_ms": 25,
+          "mean_ms": 18,
+          "stddev_ms": 2,
+          "min_ms": 17,
+          "max_ms": 23,
           "samples": 5
         },
         "test-path-validation (meta-test)": {
-          "mean_ms": 6,
+          "mean_ms": 7,
           "stddev_ms": 0,
           "min_ms": 6,
           "max_ms": 7,
           "samples": 5
         },
         "test-timing schema": {
-          "mean_ms": 52,
-          "stddev_ms": 3,
-          "min_ms": 48,
-          "max_ms": 55,
+          "mean_ms": 69,
+          "stddev_ms": 1,
+          "min_ms": 67,
+          "max_ms": 71,
           "samples": 5
         },
         "tests/audit-check.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 48,
+          "stddev_ms": 1,
+          "min_ms": 47,
+          "max_ms": 50,
           "samples": 5
         },
         "tests/bench-test-timing.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 3,
+          "stddev_ms": 1,
+          "min_ms": 2,
+          "max_ms": 4,
           "samples": 5
         },
         "tests/bench.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 3,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 3,
+          "max_ms": 4,
           "samples": 5
         },
         "tests/branding.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 9,
+          "stddev_ms": 1,
+          "min_ms": 8,
+          "max_ms": 10,
           "samples": 5
         },
         "tests/check-boundary-coverage.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 8,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 8,
+          "max_ms": 9,
           "samples": 5
         },
         "tests/check-boundary.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 115,
+          "stddev_ms": 2,
+          "min_ms": 113,
+          "max_ms": 118,
           "samples": 5
         },
         "tests/check-debt-ratchet.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 6,
+          "stddev_ms": 1,
+          "min_ms": 6,
+          "max_ms": 8,
           "samples": 5
         },
         "tests/check-overrides-integration.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 23,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 22,
+          "max_ms": 23,
           "samples": 5
         },
         "tests/check-overrides.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 250,
+          "stddev_ms": 5,
+          "min_ms": 242,
+          "max_ms": 255,
+          "samples": 5
+        },
+        "tests/check-perf.test.js": {
+          "mean_ms": 970,
+          "stddev_ms": 12,
+          "min_ms": 954,
+          "max_ms": 990,
           "samples": 5
         },
         "tests/ci-workflow.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 4,
+          "stddev_ms": 1,
+          "min_ms": 2,
+          "max_ms": 5,
           "samples": 5
         },
         "tests/codex-installer.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 109,
+          "stddev_ms": 11,
+          "min_ms": 102,
+          "max_ms": 130,
           "samples": 5
         },
         "tests/commands.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 731,
+          "stddev_ms": 4,
+          "min_ms": 725,
+          "max_ms": 735,
           "samples": 5
         },
         "tests/compose.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 1974,
+          "stddev_ms": 12,
+          "min_ms": 1959,
+          "max_ms": 1996,
           "samples": 5
         },
         "tests/config.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 311,
+          "stddev_ms": 7,
+          "min_ms": 301,
+          "max_ms": 318,
           "samples": 5
         },
         "tests/config.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 22,
+          "stddev_ms": 1,
+          "min_ms": 20,
+          "max_ms": 23,
           "samples": 5
         },
         "tests/core.test.cjs": {
-          "mean_ms": 0,
+          "mean_ms": 450,
+          "stddev_ms": 7,
+          "min_ms": 445,
+          "max_ms": 463,
+          "samples": 5
+        },
+        "tests/cousin-smoke.test.js": {
+          "mean_ms": 7,
+          "stddev_ms": 1,
+          "min_ms": 6,
+          "max_ms": 8,
+          "samples": 5
+        },
+        "tests/docs-gates.test.js": {
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 1,
+          "max_ms": 1,
           "samples": 5
         },
         "tests/flake-triage.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 4,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 4,
+          "max_ms": 5,
           "samples": 5
         },
         "tests/frontmatter.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 313,
+          "stddev_ms": 7,
+          "min_ms": 306,
+          "max_ms": 325,
           "samples": 5
         },
         "tests/gsd-tools.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 946,
+          "stddev_ms": 65,
+          "min_ms": 907,
+          "max_ms": 1075,
           "samples": 5
         },
         "tests/hooks-manifest.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 4,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 4,
+          "max_ms": 4,
           "samples": 5
         },
         "tests/hooks.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 12565,
+          "stddev_ms": 95,
+          "min_ms": 12446,
+          "max_ms": 12712,
           "samples": 5
         },
         "tests/init.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 439,
+          "stddev_ms": 4,
+          "min_ms": 434,
+          "max_ms": 446,
           "samples": 5
         },
         "tests/installer-exports.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 20,
+          "stddev_ms": 1,
+          "min_ms": 19,
+          "max_ms": 22,
           "samples": 5
         },
         "tests/installer-safety.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 28,
+          "stddev_ms": 1,
+          "min_ms": 26,
+          "max_ms": 30,
           "samples": 5
         },
         "tests/installer-v3.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 3020,
+          "stddev_ms": 9,
+          "min_ms": 3007,
+          "max_ms": 3034,
           "samples": 5
         },
         "tests/launcher.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 6,
+          "stddev_ms": 1,
+          "min_ms": 5,
+          "max_ms": 8,
           "samples": 5
         },
         "tests/milestone.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 63,
+          "stddev_ms": 2,
+          "min_ms": 61,
+          "max_ms": 65,
           "samples": 5
         },
         "tests/osv-triage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 24,
+          "stddev_ms": 1,
+          "min_ms": 23,
+          "max_ms": 26,
           "samples": 5
         },
         "tests/package-launcher-v3.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 271,
+          "stddev_ms": 3,
+          "min_ms": 267,
+          "max_ms": 274,
           "samples": 5
         },
         "tests/perf-baseline-schema.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 110,
+          "stddev_ms": 7,
+          "min_ms": 100,
+          "max_ms": 121,
           "samples": 5
         },
         "tests/phase.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 1191,
+          "stddev_ms": 3,
+          "min_ms": 1186,
+          "max_ms": 1195,
           "samples": 5
         },
         "tests/platform-internal.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 28,
+          "stddev_ms": 1,
+          "min_ms": 27,
+          "max_ms": 31,
           "samples": 5
         },
         "tests/platform.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 107,
+          "stddev_ms": 1,
+          "min_ms": 106,
+          "max_ms": 109,
           "samples": 5
         },
         "tests/pre-push-hook.test.js": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "tests/preview-update-coverage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 2022,
+          "stddev_ms": 162,
+          "min_ms": 1873,
+          "max_ms": 2317,
           "samples": 5
         },
         "tests/preview-update.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 5,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 5,
+          "max_ms": 6,
           "samples": 5
         },
         "tests/prototype-installer.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 981,
+          "stddev_ms": 3,
+          "min_ms": 978,
+          "max_ms": 986,
           "samples": 5
         },
         "tests/roadmap.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 396,
+          "stddev_ms": 5,
+          "min_ms": 390,
+          "max_ms": 405,
           "samples": 5
         },
         "tests/run-upstream-compat-ci.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 1,
+          "max_ms": 2,
           "samples": 5
         },
         "tests/run-upstream-compat.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 5,
+          "stddev_ms": 1,
+          "min_ms": 4,
+          "max_ms": 6,
           "samples": 5
         },
         "tests/runtime-overrides.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 494,
+          "stddev_ms": 6,
+          "min_ms": 484,
+          "max_ms": 502,
           "samples": 5
         },
         "tests/state.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 396,
+          "stddev_ms": 7,
+          "min_ms": 384,
+          "max_ms": 404,
           "samples": 5
         },
         "tests/subprocess-with-timeout.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 134,
+          "stddev_ms": 3,
+          "min_ms": 130,
+          "max_ms": 137,
           "samples": 5
         },
         "tests/sync.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 2091,
+          "stddev_ms": 17,
+          "min_ms": 2071,
+          "max_ms": 2122,
           "samples": 5
         },
         "tests/template.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 135,
+          "stddev_ms": 1,
+          "min_ms": 132,
+          "max_ms": 136,
           "samples": 5
         },
         "tests/test-config-hygiene.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 21,
+          "stddev_ms": 3,
+          "min_ms": 19,
+          "max_ms": 26,
           "samples": 5
         },
         "tests/test-path-validation.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 9,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 8,
+          "max_ms": 9,
           "samples": 5
         },
         "tests/test-timing-schema.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 71,
+          "stddev_ms": 1,
+          "min_ms": 69,
+          "max_ms": 72,
           "samples": 5
         },
         "tests/theme.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 5,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 5,
+          "max_ms": 6,
           "samples": 5
         },
         "tests/upstream-source.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 9,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 9,
+          "max_ms": 10,
           "samples": 5
         },
         "tests/validate-configs.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 370,
+          "stddev_ms": 7,
+          "min_ms": 358,
+          "max_ms": 380,
           "samples": 5
         },
         "tests/validation.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 7,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 7,
+          "max_ms": 8,
+          "samples": 5
+        },
+        "tests/verify-oversight-probes.test.js": {
+          "mean_ms": 24,
+          "stddev_ms": 1,
+          "min_ms": 23,
+          "max_ms": 26,
           "samples": 5
         },
         "tests/verify.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 93,
+          "stddev_ms": 1,
+          "min_ms": 92,
+          "max_ms": 94,
           "samples": 5
         },
         "text decorations": {
@@ -2615,10 +2727,10 @@
           "samples": 5
         },
         "todo complete command": {
-          "mean_ms": 99,
-          "stddev_ms": 5,
-          "min_ms": 93,
-          "max_ms": 107,
+          "mean_ms": 59,
+          "stddev_ms": 1,
+          "min_ms": 58,
+          "max_ms": 60,
           "samples": 5
         },
         "toForwardSlash()": {
@@ -2660,7 +2772,7 @@
           "mean_ms": 2,
           "stddev_ms": 0,
           "min_ms": 2,
-          "max_ms": 2,
+          "max_ms": 3,
           "samples": 5
         },
         "unknown shell fallback": {
@@ -2678,10 +2790,10 @@
           "samples": 5
         },
         "UPD-02: runPreviewScan()": {
-          "mean_ms": 1,
-          "stddev_ms": 2,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 5,
+          "max_ms": 0,
           "samples": 5
         },
         "UPD-03: getOverrideImpact()": {
@@ -2699,10 +2811,10 @@
           "samples": 5
         },
         "upstream-source authority helper": {
-          "mean_ms": 0,
+          "mean_ms": 3,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 3,
+          "max_ms": 4,
           "samples": 5
         },
         "v3.0 Delegation Installer": {
@@ -2713,10 +2825,10 @@
           "samples": 5
         },
         "v3.0 launcher imports": {
-          "mean_ms": 116,
-          "stddev_ms": 2,
-          "min_ms": 114,
-          "max_ms": 120,
+          "mean_ms": 93,
+          "stddev_ms": 1,
+          "min_ms": 92,
+          "max_ms": 94,
           "samples": 5
         },
         "v3.0 package configuration": {
@@ -2727,10 +2839,10 @@
           "samples": 5
         },
         "validate consistency command": {
-          "mean_ms": 160,
-          "stddev_ms": 10,
-          "min_ms": 148,
-          "max_ms": 174,
+          "mean_ms": 91,
+          "stddev_ms": 0,
+          "min_ms": 90,
+          "max_ms": 91,
           "samples": 5
         },
         "validate-configs.js script": {
@@ -2825,10 +2937,10 @@
           "samples": 5
         },
         "validation wiring": {
-          "mean_ms": 61,
+          "mean_ms": 42,
           "stddev_ms": 1,
-          "min_ms": 59,
-          "max_ms": 63,
+          "min_ms": 41,
+          "max_ms": 43,
           "samples": 5
         },
         "version extraction": {
@@ -2853,10 +2965,10 @@
           "samples": 5
         },
         "zero overrides": {
-          "mean_ms": 1,
+          "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "zsh detection on Unix": {
@@ -2870,10 +2982,10 @@
     },
     "macos": {
       "total": {
-        "mean_ms": 35509,
-        "stddev_ms": 2803,
-        "min_ms": 33492,
-        "max_ms": 40889,
+        "mean_ms": 32682,
+        "stddev_ms": 566,
+        "min_ms": 31772,
+        "max_ms": 33426,
         "samples": 5
       },
       "files": {
@@ -2892,10 +3004,10 @@
           "samples": 5
         },
         "_detectGit direct tests": {
-          "mean_ms": 22,
-          "stddev_ms": 2,
+          "mean_ms": 32,
+          "stddev_ms": 10,
           "min_ms": 20,
-          "max_ms": 25,
+          "max_ms": 42,
           "samples": 5
         },
         "_detectNodeVersion direct tests": {
@@ -2934,10 +3046,10 @@
           "samples": 5
         },
         "7-day throttle": {
-          "mean_ms": 9158,
-          "stddev_ms": 94,
-          "min_ms": 9034,
-          "max_ms": 9296,
+          "mean_ms": 9007,
+          "stddev_ms": 247,
+          "min_ms": 8803,
+          "max_ms": 9459,
           "samples": 5
         },
         "accepts valid branch names": {
@@ -2983,24 +3095,24 @@
           "samples": 5
         },
         "applyBrandingToContent": {
-          "mean_ms": 1,
-          "stddev_ms": 1,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 3,
+          "max_ms": 0,
           "samples": 5
         },
         "assessConflictRiskByOverlap": {
-          "mean_ms": 183,
-          "stddev_ms": 4,
-          "min_ms": 179,
-          "max_ms": 190,
+          "mean_ms": 174,
+          "stddev_ms": 25,
+          "min_ms": 151,
+          "max_ms": 218,
           "samples": 5
         },
         "audit suppression validation": {
-          "mean_ms": 22,
-          "stddev_ms": 3,
-          "min_ms": 18,
-          "max_ms": 25,
+          "mean_ms": 25,
+          "stddev_ms": 5,
+          "min_ms": 20,
+          "max_ms": 33,
           "samples": 5
         },
         "audit-ci binary discovery": {
@@ -3028,7 +3140,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "bench hyperfine normalization": {
@@ -3049,7 +3161,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "bin/gsd.js launcher": {
@@ -3060,23 +3172,23 @@
           "samples": 5
         },
         "bin/install.js module exports": {
-          "mean_ms": 14,
-          "stddev_ms": 0,
-          "min_ms": 14,
+          "mean_ms": 13,
+          "stddev_ms": 1,
+          "min_ms": 12,
           "max_ms": 15,
           "samples": 5
         },
         "bin/preview-update-cli.js (SRP extraction)": {
-          "mean_ms": 344,
-          "stddev_ms": 45,
-          "min_ms": 298,
-          "max_ms": 421,
+          "mean_ms": 314,
+          "stddev_ms": 19,
+          "min_ms": 290,
+          "max_ms": 346,
           "samples": 5
         },
         "boundary violations": {
           "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 0,
+          "min_ms": 1,
           "max_ms": 1,
           "samples": 5
         },
@@ -3109,10 +3221,10 @@
           "samples": 5
         },
         "check-boundary coverage": {
-          "mean_ms": 9,
-          "stddev_ms": 3,
-          "min_ms": 7,
-          "max_ms": 14,
+          "mean_ms": 6,
+          "stddev_ms": 0,
+          "min_ms": 6,
+          "max_ms": 6,
           "samples": 5
         },
         "check-boundary module exports": {
@@ -3130,10 +3242,17 @@
           "samples": 5
         },
         "check-overrides subprocess integration": {
-          "mean_ms": 20,
-          "stddev_ms": 1,
-          "min_ms": 19,
-          "max_ms": 22,
+          "mean_ms": 19,
+          "stddev_ms": 2,
+          "min_ms": 16,
+          "max_ms": 23,
+          "samples": 5
+        },
+        "check-perf CLI": {
+          "mean_ms": 924,
+          "stddev_ms": 28,
+          "min_ms": 882,
+          "max_ms": 958,
           "samples": 5
         },
         "checkAuthorAnomaly": {
@@ -3214,45 +3333,45 @@
           "samples": 5
         },
         "cleanOrphanedPaths": {
-          "mean_ms": 1,
-          "stddev_ms": 2,
+          "mean_ms": 0,
+          "stddev_ms": 1,
           "min_ms": 0,
-          "max_ms": 4,
+          "max_ms": 2,
           "samples": 5
         },
         "CLI entry block": {
-          "mean_ms": 610,
-          "stddev_ms": 76,
-          "min_ms": 549,
-          "max_ms": 759,
+          "mean_ms": 443,
+          "stddev_ms": 39,
+          "min_ms": 412,
+          "max_ms": 518,
           "samples": 5
         },
         "CLI entry subprocess": {
-          "mean_ms": 642,
-          "stddev_ms": 90,
-          "min_ms": 546,
+          "mean_ms": 697,
+          "stddev_ms": 60,
+          "min_ms": 612,
           "max_ms": 772,
           "samples": 5
         },
         "CLI entry: default args": {
-          "mean_ms": 97,
-          "stddev_ms": 23,
-          "min_ms": 64,
-          "max_ms": 133,
+          "mean_ms": 49,
+          "stddev_ms": 2,
+          "min_ms": 46,
+          "max_ms": 52,
           "samples": 5
         },
         "CLI exit codes": {
-          "mean_ms": 86,
+          "mean_ms": 73,
           "stddev_ms": 2,
-          "min_ms": 85,
-          "max_ms": 89,
+          "min_ms": 71,
+          "max_ms": 77,
           "samples": 5
         },
         "CLI flags (COMP-09)": {
-          "mean_ms": 1052,
-          "stddev_ms": 127,
-          "min_ms": 921,
-          "max_ms": 1291,
+          "mean_ms": 948,
+          "stddev_ms": 70,
+          "min_ms": 817,
+          "max_ms": 1016,
           "samples": 5
         },
         "cmd default on Windows": {
@@ -3270,17 +3389,17 @@
           "samples": 5
         },
         "cmdConfigEnsureSection (subprocess)": {
-          "mean_ms": 115,
-          "stddev_ms": 9,
-          "min_ms": 107,
-          "max_ms": 127,
+          "mean_ms": 116,
+          "stddev_ms": 21,
+          "min_ms": 97,
+          "max_ms": 155,
           "samples": 5
         },
         "cmdConfigGet (direct)": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "cmdConfigGet error paths (direct)": {
@@ -3291,31 +3410,31 @@
           "samples": 5
         },
         "cmdConfigGet error paths (subprocess)": {
-          "mean_ms": 90,
-          "stddev_ms": 5,
-          "min_ms": 87,
-          "max_ms": 100,
+          "mean_ms": 67,
+          "stddev_ms": 6,
+          "min_ms": 62,
+          "max_ms": 77,
           "samples": 5
         },
         "cmdConfigSet (direct)": {
-          "mean_ms": 1,
-          "stddev_ms": 3,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 7,
+          "max_ms": 0,
           "samples": 5
         },
         "cmdConfigSet error paths (direct)": {
-          "mean_ms": 62,
-          "stddev_ms": 5,
-          "min_ms": 58,
-          "max_ms": 71,
+          "mean_ms": 45,
+          "stddev_ms": 2,
+          "min_ms": 42,
+          "max_ms": 48,
           "samples": 5
         },
         "cmdFrontmatterGet (direct)": {
-          "mean_ms": 1,
-          "stddev_ms": 1,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 3,
+          "max_ms": 0,
           "samples": 5
         },
         "cmdFrontmatterMerge (direct)": {
@@ -3329,56 +3448,56 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
-          "samples": 5
-        },
-        "cmdFrontmatterValidate (direct)": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
           "max_ms": 0,
           "samples": 5
         },
+        "cmdFrontmatterValidate (direct)": {
+          "mean_ms": 5,
+          "stddev_ms": 10,
+          "min_ms": 0,
+          "max_ms": 26,
+          "samples": 5
+        },
         "cmdSyncCheckpointCleanup direct (overlay coverage)": {
-          "mean_ms": 137,
-          "stddev_ms": 17,
-          "min_ms": 116,
-          "max_ms": 166,
+          "mean_ms": 146,
+          "stddev_ms": 10,
+          "min_ms": 130,
+          "max_ms": 159,
           "samples": 5
         },
         "cmdSyncCheckpointCreate direct (overlay coverage)": {
-          "mean_ms": 56,
-          "stddev_ms": 6,
-          "min_ms": 51,
-          "max_ms": 67,
+          "mean_ms": 81,
+          "stddev_ms": 37,
+          "min_ms": 57,
+          "max_ms": 154,
           "samples": 5
         },
         "cmdSyncCheckpointList direct (overlay coverage)": {
-          "mean_ms": 114,
-          "stddev_ms": 17,
-          "min_ms": 96,
-          "max_ms": 144,
+          "mean_ms": 145,
+          "stddev_ms": 44,
+          "min_ms": 110,
+          "max_ms": 226,
           "samples": 5
         },
         "cmdSyncPreview direct (overlay coverage)": {
-          "mean_ms": 1433,
-          "stddev_ms": 231,
-          "min_ms": 1282,
-          "max_ms": 1892,
+          "mean_ms": 1493,
+          "stddev_ms": 29,
+          "min_ms": 1463,
+          "max_ms": 1536,
           "samples": 5
         },
         "cmdTemplateFill()": {
-          "mean_ms": 0,
+          "mean_ms": 1,
           "stddev_ms": 1,
           "min_ms": 0,
-          "max_ms": 2,
+          "max_ms": 3,
           "samples": 5
         },
         "cmdTemplateSelect()": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
+          "mean_ms": 7,
+          "stddev_ms": 15,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 37,
           "samples": 5
         },
         "color support detection": {
@@ -3434,35 +3553,35 @@
           "mean_ms": 9,
           "stddev_ms": 1,
           "min_ms": 8,
-          "max_ms": 11,
+          "max_ms": 12,
           "samples": 5
         },
         "composed runtime GSD overrides": {
-          "mean_ms": 486,
-          "stddev_ms": 13,
-          "min_ms": 469,
-          "max_ms": 503,
+          "mean_ms": 532,
+          "stddev_ms": 17,
+          "min_ms": 498,
+          "max_ms": 546,
           "samples": 5
         },
         "computeDelta additive outputs": {
-          "mean_ms": 15,
-          "stddev_ms": 1,
+          "mean_ms": 16,
+          "stddev_ms": 2,
           "min_ms": 14,
-          "max_ms": 17,
+          "max_ms": 19,
           "samples": 5
         },
         "computeDelta edge cases": {
-          "mean_ms": 15,
-          "stddev_ms": 4,
-          "min_ms": 12,
-          "max_ms": 23,
+          "mean_ms": 10,
+          "stddev_ms": 1,
+          "min_ms": 9,
+          "max_ms": 11,
           "samples": 5
         },
         "computeEffortEstimate": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "ConEmuTask detection": {
@@ -3490,14 +3609,14 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "construction and chaining": {
-          "mean_ms": 1,
-          "stddev_ms": 2,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 5,
+          "max_ms": 0,
           "samples": 5
         },
         "contextual": {
@@ -3508,6 +3627,27 @@
           "samples": 5
         },
         "copyOverlayManifest": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "cousin smoke CLI contract": {
+          "mean_ms": 1,
+          "stddev_ms": 0,
+          "min_ms": 1,
+          "max_ms": 1,
+          "samples": 5
+        },
+        "cousin smoke isolated install execution": {
+          "mean_ms": 1,
+          "stddev_ms": 0,
+          "min_ms": 1,
+          "max_ms": 2,
+          "samples": 5
+        },
+        "cousin smoke repository contract": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
@@ -3557,10 +3697,10 @@
           "samples": 5
         },
         "detectPlatform aggregate direct tests": {
-          "mean_ms": 34,
-          "stddev_ms": 6,
-          "min_ms": 29,
-          "max_ms": 45,
+          "mean_ms": 46,
+          "stddev_ms": 8,
+          "min_ms": 35,
+          "max_ms": 56,
           "samples": 5
         },
         "detectTerminal": {
@@ -3588,7 +3728,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "dimensions": {
@@ -3599,24 +3739,24 @@
           "samples": 5
         },
         "dist: gsd-tools bundled (regression guard for GAP-1)": {
-          "mean_ms": 44,
-          "stddev_ms": 7,
-          "min_ms": 39,
-          "max_ms": 57,
+          "mean_ms": 39,
+          "stddev_ms": 2,
+          "min_ms": 36,
+          "max_ms": 41,
           "samples": 5
         },
         "environment flags": {
-          "mean_ms": 44,
-          "stddev_ms": 3,
-          "min_ms": 40,
-          "max_ms": 48,
+          "mean_ms": 65,
+          "stddev_ms": 17,
+          "min_ms": 46,
+          "max_ms": 89,
           "samples": 5
         },
         "error()": {
-          "mean_ms": 40,
-          "stddev_ms": 8,
-          "min_ms": 34,
-          "max_ms": 56,
+          "mean_ms": 29,
+          "stddev_ms": 1,
+          "min_ms": 28,
+          "max_ms": 31,
           "samples": 5
         },
         "error() in-process coverage": {
@@ -3634,10 +3774,10 @@
           "samples": 5
         },
         "execGit()": {
-          "mean_ms": 323,
-          "stddev_ms": 66,
-          "min_ms": 255,
-          "max_ms": 405,
+          "mean_ms": 299,
+          "stddev_ms": 31,
+          "min_ms": 269,
+          "max_ms": 355,
           "samples": 5
         },
         "expandTilde()": {
@@ -3670,16 +3810,16 @@
         },
         "features_disabled propagation to .install-meta.json": {
           "mean_ms": 3,
-          "stddev_ms": 0,
-          "min_ms": 3,
+          "stddev_ms": 1,
+          "min_ms": 2,
           "max_ms": 4,
           "samples": 5
         },
         "features.json schema validation (FEAT-04)": {
-          "mean_ms": 32,
-          "stddev_ms": 15,
-          "min_ms": 21,
-          "max_ms": 61,
+          "mean_ms": 35,
+          "stddev_ms": 12,
+          "min_ms": 27,
+          "max_ms": 59,
           "samples": 5
         },
         "filter()": {
@@ -3690,24 +3830,24 @@
           "samples": 5
         },
         "filter() category exclusion (FEAT-01)": {
-          "mean_ms": 24,
+          "mean_ms": 22,
           "stddev_ms": 3,
           "min_ms": 20,
-          "max_ms": 29,
+          "max_ms": 27,
           "samples": 5
         },
         "filter() cross-category isolation and warnings": {
-          "mean_ms": 16,
-          "stddev_ms": 14,
+          "mean_ms": 8,
+          "stddev_ms": 0,
           "min_ms": 8,
-          "max_ms": 44,
+          "max_ms": 9,
           "samples": 5
         },
         "filter() opt-out model (FEAT-02)": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "filter() runtimes ignored (FEAT-03)": {
@@ -3726,9 +3866,9 @@
         },
         "findPhaseInternal()": {
           "mean_ms": 0,
-          "stddev_ms": 1,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 2,
+          "max_ms": 1,
           "samples": 5
         },
         "flake-triage CLI": {
@@ -3788,17 +3928,17 @@
           "samples": 5
         },
         "fresh override": {
-          "mean_ms": 3,
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 2,
-          "max_ms": 3,
+          "min_ms": 1,
+          "max_ms": 2,
           "samples": 5
         },
         "frontmatter CLI (subprocess)": {
-          "mean_ms": 252,
-          "stddev_ms": 20,
-          "min_ms": 235,
-          "max_ms": 289,
+          "mean_ms": 171,
+          "stddev_ms": 7,
+          "min_ms": 167,
+          "max_ms": 184,
           "samples": 5
         },
         "FRONTMATTER_SCHEMAS": {
@@ -3809,10 +3949,10 @@
           "samples": 5
         },
         "full script run against real project": {
-          "mean_ms": 166,
-          "stddev_ms": 14,
-          "min_ms": 152,
-          "max_ms": 192,
+          "mean_ms": 135,
+          "stddev_ms": 16,
+          "min_ms": 123,
+          "max_ms": 166,
           "samples": 5
         },
         "generateCredits": {
@@ -3838,16 +3978,16 @@
         },
         "getArchivedPhaseDirs()": {
           "mean_ms": 0,
-          "stddev_ms": 1,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 2,
+          "max_ms": 0,
           "samples": 5
         },
         "getCommitsInRange": {
-          "mean_ms": 267,
-          "stddev_ms": 24,
-          "min_ms": 247,
-          "max_ms": 314,
+          "mean_ms": 205,
+          "stddev_ms": 3,
+          "min_ms": 201,
+          "max_ms": 210,
           "samples": 5
         },
         "getConfigPath()": {
@@ -3872,10 +4012,10 @@
           "samples": 5
         },
         "getFilesForCommit": {
-          "mean_ms": 179,
-          "stddev_ms": 8,
-          "min_ms": 171,
-          "max_ms": 191,
+          "mean_ms": 167,
+          "stddev_ms": 34,
+          "min_ms": 145,
+          "max_ms": 235,
           "samples": 5
         },
         "getMilestoneInfo()": {
@@ -3893,10 +4033,10 @@
           "samples": 5
         },
         "getRoadmapPhaseInternal()": {
-          "mean_ms": 6,
-          "stddev_ms": 11,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 28,
+          "max_ms": 0,
           "samples": 5
         },
         "getTheme()": {
@@ -3935,10 +4075,10 @@
           "samples": 5
         },
         "git detection": {
-          "mean_ms": 31,
-          "stddev_ms": 1,
-          "min_ms": 29,
-          "max_ms": 33,
+          "mean_ms": 43,
+          "stddev_ms": 15,
+          "min_ms": 30,
+          "max_ms": 63,
           "samples": 5
         },
         "gsdHome()": {
@@ -3973,42 +4113,42 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
-          "samples": 5
-        },
-        "history-digest command": {
-          "mean_ms": 184,
-          "stddev_ms": 6,
-          "min_ms": 179,
-          "max_ms": 195,
-          "samples": 5
-        },
-        "hooks/dist build verification": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
           "max_ms": 0,
           "samples": 5
         },
+        "history-digest command": {
+          "mean_ms": 131,
+          "stddev_ms": 3,
+          "min_ms": 128,
+          "max_ms": 135,
+          "samples": 5
+        },
+        "hooks/dist build verification": {
+          "mean_ms": 1,
+          "stddev_ms": 1,
+          "min_ms": 0,
+          "max_ms": 3,
+          "samples": 5
+        },
         "hooks/dist/gsd-check-update.js (bundled)": {
-          "mean_ms": 120,
-          "stddev_ms": 27,
-          "min_ms": 97,
-          "max_ms": 158,
+          "mean_ms": 85,
+          "stddev_ms": 3,
+          "min_ms": 81,
+          "max_ms": 89,
           "samples": 5
         },
         "hooks/dist/gsd-statusline.js (bundled)": {
-          "mean_ms": 334,
-          "stddev_ms": 94,
-          "min_ms": 240,
-          "max_ms": 498,
+          "mean_ms": 217,
+          "stddev_ms": 25,
+          "min_ms": 193,
+          "max_ms": 256,
           "samples": 5
         },
         "hooks/dist/pre-compact.js (bundled)": {
-          "mean_ms": 104,
-          "stddev_ms": 19,
-          "min_ms": 89,
-          "max_ms": 141,
+          "mean_ms": 93,
+          "stddev_ms": 11,
+          "min_ms": 83,
+          "max_ms": 114,
           "samples": 5
         },
         "hooks/index.js manifest (invariants)": {
@@ -4019,59 +4159,59 @@
           "samples": 5
         },
         "hooks/pre-compact.js": {
-          "mean_ms": 175,
-          "stddev_ms": 31,
-          "min_ms": 151,
-          "max_ms": 229,
+          "mean_ms": 128,
+          "stddev_ms": 4,
+          "min_ms": 124,
+          "max_ms": 136,
           "samples": 5
         },
         "init commands": {
-          "mean_ms": 436,
-          "stddev_ms": 24,
-          "min_ms": 414,
-          "max_ms": 481,
+          "mean_ms": 339,
+          "stddev_ms": 34,
+          "min_ms": 307,
+          "max_ms": 404,
           "samples": 5
         },
         "INST-01: subprocess delegation": {
-          "mean_ms": 586,
-          "stddev_ms": 26,
-          "min_ms": 548,
-          "max_ms": 616,
+          "mean_ms": 436,
+          "stddev_ms": 21,
+          "min_ms": 409,
+          "max_ms": 460,
           "samples": 5
         },
         "INST-02: overlay files copied": {
-          "mean_ms": 587,
-          "stddev_ms": 58,
-          "min_ms": 546,
-          "max_ms": 698,
+          "mean_ms": 438,
+          "stddev_ms": 31,
+          "min_ms": 406,
+          "max_ms": 489,
           "samples": 5
         },
         "INST-03: .install-meta.json written": {
-          "mean_ms": 580,
-          "stddev_ms": 65,
-          "min_ms": 537,
-          "max_ms": 708,
+          "mean_ms": 412,
+          "stddev_ms": 4,
+          "min_ms": 406,
+          "max_ms": 417,
           "samples": 5
         },
         "INST-04: --uninstall": {
-          "mean_ms": 670,
-          "stddev_ms": 58,
-          "min_ms": 621,
-          "max_ms": 783,
+          "mean_ms": 477,
+          "stddev_ms": 12,
+          "min_ms": 462,
+          "max_ms": 493,
           "samples": 5
         },
         "INST-05: v2.x detection": {
-          "mean_ms": 862,
-          "stddev_ms": 48,
-          "min_ms": 814,
-          "max_ms": 952,
+          "mean_ms": 626,
+          "stddev_ms": 25,
+          "min_ms": 607,
+          "max_ms": 676,
           "samples": 5
         },
         "INST-05b: negative v2.x detection": {
-          "mean_ms": 578,
-          "stddev_ms": 20,
-          "min_ms": 548,
-          "max_ms": 610,
+          "mean_ms": 426,
+          "stddev_ms": 28,
+          "min_ms": 403,
+          "max_ms": 477,
           "samples": 5
         },
         "INST-05c: safety guard (isSafeToClean)": {
@@ -4082,17 +4222,17 @@
           "samples": 5
         },
         "installCodexConfig": {
-          "mean_ms": 2,
-          "stddev_ms": 2,
+          "mean_ms": 1,
+          "stddev_ms": 0,
           "min_ms": 1,
-          "max_ms": 7,
+          "max_ms": 2,
           "samples": 5
         },
         "integration: real upstream install.js branding": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "isAbsolute()": {
@@ -4117,10 +4257,10 @@
           "samples": 5
         },
         "isGitIgnored()": {
-          "mean_ms": 93,
-          "stddev_ms": 21,
-          "min_ms": 77,
-          "max_ms": 133,
+          "mean_ms": 86,
+          "stddev_ms": 3,
+          "min_ms": 84,
+          "max_ms": 91,
           "samples": 5
         },
         "isSafeToClean": {
@@ -4145,24 +4285,24 @@
           "samples": 5
         },
         "letter-suffix phase sorting": {
-          "mean_ms": 37,
-          "stddev_ms": 6,
-          "min_ms": 31,
-          "max_ms": 49,
+          "mean_ms": 22,
+          "stddev_ms": 1,
+          "min_ms": 21,
+          "max_ms": 24,
           "samples": 5
         },
         "loadConfig()": {
           "mean_ms": 1,
           "stddev_ms": 0,
           "min_ms": 1,
-          "max_ms": 2,
+          "max_ms": 1,
           "samples": 5
         },
         "loadKnownAuthors": {
-          "mean_ms": 5,
-          "stddev_ms": 11,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 27,
+          "max_ms": 0,
           "samples": 5
         },
         "loadProtectedPaths": {
@@ -4176,7 +4316,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "markdown section validation": {
@@ -4187,31 +4327,31 @@
           "samples": 5
         },
         "merge()": {
+          "mean_ms": 3,
+          "stddev_ms": 0,
+          "min_ms": 2,
+          "max_ms": 3,
+          "samples": 5
+        },
+        "milestone complete command": {
+          "mean_ms": 50,
+          "stddev_ms": 3,
+          "min_ms": 47,
+          "max_ms": 55,
+          "samples": 5
+        },
+        "missing REASON.md": {
+          "mean_ms": 4,
+          "stddev_ms": 6,
+          "min_ms": 0,
+          "max_ms": 16,
+          "samples": 5
+        },
+        "mixed results": {
           "mean_ms": 2,
           "stddev_ms": 0,
           "min_ms": 2,
           "max_ms": 2,
-          "samples": 5
-        },
-        "milestone complete command": {
-          "mean_ms": 68,
-          "stddev_ms": 3,
-          "min_ms": 62,
-          "max_ms": 71,
-          "samples": 5
-        },
-        "missing REASON.md": {
-          "mean_ms": 2,
-          "stddev_ms": 2,
-          "min_ms": 0,
-          "max_ms": 5,
-          "samples": 5
-        },
-        "mixed results": {
-          "mean_ms": 5,
-          "stddev_ms": 5,
-          "min_ms": 2,
-          "max_ms": 14,
           "samples": 5
         },
         "MODEL_PROFILES": {
@@ -4236,10 +4376,10 @@
           "samples": 5
         },
         "Node.js version": {
-          "mean_ms": 41,
-          "stddev_ms": 2,
-          "min_ms": 39,
-          "max_ms": 44,
+          "mean_ms": 57,
+          "stddev_ms": 14,
+          "min_ms": 41,
+          "max_ms": 81,
           "samples": 5
         },
         "normalisePlatform": {
@@ -4264,38 +4404,38 @@
           "samples": 5
         },
         "orphan REASON.md": {
-          "mean_ms": 1,
-          "stddev_ms": 0,
-          "min_ms": 1,
-          "max_ms": 1,
-          "samples": 5
-        },
-        "OS detection": {
-          "mean_ms": 20,
-          "stddev_ms": 1,
-          "min_ms": 19,
-          "max_ms": 22,
-          "samples": 5
-        },
-        "OSV triage CLI": {
-          "mean_ms": 19,
-          "stddev_ms": 2,
-          "min_ms": 17,
-          "max_ms": 23,
-          "samples": 5
-        },
-        "OSV triage normalization": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
           "max_ms": 1,
           "samples": 5
         },
+        "OS detection": {
+          "mean_ms": 21,
+          "stddev_ms": 2,
+          "min_ms": 20,
+          "max_ms": 24,
+          "samples": 5
+        },
+        "OSV triage CLI": {
+          "mean_ms": 14,
+          "stddev_ms": 1,
+          "min_ms": 13,
+          "max_ms": 15,
+          "samples": 5
+        },
+        "OSV triage normalization": {
+          "mean_ms": 1,
+          "stddev_ms": 0,
+          "min_ms": 1,
+          "max_ms": 1,
+          "samples": 5
+        },
         "output()": {
-          "mean_ms": 196,
-          "stddev_ms": 27,
-          "min_ms": 172,
-          "max_ms": 245,
+          "mean_ms": 147,
+          "stddev_ms": 2,
+          "min_ms": 145,
+          "max_ms": 151,
           "samples": 5
         },
         "output() in-process coverage": {
@@ -4306,10 +4446,10 @@
           "samples": 5
         },
         "overlay/hooks/gsd-check-update.js (maintainer path)": {
-          "mean_ms": 805,
-          "stddev_ms": 77,
-          "min_ms": 712,
-          "max_ms": 901,
+          "mean_ms": 830,
+          "stddev_ms": 72,
+          "min_ms": 779,
+          "max_ms": 970,
           "samples": 5
         },
         "overlay/hooks/gsd-check-update.js (timeout and paths)": {
@@ -4320,10 +4460,10 @@
           "samples": 5
         },
         "overlay/hooks/gsd-statusline.js (maintainer notification)": {
-          "mean_ms": 415,
-          "stddev_ms": 18,
-          "min_ms": 398,
-          "max_ms": 441,
+          "mean_ms": 443,
+          "stddev_ms": 65,
+          "min_ms": 387,
+          "max_ms": 565,
           "samples": 5
         },
         "overlay/hooks/gsd-statusline.js (timeout and paths)": {
@@ -4334,10 +4474,10 @@
           "samples": 5
         },
         "override with no manifest match": {
-          "mean_ms": 1,
-          "stddev_ms": 1,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 2,
+          "max_ms": 1,
           "samples": 5
         },
         "override()": {
@@ -4355,38 +4495,45 @@
           "samples": 5
         },
         "override() file replacement (OVER-01)": {
-          "mean_ms": 20,
-          "stddev_ms": 2,
-          "min_ms": 18,
-          "max_ms": 23,
+          "mean_ms": 24,
+          "stddev_ms": 10,
+          "min_ms": 16,
+          "max_ms": 43,
           "samples": 5
         },
         "override() REASON.md enforcement (OVER-02)": {
           "mean_ms": 14,
-          "stddev_ms": 1,
+          "stddev_ms": 2,
           "min_ms": 12,
-          "max_ms": 16,
+          "max_ms": 18,
           "samples": 5
         },
         "override() zero overrides day one (OVER-04)": {
           "mean_ms": 6,
           "stddev_ms": 0,
           "min_ms": 6,
-          "max_ms": 7,
+          "max_ms": 6,
           "samples": 5
         },
         "overrides/hooks/gsd-check-update.js": {
-          "mean_ms": 1387,
-          "stddev_ms": 538,
-          "min_ms": 992,
-          "max_ms": 2452,
+          "mean_ms": 1141,
+          "stddev_ms": 195,
+          "min_ms": 929,
+          "max_ms": 1481,
           "samples": 5
         },
         "overrides/hooks/gsd-statusline.js": {
-          "mean_ms": 350,
-          "stddev_ms": 36,
-          "min_ms": 294,
-          "max_ms": 392,
+          "mean_ms": 300,
+          "stddev_ms": 14,
+          "min_ms": 282,
+          "max_ms": 315,
+          "samples": 5
+        },
+        "oversight trigger contract": {
+          "mean_ms": 17,
+          "stddev_ms": 1,
+          "min_ms": 16,
+          "max_ms": 20,
           "samples": 5
         },
         "package.json files array": {
@@ -4418,10 +4565,10 @@
           "samples": 5
         },
         "path containment (traversal rejection)": {
-          "mean_ms": 3,
-          "stddev_ms": 1,
+          "mean_ms": 2,
+          "stddev_ms": 0,
           "min_ms": 2,
-          "max_ms": 4,
+          "max_ms": 2,
           "samples": 5
         },
         "path normalization": {
@@ -4446,66 +4593,108 @@
           "samples": 5
         },
         "perf-baseline schema": {
-          "mean_ms": 31,
-          "stddev_ms": 5,
-          "min_ms": 25,
-          "max_ms": 38,
+          "mean_ms": 60,
+          "stddev_ms": 7,
+          "min_ms": 52,
+          "max_ms": 70,
           "samples": 5
         },
         "Phase 29: Prototype Gate": {
-          "mean_ms": 1192,
-          "stddev_ms": 160,
-          "min_ms": 1080,
-          "max_ms": 1506,
+          "mean_ms": 1179,
+          "stddev_ms": 70,
+          "min_ms": 1084,
+          "max_ms": 1289,
+          "samples": 5
+        },
+        "Phase 41 validation workflows": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 cousin install workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 docs gate package contract": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 docs gates workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 oversight probes workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 perf budget workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "phase add command": {
-          "mean_ms": 124,
-          "stddev_ms": 37,
-          "min_ms": 87,
-          "max_ms": 193,
+          "mean_ms": 67,
+          "stddev_ms": 4,
+          "min_ms": 63,
+          "max_ms": 72,
           "samples": 5
         },
         "phase complete command": {
-          "mean_ms": 99,
-          "stddev_ms": 11,
-          "min_ms": 90,
-          "max_ms": 116,
+          "mean_ms": 70,
+          "stddev_ms": 2,
+          "min_ms": 68,
+          "max_ms": 73,
           "samples": 5
         },
         "phase insert command": {
-          "mean_ms": 233,
-          "stddev_ms": 60,
-          "min_ms": 176,
-          "max_ms": 346,
+          "mean_ms": 140,
+          "stddev_ms": 10,
+          "min_ms": 131,
+          "max_ms": 159,
           "samples": 5
         },
         "phase next-decimal command": {
-          "mean_ms": 157,
-          "stddev_ms": 15,
-          "min_ms": 145,
-          "max_ms": 178,
+          "mean_ms": 128,
+          "stddev_ms": 16,
+          "min_ms": 117,
+          "max_ms": 160,
           "samples": 5
         },
         "phase remove command": {
-          "mean_ms": 198,
-          "stddev_ms": 41,
-          "min_ms": 156,
-          "max_ms": 255,
+          "mean_ms": 127,
+          "stddev_ms": 9,
+          "min_ms": 120,
+          "max_ms": 144,
           "samples": 5
         },
         "phase-plan-index command": {
-          "mean_ms": 231,
-          "stddev_ms": 41,
-          "min_ms": 178,
-          "max_ms": 292,
+          "mean_ms": 138,
+          "stddev_ms": 4,
+          "min_ms": 131,
+          "max_ms": 143,
           "samples": 5
         },
         "phases list command": {
-          "mean_ms": 187,
-          "stddev_ms": 23,
-          "min_ms": 174,
-          "max_ms": 233,
+          "mean_ms": 135,
+          "stddev_ms": 6,
+          "min_ms": 130,
+          "max_ms": 147,
           "samples": 5
         },
         "pipeline stage exports (COMP-10)": {
@@ -4530,10 +4719,10 @@
           "samples": 5
         },
         "pre-push hook": {
-          "mean_ms": 1,
-          "stddev_ms": 1,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 2,
+          "max_ms": 1,
           "samples": 5
         },
         "primitives": {
@@ -4544,10 +4733,10 @@
           "samples": 5
         },
         "progress command": {
-          "mean_ms": 186,
-          "stddev_ms": 19,
-          "min_ms": 175,
-          "max_ms": 223,
+          "mean_ms": 130,
+          "stddev_ms": 2,
+          "min_ms": 127,
+          "max_ms": 133,
           "samples": 5
         },
         "Read-only safety": {
@@ -4558,7 +4747,7 @@
           "samples": 5
         },
         "readBaseline": {
-          "mean_ms": 1,
+          "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
           "max_ms": 1,
@@ -4568,14 +4757,14 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "readUpstreamVersion fallback": {
-          "mean_ms": 1,
-          "stddev_ms": 1,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 3,
+          "max_ms": 0,
           "samples": 5
         },
         "real .planning/config.json": {
@@ -4638,7 +4827,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "relative()": {
@@ -4649,10 +4838,10 @@
           "samples": 5
         },
         "removeGsdFiles": {
-          "mean_ms": 10,
-          "stddev_ms": 2,
+          "mean_ms": 7,
+          "stddev_ms": 0,
           "min_ms": 7,
-          "max_ms": 12,
+          "max_ms": 7,
           "samples": 5
         },
         "render()": {
@@ -4663,38 +4852,38 @@
           "samples": 5
         },
         "requireValid()": {
-          "mean_ms": 19,
-          "stddev_ms": 3,
-          "min_ms": 17,
-          "max_ms": 25,
+          "mean_ms": 15,
+          "stddev_ms": 0,
+          "min_ms": 14,
+          "max_ms": 15,
           "samples": 5
         },
         "resolve()": {
           "mean_ms": 48,
-          "stddev_ms": 23,
-          "min_ms": 35,
-          "max_ms": 93,
+          "stddev_ms": 15,
+          "min_ms": 34,
+          "max_ms": 67,
           "samples": 5
         },
         "resolve() additional error paths": {
-          "mean_ms": 18,
-          "stddev_ms": 3,
+          "mean_ms": 33,
+          "stddev_ms": 21,
           "min_ms": 16,
-          "max_ms": 24,
+          "max_ms": 61,
           "samples": 5
         },
         "resolve() error paths": {
-          "mean_ms": 2,
-          "stddev_ms": 2,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 5,
+          "max_ms": 0,
           "samples": 5
         },
         "resolveModelInternal()": {
-          "mean_ms": 2,
-          "stddev_ms": 3,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 9,
+          "max_ms": 0,
           "samples": 5
         },
         "return shape": {
@@ -4706,30 +4895,30 @@
         },
         "return shape and caching": {
           "mean_ms": 45,
-          "stddev_ms": 2,
+          "stddev_ms": 3,
           "min_ms": 42,
-          "max_ms": 49,
+          "max_ms": 48,
           "samples": 5
         },
         "roadmap analyze command": {
-          "mean_ms": 160,
-          "stddev_ms": 10,
-          "min_ms": 148,
-          "max_ms": 171,
+          "mean_ms": 111,
+          "stddev_ms": 1,
+          "min_ms": 109,
+          "max_ms": 112,
           "samples": 5
         },
         "roadmap get-phase command": {
-          "mean_ms": 216,
-          "stddev_ms": 15,
-          "min_ms": 203,
-          "max_ms": 244,
+          "mean_ms": 153,
+          "stddev_ms": 3,
+          "min_ms": 150,
+          "max_ms": 158,
           "samples": 5
         },
         "roadmap update-plan-progress command": {
-          "mean_ms": 34,
-          "stddev_ms": 3,
-          "min_ms": 30,
-          "max_ms": 39,
+          "mean_ms": 23,
+          "stddev_ms": 1,
+          "min_ms": 22,
+          "max_ms": 25,
           "samples": 5
         },
         "run-upstream-compat output parsing": {
@@ -4747,24 +4936,24 @@
           "samples": 5
         },
         "run-upstream-compat-ci": {
-          "mean_ms": 1,
+          "mean_ms": 3,
           "stddev_ms": 1,
-          "min_ms": 0,
-          "max_ms": 3,
+          "min_ms": 2,
+          "max_ms": 4,
           "samples": 5
         },
         "runCLI": {
-          "mean_ms": 565,
-          "stddev_ms": 85,
-          "min_ms": 501,
-          "max_ms": 731,
+          "mean_ms": 578,
+          "stddev_ms": 38,
+          "min_ms": 512,
+          "max_ms": 620,
           "samples": 5
         },
         "runCLI structured result": {
-          "mean_ms": 267,
-          "stddev_ms": 24,
-          "min_ms": 246,
-          "max_ms": 313,
+          "mean_ms": 284,
+          "stddev_ms": 37,
+          "min_ms": 251,
+          "max_ms": 355,
           "samples": 5
         },
         "runFallbackChecks": {
@@ -4784,8 +4973,8 @@
         "runPreviewScan default file list coverage": {
           "mean_ms": 3,
           "stddev_ms": 0,
-          "min_ms": 3,
-          "max_ms": 4,
+          "min_ms": 2,
+          "max_ms": 3,
           "samples": 5
         },
         "runPreviewScan() fallback path": {
@@ -4809,6 +4998,13 @@
           "max_ms": 0,
           "samples": 5
         },
+        "runtime package provenance output": {
+          "mean_ms": 96,
+          "stddev_ms": 14,
+          "min_ms": 84,
+          "max_ms": 121,
+          "samples": 5
+        },
         "safeReadFile()": {
           "mean_ms": 0,
           "stddev_ms": 0,
@@ -4817,17 +5013,17 @@
           "samples": 5
         },
         "saveKnownAuthors": {
-          "mean_ms": 1,
-          "stddev_ms": 1,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 3,
+          "max_ms": 0,
           "samples": 5
         },
         "scaffold command": {
-          "mean_ms": 159,
-          "stddev_ms": 16,
-          "min_ms": 145,
-          "max_ms": 185,
+          "mean_ms": 109,
+          "stddev_ms": 3,
+          "min_ms": 105,
+          "max_ms": 113,
           "samples": 5
         },
         "schema-config parity": {
@@ -4841,21 +5037,21 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "seedKnownAuthors": {
-          "mean_ms": 113,
-          "stddev_ms": 23,
-          "min_ms": 88,
-          "max_ms": 146,
+          "mean_ms": 99,
+          "stddev_ms": 6,
+          "min_ms": 92,
+          "max_ms": 108,
           "samples": 5
         },
         "seedKnownAuthors edge cases": {
           "mean_ms": 5,
-          "stddev_ms": 1,
+          "stddev_ms": 0,
           "min_ms": 4,
-          "max_ms": 7,
+          "max_ms": 5,
           "samples": 5
         },
         "semantic": {
@@ -4866,10 +5062,10 @@
           "samples": 5
         },
         "shell detection": {
-          "mean_ms": 53,
-          "stddev_ms": 3,
-          "min_ms": 50,
-          "max_ms": 57,
+          "mean_ms": 61,
+          "stddev_ms": 6,
+          "min_ms": 54,
+          "max_ms": 72,
           "samples": 5
         },
         "shouldBrandFile": {
@@ -4880,10 +5076,10 @@
           "samples": 5
         },
         "SKIP_CONFIG_VALIDATION escape hatch": {
-          "mean_ms": 34,
+          "mean_ms": 28,
           "stddev_ms": 2,
-          "min_ms": 30,
-          "max_ms": 37,
+          "min_ms": 26,
+          "max_ms": 31,
           "samples": 5
         },
         "sortSubstitutions": {
@@ -4901,24 +5097,24 @@
           "samples": 5
         },
         "stale override": {
-          "mean_ms": 3,
-          "stddev_ms": 1,
-          "min_ms": 2,
-          "max_ms": 4,
+          "mean_ms": 2,
+          "stddev_ms": 2,
+          "min_ms": 1,
+          "max_ms": 6,
           "samples": 5
         },
         "state mutation commands": {
-          "mean_ms": 150,
-          "stddev_ms": 8,
-          "min_ms": 141,
-          "max_ms": 161,
+          "mean_ms": 122,
+          "stddev_ms": 35,
+          "min_ms": 100,
+          "max_ms": 192,
           "samples": 5
         },
         "state-snapshot command": {
-          "mean_ms": 254,
-          "stddev_ms": 12,
-          "min_ms": 239,
-          "max_ms": 268,
+          "mean_ms": 178,
+          "stddev_ms": 5,
+          "min_ms": 172,
+          "max_ms": 187,
           "samples": 5
         },
         "static methods": {
@@ -4943,17 +5139,17 @@
           "samples": 5
         },
         "subprocess timeout helpers": {
-          "mean_ms": 133,
-          "stddev_ms": 5,
-          "min_ms": 126,
-          "max_ms": 141,
+          "mean_ms": 121,
+          "stddev_ms": 8,
+          "min_ms": 112,
+          "max_ms": 132,
           "samples": 5
         },
         "summary-extract command": {
-          "mean_ms": 152,
-          "stddev_ms": 9,
-          "min_ms": 145,
-          "max_ms": 169,
+          "mean_ms": 109,
+          "stddev_ms": 3,
+          "min_ms": 104,
+          "max_ms": 111,
           "samples": 5
         },
         "supports256Color()": {
@@ -4971,45 +5167,45 @@
           "samples": 5
         },
         "sync-checkpoint command": {
-          "mean_ms": 660,
-          "stddev_ms": 30,
-          "min_ms": 616,
-          "max_ms": 700,
+          "mean_ms": 615,
+          "stddev_ms": 59,
+          "min_ms": 559,
+          "max_ms": 719,
           "samples": 5
         },
         "sync-preview command": {
-          "mean_ms": 754,
-          "stddev_ms": 110,
-          "min_ms": 665,
-          "max_ms": 970,
+          "mean_ms": 574,
+          "stddev_ms": 17,
+          "min_ms": 554,
+          "max_ms": 605,
           "samples": 5
         },
         "sync-preview selective filtering CLI": {
-          "mean_ms": 730,
-          "stddev_ms": 87,
-          "min_ms": 642,
-          "max_ms": 871,
+          "mean_ms": 709,
+          "stddev_ms": 62,
+          "min_ms": 661,
+          "max_ms": 823,
           "samples": 5
         },
         "sync-preview supply chain integration": {
-          "mean_ms": 315,
-          "stddev_ms": 43,
-          "min_ms": 252,
-          "max_ms": 370,
+          "mean_ms": 265,
+          "stddev_ms": 10,
+          "min_ms": 253,
+          "max_ms": 281,
           "samples": 5
         },
         "system information": {
-          "mean_ms": 32,
-          "stddev_ms": 3,
-          "min_ms": 28,
-          "max_ms": 36,
+          "mean_ms": 46,
+          "stddev_ms": 14,
+          "min_ms": 30,
+          "max_ms": 61,
           "samples": 5
         },
         "template CLI integration": {
-          "mean_ms": 123,
-          "stddev_ms": 5,
-          "min_ms": 116,
-          "max_ms": 130,
+          "mean_ms": 97,
+          "stddev_ms": 13,
+          "min_ms": 82,
+          "max_ms": 119,
           "samples": 5
         },
         "TERM detection": {
@@ -5048,395 +5244,423 @@
           "samples": 5
         },
         "test-config hygiene (meta-test)": {
-          "mean_ms": 17,
-          "stddev_ms": 9,
-          "min_ms": 12,
-          "max_ms": 35,
+          "mean_ms": 25,
+          "stddev_ms": 3,
+          "min_ms": 20,
+          "max_ms": 28,
           "samples": 5
         },
         "test-path-validation (meta-test)": {
+          "mean_ms": 11,
+          "stddev_ms": 9,
+          "min_ms": 4,
+          "max_ms": 28,
+          "samples": 5
+        },
+        "test-timing schema": {
+          "mean_ms": 21,
+          "stddev_ms": 1,
+          "min_ms": 20,
+          "max_ms": 22,
+          "samples": 5
+        },
+        "tests/audit-check.test.js": {
+          "mean_ms": 30,
+          "stddev_ms": 5,
+          "min_ms": 25,
+          "max_ms": 37,
+          "samples": 5
+        },
+        "tests/bench-test-timing.test.js": {
+          "mean_ms": 3,
+          "stddev_ms": 0,
+          "min_ms": 2,
+          "max_ms": 3,
+          "samples": 5
+        },
+        "tests/bench.test.js": {
+          "mean_ms": 3,
+          "stddev_ms": 0,
+          "min_ms": 3,
+          "max_ms": 3,
+          "samples": 5
+        },
+        "tests/branding.test.js": {
+          "mean_ms": 38,
+          "stddev_ms": 4,
+          "min_ms": 33,
+          "max_ms": 44,
+          "samples": 5
+        },
+        "tests/check-boundary-coverage.test.js": {
+          "mean_ms": 8,
+          "stddev_ms": 0,
+          "min_ms": 7,
+          "max_ms": 8,
+          "samples": 5
+        },
+        "tests/check-boundary.test.js": {
+          "mean_ms": 86,
+          "stddev_ms": 3,
+          "min_ms": 83,
+          "max_ms": 91,
+          "samples": 5
+        },
+        "tests/check-debt-ratchet.test.js": {
+          "mean_ms": 8,
+          "stddev_ms": 1,
+          "min_ms": 7,
+          "max_ms": 10,
+          "samples": 5
+        },
+        "tests/check-overrides-integration.test.js": {
+          "mean_ms": 20,
+          "stddev_ms": 3,
+          "min_ms": 17,
+          "max_ms": 25,
+          "samples": 5
+        },
+        "tests/check-overrides.test.js": {
+          "mean_ms": 196,
+          "stddev_ms": 26,
+          "min_ms": 180,
+          "max_ms": 248,
+          "samples": 5
+        },
+        "tests/check-perf.test.js": {
+          "mean_ms": 928,
+          "stddev_ms": 29,
+          "min_ms": 885,
+          "max_ms": 961,
+          "samples": 5
+        },
+        "tests/ci-workflow.test.js": {
+          "mean_ms": 3,
+          "stddev_ms": 1,
+          "min_ms": 2,
+          "max_ms": 4,
+          "samples": 5
+        },
+        "tests/codex-installer.test.js": {
+          "mean_ms": 132,
+          "stddev_ms": 8,
+          "min_ms": 124,
+          "max_ms": 146,
+          "samples": 5
+        },
+        "tests/commands.test.cjs": {
+          "mean_ms": 537,
+          "stddev_ms": 1,
+          "min_ms": 536,
+          "max_ms": 539,
+          "samples": 5
+        },
+        "tests/compose.test.js": {
+          "mean_ms": 1711,
+          "stddev_ms": 128,
+          "min_ms": 1491,
+          "max_ms": 1857,
+          "samples": 5
+        },
+        "tests/config.test.cjs": {
+          "mean_ms": 248,
+          "stddev_ms": 29,
+          "min_ms": 222,
+          "max_ms": 303,
+          "samples": 5
+        },
+        "tests/config.test.js": {
+          "mean_ms": 14,
+          "stddev_ms": 1,
+          "min_ms": 13,
+          "max_ms": 15,
+          "samples": 5
+        },
+        "tests/core.test.cjs": {
+          "mean_ms": 621,
+          "stddev_ms": 32,
+          "min_ms": 590,
+          "max_ms": 677,
+          "samples": 5
+        },
+        "tests/cousin-smoke.test.js": {
+          "mean_ms": 9,
+          "stddev_ms": 1,
+          "min_ms": 7,
+          "max_ms": 10,
+          "samples": 5
+        },
+        "tests/docs-gates.test.js": {
+          "mean_ms": 2,
+          "stddev_ms": 0,
+          "min_ms": 2,
+          "max_ms": 3,
+          "samples": 5
+        },
+        "tests/flake-triage.test.js": {
+          "mean_ms": 5,
+          "stddev_ms": 1,
+          "min_ms": 4,
+          "max_ms": 6,
+          "samples": 5
+        },
+        "tests/frontmatter.test.cjs": {
+          "mean_ms": 199,
+          "stddev_ms": 10,
+          "min_ms": 191,
+          "max_ms": 215,
+          "samples": 5
+        },
+        "tests/gsd-tools.test.js": {
+          "mean_ms": 755,
+          "stddev_ms": 53,
+          "min_ms": 707,
+          "max_ms": 855,
+          "samples": 5
+        },
+        "tests/hooks-manifest.test.js": {
+          "mean_ms": 8,
+          "stddev_ms": 14,
+          "min_ms": 1,
+          "max_ms": 35,
+          "samples": 5
+        },
+        "tests/hooks.test.js": {
+          "mean_ms": 12298,
+          "stddev_ms": 367,
+          "min_ms": 11838,
+          "max_ms": 12913,
+          "samples": 5
+        },
+        "tests/init.test.cjs": {
+          "mean_ms": 351,
+          "stddev_ms": 41,
+          "min_ms": 314,
+          "max_ms": 431,
+          "samples": 5
+        },
+        "tests/installer-exports.test.js": {
+          "mean_ms": 15,
+          "stddev_ms": 1,
+          "min_ms": 14,
+          "max_ms": 17,
+          "samples": 5
+        },
+        "tests/installer-safety.test.js": {
+          "mean_ms": 32,
+          "stddev_ms": 3,
+          "min_ms": 29,
+          "max_ms": 37,
+          "samples": 5
+        },
+        "tests/installer-v3.test.js": {
+          "mean_ms": 2936,
+          "stddev_ms": 67,
+          "min_ms": 2827,
+          "max_ms": 3017,
+          "samples": 5
+        },
+        "tests/launcher.test.js": {
           "mean_ms": 4,
           "stddev_ms": 0,
           "min_ms": 4,
           "max_ms": 4,
           "samples": 5
         },
-        "test-timing schema": {
-          "mean_ms": 24,
-          "stddev_ms": 3,
-          "min_ms": 22,
-          "max_ms": 28,
-          "samples": 5
-        },
-        "tests/audit-check.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/bench-test-timing.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/bench.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/branding.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/check-boundary-coverage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/check-boundary.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/check-debt-ratchet.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/check-overrides-integration.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/check-overrides.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/ci-workflow.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/codex-installer.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/commands.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/compose.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/config.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/config.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/core.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/flake-triage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/frontmatter.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/gsd-tools.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/hooks-manifest.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/hooks.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/init.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/installer-exports.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/installer-safety.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/installer-v3.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
-        "tests/launcher.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
-          "samples": 5
-        },
         "tests/milestone.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 52,
+          "stddev_ms": 3,
+          "min_ms": 48,
+          "max_ms": 57,
           "samples": 5
         },
         "tests/osv-triage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 19,
+          "stddev_ms": 1,
+          "min_ms": 17,
+          "max_ms": 20,
           "samples": 5
         },
         "tests/package-launcher-v3.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 154,
+          "stddev_ms": 16,
+          "min_ms": 136,
+          "max_ms": 178,
           "samples": 5
         },
         "tests/perf-baseline-schema.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 64,
+          "stddev_ms": 7,
+          "min_ms": 57,
+          "max_ms": 73,
           "samples": 5
         },
         "tests/phase.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 956,
+          "stddev_ms": 17,
+          "min_ms": 939,
+          "max_ms": 988,
           "samples": 5
         },
         "tests/platform-internal.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 92,
+          "stddev_ms": 16,
+          "min_ms": 71,
+          "max_ms": 111,
           "samples": 5
         },
         "tests/platform.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 388,
+          "stddev_ms": 57,
+          "min_ms": 319,
+          "max_ms": 462,
           "samples": 5
         },
         "tests/pre-push-hook.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 2,
+          "stddev_ms": 1,
+          "min_ms": 1,
+          "max_ms": 3,
           "samples": 5
         },
         "tests/preview-update-coverage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 1885,
+          "stddev_ms": 36,
+          "min_ms": 1832,
+          "max_ms": 1928,
           "samples": 5
         },
         "tests/preview-update.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 7,
+          "stddev_ms": 1,
+          "min_ms": 5,
+          "max_ms": 8,
           "samples": 5
         },
         "tests/prototype-installer.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 1385,
+          "stddev_ms": 104,
+          "min_ms": 1220,
+          "max_ms": 1504,
           "samples": 5
         },
         "tests/roadmap.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 295,
+          "stddev_ms": 4,
+          "min_ms": 291,
+          "max_ms": 302,
           "samples": 5
         },
         "tests/run-upstream-compat-ci.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 6,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 6,
+          "max_ms": 7,
           "samples": 5
         },
         "tests/run-upstream-compat.test.js": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "tests/runtime-overrides.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 535,
+          "stddev_ms": 17,
+          "min_ms": 501,
+          "max_ms": 549,
           "samples": 5
         },
         "tests/state.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 310,
+          "stddev_ms": 39,
+          "min_ms": 283,
+          "max_ms": 386,
           "samples": 5
         },
         "tests/subprocess-with-timeout.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 127,
+          "stddev_ms": 9,
+          "min_ms": 117,
+          "max_ms": 139,
           "samples": 5
         },
         "tests/sync.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 4720,
+          "stddev_ms": 210,
+          "min_ms": 4473,
+          "max_ms": 5024,
           "samples": 5
         },
         "tests/template.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 126,
+          "stddev_ms": 14,
+          "min_ms": 103,
+          "max_ms": 142,
           "samples": 5
         },
         "tests/test-config-hygiene.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 27,
+          "stddev_ms": 3,
+          "min_ms": 22,
+          "max_ms": 30,
           "samples": 5
         },
         "tests/test-path-validation.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 19,
+          "stddev_ms": 20,
+          "min_ms": 6,
+          "max_ms": 59,
           "samples": 5
         },
         "tests/test-timing-schema.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 26,
+          "stddev_ms": 3,
+          "min_ms": 23,
+          "max_ms": 33,
           "samples": 5
         },
         "tests/theme.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 3,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 3,
+          "max_ms": 3,
           "samples": 5
         },
         "tests/upstream-source.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 3,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 3,
+          "max_ms": 3,
           "samples": 5
         },
         "tests/validate-configs.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 177,
+          "stddev_ms": 19,
+          "min_ms": 163,
+          "max_ms": 214,
           "samples": 5
         },
         "tests/validation.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 4,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 4,
+          "max_ms": 5,
+          "samples": 5
+        },
+        "tests/verify-oversight-probes.test.js": {
+          "mean_ms": 20,
+          "stddev_ms": 3,
+          "min_ms": 18,
+          "max_ms": 25,
           "samples": 5
         },
         "tests/verify.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 71,
+          "stddev_ms": 4,
+          "min_ms": 65,
+          "max_ms": 78,
           "samples": 5
         },
         "text decorations": {
@@ -5475,10 +5699,10 @@
           "samples": 5
         },
         "todo complete command": {
-          "mean_ms": 61,
-          "stddev_ms": 5,
-          "min_ms": 58,
-          "max_ms": 70,
+          "mean_ms": 45,
+          "stddev_ms": 3,
+          "min_ms": 43,
+          "max_ms": 50,
           "samples": 5
         },
         "toForwardSlash()": {
@@ -5517,10 +5741,10 @@
           "samples": 5
         },
         "uninstall": {
-          "mean_ms": 4,
-          "stddev_ms": 1,
+          "mean_ms": 3,
+          "stddev_ms": 0,
           "min_ms": 3,
-          "max_ms": 5,
+          "max_ms": 4,
           "samples": 5
         },
         "unknown shell fallback": {
@@ -5538,17 +5762,17 @@
           "samples": 5
         },
         "UPD-02: runPreviewScan()": {
-          "mean_ms": 3,
-          "stddev_ms": 3,
-          "min_ms": 2,
-          "max_ms": 9,
+          "mean_ms": 1,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "UPD-03: getOverrideImpact()": {
-          "mean_ms": 3,
-          "stddev_ms": 2,
-          "min_ms": 2,
-          "max_ms": 7,
+          "mean_ms": 1,
+          "stddev_ms": 1,
+          "min_ms": 0,
+          "max_ms": 2,
           "samples": 5
         },
         "UPD-04: generateReport()": {
@@ -5573,24 +5797,24 @@
           "samples": 5
         },
         "v3.0 launcher imports": {
-          "mean_ms": 63,
-          "stddev_ms": 4,
-          "min_ms": 57,
-          "max_ms": 68,
+          "mean_ms": 55,
+          "stddev_ms": 5,
+          "min_ms": 49,
+          "max_ms": 63,
           "samples": 5
         },
         "v3.0 package configuration": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "validate consistency command": {
-          "mean_ms": 98,
-          "stddev_ms": 5,
-          "min_ms": 89,
-          "max_ms": 104,
+          "mean_ms": 69,
+          "stddev_ms": 4,
+          "min_ms": 63,
+          "max_ms": 76,
           "samples": 5
         },
         "validate-configs.js script": {
@@ -5685,24 +5909,24 @@
           "samples": 5
         },
         "validation wiring": {
-          "mean_ms": 62,
-          "stddev_ms": 5,
-          "min_ms": 57,
-          "max_ms": 69,
+          "mean_ms": 75,
+          "stddev_ms": 20,
+          "min_ms": 53,
+          "max_ms": 110,
           "samples": 5
         },
         "version extraction": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
+          "mean_ms": 2,
+          "stddev_ms": 4,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 10,
           "samples": 5
         },
         "walkDir": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "WSL detection": {
@@ -5716,7 +5940,7 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "zsh detection on Unix": {
@@ -5730,10 +5954,10 @@
     },
     "windows": {
       "total": {
-        "mean_ms": 130987,
-        "stddev_ms": 7531,
-        "min_ms": 121617,
-        "max_ms": 144043,
+        "mean_ms": 112922,
+        "stddev_ms": 5708,
+        "min_ms": 109524,
+        "max_ms": 124295,
         "samples": 5
       },
       "files": {
@@ -5752,10 +5976,10 @@
           "samples": 5
         },
         "_detectGit direct tests": {
-          "mean_ms": 232,
-          "stddev_ms": 11,
-          "min_ms": 225,
-          "max_ms": 253,
+          "mean_ms": 255,
+          "stddev_ms": 4,
+          "min_ms": 250,
+          "max_ms": 262,
           "samples": 5
         },
         "_detectNodeVersion direct tests": {
@@ -5794,10 +6018,10 @@
           "samples": 5
         },
         "7-day throttle": {
-          "mean_ms": 9095,
-          "stddev_ms": 8,
-          "min_ms": 9085,
-          "max_ms": 9109,
+          "mean_ms": 9347,
+          "stddev_ms": 41,
+          "min_ms": 9293,
+          "max_ms": 9394,
           "samples": 5
         },
         "accepts valid branch names": {
@@ -5808,10 +6032,10 @@
           "samples": 5
         },
         "accepts valid paths": {
-          "mean_ms": 2,
-          "stddev_ms": 3,
+          "mean_ms": 0,
+          "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 7,
+          "max_ms": 1,
           "samples": 5
         },
         "accepts valid remote URLs": {
@@ -5823,9 +6047,9 @@
         },
         "accepts valid SHAs": {
           "mean_ms": 0,
-          "stddev_ms": 0,
+          "stddev_ms": 1,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 2,
           "samples": 5
         },
         "accepts valid tag names": {
@@ -5836,9 +6060,9 @@
           "samples": 5
         },
         "allowed directories": {
-          "mean_ms": 24,
-          "stddev_ms": 1,
-          "min_ms": 23,
+          "mean_ms": 19,
+          "stddev_ms": 3,
+          "min_ms": 18,
           "max_ms": 25,
           "samples": 5
         },
@@ -5850,24 +6074,24 @@
           "samples": 5
         },
         "assessConflictRiskByOverlap": {
-          "mean_ms": 960,
-          "stddev_ms": 59,
-          "min_ms": 845,
-          "max_ms": 1007,
+          "mean_ms": 1030,
+          "stddev_ms": 40,
+          "min_ms": 998,
+          "max_ms": 1108,
           "samples": 5
         },
         "audit suppression validation": {
-          "mean_ms": 125,
-          "stddev_ms": 8,
-          "min_ms": 119,
-          "max_ms": 141,
+          "mean_ms": 138,
+          "stddev_ms": 17,
+          "min_ms": 121,
+          "max_ms": 161,
           "samples": 5
         },
         "audit-ci binary discovery": {
           "mean_ms": 5,
           "stddev_ms": 1,
           "min_ms": 4,
-          "max_ms": 6,
+          "max_ms": 7,
           "samples": 5
         },
         "background colors": {
@@ -5885,9 +6109,9 @@
           "samples": 5
         },
         "bench baseline merge": {
-          "mean_ms": 7,
+          "mean_ms": 8,
           "stddev_ms": 1,
-          "min_ms": 6,
+          "min_ms": 7,
           "max_ms": 9,
           "samples": 5
         },
@@ -5906,38 +6130,38 @@
           "samples": 5
         },
         "bench-test-timing merge": {
-          "mean_ms": 8,
-          "stddev_ms": 2,
-          "min_ms": 6,
-          "max_ms": 10,
+          "mean_ms": 10,
+          "stddev_ms": 3,
+          "min_ms": 7,
+          "max_ms": 16,
           "samples": 5
         },
         "bin/gsd.js launcher": {
-          "mean_ms": 15,
-          "stddev_ms": 8,
-          "min_ms": 10,
-          "max_ms": 30,
+          "mean_ms": 9,
+          "stddev_ms": 0,
+          "min_ms": 8,
+          "max_ms": 9,
           "samples": 5
         },
         "bin/install.js module exports": {
-          "mean_ms": 62,
-          "stddev_ms": 7,
-          "min_ms": 58,
-          "max_ms": 76,
+          "mean_ms": 30,
+          "stddev_ms": 3,
+          "min_ms": 28,
+          "max_ms": 36,
           "samples": 5
         },
         "bin/preview-update-cli.js (SRP extraction)": {
-          "mean_ms": 724,
-          "stddev_ms": 35,
-          "min_ms": 687,
-          "max_ms": 783,
+          "mean_ms": 738,
+          "stddev_ms": 47,
+          "min_ms": 714,
+          "max_ms": 831,
           "samples": 5
         },
         "boundary violations": {
-          "mean_ms": 11,
-          "stddev_ms": 2,
-          "min_ms": 10,
-          "max_ms": 15,
+          "mean_ms": 10,
+          "stddev_ms": 1,
+          "min_ms": 9,
+          "max_ms": 12,
           "samples": 5
         },
         "brand()": {
@@ -5969,10 +6193,10 @@
           "samples": 5
         },
         "check-boundary coverage": {
-          "mean_ms": 26,
+          "mean_ms": 16,
           "stddev_ms": 1,
-          "min_ms": 23,
-          "max_ms": 27,
+          "min_ms": 15,
+          "max_ms": 18,
           "samples": 5
         },
         "check-boundary module exports": {
@@ -5983,17 +6207,24 @@
           "samples": 5
         },
         "check-overrides module exports": {
-          "mean_ms": 1,
+          "mean_ms": 0,
           "stddev_ms": 0,
-          "min_ms": 1,
-          "max_ms": 1,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "check-overrides subprocess integration": {
-          "mean_ms": 71,
-          "stddev_ms": 1,
-          "min_ms": 69,
-          "max_ms": 72,
+          "mean_ms": 44,
+          "stddev_ms": 3,
+          "min_ms": 42,
+          "max_ms": 50,
+          "samples": 5
+        },
+        "check-perf CLI": {
+          "mean_ms": 1649,
+          "stddev_ms": 57,
+          "min_ms": 1596,
+          "max_ms": 1760,
           "samples": 5
         },
         "checkAuthorAnomaly": {
@@ -6033,9 +6264,9 @@
         },
         "checkObfuscation": {
           "mean_ms": 0,
-          "stddev_ms": 0,
+          "stddev_ms": 1,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 2,
           "samples": 5
         },
         "checkPromptIntegrity": {
@@ -6054,9 +6285,9 @@
         },
         "CI workflow security action contracts": {
           "mean_ms": 0,
-          "stddev_ms": 0,
+          "stddev_ms": 1,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 2,
           "samples": 5
         },
         "classifyCommit": {
@@ -6074,45 +6305,45 @@
           "samples": 5
         },
         "cleanOrphanedPaths": {
-          "mean_ms": 10,
-          "stddev_ms": 2,
-          "min_ms": 9,
-          "max_ms": 13,
+          "mean_ms": 7,
+          "stddev_ms": 1,
+          "min_ms": 7,
+          "max_ms": 9,
           "samples": 5
         },
         "CLI entry block": {
-          "mean_ms": 1373,
-          "stddev_ms": 22,
-          "min_ms": 1348,
-          "max_ms": 1408,
+          "mean_ms": 1113,
+          "stddev_ms": 51,
+          "min_ms": 1058,
+          "max_ms": 1205,
           "samples": 5
         },
         "CLI entry subprocess": {
-          "mean_ms": 1487,
-          "stddev_ms": 93,
-          "min_ms": 1376,
-          "max_ms": 1642,
+          "mean_ms": 2027,
+          "stddev_ms": 1093,
+          "min_ms": 1446,
+          "max_ms": 4213,
           "samples": 5
         },
         "CLI entry: default args": {
-          "mean_ms": 214,
-          "stddev_ms": 9,
-          "min_ms": 205,
-          "max_ms": 225,
+          "mean_ms": 125,
+          "stddev_ms": 2,
+          "min_ms": 123,
+          "max_ms": 129,
           "samples": 5
         },
         "CLI exit codes": {
-          "mean_ms": 494,
-          "stddev_ms": 13,
-          "min_ms": 476,
-          "max_ms": 514,
+          "mean_ms": 289,
+          "stddev_ms": 7,
+          "min_ms": 279,
+          "max_ms": 298,
           "samples": 5
         },
         "CLI flags (COMP-09)": {
-          "mean_ms": 2950,
-          "stddev_ms": 31,
-          "min_ms": 2902,
-          "max_ms": 2984,
+          "mean_ms": 2512,
+          "stddev_ms": 109,
+          "min_ms": 2413,
+          "max_ms": 2664,
           "samples": 5
         },
         "cmd default on Windows": {
@@ -6123,122 +6354,122 @@
           "samples": 5
         },
         "cmdConfigEnsureSection (direct)": {
-          "mean_ms": 11,
+          "mean_ms": 9,
           "stddev_ms": 1,
-          "min_ms": 10,
-          "max_ms": 12,
+          "min_ms": 8,
+          "max_ms": 11,
           "samples": 5
         },
         "cmdConfigEnsureSection (subprocess)": {
-          "mean_ms": 364,
-          "stddev_ms": 6,
-          "min_ms": 359,
-          "max_ms": 375,
+          "mean_ms": 428,
+          "stddev_ms": 26,
+          "min_ms": 404,
+          "max_ms": 475,
           "samples": 5
         },
         "cmdConfigGet (direct)": {
-          "mean_ms": 16,
-          "stddev_ms": 0,
-          "min_ms": 16,
+          "mean_ms": 14,
+          "stddev_ms": 1,
+          "min_ms": 13,
           "max_ms": 16,
           "samples": 5
         },
         "cmdConfigGet error paths (direct)": {
-          "mean_ms": 12,
-          "stddev_ms": 0,
-          "min_ms": 12,
+          "mean_ms": 10,
+          "stddev_ms": 2,
+          "min_ms": 8,
           "max_ms": 12,
           "samples": 5
         },
         "cmdConfigGet error paths (subprocess)": {
-          "mean_ms": 292,
-          "stddev_ms": 20,
-          "min_ms": 278,
-          "max_ms": 331,
+          "mean_ms": 174,
+          "stddev_ms": 3,
+          "min_ms": 170,
+          "max_ms": 179,
           "samples": 5
         },
         "cmdConfigSet (direct)": {
-          "mean_ms": 57,
-          "stddev_ms": 66,
-          "min_ms": 23,
-          "max_ms": 188,
+          "mean_ms": 88,
+          "stddev_ms": 132,
+          "min_ms": 22,
+          "max_ms": 353,
           "samples": 5
         },
         "cmdConfigSet error paths (direct)": {
-          "mean_ms": 192,
-          "stddev_ms": 2,
-          "min_ms": 189,
-          "max_ms": 196,
+          "mean_ms": 118,
+          "stddev_ms": 4,
+          "min_ms": 113,
+          "max_ms": 125,
           "samples": 5
         },
         "cmdFrontmatterGet (direct)": {
-          "mean_ms": 14,
-          "stddev_ms": 0,
-          "min_ms": 14,
-          "max_ms": 14,
+          "mean_ms": 13,
+          "stddev_ms": 4,
+          "min_ms": 8,
+          "max_ms": 20,
           "samples": 5
         },
         "cmdFrontmatterMerge (direct)": {
-          "mean_ms": 14,
-          "stddev_ms": 0,
-          "min_ms": 13,
-          "max_ms": 14,
+          "mean_ms": 13,
+          "stddev_ms": 2,
+          "min_ms": 11,
+          "max_ms": 17,
           "samples": 5
         },
         "cmdFrontmatterSet (direct)": {
           "mean_ms": 18,
-          "stddev_ms": 0,
-          "min_ms": 17,
-          "max_ms": 18,
+          "stddev_ms": 2,
+          "min_ms": 16,
+          "max_ms": 21,
           "samples": 5
         },
         "cmdFrontmatterValidate (direct)": {
-          "mean_ms": 19,
-          "stddev_ms": 1,
-          "min_ms": 18,
+          "mean_ms": 15,
+          "stddev_ms": 4,
+          "min_ms": 11,
           "max_ms": 21,
           "samples": 5
         },
         "cmdSyncCheckpointCleanup direct (overlay coverage)": {
-          "mean_ms": 860,
-          "stddev_ms": 54,
-          "min_ms": 757,
-          "max_ms": 916,
+          "mean_ms": 908,
+          "stddev_ms": 14,
+          "min_ms": 896,
+          "max_ms": 934,
           "samples": 5
         },
         "cmdSyncCheckpointCreate direct (overlay coverage)": {
-          "mean_ms": 393,
-          "stddev_ms": 26,
-          "min_ms": 346,
-          "max_ms": 425,
+          "mean_ms": 862,
+          "stddev_ms": 921,
+          "min_ms": 398,
+          "max_ms": 2705,
           "samples": 5
         },
         "cmdSyncCheckpointList direct (overlay coverage)": {
-          "mean_ms": 736,
-          "stddev_ms": 51,
-          "min_ms": 639,
-          "max_ms": 775,
+          "mean_ms": 975,
+          "stddev_ms": 446,
+          "min_ms": 736,
+          "max_ms": 1866,
           "samples": 5
         },
         "cmdSyncPreview direct (overlay coverage)": {
-          "mean_ms": 9346,
-          "stddev_ms": 797,
-          "min_ms": 7981,
-          "max_ms": 10396,
+          "mean_ms": 9700,
+          "stddev_ms": 319,
+          "min_ms": 9357,
+          "max_ms": 10284,
           "samples": 5
         },
         "cmdTemplateFill()": {
-          "mean_ms": 37,
-          "stddev_ms": 4,
-          "min_ms": 32,
-          "max_ms": 44,
+          "mean_ms": 31,
+          "stddev_ms": 0,
+          "min_ms": 30,
+          "max_ms": 31,
           "samples": 5
         },
         "cmdTemplateSelect()": {
-          "mean_ms": 23,
-          "stddev_ms": 0,
-          "min_ms": 23,
-          "max_ms": 23,
+          "mean_ms": 17,
+          "stddev_ms": 1,
+          "min_ms": 16,
+          "max_ms": 18,
           "samples": 5
         },
         "color support detection": {
@@ -6286,43 +6517,43 @@
         "compose pipeline error paths": {
           "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 1,
+          "min_ms": 0,
           "max_ms": 1,
           "samples": 5
         },
         "compose() end-to-end": {
-          "mean_ms": 71,
-          "stddev_ms": 6,
-          "min_ms": 64,
-          "max_ms": 78,
+          "mean_ms": 73,
+          "stddev_ms": 2,
+          "min_ms": 72,
+          "max_ms": 76,
           "samples": 5
         },
         "composed runtime GSD overrides": {
-          "mean_ms": 828,
-          "stddev_ms": 11,
-          "min_ms": 815,
-          "max_ms": 847,
+          "mean_ms": 897,
+          "stddev_ms": 50,
+          "min_ms": 864,
+          "max_ms": 996,
           "samples": 5
         },
         "computeDelta additive outputs": {
-          "mean_ms": 99,
-          "stddev_ms": 7,
-          "min_ms": 91,
-          "max_ms": 109,
+          "mean_ms": 107,
+          "stddev_ms": 4,
+          "min_ms": 101,
+          "max_ms": 113,
           "samples": 5
         },
         "computeDelta edge cases": {
-          "mean_ms": 127,
-          "stddev_ms": 66,
-          "min_ms": 82,
-          "max_ms": 258,
+          "mean_ms": 107,
+          "stddev_ms": 20,
+          "min_ms": 90,
+          "max_ms": 145,
           "samples": 5
         },
         "computeEffortEstimate": {
-          "mean_ms": 10,
-          "stddev_ms": 1,
+          "mean_ms": 9,
+          "stddev_ms": 0,
           "min_ms": 9,
-          "max_ms": 12,
+          "max_ms": 10,
           "samples": 5
         },
         "ConEmuTask detection": {
@@ -6369,9 +6600,30 @@
         },
         "copyOverlayManifest": {
           "mean_ms": 5,
-          "stddev_ms": 0,
-          "min_ms": 5,
+          "stddev_ms": 1,
+          "min_ms": 4,
           "max_ms": 6,
+          "samples": 5
+        },
+        "cousin smoke CLI contract": {
+          "mean_ms": 1,
+          "stddev_ms": 2,
+          "min_ms": 0,
+          "max_ms": 5,
+          "samples": 5
+        },
+        "cousin smoke isolated install execution": {
+          "mean_ms": 55,
+          "stddev_ms": 39,
+          "min_ms": 33,
+          "max_ms": 132,
+          "samples": 5
+        },
+        "cousin smoke repository contract": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "createTheme()": {
@@ -6417,10 +6669,10 @@
           "samples": 5
         },
         "detectPlatform aggregate direct tests": {
-          "mean_ms": 353,
-          "stddev_ms": 17,
-          "min_ms": 336,
-          "max_ms": 377,
+          "mean_ms": 389,
+          "stddev_ms": 12,
+          "min_ms": 378,
+          "max_ms": 413,
           "samples": 5
         },
         "detectTerminal": {
@@ -6445,10 +6697,10 @@
           "samples": 5
         },
         "detectV2": {
-          "mean_ms": 13,
+          "mean_ms": 10,
           "stddev_ms": 2,
-          "min_ms": 12,
-          "max_ms": 17,
+          "min_ms": 9,
+          "max_ms": 13,
           "samples": 5
         },
         "dimensions": {
@@ -6459,24 +6711,24 @@
           "samples": 5
         },
         "dist: gsd-tools bundled (regression guard for GAP-1)": {
-          "mean_ms": 148,
-          "stddev_ms": 16,
-          "min_ms": 139,
-          "max_ms": 179,
+          "mean_ms": 87,
+          "stddev_ms": 5,
+          "min_ms": 83,
+          "max_ms": 97,
           "samples": 5
         },
         "environment flags": {
-          "mean_ms": 456,
-          "stddev_ms": 15,
-          "min_ms": 447,
-          "max_ms": 487,
+          "mean_ms": 515,
+          "stddev_ms": 18,
+          "min_ms": 499,
+          "max_ms": 550,
           "samples": 5
         },
         "error()": {
-          "mean_ms": 131,
+          "mean_ms": 75,
           "stddev_ms": 3,
-          "min_ms": 127,
-          "max_ms": 134,
+          "min_ms": 72,
+          "max_ms": 78,
           "samples": 5
         },
         "error() in-process coverage": {
@@ -6494,10 +6746,10 @@
           "samples": 5
         },
         "execGit()": {
-          "mean_ms": 2602,
-          "stddev_ms": 1978,
-          "min_ms": 1510,
-          "max_ms": 6555,
+          "mean_ms": 1935,
+          "stddev_ms": 157,
+          "min_ms": 1798,
+          "max_ms": 2191,
           "samples": 5
         },
         "expandTilde()": {
@@ -6529,17 +6781,17 @@
           "samples": 5
         },
         "features_disabled propagation to .install-meta.json": {
-          "mean_ms": 25,
-          "stddev_ms": 2,
-          "min_ms": 23,
-          "max_ms": 29,
+          "mean_ms": 31,
+          "stddev_ms": 3,
+          "min_ms": 27,
+          "max_ms": 36,
           "samples": 5
         },
         "features.json schema validation (FEAT-04)": {
-          "mean_ms": 211,
-          "stddev_ms": 28,
-          "min_ms": 169,
-          "max_ms": 254,
+          "mean_ms": 198,
+          "stddev_ms": 21,
+          "min_ms": 177,
+          "max_ms": 228,
           "samples": 5
         },
         "filter()": {
@@ -6550,24 +6802,24 @@
           "samples": 5
         },
         "filter() category exclusion (FEAT-01)": {
-          "mean_ms": 172,
-          "stddev_ms": 22,
-          "min_ms": 150,
-          "max_ms": 212,
+          "mean_ms": 159,
+          "stddev_ms": 7,
+          "min_ms": 153,
+          "max_ms": 172,
           "samples": 5
         },
         "filter() cross-category isolation and warnings": {
-          "mean_ms": 65,
-          "stddev_ms": 5,
-          "min_ms": 58,
-          "max_ms": 70,
+          "mean_ms": 66,
+          "stddev_ms": 6,
+          "min_ms": 60,
+          "max_ms": 77,
           "samples": 5
         },
         "filter() opt-out model (FEAT-02)": {
-          "mean_ms": 2,
-          "stddev_ms": 0,
+          "mean_ms": 3,
+          "stddev_ms": 1,
           "min_ms": 2,
-          "max_ms": 3,
+          "max_ms": 4,
           "samples": 5
         },
         "filter() runtimes ignored (FEAT-03)": {
@@ -6585,17 +6837,17 @@
           "samples": 5
         },
         "findPhaseInternal()": {
-          "mean_ms": 17,
+          "mean_ms": 16,
           "stddev_ms": 1,
-          "min_ms": 16,
-          "max_ms": 19,
+          "min_ms": 15,
+          "max_ms": 18,
           "samples": 5
         },
         "flake-triage CLI": {
-          "mean_ms": 3,
-          "stddev_ms": 1,
+          "mean_ms": 4,
+          "stddev_ms": 2,
           "min_ms": 3,
-          "max_ms": 5,
+          "max_ms": 7,
           "samples": 5
         },
         "FORCE_COLOR levels": {
@@ -6648,17 +6900,17 @@
           "samples": 5
         },
         "fresh override": {
-          "mean_ms": 15,
-          "stddev_ms": 0,
-          "min_ms": 15,
-          "max_ms": 16,
+          "mean_ms": 14,
+          "stddev_ms": 2,
+          "min_ms": 13,
+          "max_ms": 18,
           "samples": 5
         },
         "frontmatter CLI (subprocess)": {
-          "mean_ms": 802,
-          "stddev_ms": 31,
-          "min_ms": 777,
-          "max_ms": 861,
+          "mean_ms": 441,
+          "stddev_ms": 4,
+          "min_ms": 436,
+          "max_ms": 448,
           "samples": 5
         },
         "FRONTMATTER_SCHEMAS": {
@@ -6669,10 +6921,10 @@
           "samples": 5
         },
         "full script run against real project": {
-          "mean_ms": 503,
-          "stddev_ms": 5,
-          "min_ms": 498,
-          "max_ms": 512,
+          "mean_ms": 358,
+          "stddev_ms": 4,
+          "min_ms": 354,
+          "max_ms": 364,
           "samples": 5
         },
         "generateCredits": {
@@ -6697,24 +6949,24 @@
           "samples": 5
         },
         "getArchivedPhaseDirs()": {
-          "mean_ms": 15,
-          "stddev_ms": 2,
-          "min_ms": 14,
-          "max_ms": 19,
+          "mean_ms": 12,
+          "stddev_ms": 1,
+          "min_ms": 12,
+          "max_ms": 14,
           "samples": 5
         },
         "getCommitsInRange": {
-          "mean_ms": 1358,
-          "stddev_ms": 121,
-          "min_ms": 1172,
-          "max_ms": 1554,
+          "mean_ms": 1449,
+          "stddev_ms": 32,
+          "min_ms": 1401,
+          "max_ms": 1485,
           "samples": 5
         },
         "getConfigPath()": {
-          "mean_ms": 3,
-          "stddev_ms": 0,
+          "mean_ms": 5,
+          "stddev_ms": 2,
           "min_ms": 3,
-          "max_ms": 3,
+          "max_ms": 7,
           "samples": 5
         },
         "getConfigValue()": {
@@ -6732,31 +6984,31 @@
           "samples": 5
         },
         "getFilesForCommit": {
-          "mean_ms": 979,
-          "stddev_ms": 71,
-          "min_ms": 863,
-          "max_ms": 1081,
+          "mean_ms": 1059,
+          "stddev_ms": 43,
+          "min_ms": 1029,
+          "max_ms": 1142,
           "samples": 5
         },
         "getMilestoneInfo()": {
-          "mean_ms": 11,
-          "stddev_ms": 1,
-          "min_ms": 10,
-          "max_ms": 13,
+          "mean_ms": 9,
+          "stddev_ms": 2,
+          "min_ms": 7,
+          "max_ms": 12,
           "samples": 5
         },
         "getOverrideImpact() delegation": {
-          "mean_ms": 6,
-          "stddev_ms": 1,
-          "min_ms": 6,
-          "max_ms": 8,
+          "mean_ms": 5,
+          "stddev_ms": 0,
+          "min_ms": 5,
+          "max_ms": 6,
           "samples": 5
         },
         "getRoadmapPhaseInternal()": {
-          "mean_ms": 14,
-          "stddev_ms": 3,
-          "min_ms": 12,
-          "max_ms": 19,
+          "mean_ms": 10,
+          "stddev_ms": 2,
+          "min_ms": 8,
+          "max_ms": 12,
           "samples": 5
         },
         "getTheme()": {
@@ -6795,10 +7047,10 @@
           "samples": 5
         },
         "git detection": {
-          "mean_ms": 351,
-          "stddev_ms": 27,
-          "min_ms": 336,
-          "max_ms": 406,
+          "mean_ms": 386,
+          "stddev_ms": 13,
+          "min_ms": 375,
+          "max_ms": 411,
           "samples": 5
         },
         "gsdHome()": {
@@ -6832,15 +7084,15 @@
         "hash extraction": {
           "mean_ms": 4,
           "stddev_ms": 0,
-          "min_ms": 4,
+          "min_ms": 3,
           "max_ms": 4,
           "samples": 5
         },
         "history-digest command": {
-          "mean_ms": 600,
-          "stddev_ms": 45,
-          "min_ms": 572,
-          "max_ms": 690,
+          "mean_ms": 360,
+          "stddev_ms": 12,
+          "min_ms": 351,
+          "max_ms": 382,
           "samples": 5
         },
         "hooks/dist build verification": {
@@ -6851,108 +7103,108 @@
           "samples": 5
         },
         "hooks/dist/gsd-check-update.js (bundled)": {
-          "mean_ms": 475,
-          "stddev_ms": 176,
-          "min_ms": 352,
-          "max_ms": 807,
+          "mean_ms": 252,
+          "stddev_ms": 14,
+          "min_ms": 236,
+          "max_ms": 268,
           "samples": 5
         },
         "hooks/dist/gsd-statusline.js (bundled)": {
-          "mean_ms": 828,
-          "stddev_ms": 138,
-          "min_ms": 707,
-          "max_ms": 1097,
+          "mean_ms": 390,
+          "stddev_ms": 15,
+          "min_ms": 377,
+          "max_ms": 418,
           "samples": 5
         },
         "hooks/dist/pre-compact.js (bundled)": {
-          "mean_ms": 344,
-          "stddev_ms": 23,
-          "min_ms": 318,
-          "max_ms": 387,
+          "mean_ms": 186,
+          "stddev_ms": 9,
+          "min_ms": 178,
+          "max_ms": 203,
           "samples": 5
         },
         "hooks/index.js manifest (invariants)": {
+          "mean_ms": 1,
+          "stddev_ms": 1,
+          "min_ms": 0,
+          "max_ms": 2,
+          "samples": 5
+        },
+        "hooks/pre-compact.js": {
+          "mean_ms": 341,
+          "stddev_ms": 22,
+          "min_ms": 322,
+          "max_ms": 383,
+          "samples": 5
+        },
+        "init commands": {
+          "mean_ms": 843,
+          "stddev_ms": 14,
+          "min_ms": 828,
+          "max_ms": 861,
+          "samples": 5
+        },
+        "INST-01: subprocess delegation": {
+          "mean_ms": 3093,
+          "stddev_ms": 160,
+          "min_ms": 2941,
+          "max_ms": 3398,
+          "samples": 5
+        },
+        "INST-02: overlay files copied": {
+          "mean_ms": 2895,
+          "stddev_ms": 153,
+          "min_ms": 2711,
+          "max_ms": 3073,
+          "samples": 5
+        },
+        "INST-03: .install-meta.json written": {
+          "mean_ms": 2909,
+          "stddev_ms": 126,
+          "min_ms": 2672,
+          "max_ms": 3019,
+          "samples": 5
+        },
+        "INST-04: --uninstall": {
+          "mean_ms": 3038,
+          "stddev_ms": 134,
+          "min_ms": 2939,
+          "max_ms": 3301,
+          "samples": 5
+        },
+        "INST-05: v2.x detection": {
+          "mean_ms": 4086,
+          "stddev_ms": 126,
+          "min_ms": 3947,
+          "max_ms": 4298,
+          "samples": 5
+        },
+        "INST-05b: negative v2.x detection": {
+          "mean_ms": 2871,
+          "stddev_ms": 84,
+          "min_ms": 2801,
+          "max_ms": 3027,
+          "samples": 5
+        },
+        "INST-05c: safety guard (isSafeToClean)": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
           "max_ms": 0,
           "samples": 5
         },
-        "hooks/pre-compact.js": {
-          "mean_ms": 556,
-          "stddev_ms": 12,
-          "min_ms": 544,
-          "max_ms": 580,
-          "samples": 5
-        },
-        "init commands": {
-          "mean_ms": 1444,
-          "stddev_ms": 77,
-          "min_ms": 1373,
-          "max_ms": 1584,
-          "samples": 5
-        },
-        "INST-01: subprocess delegation": {
-          "mean_ms": 3990,
-          "stddev_ms": 912,
-          "min_ms": 3208,
-          "max_ms": 5729,
-          "samples": 5
-        },
-        "INST-02: overlay files copied": {
-          "mean_ms": 5281,
-          "stddev_ms": 3289,
-          "min_ms": 3090,
-          "max_ms": 11804,
-          "samples": 5
-        },
-        "INST-03: .install-meta.json written": {
-          "mean_ms": 3611,
-          "stddev_ms": 624,
-          "min_ms": 3020,
-          "max_ms": 4787,
-          "samples": 5
-        },
-        "INST-04: --uninstall": {
-          "mean_ms": 3394,
-          "stddev_ms": 366,
-          "min_ms": 2942,
-          "max_ms": 3957,
-          "samples": 5
-        },
-        "INST-05: v2.x detection": {
-          "mean_ms": 4399,
-          "stddev_ms": 670,
-          "min_ms": 3733,
-          "max_ms": 5630,
-          "samples": 5
-        },
-        "INST-05b: negative v2.x detection": {
-          "mean_ms": 3051,
-          "stddev_ms": 567,
-          "min_ms": 2536,
-          "max_ms": 4087,
-          "samples": 5
-        },
-        "INST-05c: safety guard (isSafeToClean)": {
-          "mean_ms": 1,
-          "stddev_ms": 1,
-          "min_ms": 0,
-          "max_ms": 3,
-          "samples": 5
-        },
         "installCodexConfig": {
-          "mean_ms": 6,
-          "stddev_ms": 0,
+          "mean_ms": 12,
+          "stddev_ms": 11,
           "min_ms": 6,
-          "max_ms": 7,
+          "max_ms": 34,
           "samples": 5
         },
         "integration: real upstream install.js branding": {
-          "mean_ms": 1,
-          "stddev_ms": 0,
+          "mean_ms": 2,
+          "stddev_ms": 1,
           "min_ms": 1,
-          "max_ms": 1,
+          "max_ms": 3,
           "samples": 5
         },
         "isAbsolute()": {
@@ -6977,10 +7229,10 @@
           "samples": 5
         },
         "isGitIgnored()": {
-          "mean_ms": 924,
-          "stddev_ms": 824,
-          "min_ms": 458,
-          "max_ms": 2566,
+          "mean_ms": 537,
+          "stddev_ms": 15,
+          "min_ms": 525,
+          "max_ms": 567,
           "samples": 5
         },
         "isSafeToClean": {
@@ -7005,17 +7257,17 @@
           "samples": 5
         },
         "letter-suffix phase sorting": {
-          "mean_ms": 101,
-          "stddev_ms": 3,
-          "min_ms": 98,
-          "max_ms": 105,
+          "mean_ms": 62,
+          "stddev_ms": 1,
+          "min_ms": 61,
+          "max_ms": 64,
           "samples": 5
         },
         "loadConfig()": {
-          "mean_ms": 26,
-          "stddev_ms": 1,
-          "min_ms": 25,
-          "max_ms": 27,
+          "mean_ms": 95,
+          "stddev_ms": 139,
+          "min_ms": 17,
+          "max_ms": 373,
           "samples": 5
         },
         "loadKnownAuthors": {
@@ -7026,10 +7278,10 @@
           "samples": 5
         },
         "loadProtectedPaths": {
-          "mean_ms": 10,
-          "stddev_ms": 1,
+          "mean_ms": 9,
+          "stddev_ms": 0,
           "min_ms": 9,
-          "max_ms": 13,
+          "max_ms": 10,
           "samples": 5
         },
         "loadProtectedPaths flat sections": {
@@ -7047,31 +7299,31 @@
           "samples": 5
         },
         "merge()": {
-          "mean_ms": 51,
-          "stddev_ms": 66,
-          "min_ms": 16,
-          "max_ms": 183,
+          "mean_ms": 18,
+          "stddev_ms": 1,
+          "min_ms": 17,
+          "max_ms": 19,
           "samples": 5
         },
         "milestone complete command": {
-          "mean_ms": 209,
-          "stddev_ms": 13,
-          "min_ms": 199,
-          "max_ms": 233,
+          "mean_ms": 134,
+          "stddev_ms": 8,
+          "min_ms": 126,
+          "max_ms": 149,
           "samples": 5
         },
         "missing REASON.md": {
-          "mean_ms": 17,
-          "stddev_ms": 2,
+          "mean_ms": 16,
+          "stddev_ms": 0,
           "min_ms": 16,
-          "max_ms": 21,
+          "max_ms": 17,
           "samples": 5
         },
         "mixed results": {
           "mean_ms": 16,
-          "stddev_ms": 1,
+          "stddev_ms": 2,
           "min_ms": 15,
-          "max_ms": 17,
+          "max_ms": 20,
           "samples": 5
         },
         "MODEL_PROFILES": {
@@ -7091,15 +7343,15 @@
         "no boundary violations": {
           "mean_ms": 7,
           "stddev_ms": 1,
-          "min_ms": 7,
-          "max_ms": 9,
+          "min_ms": 6,
+          "max_ms": 8,
           "samples": 5
         },
         "Node.js version": {
-          "mean_ms": 459,
-          "stddev_ms": 18,
-          "min_ms": 446,
-          "max_ms": 495,
+          "mean_ms": 513,
+          "stddev_ms": 16,
+          "min_ms": 503,
+          "max_ms": 544,
           "samples": 5
         },
         "normalisePlatform": {
@@ -7124,52 +7376,52 @@
           "samples": 5
         },
         "orphan REASON.md": {
-          "mean_ms": 5,
+          "mean_ms": 4,
           "stddev_ms": 0,
           "min_ms": 4,
           "max_ms": 5,
           "samples": 5
         },
         "OS detection": {
-          "mean_ms": 229,
+          "mean_ms": 258,
           "stddev_ms": 10,
-          "min_ms": 223,
-          "max_ms": 249,
+          "min_ms": 250,
+          "max_ms": 277,
           "samples": 5
         },
         "OSV triage CLI": {
-          "mean_ms": 75,
-          "stddev_ms": 8,
-          "min_ms": 66,
-          "max_ms": 88,
+          "mean_ms": 38,
+          "stddev_ms": 1,
+          "min_ms": 37,
+          "max_ms": 39,
           "samples": 5
         },
         "OSV triage normalization": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "output()": {
-          "mean_ms": 675,
-          "stddev_ms": 46,
-          "min_ms": 641,
-          "max_ms": 763,
+          "mean_ms": 381,
+          "stddev_ms": 8,
+          "min_ms": 369,
+          "max_ms": 390,
           "samples": 5
         },
         "output() in-process coverage": {
-          "mean_ms": 1,
+          "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
           "max_ms": 1,
           "samples": 5
         },
         "overlay/hooks/gsd-check-update.js (maintainer path)": {
-          "mean_ms": 6566,
-          "stddev_ms": 4191,
-          "min_ms": 4037,
-          "max_ms": 14933,
+          "mean_ms": 4628,
+          "stddev_ms": 132,
+          "min_ms": 4538,
+          "max_ms": 4891,
           "samples": 5
         },
         "overlay/hooks/gsd-check-update.js (timeout and paths)": {
@@ -7180,10 +7432,10 @@
           "samples": 5
         },
         "overlay/hooks/gsd-statusline.js (maintainer notification)": {
-          "mean_ms": 1309,
-          "stddev_ms": 35,
-          "min_ms": 1281,
-          "max_ms": 1377,
+          "mean_ms": 1901,
+          "stddev_ms": 83,
+          "min_ms": 1825,
+          "max_ms": 2029,
           "samples": 5
         },
         "overlay/hooks/gsd-statusline.js (timeout and paths)": {
@@ -7196,7 +7448,7 @@
         "override with no manifest match": {
           "mean_ms": 4,
           "stddev_ms": 0,
-          "min_ms": 4,
+          "min_ms": 3,
           "max_ms": 4,
           "samples": 5
         },
@@ -7215,38 +7467,45 @@
           "samples": 5
         },
         "override() file replacement (OVER-01)": {
-          "mean_ms": 144,
-          "stddev_ms": 10,
-          "min_ms": 135,
-          "max_ms": 156,
+          "mean_ms": 172,
+          "stddev_ms": 21,
+          "min_ms": 148,
+          "max_ms": 207,
           "samples": 5
         },
         "override() REASON.md enforcement (OVER-02)": {
-          "mean_ms": 108,
-          "stddev_ms": 15,
-          "min_ms": 95,
-          "max_ms": 133,
+          "mean_ms": 100,
+          "stddev_ms": 4,
+          "min_ms": 96,
+          "max_ms": 108,
           "samples": 5
         },
         "override() zero overrides day one (OVER-04)": {
-          "mean_ms": 52,
-          "stddev_ms": 6,
-          "min_ms": 46,
-          "max_ms": 60,
+          "mean_ms": 48,
+          "stddev_ms": 2,
+          "min_ms": 45,
+          "max_ms": 51,
           "samples": 5
         },
         "overrides/hooks/gsd-check-update.js": {
-          "mean_ms": 2987,
-          "stddev_ms": 1040,
-          "min_ms": 2380,
-          "max_ms": 5063,
+          "mean_ms": 1217,
+          "stddev_ms": 39,
+          "min_ms": 1175,
+          "max_ms": 1289,
           "samples": 5
         },
         "overrides/hooks/gsd-statusline.js": {
-          "mean_ms": 916,
-          "stddev_ms": 20,
-          "min_ms": 899,
-          "max_ms": 954,
+          "mean_ms": 1426,
+          "stddev_ms": 165,
+          "min_ms": 1288,
+          "max_ms": 1745,
+          "samples": 5
+        },
+        "oversight trigger contract": {
+          "mean_ms": 40,
+          "stddev_ms": 1,
+          "min_ms": 39,
+          "max_ms": 42,
           "samples": 5
         },
         "package.json files array": {
@@ -7271,17 +7530,17 @@
           "samples": 5
         },
         "patchStatusLine": {
-          "mean_ms": 42,
-          "stddev_ms": 30,
-          "min_ms": 15,
-          "max_ms": 88,
+          "mean_ms": 12,
+          "stddev_ms": 2,
+          "min_ms": 11,
+          "max_ms": 16,
           "samples": 5
         },
         "path containment (traversal rejection)": {
-          "mean_ms": 46,
-          "stddev_ms": 36,
-          "min_ms": 22,
-          "max_ms": 116,
+          "mean_ms": 23,
+          "stddev_ms": 1,
+          "min_ms": 21,
+          "max_ms": 25,
           "samples": 5
         },
         "path normalization": {
@@ -7299,73 +7558,115 @@
           "samples": 5
         },
         "pathExistsInternal()": {
-          "mean_ms": 3,
-          "stddev_ms": 0,
-          "min_ms": 2,
+          "mean_ms": 2,
+          "stddev_ms": 1,
+          "min_ms": 1,
           "max_ms": 3,
           "samples": 5
         },
         "perf-baseline schema": {
-          "mean_ms": 76,
-          "stddev_ms": 6,
-          "min_ms": 71,
-          "max_ms": 88,
+          "mean_ms": 134,
+          "stddev_ms": 8,
+          "min_ms": 128,
+          "max_ms": 150,
           "samples": 5
         },
         "Phase 29: Prototype Gate": {
-          "mean_ms": 10958,
-          "stddev_ms": 5034,
-          "min_ms": 7434,
-          "max_ms": 20853,
+          "mean_ms": 8616,
+          "stddev_ms": 289,
+          "min_ms": 8114,
+          "max_ms": 9008,
+          "samples": 5
+        },
+        "Phase 41 validation workflows": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 cousin install workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 docs gate package contract": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 docs gates workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 oversight probes workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
+          "samples": 5
+        },
+        "Phase 42 perf budget workflow": {
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "phase add command": {
-          "mean_ms": 294,
-          "stddev_ms": 14,
-          "min_ms": 283,
-          "max_ms": 321,
+          "mean_ms": 176,
+          "stddev_ms": 8,
+          "min_ms": 168,
+          "max_ms": 192,
           "samples": 5
         },
         "phase complete command": {
-          "mean_ms": 713,
-          "stddev_ms": 28,
-          "min_ms": 690,
-          "max_ms": 766,
+          "mean_ms": 436,
+          "stddev_ms": 12,
+          "min_ms": 426,
+          "max_ms": 457,
           "samples": 5
         },
         "phase insert command": {
-          "mean_ms": 594,
-          "stddev_ms": 31,
-          "min_ms": 573,
-          "max_ms": 655,
+          "mean_ms": 359,
+          "stddev_ms": 21,
+          "min_ms": 345,
+          "max_ms": 401,
           "samples": 5
         },
         "phase next-decimal command": {
-          "mean_ms": 488,
-          "stddev_ms": 24,
-          "min_ms": 471,
-          "max_ms": 535,
+          "mean_ms": 290,
+          "stddev_ms": 6,
+          "min_ms": 285,
+          "max_ms": 302,
           "samples": 5
         },
         "phase remove command": {
-          "mean_ms": 519,
-          "stddev_ms": 15,
-          "min_ms": 498,
-          "max_ms": 543,
+          "mean_ms": 322,
+          "stddev_ms": 22,
+          "min_ms": 307,
+          "max_ms": 366,
           "samples": 5
         },
         "phase-plan-index command": {
-          "mean_ms": 587,
-          "stddev_ms": 25,
-          "min_ms": 569,
-          "max_ms": 634,
+          "mean_ms": 350,
+          "stddev_ms": 6,
+          "min_ms": 342,
+          "max_ms": 357,
           "samples": 5
         },
         "phases list command": {
-          "mean_ms": 597,
-          "stddev_ms": 31,
-          "min_ms": 571,
-          "max_ms": 653,
+          "mean_ms": 354,
+          "stddev_ms": 8,
+          "min_ms": 348,
+          "max_ms": 369,
           "samples": 5
         },
         "pipeline stage exports (COMP-10)": {
@@ -7390,10 +7691,10 @@
           "samples": 5
         },
         "pre-push hook": {
-          "mean_ms": 0,
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 1,
+          "max_ms": 2,
           "samples": 5
         },
         "primitives": {
@@ -7404,10 +7705,10 @@
           "samples": 5
         },
         "progress command": {
-          "mean_ms": 585,
-          "stddev_ms": 18,
-          "min_ms": 571,
-          "max_ms": 621,
+          "mean_ms": 368,
+          "stddev_ms": 5,
+          "min_ms": 360,
+          "max_ms": 373,
           "samples": 5
         },
         "Read-only safety": {
@@ -7432,10 +7733,10 @@
           "samples": 5
         },
         "readUpstreamVersion fallback": {
-          "mean_ms": 4,
-          "stddev_ms": 1,
+          "mean_ms": 3,
+          "stddev_ms": 0,
           "min_ms": 3,
-          "max_ms": 5,
+          "max_ms": 3,
           "samples": 5
         },
         "real .planning/config.json": {
@@ -7495,10 +7796,10 @@
           "samples": 5
         },
         "REL-03 source scanning": {
-          "mean_ms": 5,
+          "mean_ms": 4,
           "stddev_ms": 0,
-          "min_ms": 5,
-          "max_ms": 6,
+          "min_ms": 4,
+          "max_ms": 5,
           "samples": 5
         },
         "relative()": {
@@ -7509,10 +7810,10 @@
           "samples": 5
         },
         "removeGsdFiles": {
-          "mean_ms": 212,
-          "stddev_ms": 113,
-          "min_ms": 71,
-          "max_ms": 349,
+          "mean_ms": 79,
+          "stddev_ms": 20,
+          "min_ms": 62,
+          "max_ms": 114,
           "samples": 5
         },
         "render()": {
@@ -7523,37 +7824,37 @@
           "samples": 5
         },
         "requireValid()": {
-          "mean_ms": 67,
-          "stddev_ms": 6,
-          "min_ms": 63,
-          "max_ms": 78,
+          "mean_ms": 40,
+          "stddev_ms": 1,
+          "min_ms": 38,
+          "max_ms": 41,
           "samples": 5
         },
         "resolve()": {
-          "mean_ms": 306,
-          "stddev_ms": 76,
-          "min_ms": 249,
-          "max_ms": 452,
+          "mean_ms": 274,
+          "stddev_ms": 22,
+          "min_ms": 258,
+          "max_ms": 317,
           "samples": 5
         },
         "resolve() additional error paths": {
-          "mean_ms": 121,
-          "stddev_ms": 11,
-          "min_ms": 108,
-          "max_ms": 141,
+          "mean_ms": 118,
+          "stddev_ms": 8,
+          "min_ms": 111,
+          "max_ms": 133,
           "samples": 5
         },
         "resolve() error paths": {
-          "mean_ms": 17,
-          "stddev_ms": 3,
-          "min_ms": 14,
-          "max_ms": 22,
+          "mean_ms": 16,
+          "stddev_ms": 0,
+          "min_ms": 16,
+          "max_ms": 17,
           "samples": 5
         },
         "resolveModelInternal()": {
-          "mean_ms": 15,
-          "stddev_ms": 2,
-          "min_ms": 14,
+          "mean_ms": 13,
+          "stddev_ms": 4,
+          "min_ms": 9,
           "max_ms": 20,
           "samples": 5
         },
@@ -7565,31 +7866,31 @@
           "samples": 5
         },
         "return shape and caching": {
-          "mean_ms": 459,
-          "stddev_ms": 14,
-          "min_ms": 449,
-          "max_ms": 487,
+          "mean_ms": 519,
+          "stddev_ms": 9,
+          "min_ms": 509,
+          "max_ms": 535,
           "samples": 5
         },
         "roadmap analyze command": {
-          "mean_ms": 490,
-          "stddev_ms": 14,
-          "min_ms": 479,
-          "max_ms": 516,
+          "mean_ms": 301,
+          "stddev_ms": 9,
+          "min_ms": 288,
+          "max_ms": 313,
           "samples": 5
         },
         "roadmap get-phase command": {
-          "mean_ms": 692,
-          "stddev_ms": 4,
-          "min_ms": 684,
-          "max_ms": 696,
+          "mean_ms": 413,
+          "stddev_ms": 17,
+          "min_ms": 394,
+          "max_ms": 436,
           "samples": 5
         },
         "roadmap update-plan-progress command": {
-          "mean_ms": 99,
-          "stddev_ms": 1,
-          "min_ms": 98,
-          "max_ms": 102,
+          "mean_ms": 60,
+          "stddev_ms": 3,
+          "min_ms": 57,
+          "max_ms": 65,
           "samples": 5
         },
         "run-upstream-compat output parsing": {
@@ -7607,24 +7908,24 @@
           "samples": 5
         },
         "run-upstream-compat-ci": {
-          "mean_ms": 2,
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 2,
+          "min_ms": 1,
           "max_ms": 2,
           "samples": 5
         },
         "runCLI": {
-          "mean_ms": 1310,
-          "stddev_ms": 66,
-          "min_ms": 1238,
-          "max_ms": 1430,
+          "mean_ms": 1397,
+          "stddev_ms": 48,
+          "min_ms": 1336,
+          "max_ms": 1473,
           "samples": 5
         },
         "runCLI structured result": {
-          "mean_ms": 651,
-          "stddev_ms": 36,
-          "min_ms": 622,
-          "max_ms": 718,
+          "mean_ms": 703,
+          "stddev_ms": 29,
+          "min_ms": 662,
+          "max_ms": 751,
           "samples": 5
         },
         "runFallbackChecks": {
@@ -7642,24 +7943,24 @@
           "samples": 5
         },
         "runPreviewScan default file list coverage": {
-          "mean_ms": 10,
-          "stddev_ms": 5,
-          "min_ms": 1,
-          "max_ms": 14,
+          "mean_ms": 0,
+          "stddev_ms": 0,
+          "min_ms": 0,
+          "max_ms": 0,
           "samples": 5
         },
         "runPreviewScan() fallback path": {
-          "mean_ms": 4,
-          "stddev_ms": 2,
-          "min_ms": 3,
-          "max_ms": 8,
+          "mean_ms": 3,
+          "stddev_ms": 4,
+          "min_ms": 1,
+          "max_ms": 11,
           "samples": 5
         },
         "runPreviewScan() with explicit file list": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "runSupplyChainChecks": {
@@ -7669,25 +7970,32 @@
           "max_ms": 0,
           "samples": 5
         },
+        "runtime package provenance output": {
+          "mean_ms": 254,
+          "stddev_ms": 7,
+          "min_ms": 247,
+          "max_ms": 264,
+          "samples": 5
+        },
         "safeReadFile()": {
-          "mean_ms": 1,
-          "stddev_ms": 0,
+          "mean_ms": 2,
+          "stddev_ms": 2,
           "min_ms": 1,
-          "max_ms": 1,
+          "max_ms": 5,
           "samples": 5
         },
         "saveKnownAuthors": {
-          "mean_ms": 5,
+          "mean_ms": 4,
           "stddev_ms": 0,
           "min_ms": 4,
           "max_ms": 5,
           "samples": 5
         },
         "scaffold command": {
-          "mean_ms": 483,
-          "stddev_ms": 8,
-          "min_ms": 473,
-          "max_ms": 497,
+          "mean_ms": 294,
+          "stddev_ms": 7,
+          "min_ms": 288,
+          "max_ms": 309,
           "samples": 5
         },
         "schema-config parity": {
@@ -7698,24 +8006,24 @@
           "samples": 5
         },
         "searchPhaseInDir()": {
-          "mean_ms": 19,
+          "mean_ms": 16,
           "stddev_ms": 1,
-          "min_ms": 18,
-          "max_ms": 21,
+          "min_ms": 14,
+          "max_ms": 18,
           "samples": 5
         },
         "seedKnownAuthors": {
-          "mean_ms": 681,
-          "stddev_ms": 75,
-          "min_ms": 592,
-          "max_ms": 792,
+          "mean_ms": 676,
+          "stddev_ms": 32,
+          "min_ms": 652,
+          "max_ms": 735,
           "samples": 5
         },
         "seedKnownAuthors edge cases": {
-          "mean_ms": 31,
-          "stddev_ms": 3,
-          "min_ms": 28,
-          "max_ms": 36,
+          "mean_ms": 32,
+          "stddev_ms": 1,
+          "min_ms": 31,
+          "max_ms": 33,
           "samples": 5
         },
         "semantic": {
@@ -7726,10 +8034,10 @@
           "samples": 5
         },
         "shell detection": {
-          "mean_ms": 573,
-          "stddev_ms": 24,
-          "min_ms": 559,
-          "max_ms": 620,
+          "mean_ms": 644,
+          "stddev_ms": 22,
+          "min_ms": 629,
+          "max_ms": 687,
           "samples": 5
         },
         "shouldBrandFile": {
@@ -7740,10 +8048,10 @@
           "samples": 5
         },
         "SKIP_CONFIG_VALIDATION escape hatch": {
-          "mean_ms": 123,
-          "stddev_ms": 1,
-          "min_ms": 122,
-          "max_ms": 125,
+          "mean_ms": 69,
+          "stddev_ms": 3,
+          "min_ms": 66,
+          "max_ms": 75,
           "samples": 5
         },
         "sortSubstitutions": {
@@ -7761,24 +8069,24 @@
           "samples": 5
         },
         "stale override": {
-          "mean_ms": 20,
-          "stddev_ms": 0,
-          "min_ms": 20,
-          "max_ms": 20,
+          "mean_ms": 17,
+          "stddev_ms": 2,
+          "min_ms": 16,
+          "max_ms": 21,
           "samples": 5
         },
         "state mutation commands": {
-          "mean_ms": 477,
-          "stddev_ms": 6,
-          "min_ms": 470,
-          "max_ms": 486,
+          "mean_ms": 279,
+          "stddev_ms": 5,
+          "min_ms": 273,
+          "max_ms": 288,
           "samples": 5
         },
         "state-snapshot command": {
-          "mean_ms": 765,
-          "stddev_ms": 14,
-          "min_ms": 752,
-          "max_ms": 790,
+          "mean_ms": 461,
+          "stddev_ms": 6,
+          "min_ms": 455,
+          "max_ms": 472,
           "samples": 5
         },
         "static methods": {
@@ -7803,17 +8111,17 @@
           "samples": 5
         },
         "subprocess timeout helpers": {
-          "mean_ms": 330,
-          "stddev_ms": 8,
-          "min_ms": 318,
-          "max_ms": 340,
+          "mean_ms": 210,
+          "stddev_ms": 4,
+          "min_ms": 207,
+          "max_ms": 217,
           "samples": 5
         },
         "summary-extract command": {
-          "mean_ms": 477,
-          "stddev_ms": 8,
-          "min_ms": 467,
-          "max_ms": 488,
+          "mean_ms": 290,
+          "stddev_ms": 14,
+          "min_ms": 278,
+          "max_ms": 317,
           "samples": 5
         },
         "supports256Color()": {
@@ -7831,45 +8139,45 @@
           "samples": 5
         },
         "sync-checkpoint command": {
-          "mean_ms": 3528,
-          "stddev_ms": 550,
-          "min_ms": 2948,
-          "max_ms": 4557,
+          "mean_ms": 3002,
+          "stddev_ms": 114,
+          "min_ms": 2927,
+          "max_ms": 3228,
           "samples": 5
         },
         "sync-preview command": {
-          "mean_ms": 3504,
-          "stddev_ms": 488,
-          "min_ms": 3009,
-          "max_ms": 4434,
+          "mean_ms": 3328,
+          "stddev_ms": 116,
+          "min_ms": 3202,
+          "max_ms": 3506,
           "samples": 5
         },
         "sync-preview selective filtering CLI": {
-          "mean_ms": 4326,
-          "stddev_ms": 602,
-          "min_ms": 3546,
-          "max_ms": 5395,
+          "mean_ms": 4092,
+          "stddev_ms": 128,
+          "min_ms": 3993,
+          "max_ms": 4337,
           "samples": 5
         },
         "sync-preview supply chain integration": {
-          "mean_ms": 1790,
-          "stddev_ms": 508,
-          "min_ms": 1373,
-          "max_ms": 2782,
+          "mean_ms": 1594,
+          "stddev_ms": 77,
+          "min_ms": 1524,
+          "max_ms": 1738,
           "samples": 5
         },
         "system information": {
-          "mean_ms": 346,
-          "stddev_ms": 19,
-          "min_ms": 335,
-          "max_ms": 385,
+          "mean_ms": 386,
+          "stddev_ms": 15,
+          "min_ms": 376,
+          "max_ms": 416,
           "samples": 5
         },
         "template CLI integration": {
-          "mean_ms": 384,
+          "mean_ms": 228,
           "stddev_ms": 3,
-          "min_ms": 380,
-          "max_ms": 388,
+          "min_ms": 223,
+          "max_ms": 232,
           "samples": 5
         },
         "TERM detection": {
@@ -7908,402 +8216,430 @@
           "samples": 5
         },
         "test-config hygiene (meta-test)": {
-          "mean_ms": 38,
-          "stddev_ms": 3,
-          "min_ms": 35,
-          "max_ms": 44,
+          "mean_ms": 44,
+          "stddev_ms": 37,
+          "min_ms": 25,
+          "max_ms": 117,
           "samples": 5
         },
         "test-path-validation (meta-test)": {
-          "mean_ms": 8,
+          "mean_ms": 7,
           "stddev_ms": 0,
-          "min_ms": 8,
-          "max_ms": 9,
+          "min_ms": 7,
+          "max_ms": 8,
           "samples": 5
         },
         "test-timing schema": {
-          "mean_ms": 57,
-          "stddev_ms": 1,
-          "min_ms": 55,
-          "max_ms": 59,
+          "mean_ms": 54,
+          "stddev_ms": 2,
+          "min_ms": 52,
+          "max_ms": 57,
           "samples": 5
         },
         "tests\\audit-check.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 210,
+          "stddev_ms": 59,
+          "min_ms": 166,
+          "max_ms": 322,
           "samples": 5
         },
         "tests\\bench-test-timing.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 14,
+          "stddev_ms": 3,
+          "min_ms": 10,
+          "max_ms": 19,
           "samples": 5
         },
         "tests\\bench.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 12,
+          "stddev_ms": 2,
+          "min_ms": 10,
+          "max_ms": 15,
           "samples": 5
         },
         "tests\\branding.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 37,
+          "stddev_ms": 7,
+          "min_ms": 32,
+          "max_ms": 50,
           "samples": 5
         },
         "tests\\check-boundary-coverage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 19,
+          "stddev_ms": 2,
+          "min_ms": 18,
+          "max_ms": 24,
           "samples": 5
         },
         "tests\\check-boundary.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 252,
+          "stddev_ms": 12,
+          "min_ms": 244,
+          "max_ms": 275,
           "samples": 5
         },
         "tests\\check-debt-ratchet.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 27,
+          "stddev_ms": 10,
+          "min_ms": 21,
+          "max_ms": 47,
           "samples": 5
         },
         "tests\\check-overrides-integration.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 49,
+          "stddev_ms": 3,
+          "min_ms": 47,
+          "max_ms": 56,
           "samples": 5
         },
         "tests\\check-overrides.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 522,
+          "stddev_ms": 16,
+          "min_ms": 503,
+          "max_ms": 549,
+          "samples": 5
+        },
+        "tests\\check-perf.test.js": {
+          "mean_ms": 1654,
+          "stddev_ms": 59,
+          "min_ms": 1599,
+          "max_ms": 1769,
           "samples": 5
         },
         "tests\\ci-workflow.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 7,
+          "stddev_ms": 3,
+          "min_ms": 5,
+          "max_ms": 14,
           "samples": 5
         },
         "tests\\codex-installer.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 1248,
+          "stddev_ms": 94,
+          "min_ms": 1159,
+          "max_ms": 1429,
           "samples": 5
         },
         "tests\\commands.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 1471,
+          "stddev_ms": 73,
+          "min_ms": 1419,
+          "max_ms": 1615,
           "samples": 5
         },
         "tests\\compose.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 5397,
+          "stddev_ms": 219,
+          "min_ms": 5220,
+          "max_ms": 5798,
           "samples": 5
         },
         "tests\\config.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 868,
+          "stddev_ms": 127,
+          "min_ms": 769,
+          "max_ms": 1114,
           "samples": 5
         },
         "tests\\config.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 52,
+          "stddev_ms": 12,
+          "min_ms": 43,
+          "max_ms": 76,
           "samples": 5
         },
         "tests\\core.test.cjs": {
-          "mean_ms": 0,
+          "mean_ms": 3206,
+          "stddev_ms": 272,
+          "min_ms": 2982,
+          "max_ms": 3648,
+          "samples": 5
+        },
+        "tests\\cousin-smoke.test.js": {
+          "mean_ms": 67,
+          "stddev_ms": 38,
+          "min_ms": 43,
+          "max_ms": 141,
+          "samples": 5
+        },
+        "tests\\docs-gates.test.js": {
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 1,
+          "max_ms": 1,
           "samples": 5
         },
         "tests\\flake-triage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 14,
+          "stddev_ms": 4,
+          "min_ms": 11,
+          "max_ms": 20,
           "samples": 5
         },
         "tests\\frontmatter.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 534,
+          "stddev_ms": 15,
+          "min_ms": 518,
+          "max_ms": 553,
           "samples": 5
         },
         "tests\\gsd-tools.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 2012,
+          "stddev_ms": 150,
+          "min_ms": 1913,
+          "max_ms": 2307,
           "samples": 5
         },
         "tests\\hooks-manifest.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 5,
+          "stddev_ms": 2,
+          "min_ms": 4,
+          "max_ms": 9,
           "samples": 5
         },
         "tests\\hooks.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 19719,
+          "stddev_ms": 350,
+          "min_ms": 19308,
+          "max_ms": 20257,
           "samples": 5
         },
         "tests\\init.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 857,
+          "stddev_ms": 16,
+          "min_ms": 840,
+          "max_ms": 881,
           "samples": 5
         },
         "tests\\installer-exports.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 34,
+          "stddev_ms": 4,
+          "min_ms": 31,
+          "max_ms": 41,
           "samples": 5
         },
         "tests\\installer-safety.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 195,
+          "stddev_ms": 18,
+          "min_ms": 173,
+          "max_ms": 221,
           "samples": 5
         },
         "tests\\installer-v3.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 19891,
+          "stddev_ms": 451,
+          "min_ms": 19361,
+          "max_ms": 20606,
           "samples": 5
         },
         "tests\\launcher.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 19,
+          "stddev_ms": 2,
+          "min_ms": 18,
+          "max_ms": 23,
           "samples": 5
         },
         "tests\\milestone.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 135,
+          "stddev_ms": 8,
+          "min_ms": 128,
+          "max_ms": 151,
           "samples": 5
         },
         "tests\\osv-triage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 43,
+          "stddev_ms": 3,
+          "min_ms": 40,
+          "max_ms": 49,
           "samples": 5
         },
         "tests\\package-launcher-v3.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 410,
+          "stddev_ms": 20,
+          "min_ms": 389,
+          "max_ms": 441,
           "samples": 5
         },
         "tests\\perf-baseline-schema.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 139,
+          "stddev_ms": 9,
+          "min_ms": 132,
+          "max_ms": 155,
           "samples": 5
         },
         "tests\\phase.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 2376,
+          "stddev_ms": 83,
+          "min_ms": 2321,
+          "max_ms": 2541,
           "samples": 5
         },
         "tests\\platform-internal.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 689,
+          "stddev_ms": 33,
+          "min_ms": 670,
+          "max_ms": 755,
           "samples": 5
         },
         "tests\\platform.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 3530,
+          "stddev_ms": 120,
+          "min_ms": 3465,
+          "max_ms": 3769,
           "samples": 5
         },
         "tests\\pre-push-hook.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 3,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 2,
+          "max_ms": 3,
           "samples": 5
         },
         "tests\\preview-update-coverage.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 4892,
+          "stddev_ms": 1214,
+          "min_ms": 4200,
+          "max_ms": 7317,
           "samples": 5
         },
         "tests\\preview-update.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 21,
+          "stddev_ms": 3,
+          "min_ms": 19,
+          "max_ms": 27,
           "samples": 5
         },
         "tests\\prototype-installer.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 9671,
+          "stddev_ms": 382,
+          "min_ms": 9116,
+          "max_ms": 10309,
           "samples": 5
         },
         "tests\\roadmap.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 786,
+          "stddev_ms": 17,
+          "min_ms": 756,
+          "max_ms": 804,
           "samples": 5
         },
         "tests\\run-upstream-compat-ci.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 3,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 3,
+          "max_ms": 3,
           "samples": 5
         },
         "tests\\run-upstream-compat.test.js": {
-          "mean_ms": 0,
+          "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "min_ms": 1,
+          "max_ms": 1,
           "samples": 5
         },
         "tests\\runtime-overrides.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 900,
+          "stddev_ms": 52,
+          "min_ms": 866,
+          "max_ms": 1003,
           "samples": 5
         },
         "tests\\state.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 752,
+          "stddev_ms": 13,
+          "min_ms": 739,
+          "max_ms": 775,
           "samples": 5
         },
         "tests\\subprocess-with-timeout.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 214,
+          "stddev_ms": 4,
+          "min_ms": 211,
+          "max_ms": 223,
           "samples": 5
         },
         "tests\\sync.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 28795,
+          "stddev_ms": 2188,
+          "min_ms": 27495,
+          "max_ms": 33160,
           "samples": 5
         },
         "tests\\template.test.cjs": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 303,
+          "stddev_ms": 3,
+          "min_ms": 299,
+          "max_ms": 308,
           "samples": 5
         },
         "tests\\test-config-hygiene.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 50,
+          "stddev_ms": 38,
+          "min_ms": 30,
+          "max_ms": 126,
           "samples": 5
         },
         "tests\\test-path-validation.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 10,
+          "stddev_ms": 2,
+          "min_ms": 9,
+          "max_ms": 13,
           "samples": 5
         },
         "tests\\test-timing-schema.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 58,
+          "stddev_ms": 2,
+          "min_ms": 55,
+          "max_ms": 61,
           "samples": 5
         },
         "tests\\theme.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 10,
+          "stddev_ms": 2,
+          "min_ms": 9,
+          "max_ms": 14,
           "samples": 5
         },
         "tests\\upstream-source.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 13,
+          "stddev_ms": 1,
+          "min_ms": 12,
+          "max_ms": 16,
           "samples": 5
         },
         "tests\\validate-configs.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 459,
+          "stddev_ms": 8,
+          "min_ms": 452,
+          "max_ms": 472,
           "samples": 5
         },
         "tests\\validation.test.js": {
-          "mean_ms": 0,
-          "stddev_ms": 0,
-          "min_ms": 0,
-          "max_ms": 0,
+          "mean_ms": 19,
+          "stddev_ms": 2,
+          "min_ms": 17,
+          "max_ms": 24,
+          "samples": 5
+        },
+        "tests\\verify-oversight-probes.test.js": {
+          "mean_ms": 43,
+          "stddev_ms": 1,
+          "min_ms": 42,
+          "max_ms": 45,
           "samples": 5
         },
         "tests\\verify.test.cjs": {
+          "mean_ms": 186,
+          "stddev_ms": 13,
+          "min_ms": 177,
+          "max_ms": 213,
+          "samples": 5
+        },
+        "text decorations": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
           "max_ms": 0,
-          "samples": 5
-        },
-        "text decorations": {
-          "mean_ms": 1,
-          "stddev_ms": 2,
-          "min_ms": 0,
-          "max_ms": 4,
           "samples": 5
         },
         "theme styles are functional": {
@@ -8335,10 +8671,10 @@
           "samples": 5
         },
         "todo complete command": {
-          "mean_ms": 191,
-          "stddev_ms": 5,
-          "min_ms": 186,
-          "max_ms": 200,
+          "mean_ms": 117,
+          "stddev_ms": 7,
+          "min_ms": 112,
+          "max_ms": 130,
           "samples": 5
         },
         "toForwardSlash()": {
@@ -8377,10 +8713,10 @@
           "samples": 5
         },
         "uninstall": {
-          "mean_ms": 103,
-          "stddev_ms": 94,
-          "min_ms": 27,
-          "max_ms": 259,
+          "mean_ms": 28,
+          "stddev_ms": 2,
+          "min_ms": 26,
+          "max_ms": 31,
           "samples": 5
         },
         "unknown shell fallback": {
@@ -8394,21 +8730,21 @@
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 0,
+          "max_ms": 1,
           "samples": 5
         },
         "UPD-02: runPreviewScan()": {
-          "mean_ms": 2,
-          "stddev_ms": 4,
+          "mean_ms": 1,
+          "stddev_ms": 1,
           "min_ms": 0,
-          "max_ms": 11,
+          "max_ms": 3,
           "samples": 5
         },
         "UPD-03: getOverrideImpact()": {
-          "mean_ms": 12,
-          "stddev_ms": 2,
-          "min_ms": 10,
-          "max_ms": 15,
+          "mean_ms": 8,
+          "stddev_ms": 1,
+          "min_ms": 7,
+          "max_ms": 10,
           "samples": 5
         },
         "UPD-04: generateReport()": {
@@ -8419,24 +8755,24 @@
           "samples": 5
         },
         "upstream-source authority helper": {
-          "mean_ms": 6,
+          "mean_ms": 4,
           "stddev_ms": 1,
-          "min_ms": 5,
-          "max_ms": 9,
+          "min_ms": 3,
+          "max_ms": 5,
           "samples": 5
         },
         "v3.0 Delegation Installer": {
           "mean_ms": 0,
           "stddev_ms": 0,
           "min_ms": 0,
-          "max_ms": 1,
+          "max_ms": 0,
           "samples": 5
         },
         "v3.0 launcher imports": {
-          "mean_ms": 199,
-          "stddev_ms": 11,
-          "min_ms": 186,
-          "max_ms": 213,
+          "mean_ms": 151,
+          "stddev_ms": 15,
+          "min_ms": 138,
+          "max_ms": 170,
           "samples": 5
         },
         "v3.0 package configuration": {
@@ -8447,10 +8783,10 @@
           "samples": 5
         },
         "validate consistency command": {
-          "mean_ms": 293,
-          "stddev_ms": 4,
-          "min_ms": 288,
-          "max_ms": 297,
+          "mean_ms": 183,
+          "stddev_ms": 14,
+          "min_ms": 174,
+          "max_ms": 211,
           "samples": 5
         },
         "validate-configs.js script": {
@@ -8512,7 +8848,7 @@
         "validatePlanningConfig": {
           "mean_ms": 1,
           "stddev_ms": 0,
-          "min_ms": 1,
+          "min_ms": 0,
           "max_ms": 1,
           "samples": 5
         },
@@ -8545,10 +8881,10 @@
           "samples": 5
         },
         "validation wiring": {
-          "mean_ms": 281,
-          "stddev_ms": 10,
-          "min_ms": 271,
-          "max_ms": 299,
+          "mean_ms": 263,
+          "stddev_ms": 11,
+          "min_ms": 251,
+          "max_ms": 276,
           "samples": 5
         },
         "version extraction": {
@@ -8560,9 +8896,9 @@
         },
         "walkDir": {
           "mean_ms": 7,
-          "stddev_ms": 1,
+          "stddev_ms": 0,
           "min_ms": 7,
-          "max_ms": 9,
+          "max_ms": 8,
           "samples": 5
         },
         "WSL detection": {
@@ -8574,9 +8910,9 @@
         },
         "zero overrides": {
           "mean_ms": 5,
-          "stddev_ms": 0,
-          "min_ms": 5,
-          "max_ms": 6,
+          "stddev_ms": 2,
+          "min_ms": 4,
+          "max_ms": 10,
           "samples": 5
         },
         "zsh detection on Unix": {

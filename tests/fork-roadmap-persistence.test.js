@@ -308,7 +308,15 @@ describe('fork roadmap atomic publication', () => {
     }
   });
 
-  test('preserves source mode bits across real publication where the platform exposes them', { timeout: 15000 }, () => {
+  // WINDOWS_ACL_TIMEOUT_MS: these two tests spawn real PowerShell processes (Get-Acl/Set-Acl).
+  // A cold PowerShell start costs 1-3s and degrades sharply under concurrent load, because
+  // process creation is the bottleneck on Windows. At the previous 15000 they passed in
+  // isolation and timed out under full-suite load, and 15000 also silently overrode the 30000
+  // Windows headroom that CI passes via `--timeout`, since a per-test option wins over the CLI
+  // flag. This value sits above that headroom rather than below it.
+  const WINDOWS_ACL_TIMEOUT_MS = 60000;
+
+  test('preserves source mode bits across real publication where the platform exposes them', { timeout: WINDOWS_ACL_TIMEOUT_MS }, () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-roadmap-publish-'));
     const filePath = path.join(tempDir, 'ROADMAP.md');
     try {
@@ -828,7 +836,7 @@ describe('fork roadmap atomic publication', () => {
     }
   });
 
-  test('preserves a protected Windows DACL and its exact access SDDL', { timeout: 15000 }, () => {
+  test('preserves a protected Windows DACL and its exact access SDDL', { timeout: WINDOWS_ACL_TIMEOUT_MS }, () => {
     if (process.platform !== 'win32') return;
 
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-roadmap-acl-'));

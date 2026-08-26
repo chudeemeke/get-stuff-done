@@ -1,5 +1,25 @@
 'use strict';
 
+const fs = require('fs');
+
+// process.exit() does not flush pending writes, and on POSIX a stderr pipe is asynchronous.
+// Writing the guidance through process.stderr.write and exiting on the next line therefore
+// races: the message reaches a terminal (unbuffered) but can be truncated when stderr is a
+// pipe, which is exactly how a parent captures it. That surfaced as a macOS-only failure
+// where `bun test` exited 1 in 25ms with no message at all, while Windows and Linux won the
+// race. fs.writeSync bypasses the stream buffer entirely, so the message is on the fd before
+// exit is called on every platform.
+const synchronousStderr = {
+  write(message) {
+    try {
+      fs.writeSync(2, message);
+    } catch {
+      // EPIPE/EBADF: the parent closed stderr. Losing the message is preferable to throwing
+      // out of a preload guard whose job is to fail with a clear exit code.
+    }
+  },
+};
+
 function hasFunctionalTestAuthority(environment) {
   return environment.GSD_BUN_TEST_AUTHORITY === 'functional';
 }
@@ -26,7 +46,7 @@ function runAuthorityGuard(environment, argv, ports) {
 
 if (!hasFunctionalTestAuthority(process.env)) {
   runAuthorityGuard(process.env, process.argv, {
-    stderr: process.stderr,
+    stderr: synchronousStderr,
     process,
   });
 }

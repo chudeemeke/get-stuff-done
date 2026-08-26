@@ -58,6 +58,10 @@ describe('Bun test authority preload', () => {
     const matches = output.match(/bare bun test crosses the Bun\/Node test-authority boundary/g) || [];
 
     expect(result.status).toBe(1);
+    // Assert on the captured text before the count. `toHaveLength` on the match array reports
+    // only "Received length: 0" and hides what bun actually printed, which left a macOS-only
+    // failure undiagnosable from CI logs alone. toContain prints the received output.
+    expect(output).toContain('bare bun test crosses the Bun/Node test-authority boundary');
     expect(matches).toHaveLength(1);
   });
 });

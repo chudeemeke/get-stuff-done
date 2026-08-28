@@ -1652,6 +1652,59 @@ describe('toolchain authority', () => {
     });
   });
 
+  test('governs container images started from run commands', () => {
+    // Issue #47 moved Verdaccio from a services: block to a docker run step so
+    // it can load a repository config; images referenced inside run: scripts
+    // must not silently leave digest-pin enforcement.
+    const digest = 'sha256:bcd0dc5f10d0b9cca5a21b1f4fb3b08c6d90978bc87b8b46402abb271e0d573a';
+    const workflow = '.github/workflows/ci.yml';
+
+    function withRunStep(run) {
+      const document = makeCompliantWorkflow();
+      document.jobs['perf-budget'].steps.push({ name: 'Start container', run });
+      return evaluateToolchainAuthority({
+        manifest: makeManifest(),
+        bunVersion: '1.3.5',
+        workflows: { [workflow]: document },
+        runtimeEvidence: makeRuntimeEvidence(),
+      });
+    }
+
+    const exact = withRunStep(
+      `docker run --detach --name verdaccio --publish 4873:4873 verdaccio/verdaccio@${digest}`
+    );
+    expect(exact).toEqual({ ok: true, diagnostics: [] });
+
+    const bareMention = withRunStep('docker run --detach verdaccio/verdaccio:6');
+    expect(bareMention.diagnostics).toContainEqual({
+      code: 'container_ref_not_pinned',
+      workflow,
+      image: 'verdaccio/verdaccio',
+      expected: `verdaccio/verdaccio@${digest}`,
+      actual: 'verdaccio/verdaccio',
+    });
+
+    const wrongDigest = withRunStep(
+      `docker run verdaccio/verdaccio@sha256:${'a'.repeat(64)}`
+    );
+    expect(wrongDigest.diagnostics).toContainEqual({
+      code: 'container_ref_not_pinned',
+      workflow,
+      image: 'verdaccio/verdaccio',
+      expected: `verdaccio/verdaccio@${digest}`,
+      actual: `verdaccio/verdaccio@sha256:${'a'.repeat(64)}`,
+    });
+
+    const ungoverned = withRunStep(
+      `docker run attacker/image@sha256:${'b'.repeat(64)}`
+    );
+    expect(ungoverned.diagnostics).toContainEqual({
+      code: 'container_not_governed',
+      workflow,
+      image: 'attacker/image',
+    });
+  });
+
   test('rejects performance tools absent from repository authority', () => {
     const manifest = makeManifest();
     const evidence = makeRuntimeEvidence();

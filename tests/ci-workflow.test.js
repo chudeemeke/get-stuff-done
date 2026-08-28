@@ -203,9 +203,13 @@ describe('Phase 43 reproducible workflow toolchains', () => {
     const upgrade = readWorkflow('upgrade-verifier.yml');
     const historical = readWorkflow('perf-baseline.yml');
 
+    // Verdaccio is started by a docker run step (not services:) so it can load
+    // the repository config that disables the npmjs uplink for @chude/* (#47).
     expect(upgrade).toContain(
-      `image: verdaccio/verdaccio@${manifest.containers.pins['verdaccio/verdaccio'].digest}`
+      `verdaccio/verdaccio@${manifest.containers.pins['verdaccio/verdaccio'].digest}`
     );
+    expect(upgrade).not.toContain('services:');
+    expect(upgrade).toContain('.github/verdaccio/config.yaml');
     expect(historical).toContain('node scripts/install-hyperfine.js');
     for (const command of ['apt-get install', 'brew install', 'choco install']) {
       expect(historical).not.toContain(command);

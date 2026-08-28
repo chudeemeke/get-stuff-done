@@ -1,0 +1,51 @@
+# Verdaccio configuration for the Upgrade Verifier workflow.
+#
+# Why this file exists: verdaccio's default configuration proxies scoped
+# packages to the npmjs uplink. @chude/get-stuff-done is genuinely published
+# on npm, so publishing the CURRENT version into a proxying registry fails
+# with E409 Conflict (issue #47). The verifier must be hermetic for the
+# package under test - and stay transparent for everything else, because the
+# temp-project install steps need the package's real dependencies from npmjs.
+#
+# GitHub service containers start before checkout and cannot mount repository
+# files, which is why the workflow starts verdaccio with docker run after
+# checkout instead of a services: block.
+storage: /verdaccio/storage/data
+
+auth:
+  htpasswd:
+    file: /verdaccio/storage/htpasswd
+    # verify-upgrade.js registers a disposable identity via the couchdb user
+    # route; registration must stay enabled.
+    max_users: 100
+
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+
+packages:
+  # First match wins: the package family under test never consults npmjs.
+  '@chude/*':
+    access: $all
+    publish: $authenticated
+
+  '@*/*':
+    access: $all
+    publish: $authenticated
+    proxy: npmjs
+
+  '**':
+    access: $all
+    publish: $authenticated
+    proxy: npmjs
+
+server:
+  keepAliveTimeout: 60
+
+# The workflow maps the port; listen on all container interfaces.
+listen: 0.0.0.0:4873
+
+log:
+  type: stdout
+  format: pretty
+  level: warn

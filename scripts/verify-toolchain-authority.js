@@ -795,7 +795,7 @@ function parseBunVersionAuthority(value) {
 }
 
 function collectWorkflowDependencies(document) {
-  const result = { actionSteps: [], images: [], jobs: [] };
+  const result = { actionSteps: [], images: [], jobs: [], runCommands: [] };
   const jobs =
     document?.jobs && typeof document.jobs === 'object' && !Array.isArray(document.jobs)
       ? Object.entries(document.jobs)
@@ -821,7 +821,10 @@ function collectWorkflowDependencies(document) {
     if (job.services && typeof job.services === 'object' && !Array.isArray(job.services)) {
       for (const service of Object.values(job.services)) addContainer(service);
     }
-    for (const step of steps) addAction(step);
+    for (const step of steps) {
+      addAction(step);
+      if (typeof step.run === 'string') result.runCommands.push(step.run);
+    }
   }
   return result;
 }
@@ -1150,6 +1153,57 @@ function containerRepository(reference) {
   return colon > slash ? withoutDigest.slice(0, colon) : withoutDigest;
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Images pulled inside run: scripts (docker run/pull) are invisible to the
+// uses:/container:/services: collection above, so a step-started container
+// would silently leave digest-pin enforcement (issue #47 moved Verdaccio to a
+// step so it could load a repository config). Two checks close that hole:
+// every digest-bearing image reference in run commands must resolve to a
+// governed pin, and every mention of a governed repository in run commands
+// must be its exact pinned reference.
+function evaluateRunCommandContainers(runCommands, workflow, containerPins, diagnostics) {
+  const runText = runCommands.join('\n');
+  const digestReferences = runText.match(/[A-Za-z0-9][\w./-]*@sha256:[0-9a-f]{64}/g) || [];
+  for (const reference of digestReferences) {
+    const image = containerRepository(reference);
+    const pin = containerPins.get(image);
+    if (!pin) {
+      diagnostics.add({ code: 'container_not_governed', workflow, image });
+    } else if (reference !== `${image}@${pin.digest}`) {
+      diagnostics.add({
+        code: 'container_ref_not_pinned',
+        workflow,
+        image,
+        expected: `${image}@${pin.digest}`,
+        actual: reference,
+      });
+    }
+  }
+  for (const [image, pin] of containerPins) {
+    // The pattern source is a repository name from the reviewed toolchain
+    // authority manifest, escaped above - not external input.
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    const mentionPattern = new RegExp(
+      `(?<![\\w./-])${escapeRegExp(image)}(?![\\w-])(@sha256:[0-9a-f]{64})?`,
+      'g'
+    );
+    for (const match of runText.matchAll(mentionPattern)) {
+      if (!match[1]) {
+        diagnostics.add({
+          code: 'container_ref_not_pinned',
+          workflow,
+          image,
+          expected: `${image}@${pin.digest}`,
+          actual: match[0],
+        });
+      }
+    }
+  }
+}
+
 function isContained(root, candidate) {
   const relative = path.relative(root, candidate);
   return (
@@ -1405,6 +1459,7 @@ function evaluateToolchainAuthority(input) {
         });
       }
     }
+    evaluateRunCommandContainers(dependencies.runCommands, workflow, containerPins, diagnostics);
   }
 
   if (input.requireRuntimeEvidence !== false) {

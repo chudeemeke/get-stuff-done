@@ -25,11 +25,6 @@ jobs:
     name: Upgrade Verifier
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    services:
-      verdaccio:
-        image: verdaccio/verdaccio@sha256:bcd0dc5f10d0b9cca5a21b1f4fb3b08c6d90978bc87b8b46402abb271e0d573a
-        ports:
-          - 4873:4873
     steps:
       - name: Checkout exact event subject
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
@@ -60,6 +55,16 @@ jobs:
           token: ""
       - name: Install repository dependencies
         run: bun install --frozen-lockfile --ignore-scripts
+      # Started as a step, not a service: service containers launch before
+      # checkout, so they cannot load the repository config that disables the
+      # npmjs uplink for @chude/* (issue #47). The image digest is the same
+      # reviewed pin recorded in config/phase43-toolchain-authority.json.
+      - name: Start Verdaccio
+        run: >-
+          docker run --detach --name verdaccio
+          --publish 4873:4873
+          --volume "$GITHUB_WORKSPACE/.github/verdaccio/config.yaml":/verdaccio/conf/config.yaml:ro
+          verdaccio/verdaccio@sha256:bcd0dc5f10d0b9cca5a21b1f4fb3b08c6d90978bc87b8b46402abb271e0d573a
       - name: Wait for Verdaccio
         run: |
           for attempt in {1..30}; do
@@ -69,6 +74,8 @@ jobs:
             echo "Verdaccio not ready yet (${attempt}/30)"
             sleep 2
           done
+          echo "::error::Verdaccio did not become ready; container logs follow"
+          docker logs verdaccio
           exit 1
       - name: Run upgrade verifier
         run: >-

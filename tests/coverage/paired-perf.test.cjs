@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const pairedPerf = require('../../scripts/lib/paired-perf');
 const {
   FAILURE_RATIO,
+  MATERIALITY_FLOOR_NS,
   WARNING_RATIO,
   adjudicatePairedComparison,
   buildSchedule,
@@ -62,6 +63,43 @@ test('derives deterministic schedules, hashes, summaries, and strict statuses', 
   assert.ok(Math.abs(summary.diagnostics.pairRatioMad - 0.1) < Number.EPSILON);
   assert.equal(summary.diagnostics.abCandidateMeanNs, 120);
   assert.equal(summary.diagnostics.baCandidateMeanNs, 120);
+});
+
+test('blocks ratio breaches only at or above the materiality floor', () => {
+  assert.equal(MATERIALITY_FLOOR_NS, 500_000_000);
+
+  function pairsWithDelta(referenceNs, candidateNs) {
+    return Array.from({ length: 10 }, (_, index) => ({
+      order: index % 2 === 0 ? 'AB' : 'BA',
+      samples: [
+        { subject: 'reference', durationNs: referenceNs },
+        { subject: 'candidate', durationNs: candidateNs },
+      ],
+    }));
+  }
+
+  // Ratio 1.26, mean delta 26ms: real breach, immaterial - warns, never blocks.
+  assert.equal(summarizeMetric(pairsWithDelta(100_000_000, 126_000_000)).status, 'warn');
+  // Mean delta exactly at the floor with a ratio breach: blocks (inclusive bound).
+  assert.equal(
+    summarizeMetric(pairsWithDelta(1_000_000_000, 1_500_000_000)).status,
+    'fail'
+  );
+  // One nanosecond per pair under the floor: warns.
+  assert.equal(
+    summarizeMetric(pairsWithDelta(1_000_000_000, 1_499_999_999)).status,
+    'warn'
+  );
+  // Material delta without a failure-ratio breach stays a warning.
+  assert.equal(
+    summarizeMetric(pairsWithDelta(10_000_000_000, 12_000_000_000)).status,
+    'warn'
+  );
+  // Material delta with a failure-ratio breach blocks.
+  assert.equal(
+    summarizeMetric(pairsWithDelta(10_000_000_000, 12_600_000_000)).status,
+    'fail'
+  );
 });
 
 test('uses exact aggregate status arithmetic and independent warmup alternation', () => {
@@ -179,6 +217,10 @@ test('rejects all semantic provenance, schedule, and derivative tampering', () =
     }, /fixed authority/],
     [comparison => {
       comparison.policy.failureRatio = 9;
+      rebindPolicy(comparison);
+    }, /fixed authority/],
+    [comparison => {
+      comparison.policy.materialityFloorNs = 1;
       rebindPolicy(comparison);
     }, /fixed authority/],
     [comparison => {

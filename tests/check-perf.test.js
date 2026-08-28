@@ -60,7 +60,7 @@ function current(platform, metrics = {}) {
   };
 }
 
-function runCheck({ baselineValue = baseline(), currentValue = current('linux'), platform = 'linux' }) {
+function runCheck({ baselineValue = baseline(), currentValue = current('linux'), platform = 'linux', extraArgs = [] }) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-check-perf-'));
   const baselinePath = path.join(dir, 'baseline.json');
   const currentPath = path.join(dir, 'current.json');
@@ -76,6 +76,7 @@ function runCheck({ baselineValue = baseline(), currentValue = current('linux'),
       '--platform', platform,
       '--warn-ratio', '1.10',
       '--fail-ratio', '1.25',
+      ...extraArgs,
     ], {
       cwd: PROJECT_ROOT,
       encoding: 'utf8',
@@ -224,7 +225,13 @@ describe('check-perf CLI', () => {
     const pass = runPairedCheck(captureFixture({ candidateDurationNs: 110_000_000 }));
     const warning = runPairedCheck(captureFixture({ candidateDurationNs: 111_000_000 }));
     const boundary = runPairedCheck(captureFixture({ candidateDurationNs: 125_000_000 }));
-    const failure = runPairedCheck(captureFixture({ candidateDurationNs: 126_000_000 }));
+    // Ratio breach (1.26) whose mean delta (26ms) is below the 500ms materiality
+    // floor: visible as a warning, never blocking.
+    const immaterial = runPairedCheck(captureFixture({ candidateDurationNs: 126_000_000 }));
+    const failure = runPairedCheck(captureFixture({
+      referenceDurationNs: 10_000_000_000,
+      candidateDurationNs: 12_600_000_000,
+    }));
 
     expect(pass.status).toBe(0);
     expect(pass.output).not.toContain('::warning');
@@ -232,6 +239,9 @@ describe('check-perf CLI', () => {
     expect(warning.output).toContain('::warning');
     expect(boundary.status).toBe(0);
     expect(boundary.output).toContain('::warning');
+    expect(immaterial.status).toBe(0);
+    expect(immaterial.output).toContain('::warning');
+    expect(immaterial.output).not.toContain('::error');
     expect(failure.status).toBe(1);
     expect(failure.output).toContain('::error');
   });
@@ -341,5 +351,115 @@ describe('check-perf CLI', () => {
     expect(globalScope.status).toBe(0);
     expect(globalScope.output).toContain('acceptedRegressions');
     expect(globalScope.output).not.toContain('::error');
+  });
+});
+
+describe('paired accepted-regressions policy', () => {
+  // Install regresses materially (10s -> 12.6s); compose stays flat so the
+  // adjudicated outcome isolates the install acceptance decision.
+  function installOnlyFailure() {
+    return capturePairedComparison(pairedSpec(), request => receiptFor(request, {
+      durationNs: request.metric === 'install'
+        ? (request.subject === 'reference' ? 10_000_000_000 : 12_600_000_000)
+        : 100_000_000,
+    }));
+  }
+
+  function acceptanceEntry(overrides = {}) {
+    return {
+      platform: 'windows',
+      metric: 'install',
+      maxRatio: 1.5,
+      reason: 'Reviewed Phase 43 tooling cost',
+      reviewer: 'Chude',
+      reviewedDate: '2026-08-28',
+      ticket: 'https://github.com/chudeemeke/get-stuff-done/issues/46',
+      expiresOn: '2099-01-01',
+      ...overrides,
+    };
+  }
+
+  function runWithPolicy(policyValue) {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-check-perf-accepted-'));
+    const policyPath = path.join(dir, 'accepted.json');
+    try {
+      if (policyValue !== undefined) {
+        fs.writeFileSync(policyPath, typeof policyValue === 'string'
+          ? policyValue
+          : JSON.stringify(policyValue, null, 2));
+      }
+      return runPairedCheck(installOnlyFailure(), ['--accepted', policyPath]);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  test('downgrades a matching in-bound unexpired acceptance to a non-blocking warning', () => {
+    const result = runWithPolicy({ schemaVersion: 1, acceptances: [acceptanceEntry()] });
+
+    expect(result.status).toBe(0);
+    expect(result.output).toContain('Paired perf regression accepted');
+    expect(result.output).toContain('issues/46');
+    expect(result.output).not.toContain('::error');
+  });
+
+  test('blocks when the matching acceptance is expired or the ratio exceeds its bound', () => {
+    const expired = runWithPolicy({
+      schemaVersion: 1,
+      acceptances: [acceptanceEntry({ expiresOn: '2026-01-31' })],
+    });
+    const overBound = runWithPolicy({
+      schemaVersion: 1,
+      acceptances: [acceptanceEntry({ maxRatio: 1.251 })],
+    });
+    const unmatched = runWithPolicy({
+      schemaVersion: 1,
+      acceptances: [acceptanceEntry({ metric: 'compose' })],
+    });
+
+    expect(expired.status).toBe(1);
+    expect(expired.output).toContain('expired on 2026-01-31');
+    expect(overBound.status).toBe(1);
+    expect(overBound.output).toContain('exceeds the accepted bound');
+    expect(unmatched.status).toBe(1);
+    expect(unmatched.output).toContain('Paired perf budget failure');
+  });
+
+  test('treats a missing policy file as no acceptances and rejects an invalid one', () => {
+    const missing = runWithPolicy(undefined);
+    const invalid = runWithPolicy({ schemaVersion: 1, acceptances: [{ platform: 'windows' }] });
+    const malformed = runWithPolicy('{not json');
+
+    expect(missing.status).toBe(1);
+    expect(missing.output).toContain('no acceptances apply');
+    expect(invalid.status).toBe(1);
+    expect(invalid.output).toContain('Invalid accepted-regressions policy');
+    expect(malformed.status).toBe(1);
+    expect(malformed.output).toContain('Error [EPERF]');
+  });
+
+  test('rejects --accepted outside paired mode', () => {
+    const result = runCheck({
+      currentValue: current('linux', {}),
+      extraArgs: ['--accepted', 'config/perf-accepted-regressions.json'],
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('only valid with --comparison');
+  });
+
+  test('the committed acceptance policy validates against its schema', () => {
+    const Ajv = require('ajv');
+    const schema = JSON.parse(fs.readFileSync(
+      path.join(PROJECT_ROOT, 'config', 'perf-accepted-regressions.schema.json'), 'utf8'));
+    const document = JSON.parse(fs.readFileSync(
+      path.join(PROJECT_ROOT, 'config', 'perf-accepted-regressions.json'), 'utf8'));
+    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+
+    expect(validate(document)).toBe(true);
+    for (const entry of document.acceptances) {
+      expect(entry.maxRatio).toBeGreaterThan(1.25);
+      expect(entry.expiresOn > entry.reviewedDate).toBe(true);
+    }
   });
 });

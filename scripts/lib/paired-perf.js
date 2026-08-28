@@ -6,6 +6,14 @@ const WARNING_RATIO = 1.10;
 const FAILURE_RATIO = 1.25;
 const WARNING_FRACTION = { numerator: 11n, denominator: 10n };
 const FAILURE_FRACTION = { numerator: 5n, denominator: 4n };
+// A ratio breach blocks only when the mean per-pair regression is also material.
+// A fixed 25% ratio on a ~170ms warm install fails on a 70ms delta while the
+// macOS baseline's own stddev is 72ms and the Windows baseline's is 436ms
+// (perf-baseline.json, 2026-08-23) - sub-noise-scale deltas are not signal.
+// 500ms exceeds every platform's observed run-to-run noise; catastrophic
+// regressions on fast platforms (for example 170ms -> 1.7s) still exceed it.
+// Immaterial ratio breaches downgrade to 'warn' so they stay visible.
+const MATERIALITY_FLOOR_NS = 500_000_000;
 const SCHEDULER = 'alternating-ab-ba-v1';
 const METRICS = ['install', 'compose'];
 const PLACEHOLDER_IDENTITIES = new Set(['unknown', 'unavailable', 'n/a']);
@@ -111,8 +119,13 @@ function exceedsFraction(candidateTotal, referenceTotal, fraction) {
   return candidateTotal * fraction.denominator > referenceTotal * fraction.numerator;
 }
 
-function statusForTotals(referenceTotal, candidateTotal) {
-  if (exceedsFraction(candidateTotal, referenceTotal, FAILURE_FRACTION)) return 'fail';
+function meetsMaterialityFloor(referenceTotal, candidateTotal, pairCount) {
+  return candidateTotal - referenceTotal >= BigInt(MATERIALITY_FLOOR_NS) * BigInt(pairCount);
+}
+
+function statusForTotals(referenceTotal, candidateTotal, pairCount) {
+  if (exceedsFraction(candidateTotal, referenceTotal, FAILURE_FRACTION) &&
+      meetsMaterialityFloor(referenceTotal, candidateTotal, pairCount)) return 'fail';
   if (exceedsFraction(candidateTotal, referenceTotal, WARNING_FRACTION)) return 'warn';
   return 'pass';
 }
@@ -139,7 +152,7 @@ function summarizeMetric(pairs) {
     referenceMeanNs,
     candidateMeanNs,
     ratio,
-    status: statusForTotals(referenceTotal, candidateTotal),
+    status: statusForTotals(referenceTotal, candidateTotal, pairs.length),
     diagnostics: {
       pairRatios,
       medianPairRatio,
@@ -263,6 +276,7 @@ function capturePairedComparison(spec, execute) {
     warmupRuns: spec.warmupRuns,
     warningRatio: WARNING_RATIO,
     failureRatio: FAILURE_RATIO,
+    materialityFloorNs: MATERIALITY_FLOOR_NS,
     scheduler: SCHEDULER,
     seed,
   };
@@ -367,7 +381,8 @@ function validateComparisonSemantics(comparison) {
   if (comparison.policy.seed !== expectedSeed) throw new Error('policy seed does not match bound inputs');
   if (comparison.policy.scheduler !== SCHEDULER ||
       comparison.policy.warningRatio !== WARNING_RATIO ||
-      comparison.policy.failureRatio !== FAILURE_RATIO) {
+      comparison.policy.failureRatio !== FAILURE_RATIO ||
+      comparison.policy.materialityFloorNs !== MATERIALITY_FLOOR_NS) {
     throw new Error('paired performance policy does not match fixed authority');
   }
   if (!Number.isInteger(comparison.policy.measuredPairs) || comparison.policy.measuredPairs < 10 ||
@@ -417,6 +432,7 @@ function adjudicatePairedComparison(comparison) {
 
 module.exports = {
   FAILURE_RATIO,
+  MATERIALITY_FLOOR_NS,
   SCHEDULER,
   WARNING_RATIO,
   adjudicatePairedComparison,

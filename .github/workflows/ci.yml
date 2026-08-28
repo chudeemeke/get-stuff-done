@@ -520,6 +520,7 @@ jobs:
         run: >-
           node measurement-harness/scripts/check-perf.js
           --comparison "$GITHUB_WORKSPACE/evidence-bundle/comparison.json"
+          --accepted "$GITHUB_WORKSPACE/candidate/config/perf-accepted-regressions.json"
       - name: Stage bounded evidence producer
         shell: bash
         run: |

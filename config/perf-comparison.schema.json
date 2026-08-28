@@ -95,12 +95,13 @@
     },
     "policy": {
       "type": "object",
-      "required": ["measuredPairs", "warmupRuns", "warningRatio", "failureRatio", "scheduler", "seed"],
+      "required": ["measuredPairs", "warmupRuns", "warningRatio", "failureRatio", "materialityFloorNs", "scheduler", "seed"],
       "properties": {
         "measuredPairs": { "type": "integer", "minimum": 10 },
         "warmupRuns": { "type": "integer", "minimum": 1 },
         "warningRatio": { "const": 1.1 },
         "failureRatio": { "const": 1.25 },
+        "materialityFloorNs": { "const": 500000000 },
         "scheduler": { "const": "alternating-ab-ba-v1" },
         "seed": { "$ref": "#/definitions/sha256" }
       },

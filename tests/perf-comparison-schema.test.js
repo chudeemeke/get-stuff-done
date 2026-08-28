@@ -100,6 +100,7 @@ function validComparison() {
       warmupRuns: 1,
       warningRatio: 1.1,
       failureRatio: 1.25,
+      materialityFloorNs: 500000000,
       scheduler: 'alternating-ab-ba-v1',
       seed: SHA_F,
     },
@@ -173,6 +174,7 @@ describe('paired performance comparison schema', () => {
       ['warmupRuns', 0],
       ['warningRatio', 1.11],
       ['failureRatio', 1.26],
+      ['materialityFloorNs', 1],
       ['scheduler', 'grouped'],
       ['seed', 'not-a-sha256'],
     ]) {

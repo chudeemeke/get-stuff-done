@@ -442,6 +442,9 @@ describe('Phase 43 paired performance workflow', () => {
     expect(perfJob).toContain('--warmup 3');
     expect(perfJob).toContain('node measurement-harness/scripts/check-perf.js');
     expect(perfJob).toContain('--comparison "$GITHUB_WORKSPACE/evidence-bundle/comparison.json"');
+    // Acceptance policy is read from the candidate checkout so every acceptance
+    // is a reviewable PR diff, while the adjudicating code stays pinned.
+    expect(perfJob).toContain('--accepted "$GITHUB_WORKSPACE/candidate/config/perf-accepted-regressions.json"');
     expect(perfJob).not.toContain('--baseline');
     expect(perfJob).not.toContain('--current');
     expect(perfJob).not.toContain('--warn-ratio');

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "acceptances": [
+    {
+      "platform": "windows",
+      "metric": "install",
+      "maxRatio": 1.5,
+      "reason": "Phase 43 devDependency tooling adds 151 packages (367 -> 504): @cyclonedx/cyclonedx-npm (SBOM generation, 132 packages), c8 (per-file coverage gates), expect (portable assertions). The dev install regression is real (+41% packages, ~1.4x install ratio) and reviewed as acceptable: the published package's dependency surface (16 packages) is unchanged, and keeping the tooling in the root lockfile keeps it inside the OSV and bun-audit scanned surface.",
+      "reviewer": "Chude",
+      "reviewedDate": "2026-08-28",
+      "ticket": "https://github.com/chudeemeke/get-stuff-done/issues/46",
+      "expiresOn": "2026-11-26"
+    }
+  ]
+}

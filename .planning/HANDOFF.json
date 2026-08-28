@@ -1,0 +1,166 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-08-26T05:30:00Z",
+  "phase": "43",
+  "phase_name": "upgrade-resilience-verify-matrix-dogfood",
+  "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
+  "branch": "phase43-upgrade-resilience-20260703",
+  "head": "50a23640",
+  "pr": "https://github.com/chudeemeke/get-stuff-done/pull/23",
+  "pr_state": "draft",
+  "status": "paused",
+  "superseded_handoff_note": "The previous HANDOFF.json described Phase 40.5 and was 3 months stale. Its exact bytes were non-regenerable (issue #41) and are preserved at .planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/preserved-handoff-2026-08-23/ on branch preserve/phase-40.5-handoff-artifacts (commit 82012fc2, pushed) BEFORE this file was rewritten.",
+  "completed_tasks": [
+    {
+      "id": "recover-stranded-work",
+      "name": "Recovered 86 commits stranded in a worktree orphaned by the iCloud-to-C:/Projects move. PR #23's GitHub head 2c9ba08 was 86 behind local. Verified refs resolved before pruning; git worktree prune removes only the registration.",
+      "status": "done"
+    },
+    {
+      "id": "merge-main",
+      "name": "Merged origin/main (503c138c) into the branch. 6 conflicts resolved as unions.",
+      "status": "done",
+      "commit": "612098a8"
+    },
+    {
+      "id": "advisories",
+      "name": "audit:ci from 9 findings/4 blocking to 1/0. js-yaml 5.2.0->5.4.0; js-yaml 4.1.1 stale lock pin deduped to 4.3.1; tar override 7.5.22. Lockfile regeneration floated 56 transitives in-range, zero major bumps; also clears issue #37.",
+      "status": "done",
+      "commit": "612098a8"
+    },
+    {
+      "id": "local-gates",
+      "name": "eslint was linting .claude/worktrees/ as source (all 282 errors); check-boundary crashed on a dangling symlink via fs.statSync. Both fixed; bun run lint now exits 0. Root cause behind issue #44.",
+      "status": "done",
+      "commit": "bf54fa2d"
+    },
+    {
+      "id": "windows-acl-timeout",
+      "name": "Windows ACL tests capped themselves at 15000ms, below the 30000ms headroom PR #38 added (a per-test timeout beats the CLI flag). Raised to 60000.",
+      "status": "done",
+      "commit": "da051891"
+    },
+    {
+      "id": "actionlint-sc2016",
+      "name": "False-positive SC2016 from unpinned rhysd/actionlint:latest drifting to a stricter shellcheck. Suppressed with a scoped directive. Pinning gap filed as issue #50.",
+      "status": "done",
+      "commit": "f38e9cad"
+    },
+    {
+      "id": "verifier-pin-drift",
+      "name": "Upgrade verifier --from 1.5.0 went stale when 689fa9eb moved the pin to 1.6.1. Its test compared the workflow to itself, so nothing caught it; now derives the pin from package.json.",
+      "status": "done",
+      "commit": "ecba8dbb"
+    },
+    {
+      "id": "macos-guard-stderr",
+      "name": "bun authority guard lost its message on macOS: process.exit() does not flush an async stderr pipe. Now writes via fs.writeSync.",
+      "status": "done",
+      "commit": "70a69849"
+    },
+    {
+      "id": "windows-cpu-identity",
+      "name": "Windows paired-perf capture rejected the space-padded os.cpus()[0].model. Normalized at the capture site. CORRECT BUT INERT - see decision-harness-repin.",
+      "status": "done",
+      "commit": "5b45a921"
+    },
+    {
+      "id": "macos-guard-route",
+      "name": "bun authority guard routed on process.argv, which bun mutates per loaded file, so the message depended on filesystem order. macOS told a plain `bun test` to use `node --test`. Now states its one guarded situation directly.",
+      "status": "done",
+      "commit": "50a23640"
+    }
+  ],
+  "ci_state": {
+    "run_head": "50a23640",
+    "green": [
+      "Audit CI (blocking HIGH/CRITICAL)",
+      "Boundary Check (informational)",
+      "Docs Gates",
+      "Lint",
+      "OSV Scanner",
+      "Override Staleness Check (blocking)",
+      "Secret Scan",
+      "Source Parity Check",
+      "Test (ubuntu-latest)",
+      "Test (macos-15)",
+      "Test (windows-latest)",
+      "Upstream Compat (ubuntu-latest)",
+      "Upstream Compat (macos-15)",
+      "Upstream Compat (windows-latest)",
+      "Workflow Lint",
+      "Compat Matrix",
+      "Oversight Probes"
+    ],
+    "failing": [
+      "Perf Budget (linux)",
+      "Perf Budget (macos)",
+      "Perf Budget (windows)",
+      "Upgrade Verifier"
+    ],
+    "note": "CI workflow alone: 15 of 18 jobs green. ACROSS ALL WORKFLOWS: 17 of 21 green (the green array below has 17 entries, failing has 4) — the CI workflow contributes 18 of those, and Compat Matrix + Oversight Probes are separate workflows. Quote 17/21 as the total; 15/18 is CI-workflow-only. Every remaining failure is one of the three owner decisions in human_actions_pending, NOT unfinished implementation."
+  },
+  "blockers": [],
+  "human_actions_pending": [
+    {
+      "id": "decision-perf-scope",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/46",
+      "severity": "blocks-pr-23",
+      "description": "DECIDE: Phase 43 adds 151 packages (367->504, +41%), producing a real 1.41x linux / 1.39x macOS install regression measured by paired benchmarking (base vs head, same runner - not noise). Drivers are @cyclonedx/cyclonedx-npm, c8, expect. Options: accept the cost, make the tooling on-demand, or re-gate deliberately. DO NOT bump perf-baseline.json or loosen a ratio as a side effect - it is currently byte-identical to main on purpose."
+    },
+    {
+      "id": "decision-verdaccio-e409",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/47",
+      "severity": "blocks-pr-23",
+      "description": "DECIDE: Upgrade Verifier now fails at publish with npm E409. Verdaccio's default config proxies to npmjs where @chude/get-stuff-done@3.0.2 genuinely exists, so publishing the CURRENT version collides; the bumped 3.0.2-upgrade.<to> would not. Options: run verdaccio as a step with an uplink-disabled config (service containers cannot mount repo files), or publish the current step under a local-only version. The choice changes what the gate proves."
+    },
+    {
+      "id": "decision-harness-repin",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/48",
+      "severity": "blocks-pr-23",
+      "description": "DECIDE: Perf Budget (windows) cannot pass until the trusted measurement-harness pin advances. The job runs measurement-harness checked out at pinned SHA 35cbe088, never PR head, so the fix in 5b45a921 is inert. This is a trust-boundary change touching 6 locations (3 in ci.yml including the --harness-sha binding-manifest arg, plus tests/ci-workflow.test.js, tests/paired-binding-manifest.test.js, tests/verify-hosted-ci.test.js). Choosing what to trust is the owner's call."
+    },
+    {
+      "id": "review-pr-23",
+      "description": "PR #23 is still a draft. It is 157 commits ahead of main. Before marking ready: settle the three decisions above, then run the tuicr assembled-diff gate per git-workflow.md."
+    },
+    {
+      "id": "review-pr-4",
+      "description": "PR #4 (gsd-doctor) still open and independent of #23."
+    },
+    {
+      "id": "decide-governance-branch",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/51",
+      "description": "docs/pr-issue-evidence-workflow was pushed for backup (no longer single-copy). Remaining decision: open a PR and land it, or discard. Landing it creates the type:bug/type:feature/type:docs/type:decision labels that git-workflow.md calls standard and that do not currently exist - issues #46-#53 carry only the auto-applied needs-triage label because no type:* label exists to apply."
+    },
+    {
+      "id": "finish-issue-41",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/41",
+      "description": "Laptop copies preserved in git (commit 82012fc2). Still open: the DESKTOP copies differ (7188/12101 bytes, sums 0f9f5a51.../c43408f6...) and remain only on a filesystem path the Phase 20 cutover will overwrite. Time-critical."
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": "inbox-triage",
+      "name": "Triage 5 active docs/inbox items - not touched this session: memory-nexus installer crash (HIGH, in-progress), memory-nexus health v5/decimal drift (in-progress), authkey portable market-ready gate (triaged), kanbanflow model-catalog opus5 refresh (open), conversations plan-checker effort tier (open).",
+      "status": "not_started"
+    },
+    {
+      "id": "phase-43-remaining-plans",
+      "name": "Phase 43 has 50 PLAN files and 22 SUMMARY files: 28 plans have no summary (43-11, 43-11AA, 43-11AB, 43-11AH, 43-11AI, 43-11AJ, 43-11AK, 43-11D..43-11Z, 43-12, 43-12B, 43-12C). This session did NOT advance plan execution - it recovered stranded work, merged main, and fixed CI. Whether those 28 represent unexecuted work or executed-but-unsummarized work was NOT determined; several were executed inside the 86 recovered commits (11AE and 11AH both appear in commit subjects). Establish which before treating the count as remaining effort.",
+      "status": "not_started"
+    }
+  ],
+  "next_action": "Open with /gsd:resume-work. FIRST verify the world rather than trusting this file: `git worktree list` (anything 'prunable' means work may be stranded again), `git rev-list --left-right --count origin/phase43-upgrade-resilience-20260703...phase43-upgrade-resilience-20260703` (must be 0 0), and re-read PR #23's live CI rather than the ci_state block above. THEN work issues #46, #47, #48 - all three are decisions, and PR #23 cannot go green without them.",
+  "context_notes": "CRITICAL - VERIFY, DO NOT TRUST: this session began by resuming from a recorded root-cause list that described a state the work had already moved past. PR #23's GitHub head was 86 commits behind the local branch because the worktree holding the work was orphaned by the iCloud-to-C:/Projects move. Check worktree list and local-vs-origin divergence before trusting any recorded state, including this file. See memory/orphaned_worktree_hid_86_commits.md. THE PRE-PUSH HOOK DOES NOT RUN: core.hooksPath=.husky/_ does not exist because every install uses --ignore-scripts so husky's prepare never runs, and git skips missing hooks silently. A successful push is NOT gate evidence - run bun run lint / compose / test by hand. See memory/inert_pre_push_hook_husky.md and issue #49. MACHINE PRESSURE: disk was at 4.4GB free (99%) and the suite takes ~9.5min, which exceeds the 10-minute tool cap - run it detached with a terminal marker, and treat a killed run as no result (an absent marker is the proof). Under that pressure three tests failed in a full run and passed cleanly in isolation; verify a suspicious failure in isolation before believing it. TEST AUTHORITY: bare `bun test` is blocked by a preload guard; use `bun run test`, which filters to .test.js and routes .test.cjs to test:repository-compat (this structurally contains issue #45). Upstream @opengsd/gsd-core is now 1.11.0 while the fork pins 1.6.1 - issue #53, and explicitly NOT to be bumped inside Phase 43.",
+  "blockers_note": "blockers is empty because nothing is technically blocked: the tree is clean, the branch is pushed, and no task is waiting on another task. PR #23 is GATED, not blocked — on three human decisions, each carrying severity blocks-pr-23 in human_actions_pending. Do not read blockers:[] as \"ready to merge\".",
+  "test_suite_expectations": {
+    "command": "bun run test  (NEVER bare `bun test` — a preload guard blocks it)",
+    "companion": "bun run test:repository-compat  (the .test.cjs contracts, run under node --test)",
+    "expected_summary": "Ran 1657 tests across 63 files",
+    "expected_file_count_test_js": 63,
+    "expected_file_count_test_cjs": 14,
+    "last_known_green": "1657 pass / 0 fail across 63 of 63 files, rc=0, on the tree at da051891 (2026-08-26). Recheck the file count with: ls tests/*.test.js | wc -l",
+    "how_to_know_it_completed": "Read the summary line, not rc. A test file calling process.exit(0) can end the whole run with rc=0 and no summary (issue #45). Check M in \"across M files\" against the live ls count. Runtime ~9.5min exceeds the 10-minute tool cap, so run detached and write a terminal marker; an absent marker means the run was killed and there is NO result."
+  }
+}

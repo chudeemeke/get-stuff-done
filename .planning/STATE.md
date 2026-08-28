@@ -51,6 +51,12 @@ See: .planning/PROJECT.md (updated 2026-04-20)
 ## Current Position
 
 Phase: 43 (upgrade-resilience-verify-matrix-dogfood) — IN PROGRESS
+
+> **PLAN position only, frozen at 2026-07-20.** Session position is `.planning/HANDOFF.json`.
+> The `61%` / `44 of 72` figures here use this branch's roadmap denominator; `main`'s STATE.md
+> says `76%` / `16 of 21` because its roadmap is smaller and older. Both are internally correct
+> — do not "reconcile" them by editing either number.
+
 Plan: 11AH of 50
 Status: Plan 11AG is locally complete. Blocking performance authority now uses a closed paired same-run contract with deterministic AB/BA scheduling, fresh tracked sandboxes, at least ten measured pairs, raw integer nanosecond receipts, exact BigInt ratio classification, recomputed diagnostics, and unchanged 1.10/1.25 budgets. Focused tests pass 39/39 with 100% statements, 98.18% branches, 100% functions, and 100% lines; the broad suite passes 1,581/1,581. Fable independently reran those gates, returned `ACCEPT_WITH_FOLLOW_UPS` for 11AG, and `APPROVE_PLAN_WITH_FOLLOW_UPS` for 11AH. Binding amendments now limit blocking paired authority to same-repository PR heads, treat check-name identity as non-authoritative, require four-checkout authority-file preflight, and require one real local Hyperfine 1.20.0 run in Plan 11AI. The roadmap read model is 44/72 summaries/plans (61%) and Phase 43 is 22/50. Plan 11AH is next. Plan 11R still has no passed hosted envelope. No push, hosted run, issue mutation, merge, release, credential change, or public action occurred.
 Last activity: 2026-07-20
@@ -209,4 +215,15 @@ Plan 43-11 compatibility and plan-denominator correctness are resolved, but the 
 Last session: 2026-07-20T05:08:58.0758261+01:00
 Resumed: 2026-06-22 -- user approved taking project lead and routing all project work through GSD.
 Stopped at: Plan 11AG is locally complete and summarized. Paired same-run performance evidence, exact rational status, raw receipt validation, fresh tracked sample sandboxes, nonblocking historical mode, and unchanged owner-controlled budgets are proven by 39 focused tests, 100/98.18/100/100 coverage, the 1,581-test broad suite, and Fable `ACCEPT_WITH_FOLLOW_UPS`. The roadmap is 44/72 (61%) and Phase 43 is 22/50. Plan 11AH is next with Fable-approved architecture and binding same-repository, check-origin, runner-identity, token, preflight, and later local-Hyperfine amendments. Plan 11R remains blocked; no push, hosted run, public mutation, merge, release, credential change, upstream proposal, or formal post-hosted Fable action is authorized before Plans 11AH-11AI and 11AK pass locally and Plan 11AJ obtains explicit owner gates.
-Resume file: .planning/phases/43-upgrade-resilience-verify-matrix-dogfood/43-11AH-PLAN.md
+Resume file: **`.planning/HANDOFF.json`** (current position as of 2026-08-28), then
+`.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/.continue-here.md`.
+
+The Plan-11AH line above describes where **plan execution** stopped on 2026-07-20 and is still
+accurate for that. It is NOT where to resume: sessions on 2026-08-26/28 recovered 86 stranded
+commits, merged `main`, and took CI to 15 of 18 jobs green, and PR #23 is now gated on three
+owner decisions (issues #46, #47, #48). Resuming at `43-11AH-PLAN.md` would miss all three.
+Read the handoff first; go to 11AH only once the decisions are settled.
+
+Note also that `/gsd:resume-work` is currently broken — 55 of 58 files in
+`.claude/commands/gsd/` `@`-import a path inside the deleted iCloud tree. The two files named
+above are self-contained and need no command.

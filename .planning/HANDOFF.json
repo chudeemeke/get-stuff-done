@@ -5,7 +5,7 @@
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "phase43-upgrade-resilience-20260703",
-  "head": "50a23640",
+  "head": "986e09b8",
   "pr": "https://github.com/chudeemeke/get-stuff-done/pull/23",
   "pr_state": "draft",
   "status": "paused",
@@ -98,7 +98,8 @@
       "Perf Budget (windows)",
       "Upgrade Verifier"
     ],
-    "note": "CI workflow alone: 15 of 18 jobs green. ACROSS ALL WORKFLOWS: 17 of 21 green (the green array below has 17 entries, failing has 4) — the CI workflow contributes 18 of those, and Compat Matrix + Oversight Probes are separate workflows. Quote 17/21 as the total; 15/18 is CI-workflow-only. Every remaining failure is one of the three owner decisions in human_actions_pending, NOT unfinished implementation."
+    "note": "CI workflow alone: 15 of 18 jobs green. ACROSS ALL WORKFLOWS: 17 of 21 green (green[] has 17 entries, failing[] has 4). FOUR workflows run on this PR: CI (18 jobs), Compat Matrix (1), Oversight Probes (1), Upgrade Verifier (1) = 21. Quote 17/21 as the total; 15/18 is CI-workflow-only and is what most other artifacts state. Every remaining failure is one of the three owner decisions in human_actions_pending, NOT unfinished implementation.",
+    "stale_warning": "This table was captured on 50a23640. HEAD is now 986e09b8 (a docs-only commit), so a newer run exists. RE-READ LIVE CI; do not quote this block as current."
   },
   "blockers": [],
   "human_actions_pending": [
@@ -137,6 +138,11 @@
       "id": "finish-issue-41",
       "issue": "https://github.com/chudeemeke/get-stuff-done/issues/41",
       "description": "Laptop copies preserved in git (commit 82012fc2). Still open: the DESKTOP copies differ (7188/12101 bytes, sums 0f9f5a51.../c43408f6...) and remain only on a filesystem path the Phase 20 cutover will overwrite. Time-critical."
+    },
+    {
+      "id": "fix-resume-command",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/54",
+      "description": "DECIDE + FIX: /gsd:resume-work is broken (55 of 58 .claude/commands/gsd/ files @-import the deleted iCloud path). Needs a decision on which of two divergent GSD copies is authoritative before rewriting paths. Also decide whether resume-project.md:94 should still delete HANDOFF.json now that it is tracked."
     }
   ],
   "remaining_tasks": [
@@ -162,5 +168,9 @@
     "expected_file_count_test_cjs": 14,
     "last_known_green": "1657 pass / 0 fail across 63 of 63 files, rc=0, on the tree at da051891 (2026-08-26). Recheck the file count with: ls tests/*.test.js | wc -l",
     "how_to_know_it_completed": "Read the summary line, not rc. A test file calling process.exit(0) can end the whole run with rc=0 and no summary (issue #45). Check M in \"across M files\" against the live ls count. Runtime ~9.5min exceeds the 10-minute tool cap, so run detached and write a terminal marker; an absent marker means the run was killed and there is NO result."
-  }
+  },
+  "commits_ahead_of_main": 158,
+  "head_note": "This file is committed, so its own recording commit makes head lag by one. Always re-derive: git rev-parse --short HEAD and git rev-list --count origin/main..HEAD.",
+  "resume_command_warning": "THE DOCUMENTED RESUME COMMAND IS BROKEN. /gsd:resume-work loads .claude/commands/gsd/resume-work.md, which @-imports an absolute path inside the iCloud tree deleted in the 2026-08 move; 55 of 58 files in .claude/commands/gsd/ share the defect. .claude/ is gitignored, so these are untracked single-copy files. If the command fails or silently loads nothing, read this file and .continue-here.md directly - they are self-contained and do not need the command. Two divergent GSD copies exist (project-local .claude/get-shit-done/ from Mar 29, and global ~/.claude/gsd-core/ which the Skill tool actually resolves); deciding which is authoritative is an owner call. Tracked as issue #54.",
+  "handoff_deletion_warning": ".claude/get-shit-done/workflows/resume-project.md line 94 instructs deleting HANDOFF.json after resumption as a one-shot artifact. STATE.md names this file the canonical current position, and it carries the three blocking decisions. It is now tracked in git (986e09b8), so a deletion is recoverable with git checkout -- .planning/HANDOFF.json. Do not let it be deleted while the three decisions are open."
 }

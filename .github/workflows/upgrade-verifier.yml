@@ -55,6 +55,11 @@ jobs:
           token: ""
       - name: Install repository dependencies
         run: bun install --frozen-lockfile --ignore-scripts
+      # The verifier packs the CURRENT package with the checkout's dist/ (its
+      # copy excludes rebuild for the current package by design), and the real
+      # installer refuses a tarball without it - so dist must exist first.
+      - name: Compose current package output
+        run: bun run compose
       # Started as a step, not a service: service containers launch before
       # checkout, so they cannot load the repository config that disables the
       # npmjs uplink for @chude/* (issue #47). The image digest is the same

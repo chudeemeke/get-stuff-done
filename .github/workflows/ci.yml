@@ -528,6 +528,7 @@ jobs:
           cp candidate/scripts/emit-hosted-runtime-receipt.js evidence-producer/scripts/
           cp candidate/scripts/emit-paired-binding-manifest.js evidence-producer/scripts/
           cp candidate/scripts/lib/hosted-evidence-binding.js evidence-producer/scripts/lib/
+          cp candidate/scripts/lib/paired-perf.js evidence-producer/scripts/lib/
           cp candidate/config/phase43-hosted-ci-contract.json evidence-producer/config/
           cp candidate/config/phase43-toolchain-authority.json evidence-producer/config/
           cp evidence-bundle/comparison.json evidence-producer/artifacts/comparison.json

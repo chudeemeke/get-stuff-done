@@ -455,6 +455,19 @@ describe('Phase 43 paired performance workflow', () => {
     expect(perfJob).not.toContain('--fail-ratio');
 
     expect(perfJob).toContain('candidate/scripts/emit-hosted-runtime-receipt.js');
+    // The staged file subset must carry hosted-evidence-binding's whole
+    // relative require graph or the Tier B step dies at runtime with
+    // MODULE_NOT_FOUND (first seen 2026-08-28 when the Enforce step stopped
+    // failing ahead of it). Derived from the source, not restated.
+    const bindingSource = fs.readFileSync(
+      path.join(PROJECT_ROOT, 'scripts', 'lib', 'hosted-evidence-binding.js'), 'utf8');
+    const relativeRequires = [...bindingSource.matchAll(/require\('\.\/([\w-]+)'\)/g)]
+      .map(match => match[1]);
+    expect(relativeRequires.length).toBeGreaterThan(0);
+    for (const moduleName of relativeRequires) {
+      expect(perfJob).toContain(
+        `cp candidate/scripts/lib/${moduleName}.js evidence-producer/scripts/lib/`);
+    }
     expect(perfJob).toContain('candidate/scripts/emit-paired-binding-manifest.js');
     expect(perfJob).toContain('node evidence-producer/scripts/emit-hosted-runtime-receipt.js');
     expect(perfJob).toContain('node evidence-producer/scripts/emit-paired-binding-manifest.js');
@@ -617,6 +630,12 @@ describe('Phase 43 upgrade verifier workflow', () => {
     const upstreamPin = pkg.devDependencies['@opengsd/gsd-core'];
     expect(upstreamPin).toMatch(/^\d+\.\d+\.\d+$/);
     expect(workflow).toContain(`bun run verify-upgrade --from ${upstreamPin} --to `);
+    // The verifier packs the current package with the checkout's dist/, and
+    // the real installer refuses a tarball without it - compose must run
+    // before the verifier does.
+    expect(workflow.indexOf('bun run compose')).toBeGreaterThan(-1);
+    expect(workflow.indexOf('bun run compose'))
+      .toBeLessThan(workflow.indexOf('bun run verify-upgrade'));
     expect(workflow).toContain('--registry-url http://localhost:4873/ --json --report upgrade-report.json');
     expect(workflow).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
     expect(workflow).toContain('upgrade-report.json');

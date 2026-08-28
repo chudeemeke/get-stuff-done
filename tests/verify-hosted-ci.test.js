@@ -40,7 +40,7 @@ const TOOLCHAIN_MANIFEST_PATH = path.join(
 );
 const EXPECTED_HEAD = '64f137a110e985c86b08acb3140bc8b982d34843';
 const BOOTSTRAP_SHA = '5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce';
-const HARNESS_SHA = '35cbe0883a65409b13f9b7cc6347c793df2a2f15';
+const HARNESS_SHA = '32dc22f9dc9cfd7d84333256f0768f5a792b186c';
 const BILLING_MESSAGE = 'The job was not started because your account is locked due to a billing issue.';
 const SUBJECT_CHECKOUT_STEP = 'Checkout exact event subject';
 const SUBJECT_VERIFY_STEP = 'Verify execution subject';

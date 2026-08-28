@@ -17,7 +17,7 @@ const {
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const REPOSITORY = 'chudeemeke/get-stuff-done';
 const BOOTSTRAP_SHA = '5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce';
-const HARNESS_SHA = '35cbe0883a65409b13f9b7cc6347c793df2a2f15';
+const HARNESS_SHA = '32dc22f9dc9cfd7d84333256f0768f5a792b186c';
 const BASE_SHA = 'a'.repeat(40);
 const HEAD_SHA = 'b'.repeat(40);
 

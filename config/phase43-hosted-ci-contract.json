@@ -139,7 +139,7 @@
           "checkoutStep": "Checkout trusted measurement harness",
           "verificationStep": "Verify trusted measurement harness",
           "repository": "${{ github.repository }}",
-          "ref": "35cbe0883a65409b13f9b7cc6347c793df2a2f15",
+          "ref": "32dc22f9dc9cfd7d84333256f0768f5a792b186c",
           "path": "measurement-harness",
           "persistCredentials": false,
           "fetchDepth": 1

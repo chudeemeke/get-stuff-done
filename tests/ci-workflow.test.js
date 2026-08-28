@@ -397,7 +397,7 @@ describe('Phase 43 paired performance workflow', () => {
       'path: authority-bootstrap',
       'name: Checkout trusted measurement harness',
       'name: Verify trusted measurement harness',
-      'ref: 35cbe0883a65409b13f9b7cc6347c793df2a2f15',
+      'ref: 32dc22f9dc9cfd7d84333256f0768f5a792b186c',
       'path: measurement-harness',
       'name: Checkout exact pull request base',
       'name: Verify exact pull request base',

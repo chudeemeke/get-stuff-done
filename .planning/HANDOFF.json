@@ -1,15 +1,15 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-26T05:30:00Z",
+  "timestamp": "2026-08-29T00:00:00Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "phase43-upgrade-resilience-20260703",
-  "head": "986e09b8",
+  "head": "58248670",
   "pr": "https://github.com/chudeemeke/get-stuff-done/pull/23",
   "pr_state": "draft",
-  "status": "paused",
-  "superseded_handoff_note": "The previous HANDOFF.json described Phase 40.5 and was 3 months stale. Its exact bytes were non-regenerable (issue #41) and are preserved at .planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/preserved-handoff-2026-08-23/ on branch preserve/phase-40.5-handoff-artifacts (commit 82012fc2, pushed) BEFORE this file was rewritten.",
+  "status": "awaiting-windows-perf-verdict",
+  "superseded_handoff_note": "Updated 2026-08-29: the three blocking decisions (#46 #47 #48) are EXECUTED. Prior content of this file (head 986e09b8, three pending decisions) is superseded by the five commits below.",
   "completed_tasks": [
     {
       "id": "recover-stranded-work",
@@ -69,38 +69,41 @@
       "name": "bun authority guard routed on process.argv, which bun mutates per loaded file, so the message depended on filesystem order. macOS told a plain `bun test` to use `node --test`. Now states its one guarded situation directly.",
       "status": "done",
       "commit": "50a23640"
+    },
+    {
+      "id": "decision-46-gate-fix",
+      "name": "Issue #46 resolved by re-gating deliberately (first-principles reversal of the accepted isolated-manifest option, user-approved): MATERIALITY_FLOOR_NS=500ms in the blocking paired path (immaterial ratio breaches downgrade to warn) plus a wired acceptance policy (check-perf --accepted, schema-validated, reviewer/bound/expiry, read from candidate checkout) with one windows/install acceptance (bound 1.5, expires 2026-11-26). Deps stay in root where OSV/bun-audit scan them. perf-baseline.json untouched.",
+      "status": "done",
+      "commit": "32dc22f9"
+    },
+    {
+      "id": "decision-48-repin",
+      "name": "Issue #48 resolved by advancing the harness pin on-branch to 32dc22f9 (contains 5b45a921 + the gate fix, which also runs from the pinned harness). EIGHT pin sites updated, not the six the issue listed (also scripts/verify-toolchain-authority.js and config/phase43-hosted-ci-contract.json). Trust diff in the commit message.",
+      "status": "done",
+      "commit": "6d85819b"
+    },
+    {
+      "id": "decision-47-verdaccio",
+      "name": "Issue #47 resolved with an uplink-disabled verdaccio (.github/verdaccio/config.yaml: @chude/* never proxies; everything else keeps npmjs) started as a docker run step, same digest. verify-toolchain-authority now scans run: blocks so the step-started container stays under digest-pin enforcement.",
+      "status": "done",
+      "commit": "fca32102"
+    },
+    {
+      "id": "latent-breaks",
+      "name": "Two latent breaks exposed the moment the old failures cleared: Tier B receipt staging missed hosted-evidence-binding's ./paired-perf require (workflow test now derives the staged set from the require graph); Upgrade Verifier never composed dist before packing the current package. RESULT: Upgrade Verifier exitClassification=success, all nine steps green, first full end-to-end proof ever.",
+      "status": "done",
+      "commit": "d484e0a9"
+    },
+    {
+      "id": "windows-timeout",
+      "name": "Windows paired leg got past capture for the first time (normalization active), then was cancelled by timeout-minutes:30 mid-measurement - the budget predated a leg that actually measures. Windows now 90 min, linux/macos keep 30.",
+      "status": "done",
+      "commit": "58248670"
     }
   ],
   "ci_state": {
-    "run_head": "50a23640",
-    "green": [
-      "Audit CI (blocking HIGH/CRITICAL)",
-      "Boundary Check (informational)",
-      "Docs Gates",
-      "Lint",
-      "OSV Scanner",
-      "Override Staleness Check (blocking)",
-      "Secret Scan",
-      "Source Parity Check",
-      "Test (ubuntu-latest)",
-      "Test (macos-15)",
-      "Test (windows-latest)",
-      "Upstream Compat (ubuntu-latest)",
-      "Upstream Compat (macos-15)",
-      "Upstream Compat (windows-latest)",
-      "Workflow Lint",
-      "Compat Matrix",
-      "Oversight Probes"
-    ],
-    "failing": [
-      "Perf Budget (linux)",
-      "Perf Budget (macos)",
-      "Perf Budget (windows)",
-      "Upgrade Verifier"
-    ],
-    "note": "CI workflow alone: 15 of 18 jobs green. ACROSS ALL WORKFLOWS: 17 of 21 green (green[] has 17 entries, failing[] has 4). FOUR workflows run on this PR: CI (18 jobs), Compat Matrix (1), Oversight Probes (1), Upgrade Verifier (1) = 21. Quote 17/21 as the total; 15/18 is CI-workflow-only and is what most other artifacts state. Every remaining failure is one of the three owner decisions in human_actions_pending, NOT unfinished implementation.",
-    "captured_at_head": "50a23640",
-    "stale_warning": "Captured at 50a23640. HEAD has moved since (docs-only commits). RE-READ LIVE CI with: gh run list --branch phase43-upgrade-resilience-20260703 --limit 8. Do not quote this block as current."
+    "run_head": "58248670",
+    "note": "On d484e0a9: 20 of 21 checks green including Perf Budget linux+macos (floor working: install 1.42 downgraded to warning) and Upgrade Verifier (success, 9/9 steps). Sole red was Perf Budget (windows) via job-timeout cancellation. 58248670 rerun in flight; windows capture needs up to ~90 min."
   },
   "blockers": [],
   "human_actions_pending": [
@@ -173,5 +176,6 @@
   "commits_ahead_of_main": 158,
   "head_note": "DO NOT TRUST the head/commits_ahead_of_main values above. This file is committed, so every commit that records it (including doc-only follow-ups) leaves them behind by an unknown amount. ALWAYS re-derive: git rev-parse --short HEAD and git rev-list --count origin/main..HEAD. The same applies to ci_state, which was captured at run_head and is not live.",
   "resume_command_warning": "THE DOCUMENTED RESUME COMMAND IS BROKEN. /gsd:resume-work loads .claude/commands/gsd/resume-work.md, which @-imports an absolute path inside the iCloud tree deleted in the 2026-08 move; 55 of 58 files in .claude/commands/gsd/ share the defect. .claude/ is gitignored, so these are untracked single-copy files. If the command fails or silently loads nothing, read this file and .continue-here.md directly - they are self-contained and do not need the command. Two divergent GSD copies exist (project-local .claude/get-shit-done/ from Mar 29, and global ~/.claude/gsd-core/ which the Skill tool actually resolves); deciding which is authoritative is an owner call. Tracked as issue #54.",
-  "handoff_deletion_warning": ".claude/get-shit-done/workflows/resume-project.md line 94 instructs deleting HANDOFF.json after resumption as a one-shot artifact. STATE.md names this file the canonical current position, and it carries the three blocking decisions. It is now tracked in git (986e09b8), so a deletion is recoverable with git checkout -- .planning/HANDOFF.json. Do not let it be deleted while the three decisions are open."
+  "handoff_deletion_warning": ".claude/get-shit-done/workflows/resume-project.md line 94 instructs deleting HANDOFF.json after resumption as a one-shot artifact. STATE.md names this file the canonical current position, and it carries the three blocking decisions. It is now tracked in git (986e09b8), so a deletion is recoverable with git checkout -- .planning/HANDOFF.json. Do not let it be deleted while the three decisions are open.",
+  "next_step": "Confirm Perf Budget (windows) completes capture+adjudication on 58248670 (expect the windows/install acceptance to fire, bound 1.5). Then: close #46/#47/#48 with evidence, decide PR #23 draft->ready, disposition stray untracked get-stuff-done/ dir at repo root, 5 docs/inbox items still untriaged."
 }

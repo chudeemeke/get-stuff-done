@@ -373,7 +373,13 @@ jobs:
     name: Perf Budget (${{ matrix.platform }})
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    # The 30-minute budget predates the windows leg actually measuring: each
+    # paired sample is a hyperfine invocation (5 runs + 3 warmups) and windows
+    # install samples run ~15-25s, so 26 install samples alone need 50-90
+    # minutes. 30 minutes killed the first real windows capture mid-measurement
+    # (run 33219843247, 2026-08-28). linux/macos finish in under 5 minutes and
+    # keep the tight budget.
+    timeout-minutes: ${{ matrix.platform == 'windows' && 90 || 30 }}
     permissions:
       contents: read
     strategy:

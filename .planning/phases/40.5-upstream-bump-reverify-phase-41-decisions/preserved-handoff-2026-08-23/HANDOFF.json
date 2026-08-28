@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-05-15T18:00:00Z",
+  "phase": "40.5",
+  "phase_name": "upstream-bump-reverify-phase-41-decisions",
+  "phase_dir": ".planning/phases/40.5-upstream-bump-reverify-phase-41-decisions",
+  "plan": "04",
+  "task": "04-01",
+  "total_tasks": 5,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": "1", "name": "Wave 1: upstream pin bump v1.39.1 (retargeted from v1.38.5 per A-12)", "status": "done", "commits": ["d259b4c", "0fd59c7"]},
+    {"id": "1.5", "name": "Wave 1.5 a/b/c/d: bunfig+SSOT manifest+eslint+categorical primitives", "status": "done", "commit_range": "e612d82..724aea3"},
+    {"id": "1.6", "name": "Wave 1.6 Tasks 01-04: actionlint+Node24+no-test-in-dist+ratchet gate", "status": "done", "commits": ["8942512", "1fd7781", "d4b4238", "3567636"]},
+    {"id": "1.7-A", "name": "Wave 1.7-A: secret-scanning gate stack + public-flip + gitleaks allowlist", "status": "done", "commits": ["ac785d0", "d218926"]},
+    {"id": "1.7-01", "name": "Wave 1.7 Task 1.7-01: branch protection script + applied live", "status": "done", "commit": "c41409c"},
+    {"id": "1.8-01", "name": "Wave 1.8: pre-push hook (husky)", "status": "done", "commit": "53312eb"},
+    {"id": "path-a-1", "name": "Path A planning-rigor cleanup: A-12 retarget amendment + Wave 1 SUMMARY + Wave 1.5/1.6/1.7/1.8 SUMMARY + Wave 2 plan 1.38.5->1.39.1 substitution", "status": "done", "commit": "cd5ea78"},
+    {"id": "2", "name": "Wave 2: override drift detection. Both REASON.md snapshots refreshed to v1.39.1. DRIFT-LOG.md initialized + per-override semantic review + disposition summary. check-overrides.js exits 0 post-refresh. gsd-statusline.js drift flagged NON-ROUTINE (upstream #2219 evolved override's exact concern; Wave 5 REWRITE per A-12).", "status": "done", "commit": "db8de74"},
+    {"id": "inbox-2026-05-13-hook-syntax", "name": "Triage authkey hook-PowerShell-syntax filing: archived as merged on main; counter-notification authored at ~/Projects/authkey/docs/inbox/", "status": "done", "commit": "4ff6945"},
+    {"id": "inbox-2026-05-06-aidev", "name": "Triage aidev quality-gate counter-notification: Decision=Keep (defense-in-depth); archived as merged on main", "status": "done", "commit": "ba83b99"},
+    {"id": "gsd-doctor-pr-4", "name": "gsd-doctor: PR #4 OPEN on worktree-gsd-doctor branch — scripts/gsd-doctor.cjs + 41 tests, codex (gpt-5.5) review 2 P2s fixed (file-mode preservation + --settings value validation)", "status": "done", "commits": ["8775ecd", "2cf5e58"], "pr_url": "https://github.com/chudeemeke/get-stuff-done/pull/4"},
+    {"id": "path-a-2", "name": "Path A extension: Waves 3/4/5 plan retargets (71 mechanical substitutions of 1.38.5->1.39.1 across 03/04/05-PLAN.md)", "status": "done", "commit": "0b7b434"},
+    {"id": "3", "name": "Wave 3: compose-collision audit. bun run compose exit 0 (928 files, no COMP-08); static cross-check 33 overlay paths vs v1.39.1 (21 RESEARCH baseline + 12 new under overlay/src/*) zero collisions; PR #1859 NO FORK DIVERGENCE (verbatim composition). 40.5-COLLISIONS.md with 4 H2 sections + Wave 3 conclusion.", "status": "done", "commit": "0abd5b5"}
+  ],
+  "remaining_tasks": [
+    {"id": "wave-4", "name": "Wave 4: 24-decision matrix verification -> DECISION-VERIFY.md", "status": "not_started", "estimate_minutes": 150, "plan_file": ".planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/40.5-04-PLAN.md"},
+    {"id": "wave-5", "name": "Wave 5: override REWRITE (per A-12 + DRIFT-LOG.md fold guidance for gsd-statusline.js #2219+#1990+#2884 and gsd-check-update.js worker-script split) + VERIFICATION.md synthesis + final commit + push PR #3", "status": "not_started", "estimate_minutes": 90, "plan_file": ".planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/40.5-05-PLAN.md"},
+    {"id": "triage-stale", "name": "Re-verify 2 triaged inbox items post-Wave-5 per their DEFER trigger", "status": "not_started", "estimate_minutes": 15}
+  ],
+  "blockers": [],
+  "human_actions_pending": [
+    {"id": "review-pr-4", "description": "Review and merge PR #4 (gsd-doctor) at https://github.com/chudeemeke/get-stuff-done/pull/4. Independent of PR #3; can merge anytime."},
+    {"id": "push-pr-3", "description": "Push PR #3 worktree HELD per user direction until end-of-Wave-5 batch. Current commits on worktree-agent-a1c0cd52236103329 awaiting push: 53312eb, cd5ea78, db8de74, 0b7b434, 0abd5b5."},
+    {"id": "subscription-watch", "description": "Subscribed to gsd-build/get-shit-done#3413 via eyes-reaction. Watch for upstream fix-landed notification before bumping fork past v1.39.1."}
+  ],
+  "next_action": "Open with /gsd:resume-work. Verify worktree HEAD = 0abd5b5 + PR #4 still OPEN + branch protection still live. Then proceed to Wave 4 (24-decision matrix verification). Plan file: 40.5-04-PLAN.md. ESTIMATE: 150 min. Wave 4 plan was retargeted to v1.39.1 in commit 0b7b434 — no version substitution needed.",
+  "context_notes": "v1.39.2 is now available upstream but DO NOT bump past v1.39.1 until #3413 fix lands (v1.41.x re-introduces the bash-breaking & prefix per PR #3368). Phase 40.5 v1.39.1 pin is structurally load-bearing. SESSION_LOG.md is now ~75KB+ after two document-for-clear protocol runs in same session — over 50KB threshold; next session's session-start cleanup must archive oldest sections to memory/archive/2026-05-session-log.md. Two worktrees live: agent-a1c0cd52236103329 (PR #3, push held, 5 commits ahead of origin/main since session start) + gsd-doctor (PR #4, pushed and open). Both have committed work. SETTINGS.JSON: settings.json was repaired live earlier (Prong 1, 6 entries); .bak.2026-05-14T12-18-09-234Z is the rollback path. Hooks fire from in-memory broken state until session restart (expected); /clear or restart resolves. WAVE 4 NOTE: per Wave 3 finding, the 1.38.2..1.39.1 upstream delta is 631 files (larger than RESEARCH.md §1 anticipated). Wave 4 verification of D-XX/A-XX decisions should expect some predictions to have scoped reasoning that still produces correct conclusions — don't immediately flag mismatch between RESEARCH.md's reasoning scope and reality scope; check whether the prediction itself holds."
+}

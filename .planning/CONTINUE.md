@@ -1,69 +1,49 @@
 # Continuation Context
 
-**Refreshed at:** 2026-07-01
-**Trigger:** Phase 41 Plan 04 local implementation blocked at real baseline capture
+**Refreshed at:** 2026-08-28
+**Trigger:** Manual refresh — this file had gone two months stale and was mis-routing resumption
 
 ## Resume Instructions
 
-1. Read `.planning/STATE.md` first. It is the authoritative resume pointer.
-2. Read `.planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-04-PLAN.md`.
-3. Read `.planning/phases/41-foundation-flip-gate-install-audit-surface-windows-slo/41-04-SUMMARY.md`.
-4. Continue Phase 41 Wave 2 using Open GSD evidence.
-5. Do not run the old Phase 40.5 Wave 5 legacy filing path. It is retired unless a future reviewed plan creates a new Open GSD-specific filing path.
+1. **Read `.planning/HANDOFF.json` first.** It is the current session position: branch, HEAD,
+   live CI state, and the three decisions blocking PR #23.
+2. Then read
+   `.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/.continue-here.md`
+   for the constraints, anti-patterns, rejected alternatives and terminology.
+3. `.planning/STATE.md` is canonical for **plan-execution** position (which plan is next) and
+   carries its own READ FIRST block. Its progress block can be far behind the session position
+   when non-plan work has happened — as it currently is.
+4. Verify before trusting any of the above: `git worktree list` (anything `prunable` means work
+   may be stranded), `git rev-list --left-right --count origin/<branch>...<branch>` (expect
+   `0 0`), and re-read live CI rather than any recorded table.
+5. `/gsd:resume-work` is **broken** (issue #54) — 55 of 58 files in `.claude/commands/gsd/`
+   `@`-import a deleted iCloud path. The two files above are self-contained and need no command.
 
 ## Last Known State
 
 **Milestone:** v1.2.0 Ship-Ready Hardening
 
-**Phase:** 41 -- Foundation: Flip Gate, Install Audit Surface, Windows SLO
+**Active work:** Phase 43 — upgrade-resilience-verify-matrix-dogfood, on draft PR #23.
 
-**Status:** Phase 41 Wave 2 active. Plans 01, 02, 03, and 05 are verified; Plan 04 local harness/workflow is implemented but blocked at real three-platform artifact capture.
+**Status:** 17 of 21 CI jobs green across four workflows (15 of 18 within the CI workflow
+alone). Everything still red is one of three owner **decisions**, not unfinished
+implementation:
 
-**Current code state:** Active worktree pins Open GSD `@opengsd/gsd-core@1.5.0`. Legacy `get-shit-done-cc` is retained only as historical/deprecation evidence. Package smoke for packed `@chude/get-stuff-done@3.0.2` passed, the boundary checker still reports 41 structural root-mirror violations as explicit debt, Plan 05 migrated the high-volume subprocess test files to the central timeout helper, Plan 03 added blocking security scanner CI jobs plus OSV triage, and Plan 04 added perf schemas/scripts plus a manual capture workflow.
+- **#46** — perf regression is real: +151 packages (367→504, +41%) → install 1.41x linux /
+  1.39x macOS under paired measurement. Do **not** bump `perf-baseline.json` or loosen a ratio.
+- **#47** — Upgrade Verifier hits npm E409: verdaccio proxies to npmjs where
+  `@chude/get-stuff-done@3.0.2` genuinely exists, so publishing the current version collides.
+- **#48** — Windows perf fix `5b45a921` is correct but **inert**: the job runs
+  `measurement-harness` at pinned SHA `35cbe088`, never PR head. Re-pinning is a
+  trust-boundary change across 6 locations.
 
-**Next concrete action:** Resolve the Plan 04 workflow-registration decision:
+**Upstream:** pinned `@opengsd/gsd-core@1.6.1`; upstream itself is at 1.11.0 (issue #53).
+Do not bump inside Phase 43.
 
-- Fast-forward/register `.github/workflows/perf-baseline.yml` on `origin/main`, then run `gh workflow run perf-baseline.yml --ref worktree-agent-a1c0cd52236103329 --repo chudeemeke/get-stuff-done`.
-- Download the artifacts, merge real linux/macos/windows outputs, and commit `perf-baseline.json` plus `.planning/perf/test-timing.json`.
-
-Do not resume Phase 40.5 Wave 5 legacy filing.
-
-## Phase 40.6 Plans
-
-- `40.6-01-PLAN.md` -- authority ADR and package/source contract
-- `40.6-02-PLAN.md` -- isolated Open GSD package layout spike
-- `40.6-03-PLAN.md` -- implement upstream identity abstraction and migrate tooling
-- `40.6-04-PLAN.md` -- verification, legacy-reference audit, and Phase 41 readiness reset
-
-## Phase 41 Plans
-
-- `41-01-PLAN.md` -- Wave 1: blocking override gate and changelog conflict guard (complete)
-- `41-02-PLAN.md` -- Wave 1: audit suppressions, security policy, and maintenance sections (complete)
-- `41-05-PLAN.md` -- Wave 1: subprocess timeout helper and high-volume Windows-prone test migration (complete)
-- `41-03-PLAN.md` -- Wave 2: security scanner CI surface and OSV triage (complete)
-- `41-04-PLAN.md` -- Wave 2: perf baseline harness, schemas, workflow, and real three-platform capture protocol (blocked at real artifact capture)
-- `41-06-PLAN.md` -- Wave 3: remaining subprocess migration and Windows flake telemetry
-- `41-07-PLAN.md` -- Wave 4: 10x validation, flake maintenance, and D-11/REL-03 closure discipline
-
-## Tripwires
-
-- Do not use `get-shit-done-cc@latest` as a normal bump target. It is now legacy evidence, not active authority.
-- Do not dynamically track Open GSD `latest` or `next`; pin a reviewed stable version.
-- Do not assume `@opengsd/gsd-core` has the old `get-shit-done-cc` layout or bins.
-- Do not patch global GSD installs while debugging this. Work in the repo/worktree and use temp package-layout spikes. Note: one earlier `bun install` did trigger the package installer; record this as a verification breach and mitigation.
-- Do not file new upstream work against `gsd-build/get-shit-done` from stale Phase 40.5 instructions.
-- Phase 41 perf and 10x workflows are `workflow_dispatch`; first run requires default-branch workflow registration before `gh workflow run ... --ref ...`.
-- Do not fabricate missing Linux/macOS/Windows perf or test-timing baseline numbers.
-- `perf-baseline.json` and `.planning/perf/test-timing.json` are intentionally absent until real workflow artifacts exist.
-- First CI run for Plan 03 must record gitleaks action license behavior and harden-runner audit artifact shape; local verification could not observe those action-only surfaces.
-- Current coverage command exits 0 but aggregate metrics remain below the user's 95% per-metric standard (`94.86%` functions, `93.08%` lines on 2026-07-01).
-
-## Active Independent Work
-
-- Phase 40.5 Wave 1-4 evidence exists in this branch and remains useful as legacy-baseline evidence.
-- Phase 40.5 Wave 5 legacy filing path is retired. Any future filing must be Open GSD-specific and planned separately.
-- Phase 40.6 verification files are the authoritative closeout: `40.6-VERIFICATION.md`, `40.6-README.md`, and `40.6-04-SUMMARY.md`.
+**Next concrete action:** work issues #46, #47, #48. PR #23 cannot go green without them.
 
 ---
-
-This file is a human-readable companion to `STATE.md`; `STATE.md` remains authoritative.
+*Hand-written 2026-08-28, replacing a 2026-07-01 version that pointed at Phase 41 Plan 04
+(Phase 41 completed 2026-07-03) and asserted STATE.md was "the authoritative resume pointer"
+without the plan-execution qualifier. The GSD PreCompact hook regenerates this file; its
+template was updated in the same commit so regeneration no longer reintroduces that routing.*

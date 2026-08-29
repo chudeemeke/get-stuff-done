@@ -1,187 +1,82 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-29T01:00:00Z",
+  "timestamp": "2026-08-29T12:00:00Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
-  "branch": "phase43-upgrade-resilience-20260703",
-  "head": "11fd34f6",
+  "branch": "main",
   "pr": "https://github.com/chudeemeke/get-stuff-done/pull/23",
-  "pr_state": "draft",
-  "status": "all-green-awaiting-owner",
-  "superseded_handoff_note": "Updated 2026-08-29: the three blocking decisions (#46 #47 #48) are EXECUTED. Prior content of this file (head 986e09b8, three pending decisions) is superseded by the five commits below.",
-  "completed_tasks": [
-    {
-      "id": "recover-stranded-work",
-      "name": "Recovered 86 commits stranded in a worktree orphaned by the iCloud-to-C:/Projects move. PR #23's GitHub head 2c9ba08 was 86 behind local. Verified refs resolved before pruning; git worktree prune removes only the registration.",
-      "status": "done"
-    },
-    {
-      "id": "merge-main",
-      "name": "Merged origin/main (503c138c) into the branch. 6 conflicts resolved as unions.",
-      "status": "done",
-      "commit": "612098a8"
-    },
-    {
-      "id": "advisories",
-      "name": "audit:ci from 9 findings/4 blocking to 1/0. js-yaml 5.2.0->5.4.0; js-yaml 4.1.1 stale lock pin deduped to 4.3.1; tar override 7.5.22. Lockfile regeneration floated 56 transitives in-range, zero major bumps; also clears issue #37.",
-      "status": "done",
-      "commit": "612098a8"
-    },
-    {
-      "id": "local-gates",
-      "name": "eslint was linting .claude/worktrees/ as source (all 282 errors); check-boundary crashed on a dangling symlink via fs.statSync. Both fixed; bun run lint now exits 0. Root cause behind issue #44.",
-      "status": "done",
-      "commit": "bf54fa2d"
-    },
-    {
-      "id": "windows-acl-timeout",
-      "name": "Windows ACL tests capped themselves at 15000ms, below the 30000ms headroom PR #38 added (a per-test timeout beats the CLI flag). Raised to 60000.",
-      "status": "done",
-      "commit": "da051891"
-    },
-    {
-      "id": "actionlint-sc2016",
-      "name": "False-positive SC2016 from unpinned rhysd/actionlint:latest drifting to a stricter shellcheck. Suppressed with a scoped directive. Pinning gap filed as issue #50.",
-      "status": "done",
-      "commit": "f38e9cad"
-    },
-    {
-      "id": "verifier-pin-drift",
-      "name": "Upgrade verifier --from 1.5.0 went stale when 689fa9eb moved the pin to 1.6.1. Its test compared the workflow to itself, so nothing caught it; now derives the pin from package.json.",
-      "status": "done",
-      "commit": "ecba8dbb"
-    },
-    {
-      "id": "macos-guard-stderr",
-      "name": "bun authority guard lost its message on macOS: process.exit() does not flush an async stderr pipe. Now writes via fs.writeSync.",
-      "status": "done",
-      "commit": "70a69849"
-    },
-    {
-      "id": "windows-cpu-identity",
-      "name": "Windows paired-perf capture rejected the space-padded os.cpus()[0].model. Normalized at the capture site. CORRECT BUT INERT - see decision-harness-repin.",
-      "status": "done",
-      "commit": "5b45a921"
-    },
-    {
-      "id": "macos-guard-route",
-      "name": "bun authority guard routed on process.argv, which bun mutates per loaded file, so the message depended on filesystem order. macOS told a plain `bun test` to use `node --test`. Now states its one guarded situation directly.",
-      "status": "done",
-      "commit": "50a23640"
-    },
-    {
-      "id": "decision-46-gate-fix",
-      "name": "Issue #46 resolved by re-gating deliberately (first-principles reversal of the accepted isolated-manifest option, user-approved): MATERIALITY_FLOOR_NS=500ms in the blocking paired path (immaterial ratio breaches downgrade to warn) plus a wired acceptance policy (check-perf --accepted, schema-validated, reviewer/bound/expiry, read from candidate checkout) with one windows/install acceptance (bound 1.5, expires 2026-11-26). Deps stay in root where OSV/bun-audit scan them. perf-baseline.json untouched.",
-      "status": "done",
-      "commit": "32dc22f9"
-    },
-    {
-      "id": "decision-48-repin",
-      "name": "Issue #48 resolved by advancing the harness pin on-branch to 32dc22f9 (contains 5b45a921 + the gate fix, which also runs from the pinned harness). EIGHT pin sites updated, not the six the issue listed (also scripts/verify-toolchain-authority.js and config/phase43-hosted-ci-contract.json). Trust diff in the commit message.",
-      "status": "done",
-      "commit": "6d85819b"
-    },
-    {
-      "id": "decision-47-verdaccio",
-      "name": "Issue #47 resolved with an uplink-disabled verdaccio (.github/verdaccio/config.yaml: @chude/* never proxies; everything else keeps npmjs) started as a docker run step, same digest. verify-toolchain-authority now scans run: blocks so the step-started container stays under digest-pin enforcement.",
-      "status": "done",
-      "commit": "fca32102"
-    },
-    {
-      "id": "latent-breaks",
-      "name": "Two latent breaks exposed the moment the old failures cleared: Tier B receipt staging missed hosted-evidence-binding's ./paired-perf require (workflow test now derives the staged set from the require graph); Upgrade Verifier never composed dist before packing the current package. RESULT: Upgrade Verifier exitClassification=success, all nine steps green, first full end-to-end proof ever.",
-      "status": "done",
-      "commit": "d484e0a9"
-    },
-    {
-      "id": "windows-timeout",
-      "name": "Windows paired leg got past capture for the first time (normalization active), then was cancelled by timeout-minutes:30 mid-measurement - the budget predated a leg that actually measures. Windows now 90 min, linux/macos keep 30.",
-      "status": "done",
-      "commit": "58248670"
-    },
-    {
-      "id": "windows-calibration",
-      "name": "Windows acceptance bounds calibrated against the first real measurements: install 1.5->1.7 (observed 1.60/1.46/1.33, reference varying 25% across runners), plus a windows/compose entry (1.75) explicitly documenting measurement NOISE (identical code measured 0.59 and 1.48). Floor recalibration filed as issue #55 (trigger: next harness re-pin, deadline: entry expiry 2026-11-26).",
-      "status": "done",
-      "commit": "11fd34f6"
-    }
-  ],
-  "ci_state": {
-    "run_head": "11fd34f6",
-    "note": "ALL 21 CHECKS GREEN - first fully green matrix in Phase 43 history. Windows install 1.33 accepted with printed rationale; compose 0.94 pass. Issues #46/#47/#48 closed with evidence."
+  "pr_state": "MERGED",
+  "status": "phase-43-merged",
+  "superseded_handoff_note": "Updated 2026-08-29 post-merge: PR #23 squash-merged to main as ece379db at 2026-08-29T11:54:01Z with 21/21 hosted checks green on head a788ca94. tuicr assembled-diff gate ran with zero comments. The prior content of this file (all-green-awaiting-owner, per-commit task record) is preserved in git history at a788ca94.",
+  "merge_evidence": {
+    "merge_commit": "ece379db",
+    "final_head": "a788ca94",
+    "checks": "21/21 SUCCESS (run 33224569063 + companion workflows)",
+    "upgrade_verifier": "exitClassification success, 9/9 steps",
+    "perf": "windows install 1.57 within accepted bound 1.70 (expires 2026-11-26, #46 rationale); compose 1.15; linux/macos green under 500ms materiality floor",
+    "windows_noise_note": "A docs-only commit measured install 1.72 (>1.70) then 1.57 on rerun of identical code. Every commit re-rolled that dice pre-merge. Floor recalibration is issue #55."
   },
-  "blockers": [],
+  "closed_this_arc": [
+    "Issues #46 #47 #48 closed with evidence (pre-merge).",
+    "Issue #37 advisories cleared via lockfile regeneration (pre-merge).",
+    "Inbox: memory-nexus installer-crash item archived as merged (trigger was PR #23 merge).",
+    "Inbox: kanbanflow model-catalog + conversations plan-checker-effort triaged to the #53 bump (both fix targets upstream-owned at pin 1.6.1; plan-checker at 1.6.1 has NO effort field - the observed low is from a newer installed copy, #54 divergence).",
+    "PR body rewritten to the evidence contract before ready."
+  ],
   "human_actions_pending": [
     {
-      "id": "decision-perf-scope",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/46",
-      "severity": "blocks-pr-23",
-      "description": "DECIDE: Phase 43 adds 151 packages (367->504, +41%), producing a real 1.41x linux / 1.39x macOS install regression measured by paired benchmarking (base vs head, same runner - not noise). Drivers are @cyclonedx/cyclonedx-npm, c8, expect. Options: accept the cost, make the tooling on-demand, or re-gate deliberately. DO NOT bump perf-baseline.json or loosen a ratio as a side effect - it is currently byte-identical to main on purpose."
+      "id": "issue-53-upstream-bump",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/53",
+      "description": "Bump @opengsd/gsd-core 1.6.1 -> 1.11.0. Now a VERIFIABLE operation (Upgrade Verifier proves the path end-to-end). At bump time also execute the two triaged inbox items (model-catalog opus5 refresh, plan-checker effort) - check upstream >=1.11.0 first, else overrides/ with REASON.md or upstream PR."
     },
     {
-      "id": "decision-verdaccio-e409",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/47",
-      "severity": "blocks-pr-23",
-      "description": "DECIDE: Upgrade Verifier now fails at publish with npm E409. Verdaccio's default config proxies to npmjs where @chude/get-stuff-done@3.0.2 genuinely exists, so publishing the CURRENT version collides; the bumped 3.0.2-upgrade.<to> would not. Options: run verdaccio as a step with an uplink-disabled config (service containers cannot mount repo files), or publish the current step under a local-only version. The choice changes what the gate proves."
+      "id": "legacy-self-install-dir",
+      "description": "DECIDE: tracked legacy get-stuff-done/ dir at repo root (101 files, v2.4.0 self-install, on main since a11cb569). Remove from repo, or keep? Only get-stuff-done/memory/ (2 stale runtime files) is untracked; recommendation if kept: gitignore /get-stuff-done/memory/ (anchored). Ties into #54 which-copy-is-authoritative."
     },
     {
-      "id": "decision-harness-repin",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/48",
-      "severity": "blocks-pr-23",
-      "description": "DECIDE: Perf Budget (windows) cannot pass until the trusted measurement-harness pin advances. The job runs measurement-harness checked out at pinned SHA 35cbe088, never PR head, so the fix in 5b45a921 is inert. This is a trust-boundary change touching 6 locations (3 in ci.yml including the --harness-sha binding-manifest arg, plus tests/ci-workflow.test.js, tests/paired-binding-manifest.test.js, tests/verify-hosted-ci.test.js). Choosing what to trust is the owner's call."
-    },
-    {
-      "id": "review-pr-23",
-      "description": "PR #23 is still a draft. It is 157 commits ahead of main. Before marking ready: settle the three decisions above, then run the tuicr assembled-diff gate per git-workflow.md."
-    },
-    {
-      "id": "review-pr-4",
-      "description": "PR #4 (gsd-doctor) still open and independent of #23."
-    },
-    {
-      "id": "decide-governance-branch",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/51",
-      "description": "docs/pr-issue-evidence-workflow was pushed for backup (no longer single-copy). Remaining decision: open a PR and land it, or discard. Landing it creates the type:bug/type:feature/type:docs/type:decision labels that git-workflow.md calls standard and that do not currently exist - issues #46-#53 carry only the auto-applied needs-triage label because no type:* label exists to apply."
-    },
-    {
-      "id": "finish-issue-41",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/41",
-      "description": "Laptop copies preserved in git (commit 82012fc2). Still open: the DESKTOP copies differ (7188/12101 bytes, sums 0f9f5a51.../c43408f6...) and remain only on a filesystem path the Phase 20 cutover will overwrite. Time-critical."
-    },
-    {
-      "id": "fix-resume-command",
+      "id": "issue-54-resume-command",
       "issue": "https://github.com/chudeemeke/get-stuff-done/issues/54",
-      "description": "DECIDE + FIX: /gsd:resume-work is broken (55 of 58 .claude/commands/gsd/ files @-import the deleted iCloud path). Needs a decision on which of two divergent GSD copies is authoritative before rewriting paths. Also decide whether resume-project.md:94 should still delete HANDOFF.json now that it is tracked."
+      "description": "DECIDE + FIX: /gsd:resume-work broken (55/58 .claude/commands/gsd/ files import the deleted iCloud path). Decide which GSD copy is authoritative (.claude/get-shit-done/ Mar 29 vs ~/.claude/gsd-core/), then rewrite paths."
+    },
+    {
+      "id": "issue-49-inert-hook",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/49",
+      "description": "DECIDE: pre-push hook is inert (--ignore-scripts means husky prepare never runs; git skips missing hooks silently). Options in the issue."
+    },
+    {
+      "id": "issue-51-governance-branch",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/51",
+      "description": "DECIDE: land or discard docs/pr-issue-evidence-workflow. Landing creates the type:* labels git-workflow.md calls standard."
+    },
+    {
+      "id": "issue-55-perf-floor-recalibration",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/55",
+      "description": "Recalibrate windows acceptance floors. Trigger: next harness re-pin. Deadline: acceptance expiry 2026-11-26. Post-merge windows noise evidence: 1.33/1.72/1.57 on identical code."
+    },
+    {
+      "id": "issue-41-desktop-artifacts",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/41",
+      "severity": "time-critical",
+      "description": "Desktop copies of Phase 40.5 handoff artifacts (7188/12101 bytes, sums 0f9f5a51/c43408f6) exist ONLY on a desktop filesystem path. User announced a desktop reset 2026-08-29 - if that means wipe/reinstall, these must be copied off FIRST."
+    },
+    {
+      "id": "pr-4-gsd-doctor",
+      "description": "PR #4 (gsd-doctor) still open, independent of #23."
     }
   ],
   "remaining_tasks": [
     {
-      "id": "inbox-triage",
-      "name": "Triage 5 active docs/inbox items - not touched this session: memory-nexus installer crash (HIGH, in-progress), memory-nexus health v5/decimal drift (in-progress), authkey portable market-ready gate (triaged), kanbanflow model-catalog opus5 refresh (open), conversations plan-checker effort tier (open).",
+      "id": "phase-43-plan-coverage",
+      "name": "50 PLAN files vs 22 SUMMARY files. Whether the 28 gaps are unexecuted or executed-but-unsummarized was never established; several were executed inside the 86 recovered commits. Establish before treating as remaining effort, then close out Phase 43 in STATE/ROADMAP.",
       "status": "not_started"
     },
     {
-      "id": "phase-43-remaining-plans",
-      "name": "Phase 43 has 50 PLAN files and 22 SUMMARY files: 28 plans have no summary (43-11, 43-11AA, 43-11AB, 43-11AH, 43-11AI, 43-11AJ, 43-11AK, 43-11D..43-11Z, 43-12, 43-12B, 43-12C). This session did NOT advance plan execution - it recovered stranded work, merged main, and fixed CI. Whether those 28 represent unexecuted work or executed-but-unsummarized work was NOT determined; several were executed inside the 86 recovered commits (11AE and 11AH both appear in commit subjects). Establish which before treating the count as remaining effort.",
-      "status": "not_started"
+      "id": "inbox-remaining",
+      "name": "4 active inbox items remain, all with defined owners/triggers: memory-nexus health-drift (in-progress, backlog 999.8), authkey gate system (triaged, backlog 999.7), kanbanflow catalog + conversations plan-checker (triaged, execute at #53 bump).",
+      "status": "tracked"
     }
   ],
-  "next_action": "Open with /gsd:resume-work. FIRST verify the world rather than trusting this file: `git worktree list` (anything 'prunable' means work may be stranded again), `git rev-list --left-right --count origin/phase43-upgrade-resilience-20260703...phase43-upgrade-resilience-20260703` (must be 0 0), and re-read PR #23's live CI rather than the ci_state block above. THEN work issues #46, #47, #48 - all three are decisions, and PR #23 cannot go green without them.",
-  "context_notes": "CRITICAL - VERIFY, DO NOT TRUST: this session began by resuming from a recorded root-cause list that described a state the work had already moved past. PR #23's GitHub head was 86 commits behind the local branch because the worktree holding the work was orphaned by the iCloud-to-C:/Projects move. Check worktree list and local-vs-origin divergence before trusting any recorded state, including this file. See memory/orphaned_worktree_hid_86_commits.md. THE PRE-PUSH HOOK DOES NOT RUN: core.hooksPath=.husky/_ does not exist because every install uses --ignore-scripts so husky's prepare never runs, and git skips missing hooks silently. A successful push is NOT gate evidence - run bun run lint / compose / test by hand. See memory/inert_pre_push_hook_husky.md and issue #49. MACHINE PRESSURE: disk was at 4.4GB free (99%) and the suite takes ~9.5min, which exceeds the 10-minute tool cap - run it detached with a terminal marker, and treat a killed run as no result (an absent marker is the proof). Under that pressure three tests failed in a full run and passed cleanly in isolation; verify a suspicious failure in isolation before believing it. TEST AUTHORITY: bare `bun test` is blocked by a preload guard; use `bun run test`, which filters to .test.js and routes .test.cjs to test:repository-compat (this structurally contains issue #45). Upstream @opengsd/gsd-core is now 1.11.0 while the fork pins 1.6.1 - issue #53, and explicitly NOT to be bumped inside Phase 43.",
-  "blockers_note": "blockers is empty because nothing is technically blocked: the tree is clean, the branch is pushed, and no task is waiting on another task. PR #23 is GATED, not blocked — on three human decisions, each carrying severity blocks-pr-23 in human_actions_pending. Do not read blockers:[] as \"ready to merge\".",
-  "test_suite_expectations": {
-    "command": "bun run test  (NEVER bare `bun test` — a preload guard blocks it)",
-    "companion": "bun run test:repository-compat  (the .test.cjs contracts, run under node --test)",
-    "expected_summary": "Ran 1657 tests across 63 files",
-    "expected_file_count_test_js": 63,
-    "expected_file_count_test_cjs": 14,
-    "last_known_green": "1657 pass / 0 fail across 63 of 63 files, rc=0, on the tree at da051891 (2026-08-26). Recheck the file count with: ls tests/*.test.js | wc -l",
-    "how_to_know_it_completed": "Read the summary line, not rc. A test file calling process.exit(0) can end the whole run with rc=0 and no summary (issue #45). Check M in \"across M files\" against the live ls count. Runtime ~9.5min exceeds the 10-minute tool cap, so run detached and write a terminal marker; an absent marker means the run was killed and there is NO result."
-  },
-  "commits_ahead_of_main": 158,
-  "head_note": "DO NOT TRUST the head/commits_ahead_of_main values above. This file is committed, so every commit that records it (including doc-only follow-ups) leaves them behind by an unknown amount. ALWAYS re-derive: git rev-parse --short HEAD and git rev-list --count origin/main..HEAD. The same applies to ci_state, which was captured at run_head and is not live.",
-  "resume_command_warning": "THE DOCUMENTED RESUME COMMAND IS BROKEN. /gsd:resume-work loads .claude/commands/gsd/resume-work.md, which @-imports an absolute path inside the iCloud tree deleted in the 2026-08 move; 55 of 58 files in .claude/commands/gsd/ share the defect. .claude/ is gitignored, so these are untracked single-copy files. If the command fails or silently loads nothing, read this file and .continue-here.md directly - they are self-contained and do not need the command. Two divergent GSD copies exist (project-local .claude/get-shit-done/ from Mar 29, and global ~/.claude/gsd-core/ which the Skill tool actually resolves); deciding which is authoritative is an owner call. Tracked as issue #54.",
-  "handoff_deletion_warning": ".claude/get-shit-done/workflows/resume-project.md line 94 instructs deleting HANDOFF.json after resumption as a one-shot artifact. STATE.md names this file the canonical current position, and it carries the three blocking decisions. It is now tracked in git (986e09b8), so a deletion is recoverable with git checkout -- .planning/HANDOFF.json. Do not let it be deleted while the three decisions are open.",
-  "next_step": "Owner decisions only: (1) PR #23 draft -> ready and merge path; (2) stray untracked get-stuff-done/ directory at repo root (real dir, stale v2.4.0 GSD self-install from March, NOT gitignored - git add -A would commit it); (3) 5 docs/inbox items untriaged; (4) open issues #49 inert pre-push hook, #51 governance branch land-or-discard, #53 upstream bump (now verifiable end-to-end), #54 broken resume command, #55 floor recalibration."
+  "next_action": "Verify main CI goes green on ece379db (first post-Phase-43 main run). Then work the owner decisions above - #53 upstream bump is the natural next arc and is now verifiable.",
+  "context_notes": "VERIFY, DO NOT TRUST recorded state: re-derive head (git rev-parse --short HEAD), check git worktree list for prunable entries, re-read live CI. The pre-push hook still does not run (#49) - run bun run lint / compose / test by hand; suite is bun run test (never bare bun test), summary line is the pass signal, local bun 1.4.0 vs pinned 1.3.5 and ambient FORCE_COLOR=3 each cause one known false local red. Windows perf gate near its bound is noise-sensitive - a rerun of an identical-code failure is legitimate; moving the bound is not (that is #55)."
 }

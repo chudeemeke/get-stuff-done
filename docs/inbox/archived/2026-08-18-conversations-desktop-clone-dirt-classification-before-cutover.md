@@ -188,11 +188,16 @@ After `git fetch origin`: desktop `main` is **11 ahead / 94 behind** `origin/mai
 | 4. local config / secret | 0 | — | No `.env*`, key, or credential paths among the 494 entries; no untracked files outside the groups above. | Nothing to do. |
 | 5. real source change | **0** | — | Proven empty by the CR-at-EOL test (475 files) plus the blob-in-history test (5 files); the 2 handoff files are planning narrative, not source. | — |
 
-**Preservation record:** desktop path
-`~/Projects/_preserve/get-stuff-done-2026-08-23-predesktop-cutover/` holds
-`.planning/HANDOFF.json`, the `.continue-here.md`, the full porcelain listing
-(`git-status-porcelain-2026-08-23.txt`), `HEAD.txt`, and `SHA256SUMS`
-(`0f9f5a51...` for HANDOFF.json, `c43408f6...` for .continue-here.md).
+**Preservation record (updated 2026-08-29, issue #41):** the capture is now
+DURABLE IN GIT at
+`.planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/preserved-desktop-2026-08-23/`
+on `main` — `HANDOFF.json`, `.continue-here.md`, `git-status-porcelain-2026-08-23.txt`,
+`HEAD.txt`, and `SHA256SUMS`, fetched from the desktop path
+`~/Projects/_preserve/get-stuff-done-2026-08-23-predesktop-cutover/` and verified
+byte-identical to the recorded sums (`0f9f5a51...` for HANDOFF.json,
+`c43408f6...` for .continue-here.md) both after fetch and against the staged git
+blobs. A `.gitattributes` `-text` rule pins byte identity. The desktop directory
+is no longer the only copy; the Phase 20 cutover may overwrite it safely.
 
 **Verdict for Phase 20:** the desktop working tree contains **no unique,
 non-regenerable work** once the two handoff files are preserved. The desktop's
@@ -215,3 +220,4 @@ laptop line is acceptable.
 - 2026-08-18T02:43:45.000Z | conversations | filed | Phase 20 plan 20-06 Task 2: desktop clone carries 488 uncommitted entries and the laptop holds 13 unpushed commits; requesting per-path classification before cutover.
 - 2026-08-23T02:35:28.215Z | get-stuff-done | triaged | Re-measured desktop: 494 entries = 475 CRLF-only + 12 WSL path-encoding artifact + 5 blobs already in history + 2 handoff files (preserved at ~/Projects/_preserve/...). Zero real source changes; 11 desktop commits are a subset of laptop's 13.
 - 2026-08-23T02:35:28.409Z | get-stuff-done | merged | Classification recorded; target-dirt-dispositioned satisfied. Residual: junk ~/.ai-dev-env dir tracked on origin/main needs its own PR.
+- 2026-08-29T12:30:00.000Z | get-stuff-done | correction | Preservation record repointed at the durable git location (preserved-desktop-2026-08-23/ on main); desktop pair fetched via remotely and verified byte-identical to recorded sums. Closes the residual half of issue #41.

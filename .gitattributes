@@ -43,3 +43,6 @@ package-lock.json text eol=lf
 *.zip       binary
 *.tar.gz    binary
 *.gz        binary
+
+# Issue #41 byte-identity preservation: desktop cutover artifacts must never be normalized
+.planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/preserved-desktop-2026-08-23/** -text

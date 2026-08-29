@@ -15,8 +15,49 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Autocompact threshold: matches Claude Code internal default; not user-configurable
-const AUTOCOMPACT_THRESHOLD = 16.5;
+const FALLBACK_IDENTITY = Object.freeze({
+  packageName: '@chude/get-stuff-done',
+  PACKAGE_NAME: '@chude/get-stuff-done',
+  updateCacheFileName: 'gsd-update-check-opengsd-gsd-core.json',
+});
+
+function requireIfPresent(modulePath) {
+  try {
+    if (fs.existsSync(modulePath)) {
+      return require(modulePath);
+    }
+  } catch (e) {
+    // Fall through to the next candidate.
+  }
+  return null;
+}
+
+function loadPackageIdentity() {
+  const candidates = [
+    path.join(__dirname, '..', 'gsd-core', 'bin', 'lib', 'package-identity.cjs'),
+    path.join(__dirname, '..', '..', 'dist', 'gsd-core', 'bin', 'lib', 'package-identity.cjs'),
+  ];
+
+  for (const candidate of candidates) {
+    const identity = requireIfPresent(candidate);
+    if (identity && (identity.packageName || identity.PACKAGE_NAME)) {
+      return {
+        packageName: identity.packageName || identity.PACKAGE_NAME,
+        PACKAGE_NAME: identity.PACKAGE_NAME || identity.packageName,
+        updateCacheFileName: identity.updateCacheFileName || FALLBACK_IDENTITY.updateCacheFileName,
+      };
+    }
+  }
+
+  return FALLBACK_IDENTITY;
+}
+
+const packageIdentity = loadPackageIdentity();
+const PACKAGE_NAME = packageIdentity.PACKAGE_NAME || packageIdentity.packageName;
+
+// Autocompact threshold: matches Claude Code internal default when the
+// CLAUDE_CODE_AUTO_COMPACT_WINDOW token setting is absent.
+const DEFAULT_AUTOCOMPACT_THRESHOLD = 16.5;
 let gsdRole = 'consumer';
 try {
   const { loadConfig, getConfigValue } = require('../../src/config/ConfigLoader');
@@ -61,6 +102,148 @@ const STAGE_CAUTION = 50;
 const STAGE_URGENT = 75;
 const STAGE_CRITICAL = 87.5;
 
+function readGsdState(dir) {
+  const home = os.homedir();
+  let current = dir;
+  for (let i = 0; i < 10; i++) {
+    const candidate = path.join(current, '.planning', 'STATE.md');
+    if (fs.existsSync(candidate)) {
+      try {
+        return parseStateMd(fs.readFileSync(candidate, 'utf8'));
+      } catch (e) {
+        return null;
+      }
+    }
+
+    const parent = path.dirname(current);
+    if (parent === current || current === home) break;
+    current = parent;
+  }
+  return null;
+}
+
+function parseStateMd(content) {
+  const state = {};
+  const normalized = String(content || '').replace(/\r\n/g, '\n');
+  const frontmatterMatch = normalized.match(/^---\n([\s\S]*?)\n---/);
+
+  if (frontmatterMatch) {
+    const frontmatter = frontmatterMatch[1];
+    for (const line of frontmatter.split('\n')) {
+      const match = line.match(/^(\w+):\s*(.+)/);
+      if (!match) continue;
+      const key = match[1];
+      const value = match[2].trim().replace(/^["']|["']$/g, '');
+
+      if (key === 'status') state.status = value === 'null' ? null : value;
+      if (key === 'milestone') state.milestone = value === 'null' ? null : value;
+      if (key === 'milestone_name') state.milestoneName = value === 'null' ? null : value;
+      if (key === 'active_phase') {
+        state.activePhase = (value === 'null' || value === '') ? null : value;
+      }
+      if (key === 'next_action') {
+        state.nextAction = (value === 'null' || value === '') ? null : value;
+      }
+    }
+
+    const nextPhasesFlow = frontmatter.match(/^next_phases:\s*\[([^\]]*)\]/m);
+    if (nextPhasesFlow) {
+      const items = nextPhasesFlow[1]
+        .split(',')
+        .map(item => item.trim().replace(/^["']|["']$/g, ''))
+        .filter(Boolean);
+      state.nextPhases = items.length > 0 ? items : null;
+    } else {
+      const nextPhasesBlock = frontmatter.match(/^next_phases:\s*\n((?:[ \t]*-[ \t]*[^\n]+\n?)*)/m);
+      if (nextPhasesBlock) {
+        const items = nextPhasesBlock[1]
+          .split('\n')
+          .map(line => line.match(/^[ \t]*-[ \t]*(.+)$/))
+          .filter(Boolean)
+          .map(match => match[1].trim().replace(/^["']|["']$/g, ''))
+          .filter(Boolean);
+        state.nextPhases = items.length > 0 ? items : null;
+      }
+    }
+
+    const progressMatch = frontmatter.match(/^progress:\s*\n((?:[ \t]+\w+:.+\n?)+)/m);
+    if (progressMatch) {
+      const completed = progressMatch[1].match(/^[ \t]+completed_phases:\s*(\d+)/m);
+      const total = progressMatch[1].match(/^[ \t]+total_phases:\s*(\d+)/m);
+      const percent = progressMatch[1].match(/^[ \t]+percent:\s*(\d+)/m);
+      if (completed) state.completedPhases = completed[1];
+      if (total) state.totalPhases = total[1];
+      if (percent) state.percent = percent[1];
+    }
+  }
+
+  const phaseMatch = normalized.match(/^Phase:\s*(\d+)\s+of\s+(\d+)(?:\s+\(([^)]+)\))?/m);
+  if (phaseMatch) {
+    state.phaseNum = phaseMatch[1];
+    state.phaseTotal = phaseMatch[2];
+    state.phaseName = phaseMatch[3] || null;
+  }
+
+  if (!state.status) {
+    const bodyStatus = normalized.match(/^Status:\s*(.+)/m);
+    if (bodyStatus) {
+      const raw = bodyStatus[1].trim().toLowerCase();
+      if (raw.includes('ready to plan') || raw.includes('planning')) state.status = 'planning';
+      else if (raw.includes('execut')) state.status = 'executing';
+      else if (raw.includes('complet') || raw.includes('archived')) state.status = 'complete';
+    }
+  }
+
+  return state;
+}
+
+function renderProgressBar(percent) {
+  if (percent == null || isNaN(percent)) return '';
+  const pct = Math.max(0, Math.min(100, parseInt(percent, 10)));
+  const filled = Math.floor(pct / 10);
+  const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
+  return `[${bar}] ${pct}%`;
+}
+
+function formatGsdState(state) {
+  const parts = [];
+
+  if (state.milestone || state.milestoneName) {
+    const pieces = [
+      state.milestone || '',
+      state.milestoneName && state.milestoneName !== 'milestone' ? state.milestoneName : '',
+      renderProgressBar(state.percent),
+    ].filter(Boolean);
+    if (pieces.length > 0) parts.push(pieces.join(' '));
+  }
+
+  const nextPhases = state.nextPhases && state.nextPhases.length > 0
+    ? state.nextPhases.join('/')
+    : null;
+
+  if (state.activePhase) {
+    const stage = state.status || '';
+    parts.push(stage ? `Phase ${state.activePhase} ${stage}` : `Phase ${state.activePhase}`);
+  } else if (state.nextAction && nextPhases) {
+    parts.push(`next ${state.nextAction} ${nextPhases}`);
+  } else if (
+    Number(state.percent) === 100
+    || (state.completedPhases && state.totalPhases && state.completedPhases === state.totalPhases)
+  ) {
+    parts.push('milestone complete');
+  } else {
+    if (state.status) parts.push(state.status);
+    if (state.phaseNum && state.phaseTotal) {
+      const phase = state.phaseName
+        ? `${state.phaseName} (${state.phaseNum}/${state.phaseTotal})`
+        : `ph ${state.phaseNum}/${state.phaseTotal}`;
+      parts.push(phase);
+    }
+  }
+
+  return parts.join(' · ');
+}
+
 // Read JSON from stdin
 let input = '';
 // Safety: exit cleanly if stdin takes too long (belt-and-suspenders, per D-08)
@@ -86,14 +269,24 @@ process.stdin.on('end', () => {
     // Context window display (shows proximity to autocompact)
     let ctx = '';
     if (remaining != null) {
-      // Scale raw usage to threshold: 0% raw = 0% bar, threshold = 100% bar
-      const maxUsage = 100 - AUTOCOMPACT_THRESHOLD;  // e.g., 83.5% when threshold=16.5
-      const rawUsage = 100 - remaining;
-      const proximity = Math.max(0, Math.min(100, Math.round((rawUsage / maxUsage) * 100)));
+      const totalCtx = data.context_window?.total_tokens || 1_000_000;
+      const autoCompactWindow = parseInt(process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW || '0', 10);
+      const autoCompactThreshold = autoCompactWindow > 0
+        ? Math.min(100, Math.max(0, (1 - autoCompactWindow / totalCtx) * 100))
+        : DEFAULT_AUTOCOMPACT_THRESHOLD;
+
+      // Normalize raw remaining against the usable range before autocompact.
+      const usableRemaining = Math.max(
+        0,
+        ((remaining - autoCompactThreshold) / (100 - autoCompactThreshold)) * 100
+      );
+      const proximity = Math.max(0, Math.min(100, Math.round(100 - usableRemaining)));
+      const rawUsage = Math.round(100 - remaining);
 
       // Write context metrics to bridge file for the context-monitor PostToolUse hook.
       // The monitor reads this file to inject agent-facing warnings when context is low.
-      if (session) {
+      const sessionSafe = session && !/[/\\]|\.\./.test(session);
+      if (sessionSafe) {
         try {
           const bridgePath = path.join(os.tmpdir(), `claude-ctx-${session}.json`);
           const bridgeData = JSON.stringify({
@@ -140,29 +333,37 @@ process.stdin.on('end', () => {
     // Current task from todos
     let task = '';
     const homeDir = os.homedir();
-    const todosDir = path.join(homeDir, '.claude', 'todos');
+    const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(homeDir, '.claude');
+    const todosDir = path.join(claudeDir, 'todos');
     if (session && fs.existsSync(todosDir)) {
-      const files = fs.readdirSync(todosDir)
-        .filter(f => f.startsWith(session) && f.includes('-agent-') && f.endsWith('.json'))
-        .map(f => ({ name: f, mtime: fs.statSync(path.join(todosDir, f)).mtime }))
-        .sort((a, b) => b.mtime - a.mtime);
+      try {
+        let latest = null;
+        for (const entry of fs.readdirSync(todosDir)) {
+          if (!entry.startsWith(session) || !entry.includes('-agent-') || !entry.endsWith('.json')) continue;
+          const mtime = fs.statSync(path.join(todosDir, entry)).mtime;
+          if (!latest || mtime > latest.mtime) latest = { name: entry, mtime };
+        }
 
-      if (files.length > 0) {
-        try {
-          const todos = JSON.parse(fs.readFileSync(path.join(todosDir, files[0].name), 'utf8'));
+        if (latest) {
+          const todos = JSON.parse(fs.readFileSync(path.join(todosDir, latest.name), 'utf8'));
           const inProgress = todos.find(t => t.status === 'in_progress');
           if (inProgress) task = inProgress.activeForm || '';
-        } catch (e) {}
+        }
+      } catch (e) {
+        // Silently fail on todo filesystem errors.
       }
     }
 
+    const gsdStateStr = task ? '' : formatGsdState(readGsdState(dir) || {});
+
     // Build update notification for line 2
     let line2 = '';
-    const cacheFile = path.join(homeDir, '.claude', 'cache', 'gsd-update-check.json');
+    const cacheFile = path.join(homeDir, '.cache', 'gsd', packageIdentity.updateCacheFileName);
     if (fs.existsSync(cacheFile)) {
       try {
         const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
-        if (cache.update_available && !cache.fetch_error) {
+        const cacheMatchesPackage = cache.package_name && cache.package_name === PACKAGE_NAME;
+        if (cacheMatchesPackage && cache.update_available && !cache.fetch_error) {
           if (gsdRole === 'maintainer') {
             // Maintainer sees rich upstream notification with count + severity
             const count = cache.upstream_count || 0;
@@ -184,6 +385,9 @@ process.stdin.on('end', () => {
             const latest = cache.latest || 'unknown';
             line2 = theme.text.notice.render(`${current} \u2192 ${latest} | /gsd:update`);
           }
+        }
+        if (cacheMatchesPackage && cache.stale_hooks && cache.stale_hooks.length > 0 && !line2) {
+          line2 = theme.text.notice.render('stale hooks | /gsd:update');
         }
       } catch (e) {}
     }
@@ -238,12 +442,14 @@ process.stdin.on('end', () => {
     const tokenDisplay = contextTokens > 0
       ? theme.text.muted.render(`${Number(contextTokens).toLocaleString()} tokens`)
       : '';
+    const middleDisplay = task || gsdStateStr;
+    const middleSegment = middleDisplay ? `${SEP}${theme.text.muted.render(middleDisplay)}` : '';
 
-    // Line 1: branding | model | [branch |] context bar | cwd [| tokens]
+    // Line 1: branding | model | [branch |] context bar | [task/state |] cwd [| tokens]
     // Note: ctx already includes its own color codes and spacing
     const branchSep = branchDisplay ? `${branchDisplay}${SEP}` : '';
     const tokenSep = tokenDisplay ? `${SEP}${tokenDisplay}` : '';
-    const line1 = `${branding}${SEP}${modelDisplay}${SEP}${branchSep}${ctx.trim()}${SEP}${cwdDisplay}${tokenSep}`;
+    const line1 = `${branding}${SEP}${modelDisplay}${SEP}${branchSep}${ctx.trim()}${middleSegment}${SEP}${cwdDisplay}${tokenSep}`;
 
     // Output: line1, or line1 + newline + line2 if update available
     if (line2) {

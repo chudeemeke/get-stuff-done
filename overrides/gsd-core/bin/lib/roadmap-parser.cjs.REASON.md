@@ -4,8 +4,8 @@
 Memory-nexus recovery exposed that runtime phase execution selected stale `STATE.md` frontmatter milestone metadata (`v4.0`) over the current body milestone and active ROADMAP milestone (`v5.0`). That routed Phase 42 under the wrong milestone and made roadmap analysis miss the current milestone's phases.
 
 ## Upstream snapshot
-- Version: 1.5.0
-- SHA-256: a5e37ae9b60997556c80db41247bf574fc924461e9ecbecff928ba3b85f2917f
+- Version: 1.6.1
+- SHA-256: 077b798638c88f6c13df2ac191df2f2c22cae750b52e63167dbdc867d5883430
 
 ## What's different
 - Resolves the current milestone by preferring explicit `STATE.md` body milestone text, then active/in-progress ROADMAP declarations, then frontmatter as a fallback.

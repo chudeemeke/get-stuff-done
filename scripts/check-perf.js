@@ -4,23 +4,29 @@
 const fs = require('fs');
 const path = require('path');
 const Ajv = require('ajv');
+const { adjudicatePairedComparison } = require('./lib/paired-perf');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const VALID_PLATFORMS = new Set(['linux', 'macos', 'windows']);
 const METRICS = ['install', 'compose'];
 
 function printHelp(stream = process.stdout) {
-  stream.write(`check-perf - compare current performance metrics to the committed baseline
+  stream.write(`check-perf - adjudicate paired evidence or inspect historical baseline drift
 
 USAGE
+  node scripts/check-perf.js --comparison <file> [--accepted <file>]
   node scripts/check-perf.js --baseline <file> --current <file> --platform <linux|macos|windows>
 
 OPTIONS
-  --baseline <file>       Baseline JSON file, usually perf-baseline.json.
-  --current <file>        Current one-platform JSON artifact from scripts/bench.js.
-  --platform <name>       Platform to compare: linux, macos, or windows.
-  --warn-ratio <number>   Warning threshold. Default: 1.10.
-  --fail-ratio <number>   Failure threshold. Default: 1.25.
+  --comparison <file>     Paired same-run artifact used for blocking authority.
+  --accepted <file>       Reviewed accepted-regressions policy for the paired
+                          path (candidate checkout). Missing file means no
+                          acceptances; an invalid file is an error.
+  --baseline <file>       Historical baseline JSON file (diagnostic mode only).
+  --current <file>        Historical one-platform artifact (diagnostic mode only).
+  --platform <name>       Historical platform: linux, macos, or windows.
+  --warn-ratio <number>   Historical warning threshold. Default: 1.10.
+  --fail-ratio <number>   Historical failure threshold. Default: 1.25.
   -h, --help              Show this help.
 `);
 }
@@ -29,6 +35,7 @@ function parseArgs(argv) {
   const options = {
     warnRatio: 1.10,
     failRatio: 1.25,
+    thresholdOverride: false,
     help: false,
   };
   const args = [...argv];
@@ -40,6 +47,12 @@ function parseArgs(argv) {
 
     if (arg === '-h' || arg === '--help') {
       options.help = true;
+    } else if (flag === '--comparison' && value) {
+      options.comparison = path.resolve(value);
+      if (inlineValue === undefined) args.shift();
+    } else if (flag === '--accepted' && value) {
+      options.accepted = path.resolve(value);
+      if (inlineValue === undefined) args.shift();
     } else if (flag === '--baseline' && value) {
       options.baseline = path.resolve(value);
       if (inlineValue === undefined) args.shift();
@@ -51,9 +64,11 @@ function parseArgs(argv) {
       if (inlineValue === undefined) args.shift();
     } else if (flag === '--warn-ratio' && value) {
       options.warnRatio = Number(value);
+      options.thresholdOverride = true;
       if (inlineValue === undefined) args.shift();
     } else if (flag === '--fail-ratio' && value) {
       options.failRatio = Number(value);
+      options.thresholdOverride = true;
       if (inlineValue === undefined) args.shift();
     } else {
       throw new Error(`Unknown or incomplete option: ${arg}`);
@@ -99,6 +114,64 @@ function validateBaselineShape(baseline) {
   if (!validate(baseline)) {
     throw new Error(`Invalid perf baseline: ${formatAjvErrors(validate.errors)}`);
   }
+}
+
+function validateComparisonShape(comparison) {
+  const schemaPath = path.join(PROJECT_ROOT, 'config', 'perf-comparison.schema.json');
+  const schema = readJson(schemaPath);
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  const validate = ajv.compile(schema);
+
+  if (!validate(comparison)) {
+    throw new Error(`Invalid paired comparison: ${formatAjvErrors(validate.errors)}`);
+  }
+}
+
+function assertPairedInputs(options) {
+  if (!options.comparison) throw new Error('--comparison is required');
+  if (options.baseline || options.current || options.platform || options.thresholdOverride) {
+    throw new Error('--comparison cannot be mixed with historical inputs or threshold overrides');
+  }
+}
+
+function validateAcceptancesShape(document) {
+  const schemaPath = path.join(PROJECT_ROOT, 'config', 'perf-accepted-regressions.schema.json');
+  const schema = readJson(schemaPath);
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  const validate = ajv.compile(schema);
+
+  if (!validate(document)) {
+    throw new Error(`Invalid accepted-regressions policy: ${formatAjvErrors(validate.errors)}`);
+  }
+}
+
+function loadAcceptances(filePath, stream = process.stdout) {
+  if (!filePath) return [];
+  // The policy path is a CLI input resolved after option parsing.
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  if (!fs.existsSync(filePath)) {
+    stream.write(`accepted-regressions policy not found at ${filePath}; no acceptances apply\n`);
+    return [];
+  }
+  const document = readJson(filePath);
+  validateAcceptancesShape(document);
+  return document.acceptances;
+}
+
+function classifyAcceptance(acceptances, target, now = new Date()) {
+  const matches = acceptances.filter(entry => (
+    entry.platform === target.platform && entry.metric === target.metric
+  ));
+  for (const entry of matches) {
+    if (!isExpired(entry, now) && target.ratio <= entry.maxRatio) {
+      return { outcome: 'accepted', entry };
+    }
+  }
+  const blocking = matches.at(0);
+  if (!blocking) return { outcome: 'unmatched', entry: null };
+  return isExpired(blocking, now)
+    ? { outcome: 'expired', entry: blocking }
+    : { outcome: 'over-bound', entry: blocking };
 }
 
 function assertInputs(options, baseline, current) {
@@ -197,7 +270,7 @@ function compareMetric({ baseline, current, platform, metric, warnRatio, failRat
 }
 
 function printComparison(result, stream = process.stdout) {
-  const summary = `${result.platform} ${result.metric}: baseline=${result.baselineMean}ms current=${result.currentMean}ms ratio=${formatRatio(result.ratio)}`;
+  const summary = `historical diagnostic ${result.platform} ${result.metric}: baseline=${result.baselineMean}ms current=${result.currentMean}ms ratio=${formatRatio(result.ratio)}`;
   stream.write(`${summary}\n`);
 
   if (result.accepted) {
@@ -205,10 +278,8 @@ function printComparison(result, stream = process.stdout) {
     return;
   }
 
-  if (result.status === 'fail') {
-    stream.write(`::error title=Perf budget failure::${summary}\n`);
-  } else if (result.status === 'warn') {
-    stream.write(`::warning title=Perf budget warning::${summary}\n`);
+  if (result.status === 'fail' || result.status === 'warn') {
+    stream.write(`::warning title=Historical perf diagnostic::${summary}\n`);
   }
 }
 
@@ -226,7 +297,58 @@ function runComparison(options, baseline, current) {
     printComparison(result);
   }
 
-  return results.some(result => result.status === 'fail') ? 1 : 0;
+  return 0;
+}
+
+function printPairedMetric(metric, summary, acceptance, stream = process.stdout) {
+  const line = `paired ${metric}: reference=${summary.referenceMeanNs}ns candidate=${summary.candidateMeanNs}ns ratio=${formatRatio(summary.ratio)}`;
+  stream.write(`${line}\n`);
+  if (summary.status !== 'fail') {
+    if (summary.status === 'warn') {
+      stream.write(`::warning title=Paired perf budget warning::${line}\n`);
+    }
+    return false;
+  }
+  if (acceptance.outcome === 'accepted') {
+    const entry = acceptance.entry;
+    stream.write(
+      `::warning title=Paired perf regression accepted::${line} accepted up to ` +
+      `${formatRatio(entry.maxRatio)} until ${entry.expiresOn} by ${entry.reviewer} ` +
+      `(${entry.ticket}): ${entry.reason}\n`
+    );
+    return false;
+  }
+  if (acceptance.outcome === 'expired') {
+    stream.write(
+      `::error title=Paired perf budget failure::${line} - the matching acceptance ` +
+      `(${acceptance.entry.ticket}) expired on ${acceptance.entry.expiresOn}\n`
+    );
+  } else if (acceptance.outcome === 'over-bound') {
+    stream.write(
+      `::error title=Paired perf budget failure::${line} - exceeds the accepted bound ` +
+      `${formatRatio(acceptance.entry.maxRatio)} (${acceptance.entry.ticket})\n`
+    );
+  } else {
+    stream.write(`::error title=Paired perf budget failure::${line}\n`);
+  }
+  return true;
+}
+
+function runPairedComparison(comparison, acceptances = []) {
+  validateComparisonShape(comparison);
+  const result = adjudicatePairedComparison(comparison);
+  const platform = comparison.executionIdentity.platform;
+  let blocking = false;
+  for (const metric of METRICS) {
+    const summary = getMetric(result.metrics, metric);
+    const acceptance = classifyAcceptance(acceptances, {
+      platform,
+      metric,
+      ratio: summary.ratio,
+    });
+    if (printPairedMetric(metric, summary, acceptance)) blocking = true;
+  }
+  return blocking ? 1 : 0;
 }
 
 function main(argv = process.argv.slice(2)) {
@@ -235,6 +357,15 @@ function main(argv = process.argv.slice(2)) {
     if (options.help) {
       printHelp();
       return 0;
+    }
+
+    if (options.comparison) {
+      assertPairedInputs(options);
+      return runPairedComparison(readJson(options.comparison), loadAcceptances(options.accepted));
+    }
+
+    if (options.accepted) {
+      throw new Error('--accepted is only valid with --comparison');
     }
 
     const baseline = readJson(options.baseline);
@@ -253,9 +384,12 @@ if (require.main === module) {
 }
 
 module.exports = {
+  classifyAcceptance,
   compareMetric,
   findAcceptedRegression,
+  loadAcceptances,
   main,
   matchesAcceptedRegression,
   parseArgs,
+  runPairedComparison,
 };

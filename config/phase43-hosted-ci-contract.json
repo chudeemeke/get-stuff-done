@@ -1,0 +1,369 @@
+{
+  "schemaVersion": 5,
+  "envelopeSchemaVersion": 2,
+  "repository": "chudeemeke/get-stuff-done",
+  "contractPath": "config/phase43-hosted-ci-contract.json",
+  "evidenceDirectory": ".planning/evidence/hosted",
+  "acceptedConclusions": [
+    "success"
+  ],
+  "allowUnexpectedWorkflows": false,
+  "allowUnexpectedJobs": false,
+  "executionSubject": {
+    "schemaVersion": 4,
+    "defaultProfile": "single-subject",
+    "checkoutStep": "Checkout exact event subject",
+    "verificationStep": "Verify execution subject",
+    "requireAdjacent": true,
+    "checkoutAction": "actions/checkout",
+    "checkoutRepository": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}",
+    "checkoutRef": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}",
+    "checkoutPath": ".",
+    "persistCredentials": false,
+    "fetchDepth": 1,
+    "verificationShell": "bash",
+    "expectedSubjectEnvironment": "GSD_EXPECTED_SUBJECT",
+    "subjectPathEnvironment": "GSD_SUBJECT_PATH",
+    "expectedSubjectExpression": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}",
+    "verificationRun": "actual=\"$(git -C \"$GSD_SUBJECT_PATH\" rev-parse HEAD)\"\nif [ \"$actual\" != \"$GSD_EXPECTED_SUBJECT\" ]; then\n  echo \"::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual\"\n  exit 1\nfi",
+    "securityPrelude": {
+      "action": "step-security/harden-runner",
+      "allowedInputs": {
+        "egress-policy": ["audit", "block"],
+        "token": [""]
+      }
+    },
+    "automaticTokenPolicy": {
+      "schemaVersion": 2,
+      "requiredPermissions": {
+        "contents": "read"
+      },
+      "allowlist": [
+        {
+          "action": "actions/checkout",
+          "exposure": "implicit-action-default",
+          "reason": "Read-only clone authentication; governed checkouts never persist credentials."
+        },
+        {
+          "action": "gitleaks/gitleaks-action",
+          "exposure": "env",
+          "key": "GITHUB_TOKEN",
+          "value": "${{ secrets.GITHUB_TOKEN }}",
+          "reason": "Read-only pull-request metadata access required by the pinned Secret Scan action."
+        }
+      ],
+      "requiredSuppressions": [
+        {
+          "action": "actions/setup-node",
+          "input": "token",
+          "value": "",
+          "reason": "Pinned metadata otherwise defaults this setup action to github.token."
+        },
+        {
+          "action": "lycheeverse/lychee-action",
+          "input": "token",
+          "value": "",
+          "reason": "Pinned metadata otherwise defaults this documentation action to github.token."
+        },
+        {
+          "action": "oven-sh/setup-bun",
+          "input": "token",
+          "value": "",
+          "reason": "Pinned metadata otherwise defaults this setup action to github.token."
+        },
+        {
+          "action": "step-security/harden-runner",
+          "input": "token",
+          "value": "",
+          "reason": "Pinned metadata otherwise defaults this security action to github.token."
+        }
+      ]
+    },
+    "checkoutInputs": {
+      ".github/workflows/ci.yml": {
+        "secret-scan": {
+          "fetch-depth": 0
+        }
+      }
+    },
+    "eventSubjects": {
+      "pull_request": {
+        "repository": "${{ github.event.pull_request.head.repo.full_name }}",
+        "ref": "${{ github.event.pull_request.head.sha }}"
+      },
+      "push": {
+        "repository": "${{ github.repository }}",
+        "ref": "${{ github.sha }}"
+      },
+      "schedule": {
+        "repository": "${{ github.repository }}",
+        "ref": "${{ github.sha }}"
+      },
+      "workflow_dispatch": {
+        "repository": "${{ github.repository }}",
+        "ref": "${{ github.sha }}"
+      }
+    },
+    "evidenceAuthority": {
+      "checkNames": "claim-only",
+      "prWorkflowDefinitions": "claim-only",
+      "mergeEvidence": "owner-run-collector",
+      "collectorActivationGate": "plan-11aj-owner-authorization"
+    },
+    "performanceProfile": {
+      "profile": "paired-performance",
+      "authorityEvent": "pull_request",
+      "authorityScope": "same-repository-head",
+      "authorityCondition": "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}",
+      "forkOutcome": "no-authority",
+      "nonPullRequestOutcome": "no-authority",
+      "bootstrapActivationGate": "fable-accepted-final-11ah",
+      "jobNames": [
+        "Perf Budget (linux)",
+        "Perf Budget (macos)",
+        "Perf Budget (windows)"
+      ],
+      "checkouts": [
+        {
+          "id": "bootstrap",
+          "checkoutStep": "Checkout trusted bootstrap",
+          "verificationStep": "Verify trusted bootstrap",
+          "repository": "${{ github.repository }}",
+          "ref": "5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce",
+          "path": "authority-bootstrap",
+          "persistCredentials": false,
+          "fetchDepth": 1
+        },
+        {
+          "id": "harness",
+          "checkoutStep": "Checkout trusted measurement harness",
+          "verificationStep": "Verify trusted measurement harness",
+          "repository": "${{ github.repository }}",
+          "ref": "32dc22f9dc9cfd7d84333256f0768f5a792b186c",
+          "path": "measurement-harness",
+          "persistCredentials": false,
+          "fetchDepth": 1
+        },
+        {
+          "id": "reference",
+          "checkoutStep": "Checkout exact pull request base",
+          "verificationStep": "Verify exact pull request base",
+          "repository": "${{ github.event.pull_request.base.repo.full_name }}",
+          "ref": "${{ github.event.pull_request.base.sha }}",
+          "path": "reference",
+          "persistCredentials": false,
+          "fetchDepth": 1
+        },
+        {
+          "id": "candidate",
+          "checkoutStep": "Checkout exact pull request head",
+          "verificationStep": "Verify exact pull request head",
+          "repository": "${{ github.event.pull_request.head.repo.full_name }}",
+          "ref": "${{ github.event.pull_request.head.sha }}",
+          "path": "candidate",
+          "persistCredentials": false,
+          "fetchDepth": 1
+        }
+      ],
+      "requiredFiles": [
+        "package.json",
+        "bun.lock",
+        ".planning/upstream-authority.json"
+      ]
+    },
+    "jobProfiles": {
+      ".github/workflows/ci.yml": {
+        "workflow-lint": "single-subject",
+        "secret-scan": "single-subject",
+        "audit-ci": "single-subject",
+        "docs-gates": "single-subject",
+        "osv-scanner": "single-subject",
+        "lint": "single-subject",
+        "test": "single-subject",
+        "perf-budget": "paired-performance",
+        "parity": "single-subject",
+        "upstream-compat": "single-subject",
+        "boundary-check": "single-subject",
+        "override-check": "single-subject"
+      },
+      ".github/workflows/compat-matrix.yml": {
+        "compat-matrix": "single-subject"
+      },
+      ".github/workflows/cousin-install.yml": {
+        "cousin-install": "single-subject"
+      },
+      ".github/workflows/oversight-probes.yml": {
+        "verify-oversight-probes": "single-subject"
+      },
+      ".github/workflows/upgrade-verifier.yml": {
+        "upgrade-verifier": "single-subject"
+      }
+    }
+  },
+  "runtimeReceipts": {
+    "schemaVersion": 2,
+    "tierAAuthority": "github-jobs-api",
+    "tierBSemantics": "bounded-runner-self-observation-claims",
+    "runnerImageSemantics": "observed-os-fingerprint",
+    "hostedImageSemantics": "nullable-hosted-image-name-version",
+    "tierAFields": [
+      "schemaVersion",
+      "jobId",
+      "runId",
+      "attempt",
+      "job",
+      "runnerId",
+      "runnerName",
+      "runnerGroupId",
+      "runnerGroupName",
+      "runnerLabels"
+    ],
+    "tierBFields": [
+      "schemaVersion",
+      "subject",
+      "event",
+      "runId",
+      "attempt",
+      "os",
+      "osVersion",
+      "architecture",
+      "runnerImage",
+      "hostedImageName",
+      "hostedImageVersion",
+      "nodeVersion",
+      "bunVersion",
+      "tools",
+      "containers"
+    ]
+  },
+  "evidenceBinding": {
+    "schemaVersion": 1,
+    "authorityEvent": "pull_request",
+    "requiredAttempt": 1,
+    "standaloneArtifactNameTemplate": "runtime-receipt-{}",
+    "pairedArtifactNameTemplate": "paired-performance-{}",
+    "pairedWorkflow": ".github/workflows/ci.yml",
+    "pairedJob": "perf-budget",
+    "pairedManifest": {
+      "schemaVersion": 1,
+      "fields": [
+        "schemaVersion",
+        "bootstrap",
+        "harness",
+        "reference",
+        "candidate",
+        "tierBReceiptSha256",
+        "comparisonSha256"
+      ],
+      "subjectFields": [
+        "repository",
+        "sha"
+      ]
+    }
+  },
+  "governedPaths": {
+    "source": [
+      "scripts/emit-paired-binding-manifest.js",
+      "scripts/emit-hosted-runtime-receipt.js",
+      "scripts/lib/hosted-evidence-binding.js",
+      "scripts/verify-hosted-ci.js",
+      "scripts/verify-toolchain-authority.js",
+      "tests/hosted-evidence-binding.test.js",
+      "tests/hosted-runtime-receipt.test.js",
+      "tests/paired-binding-manifest.test.js",
+      "tests/verify-hosted-ci.test.js",
+      "tests/toolchain-authority.test.js",
+      "tests/test-config-hygiene.test.js"
+    ],
+    "workflow": [
+      ".github/workflows/ci.yml",
+      ".github/workflows/compat-matrix.yml",
+      ".github/workflows/cousin-install.yml",
+      ".github/workflows/oversight-probes.yml",
+      ".github/workflows/upgrade-verifier.yml"
+    ],
+    "contract": [
+      "config/phase43-hosted-ci-contract.json",
+      "config/phase43-toolchain-authority.json"
+    ],
+    "policy": [
+      ".gitignore",
+      ".bun-version",
+      "package.json",
+      "bun.lock"
+    ]
+  },
+  "workflows": [
+    {
+      "name": "CI",
+      "path": ".github/workflows/ci.yml",
+      "requiredJobs": [
+        "Audit CI (blocking HIGH/CRITICAL)",
+        "Boundary Check (informational)",
+        "Docs Gates",
+        "Lint",
+        "OSV Scanner",
+        "Override Staleness Check (blocking)",
+        "Perf Budget (linux)",
+        "Perf Budget (macos)",
+        "Perf Budget (windows)",
+        "Secret Scan",
+        "Source Parity Check",
+        "Test (macos-15)",
+        "Test (ubuntu-latest)",
+        "Test (windows-latest)",
+        "Upstream Compat (macos-15)",
+        "Upstream Compat (ubuntu-latest)",
+        "Upstream Compat (windows-latest)",
+        "Workflow Lint"
+      ]
+    },
+    {
+      "name": "Cousin Install",
+      "path": ".github/workflows/cousin-install.yml",
+      "requiredJobMatrices": [
+        {
+          "template": "Cousin Install ({}, Node {}, {})",
+          "dimensions": [
+            [
+              "ubuntu-latest",
+              "macos-15",
+              "windows-latest"
+            ],
+            [
+              "20",
+              "22"
+            ],
+            [
+              "npm",
+              "pnpm",
+              "bun"
+            ]
+          ],
+          "expectedCount": 18
+        }
+      ]
+    },
+    {
+      "name": "Oversight Probes",
+      "path": ".github/workflows/oversight-probes.yml",
+      "requiredJobs": [
+        "Verify Oversight Probes"
+      ]
+    },
+    {
+      "name": "Compat Matrix",
+      "path": ".github/workflows/compat-matrix.yml",
+      "requiredJobs": [
+        "Vetted Upstream Compat Matrix"
+      ]
+    },
+    {
+      "name": "Upgrade Verifier",
+      "path": ".github/workflows/upgrade-verifier.yml",
+      "requiredJobs": [
+        "Upgrade Verifier"
+      ]
+    }
+  ]
+}

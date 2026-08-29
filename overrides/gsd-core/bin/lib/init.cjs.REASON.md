@@ -4,8 +4,8 @@
 Fork GSD project recovery exposed that `init progress` reported Phase 40.5 as current even though STATE.md records Phase 41 as active, and selected backlog 999.1 as next work instead of roadmap Phase 42.
 
 ## Upstream snapshot
-- Version: 1.5.0
-- SHA-256: 05fa2a52ac0d08d89be3cb992c9e1ae2f83513e927ca0aab86473960f37a2b64
+- Version: 1.6.1
+- SHA-256: bcbe3af4720cb769fb8d3fc87070031649df1082170dee94e52139074975b25e
 
 ## What's different
 - Reads current phase from STATE.md formats used by this fork and prefers it after merging disk and ROADMAP-only phases.

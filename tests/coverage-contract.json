@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "suites": [
+    {
+      "path": "coverage/paired-perf.test.cjs",
+      "script": "test:coverage:phase43-paired-perf",
+      "authority": "focused-four-metric-coverage"
+    }
+  ]
+}

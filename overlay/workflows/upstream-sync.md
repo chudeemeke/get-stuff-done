@@ -685,7 +685,7 @@ Run verification on changed files.
 
 4. If project has tests and they were passing before sync:
    ```bash
-   bun test 2>&1 || npm test 2>&1
+   bun run test 2>&1 || npm test 2>&1
    ```
    Compare exit code to pre-sync state. If tests now fail: Document in report.
 

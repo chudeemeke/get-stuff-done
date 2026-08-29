@@ -381,7 +381,7 @@ function generateReport(versionDelta, scanFindings, overrideImpact) {
   lines.push(`    1. Edit package.json: set ${ACTIVE_UPSTREAM_PACKAGE} to "${versionDelta.latest}"`);
   lines.push('    2. Run: bun install');
   lines.push('    3. Run: bun run compose');
-  lines.push('    4. Run tests: bun test');
+  lines.push('    4. Run tests: bun run test');
   lines.push('');
 
   // --- Section 5: Rollback ---

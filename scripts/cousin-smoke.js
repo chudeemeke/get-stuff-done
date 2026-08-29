@@ -11,6 +11,8 @@ const DEFAULT_PACKAGE_SPEC = '@chude/get-stuff-done@latest';
 const PNPM_VERSION = '10.17.1';
 const SUPPORTED_PACKAGE_MANAGERS = new Set(['npm', 'pnpm', 'bun']);
 const REQUIRED_PROVENANCE_KEYS = [
+  'forkPackage',
+  'forkVersion',
   'packageName',
   'version',
   'upstreamPackage',
@@ -31,8 +33,8 @@ OPTIONS
   -h, --help                        Show this help.
 
 VERIFY
-  Runs the installed local gsd bin with --version --json and validates packageName,
-  version, upstreamPackage, upstreamVersion, and overlayManifestSha256.
+  Runs the installed local gsd bin with --version --json and validates forkPackage,
+  forkVersion, packageName, version, upstreamPackage, upstreamVersion, and overlayManifestSha256.
 `);
 }
 
@@ -271,11 +273,22 @@ function assertProvenanceValue(key, value) {
 }
 
 function validateProvenance(provenance) {
+  assertProvenanceValue('forkPackage', provenance.forkPackage);
+  assertProvenanceValue('forkVersion', provenance.forkVersion);
   assertProvenanceValue('packageName', provenance.packageName);
   assertProvenanceValue('version', provenance.version);
   assertProvenanceValue('upstreamPackage', provenance.upstreamPackage);
   assertProvenanceValue('upstreamVersion', provenance.upstreamVersion);
   assertProvenanceValue('overlayManifestSha256', provenance.overlayManifestSha256);
+  if (provenance.forkPackage === provenance.upstreamPackage) {
+    throw new Error('fork package must differ from upstream package');
+  }
+  if (provenance.packageName !== provenance.forkPackage) {
+    throw new Error('packageName must match forkPackage');
+  }
+  if (provenance.version !== provenance.forkVersion) {
+    throw new Error('version must match forkVersion');
+  }
   return provenance;
 }
 

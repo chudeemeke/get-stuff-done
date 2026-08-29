@@ -17,6 +17,8 @@ function tempRoot() {
 
 function provenanceJson(overrides = {}) {
   return JSON.stringify({
+    forkPackage: '@chude/get-stuff-done',
+    forkVersion: '3.0.2',
     packageName: '@chude/get-stuff-done',
     version: '3.0.2',
     upstreamPackage: '@opengsd/gsd-core',

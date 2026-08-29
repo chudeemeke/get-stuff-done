@@ -6,12 +6,37 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   workflow-lint:
     name: Workflow Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "22"
+          token: ""
       - name: Run actionlint
         run: bash scripts/lint-workflows.sh
 
@@ -21,15 +46,32 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: step-security/harden-runner@v2
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2
         with:
           egress-policy: audit
-      - uses: actions/checkout@v6
+          token: ""
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
           # Full history is required so gitleaks scans every commit, not just HEAD.
           fetch-depth: 0
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
       - name: Run gitleaks scan
-        uses: gitleaks/gitleaks-action@v3
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_CONFIG: .gitleaks.toml
@@ -42,16 +84,37 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: step-security/harden-runner@v2
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2
         with:
           egress-policy: audit
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+          token: ""
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
-      - uses: actions/setup-node@v6
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "22"
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: npm install --package-lock-only --ignore-scripts
       - run: bun run audit:ci
@@ -62,10 +125,29 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run lint:docs
       - name: Collect tracked markdown link targets
@@ -75,8 +157,9 @@ jobs:
             grep -Ev '^(node_modules/|dist/|\.upstream/|overlay/get-shit-done/)' > .lychee-targets
           test -s .lychee-targets
       - name: Check markdown links
-        uses: lycheeverse/lychee-action@v2
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
+          token: ""
           args: --config lychee.toml --files-from .lychee-targets --no-progress --verbose
           fail: "true"
           failIfEmpty: "true"
@@ -86,24 +169,46 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
     steps:
-      - uses: step-security/harden-runner@v2
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2
         with:
           egress-policy: audit
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+          token: ""
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "22"
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
-      # Direct action usage is intentional. OSV's reusable workflow is the
-      # general recommendation, but this job needs same-job harden-runner
-      # telemetry plus local medium/low triage.
+      # The reviewed action revision delegates to this image. Invoke the exact
+      # digest directly so the effective scanner identity cannot move with a tag.
       - name: Run OSV scanner against bun.lock
         continue-on-error: true
-        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
+        uses: docker://ghcr.io/google/osv-scanner-action@sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba # v2.3.8
         with:
-          scan-args: |-
+          args: |-
             scan
             source
             --lockfile=bun.lock
@@ -111,91 +216,58 @@ jobs:
             --output-file=osv-results.json
       - name: Triage OSV findings
         run: node scripts/osv-triage.js --input osv-results.json --output osv-triage.json --fail-on high,critical
-      - name: Upload OSV triage artifacts
+      - name: Upload OSV issue proposals
         if: ${{ always() && hashFiles('osv-triage.json') != '' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: osv-triage
+          name: osv-issue-proposals-${{ github.run_id }}
           path: |
             osv-results.json
             osv-triage.json
+          if-no-files-found: error
           retention-days: 30
-      - name: Upsert medium and low OSV issues
+          overwrite: false
+      - name: Summarize OSV issue proposals
         if: ${{ always() && hashFiles('osv-triage.json') != '' }}
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const fs = require('fs');
-
-            const findings = JSON.parse(fs.readFileSync('osv-triage.json', 'utf8'))
-              .filter(finding => ['medium', 'low'].includes(finding.severity));
-
-            if (findings.length === 0) {
-              core.info('No medium or low OSV findings to route.');
-              return;
-            }
-
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const labelColors = {
-              security: 'd73a4a',
-              'security-moderate': 'fbca04',
-              'security-low': '0e8a16',
-              osv: '5319e7',
-              dependency: '0366d6',
-            };
-
-            for (const label of new Set(findings.flatMap(finding => finding.labels))) {
-              try {
-                await github.rest.issues.getLabel({ owner, repo, name: label });
-              } catch (error) {
-                if (error.status !== 404) throw error;
-                await github.rest.issues.createLabel({
-                  owner,
-                  repo,
-                  name: label,
-                  color: labelColors[label] || 'ededed',
-                });
-              }
-            }
-
-            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
-              owner,
-              repo,
-              state: 'open',
-              labels: 'osv',
-              per_page: 100,
-            });
-
-            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
-            for (const finding of findings) {
-              const existing = openIssues.find(issue => !issue.pull_request && issue.title === finding.title);
-              if (existing) {
-                await github.rest.issues.createComment({
-                  owner,
-                  repo,
-                  issue_number: existing.number,
-                  body: `Observed again in ${runUrl}.`,
-                });
-              } else {
-                await github.rest.issues.create({
-                  owner,
-                  repo,
-                  title: finding.title,
-                  body: `${finding.body}\n\nFirst observed in ${runUrl}.`,
-                  labels: finding.labels,
-                });
-              }
-            }
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const findings = JSON.parse(fs.readFileSync('osv-triage.json', 'utf8'));
+          const proposals = findings.filter(finding => ['medium', 'low'].includes(finding.severity));
+          fs.appendFileSync(
+            process.env.GITHUB_STEP_SUMMARY,
+            `### OSV issue proposals\n\n${proposals.length} medium/low proposal(s) emitted for owner review.\n`
+          );
+          NODE
 
   lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
       - run: bun run lint
@@ -206,18 +278,37 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      issues: write
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-15, windows-latest]
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
       - name: Cache bun dependencies
-        uses: actions/cache@v5
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -228,10 +319,10 @@ jobs:
       - name: Guard against test files in dist/
         run: node scripts/check-no-test-files-in-dist.js
       - name: Run tests with coverage and JUnit output
-        run: bun test --coverage --timeout 30000 --reporter=junit --reporter-outfile test-results.xml
+        run: bun run test:coverage:bun -- --timeout 30000 --reporter=junit --reporter-outfile test-results.xml
       - name: Upload test results on failure
         if: ${{ failure() && hashFiles('test-results.xml') != '' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: test-results-${{ matrix.os }}
           path: test-results.xml
@@ -243,111 +334,29 @@ jobs:
           --junit test-results.xml
           --platform windows
           --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          --commit "${{ github.sha }}"
+          --commit "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
           --output flake-events.json
-      - name: Upsert Windows flake issues
+      - name: Upload Windows flake issue proposals
         if: ${{ failure() && matrix.os == 'windows-latest' && hashFiles('flake-events.json') != '' }}
-        uses: actions/github-script@v8
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          script: |
-            const fs = require('fs');
-            const { execSync } = require('child_process');
-
-            const events = JSON.parse(fs.readFileSync('flake-events.json', 'utf8'));
-            if (events.length === 0) {
-              core.info('No JUnit failure events found for flake triage.');
-              return;
-            }
-
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const bunVersion = execSync('bun --version', { encoding: 'utf8' }).trim();
-            const nodeVersion = process.version;
-            const labelColors = {
-              'flake-report': 'd876e3',
-              'flake-platform-windows': '0078d4',
-              'rel-03-candidate': 'fbca04',
-            };
-
-            async function ensureLabel(label) {
-              try {
-                await github.rest.issues.getLabel({ owner, repo, name: label });
-              } catch (error) {
-                if (error.status !== 404) throw error;
-                await github.rest.issues.createLabel({
-                  owner,
-                  repo,
-                  name: label,
-                  color: labelColors[label] || 'ededed',
-                });
-              }
-            }
-
-            async function recentHitCount(issueNumber) {
-              const comments = await github.paginate(github.rest.issues.listComments, {
-                owner,
-                repo,
-                issue_number: issueNumber,
-                per_page: 100,
-              });
-              const cutoff = Date.now() - (14 * 24 * 60 * 60 * 1000);
-              return comments.filter(comment =>
-                comment.created_at &&
-                Date.parse(comment.created_at) >= cutoff &&
-                comment.body.includes('Observed in')
-              ).length + 1;
-            }
-
-            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
-              owner,
-              repo,
-              state: 'open',
-              labels: 'flake-report',
-              per_page: 100,
-            });
-
-            for (const event of events) {
-              const existing = openIssues.find(issue => !issue.pull_request && issue.title === event.title);
-              const labels = new Set(event.labels);
-              if (existing && await recentHitCount(existing.number) >= 3) {
-                labels.add('rel-03-candidate');
-              }
-
-              for (const label of labels) {
-                await ensureLabel(label);
-              }
-
-              const body = [
-                `Observed in ${event.runUrl}.`,
-                `Commit: ${event.commit}`,
-                `Bun: ${bunVersion}`,
-                `Node: ${nodeVersion}`,
-                `Failure: ${event.failureMessage || '(no failure message)'}`,
-              ].join('\n');
-
-              if (existing) {
-                await github.rest.issues.createComment({
-                  owner,
-                  repo,
-                  issue_number: existing.number,
-                  body,
-                });
-                await github.rest.issues.addLabels({
-                  owner,
-                  repo,
-                  issue_number: existing.number,
-                  labels: [...labels],
-                });
-              } else {
-                await github.rest.issues.create({
-                  owner,
-                  repo,
-                  title: event.title,
-                  body: `${body}\n\nDedup key: ${event.key}`,
-                  labels: [...labels],
-                });
-              }
-            }
+          name: windows-flake-issue-proposals-${{ github.run_id }}
+          path: flake-events.json
+          if-no-files-found: error
+          retention-days: 30
+          overwrite: false
+      - name: Summarize Windows flake issue proposals
+        if: ${{ failure() && matrix.os == 'windows-latest' && hashFiles('flake-events.json') != '' }}
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const proposals = JSON.parse(fs.readFileSync('flake-events.json', 'utf8'));
+          fs.appendFileSync(
+            process.env.GITHUB_STEP_SUMMARY,
+            `### Windows flake issue proposals\n\n${proposals.length} proposal(s) emitted for owner review.\n`
+          );
+          NODE
       - name: Append Windows Active REL-03 skips summary
         if: ${{ always() && matrix.os == 'windows-latest' }}
         shell: bash
@@ -362,65 +371,245 @@ jobs:
 
   perf-budget:
     name: Perf Budget (${{ matrix.platform }})
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    # The 30-minute budget predates the windows leg actually measuring: each
+    # paired sample is a hyperfine invocation (5 runs + 3 warmups) and windows
+    # install samples run ~15-25s, so 26 install samples alone need 50-90
+    # minutes. 30 minutes killed the first real windows capture mid-measurement
+    # (run 33219843247, 2026-08-28). linux/macos finish in under 5 minutes and
+    # keep the tight budget.
+    timeout-minutes: ${{ matrix.platform == 'windows' && 90 || 30 }}
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        # macOS and Windows hosted runners show +/-40-50% install timing noise (2026-08-23: macOS stddev 42% of mean; Windows install 10.5-23.4s across 9 runs); their fail ratios are looser. Durable variance-aware policy is Phase 43 scope.
+        # macOS and Windows hosted runners show +/-40-50% install timing noise (2026-08-23: macOS
+        # stddev 42% of mean; Windows install 10.5-23.4s across 9 runs). main mitigated that with
+        # per-platform loosened ratios against a stored baseline (linux 1.25, macos/windows 2.5).
+        # Phase 43 replaces that with paired measurement: reference (PR base) and candidate (PR
+        # head) are benchmarked in the same job on the same runner, so runner-to-runner drift
+        # cancels instead of being absorbed by a loosened threshold. The floating-ratio API was
+        # removed in b0bd9a5d, so no per-platform ratio value is read here any more.
         include:
           - os: ubuntu-latest
             platform: linux
-            fail_ratio: "1.25"
           - os: macos-15
             platform: macos
-            fail_ratio: "2.5"
           - os: windows-latest
             platform: windows
-            fail_ratio: "2.5"
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - name: Checkout trusted bootstrap
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
-      - run: bun install --frozen-lockfile --ignore-scripts
-      - name: Install hyperfine (Linux)
-        if: ${{ matrix.platform == 'linux' }}
-        run: |
-          if ! command -v hyperfine >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y hyperfine
+          repository: ${{ github.repository }}
+          ref: 5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce
+          path: authority-bootstrap
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify trusted bootstrap
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: 5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce
+          GSD_SUBJECT_PATH: authority-bootstrap
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
           fi
-      - name: Install hyperfine (macOS)
-        if: ${{ matrix.platform == 'macos' }}
-        run: |
-          if ! command -v hyperfine >/dev/null 2>&1; then
-            brew install hyperfine
+      - name: Checkout trusted measurement harness
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: ${{ github.repository }}
+          ref: 32dc22f9dc9cfd7d84333256f0768f5a792b186c
+          path: measurement-harness
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify trusted measurement harness
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: 32dc22f9dc9cfd7d84333256f0768f5a792b186c
+          GSD_SUBJECT_PATH: measurement-harness
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
           fi
-      - name: Install hyperfine (Windows)
-        if: ${{ matrix.platform == 'windows' }}
-        shell: powershell
+      - name: Checkout exact pull request base
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: ${{ github.event.pull_request.base.repo.full_name }}
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: reference
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify exact pull request base
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event.pull_request.base.sha }}
+          GSD_SUBJECT_PATH: reference
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - name: Checkout exact pull request head
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify exact pull request head
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event.pull_request.head.sha }}
+          GSD_SUBJECT_PATH: candidate
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - name: Preflight paired authority files
+        shell: bash
         run: |
-          if (-not (Get-Command hyperfine -ErrorAction SilentlyContinue)) {
-            choco install hyperfine -y --no-progress
-          }
-      - name: Capture current install and compose metrics
-        run: node scripts/bench.js --platform ${{ matrix.platform }} --runs 3 --warmup 1 --out perf-current.json
-      - name: Enforce perf budget
-        run: node scripts/check-perf.js --baseline perf-baseline.json --current perf-current.json --platform ${{ matrix.platform }} --warn-ratio 1.10 --fail-ratio ${{ matrix.fail_ratio }}
+          for subject in authority-bootstrap measurement-harness reference candidate; do
+            for required in package.json bun.lock .planning/upstream-authority.json; do
+              if [ ! -f "$subject/$required" ]; then
+                echo "::error file=$subject/$required::Missing required paired authority file"
+                exit 1
+              fi
+            done
+          done
+      - name: Stage trusted Bun authority
+        shell: bash
+        run: |
+          cp authority-bootstrap/.bun-version .bun-version
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "22"
+          token: ""
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
+      - name: Install reviewed Hyperfine
+        shell: bash
+        run: |
+          node authority-bootstrap/scripts/install-hyperfine.js --destination "$RUNNER_TEMP/gsd-tools"
+          echo "$RUNNER_TEMP/gsd-tools" >> "$GITHUB_PATH"
+      - name: Install trusted harness dependencies
+        shell: bash
+        working-directory: measurement-harness
+        run: bun install --frozen-lockfile --ignore-scripts
+      - name: Capture paired performance evidence
+        shell: bash
+        run: |
+          mkdir -p evidence-bundle
+          runner_image="$(node -e "const os=require('os');const p={win32:'windows',darwin:'macos'}[os.platform()]||os.platform();process.stdout.write([p,os.release(),os.version()].join(':'))")"
+          node measurement-harness/scripts/bench.js \
+            --paired \
+            --reference-worktree "$GITHUB_WORKSPACE/reference" \
+            --candidate-worktree "$GITHUB_WORKSPACE/candidate" \
+            --runner-image "$runner_image" \
+            --pairs 10 \
+            --warmup 3 \
+            --out "$GITHUB_WORKSPACE/evidence-bundle/comparison.json"
+      - name: Enforce paired performance budget
+        shell: bash
+        run: >-
+          node measurement-harness/scripts/check-perf.js
+          --comparison "$GITHUB_WORKSPACE/evidence-bundle/comparison.json"
+          --accepted "$GITHUB_WORKSPACE/candidate/config/perf-accepted-regressions.json"
+      - name: Stage bounded evidence producer
+        shell: bash
+        run: |
+          mkdir -p evidence-producer/scripts/lib evidence-producer/config evidence-producer/artifacts
+          cp candidate/scripts/emit-hosted-runtime-receipt.js evidence-producer/scripts/
+          cp candidate/scripts/emit-paired-binding-manifest.js evidence-producer/scripts/
+          cp candidate/scripts/lib/hosted-evidence-binding.js evidence-producer/scripts/lib/
+          cp candidate/scripts/lib/paired-perf.js evidence-producer/scripts/lib/
+          cp candidate/config/phase43-hosted-ci-contract.json evidence-producer/config/
+          cp candidate/config/phase43-toolchain-authority.json evidence-producer/config/
+          cp evidence-bundle/comparison.json evidence-producer/artifacts/comparison.json
+      - name: Emit Tier B performance receipt
+        shell: bash
+        run: >-
+          node evidence-producer/scripts/emit-hosted-runtime-receipt.js
+          --subject "ci-perf-${{ matrix.platform }}"
+          --output "artifacts/runtime-receipt.json"
+          --tool hyperfine
+      - name: Emit paired binding manifest
+        shell: bash
+        run: >-
+          node evidence-producer/scripts/emit-paired-binding-manifest.js
+          --bootstrap-repository "${{ github.repository }}"
+          --bootstrap-sha "5c813db4d8a17bd2dbf7523e016a5152a6a0c3ce"
+          --harness-repository "${{ github.repository }}"
+          --harness-sha "32dc22f9dc9cfd7d84333256f0768f5a792b186c"
+          --reference-repository "${{ github.event.pull_request.base.repo.full_name }}"
+          --reference-sha "${{ github.event.pull_request.base.sha }}"
+          --candidate-repository "${{ github.event.pull_request.head.repo.full_name }}"
+          --candidate-sha "${{ github.event.pull_request.head.sha }}"
+          --tier-b-receipt "artifacts/runtime-receipt.json"
+          --comparison "artifacts/comparison.json"
+          --output "artifacts/binding-manifest.json"
+      - name: Upload paired performance evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: paired-performance-ci-perf-${{ matrix.platform }}
+          path: |
+            evidence-producer/artifacts/comparison.json
+            evidence-producer/artifacts/runtime-receipt.json
+            evidence-producer/artifacts/binding-manifest.json
+          if-no-files-found: error
+          overwrite: false
 
   parity:
     name: Source Parity Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
+      - run: bun run sbom
+      - name: Verify SBOM artifact
+        run: test -f dist/bom.json
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: package-sbom
+          path: dist/bom.json
+          if-no-files-found: error
+          retention-days: 30
       - run: node scripts/check-parity.js
 
   upstream-compat:
@@ -432,12 +621,32 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-15, windows-latest]
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
       - name: Cache bun dependencies
-        uses: actions/cache@v5
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -445,6 +654,8 @@ jobs:
             ${{ runner.os }}-bun-
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
+      - name: Repository compatibility contracts (blocking)
+        run: bun run test:repository-compat
       - run: node scripts/run-upstream-compat-ci.js
 
   boundary-check:
@@ -453,10 +664,29 @@ jobs:
     # Known structural root-mirror debt remains informational. The ratchet gate
     # is blocking so existing debt cannot increase silently.
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
       - name: Check boundary violations
@@ -471,10 +701,29 @@ jobs:
     name: Override Staleness Check (blocking)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          bun-version: latest
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run compose
       - name: Check override staleness

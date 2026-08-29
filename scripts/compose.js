@@ -426,13 +426,12 @@ function resolve(opts) {
   // (observed in legacy upstream releases that shipped bundled test files in
   // sdk/src/...). Keeping them in dist/ causes bun-test to discover and run
   // them in fork context, where they fail because they need upstream's
-  // fixtures and module-resolution paths. The fork's CI uses tests/*.test.cjs
-  // (in repo root, not dist/) for upstream-compatibility testing — bundled
-  // upstream tests are noise from the fork's perspective.
+  // fixtures and module-resolution paths. The fork's explicit compatibility
+  // registry runs reviewed tests/*.test.cjs contracts under native Node;
+  // bundled upstream tests are noise from the fork's perspective.
   //
-  // Defense-in-depth: bunfig.toml [test].exclude includes "**/dist/**" which
-  // prevents discovery; this filter prevents the files from existing in dist/
-  // at all. Both layers must be preserved.
+  // Defense-in-depth: Bun discovery is rooted at tests/, while this filter
+  // independently prevents test files from entering the shipped dist/ tree.
   //
   // See tests/test-config-hygiene.test.js for the meta-test that asserts
   // zero test files in dist/ at test time.

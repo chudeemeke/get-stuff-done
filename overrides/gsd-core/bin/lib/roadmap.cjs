@@ -21,6 +21,7 @@ const { findPhaseInternal } = phaseLocatorMod;
 const roadmapParserModule = require("./roadmap-parser.cjs");
 const { stripShippedMilestones, extractCurrentMilestone, replaceInCurrentMilestone } = roadmapParserModule;
 const shell_command_projection_cjs_1 = require("./shell-command-projection.cjs");
+const forkRoadmapPersistence = require("./fork-roadmap-persistence.cjs");
 const planningWorkspace = require("./planning-workspace.cjs");
 const { planningPaths, withPlanningLock, findContextMdIn } = planningWorkspace;
 const scanPhasePlans = require("./plan-scan.cjs");
@@ -429,8 +430,9 @@ function cmdRoadmapUpdatePlanProgress(cwd, phaseNum, raw) {
         return;
     }
     // Wrap entire read-modify-write in lock to prevent concurrent corruption
-    withPlanningLock(cwd, () => {
+    const updated = withPlanningLock(cwd, () => {
         let roadmapContent = node_fs_1.default.readFileSync(roadmapPath, 'utf-8');
+        const originalRoadmapContent = roadmapContent;
         const phasePattern = phaseMarkdownRegexSource(phaseNum);
         // Progress table row: update Plans/Status/Date columns (handles 4 or 5 column tables)
         const tableRowPattern = new RegExp(`^(\\|\\s*${phasePattern}\\.?\\s[^|]*(?:\\|[^\\n]*))$`, 'im');
@@ -560,16 +562,16 @@ function cmdRoadmapUpdatePlanProgress(cwd, phaseNum, raw) {
                 }
             }
         }
-        (0, shell_command_projection_cjs_1.platformWriteSync)(roadmapPath, roadmapContent);
+        return forkRoadmapPersistence.publishRoadmapPreservingBytes(roadmapPath, originalRoadmapContent, roadmapContent);
     });
     output({
-        updated: true,
+        updated,
         phase: phaseNum,
         plan_count: planCount,
         summary_count: summaryCount,
         status,
         complete: isComplete,
-    }, raw, `${summaryCount}/${planCount} ${status}`);
+    }, raw, updated ? `${summaryCount}/${planCount} ${status}` : 'unchanged');
 }
 // ─── cmdRoadmapAnnotateDependencies ───────────────────────────────────────────
 /**

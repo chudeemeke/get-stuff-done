@@ -5,6 +5,13 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const {
+  adjudicatePairedComparison,
+  canonicalSha256,
+  capturePairedComparison,
+  summarizeMetric,
+} = require('../scripts/lib/paired-perf');
+const { captureFixture, pairedSpec, receiptFor } = require('./helpers/paired-perf-fixture');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const CHECK_PERF = path.join(PROJECT_ROOT, 'scripts', 'check-perf.js');
@@ -53,7 +60,7 @@ function current(platform, metrics = {}) {
   };
 }
 
-function runCheck({ baselineValue = baseline(), currentValue = current('linux'), platform = 'linux' }) {
+function runCheck({ baselineValue = baseline(), currentValue = current('linux'), platform = 'linux', extraArgs = [] }) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-check-perf-'));
   const baselinePath = path.join(dir, 'baseline.json');
   const currentPath = path.join(dir, 'current.json');
@@ -69,11 +76,31 @@ function runCheck({ baselineValue = baseline(), currentValue = current('linux'),
       '--platform', platform,
       '--warn-ratio', '1.10',
       '--fail-ratio', '1.25',
+      ...extraArgs,
     ], {
       cwd: PROJECT_ROOT,
       encoding: 'utf8',
     });
 
+    return {
+      status: result.status,
+      output: `${result.stdout || ''}${result.stderr || ''}`,
+    };
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+function runPairedCheck(comparisonValue, extraArgs = []) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-check-paired-perf-'));
+  const comparisonPath = path.join(dir, 'comparison.json');
+
+  try {
+    fs.writeFileSync(comparisonPath, JSON.stringify(comparisonValue, null, 2));
+    const result = spawnSync('node', [CHECK_PERF, '--comparison', comparisonPath, ...extraArgs], {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8',
+    });
     return {
       status: result.status,
       output: `${result.stdout || ''}${result.stderr || ''}`,
@@ -93,7 +120,152 @@ function acceptedRegression(overrides = {}) {
   };
 }
 
+function pairedSamples(referenceDurations, candidateDurations) {
+  return referenceDurations.map((referenceDuration, index) => {
+    const order = index % 2 === 0 ? 'AB' : 'BA';
+    const reference = { subject: 'reference', durationNs: referenceDuration };
+    const candidate = { subject: 'candidate', durationNs: candidateDurations[index] };
+    return {
+      index,
+      order,
+      samples: order === 'AB' ? [reference, candidate] : [candidate, reference],
+    };
+  });
+}
+
+describe('paired performance adjudication', () => {
+  test('derives the blocking ratio and diagnostics only from raw paired samples', () => {
+    const pairs = pairedSamples(
+      Array.from({ length: 10 }, (_, index) => 100 + index),
+      Array.from({ length: 10 }, (_, index) => 105 + index)
+    );
+
+    expect(summarizeMetric(pairs)).toEqual({
+      referenceMeanNs: 104.5,
+      candidateMeanNs: 109.5,
+      ratio: 109.5 / 104.5,
+      status: 'pass',
+      diagnostics: {
+        pairRatios: pairs.map((pair) => {
+          const reference = pair.samples.find(sample => sample.subject === 'reference');
+          const candidate = pair.samples.find(sample => sample.subject === 'candidate');
+          return candidate.durationNs / reference.durationNs;
+        }),
+        medianPairRatio: (109 / 104 + 110 / 105) / 2,
+        pairRatioMad: 0.001145317940260293,
+        meanAbsoluteDeltaNs: 5,
+        abCandidateMeanNs: 109,
+        baCandidateMeanNs: 110,
+      },
+    });
+  });
+
+  test('rejects stored summaries or verdicts that differ from raw-sample recomputation', () => {
+    const comparison = captureFixture();
+    expect(adjudicatePairedComparison(comparison)).toEqual({
+      metrics: {
+        install: comparison.metrics.install.summary,
+        compose: comparison.metrics.compose.summary,
+      },
+      verdict: 'pass',
+    });
+
+    const tamperedSummary = structuredClone(comparison);
+    tamperedSummary.metrics.install.summary.ratio = 1.26;
+    expect(() => adjudicatePairedComparison(tamperedSummary)).toThrow(/stored install summary/);
+
+    const tamperedVerdict = structuredClone(comparison);
+    tamperedVerdict.verdict = 'fail';
+    expect(() => adjudicatePairedComparison(tamperedVerdict)).toThrow(/stored verdict/);
+  });
+
+  test('uses exact aggregate arithmetic at the blocking failure boundary', () => {
+    const referenceDurations = Array(10).fill(7_000_000_000_000_000);
+    const candidateDurations = Array(10).fill(8_750_000_000_000_000);
+    candidateDurations[9] += 1;
+    const comparison = capturePairedComparison(pairedSpec(), request => receiptFor(request, {
+      durationNs: request.subject === 'reference'
+        ? referenceDurations[request.index]
+        : candidateDurations[request.index],
+    }));
+
+    expect(comparison.metrics.install.summary.ratio).toBe(1.25);
+    expect(comparison.metrics.install.summary.status).toBe('fail');
+    const result = runPairedCheck(comparison);
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('Paired perf budget failure');
+  });
+
+  test('rejects provenance, schedule, commit, and receipt tampering', () => {
+    const comparison = captureFixture();
+
+    const identity = structuredClone(comparison);
+    identity.executionIdentity.cpu = 'different-cpu';
+    expect(() => adjudicatePairedComparison(identity)).toThrow(/execution identity digest/);
+
+    const schedule = structuredClone(comparison);
+    schedule.metrics.install.pairs[0].order = schedule.metrics.install.pairs[0].order === 'AB' ? 'BA' : 'AB';
+    expect(() => adjudicatePairedComparison(schedule)).toThrow(/schedule/);
+
+    const receipt = structuredClone(comparison);
+    receipt.metrics.compose.pairs[0].samples[0].controlsAfterSha256 = 'f'.repeat(64);
+    expect(() => adjudicatePairedComparison(receipt)).toThrow(/controls changed/);
+
+    const duplicateCommit = structuredClone(comparison);
+    duplicateCommit.subjects.candidate.commit = duplicateCommit.subjects.reference.commit;
+    const { sha256: ignored, ...candidate } = duplicateCommit.subjects.candidate;
+    void ignored;
+    duplicateCommit.subjects.candidate.sha256 = canonicalSha256(candidate);
+    expect(() => adjudicatePairedComparison(duplicateCommit)).toThrow(/distinct commits/);
+  });
+});
+
 describe('check-perf CLI', () => {
+  test('uses validated paired evidence as the strict blocking verdict', () => {
+    const pass = runPairedCheck(captureFixture({ candidateDurationNs: 110_000_000 }));
+    const warning = runPairedCheck(captureFixture({ candidateDurationNs: 111_000_000 }));
+    const boundary = runPairedCheck(captureFixture({ candidateDurationNs: 125_000_000 }));
+    // Ratio breach (1.26) whose mean delta (26ms) is below the 500ms materiality
+    // floor: visible as a warning, never blocking.
+    const immaterial = runPairedCheck(captureFixture({ candidateDurationNs: 126_000_000 }));
+    const failure = runPairedCheck(captureFixture({
+      referenceDurationNs: 10_000_000_000,
+      candidateDurationNs: 12_600_000_000,
+    }));
+
+    expect(pass.status).toBe(0);
+    expect(pass.output).not.toContain('::warning');
+    expect(warning.status).toBe(0);
+    expect(warning.output).toContain('::warning');
+    expect(boundary.status).toBe(0);
+    expect(boundary.output).toContain('::warning');
+    expect(immaterial.status).toBe(0);
+    expect(immaterial.output).toContain('::warning');
+    expect(immaterial.output).not.toContain('::error');
+    expect(failure.status).toBe(1);
+    expect(failure.output).toContain('::error');
+  });
+
+  test('rejects mixed modes, threshold overrides, and structurally invalid paired evidence', () => {
+    for (const extraArgs of [
+      ['--baseline', 'historical.json'],
+      ['--current', 'current.json'],
+      ['--platform', 'linux'],
+      ['--warn-ratio', '9'],
+      ['--fail-ratio', '9'],
+    ]) {
+      const result = runPairedCheck(captureFixture(), extraArgs);
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('cannot be mixed');
+    }
+
+    const invalid = captureFixture();
+    invalid.acceptedRegressions = [];
+    const result = runPairedCheck(invalid);
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('Invalid paired comparison');
+  });
+
   test('passes compose ratios below or exactly at warning threshold without annotations', () => {
     for (const ratio of [1.09, 1.10]) {
       const result = runCheck({ currentValue: current('linux', { compose: Math.round(1000 * ratio) }) });
@@ -118,16 +290,18 @@ describe('check-perf CLI', () => {
     expect(boundary.output).not.toContain('::error');
   });
 
-  test('fails compose and install ratios greater than failure threshold', () => {
+  test('reports historical failures without granting them blocking authority', () => {
     const compose = runCheck({ currentValue: current('linux', { compose: 1260 }) });
     const install = runCheck({ currentValue: current('linux', { install: 1260 }) });
 
-    expect(compose.status).toBe(1);
-    expect(compose.output).toContain('::error');
+    expect(compose.status).toBe(0);
+    expect(compose.output).toContain('Historical perf diagnostic');
+    expect(compose.output).not.toContain('::error');
     expect(compose.output).toContain('linux compose');
 
-    expect(install.status).toBe(1);
-    expect(install.output).toContain('::error');
+    expect(install.status).toBe(0);
+    expect(install.output).toContain('Historical perf diagnostic');
+    expect(install.output).not.toContain('::error');
     expect(install.output).toContain('linux install');
   });
 
@@ -171,9 +345,121 @@ describe('check-perf CLI', () => {
 
     expect(untargeted.status).toBe(1);
     expect(untargeted.output).toContain('acceptedRegressions');
+    expect(untargeted.output).toContain('Error [EPERF]');
+    expect(untargeted.output).not.toContain('Perf budget failure');
 
     expect(globalScope.status).toBe(0);
     expect(globalScope.output).toContain('acceptedRegressions');
     expect(globalScope.output).not.toContain('::error');
+  });
+});
+
+describe('paired accepted-regressions policy', () => {
+  // Install regresses materially (10s -> 12.6s); compose stays flat so the
+  // adjudicated outcome isolates the install acceptance decision.
+  function installOnlyFailure() {
+    return capturePairedComparison(pairedSpec(), request => receiptFor(request, {
+      durationNs: request.metric === 'install'
+        ? (request.subject === 'reference' ? 10_000_000_000 : 12_600_000_000)
+        : 100_000_000,
+    }));
+  }
+
+  function acceptanceEntry(overrides = {}) {
+    return {
+      platform: 'windows',
+      metric: 'install',
+      maxRatio: 1.5,
+      reason: 'Reviewed Phase 43 tooling cost',
+      reviewer: 'Chude',
+      reviewedDate: '2026-08-28',
+      ticket: 'https://github.com/chudeemeke/get-stuff-done/issues/46',
+      expiresOn: '2099-01-01',
+      ...overrides,
+    };
+  }
+
+  function runWithPolicy(policyValue) {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-check-perf-accepted-'));
+    const policyPath = path.join(dir, 'accepted.json');
+    try {
+      if (policyValue !== undefined) {
+        fs.writeFileSync(policyPath, typeof policyValue === 'string'
+          ? policyValue
+          : JSON.stringify(policyValue, null, 2));
+      }
+      return runPairedCheck(installOnlyFailure(), ['--accepted', policyPath]);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  test('downgrades a matching in-bound unexpired acceptance to a non-blocking warning', () => {
+    const result = runWithPolicy({ schemaVersion: 1, acceptances: [acceptanceEntry()] });
+
+    expect(result.status).toBe(0);
+    expect(result.output).toContain('Paired perf regression accepted');
+    expect(result.output).toContain('issues/46');
+    expect(result.output).not.toContain('::error');
+  });
+
+  test('blocks when the matching acceptance is expired or the ratio exceeds its bound', () => {
+    const expired = runWithPolicy({
+      schemaVersion: 1,
+      acceptances: [acceptanceEntry({ expiresOn: '2026-01-31' })],
+    });
+    const overBound = runWithPolicy({
+      schemaVersion: 1,
+      acceptances: [acceptanceEntry({ maxRatio: 1.251 })],
+    });
+    const unmatched = runWithPolicy({
+      schemaVersion: 1,
+      acceptances: [acceptanceEntry({ metric: 'compose' })],
+    });
+
+    expect(expired.status).toBe(1);
+    expect(expired.output).toContain('expired on 2026-01-31');
+    expect(overBound.status).toBe(1);
+    expect(overBound.output).toContain('exceeds the accepted bound');
+    expect(unmatched.status).toBe(1);
+    expect(unmatched.output).toContain('Paired perf budget failure');
+  });
+
+  test('treats a missing policy file as no acceptances and rejects an invalid one', () => {
+    const missing = runWithPolicy(undefined);
+    const invalid = runWithPolicy({ schemaVersion: 1, acceptances: [{ platform: 'windows' }] });
+    const malformed = runWithPolicy('{not json');
+
+    expect(missing.status).toBe(1);
+    expect(missing.output).toContain('no acceptances apply');
+    expect(invalid.status).toBe(1);
+    expect(invalid.output).toContain('Invalid accepted-regressions policy');
+    expect(malformed.status).toBe(1);
+    expect(malformed.output).toContain('Error [EPERF]');
+  });
+
+  test('rejects --accepted outside paired mode', () => {
+    const result = runCheck({
+      currentValue: current('linux', {}),
+      extraArgs: ['--accepted', 'config/perf-accepted-regressions.json'],
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('only valid with --comparison');
+  });
+
+  test('the committed acceptance policy validates against its schema', () => {
+    const Ajv = require('ajv');
+    const schema = JSON.parse(fs.readFileSync(
+      path.join(PROJECT_ROOT, 'config', 'perf-accepted-regressions.schema.json'), 'utf8'));
+    const document = JSON.parse(fs.readFileSync(
+      path.join(PROJECT_ROOT, 'config', 'perf-accepted-regressions.json'), 'utf8'));
+    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+
+    expect(validate(document)).toBe(true);
+    for (const entry of document.acceptances) {
+      expect(entry.maxRatio).toBeGreaterThan(1.25);
+      expect(entry.expiresOn > entry.reviewedDate).toBe(true);
+    }
   });
 });

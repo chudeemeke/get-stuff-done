@@ -14,49 +14,57 @@ const dirHelpers = require('./helpers/index.js');
 const subprocessHelpers = require('./helpers/subprocess-with-timeout.js');
 const { HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
 
-const TOOLS_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'gsd-tools.cjs');
+const LEGACY_PACKAGE_ROOT = path.join(__dirname, '..', 'get-stuff-done');
 
-// Helper to run gsd-tools command (used by upstream .test.cjs files)
-function runGsdTools(args, cwd = process.cwd(), options = {}) {
-  const command = `"${process.execPath}" "${TOOLS_PATH}" ${args}`;
-  const result = subprocessHelpers.runShellWithTimeout(command, {
-    cwd,
-    timeout: options.timeout || HEAVY_SUBPROCESS_TIMEOUT,
-  });
+function createGsdToolsHelpers(packageRoot = LEGACY_PACKAGE_ROOT) {
+  const toolsPath = path.join(path.resolve(packageRoot), 'bin', 'gsd-tools.cjs');
 
-  if (result.status === 0 && !result.timedOut) {
-    return { success: true, output: result.stdout.trim() };
-  }
-
-  const error = result.timedOut
-    ? `${command} timed out after ${result.timeout}ms`
-    : result.stderr.trim() || result.error?.message || `${command} exited with status ${result.status}`;
-
-  return {
-    success: false,
-    output: result.stdout.trim(),
-    error,
-  };
-}
-
-// Shell-safe helper using execFileSync array form (bypasses shell entirely).
-// Use this when CLI arguments contain dollar signs or other shell-sensitive chars.
-function runGsdToolsDirect(argsArray, cwd = process.cwd()) {
-  try {
-    const result = execFileSync(process.execPath, [TOOLS_PATH, ...argsArray], {
+  // Helper to run gsd-tools command (used by upstream .test.cjs files)
+  function runGsdTools(args, cwd = process.cwd(), options = {}) {
+    const command = `"${process.execPath}" "${toolsPath}" ${args}`;
+    const result = subprocessHelpers.runShellWithTimeout(command, {
       cwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: options.timeout || HEAVY_SUBPROCESS_TIMEOUT,
     });
-    return { success: true, output: result.trim() };
-  } catch (err) {
+
+    if (result.status === 0 && !result.timedOut) {
+      return { success: true, output: result.stdout.trim() };
+    }
+
+    const error = result.timedOut
+      ? `${command} timed out after ${result.timeout}ms`
+      : result.stderr.trim() || result.error?.message || `${command} exited with status ${result.status}`;
+
     return {
       success: false,
-      output: err.stdout?.toString().trim() || '',
-      error: err.stderr?.toString().trim() || err.message,
+      output: result.stdout.trim(),
+      error,
     };
   }
+
+  // Shell-safe helper using execFileSync array form (bypasses shell entirely).
+  // Use this when CLI arguments contain dollar signs or other shell-sensitive chars.
+  function runGsdToolsDirect(argsArray, cwd = process.cwd()) {
+    try {
+      const result = execFileSync(process.execPath, [toolsPath, ...argsArray], {
+        cwd,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      return { success: true, output: result.trim() };
+    } catch (err) {
+      return {
+        success: false,
+        output: err.stdout?.toString().trim() || '',
+        error: err.stderr?.toString().trim() || err.message,
+      };
+    }
+  }
+
+  return { runGsdTools, runGsdToolsDirect, TOOLS_PATH: toolsPath };
 }
+
+const defaultGsdToolsHelpers = createGsdToolsHelpers();
 
 // Create temp directory structure (upstream-style, used by .test.cjs files)
 function createTempProject() {
@@ -75,9 +83,8 @@ module.exports = {
   ...dirHelpers,
   ...subprocessHelpers,
   // Additional helpers for upstream .test.cjs files
-  runGsdTools,
-  runGsdToolsDirect,
+  ...defaultGsdToolsHelpers,
+  createGsdToolsHelpers,
   createTempProject,
   cleanup,
-  TOOLS_PATH,
 };

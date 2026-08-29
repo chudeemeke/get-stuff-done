@@ -3,7 +3,7 @@
  *
  * Tests frontmatter.cjs pure functions directly (extractFrontmatter,
  * reconstructFrontmatter, spliceFrontmatter, parseMustHavesBlock) and
- * CLI commands via both direct calls with process.exit mocking and
+ * CLI commands via both direct calls with process boundary capture and
  * subprocess execution.
  */
 
@@ -12,7 +12,10 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { runGsdTools, runGsdToolsDirect, createTempProject, cleanup } = require('./helpers.cjs');
+const { resolveCompatPackageRoot } = require('./helpers/compat-package-root.cjs');
+const COMPAT_PACKAGE_ROOT = resolveCompatPackageRoot();
+const { createGsdToolsHelpers, createTempProject, cleanup } = require('./helpers.cjs');
+const { runGsdTools, runGsdToolsDirect } = createGsdToolsHelpers(COMPAT_PACKAGE_ROOT);
 
 const {
   extractFrontmatter,
@@ -24,37 +27,10 @@ const {
   cmdFrontmatterSet,
   cmdFrontmatterMerge,
   cmdFrontmatterValidate,
-} = require('../get-stuff-done/bin/lib/frontmatter.cjs');
+} = require(path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'frontmatter.cjs'));
+const { captureCommandOutput } = require('./helpers/capture-command-output.cjs');
 
-/**
- * Run a function with process.exit as no-op and stdout/stderr captured.
- * Suppresses crashes after error() returns (error paths continue past exit).
- */
-function captureOutput(fn) {
-  const originalExit = process.exit;
-  const originalStdoutWrite = process.stdout.write;
-  const originalStderrWrite = process.stderr.write;
-
-  let stdout = '';
-  let stderr = '';
-  let exitCode = null;
-
-  process.stdout.write = (data) => { stdout += String(data); return true; };
-  process.stderr.write = (data) => { stderr += String(data); return true; };
-  process.exit = (code) => { if (exitCode === null) exitCode = code; };
-
-  try {
-    fn();
-  } catch (err) {
-    if (exitCode !== 1) throw err;
-  } finally {
-    process.exit = originalExit;
-    process.stdout.write = originalStdoutWrite;
-    process.stderr.write = originalStderrWrite;
-  }
-
-  return { exitCode, stdout, stderr };
-}
+const captureOutput = captureCommandOutput;
 
 // ============================================================================
 // extractFrontmatter — pure function tests
@@ -153,11 +129,10 @@ describe('extractFrontmatter', () => {
     assert.strictEqual(result.top_level, 'after');
   });
 
-  test('handles CRLF line endings (returns empty - regex expects LF)', () => {
+  test('parses pure CRLF frontmatter', () => {
     const content = '---\r\nphase: 01\r\nplan: 02\r\n---\r\n';
     const result = extractFrontmatter(content);
-    // The regex /^---\n/ does not match \r\n, so no frontmatter is found
-    assert.deepStrictEqual(result, {});
+    assert.deepStrictEqual(result, { phase: '01', plan: '02' });
   });
 
   test('handles inline array with quoted values', () => {

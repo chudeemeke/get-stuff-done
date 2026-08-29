@@ -60,6 +60,12 @@ describe('oversight trigger contract', () => {
     }
   });
 
+  test('canonical Bun package command counts as command evidence', () => {
+    const { analyzeFixtureText } = loadProbeModule();
+
+    expect(analyzeFixtureText('Summary complete. `bun run test` exited 0.')).toEqual([]);
+  });
+
   test('fixture verification reports fixture name and trigger ID when detection fails', () => {
     const { FIXTURE_EXPECTATIONS, runFixtureChecks } = loadProbeModule();
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-oversight-probes-'));

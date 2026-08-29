@@ -18,9 +18,10 @@
  *   2. Parse CLI args, resolve target directory
  *   3. If --uninstall: remove manifest-tracked files, exit 0
  *   4. If v2.x detected: remove only GSD-owned files, proceed
- *   5. Spawn upstream install.js with all user flags + stdio: inherit
- *   6. On upstream exit 0: copy overlay files, write .install-meta.json
- *   7. On upstream failure: warn about partial state, exit with upstream code
+ *   5. Snapshot target metadata/settings/GSD-owned files for rollback
+ *   6. Spawn upstream install.js with all user flags + stdio: inherit
+ *   7. On upstream exit 0: copy overlay files, write .install-meta.json
+ *   8. On upstream/overlay/meta/statusline failure: rollback then exit non-zero
  */
 
 'use strict';
@@ -29,14 +30,25 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { spawn } = require('child_process');
+let getActivePackageName = () => '@opengsd/gsd-core';
+let getActivePackageVersion = () => '1.5.0';
+
+try {
+  ({
+    getActivePackageName,
+    getActivePackageVersion,
+  } = require('../scripts/lib/upstream-source'));
+} catch {
+  // Package fixtures and partial installs may not include helper scripts.
+  // The published package ships scripts/lib/upstream-source.js; this fallback
+  // keeps the installer usable in minimal test/install layouts.
+}
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const DIST_DIR = path.join(__dirname, '..', 'dist');
-const MANIFEST_PATH = path.join(DIST_DIR, '.overlay-manifest.json');
-const DIST_META_PATH = path.join(DIST_DIR, '.install-meta.json');
 const PKG_PATH = path.join(__dirname, '..', 'package.json');
 
 /** Filename of the installed-files manifest written by upstream into targetDir. */
@@ -163,6 +175,193 @@ function readOverlayManifest(targetDir) {
     // Corrupt overlay manifest -- return empty and let metadata cleanup continue.
   }
   return [];
+}
+
+function readJsonFile(filePath, description) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch (err) {
+    throw new Error(`Failed to read ${description} at ${filePath}: ${err.message}`);
+  }
+}
+
+function readDistOverlayManifest(distDir) {
+  const manifestPath = path.join(distDir, '.overlay-manifest.json');
+  if (!fs.existsSync(manifestPath)) {
+    throw new Error(`Required dist artifact missing: .overlay-manifest.json at ${manifestPath}`);
+  }
+
+  const manifest = readJsonFile(manifestPath, 'dist overlay manifest');
+  if (!Array.isArray(manifest)) {
+    throw new Error(`Invalid .overlay-manifest.json at ${manifestPath}: expected an array`);
+  }
+
+  return manifest.filter(entry => typeof entry === 'string' && entry.length > 0);
+}
+
+function targetRelativePath(targetDir, relPath) {
+  const resolvedTarget = path.resolve(targetDir);
+  const fullPath = path.resolve(targetDir, relPath);
+  if (fullPath !== resolvedTarget && !fullPath.startsWith(resolvedTarget + path.sep)) {
+    return null;
+  }
+  return fullPath;
+}
+
+function copySnapshotPath(sourcePath, snapshotPath) {
+  fs.mkdirSync(path.dirname(snapshotPath), { recursive: true });
+  const stat = fs.lstatSync(sourcePath);
+
+  if (stat.isDirectory()) {
+    fs.cpSync(sourcePath, snapshotPath, { recursive: true });
+    return 'directory';
+  }
+
+  fs.copyFileSync(sourcePath, snapshotPath);
+  return 'file';
+}
+
+function restoreSnapshotPath(snapshot) {
+  if (!snapshot.existed) {
+    if (fs.existsSync(snapshot.targetPath)) {
+      fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
+    }
+    return false;
+  }
+
+  fs.mkdirSync(path.dirname(snapshot.targetPath), { recursive: true });
+  if (snapshot.kind === 'directory') {
+    if (fs.existsSync(snapshot.targetPath)) {
+      fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
+    }
+    fs.cpSync(snapshot.snapshotPath, snapshot.targetPath, { recursive: true });
+  } else {
+    fs.copyFileSync(snapshot.snapshotPath, snapshot.targetPath);
+  }
+  return true;
+}
+
+function pruneEmptyParents(targetDir, relPath) {
+  let dir = path.dirname(relPath);
+  while (dir && dir !== '.') {
+    const fullDir = targetRelativePath(targetDir, dir);
+    if (!fullDir) return;
+
+    try {
+      if (fs.existsSync(fullDir) && fs.readdirSync(fullDir).length === 0) {
+        fs.rmdirSync(fullDir);
+      } else {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    dir = path.dirname(dir);
+  }
+}
+
+function preflightInstallTarget(targetDir, distDir) {
+  const safety = isSafeToClean(targetDir);
+  if (!safety.safe) {
+    throw new Error(`Refusing to install into unsafe target: ${safety.reason}`);
+  }
+
+  const upstreamScript = path.join(distDir, 'bin', 'install.js');
+  if (!fs.existsSync(upstreamScript)) {
+    throw new Error(`Upstream install.js not found at ${upstreamScript}`);
+  }
+
+  readDistOverlayManifest(distDir);
+
+  const distMetaPath = path.join(distDir, '.install-meta.json');
+  if (!fs.existsSync(distMetaPath)) {
+    throw new Error(`Required dist artifact missing: .install-meta.json at ${distMetaPath}`);
+  }
+  readJsonFile(distMetaPath, 'dist install metadata');
+
+  return { targetDir, distDir, upstreamScript };
+}
+
+function createInstallTransaction(targetDir, distDir) {
+  preflightInstallTarget(targetDir, distDir);
+  const snapshotDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-install-transaction-'));
+  const distOverlayFiles = readDistOverlayManifest(distDir);
+  const relPaths = new Set([
+    ...readInstalledManifest(targetDir),
+    ...readOverlayManifest(targetDir),
+    ...distOverlayFiles,
+    INSTALLED_MANIFEST_NAME,
+    '.overlay-manifest.json',
+    '.install-meta.json',
+    'settings.json',
+  ]);
+  const snapshots = [];
+
+  for (const relPath of relPaths) {
+    const targetPath = targetRelativePath(targetDir, relPath);
+    if (!targetPath) continue;
+
+    const snapshotPath = path.join(snapshotDir, relPath);
+    const existed = fs.existsSync(targetPath);
+    const snapshot = {
+      relPath,
+      targetPath,
+      snapshotPath,
+      existed,
+      kind: 'missing',
+    };
+
+    if (existed) {
+      snapshot.kind = copySnapshotPath(targetPath, snapshotPath);
+    }
+
+    snapshots.push(snapshot);
+  }
+
+  return {
+    targetDir,
+    distDir,
+    snapshotDir,
+    distOverlayFiles,
+    snapshots,
+  };
+}
+
+function rollbackInstallTransaction(transaction) {
+  const snapshotByRelPath = new Map(
+    transaction.snapshots.map(snapshot => [snapshot.relPath, snapshot])
+  );
+  let removed = 0;
+  let restored = 0;
+
+  for (const relPath of transaction.distOverlayFiles) {
+    const snapshot = snapshotByRelPath.get(relPath);
+    if (snapshot && snapshot.existed) continue;
+
+    const targetPath = targetRelativePath(transaction.targetDir, relPath);
+    if (targetPath && fs.existsSync(targetPath)) {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+      removed++;
+      pruneEmptyParents(transaction.targetDir, relPath);
+    }
+  }
+
+  for (const snapshot of transaction.snapshots) {
+    if (restoreSnapshotPath(snapshot)) {
+      restored++;
+    } else if (!snapshot.existed) {
+      pruneEmptyParents(transaction.targetDir, snapshot.relPath);
+    }
+  }
+
+  fs.rmSync(transaction.snapshotDir, { recursive: true, force: true });
+  return { rollback: 'applied', restored, removed };
+}
+
+function commitInstallTransaction(transaction) {
+  fs.rmSync(transaction.snapshotDir, { recursive: true, force: true });
+  return { committed: true };
 }
 
 /**
@@ -440,13 +639,7 @@ async function cleanupV2(targetDir, detection, quiet) {
  * @returns {number} Number of files copied
  */
 function copyOverlayFiles(distDir, targetDir) {
-  if (!fs.existsSync(MANIFEST_PATH)) {
-    console.error(`${red}Error:${reset} .overlay-manifest.json not found in dist/`);
-    console.error(`  Run ${cyan}bun run compose${reset} to generate dist/ first.`);
-    process.exit(1);
-  }
-
-  const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8'));
+  const manifest = readDistOverlayManifest(distDir);
   let copied = 0;
 
   for (const relPath of manifest) {
@@ -535,12 +728,22 @@ function cleanOrphanedPaths(targetDir) {
  *
  * @param {string} targetDir - Installation target
  */
-function writeInstallMeta(targetDir) {
-  const distMeta = JSON.parse(fs.readFileSync(DIST_META_PATH, 'utf-8'));
-  const pkg = JSON.parse(fs.readFileSync(PKG_PATH, 'utf-8'));
+function writeInstallMeta(targetDir, distDir = DIST_DIR, packagePath = PKG_PATH) {
+  const distMeta = readJsonFile(path.join(distDir, '.install-meta.json'), 'dist install metadata');
+  const pkg = readJsonFile(packagePath, 'package.json');
+  const upstreamPackage = distMeta.upstreamPackage ||
+    distMeta.upstream_package ||
+    getActivePackageName();
+  const upstreamVersion = distMeta.upstreamVersion ||
+    distMeta.upstream_version ||
+    getActivePackageVersion();
 
   const meta = {
-    upstream_version: distMeta.upstream_version,
+    forkPackage: pkg.name,
+    forkVersion: pkg.version,
+    upstreamPackage,
+    upstreamVersion,
+    upstream_version: upstreamVersion,
     overlay_version: pkg.version,
     installed_at: new Date().toISOString(),
     features_disabled: distMeta.features_disabled || [],
@@ -653,69 +856,139 @@ function uninstall(targetDir, { exit: shouldExit = true } = {}) {
 // ---------------------------------------------------------------------------
 
 /**
- * Run the full v3.0 install:
- *   1. Spawn upstream install.js with user flags
- *   2. On exit 0: copy overlay files + write meta
- *   3. On non-zero exit: warn and exit with upstream code
+ * Run the full v3.0 install under a transaction:
+ *   1. Preflight dist artifacts and snapshot existing target state.
+ *   2. Spawn upstream install.js with user flags.
+ *   3. On exit 0: copy overlay files, write meta, copy manifest, patch statusline.
+ *   4. On any upstream/overlay/meta/statusline failure: rollback and report it.
  *
  * @param {string} distDir
  * @param {string} targetDir
  * @param {string[]} userArgs - Original CLI args to pass through
+ * @param {object} options - Injectable process and step dependencies for tests
+ * @returns {Promise<object>}
  */
-function install(distDir, targetDir, userArgs) {
-  const upstreamScript = path.join(distDir, 'bin', 'install.js');
+function install(distDir, targetDir, userArgs, options = {}) {
+  const spawnImpl = options.spawnImpl || spawn;
+  const copyOverlayFilesImpl = options.copyOverlayFilesImpl || copyOverlayFiles;
+  const writeInstallMetaImpl = options.writeInstallMetaImpl || writeInstallMeta;
+  const copyOverlayManifestImpl = options.copyOverlayManifestImpl || copyOverlayManifest;
+  const patchStatusLineImpl = options.patchStatusLineImpl || patchStatusLine;
+  const cleanOrphanedPathsImpl = options.cleanOrphanedPathsImpl || cleanOrphanedPaths;
+  const exitImpl = options.exitImpl || (code => process.exit(code));
+  const logImpl = options.logImpl || (message => console.log(message));
+  const errorImpl = options.errorImpl || (message => console.error(message));
+  let transaction;
 
-  if (!fs.existsSync(upstreamScript)) {
-    console.error(`${red}Error:${reset} Upstream install.js not found at ${upstreamScript}`);
-    console.error(`  Run ${cyan}bun run compose${reset} to generate dist/ first.`);
-    process.exit(1);
+  try {
+    transaction = createInstallTransaction(targetDir, distDir);
+  } catch (err) {
+    errorImpl(`${red}Error:${reset} ${err.message}`);
+    exitImpl(1);
+    return Promise.resolve({
+      status: 1,
+      failureStep: 'preflight',
+      rollback: 'not_started',
+      error: err,
+    });
   }
 
-  const child = spawn(process.execPath, [upstreamScript, ...userArgs], {
-    stdio: 'inherit',
-    env: { ...process.env },
-  });
+  const upstreamScript = path.join(distDir, 'bin', 'install.js');
 
-  child.on('error', (err) => {
-    console.error(`${red}Error:${reset} Failed to spawn upstream installer: ${err.message}`);
-    process.exit(1);
-  });
+  return new Promise((resolve) => {
+    let finished = false;
 
-  child.on('close', (code) => {
-    if (code !== 0) {
-      console.error(`\n${yellow}Upstream installer exited with code ${code}.${reset}`);
-      console.error(`  The installation may be in a partial state.`);
-      process.exit(code);
+    const finish = (result) => {
+      if (finished) return;
+      finished = true;
+      resolve(result);
+    };
+
+    const failWithRollback = (failureStep, code, err) => {
+      if (err) {
+        errorImpl(`${red}Error:${reset} ${err.message}`);
+      }
+
+      let rollback = 'not_started';
+      try {
+        const rollbackResult = rollbackInstallTransaction(transaction);
+        rollback = rollbackResult.rollback;
+        errorImpl(`  ${yellow}Rollback applied${reset}`);
+      } catch (rollbackErr) {
+        rollback = 'failed';
+        errorImpl(`  ${red}Rollback failed:${reset} ${rollbackErr.message}`);
+      }
+
+      const status = Number.isInteger(code) && code !== 0 ? code : 1;
+      exitImpl(status);
+      finish({ status, failureStep, rollback, error: err });
+    };
+
+    const runInstallStep = (failureStep, fn) => {
+      try {
+        return fn();
+      } catch (err) {
+        err.failureStep = failureStep;
+        throw err;
+      }
+    };
+
+    const finishOverlayInstall = () => {
+      try {
+        const orphansRemoved = runInstallStep('orphan-cleanup', () => cleanOrphanedPathsImpl(targetDir));
+        if (orphansRemoved > 0) {
+          logImpl(`\n  ${green}Cleaned ${orphansRemoved} orphaned path(s)${reset}`);
+        }
+
+        const copied = runInstallStep('overlay', () => copyOverlayFilesImpl(distDir, targetDir));
+        logImpl(`\n  ${green}Overlay files copied:${reset} ${copied}`);
+
+        runInstallStep('metadata', () => writeInstallMetaImpl(targetDir, distDir));
+        logImpl(`  ${green}.install-meta.json written${reset}`);
+
+        if (runInstallStep('overlay-manifest', () => copyOverlayManifestImpl(distDir, targetDir))) {
+          logImpl(`  ${green}.overlay-manifest.json written${reset}`);
+        }
+
+        const slResult = runInstallStep('statusline', () => patchStatusLineImpl(targetDir));
+        if (slResult.action === 'preserved_custom') {
+          logImpl(`  ${yellow}StatusLine:${reset} preserved existing custom setting`);
+        } else {
+          logImpl(`  ${green}StatusLine setting ${slResult.action}${reset}`);
+        }
+
+        commitInstallTransaction(transaction);
+        exitImpl(0);
+        finish({ status: 0, rollback: 'not_needed' });
+      } catch (err) {
+        failWithRollback(err.failureStep || 'post-upstream', 1, err);
+      }
+    };
+
+    let child;
+    try {
+      child = spawnImpl(process.execPath, [upstreamScript, ...userArgs], {
+        stdio: 'inherit',
+        env: { ...process.env },
+      });
+    } catch (err) {
+      failWithRollback('spawn', 1, err);
+      return;
     }
 
-    // Clean up orphaned paths from previous install layouts
-    const orphansRemoved = cleanOrphanedPaths(targetDir);
-    if (orphansRemoved > 0) {
-      console.log(`\n  ${green}Cleaned ${orphansRemoved} orphaned path(s)${reset}`);
-    }
+    child.on('error', (err) => {
+      failWithRollback('spawn', 1, new Error(`Failed to spawn upstream installer: ${err.message}`));
+    });
 
-    // Upstream succeeded -- copy overlay files
-    const copied = copyOverlayFiles(distDir, targetDir);
-    console.log(`\n  ${green}Overlay files copied:${reset} ${copied}`);
+    child.on('exit', (code) => {
+      if (code !== 0) {
+        errorImpl(`\n${yellow}Upstream installer exited with code ${code}.${reset}`);
+        failWithRollback('upstream', code || 1);
+        return;
+      }
 
-    // Write v3.0 install metadata
-    writeInstallMeta(targetDir);
-    console.log(`  ${green}.install-meta.json written${reset}`);
-
-    // Copy overlay provenance manifest
-    if (copyOverlayManifest(distDir, targetDir)) {
-      console.log(`  ${green}.overlay-manifest.json written${reset}`);
-    }
-
-    // Ensure statusLine setting points to fork's enhanced version
-    const slResult = patchStatusLine(targetDir);
-    if (slResult.action === 'preserved_custom') {
-      console.log(`  ${yellow}StatusLine:${reset} preserved existing custom setting`);
-    } else {
-      console.log(`  ${green}StatusLine setting ${slResult.action}${reset}`);
-    }
-
-    process.exit(0);
+      finishOverlayInstall();
+    });
   });
 }
 
@@ -771,7 +1044,7 @@ async function main() {
     }
   }
 
-  install(DIST_DIR, targetDir, args);
+  await install(DIST_DIR, targetDir, args);
 }
 
 if (require.main === module) {
@@ -790,8 +1063,15 @@ module.exports = {
   isSafeToClean,
   parseConfigDir,
   resolveTargetDir,
+  preflightInstallTarget,
+  createInstallTransaction,
+  rollbackInstallTransaction,
+  commitInstallTransaction,
   patchStatusLine,
+  copyOverlayFiles,
   copyOverlayManifest,
   cleanOrphanedPaths,
+  writeInstallMeta,
+  install,
   uninstall,
 };

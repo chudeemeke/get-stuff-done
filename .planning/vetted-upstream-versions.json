@@ -1,0 +1,46 @@
+{
+  "$schema": "./vetted-upstream-versions.schema.json",
+  "schemaVersion": 1,
+  "packageName": "@opengsd/gsd-core",
+  "policy": {
+    "maxVersions": 3,
+    "prune": "oldest-on-successful-bump",
+    "evidenceRequiredForVetted": true,
+    "notes": "Plan 04 fills vettedAt only after matrix execution produces evidence.matrixReport."
+  },
+  "versions": [
+    {
+      "version": "1.5.0",
+      "role": "historical-candidate",
+      "blocking": false,
+      "vettedAt": "2026-07-14",
+      "evidence": {
+        "matrixReport": ".planning/evidence/phase43-compat.json",
+        "status": "passed",
+        "matrixReportSha256": "e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712"
+      }
+    },
+    {
+      "version": "1.6.0",
+      "role": "historical-candidate",
+      "blocking": false,
+      "vettedAt": "2026-07-14",
+      "evidence": {
+        "matrixReport": ".planning/evidence/phase43-compat.json",
+        "status": "passed",
+        "matrixReportSha256": "e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712"
+      }
+    },
+    {
+      "version": "1.6.1",
+      "role": "current",
+      "blocking": true,
+      "vettedAt": "2026-07-14",
+      "evidence": {
+        "matrixReport": ".planning/evidence/phase43-compat.json",
+        "matrixReportSha256": "e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712",
+        "status": "passed"
+      }
+    }
+  ]
+}

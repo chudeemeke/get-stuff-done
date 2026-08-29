@@ -52,6 +52,12 @@ const HOOKS = Object.freeze([
     description: 'SessionStart hook: throttled upstream version check (7-day cache)',
   }),
   Object.freeze({
+    name: 'gsd-check-update-worker.js',
+    source: 'overrides/hooks',
+    kind: 'override',
+    description: 'SessionStart worker: registry/upstream update and stale-hook detection',
+  }),
+  Object.freeze({
     name: 'gsd-statusline.js',
     source: 'overrides/hooks',
     kind: 'override',

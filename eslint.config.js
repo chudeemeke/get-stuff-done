@@ -2,7 +2,18 @@ const security = require('eslint-plugin-security');
 
 module.exports = [
   {
-    ignores: ['node_modules/**', '.upstream/**', 'dist/**', 'hooks/dist/**', 'assets/.backup/**']
+    // `.claude/**` holds per-machine harness state, including `.claude/worktrees/<name>/`
+    // checkouts of this same repository. Linting those re-lints a whole second copy of the
+    // tree (and any stale copy's violations), which is why `bun run lint` could exit 1 on an
+    // otherwise clean tree. CI never has them; every local session does.
+    ignores: [
+      'node_modules/**',
+      '.upstream/**',
+      'dist/**',
+      'hooks/dist/**',
+      'assets/.backup/**',
+      '.claude/**'
+    ]
   },
   {
     files: ['**/*.js'],

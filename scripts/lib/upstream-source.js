@@ -11,7 +11,7 @@ const EMBEDDED_AUTHORITY = Object.freeze({
   contractScope: 'maintainer-build-time',
   active: Object.freeze({
     packageName: '@opengsd/gsd-core',
-    version: '1.5.0',
+    version: '1.6.1',
     repository: 'https://github.com/open-gsd/gsd-core',
     npmUrl: 'https://www.npmjs.com/package/@opengsd/gsd-core',
     sourceRoot: '.',

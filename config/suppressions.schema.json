@@ -9,7 +9,7 @@
     "properties": {
       "id": {
         "type": "string",
-        "minLength": 1
+        "pattern": "^GHSA-[23456789cfghjmpqrvwx]{4}-[23456789cfghjmpqrvwx]{4}-[23456789cfghjmpqrvwx]{4}$"
       },
       "severity": {
         "type": "string",

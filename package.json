@@ -59,15 +59,20 @@
     "hono": "4.12.34",
     "ip-address": "10.3.1",
     "minimatch": "3.1.5",
-    "qs": "6.15.2"
+    "qs": "6.15.2",
+    "tar": "7.5.22"
   },
   "devDependencies": {
-    "@opengsd/gsd-core": "1.5.0",
-    "audit-ci": "7.1.0",
+    "@cyclonedx/cyclonedx-npm": "6.0.0",
+    "@opengsd/gsd-core": "1.6.1",
+    "acorn": "8.17.0",
+    "c8": "9.1.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.39.5",
     "eslint-plugin-security": "^3.0.1",
+    "expect": "30.4.1",
     "husky": "^9.1.7",
+    "js-yaml": "5.4.0",
     "markdownlint-cli2": "0.23.2",
     "sharp": "^0.35.0"
   },
@@ -77,7 +82,8 @@
     "build": "node scripts/build.js",
     "compose": "node scripts/compose.js",
     "finalize-dist": "node scripts/finalize-dist.js",
-    "dist": "bun run compose && bun run build && bun run finalize-dist",
+    "sbom": "node scripts/generate-sbom.js",
+    "dist": "bun run compose && bun run build && bun run sbom && bun run finalize-dist",
     "prepublishOnly": "bun run dist",
     "audit:ci": "node scripts/audit-check.js",
     "bench": "node scripts/bench.js",
@@ -86,9 +92,20 @@
     "lint:docs": "node scripts/lint-docs.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "bun test",
-    "test:coverage": "bun test --coverage",
+    "test": "node scripts/run-bun-tests.js",
+    "test:coverage:bun": "node scripts/run-bun-tests.js --coverage",
+    "test:coverage:phase43-verifiers": "node node_modules/c8/bin/c8.js --allowExternal --per-file '--include=**/scripts/emit-paired-binding-manifest.js' '--include=**/scripts/emit-hosted-runtime-receipt.js' '--include=**/scripts/install-hyperfine.js' '--include=**/scripts/lib/hosted-evidence-binding.js' '--include=**/scripts/verify-hosted-ci.js' '--include=**/scripts/verify-toolchain-authority.js' --check-coverage --statements 95 --branches 95 --functions 95 --lines 95 --reporter=text --reporter=json-summary node --test tests/paired-binding-manifest.test.js tests/hosted-runtime-receipt.test.js tests/install-hyperfine.test.js tests/hosted-evidence-binding.test.js tests/verify-hosted-ci.test.js tests/toolchain-authority.test.js",
+    "test:coverage:phase43-roadmap-persistence": "node node_modules/c8/bin/c8.js --allowExternal --per-file '--include=**/overlay/gsd-core/bin/lib/fork-roadmap-persistence.cjs' --check-coverage --statements 95 --branches 95 --functions 95 --lines 95 --reporter=text --reporter=json-summary node --test tests/fork-roadmap-persistence.test.js",
+    "test:coverage:phase43-upgrade-verifier": "node node_modules/c8/bin/c8.js --allowExternal --per-file '--include=**/scripts/verify-upgrade.js' --check-coverage --statements 95 --branches 95 --functions 95 --lines 95 --reporter=text --reporter=json-summary node --test tests/verify-upgrade.test.js",
+    "test:coverage:phase43-paired-perf": "node node_modules/c8/bin/c8.js --allowExternal --per-file '--include=**/scripts/lib/paired-perf.js' --check-coverage --statements 95 --branches 95 --functions 95 --lines 95 --reporter=text --reporter=json-summary node --test tests/coverage/paired-perf.test.cjs",
+    "test:coverage:phase43-audit-sbom": "node node_modules/c8/bin/c8.js --allowExternal --per-file '--include=**/scripts/audit-check.js' '--include=**/scripts/generate-sbom.js' --check-coverage --statements 95 --branches 95 --functions 95 --lines 95 --reporter=text --reporter=json-summary node --test tests/audit-check.test.js tests/generate-sbom.test.js",
+    "test:repository-compat": "node scripts/run-repository-compat.js",
     "test:upstream": "node --test tests/*.test.cjs",
-    "preview-update": "node bin/preview-update-cli.js"
+    "phase43:hosted-verdict": "node scripts/verify-hosted-ci.js",
+    "preview-update": "node bin/preview-update-cli.js",
+    "verify-upgrade": "node scripts/verify-upgrade.js",
+    "vetted-upstream:validate": "node scripts/vetted-upstream-versions.js --validate",
+    "compat:matrix": "node scripts/run-compat-matrix.js",
+    "override:churn": "node scripts/generate-override-churn.js"
   }
 }

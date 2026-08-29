@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "kind": "hosted-ci-failure-observation",
+  "repository": "chudeemeke/get-stuff-done",
+  "pullRequest": 23,
+  "checkedCommit": "2c9ba08745cf3bc13cec42b0c05feb2ae5f02233",
+  "observedAt": "2026-07-14T21:59:40.7457824+01:00",
+  "collector": {
+    "command": "bun run phase43:hosted-verdict -- collect --pr 23 --receipt .planning/evidence/hosted/post-11n.json --purpose \"Plan 11R post-11N hosted authority\"",
+    "result": "failed",
+    "reason": "run_failed",
+    "receiptCreated": false
+  },
+  "workflows": [
+    {
+      "name": "CI",
+      "runId": 29367264687,
+      "attempt": 1,
+      "event": "pull_request",
+      "conclusion": "failure",
+      "jobCount": 18,
+      "successfulJobs": 9,
+      "failedJobs": 9,
+      "jobsWithExecutedSteps": 18,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/29367264687"
+    },
+    {
+      "name": "Cousin Install",
+      "runId": 29367264675,
+      "attempt": 1,
+      "event": "pull_request",
+      "conclusion": "success",
+      "jobCount": 18,
+      "successfulJobs": 18,
+      "failedJobs": 0,
+      "jobsWithExecutedSteps": 18,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/29367264675"
+    },
+    {
+      "name": "Oversight Probes",
+      "runId": 29367264697,
+      "attempt": 1,
+      "event": "pull_request",
+      "conclusion": "success",
+      "jobCount": 1,
+      "successfulJobs": 1,
+      "failedJobs": 0,
+      "jobsWithExecutedSteps": 1,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/29367264697"
+    },
+    {
+      "name": "Compat Matrix",
+      "runId": 29367264713,
+      "attempt": 1,
+      "event": "pull_request",
+      "conclusion": "success",
+      "jobCount": 1,
+      "successfulJobs": 1,
+      "failedJobs": 0,
+      "jobsWithExecutedSteps": 1,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/29367264713"
+    },
+    {
+      "name": "Upgrade Verifier",
+      "runId": 29367264690,
+      "attempt": 1,
+      "event": "pull_request",
+      "conclusion": "failure",
+      "jobCount": 1,
+      "successfulJobs": 0,
+      "failedJobs": 1,
+      "jobsWithExecutedSteps": 1,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/29367264690"
+    }
+  ],
+  "failures": [
+    {
+      "workflow": "CI",
+      "job": "Audit CI (blocking HIGH/CRITICAL)",
+      "jobId": 87201829475,
+      "failedStep": "Run bun run audit:ci",
+      "classification": "blocking_direct_dependency_advisory",
+      "evidence": "@cyclonedx/cyclonedx-npm 4.2.1 is affected by GHSA-v75r-vx73-82pj; npm reports a HIGH shell-injection advisory and a major-version fix at 6.0.0."
+    },
+    {
+      "workflow": "CI",
+      "job": "OSV Scanner",
+      "jobId": 87201829500,
+      "failedStep": "Triage OSV findings",
+      "classification": "blocking_direct_dependency_advisory",
+      "evidence": "OSV independently blocks GHSA-v75r-vx73-82pj."
+    },
+    {
+      "workflow": "CI",
+      "job": "Docs Gates",
+      "jobId": 87201829467,
+      "failedStep": "Check markdown links",
+      "classification": "external_link_endpoint_failure",
+      "evidence": "Three README.md checks of api.star-history.com returned HTTP 500."
+    },
+    {
+      "workflow": "CI",
+      "job": "Test (ubuntu-latest)",
+      "jobId": 87201829510,
+      "failedStep": "Run tests with coverage and JUnit output",
+      "classification": "cross_platform_path_expectation",
+      "evidence": "A Windows executable-path fixture expected backslashes but received a mixed-separator path under Linux."
+    },
+    {
+      "workflow": "CI",
+      "job": "Test (macos-15)",
+      "jobId": 87201829641,
+      "failedStep": "Run tests with coverage and JUnit output",
+      "classification": "canonical_path_alias_and_cross_platform_expectation",
+      "evidence": "The hosted receipt test compared /var with canonical /private/var, and the Windows executable-path fixture received mixed separators."
+    },
+    {
+      "workflow": "CI",
+      "job": "Test (windows-latest)",
+      "jobId": 87201829536,
+      "failedStep": "Run tests with coverage and JUnit output",
+      "classification": "canonical_path_alias_and_runner_module_load",
+      "evidence": "The hosted receipt test compared an 8.3 temp path with its canonical long path; a DACL test also failed because Microsoft.PowerShell.Security could not autoload Get-Acl on the runner."
+    },
+    {
+      "workflow": "CI",
+      "job": "Perf Budget (linux)",
+      "jobId": 87201829555,
+      "failedStep": "Enforce perf budget",
+      "classification": "expired_or_stale_performance_authority",
+      "evidence": "Install baseline 133ms, current 209ms, ratio 1.57; compose ratio 1.10."
+    },
+    {
+      "workflow": "CI",
+      "job": "Perf Budget (macos)",
+      "jobId": 87201829520,
+      "failedStep": "Enforce perf budget",
+      "classification": "expired_or_stale_performance_authority",
+      "evidence": "Install baseline 134ms, current 179ms, ratio 1.34; compose ratio 0.69."
+    },
+    {
+      "workflow": "CI",
+      "job": "Perf Budget (windows)",
+      "jobId": 87201829499,
+      "failedStep": "Enforce perf budget",
+      "classification": "expired_or_stale_performance_authority",
+      "evidence": "Install baseline 10203ms, current 17087ms, ratio 1.67; compose ratio 1.15."
+    },
+    {
+      "workflow": "Upgrade Verifier",
+      "job": "Upgrade Verifier",
+      "jobId": 87201829356,
+      "failedStep": "Run upgrade verifier",
+      "classification": "verdaccio_publish_authentication_missing",
+      "evidence": "pack-current passed; publish-current failed with npm ENEEDAUTH because the temp-scoped npmrc contains only the registry URL."
+    }
+  ],
+  "environmentDrift": {
+    "localBunVersion": "1.3.5",
+    "hostedBunVersion": "1.3.14",
+    "workflowSelector": "latest",
+    "performanceBaselineUpstreamVersion": "1.5.0",
+    "checkedUpstreamVersion": "1.6.1",
+    "expiredPerformanceExceptions": true
+  },
+  "governanceSideEffects": {
+    "status": "occurred",
+    "source": "CI workflow OSV upsert step",
+    "permission": "issues: write",
+    "newIssuesCreated": 0,
+    "existingIssuesCommented": [5, 6, 7, 8, 9, 10, 11],
+    "commentAuthor": "github-actions",
+    "commentBody": "Observed again in https://github.com/chudeemeke/get-stuff-done/actions/runs/29367264687.",
+    "remediationAttempted": false,
+    "reasonNoRemediation": "Deleting or editing public issue comments is another external mutation and requires explicit user approval."
+  },
+  "constraints": {
+    "furtherExternalRunsAuthorized": false,
+    "sourceEditsAuthorizedBeforeFable": false,
+    "fableAvailable": false,
+    "fableExpectedAvailableAfter": "2026-07-15T10:00:00+01:00"
+  },
+  "nextDecision": "Fable reviews this first real hosted failure evidence and leads the GSD graph correction before source edits or another hosted cycle."
+}

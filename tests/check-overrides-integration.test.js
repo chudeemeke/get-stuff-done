@@ -14,8 +14,8 @@ function computeHash(content) {
   return crypto.createHash('sha256').update(Buffer.from(content, 'utf-8')).digest('hex');
 }
 
-function createReasonMd(relPath, version, hash) {
-  return [
+function createReasonMd(relPath, version, hash, opts = {}) {
+  const lines = [
     `# Override: ${relPath}`,
     '',
     '## Why',
@@ -24,13 +24,22 @@ function createReasonMd(relPath, version, hash) {
     '## Upstream snapshot',
     `- Version: ${version}`,
     `- SHA-256: ${hash}`,
+  ];
+
+  if (opts.semanticHash) {
+    lines.push(`- Semantic SHA-256: ${opts.semanticHash}`);
+  }
+
+  lines.push(
     '',
     "## What's different",
     '- Integration test fork change',
     '',
     '## Review trigger',
     `When upstream ${relPath} changes.`,
-  ].join('\n');
+  );
+
+  return lines.join('\n');
 }
 
 function makeTempDir() {
@@ -87,5 +96,49 @@ describe('check-overrides subprocess integration', () => {
     expect(output).toContain('STALE');
     expect(output).toContain('Current hash:');
     expect(output).toContain('Action:');
+  });
+
+  test('comment-only JavaScript upstream drift exits zero with semantic evidence', () => {
+    tmpDir = makeTempDir();
+    const upstreamDir = path.join(tmpDir, 'upstream');
+    const overridesDir = path.join(tmpDir, 'overrides');
+    const relPath = 'hooks/example.js';
+    const upstreamFile = path.join(upstreamDir, relPath);
+    const overrideFile = path.join(overridesDir, relPath);
+    const original = 'function answer() {\n  return 42;\n}\n';
+    const commentOnly = '// comment-only upstream drift\nfunction answer() {\n  return 42;\n}\n';
+    const { semanticHashJavaScript } = require('../scripts/lib/semantic-js');
+    const semantic = semanticHashJavaScript(original, relPath);
+
+    expect(semantic.ok).toBe(true);
+    fs.mkdirSync(path.dirname(upstreamFile), { recursive: true });
+    fs.mkdirSync(path.dirname(overrideFile), { recursive: true });
+    fs.writeFileSync(
+      path.join(upstreamDir, 'package.json'),
+      JSON.stringify({ name: '@opengsd/gsd-core', version: '1.5.0' }),
+      'utf-8'
+    );
+    fs.writeFileSync(upstreamFile, commentOnly, 'utf-8');
+    fs.writeFileSync(overrideFile, 'function forkAnswer() { return 42; }\n', 'utf-8');
+    fs.writeFileSync(
+      `${overrideFile}.REASON.md`,
+      createReasonMd(relPath, '1.5.0', computeHash(original), {
+        semanticHash: semantic.hash,
+      }),
+      'utf-8'
+    );
+
+    const result = runWithTimeout(
+      process.execPath,
+      [
+        CHECK_OVERRIDES_SCRIPT,
+        '--overrides-dir', overridesDir,
+        '--upstream-dir', upstreamDir,
+      ],
+      { encoding: 'utf-8', cwd: PROJECT_ROOT }
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('OK (semantic)');
   });
 });

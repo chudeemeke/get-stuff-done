@@ -45,6 +45,10 @@ const ALLOWED_PREFIXES = [
   '.planning/',
   'tests/',
   '.github/',
+  // Per-machine harness state. `.claude/worktrees/<name>/` holds full checkouts of this same
+  // repository, so walking it both doubles the traversal and reports a stale copy's paths as
+  // if they were fork source.
+  '.claude/',
 ];
 
 // ---------------------------------------------------------------------------
@@ -73,7 +77,15 @@ function walkDir(dir, base) {
       continue;
     }
 
-    const stat = fs.statSync(abs);
+    // lstat, not stat: stat follows symlinks and throws ENOENT on a dangling one, which would
+    // abort the entire boundary walk over a single broken link anywhere in the tree. A symlink
+    // is reported as a leaf path rather than descended into, so link cycles cannot loop.
+    let stat;
+    try {
+      stat = fs.lstatSync(abs);
+    } catch {
+      continue;
+    }
     if (stat.isDirectory()) {
       results.push(...walkDir(abs, rel));
     } else {

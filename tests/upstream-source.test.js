@@ -21,6 +21,7 @@ const {
 } = require('../scripts/lib/upstream-source');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
+const ACTIVE_UPSTREAM_VERSION = '1.6.1';
 
 function makeAuthority(overrides = {}) {
   const base = {
@@ -28,7 +29,7 @@ function makeAuthority(overrides = {}) {
     contractScope: 'maintainer-build-time',
     active: {
       packageName: '@opengsd/gsd-core',
-      version: '1.5.0',
+      version: ACTIVE_UPSTREAM_VERSION,
       repository: 'https://github.com/open-gsd/gsd-core',
       npmUrl: 'https://www.npmjs.com/package/@opengsd/gsd-core',
       sourceRoot: '.',
@@ -88,7 +89,7 @@ describe('upstream-source authority helper', () => {
     const authority = readAuthorityContract({ projectRoot: PROJECT_ROOT });
 
     expect(getActivePackageName(authority)).toBe('@opengsd/gsd-core');
-    expect(getActivePackageVersion(authority)).toBe('1.5.0');
+    expect(getActivePackageVersion(authority)).toBe(ACTIVE_UPSTREAM_VERSION);
     expect(getActiveRepository(authority)).toBe('https://github.com/open-gsd/gsd-core');
   });
 
@@ -96,7 +97,7 @@ describe('upstream-source authority helper', () => {
     const authority = readAuthorityContract({ projectRoot: tmpDir });
 
     expect(getActivePackageName(authority)).toBe('@opengsd/gsd-core');
-    expect(getActivePackageVersion(authority)).toBe('1.5.0');
+    expect(getActivePackageVersion(authority)).toBe(ACTIVE_UPSTREAM_VERSION);
     expect(authority.rules.runtimeMayReadPlanningManifest).toBe(false);
   });
 

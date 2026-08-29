@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Fable checkpoint input manifest",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "checkpoint",
+    "subjectCommit",
+    "objective",
+    "evidence"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "checkpoint": { "type": "string", "minLength": 1 },
+    "subjectCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "objective": { "type": "string", "minLength": 1 },
+    "reviewQuestions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/evidence" }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "evidence": {
+      "oneOf": [
+        { "$ref": "#/definitions/trackedEvidence" },
+        { "$ref": "#/definitions/externalEvidence" }
+      ]
+    },
+    "baseEvidence": {
+      "type": "object",
+      "required": ["id", "kind", "path", "sha256"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+        "kind": { "type": "string" },
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "trackedEvidence": {
+      "allOf": [
+        { "$ref": "#/definitions/baseEvidence" },
+        {
+          "type": "object",
+          "properties": {
+            "id": true,
+            "kind": { "const": "tracked" },
+            "path": true,
+            "sha256": true
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "externalEvidence": {
+      "allOf": [
+        { "$ref": "#/definitions/baseEvidence" },
+        {
+          "type": "object",
+          "required": ["authority", "checkedCommit"],
+          "properties": {
+            "id": true,
+            "kind": { "const": "external" },
+            "path": true,
+            "sha256": true,
+            "authority": { "type": "string", "minLength": 1 },
+            "checkedCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

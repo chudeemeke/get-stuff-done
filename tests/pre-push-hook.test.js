@@ -9,10 +9,11 @@ describe('pre-push hook', () => {
   test('clears Git hook-local repository env before running test gates', () => {
     const hook = fs.readFileSync(PRE_PUSH, 'utf8');
     const clearIndex = hook.indexOf('git rev-parse --local-env-vars');
-    const testIndex = hook.indexOf('bun test');
+    const testIndex = hook.indexOf('bun run test');
 
     expect(clearIndex).toBeGreaterThan(-1);
     expect(testIndex).toBeGreaterThan(-1);
     expect(clearIndex).toBeLessThan(testIndex);
+    expect(hook).not.toMatch(/^bun test(?:\s|$)/m);
   });
 });

@@ -19,7 +19,8 @@
  *
  * Failure mode caught: upstream npm tarball ships .test.* files; compose
  * copies node_modules/<upstream>/ to dist/; test runner discovers them.
- * The categorical fix (Wave 1.5a) is `dist/**` exclusion in bunfig.toml.
+ * Bun discovery is rooted at tests/; this remains defense in depth against
+ * accidentally shipping upstream test files in the composed package.
  * This guard catches the case where exclusion drifts or compose changes
  * shape.
  *
@@ -86,7 +87,7 @@ function main() {
   console.error('');
   console.error('This means upstream test files leaked into the bundle.');
   console.error('Fix: review scripts/compose.js test-file filter (compose.js:438-441)');
-  console.error('     and bunfig.toml [test].exclude patterns.');
+  console.error('     and the bunfig.toml [test] discovery boundary.');
   console.error('See: tests/test-config-hygiene.test.js for the in-runner peer check.');
   process.exit(1);
 }

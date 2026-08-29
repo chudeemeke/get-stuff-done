@@ -1,14 +1,14 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-29T00:00:00Z",
+  "timestamp": "2026-08-29T01:00:00Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "phase43-upgrade-resilience-20260703",
-  "head": "58248670",
+  "head": "11fd34f6",
   "pr": "https://github.com/chudeemeke/get-stuff-done/pull/23",
   "pr_state": "draft",
-  "status": "awaiting-windows-perf-verdict",
+  "status": "all-green-awaiting-owner",
   "superseded_handoff_note": "Updated 2026-08-29: the three blocking decisions (#46 #47 #48) are EXECUTED. Prior content of this file (head 986e09b8, three pending decisions) is superseded by the five commits below.",
   "completed_tasks": [
     {
@@ -99,11 +99,17 @@
       "name": "Windows paired leg got past capture for the first time (normalization active), then was cancelled by timeout-minutes:30 mid-measurement - the budget predated a leg that actually measures. Windows now 90 min, linux/macos keep 30.",
       "status": "done",
       "commit": "58248670"
+    },
+    {
+      "id": "windows-calibration",
+      "name": "Windows acceptance bounds calibrated against the first real measurements: install 1.5->1.7 (observed 1.60/1.46/1.33, reference varying 25% across runners), plus a windows/compose entry (1.75) explicitly documenting measurement NOISE (identical code measured 0.59 and 1.48). Floor recalibration filed as issue #55 (trigger: next harness re-pin, deadline: entry expiry 2026-11-26).",
+      "status": "done",
+      "commit": "11fd34f6"
     }
   ],
   "ci_state": {
-    "run_head": "58248670",
-    "note": "On d484e0a9: 20 of 21 checks green including Perf Budget linux+macos (floor working: install 1.42 downgraded to warning) and Upgrade Verifier (success, 9/9 steps). Sole red was Perf Budget (windows) via job-timeout cancellation. 58248670 rerun in flight; windows capture needs up to ~90 min."
+    "run_head": "11fd34f6",
+    "note": "ALL 21 CHECKS GREEN - first fully green matrix in Phase 43 history. Windows install 1.33 accepted with printed rationale; compose 0.94 pass. Issues #46/#47/#48 closed with evidence."
   },
   "blockers": [],
   "human_actions_pending": [
@@ -177,5 +183,5 @@
   "head_note": "DO NOT TRUST the head/commits_ahead_of_main values above. This file is committed, so every commit that records it (including doc-only follow-ups) leaves them behind by an unknown amount. ALWAYS re-derive: git rev-parse --short HEAD and git rev-list --count origin/main..HEAD. The same applies to ci_state, which was captured at run_head and is not live.",
   "resume_command_warning": "THE DOCUMENTED RESUME COMMAND IS BROKEN. /gsd:resume-work loads .claude/commands/gsd/resume-work.md, which @-imports an absolute path inside the iCloud tree deleted in the 2026-08 move; 55 of 58 files in .claude/commands/gsd/ share the defect. .claude/ is gitignored, so these are untracked single-copy files. If the command fails or silently loads nothing, read this file and .continue-here.md directly - they are self-contained and do not need the command. Two divergent GSD copies exist (project-local .claude/get-shit-done/ from Mar 29, and global ~/.claude/gsd-core/ which the Skill tool actually resolves); deciding which is authoritative is an owner call. Tracked as issue #54.",
   "handoff_deletion_warning": ".claude/get-shit-done/workflows/resume-project.md line 94 instructs deleting HANDOFF.json after resumption as a one-shot artifact. STATE.md names this file the canonical current position, and it carries the three blocking decisions. It is now tracked in git (986e09b8), so a deletion is recoverable with git checkout -- .planning/HANDOFF.json. Do not let it be deleted while the three decisions are open.",
-  "next_step": "Confirm Perf Budget (windows) completes capture+adjudication on 58248670 (expect the windows/install acceptance to fire, bound 1.5). Then: close #46/#47/#48 with evidence, decide PR #23 draft->ready, disposition stray untracked get-stuff-done/ dir at repo root, 5 docs/inbox items still untriaged."
+  "next_step": "Owner decisions only: (1) PR #23 draft -> ready and merge path; (2) stray untracked get-stuff-done/ directory at repo root (real dir, stale v2.4.0 GSD self-install from March, NOT gitignored - git add -A would commit it); (3) 5 docs/inbox items untriaged; (4) open issues #49 inert pre-push hook, #51 governance branch land-or-discard, #53 upstream bump (now verifiable end-to-end), #54 broken resume command, #55 floor recalibration."
 }

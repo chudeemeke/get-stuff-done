@@ -21,6 +21,7 @@
     "Issues #46 #47 #48 closed with evidence (pre-merge).",
     "Issue #37 advisories cleared via lockfile regeneration (pre-merge).",
     "Inbox: memory-nexus installer-crash item archived as merged (trigger was PR #23 merge).",
+    "Issue #41 CLOSED (2026-08-29, commit f888c11f): desktop Phase 40.5 handoff artifacts fetched via remotely after the desktop returned (reset was not a wipe), verified byte-identical at every stage, committed under the Phase 40.5 dir with a .gitattributes -text byte-identity pin; archived inbox preservation record repointed.",
     "Inbox: kanbanflow model-catalog + conversations plan-checker-effort triaged to the #53 bump (both fix targets upstream-owned at pin 1.6.1; plan-checker at 1.6.1 has NO effort field - the observed low is from a newer installed copy, #54 divergence).",
     "PR body rewritten to the evidence contract before ready."
   ],
@@ -53,12 +54,6 @@
       "id": "issue-55-perf-floor-recalibration",
       "issue": "https://github.com/chudeemeke/get-stuff-done/issues/55",
       "description": "Recalibrate windows acceptance floors. Trigger: next harness re-pin. Deadline: acceptance expiry 2026-11-26. Post-merge windows noise evidence: 1.33/1.72/1.57 on identical code."
-    },
-    {
-      "id": "issue-41-desktop-artifacts",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/41",
-      "severity": "time-critical",
-      "description": "Desktop copies of Phase 40.5 handoff artifacts (7188/12101 bytes, sums 0f9f5a51/c43408f6) exist ONLY on a desktop filesystem path. User announced a desktop reset 2026-08-29 - if that means wipe/reinstall, these must be copied off FIRST."
     },
     {
       "id": "pr-4-gsd-doctor",

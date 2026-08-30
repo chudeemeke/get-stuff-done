@@ -159,8 +159,8 @@ describe('run-upstream-compat test discovery', () => {
       contract.suites[0].versions = { '1.5.0': { skip: true } };
     }, 'commands.test.cjs candidate suite cannot define per-version execution policy');
     validateMutation(contract => {
-      contract.commonVersions = ['1.6.1'];
-    }, 'Compatibility contract must apply to 1.6.0, 1.6.1, 1.7.0');
+      contract.commonVersions = ['1.7.0'];
+    }, 'Compatibility contract must apply to 1.6.1, 1.7.0, 1.8.0');
   });
 });
 
@@ -213,7 +213,7 @@ describe('run-upstream-compat per-suite execution', () => {
         tempRoot: fixture.tempRoot,
         contract: {
           schemaVersion: 1,
-          commonVersions: ['1.6.0', '1.6.1', '1.7.0'],
+          commonVersions: ['1.6.1', '1.7.0', '1.8.0'],
           suites: [{
             path: 'alpha.test.cjs',
             classification: 'candidate',
@@ -247,7 +247,7 @@ describe('run-upstream-compat per-suite execution', () => {
         tempRoot: fixture.tempRoot,
         contract: {
           schemaVersion: 1,
-          commonVersions: ['1.6.0', '1.6.1', '1.7.0'],
+          commonVersions: ['1.6.1', '1.7.0', '1.8.0'],
           suites: [{
             path: 'alpha.test.cjs',
             classification: 'candidate',
@@ -283,7 +283,7 @@ describe('run-upstream-compat per-suite execution', () => {
         tempRoot: fixture.tempRoot,
         contract: {
           schemaVersion: 1,
-          commonVersions: ['1.6.0', '1.6.1', '1.7.0'],
+          commonVersions: ['1.6.1', '1.7.0', '1.8.0'],
           suites: [
             {
               path: 'alpha.test.cjs',
@@ -376,7 +376,7 @@ describe('run-upstream-compat per-suite execution', () => {
         tempRoot: fixture.tempRoot,
         contract: {
           schemaVersion: 1,
-          commonVersions: ['1.6.0', '1.6.1', '1.7.0'],
+          commonVersions: ['1.6.1', '1.7.0', '1.8.0'],
           suites: [
             {
               path: 'timeout.test.cjs',
@@ -444,7 +444,7 @@ describe('run-upstream-compat per-suite execution', () => {
         tempRoot: fixture.tempRoot,
         contract: {
           schemaVersion: 1,
-          commonVersions: ['1.6.0', '1.6.1', '1.7.0'],
+          commonVersions: ['1.6.1', '1.7.0', '1.8.0'],
           suites: [{
             path: 'alpha.test.cjs',
             classification: 'candidate',
@@ -468,7 +468,7 @@ describe('run-upstream-compat per-suite execution', () => {
         tempRoot: fixture.tempRoot,
         contract: {
           schemaVersion: 1,
-          commonVersions: ['1.6.0', '1.6.1', '1.7.0'],
+          commonVersions: ['1.6.1', '1.7.0', '1.8.0'],
           suites: [
             {
               path: 'nested.test.cjs',

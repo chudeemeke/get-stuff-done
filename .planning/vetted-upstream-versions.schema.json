@@ -79,6 +79,11 @@
               "status": {
                 "type": "string",
                 "enum": ["passed", "failed"]
+              },
+              "supersededBy": {
+                "description": "Version whose bump re-ported the overrides, making this row's evidence unreproducible. Set automatically when the row is demoted from current.",
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
               }
             }
           }

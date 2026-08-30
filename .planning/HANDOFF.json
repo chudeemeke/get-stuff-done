@@ -4,10 +4,17 @@
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
-  "branch": "chore/upstream-bump-1.7.0",
-  "pr": "https://github.com/chudeemeke/get-stuff-done/pull/23",
+  "branch": "chore/upstream-bump-1.8.0",
+  "pr": "https://github.com/chudeemeke/get-stuff-done/pull/61",
   "pr_state": "MERGED",
-  "status": "issue-53-bump-step-1-in-flight",
+  "status": "issue-53-bump-step-1-COMPLETE-step-2-not-started",
+  "step_1_merge_evidence": {
+    "merge_commit": "0bfac78e",
+    "final_head": "2d83742a",
+    "checks": "20/20 SUCCESS on final head (run 33302219426, Perf Budget windows included)",
+    "tuicr": "operator ran the gate 2026-08-30 and reported zero comments; tuicr review list --repo . shows no persisted session (consistent with a zero-comment review)",
+    "cross_ai": "Codex terra xhigh quota-blocked (lifts Sep 28), agy lane down; fresh-context Claude review agent (same-family) verdict MERGE-READY; fixed-now items in 2d83742a, four deferrals carried in review_evidence below"
+  },
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 (user chose 'Walk increments' via AskUserQuestion 2026-08-30)",
     "step": "1 of 5: 1.6.1 -> 1.7.0",
@@ -20,13 +27,13 @@
       "Upgrade Verifier re-aimed --from 1.7.0 --to 1.8.0; N=3 compat set + contract + fixtures advanced (role-preserving shift); upstream-source/vetted tests now DERIVE the active version from package.json/authority.",
       "Gates green so far: single-version 1.7.0 matrix 315/315; installer suites 19/19; pin-adjacent suites 94/95 (sole fail = KNOWN bun 1.4.0-vs-1.3.5 false local red in verify-upgrade oversized-response); check-overrides 9/9 fresh; lint 0 errors; lint:docs 0; compose green; changelog self-test green."
     ],
-    "in_flight": "NONE locally. PR #61 (DRAFT) awaits the OPERATOR tuicr gate; hosted CI 20/20 SUCCESS on final head 2d83742a (Perf Budget windows included, run 33302219426). NOTE: this handoff commit is LOCAL-ONLY on the branch (deliberately unpushed - a push would re-roll the Windows perf dice); it rides the next push (tuicr fixes) or the step-2 branch.",
+    "in_flight": "NONE. Step 1 (1.7.0) MERGED to main as 0bfac78e. This branch (chore/upstream-bump-1.8.0, cut from that main) is the step-2 workspace; no 1.8.0 work has started.",
     "evidence_recorded": "1.7.0 vetting evidence APPLIED (commit 653ee5ae): single-version current-pin report regenerated at .planning/evidence/bump-1.7.0-compat.json (11 candidate suites passed), manifest 1.7.0 row vettedAt 2026-08-30, historical rows keep 2026-07-14 evidence. DEVIATION FROM PRIOR PLAN, deliberate: the recorded assumption that applyMatrixEvidence skips absent rows was true of the helper but FALSE at the CLI - validateMatrixEvidenceReport demanded a require-all report with exactly all 3 manifest versions passing, which is structurally impossible now that overrides are 1.7.0-coupled. Extended the fork-owned validator (TDD, red first) to accept successful current-pin reports as subset applications: blocking row must be present and fully passing, per-row strictness unchanged, require-all closeout unchanged. Flagged as an explicit review point in the PR body. CHANGELOG noted (a53cc15e).",
     "review_evidence": "Full suite (detached, summary line verified): 1663/1668 across all 63 files; all 5 fails proven local bun-1.4.0 artifacts (1.4.0 ignores bunfig [test].timeout -> 5000ms default killed slow Windows subprocess tests; serialized rerun of the 3 files with explicit --timeout = 96/96; 5th = known verify-upgrade stream false red). repo-compat 2/2. PR #61 opened DRAFT, hosted CI 20/20 SUCCESS incl Test(windows) and Perf(windows). CROSS-AI LANES: Codex gpt-5.6-terra xhigh dispatched per live resolution, died on usage limit (lifts Sep 28 2026, matches skill ledger); agy lane documented down same date; fell back to a fresh-context Claude review agent (same-family, labelled as such). VERDICT MERGE-READY. Dispositions: FIXED-NOW = 2 missing current-pin negative tests (unknown-version row, demoted-pin replay -> 'manifest role' guard now pinned), eslint-strip port-recipe note appended to 5 REASON.md files, CLAUDE.md classification row for root bin/install.js. DEFERRED to step 2 (1.8.0 bump = trigger): (a) phase.test.cjs:829 accept-both alternation is permanent widening now 1.6.x can never run - make version-conditional; (b) roadmap.test.cjs tolerates-not-pins the #2022 verification gate; (c) manifest historical rows still read 'passed' with no stale/superseded marker - consider evidence note field before step 2 adds a second dead row; (d) exported applyMatrixEvidence rechecks weaker than validator (safe via CLI ordering; pre-existing).",
     "next_steps": [
-      "1. OPERATOR: tuicr gate on PR #61 (tuicr pr 61, review in TUI, :wq, then tell the agent). Every comment must be dispositioned before merge.",
-      "2. After tuicr: re-verify CI green on final head (any new commit re-rolls the Windows perf dice), mark PR #61 ready, squash merge.",
-      "3. Repeat for 1.8.0 (step 2 of 5) INCLUDING the four deferred review findings above. The two triaged inbox items (model-catalog opus5, plan-checker effort) execute at the FINAL step (1.11.0) - verified 1.11.0 does NOT fix either (catalog still 9x opus-4-8; plan-checker still no effort field)."
+      "1. Step 2 (1.7.0 -> 1.8.0), same recipe as step 1: bun install the new pin (--ignore-scripts), --prune-for-bump the manifest, drop-experiment first (stash overrides, compose pure 1.8.0, run matrix - anything green is a droppable override), forward-port remaining overrides onto PURE 1.8.0 bases per project_override_forward_port_pattern.md, refresh REASON.md hashes + bump-review notes (including the standing eslint-strip port-recipe note), single-version evidence report + --apply-matrix-evidence (current-pin subset path now exists and is tested), full suite detached, PR, review, tuicr, merge.",
+      "2. Execute the four deferred step-1 review findings DURING step 2 (see review_evidence): version-conditional assertion in phase.test.cjs, pin-the-negative in roadmap.test.cjs, stale/superseded marker for dead manifest rows (1.6.x now, 1.7.0 will join after step 2 merges), align exported applyMatrixEvidence recheck with the validator.",
+      "3. The two triaged inbox items (model-catalog opus5, plan-checker effort) execute at the FINAL step (1.11.0) - verified 1.11.0 does NOT fix either (catalog still 9x opus-4-8; plan-checker still no effort field)."
     ],
     "hazards": [
       "PR perf legs re-roll windows noise dice per commit - batch changes before pushing to the PR.",

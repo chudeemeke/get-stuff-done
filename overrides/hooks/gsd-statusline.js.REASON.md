@@ -7,9 +7,9 @@ state when no todo is active, and uses the shared package-lineage cache written
 by `gsd-check-update.js`.
 
 ## Upstream snapshot
-- Version: 1.6.1
-- SHA-256: 81059a0f3e0013c18da874d25850d7f2aec0c7cf6b14804246d4bacafea9d0a8
-- Semantic SHA-256: ea9f9f78affbc22087cc511df3179feb1f99147c6e1935ae38e0f85caa5410cd
+- Version: 1.7.0
+- SHA-256: 6e05a20a979d9d4968c234db49378b1b73550a3c7ef28ed7dca46e735ab839b1
+- Semantic SHA-256: 3c9829bd9e36a3feb324874b6b56e2c13673666ff0f5d9e838515f2d50bf72a4
 
 ## What's different
 - Fork branding in output.
@@ -27,3 +27,7 @@ by `gsd-check-update.js`.
 
 ## Review trigger
 When upstream hooks/gsd-statusline.js changes, review whether the override is still needed.
+
+## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
+
+Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: upstream added three opt-in features (context token-count suffix, compact long-context model badge, git branch/work-state segment behind statusline.show_git). All three reviewed and DEFERRED, not adopted - the fork statusline is a deliberate rewrite with its own theme system, and none of the additions is load-bearing for fork behavior. Revisit at the next bump or on user request.

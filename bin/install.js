@@ -458,6 +458,7 @@ function removeGsdFiles(targetDir, quiet) {
     '.install-meta.json',
     '.overlay-manifest.json',
     '.gsd-profile',
+    '.gsd-source',   // Open GSD 1.7.0+ source-resolution marker (#1477); side-written outside the manifest
     'CREDITS.md',
     'gsd-install-state.json',
     'package.json',

@@ -4,8 +4,8 @@
 Fork GSD project recovery exposed that `init progress` reported Phase 40.5 as current even though STATE.md records Phase 41 as active, and selected backlog 999.1 as next work instead of roadmap Phase 42.
 
 ## Upstream snapshot
-- Version: 1.6.1
-- SHA-256: bcbe3af4720cb769fb8d3fc87070031649df1082170dee94e52139074975b25e
+- Version: 1.7.0
+- SHA-256: 2b214922c3d23e2344a711585a73968daf6b727b6509b5110c5958f8736ce770
 
 ## What's different
 - Reads current phase from STATE.md formats used by this fork and prefers it after merging disk and ROADMAP-only phases.
@@ -14,3 +14,7 @@ Fork GSD project recovery exposed that `init progress` reported Phase 40.5 as cu
 
 ## Review trigger
 When upstream `gsd-core/bin/lib/init.cjs` changes, check whether Open GSD has native STATE-aware `init progress` routing and roadmap-ordered next-phase selection. Remove this override once upstream behavior covers these cases.
+
+## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
+
+Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: forward-ported as pure 1.7.0 base + readStateCurrentPhase + post-sort STATE-preference current/next selection + state_current_phase output. The previous file carried a pre-1.6.1 base whose merge would have silently stripped 1.7.0 features (verification projection, workstream guard); those upstream behaviors are now intact. Validated by init.test.cjs 14/14 in the composed 1.7.0 candidate matrix.

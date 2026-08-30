@@ -11,7 +11,7 @@
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 (user chose 'Walk increments' via AskUserQuestion 2026-08-30)",
     "step": "1 of 5: 1.6.1 -> 1.7.0",
-    "branch": "chore/upstream-bump-1.7.0 (pushed; 3 commits: 6198cb75 pin+machinery, 5e26c960 overrides forward-port, a5f6781d changelog)",
+    "branch": "chore/upstream-bump-1.7.0 (pushed; re-derive the commit list via git log --oneline origin/main..HEAD — recorded counts go stale as docs commits land; the load-bearing three are 6198cb75 pin+machinery, 5e26c960 overrides forward-port, a5f6781d changelog)",
     "done": [
       "Pin advanced in package.json + bun.lock + upstream-authority.json + embedded authority (scripts/lib/upstream-source.js); vetted manifest pruned to 1.6.0/1.6.1/1.7.0-blocking via --prune-for-bump; validate green.",
       "All 7 changed overrides forward-ported onto PURE 1.7.0 bases (old files carried pre-1.6.1 vintage bases - a 3-way merge silently STRIPS upstream features; forward-port = 1.7.0 file + fork semantic delta re-applied). plan-scan/init/roadmap-parser/roadmap/state/install.js; statusline kept, upstream's 3 new opt-in features reviewed+deferred; check-update hooks byte-identical.",

@@ -7,7 +7,7 @@ preserve `gsd.role` consumer/maintainer routing, and keep the fork's exact
 split-worker resilience model.
 
 ## Upstream snapshot
-- Version: 1.7.0
+- Version: 1.8.0
 - SHA-256: 95bbd1c7ca11246828eb85b0b7b3718771d08d186e8d3b103426749cc9bb5415
 - Semantic SHA-256: 8cd427939dd8c8c9d61a602d7a766ddcfdfc1b317f11bdae592d9ddc872eea40
 
@@ -29,3 +29,8 @@ When upstream hooks/gsd-check-update.js changes, review whether the override is 
 ## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
 
 Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: upstream file is byte-identical between the two versions; override unchanged.
+
+## Bump review 2026-08-30 (1.7.0 -> 1.8.0)
+
+Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream file is byte-identical
+between the two versions (hash unchanged); override unchanged.

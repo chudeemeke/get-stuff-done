@@ -6,7 +6,7 @@ resilience split, but the fork needs `@chude/get-stuff-done` package identity,
 maintainer routing from `gsd.role`, and the fork's 7-day network throttle.
 
 ## Upstream snapshot
-- Version: 1.7.0
+- Version: 1.8.0
 - SHA-256: 16f4ebb94930af55555534c21c7586327d4756b9cd10cc05350bd4de2a552fd9
 - Semantic SHA-256: cdcc2be65ed93b5039fce9f7f593612c133fe0a604816a0c40a8a740f3b2ddb6
 
@@ -29,3 +29,8 @@ When upstream hooks/gsd-check-update-worker.js changes, review whether the overr
 ## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
 
 Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: upstream file is byte-identical between the two versions; override unchanged.
+
+## Bump review 2026-08-30 (1.7.0 -> 1.8.0)
+
+Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream file is byte-identical
+between the two versions (hash unchanged); override unchanged.

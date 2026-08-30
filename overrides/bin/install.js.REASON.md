@@ -4,9 +4,9 @@
 Memory-nexus recovery exposed a Codex global install crash after upstream copied files and wrote VERSION. `installCodexConfig` can pass `null` frontmatter into `extractFrontmatterField`, which then calls `.match` and aborts the installer after mutation.
 
 ## Upstream snapshot
-- Version: 1.7.0
-- SHA-256: 4fdbc40ae3951e98bc1bcb0ed966c80e7f33875bbed5928f3daa264a229a6030
-- Semantic SHA-256: c36f2c6dfed687c96d0ee639b6b15350397eb9d21ba8e30a658f16e5ad085aa8
+- Version: 1.8.0
+- SHA-256: f73a596b1bd37ddf7b96e0caef915450c7e4f127c7fb72bc60ff0eb6bfca76c1
+- Semantic SHA-256: cf0eb628035d4b6eff41f53d1589771e8092f9e919a12aae1cd733be076089e3
 
 ## What's different
 - Treats missing or malformed YAML frontmatter as an absent field in `extractFrontmatterField`.
@@ -18,3 +18,13 @@ When upstream `bin/install.js` changes, check whether Open GSD natively handles 
 ## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
 
 Reviewed 2026-08-30 for the 1.6.1 -> 1.7.0 bump: upstream extractFrontmatterField STILL calls .match() on unguarded input, so the override remains required. Rebased as pure 1.7.0 base + the null guard (the previous file carried a pre-1.6.1 vintage base). Companion fix: upstream 1.7.0 writes a .gsd-source marker (#1477) outside the manifest and never removes it on uninstall; the fork wrapper (bin/install.js metadata cleanup list) now removes it. Upstream-contribution candidates: the null guard and the uninstall marker removal.
+
+## Bump review 2026-08-30 (1.7.0 -> 1.8.0)
+
+Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream shipped a large installer
+revision (#2284 the bulk, plus #2305/#2310/#2322/#2278/#2393 and ADR-2310) —
+all adopted intact via the pure-1.8.0 base. Verified against the 1.8.0 file:
+extractFrontmatterField (line 2434) STILL calls .match() unguarded, and
+uninstall STILL never removes the .gsd-source marker it writes (line 10630) —
+both fork deltas remain required. Rebuilt as pure 1.8.0 base + the null guard
++ the uninstall marker removal. Both remain upstream-contribution candidates.

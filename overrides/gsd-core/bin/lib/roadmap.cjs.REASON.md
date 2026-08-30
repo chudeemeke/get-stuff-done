@@ -9,8 +9,8 @@ writer intentionally canonicalizes markdown, so the fork needs a narrower
 roadmap-only persistence boundary rather than changing global document policy.
 
 ## Upstream snapshot
-- Version: 1.7.0
-- SHA-256: 0c4e1fb2a945b4dcad926831f2ef7e5a9041f45ec09ae19b30d7bf24e8d933ed
+- Version: 1.8.0
+- SHA-256: 760084a358867df85a4354de0790753700e1cf69c31907b20407d7abffef4906
 
 ## What's different
 - Reads current phase from STATE.md formats used by this fork and prefers it when it maps to an active roadmap phase.
@@ -51,3 +51,13 @@ behavior covers all three responsibilities.
 Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: forward-ported as pure 1.7.0 base + declared-plans accounting (disk_plan_count/declared_plan_count, effective max), STATE current-phase preference + state_current_phase, anchored checkbox completion with completed-date dedup, CRLF-safe plan-count pattern, and byte-preserving publication via fork-roadmap-persistence. ADOPTED from upstream: the #2022 verification gate (checkbox completion now requires passed verification; roadmap.test.cjs updated to write verification evidence), sentinel-phase filtering, and table-seam progress updates.
 
 Port recipe note: upstream inline `// eslint-disable-next-line @typescript-eslint/...` comments are stripped from the ported file as a standing part of every forward-port (the fork does not load that eslint plugin; behavior-neutral). Expect them to reappear in raw diffs against the pure upstream file.
+
+## Bump review 2026-08-30 (1.7.0 -> 1.8.0)
+
+Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream change is #2365 — getPhaseScope
+reads ROADMAP.md directly and treats only ENOENT as "missing" (existsSync
+masked EACCES/EIO as absent scope) — adopted intact via the pure-1.8.0 base.
+Fork delta unchanged and still required (drop-experiment: roadmap.test.cjs
+fails 8 tests on pure 1.8.0): declared-plans accounting, STATE current-phase
+preference, anchored checkbox completion, byte-preserving publication via
+fork-roadmap-persistence.

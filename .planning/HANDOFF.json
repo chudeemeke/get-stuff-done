@@ -19,7 +19,7 @@
     "done": [
       "Pin advanced in package.json + bun.lock + upstream-authority.json + embedded authority (scripts/lib/upstream-source.js); manifest pruned via --prune-for-bump to 1.6.1/1.7.0/1.8.0; validate green.",
       "Upgrade Verifier re-aimed --from 1.8.0 --to 1.9.1; N=3 compat set advanced to 1.6.1/1.7.0/1.8.0 (script constant + contract JSON + contract-mirroring fixtures, role-preserving shift).",
-      "Drop-experiment run FIRST (overrides moved aside, pure 1.8.0 composed): 18 failures across init/roadmap/runtime-overrides/state. Nothing droppable; every override still earns its place.",
+      "Drop-experiment run FIRST (overrides moved aside, pure 1.8.0 composed): 18 failures across 4 suites - init 6, roadmap 8, runtime-overrides 3, state 1. Report preserved at .planning/evidence/bump-1.8.0-drop-experiment.json. Nothing droppable; every override still earns its place.",
       "6 overrides forward-ported onto PURE 1.8.0 bases (init, roadmap-parser, roadmap, state, plan-scan, bin/install.js). Both gsd-check-update hooks were byte-identical upstream -> no port. Port verified arithmetically: ported-delta line count == recovered semantic-delta count on all 6.",
       "All 9 REASON.md refreshed (Version, SHA-256, Semantic SHA-256 where present) with dated 1.7.0->1.8.0 bump-review notes; check-overrides 9/9 fresh.",
       "Four deferred step-1 review findings CLOSED (a/b/c/d) - see commit aad11781.",

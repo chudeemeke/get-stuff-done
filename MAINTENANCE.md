@@ -30,6 +30,63 @@ process sections are owned by Phase 44.
 13. If a bump needs a new manual decision, stop and record the decision before
     changing package metadata.
 
+## Forward-porting overrides on an upstream bump
+
+Overrides are rebuilt forward on every pin change, never three-way merged. A
+merge uses the old override's base as the merge base, but that base vintage is
+unverified — `REASON.md` certifies the upstream file, never the override's own
+starting point. With a wrong base, `git merge-file` reads upstream features the
+override predates as fork deletions and silently strips them; the result still
+parses and can pass shallow tests.
+
+Steps, per bump, with `<old>` the previous pin and `<new>` the incoming one:
+
+1. **Find what actually moved.** Fetch the old pure base
+   (`npm pack @opengsd/gsd-core@<old>` into a scratch directory, then extract)
+   and `cmp` each overridden path against the installed new one. Paths that are
+   byte-identical need no port at all.
+2. **Drop-experiment before porting.** Move `overrides/` aside, run
+   `node scripts/run-compat-matrix.js --version <new>`, then move it back. The
+   failures enumerate exactly which fork behaviours upstream has not absorbed;
+   anything green is a candidate for deleting the override outright, which is
+   the only way the skin gets thinner.
+3. **Recover the fork delta against a like-for-like base.** Strip upstream's
+   inline `// eslint-disable-next-line @typescript-eslint/...` lines from both
+   the old and the new pure base (whole-line filter — the fork does not load
+   that plugin, so they are hard errors here and are dropped from every ported
+   file). Then `diff -u stripped-old/<file> overrides/<file>` is the fork's
+   semantic delta.
+4. **Rebuild forward.** Copy `stripped-new/<file>` over `overrides/<file>` and
+   apply the delta with `patch -p0`. Hunks land with line offsets; a reject
+   means upstream rewrote that exact region, so resolve only that hunk by hand.
+5. **Verify the port arithmetically.** `diff stripped-new/<file>
+   overrides/<file>` must report the same number of differing lines as the
+   delta patch's `+`/`-` count minus its two header lines. Equality on every
+   file proves each fork line was re-applied and no upstream line was lost.
+   Follow it with a grep for one distinctive new upstream symbol per file to
+   confirm the incoming features survived beside the fork's own.
+6. **Refresh each `REASON.md`**: `- Version:`, `- SHA-256:` and, where present,
+   `- Semantic SHA-256:` of the new upstream file, plus a dated bump-review note
+   recording what upstream absorbed and what was adopted or deferred. Confirm
+   with `node scripts/check-overrides.js`.
+
+Deliberate upstream semantic changes are **adopted** through fork test updates,
+not reverted through an override. Make the adopting assertion conditional on the
+pinned version rather than accepting both shapes forever — a permanent
+alternation lets either side regress unnoticed. Precedents: `All phases
+complete` (ADR-2207), verification-gated roadmap checkboxes (#2022), and
+absolute `init` planning paths (#2376).
+
+Two traps that have cost real time here:
+
+- A matrix run reads the live `tests/` tree. Do not edit test files while one is
+  running in the background.
+- `node --test tests/<suite>.test.cjs` run from the repo root exercises whatever
+  the suite's helper binds to, and the legacy repo-root `get-stuff-done/`
+  directory is the default. Only the compat matrix, or a run with
+  `GSD_COMPAT_PACKAGE_ROOT` pointed at a composed candidate, proves anything
+  about the pinned upstream.
+
 ## Oversight Trigger Graduation Criteria (PROCESS-07)
 
 Oversight triggers are advisory forcing functions until this section is updated

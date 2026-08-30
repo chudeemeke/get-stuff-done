@@ -5,8 +5,8 @@
 
 ## Resume Instructions
 
-1. **Read `.planning/HANDOFF.json` first.** It is the current session position: branch, HEAD,
-   live CI state, and the three decisions blocking PR #23.
+1. **Read `.planning/HANDOFF.json` first.** It is the current session position: branch, status,
+   the active arc's done/in-flight/next-steps record, and the open owner decisions.
 2. Then read
    `.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/.continue-here.md`
    for the constraints, anti-patterns, rejected alternatives and terminology.

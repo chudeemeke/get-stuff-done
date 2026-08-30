@@ -18,3 +18,5 @@ When upstream `gsd-core/bin/lib/state.cjs` changes, check whether Open GSD has n
 ## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
 
 Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: forward-ported as pure 1.7.0 base + extractDeclaredPlanCount/readRoadmapDeclaredPlanCounts + the per-phase max(declared, disk) totals merge in cmdStateUpdateProgress. ADOPTED from upstream: the #2177 frontmatter-safe machine-segment writer and the #3242 roadmap-phase-count capping (both were pending fork backports now native). The previous override carried a pre-1.6.1 base.
+
+Port recipe note: upstream inline `// eslint-disable-next-line @typescript-eslint/...` comments are stripped from the ported file as a standing part of every forward-port (the fork does not load that eslint plugin; behavior-neutral). Expect them to reappear in raw diffs against the pure upstream file.

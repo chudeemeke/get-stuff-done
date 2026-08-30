@@ -490,6 +490,21 @@ describe('vetted upstream versions manifest', () => {
           : suite),
       }],
     })).toThrow('fully passing candidate suites');
+    // A row for a version the manifest does not know is rejected by the
+    // per-row manifest match — the only guard on the subset path, so pin it.
+    expect(() => validateMatrixEvidenceReport(manifest, {
+      ...report,
+      results: [passingResult(blockingEntry), passingResult(candidate('2.0.0'))],
+    })).toThrow('manifest role');
+    // Stale-report replay across a bump: the demoted pin claims role 'current'
+    // in the report while the manifest has since demoted it.
+    expect(() => validateMatrixEvidenceReport(manifest, {
+      ...report,
+      results: [
+        passingResult(blockingEntry),
+        { ...passingResult(manifest.versions[0]), role: 'current', blocking: true },
+      ],
+    })).toThrow('manifest role');
   });
 
   test('CLI applies current-pin evidence to present rows and leaves absent historical evidence untouched', () => {

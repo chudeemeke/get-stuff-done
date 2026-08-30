@@ -18,3 +18,5 @@ When upstream `gsd-core/bin/lib/init.cjs` changes, check whether Open GSD has na
 ## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
 
 Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: forward-ported as pure 1.7.0 base + readStateCurrentPhase + post-sort STATE-preference current/next selection + state_current_phase output. The previous file carried a pre-1.6.1 base whose merge would have silently stripped 1.7.0 features (verification projection, workstream guard); those upstream behaviors are now intact. Validated by init.test.cjs 14/14 in the composed 1.7.0 candidate matrix.
+
+Port recipe note: upstream inline `// eslint-disable-next-line @typescript-eslint/...` comments are stripped from the ported file as a standing part of every forward-port (the fork does not load that eslint plugin; behavior-neutral). Expect them to reappear in raw diffs against the pure upstream file.

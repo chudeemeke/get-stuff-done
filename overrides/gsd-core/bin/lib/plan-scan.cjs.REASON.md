@@ -45,3 +45,5 @@ comment for the broader delta is claimed.
 ## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
 
 Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: upstream 1.7.0 ships its own PLAN_REVIEW_RE (from #2263) but it is a strict subset of the fork constant, and the LOOSE_PLAN_TOKEN_RE embedded-reference exclusion (PLAN11AC class) is still fork-only. Override rebased onto the 1.7.0 base; residual delta is 2 constants + the loose-token test line.
+
+Port recipe note: upstream inline `// eslint-disable-next-line @typescript-eslint/...` comments are stripped from the ported file as a standing part of every forward-port (the fork does not load that eslint plugin; behavior-neutral). Expect them to reappear in raw diffs against the pure upstream file.

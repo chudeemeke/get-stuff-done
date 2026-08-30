@@ -35,8 +35,12 @@
       "version": "1.7.0",
       "role": "current",
       "blocking": true,
-      "vettedAt": null,
-      "evidence": {}
+      "vettedAt": "2026-08-30",
+      "evidence": {
+        "matrixReport": ".planning/evidence/bump-1.7.0-compat.json",
+        "matrixReportSha256": "300bf041fc640a403b5e3a12f6730b5b9673cf0f4201a1cb24fe35c8ee3411b6",
+        "status": "passed"
+      }
     }
   ]
 }

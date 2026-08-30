@@ -392,8 +392,8 @@ describe('vetted upstream versions manifest', () => {
 
     expect(() => validateMatrixEvidenceReport(manifest, {
       ...report,
-      policy: 'current-pin',
-    })).toThrow('require-all');
+      policy: 'partial',
+    })).toThrow('require-all or current-pin');
     expect(() => validateMatrixEvidenceReport(manifest, {
       ...report,
       packageName: 'wrong-package',
@@ -447,6 +447,111 @@ describe('vetted upstream versions manifest', () => {
         ? { ...result, blocking: !result.blocking }
         : result),
     })).toThrow('manifest role');
+  });
+
+  test('current-pin evidence validates as a subset that must include a fully passing blocking row', () => {
+    const manifest = baseManifest();
+    const blockingEntry = manifest.versions.find(entry => entry.blocking === true);
+    const report = {
+      schemaVersion: 2,
+      packageName: '@opengsd/gsd-core',
+      policy: 'current-pin',
+      ok: true,
+      blockingFailures: [],
+      failedVersions: [],
+      matrixReport: 'bump-report.json',
+      results: [passingResult(blockingEntry)],
+    };
+
+    expect(() => validateMatrixEvidenceReport(manifest, report)).not.toThrow();
+
+    expect(() => validateMatrixEvidenceReport(manifest, {
+      ...report,
+      ok: false,
+    })).toThrow('require-all or current-pin');
+    expect(() => validateMatrixEvidenceReport(manifest, {
+      ...report,
+      results: [],
+    })).toThrow('at least one');
+    expect(() => validateMatrixEvidenceReport(manifest, {
+      ...report,
+      results: [passingResult(manifest.versions[0])],
+    })).toThrow('blocking pin row');
+    expect(() => validateMatrixEvidenceReport(manifest, {
+      ...report,
+      results: [passingResult(blockingEntry), passingResult(blockingEntry)],
+    })).toThrow('unique');
+    expect(() => validateMatrixEvidenceReport(manifest, {
+      ...report,
+      results: [{
+        ...passingResult(blockingEntry),
+        suites: passingResult(blockingEntry).suites.map((suite, index) => index === 0
+          ? { ...suite, status: 'failed', failed: 1, exitCode: 1 }
+          : suite),
+      }],
+    })).toThrow('fully passing candidate suites');
+  });
+
+  test('CLI applies current-pin evidence to present rows and leaves absent historical evidence untouched', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-vetted-current-pin-'));
+    const manifestPath = path.join(dir, 'manifest.json');
+    const reportPath = path.join(dir, 'bump-compat.json');
+    const manifest = baseManifest();
+    const priorEvidence = {
+      matrixReport: 'old-report.json',
+      matrixReportSha256: 'b'.repeat(64),
+      status: 'passed',
+    };
+    manifest.versions[0].vettedAt = '2026-07-14';
+    manifest.versions[0].evidence = { ...priorEvidence };
+    const blockingEntry = manifest.versions.find(entry => entry.blocking === true);
+    const reportBytes = Buffer.from(`${JSON.stringify({
+      schemaVersion: 2,
+      packageName: '@opengsd/gsd-core',
+      policy: 'current-pin',
+      ok: true,
+      blockingFailures: [],
+      failedVersions: [],
+      matrixReport: 'bump-compat.json',
+      results: [passingResult(blockingEntry)],
+    }, null, 2)}\n`, 'utf8');
+    const expectedDigest = crypto.createHash('sha256').update(reportBytes).digest('hex');
+
+    try {
+      fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+      fs.writeFileSync(reportPath, reportBytes);
+      let stderr = '';
+
+      const exitCode = main([
+        '--manifest', manifestPath,
+        '--authority', path.join(PROJECT_ROOT, '.planning', 'upstream-authority.json'),
+        '--date', '2026-08-30',
+        '--apply-matrix-evidence', reportPath,
+      ], {
+        stdout: { write: () => {} },
+        stderr: { write: chunk => { stderr += chunk; } },
+      });
+
+      expect(exitCode).toBe(0);
+      expect(stderr).toBe('');
+      const updated = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      const updatedBlocking = updated.versions.find(entry => entry.blocking === true);
+      expect(updatedBlocking).toMatchObject({
+        vettedAt: '2026-08-30',
+        evidence: {
+          matrixReport: 'bump-compat.json',
+          matrixReportSha256: expectedDigest,
+          status: 'passed',
+        },
+      });
+      expect(updated.versions[0]).toMatchObject({
+        vettedAt: '2026-07-14',
+        evidence: priorEvidence,
+      });
+      expect(updated.versions[1]).toMatchObject({ vettedAt: null, evidence: {} });
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   test('manifest publication failures propagate without changing the existing manifest', () => {

@@ -1,0 +1,752 @@
+{
+  "schemaVersion": 2,
+  "packageName": "@opengsd/gsd-core",
+  "generatedAt": "2026-08-30T06:45:06.287Z",
+  "matrixReport": ".planning/evidence/bump-1.7.0-compat.json",
+  "policy": "current-pin",
+  "ok": true,
+  "blockingFailures": [],
+  "failedVersions": [
+    "1.6.0",
+    "1.6.1"
+  ],
+  "results": [
+    {
+      "version": "1.6.0",
+      "role": "historical-candidate",
+      "blocking": false,
+      "ok": false,
+      "exitCode": 1,
+      "durationMs": 283398,
+      "classification": "informational",
+      "status": "failed",
+      "passed": 179,
+      "failed": 118,
+      "skipped": 0,
+      "excluded": [
+        "core.test.cjs",
+        "phase-verification.test.cjs",
+        "sync.test.cjs"
+      ],
+      "classifiedExclusions": [
+        {
+          "path": "core.test.cjs",
+          "classification": "retired"
+        },
+        {
+          "path": "phase-verification.test.cjs",
+          "classification": "repository"
+        },
+        {
+          "path": "sync.test.cjs",
+          "classification": "repository"
+        }
+      ],
+      "suites": [
+        {
+          "path": "commands.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 22,
+          "skipped": 0,
+          "durationMs": 30987,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - empty phases directory returns valid schema",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "config.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 38,
+          "failed": 9,
+          "skipped": 0,
+          "durationMs": 21359,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - detects BRAVE_API_KEY environment variable",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "frontmatter.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 94,
+          "failed": 9,
+          "skipped": 0,
+          "durationMs": 12631,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - frontmatter get returns all fields",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "init.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 14,
+          "skipped": 0,
+          "durationMs": 23318,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - init execute-phase returns file paths",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "milestone.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 2,
+          "skipped": 0,
+          "durationMs": 3570,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - archives roadmap, requirements, creates MILESTONES.md",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "phase.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 16,
+          "failed": 38,
+          "skipped": 0,
+          "durationMs": 59401,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - empty phases directory returns empty array",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "roadmap.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 0,
+          "failed": 1,
+          "skipped": 0,
+          "durationMs": 1143,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - C:\\\\Users\\\\Destiny\\\\AppData\\\\Local\\\\Temp\\\\gsd-compat-jkqXTH\\\\tests\\\\roadmap.test.cjs",
+            "error: 'test failed'",
+            "code: 'ERR_TEST_FAILURE'"
+          ]
+        },
+        {
+          "path": "runtime-overrides.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "fork-runtime",
+          "status": "failed",
+          "passed": 1,
+          "failed": 3,
+          "skipped": 0,
+          "durationMs": 5030,
+          "exitCode": 1,
+          "errors": [
+            "not ok 2 - roadmap analyze and init progress prefer STATE current phase",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "state.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 13,
+          "skipped": 0,
+          "durationMs": 17188,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - missing STATE.md returns error",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "template.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 30,
+          "failed": 4,
+          "skipped": 0,
+          "durationMs": 6932,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - template select via gsd-tools",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "verify.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 3,
+          "skipped": 0,
+          "durationMs": 10197,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - passes for consistent project",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        }
+      ],
+      "errors": [
+        "commands.test.cjs: not ok 1 - empty phases directory returns valid schema",
+        "commands.test.cjs: error: |-",
+        "commands.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "commands.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "commands.test.cjs: code: 'ERR_ASSERTION'",
+        "config.test.cjs: not ok 1 - detects BRAVE_API_KEY environment variable",
+        "config.test.cjs: error: |-",
+        "config.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "config.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "config.test.cjs: code: 'ERR_ASSERTION'",
+        "frontmatter.test.cjs: not ok 1 - frontmatter get returns all fields",
+        "frontmatter.test.cjs: error: |-",
+        "frontmatter.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "frontmatter.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "frontmatter.test.cjs: code: 'ERR_ASSERTION'",
+        "init.test.cjs: not ok 1 - init execute-phase returns file paths",
+        "init.test.cjs: error: |-",
+        "init.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "init.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "init.test.cjs: code: 'ERR_ASSERTION'",
+        "milestone.test.cjs: not ok 1 - archives roadmap, requirements, creates MILESTONES.md",
+        "milestone.test.cjs: error: |-",
+        "milestone.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "milestone.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "milestone.test.cjs: code: 'ERR_ASSERTION'",
+        "phase.test.cjs: not ok 1 - empty phases directory returns empty array",
+        "phase.test.cjs: error: |-",
+        "phase.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "phase.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "phase.test.cjs: code: 'ERR_ASSERTION'",
+        "roadmap.test.cjs: not ok 1 - C:\\\\Users\\\\Destiny\\\\AppData\\\\Local\\\\Temp\\\\gsd-compat-jkqXTH\\\\tests\\\\roadmap.test.cjs",
+        "roadmap.test.cjs: error: 'test failed'",
+        "roadmap.test.cjs: code: 'ERR_TEST_FAILURE'",
+        "runtime-overrides.test.cjs: not ok 2 - roadmap analyze and init progress prefer STATE current phase",
+        "runtime-overrides.test.cjs: error: |-",
+        "runtime-overrides.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "runtime-overrides.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "runtime-overrides.test.cjs: code: 'ERR_ASSERTION'",
+        "state.test.cjs: not ok 1 - missing STATE.md returns error",
+        "state.test.cjs: error: |-",
+        "state.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "state.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "state.test.cjs: code: 'ERR_ASSERTION'",
+        "template.test.cjs: not ok 1 - template select via gsd-tools",
+        "template.test.cjs: error: |-",
+        "template.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "template.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "template.test.cjs: code: 'ERR_ASSERTION'",
+        "verify.test.cjs: not ok 1 - passes for consistent project",
+        "verify.test.cjs: error: |-",
+        "verify.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "verify.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "verify.test.cjs: code: 'ERR_ASSERTION'"
+      ]
+    },
+    {
+      "version": "1.6.1",
+      "role": "historical-candidate",
+      "blocking": false,
+      "ok": false,
+      "exitCode": 1,
+      "durationMs": 254554,
+      "classification": "informational",
+      "status": "failed",
+      "passed": 179,
+      "failed": 118,
+      "skipped": 0,
+      "excluded": [
+        "core.test.cjs",
+        "phase-verification.test.cjs",
+        "sync.test.cjs"
+      ],
+      "classifiedExclusions": [
+        {
+          "path": "core.test.cjs",
+          "classification": "retired"
+        },
+        {
+          "path": "phase-verification.test.cjs",
+          "classification": "repository"
+        },
+        {
+          "path": "sync.test.cjs",
+          "classification": "repository"
+        }
+      ],
+      "suites": [
+        {
+          "path": "commands.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 22,
+          "skipped": 0,
+          "durationMs": 28495,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - empty phases directory returns valid schema",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "config.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 38,
+          "failed": 9,
+          "skipped": 0,
+          "durationMs": 30712,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - detects BRAVE_API_KEY environment variable",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "frontmatter.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 94,
+          "failed": 9,
+          "skipped": 0,
+          "durationMs": 11582,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - frontmatter get returns all fields",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "init.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 14,
+          "skipped": 0,
+          "durationMs": 14983,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - init execute-phase returns file paths",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "milestone.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 2,
+          "skipped": 0,
+          "durationMs": 3191,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - archives roadmap, requirements, creates MILESTONES.md",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "phase.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 16,
+          "failed": 38,
+          "skipped": 0,
+          "durationMs": 41880,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - empty phases directory returns empty array",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "roadmap.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 0,
+          "failed": 1,
+          "skipped": 0,
+          "durationMs": 976,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - C:\\\\Users\\\\Destiny\\\\AppData\\\\Local\\\\Temp\\\\gsd-compat-2aEt9J\\\\tests\\\\roadmap.test.cjs",
+            "error: 'test failed'",
+            "code: 'ERR_TEST_FAILURE'"
+          ]
+        },
+        {
+          "path": "runtime-overrides.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "fork-runtime",
+          "status": "failed",
+          "passed": 1,
+          "failed": 3,
+          "skipped": 0,
+          "durationMs": 3420,
+          "exitCode": 1,
+          "errors": [
+            "not ok 2 - roadmap analyze and init progress prefer STATE current phase",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "state.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 13,
+          "skipped": 0,
+          "durationMs": 14929,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - missing STATE.md returns error",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "template.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 30,
+          "failed": 4,
+          "skipped": 0,
+          "durationMs": 7911,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - template select via gsd-tools",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        },
+        {
+          "path": "verify.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 0,
+          "failed": 3,
+          "skipped": 0,
+          "durationMs": 3003,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - passes for consistent project",
+            "error: |-",
+            "Error: Cannot find module './state-transition.cjs'",
+            "code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+            "code: 'ERR_ASSERTION'"
+          ]
+        }
+      ],
+      "errors": [
+        "commands.test.cjs: not ok 1 - empty phases directory returns valid schema",
+        "commands.test.cjs: error: |-",
+        "commands.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "commands.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "commands.test.cjs: code: 'ERR_ASSERTION'",
+        "config.test.cjs: not ok 1 - detects BRAVE_API_KEY environment variable",
+        "config.test.cjs: error: |-",
+        "config.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "config.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "config.test.cjs: code: 'ERR_ASSERTION'",
+        "frontmatter.test.cjs: not ok 1 - frontmatter get returns all fields",
+        "frontmatter.test.cjs: error: |-",
+        "frontmatter.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "frontmatter.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "frontmatter.test.cjs: code: 'ERR_ASSERTION'",
+        "init.test.cjs: not ok 1 - init execute-phase returns file paths",
+        "init.test.cjs: error: |-",
+        "init.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "init.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "init.test.cjs: code: 'ERR_ASSERTION'",
+        "milestone.test.cjs: not ok 1 - archives roadmap, requirements, creates MILESTONES.md",
+        "milestone.test.cjs: error: |-",
+        "milestone.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "milestone.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "milestone.test.cjs: code: 'ERR_ASSERTION'",
+        "phase.test.cjs: not ok 1 - empty phases directory returns empty array",
+        "phase.test.cjs: error: |-",
+        "phase.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "phase.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "phase.test.cjs: code: 'ERR_ASSERTION'",
+        "roadmap.test.cjs: not ok 1 - C:\\\\Users\\\\Destiny\\\\AppData\\\\Local\\\\Temp\\\\gsd-compat-2aEt9J\\\\tests\\\\roadmap.test.cjs",
+        "roadmap.test.cjs: error: 'test failed'",
+        "roadmap.test.cjs: code: 'ERR_TEST_FAILURE'",
+        "runtime-overrides.test.cjs: not ok 2 - roadmap analyze and init progress prefer STATE current phase",
+        "runtime-overrides.test.cjs: error: |-",
+        "runtime-overrides.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "runtime-overrides.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "runtime-overrides.test.cjs: code: 'ERR_ASSERTION'",
+        "state.test.cjs: not ok 1 - missing STATE.md returns error",
+        "state.test.cjs: error: |-",
+        "state.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "state.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "state.test.cjs: code: 'ERR_ASSERTION'",
+        "template.test.cjs: not ok 1 - template select via gsd-tools",
+        "template.test.cjs: error: |-",
+        "template.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "template.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "template.test.cjs: code: 'ERR_ASSERTION'",
+        "verify.test.cjs: not ok 1 - passes for consistent project",
+        "verify.test.cjs: error: |-",
+        "verify.test.cjs: Error: Cannot find module './state-transition.cjs'",
+        "verify.test.cjs: code: \u001b[32m'MODULE_NOT_FOUND'\u001b[39m,",
+        "verify.test.cjs: code: 'ERR_ASSERTION'"
+      ]
+    },
+    {
+      "version": "1.7.0",
+      "role": "current",
+      "blocking": true,
+      "ok": true,
+      "exitCode": 0,
+      "durationMs": 383599,
+      "classification": "blocking",
+      "status": "passed",
+      "passed": 315,
+      "failed": 0,
+      "skipped": 0,
+      "excluded": [
+        "core.test.cjs",
+        "phase-verification.test.cjs",
+        "sync.test.cjs"
+      ],
+      "classifiedExclusions": [
+        {
+          "path": "core.test.cjs",
+          "classification": "retired"
+        },
+        {
+          "path": "phase-verification.test.cjs",
+          "classification": "repository"
+        },
+        {
+          "path": "sync.test.cjs",
+          "classification": "repository"
+        }
+      ],
+      "suites": [
+        {
+          "path": "commands.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 23023,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "config.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 47,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 16679,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "frontmatter.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 103,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 6208,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "init.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 14,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 85353,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "milestone.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 4872,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "phase.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 54,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 136873,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "roadmap.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 19,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 45194,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "runtime-overrides.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "fork-runtime",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 5512,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "state.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 13,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 7681,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "template.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 34,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 7723,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "verify.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 5528,
+          "exitCode": 0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

@@ -6,7 +6,7 @@ const { test, describe, beforeEach, afterEach, mock } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { resolveCompatPackageRoot } = require('./helpers/compat-package-root.cjs');
+const { resolveCompatPackageRoot, compatUpstreamAtLeast } = require('./helpers/compat-package-root.cjs');
 const COMPAT_PACKAGE_ROOT = resolveCompatPackageRoot();
 const { createGsdToolsHelpers, createTempProject, cleanup } = require('./helpers.cjs');
 const { captureCommandOutput } = require('./helpers/capture-command-output.cjs');
@@ -486,6 +486,42 @@ describe('roadmap update-plan-progress command', () => {
     assert.match(completedDate, /^\d{4}-\d{2}-\d{2}$/);
     assert.strictEqual(updated, expected, 'only the requested phase and plan bytes should change');
     assert.strictEqual(updated.replace(/\r\n/g, '').includes('\n'), false, 'no bare LF should remain');
+  });
+
+  test('refuses checkbox completion without passed verification (#2022, 1.7.0+)', (t) => {
+    // Pin the negative side of the verification gate: writePassedVerification
+    // in the positive tests proves completion works WITH evidence; without
+    // this test a candidate that stopped enforcing the gate would still pass.
+    // Only assertable when the candidate's upstream version is knowable and
+    // gated (composed dist meta); the legacy direct-run root predates #2022.
+    if (compatUpstreamAtLeast(COMPAT_PACKAGE_ROOT, '1.7.0') !== true) {
+      t.skip('verification gate only exists on Open GSD 1.7.0+ candidates');
+      return;
+    }
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    fs.writeFileSync(roadmapPath, [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 11:** Gated',
+      '',
+      '### Phase 11: Gated',
+      '**Plans:** 0/1 plans executed',
+      '',
+    ].join('\n'), 'utf8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '11-gated');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '11-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '11-01-SUMMARY.md'), '# Summary');
+    // Deliberately NO VERIFICATION.md.
+
+    const result = runGsdTools('roadmap update-plan-progress 11', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const updated = fs.readFileSync(roadmapPath, 'utf8');
+    assert.ok(updated.includes('- [ ] **Phase 11:** Gated'), 'checkbox must stay unchecked without passed verification');
+    assert.ok(!updated.includes('- [x] **Phase 11:'), 'no completion checkbox without passed verification');
+    assert.ok(!/\(completed \d{4}-\d{2}-\d{2}\)/.test(updated), 'no completion date without passed verification');
   });
 
   test('preserves LF roadmap bytes outside the requested progress edits', () => {

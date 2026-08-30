@@ -6,7 +6,24 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { resolveCompatPackageRoot, compatUpstreamAtLeast } = require('./helpers/compat-package-root.cjs');
+const COMPAT_PACKAGE_ROOT = resolveCompatPackageRoot();
+const { createGsdToolsHelpers, createTempProject, cleanup } = require('./helpers.cjs');
+// Resolve the package under test the same way every other candidate suite does.
+// Binding to the default legacy root instead made a direct `node --test` run
+// silently exercise the stale repo-root get-stuff-done/ self-install rather
+// than the composed candidate — green locally, red in the matrix.
+const { runGsdTools } = createGsdToolsHelpers(COMPAT_PACKAGE_ROOT);
+
+// Open GSD 1.8.0 emits absolute planning paths anchored on the project root
+// (#2376) instead of orchestrator-cwd-relative ones, so a path handed to a
+// spawned subagent resolves regardless of that subagent's own cwd. Adopted,
+// not overridden — the fork's contract tracks the pinned upstream's semantics.
+function expectedPlanningPath(tmpDir, relPath) {
+  return compatUpstreamAtLeast(COMPAT_PACKAGE_ROOT, '1.8.0') === true
+    ? path.join(tmpDir, relPath).replace(/\\/g, '/')
+    : relPath;
+}
 
 describe('init commands', () => {
   let tmpDir;
@@ -28,9 +45,9 @@ describe('init commands', () => {
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.state_path, '.planning/STATE.md');
-    assert.strictEqual(output.roadmap_path, '.planning/ROADMAP.md');
-    assert.strictEqual(output.config_path, '.planning/config.json');
+    assert.strictEqual(output.state_path, expectedPlanningPath(tmpDir, '.planning/STATE.md'));
+    assert.strictEqual(output.roadmap_path, expectedPlanningPath(tmpDir, '.planning/ROADMAP.md'));
+    assert.strictEqual(output.config_path, expectedPlanningPath(tmpDir, '.planning/config.json'));
   });
 
   test('init plan-phase returns file paths', () => {
@@ -45,13 +62,13 @@ describe('init commands', () => {
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.state_path, '.planning/STATE.md');
-    assert.strictEqual(output.roadmap_path, '.planning/ROADMAP.md');
-    assert.strictEqual(output.requirements_path, '.planning/REQUIREMENTS.md');
-    assert.strictEqual(output.context_path, '.planning/phases/03-api/03-CONTEXT.md');
-    assert.strictEqual(output.research_path, '.planning/phases/03-api/03-RESEARCH.md');
-    assert.strictEqual(output.verification_path, '.planning/phases/03-api/03-VERIFICATION.md');
-    assert.strictEqual(output.uat_path, '.planning/phases/03-api/03-UAT.md');
+    assert.strictEqual(output.state_path, expectedPlanningPath(tmpDir, '.planning/STATE.md'));
+    assert.strictEqual(output.roadmap_path, expectedPlanningPath(tmpDir, '.planning/ROADMAP.md'));
+    assert.strictEqual(output.requirements_path, expectedPlanningPath(tmpDir, '.planning/REQUIREMENTS.md'));
+    assert.strictEqual(output.context_path, expectedPlanningPath(tmpDir, '.planning/phases/03-api/03-CONTEXT.md'));
+    assert.strictEqual(output.research_path, expectedPlanningPath(tmpDir, '.planning/phases/03-api/03-RESEARCH.md'));
+    assert.strictEqual(output.verification_path, expectedPlanningPath(tmpDir, '.planning/phases/03-api/03-VERIFICATION.md'));
+    assert.strictEqual(output.uat_path, expectedPlanningPath(tmpDir, '.planning/phases/03-api/03-UAT.md'));
   });
 
   test('init progress returns file paths', () => {
@@ -59,10 +76,10 @@ describe('init commands', () => {
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.state_path, '.planning/STATE.md');
-    assert.strictEqual(output.roadmap_path, '.planning/ROADMAP.md');
-    assert.strictEqual(output.project_path, '.planning/PROJECT.md');
-    assert.strictEqual(output.config_path, '.planning/config.json');
+    assert.strictEqual(output.state_path, expectedPlanningPath(tmpDir, '.planning/STATE.md'));
+    assert.strictEqual(output.roadmap_path, expectedPlanningPath(tmpDir, '.planning/ROADMAP.md'));
+    assert.strictEqual(output.project_path, expectedPlanningPath(tmpDir, '.planning/PROJECT.md'));
+    assert.strictEqual(output.config_path, expectedPlanningPath(tmpDir, '.planning/config.json'));
   });
 
   test('init progress prefers STATE current phase over older in-progress phase directories', () => {
@@ -144,13 +161,13 @@ Phase: Phase 41 (executing) -- Current Work
     assert.ok(result.success, `Command failed: ${result.error}`);
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.state_path, '.planning/STATE.md');
-    assert.strictEqual(output.roadmap_path, '.planning/ROADMAP.md');
-    assert.strictEqual(output.requirements_path, '.planning/REQUIREMENTS.md');
-    assert.strictEqual(output.context_path, '.planning/phases/03-api/03-CONTEXT.md');
-    assert.strictEqual(output.research_path, '.planning/phases/03-api/03-RESEARCH.md');
-    assert.strictEqual(output.verification_path, '.planning/phases/03-api/03-VERIFICATION.md');
-    assert.strictEqual(output.uat_path, '.planning/phases/03-api/03-UAT.md');
+    assert.strictEqual(output.state_path, expectedPlanningPath(tmpDir, '.planning/STATE.md'));
+    assert.strictEqual(output.roadmap_path, expectedPlanningPath(tmpDir, '.planning/ROADMAP.md'));
+    assert.strictEqual(output.requirements_path, expectedPlanningPath(tmpDir, '.planning/REQUIREMENTS.md'));
+    assert.strictEqual(output.context_path, expectedPlanningPath(tmpDir, '.planning/phases/03-api/03-CONTEXT.md'));
+    assert.strictEqual(output.research_path, expectedPlanningPath(tmpDir, '.planning/phases/03-api/03-RESEARCH.md'));
+    assert.strictEqual(output.verification_path, expectedPlanningPath(tmpDir, '.planning/phases/03-api/03-VERIFICATION.md'));
+    assert.strictEqual(output.uat_path, expectedPlanningPath(tmpDir, '.planning/phases/03-api/03-UAT.md'));
   });
 
   test('init plan-phase omits optional paths if files missing', () => {

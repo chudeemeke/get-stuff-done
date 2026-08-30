@@ -74,6 +74,15 @@ describe('installCodexConfig', () => {
 
     expect(() => installCodexConfig(targetDir, agentsSrc)).not.toThrow();
     expect(fs.existsSync(path.join(targetDir, 'agents', 'gsd-no-frontmatter.toml'))).toBe(true);
-    expect(fs.readFileSync(path.join(targetDir, 'config.toml'), 'utf8')).toContain('gsd-no-frontmatter');
+    // The filename fallback is observable in the per-agent TOML, which is what
+    // the fork's extractFrontmatterField null guard actually protects:
+    // `extractFrontmatterField(frontmatter, 'name') || agentName`. Open GSD
+    // 1.8.0 stopped emitting per-agent `[agents.<name>]` sub-tables into
+    // config.toml (generateCodexConfigBlock now ignores its agents argument),
+    // so asserting on config.toml would pin a registration shape upstream owns
+    // and has deliberately changed.
+    expect(fs.readFileSync(path.join(targetDir, 'agents', 'gsd-no-frontmatter.toml'), 'utf8'))
+      .toContain('name = "gsd-no-frontmatter"');
+    expect(fs.readFileSync(path.join(targetDir, 'config.toml'), 'utf8')).toContain('[agents]');
   });
 });

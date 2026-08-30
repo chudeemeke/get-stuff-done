@@ -4,10 +4,36 @@
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
-  "branch": "main",
+  "branch": "chore/upstream-bump-1.7.0",
   "pr": "https://github.com/chudeemeke/get-stuff-done/pull/23",
   "pr_state": "MERGED",
-  "status": "phase-43-merged",
+  "status": "issue-53-bump-step-1-in-flight",
+  "bump_arc": {
+    "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 (user chose 'Walk increments' via AskUserQuestion 2026-08-30)",
+    "step": "1 of 5: 1.6.1 -> 1.7.0",
+    "branch": "chore/upstream-bump-1.7.0 (pushed; 3 commits: 6198cb75 pin+machinery, 5e26c960 overrides forward-port, a5f6781d changelog)",
+    "done": [
+      "Pin advanced in package.json + bun.lock + upstream-authority.json + embedded authority (scripts/lib/upstream-source.js); vetted manifest pruned to 1.6.0/1.6.1/1.7.0-blocking via --prune-for-bump; validate green.",
+      "All 7 changed overrides forward-ported onto PURE 1.7.0 bases (old files carried pre-1.6.1 vintage bases - a 3-way merge silently STRIPS upstream features; forward-port = 1.7.0 file + fork semantic delta re-applied). plan-scan/init/roadmap-parser/roadmap/state/install.js; statusline kept, upstream's 3 new opt-in features reviewed+deferred; check-update hooks byte-identical.",
+      "Adopted upstream semantics with test updates: 'All phases complete' last-phase status (ADR-2207, phase.test.cjs accepts both), verification-gated checkbox completion (#2022, roadmap.test.cjs writes VERIFICATION.md).",
+      "Fork wrapper bin/install.js uninstall now removes the .gsd-source marker 1.7.0 side-writes outside the manifest (upstream bug, contribution candidate).",
+      "Upgrade Verifier re-aimed --from 1.7.0 --to 1.8.0; N=3 compat set + contract + fixtures advanced (role-preserving shift); upstream-source/vetted tests now DERIVE the active version from package.json/authority.",
+      "Gates green so far: single-version 1.7.0 matrix 315/315; installer suites 19/19; pin-adjacent suites 94/95 (sole fail = KNOWN bun 1.4.0-vs-1.3.5 false local red in verify-upgrade oversized-response); check-overrides 9/9 fresh; lint 0 errors; lint:docs 0; compose green; changelog self-test green."
+    ],
+    "in_flight": "DETACHED full N=3 evidence matrix (started 2026-08-30T06:29:43Z): heartbeat C:/Users/Destiny/.claude/jobs/4690586d/tmp/matrix-heartbeat.txt (MATRIX_END line = done), log .../matrix-detached.log, report .planning/evidence/bump-1.7.0-compat.json. A killed tracked-background attempt preceded it - absent MATRIX_END means NO RESULT, rerun detached.",
+    "next_steps": [
+      "1. Confirm MATRIX_END rc=0 in the heartbeat; verify report shows all 3 versions passing; then: node scripts/vetted-upstream-versions.js --apply-matrix-evidence .planning/evidence/bump-1.7.0-compat.json --date <today>; validate; commit report+manifest as 'feat(upstream): record 1.7.0 vetting evidence'.",
+      "2. Full bun suite DETACHED with terminal marker (bun run test, ~9.5min; expect ~1657+/63 files; check summary line + M vs ls tests/*.test.js | wc -l; verify-upgrade oversized-response fails locally on bun 1.4.0 - pinned CI is authority). Plus bun run test:repository-compat (2 suites).",
+      "3. Open PR (evidence contract body), Codex cross-AI review (USER SAID 2026-08-30 Codex is available for cross-ai-review - use cross-ai-review skill), tuicr gate (operator), CI green, squash merge.",
+      "4. Repeat for 1.8.0 (step 2 of 5). The two triaged inbox items (model-catalog opus5, plan-checker effort) execute at the FINAL step (1.11.0) - verified 1.11.0 does NOT fix either (catalog still 9x opus-4-8; plan-checker still no effort field)."
+    ],
+    "hazards": [
+      "PR perf legs re-roll windows noise dice per commit - batch changes before pushing to the PR.",
+      "sha256sum on Windows backslash paths prefixes output with a backslash - naive string-compare of hashes false-positives; compare with the path form normalized or via cmp.",
+      "Overrides now match PURE 1.7.0 + delta; do not 3-way merge old override files at future steps - repeat the forward-port pattern per REASON.md bump-review notes.",
+      "Legacy tracked get-stuff-done/ dir is the LEGACY_PACKAGE_ROOT default test subject for direct .test.cjs runs (tests/helpers.cjs) and sync.test.cjs symlink shim collides with it - do NOT delete it casually; owner decision must account for this."
+    ]
+  },
   "superseded_handoff_note": "Updated 2026-08-29 post-merge: PR #23 squash-merged to main as ece379db at 2026-08-29T11:54:01Z with 21/21 hosted checks green on head a788ca94. tuicr assembled-diff gate ran with zero comments. The prior content of this file (all-green-awaiting-owner, per-commit task record) is preserved in git history at a788ca94.",
   "merge_evidence": {
     "merge_commit": "ece379db",

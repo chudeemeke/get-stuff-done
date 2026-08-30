@@ -826,7 +826,11 @@ describe('phase complete command', () => {
     assert.strictEqual(output.next_phase, null, 'no next phase');
 
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(state.includes('Milestone complete'), 'status should be milestone complete');
+    // Open GSD <=1.6.1 wrote 'Milestone complete'; 1.7.0+ writes 'All phases
+    // complete' (state-transition.cjs, ADR-2207 — milestone termination is now
+    // reserved for the milestone-complete command). Accept both so the N=3
+    // matrix can span the vetted manifest's version range.
+    assert.ok(/Milestone complete|All phases complete/.test(state), 'status should reflect last-phase completion');
   });
 
   test('updates REQUIREMENTS.md traceability when phase completes', () => {

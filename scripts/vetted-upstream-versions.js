@@ -130,8 +130,11 @@ function validateMatrixEvidenceReport(manifest, report, options = {}) {
   if (report.packageName !== manifest.packageName) {
     throw new Error(`Matrix evidence report packageName must be ${manifest.packageName}`);
   }
-  if (report.policy !== 'require-all' || report.ok !== true) {
-    throw new Error('Matrix evidence application requires a successful require-all report');
+  if (
+    (report.policy !== 'require-all' && report.policy !== 'current-pin') ||
+    report.ok !== true
+  ) {
+    throw new Error('Matrix evidence application requires a successful require-all or current-pin report');
   }
   if (
     !Array.isArray(report.blockingFailures) || report.blockingFailures.length !== 0 ||
@@ -156,14 +159,31 @@ function validateMatrixEvidenceReport(manifest, report, options = {}) {
   const manifestByVersion = new Map(manifest.versions.map(entry => [entry.version, entry]));
 
   const results = Array.isArray(report.results) ? report.results : [];
-  const expectedVersions = manifest.versions.map(entry => entry.version).sort();
   const actualVersions = results.map(result => result.version).sort();
-  if (
-    results.length !== expectedVersions.length ||
-    new Set(actualVersions).size !== actualVersions.length ||
-    JSON.stringify(actualVersions) !== JSON.stringify(expectedVersions)
-  ) {
-    throw new Error(`Matrix evidence report must contain exactly the ${expectedVersions.length} manifest versions`);
+  if (new Set(actualVersions).size !== actualVersions.length) {
+    throw new Error('Matrix evidence report rows must have unique versions');
+  }
+  if (report.policy === 'require-all') {
+    const expectedVersions = manifest.versions.map(entry => entry.version).sort();
+    if (
+      results.length !== expectedVersions.length ||
+      JSON.stringify(actualVersions) !== JSON.stringify(expectedVersions)
+    ) {
+      throw new Error(`Matrix evidence report must contain exactly the ${expectedVersions.length} manifest versions`);
+    }
+  } else {
+    // current-pin reports apply as a subset: rows absent from the report keep
+    // their prior evidence (overrides are version-coupled since the 1.7.0
+    // forward-port, so historical candidates cannot re-run against the current
+    // override set). The blocking pin row must still be present and passing —
+    // evidence that does not prove the current pin is not applicable.
+    if (results.length === 0) {
+      throw new Error('current-pin evidence must contain at least one manifest row');
+    }
+    const blockingVersion = manifest.versions.find(entry => entry.blocking === true).version;
+    if (!actualVersions.includes(blockingVersion)) {
+      throw new Error(`current-pin evidence must include the blocking pin row ${blockingVersion}`);
+    }
   }
 
   for (const result of results) {

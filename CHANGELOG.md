@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- Upstream authority advanced one step: `@opengsd/gsd-core` 1.6.1 -> 1.7.0 (issue #53 incremental campaign, step 1 of 5). Vetted manifest pruned to 1.6.0/1.6.1/1.7.0; Upgrade Verifier re-aimed at `--from 1.7.0 --to 1.8.0`; N=3 compat set advanced to match.
+- All seven changed overrides forward-ported onto the 1.7.0 base (the previous files carried pre-1.6.1 vintage bases): `init.cjs`, `roadmap-parser.cjs`, `roadmap.cjs`, `state.cjs`, `plan-scan.cjs`, `bin/install.js`, with `gsd-statusline.js` retained and upstream's three new opt-in statusline features reviewed and deferred.
+- Adopted upstream semantics: last-phase completion status is now `All phases complete` (ADR-2207) and roadmap checkbox completion requires passed verification evidence (#2022); fork contract tests updated accordingly.
+- Matrix evidence application now accepts successful `current-pin` reports as subset applications (blocking pin row required and fully passing; absent rows keep prior evidence). Needed because the forward-ported overrides are 1.7.0-based, so historical candidates 1.6.0/1.6.1 no longer compose with the current override set and a passing `require-all` run is structurally impossible; `require-all` closeout semantics are unchanged.
+
+### Fixed
+- Uninstall now removes the `.gsd-source` source-resolution marker Open GSD 1.7.0 writes outside the file manifest (upstream leaves it behind; upstream-contribution candidate).
+
 ### Added
 - Native Codex runtime support in installer via `--codex` and `--all` (Codex included), with config resolution precedence: `--config-dir` → `CODEX_HOME` → `~/.codex`
 - Skills-first Codex installation path that transpiles GSD commands to `skills/gsd-*/SKILL.md` (no custom-prompt dependency)

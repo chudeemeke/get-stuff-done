@@ -11,6 +11,18 @@ const COMPAT_PACKAGE_ROOT = resolveCompatPackageRoot();
 const { createGsdToolsHelpers, createTempProject, cleanup } = require('./helpers.cjs');
 const { captureCommandOutput } = require('./helpers/capture-command-output.cjs');
 const { runGsdTools } = createGsdToolsHelpers(COMPAT_PACKAGE_ROOT);
+
+// Open GSD 1.7.0+ gates roadmap checkbox completion on passed verification
+// evidence (#2022), matching the fork's own phase-completion gate. Harmless on
+// older candidates (<=1.6.1 ignore the file), so the matrix can span the
+// vetted manifest's version range.
+function writePassedVerification(phaseDir, phaseId) {
+  fs.writeFileSync(
+    path.join(phaseDir, `${phaseId}-VERIFICATION.md`),
+    `---\nphase: ${phaseId}\nstatus: passed\n---\n`,
+    'utf-8'
+  );
+}
 const roadmapPersistence = require(
   path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'fork-roadmap-persistence.cjs')
 );
@@ -447,6 +459,7 @@ describe('roadmap update-plan-progress command', () => {
     fs.mkdirSync(phaseDir, { recursive: true });
     fs.writeFileSync(path.join(phaseDir, '09.3-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(phaseDir, '09.3-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(phaseDir, '09.3');
 
     const result = runGsdTools('roadmap update-plan-progress 09.3', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);
@@ -493,6 +506,7 @@ describe('roadmap update-plan-progress command', () => {
     fs.mkdirSync(phaseDir, { recursive: true });
     fs.writeFileSync(path.join(phaseDir, '10-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(phaseDir, '10-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(phaseDir, '10');
 
     const result = runGsdTools('roadmap update-plan-progress 10', tmpDir);
     assert.ok(result.success, `Command failed: ${result.error}`);

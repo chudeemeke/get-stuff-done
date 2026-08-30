@@ -21,7 +21,12 @@ const {
 } = require('../scripts/lib/upstream-source');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
-const ACTIVE_UPSTREAM_VERSION = '1.6.1';
+// Derived from the pin (Testing rule 5: never hardcode a copy of an authority
+// that lives elsewhere in the repo) — the embedded authority, the live
+// .planning/upstream-authority.json, and package.json must all agree.
+const ACTIVE_UPSTREAM_VERSION = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
+).devDependencies['@opengsd/gsd-core'];
 
 function makeAuthority(overrides = {}) {
   const base = {

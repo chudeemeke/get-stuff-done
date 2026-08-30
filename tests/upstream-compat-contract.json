@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "commonVersions": [
-    "1.5.0",
     "1.6.0",
-    "1.6.1"
+    "1.6.1",
+    "1.7.0"
   ],
   "suites": [
     {

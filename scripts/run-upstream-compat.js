@@ -40,7 +40,7 @@ const AUTHORITY_BOUNDARIES = new Set([
   'upstream-internal-observed',
   'fork-runtime',
 ]);
-const COMMON_COMPAT_VERSIONS = ['1.5.0', '1.6.0', '1.6.1'];
+const COMMON_COMPAT_VERSIONS = ['1.6.0', '1.6.1', '1.7.0'];
 const SYNC_REVIEW_TRIGGER = 'port when the sync helper can consume the composed Open GSD package or retire when that source-only helper is removed';
 const TEMP_OWNER = 'get-stuff-done/upstream-compat';
 const MAX_FAILURE_LINES = 5;
@@ -189,7 +189,7 @@ function validateCompatContract(contract, opts = {}) {
   }
 
   if (JSON.stringify(contract.commonVersions) !== JSON.stringify(COMMON_COMPAT_VERSIONS)) {
-    throw new Error('Compatibility contract must apply to 1.5.0, 1.6.0, and 1.6.1');
+    throw new Error(`Compatibility contract must apply to ${COMMON_COMPAT_VERSIONS.join(', ')}`);
   }
 
   for (const suite of suites) {

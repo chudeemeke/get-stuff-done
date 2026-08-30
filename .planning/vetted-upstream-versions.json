@@ -10,17 +10,6 @@
   },
   "versions": [
     {
-      "version": "1.5.0",
-      "role": "historical-candidate",
-      "blocking": false,
-      "vettedAt": "2026-07-14",
-      "evidence": {
-        "matrixReport": ".planning/evidence/phase43-compat.json",
-        "status": "passed",
-        "matrixReportSha256": "e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712"
-      }
-    },
-    {
       "version": "1.6.0",
       "role": "historical-candidate",
       "blocking": false,
@@ -33,12 +22,23 @@
     },
     {
       "version": "1.6.1",
-      "role": "current",
-      "blocking": true,
+      "role": "historical-candidate",
+      "blocking": false,
       "vettedAt": "2026-07-14",
       "evidence": {
         "matrixReport": ".planning/evidence/phase43-compat.json",
         "matrixReportSha256": "e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712",
+        "status": "passed"
+      }
+    },
+    {
+      "version": "1.7.0",
+      "role": "current",
+      "blocking": true,
+      "vettedAt": "2026-08-30",
+      "evidence": {
+        "matrixReport": ".planning/evidence/bump-1.7.0-compat.json",
+        "matrixReportSha256": "300bf041fc640a403b5e3a12f6730b5b9673cf0f4201a1cb24fe35c8ee3411b6",
         "status": "passed"
       }
     }

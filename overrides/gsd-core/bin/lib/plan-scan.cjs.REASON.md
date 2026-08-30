@@ -18,8 +18,8 @@ retains a broader local semantic delta after the original issue closure.
 
 ## Upstream snapshot
 
-- Version: 1.6.1
-- SHA-256: 07cadb766a55c6d018f10da4d4a487e21190361dc3f2b71a7c5225121b292a9d
+- Version: 1.7.0
+- SHA-256: 913298300574022c5115f11c9fb6eee72c875db98aaeb5d02a58853162428060
 
 ## What's different
 
@@ -41,3 +41,9 @@ embedded non-plan references such as `PLAN11AC`, or the fork deliberately
 renames every such derivative artifact, and the direct, roadmap, repository,
 and N=3 compatibility gates remain green without it. No new upstream issue or
 comment for the broader delta is claimed.
+
+## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
+
+Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: upstream 1.7.0 ships its own PLAN_REVIEW_RE (from #2263) but it is a strict subset of the fork constant, and the LOOSE_PLAN_TOKEN_RE embedded-reference exclusion (PLAN11AC class) is still fork-only. Override rebased onto the 1.7.0 base; residual delta is 2 constants + the loose-token test line.
+
+Port recipe note: upstream inline `// eslint-disable-next-line @typescript-eslint/...` comments are stripped from the ported file as a standing part of every forward-port (the fork does not load that eslint plugin; behavior-neutral). Expect them to reappear in raw diffs against the pure upstream file.

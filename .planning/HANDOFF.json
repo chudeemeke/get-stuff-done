@@ -64,7 +64,8 @@
       "MAINTENANCE.md gained a 'Forward-porting overrides on an upstream bump' runbook - the mechanical recipe + the arithmetic verification step + the two traps."
     ],
     "in_flight": "NONE. Step 2 (1.8.0) MERGED to main as fce6d8d1. This branch (chore/upstream-bump-1.9.1, cut from that main) is the step-3 workspace; no 1.9.1 work has started.",
-    "prune_gotcha": "node scripts/vetted-upstream-versions.js --prune-for-bump <new> validates the manifest against the CURRENT authority first, so it FAILS if you advance the authority before pruning. Either prune first, or temporarily set the authority version back to the old pin for the single prune call (what step 2 did), then restore it."
+    "prune_gotcha": "node scripts/vetted-upstream-versions.js --prune-for-bump <new> validates the manifest against the CURRENT authority first, so it FAILS if you advance the authority before pruning. Either prune first, or temporarily set the authority version back to the old pin for the single prune call (what step 2 did), then restore it.",
+    "inbox_checkpoint": "4 active items, all with owners/triggers: authkey gate system (backlog 999.7), memory-nexus health-drift (in-progress, backlog 999.8), kanbanflow model-catalog + conversations plan-checker (both execute at the FINAL bump step, 1.11.0). No new filings needed this session."
   },
   "human_actions_pending": [
     {
@@ -99,6 +100,10 @@
     {
       "id": "pr-4-gsd-doctor",
       "description": "PR #4 (gsd-doctor) still open, independent of the bump campaign."
+    },
+    {
+      "id": "release-broadcast-absolute-init-paths",
+      "description": "AT RELEASE TIME (not now): adopting upstream #2376 changed a consumer-visible output contract - gsd-tools init execute-phase/plan-phase/progress/phase-op now emit ABSOLUTE planning paths anchored on the project root instead of cwd-relative ones. No release of @chude/get-stuff-done was cut this session, so no consumer is running it yet. When a version is published, broadcast to opted-in project inboxes per cross-project-issues.md, because anything parsing those JSON fields (state_path, roadmap_path, config_path, context_path, ...) will see full paths."
     }
   ],
   "remaining_tasks": [

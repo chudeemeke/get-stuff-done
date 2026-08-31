@@ -28,7 +28,7 @@
     ],
     "next_steps": [
       "1. Step 3 (1.8.0 -> 1.9.1): follow MAINTENANCE.md -> \"Forward-porting overrides on an upstream bump\" verbatim. It is now a mechanical runbook proven twice.",
-      "2. Sequence: bun install --ignore-scripts the 1.9.1 pin; advance the pin in package.json + .planning/upstream-authority.json + the embedded authority in scripts/lib/upstream-source.js; --prune-for-bump the manifest (NOTE: prune reads the authority, so run it BEFORE advancing the authority or temporarily set the authority back - see gotcha below); re-aim the Upgrade Verifier --from 1.9.1 --to 1.10.0; shift the N=3 compat set to 1.7.0/1.8.0/1.9.1 (script constant + tests/upstream-compat-contract.json + the two contract-mirroring test files, descending-order string replace).",
+      "2. Sequence: bun install --ignore-scripts the 1.9.1 pin; advance the pin in package.json + .planning/upstream-authority.json + the embedded authority in scripts/lib/upstream-source.js; --prune-for-bump the manifest (NOTE: prune reads the authority, so run it BEFORE advancing the authority or temporarily set the authority back - see gotcha below); re-aim the Upgrade Verifier --from 1.9.1 --to 1.10.0; shift the N=3 compat set to 1.7.0/1.8.0/1.9.1 (script constant + tests/upstream-compat-contract.json + the two contract-mirroring test files - tests/run-upstream-compat.test.js and tests/run-upstream-compat-ci.test.js - via a descending-order string replace (1.8.0 first, then 1.7.0, then 1.6.1, so earlier replacements are not re-matched)).",
       "3. Drop-experiment BEFORE porting: mv overrides overrides-DROP; node scripts/run-compat-matrix.js --version 1.9.1 --report <tmp>; mv back. Record the report as .planning/evidence/bump-1.9.1-drop-experiment.json - it is the evidence that each retained override is still earned.",
       "4. Forward-port only the overrides whose upstream base actually changed (cmp old vs new pure upstream first). Verify each port arithmetically (ported-delta line count == recovered semantic-delta count). Refresh all 9 REASON.md.",
       "5. Evidence: node scripts/run-compat-matrix.js --version 1.9.1 --report .planning/evidence/bump-1.9.1-compat.json, then --apply-matrix-evidence. pruneForBump will auto-stamp evidence.supersededBy on the demoted 1.8.0 row.",
@@ -41,7 +41,8 @@
       "node --test tests/<x>.test.cjs from the repo root proves NOTHING about the pinned upstream unless GSD_COMPAT_PACKAGE_ROOT points at a composed candidate: the default legacy root is the stale repo-root get-stuff-done/ v2.4.0 self-install. This is exactly how a genuine 1.8.0 regression looked green locally.",
       "sha256sum on Windows backslash paths prefixes output with a backslash - compare with cmp or normalized paths.",
       "PR perf legs re-roll windows noise dice per commit - batch changes before pushing.",
-      "Legacy tracked get-stuff-done/ dir is the LEGACY_PACKAGE_ROOT default and sync.test.cjs's symlink shim collides with it - do NOT delete it casually; the owner decision must account for this."
+      "Legacy tracked get-stuff-done/ dir is the LEGACY_PACKAGE_ROOT default and sync.test.cjs's symlink shim collides with it - do NOT delete it casually; the owner decision must account for this.",
+      "memory sync --embed rewrites MEMORY.md (it owns the <!-- memory-cli --> block) and can race a hand-edit made in the same session. After running it, re-grep any MEMORY.md line you edited by hand before trusting it. A persistence-verification agent read a stale copy of exactly that line this session."
     ],
     "step_2_merge_evidence": {
       "merge_commit": "fce6d8d1",

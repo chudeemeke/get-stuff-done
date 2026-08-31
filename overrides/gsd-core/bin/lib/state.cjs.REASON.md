@@ -4,8 +4,8 @@
 Cross-project inbox reports showed `state update-progress` can report misleading completion when future work is declared in ROADMAP.md but not yet represented by PLAN files on disk.
 
 ## Upstream snapshot
-- Version: 1.7.0
-- SHA-256: 216338a0cb89c04cb71d7c911e70de4711103a5a90b88046a1a1d56bc7c8622f
+- Version: 1.8.0
+- SHA-256: 59d8b6679f2be5c8a192bc2dc54f16bbf47eb07be0f5db109ec919a623b359ed
 
 ## What's different
 - Reads current-milestone ROADMAP `**Plans**` declarations.
@@ -20,3 +20,13 @@ When upstream `gsd-core/bin/lib/state.cjs` changes, check whether Open GSD has n
 Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: forward-ported as pure 1.7.0 base + extractDeclaredPlanCount/readRoadmapDeclaredPlanCounts + the per-phase max(declared, disk) totals merge in cmdStateUpdateProgress. ADOPTED from upstream: the #2177 frontmatter-safe machine-segment writer and the #3242 roadmap-phase-count capping (both were pending fork backports now native). The previous override carried a pre-1.6.1 base.
 
 Port recipe note: upstream inline `// eslint-disable-next-line @typescript-eslint/...` comments are stripped from the ported file as a standing part of every forward-port (the fork does not load that eslint plugin; behavior-neutral). Expect them to reappear in raw diffs against the pure upstream file.
+
+## Bump review 2026-08-30 (1.7.0 -> 1.8.0)
+
+Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream changes are #2450 (state
+transition/document refinements) and a #2376 follow-up — adopted intact via
+the pure-1.8.0 base; neither overlaps the fork delta's regions. Fork delta
+unchanged and still required (drop-experiment: state.test.cjs
+declared-future-plans test fails on pure 1.8.0): extractDeclaredPlanCount /
+readRoadmapDeclaredPlanCounts + per-phase max(declared, disk) totals merge in
+cmdStateUpdateProgress.

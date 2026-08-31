@@ -108,9 +108,70 @@ function validateVettedManifest(manifest, authority = readAuthorityContract({ au
     if (entry.vettedAt && !/^[a-f0-9]{64}$/.test(entry.evidence.matrixReportSha256 || '')) {
       throw new Error(`vettedAt requires evidence.matrixReportSha256 for ${entry.version}`);
     }
+    // supersededBy marks a row whose evidence can no longer be reproduced:
+    // overrides are coupled to the pinned upstream (since the 1.7.0
+    // forward-port), so once a bump re-ports them, a historical row's green
+    // matrix run belongs to a dead override generation. The row keeps its
+    // honest historical status; the marker stops a reader treating it as live.
+    if (entry.evidence && entry.evidence.supersededBy !== undefined) {
+      validateStableVersion(entry.evidence.supersededBy);
+      if (entry.evidence.supersededBy === entry.version) {
+        throw new Error(`evidence.supersededBy must differ from the row version for ${entry.version}`);
+      }
+      if (entry.blocking === true) {
+        throw new Error(`blocking entry ${entry.version} must not carry evidence.supersededBy`);
+      }
+    }
   }
 
   return manifest;
+}
+
+/**
+ * The contract-independent per-row bar for "this row's evidence proves a pass".
+ *
+ * validateMatrixEvidenceReport applies this bar plus contract-dependent checks
+ * (exact candidate-suite set, authority boundaries, classified exclusions).
+ * Extracting the shared part keeps the exported applyMatrixEvidence from being
+ * weaker than the CLI's own gate: a direct library caller that skips the
+ * validator still cannot stamp vettedAt onto a row that would not survive it.
+ *
+ * @param {object} result  One matrix report row
+ * @returns {boolean}
+ */
+function isRowEvidencePassing(result) {
+  if (!result || result.ok !== true) return false;
+  if ((result.status || result.outcome || 'unknown') !== 'passed') return false;
+  if (result.exitCode !== 0) return false;
+  if (!Array.isArray(result.errors) || result.errors.length !== 0) return false;
+
+  const suites = Array.isArray(result.suites) ? result.suites : [];
+  if (suites.length === 0) return false;
+
+  const suitesPass = suites.every(suite => (
+    suite.classification === 'candidate' &&
+    suite.status === 'passed' &&
+    Number.isInteger(suite.passed) &&
+    suite.passed > 0 &&
+    suite.failed === 0 &&
+    suite.skipped === 0 &&
+    suite.exitCode === 0 &&
+    Array.isArray(suite.errors) &&
+    suite.errors.length === 0
+  ));
+  if (!suitesPass) return false;
+
+  const totals = suites.reduce((aggregate, suite) => ({
+    passed: aggregate.passed + suite.passed,
+    failed: aggregate.failed + suite.failed,
+    skipped: aggregate.skipped + suite.skipped,
+  }), { passed: 0, failed: 0, skipped: 0 });
+
+  return (
+    result.passed === totals.passed &&
+    result.failed === totals.failed &&
+    result.skipped === totals.skipped
+  );
 }
 
 function listMatrixEntries(manifest) {
@@ -292,10 +353,18 @@ function pruneForBump(manifest, newVersion) {
   const byVersion = new Map();
 
   for (const entry of next.versions) {
+    const demoted = entry.role === 'current';
     byVersion.set(entry.version, {
       ...entry,
-      role: entry.role === 'current' ? 'historical-candidate' : entry.role,
+      role: demoted ? 'historical-candidate' : entry.role,
       blocking: false,
+      // Stamp the outgoing pin as superseded at the moment it stops being
+      // current: the bump re-ports overrides onto the new base, so this row's
+      // evidence can never be reproduced again. Self-maintaining by design —
+      // a marker that has to be remembered is a marker that goes stale.
+      evidence: demoted
+        ? { ...(entry.evidence || {}), supersededBy: newVersion }
+        : entry.evidence,
     });
   }
 
@@ -333,12 +402,7 @@ function applyMatrixEvidence(
     const result = results.find(item => item.version === entry.version);
     if (!result) continue;
 
-    const reportedStatus = result.status || result.outcome || 'unknown';
-    const suitesPass = Array.isArray(result.suites) && result.suites.length > 0 &&
-      result.suites.every(suite => (
-        suite.status === 'passed' && suite.failed === 0 && suite.exitCode === 0
-      ));
-    const passed = result.ok === true && reportedStatus === 'passed' && suitesPass;
+    const passed = isRowEvidencePassing(result);
     const status = passed ? 'passed' : 'failed';
     entry.vettedAt = passed ? date : null;
     entry.evidence = {
@@ -347,6 +411,9 @@ function applyMatrixEvidence(
       matrixReportSha256,
       status,
     };
+    // A row that just re-ran against the live override set is no longer
+    // superseded, whatever it carried before.
+    delete entry.evidence.supersededBy;
   }
 
   return next;
@@ -499,6 +566,7 @@ if (require.main === module) {
 module.exports = {
   DEFAULT_MANIFEST_PATH,
   applyMatrixEvidence,
+  isRowEvidencePassing,
   listMatrixEntries,
   loadVettedManifest,
   main,

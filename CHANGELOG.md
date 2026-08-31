@@ -7,12 +7,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Changed
+- Upstream authority advanced one step: `@opengsd/gsd-core` 1.7.0 -> 1.8.0 (issue #53 incremental campaign, step 2 of 5). Vetted manifest pruned to 1.6.1/1.7.0/1.8.0; Upgrade Verifier re-aimed at `--from 1.8.0 --to 1.9.1`; N=3 compat set advanced to match. Single-version evidence: 316/316 across 11 candidate suites.
+- Six changed overrides forward-ported onto pure 1.8.0 bases (`init.cjs`, `roadmap-parser.cjs`, `roadmap.cjs`, `state.cjs`, `plan-scan.cjs`, `bin/install.js`); both `gsd-check-update` hooks were byte-identical upstream and needed no port. Upstream absorbed nothing that made an override droppable: a pure-1.8.0 drop experiment failed 18 checks across four suites (`init` 6, `roadmap` 8, `runtime-overrides` 3, `state` 1), recorded at `.planning/evidence/bump-1.8.0-drop-experiment.json`.
+- Adopted upstream semantics: `init` commands now emit absolute planning paths anchored on the project root (#2376) instead of orchestrator-cwd-relative ones, so a path handed to a spawned subagent resolves regardless of that subagent's cwd. Fork contract tests updated and made version-conditional.
+- `gsd-statusline.js` retained; upstream's new opt-in compact state format (`statusline.state_format`) reviewed and deferred, bringing the standing statusline deferral list to four opt-in features.
+- Vetted manifest rows demoted from `current` are now stamped `evidence.supersededBy` at prune time, marking evidence that can no longer be reproduced because the bump re-ported the overrides.
 - Upstream authority advanced one step: `@opengsd/gsd-core` 1.6.1 -> 1.7.0 (issue #53 incremental campaign, step 1 of 5). Vetted manifest pruned to 1.6.0/1.6.1/1.7.0; Upgrade Verifier re-aimed at `--from 1.7.0 --to 1.8.0`; N=3 compat set advanced to match.
 - All seven changed overrides forward-ported onto the 1.7.0 base (the previous files carried pre-1.6.1 vintage bases): `init.cjs`, `roadmap-parser.cjs`, `roadmap.cjs`, `state.cjs`, `plan-scan.cjs`, `bin/install.js`, with `gsd-statusline.js` retained and upstream's three new opt-in statusline features reviewed and deferred.
 - Adopted upstream semantics: last-phase completion status is now `All phases complete` (ADR-2207) and roadmap checkbox completion requires passed verification evidence (#2022); fork contract tests updated accordingly.
 - Matrix evidence application now accepts successful `current-pin` reports as subset applications (blocking pin row required and fully passing; absent rows keep prior evidence). Needed because the forward-ported overrides are 1.7.0-based, so historical candidates 1.6.0/1.6.1 no longer compose with the current override set and a passing `require-all` run is structurally impossible; `require-all` closeout semantics are unchanged.
 
 ### Fixed
+- `tests/init.test.cjs` now resolves the package under test through `resolveCompatPackageRoot()` like every other candidate suite. It had bound to the default legacy root, so a direct `node --test` run silently exercised the stale repo-root `get-stuff-done/` self-install instead of the composed candidate — passing locally while the same suite failed in the matrix.
+- Exported `applyMatrixEvidence` no longer applies a weaker per-row check than the CLI's validator; both now share `isRowEvidencePassing`, so a direct library caller cannot vet evidence the CLI would reject.
 - Uninstall now removes the `.gsd-source` source-resolution marker Open GSD 1.7.0 writes outside the file manifest (upstream leaves it behind; upstream-contribution candidate).
 
 ### Added

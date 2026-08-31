@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 2,
+  "packageName": "@opengsd/gsd-core",
+  "generatedAt": "2026-08-30T20:07:58.449Z",
+  "matrixReport": "drop-experiment-1.8.0.json",
+  "policy": "current-pin",
+  "ok": false,
+  "blockingFailures": [
+    "1.8.0"
+  ],
+  "failedVersions": [
+    "1.8.0"
+  ],
+  "results": [
+    {
+      "version": "1.8.0",
+      "role": "current",
+      "blocking": true,
+      "ok": false,
+      "exitCode": 1,
+      "durationMs": 101464,
+      "classification": "blocking",
+      "status": "failed",
+      "passed": 297,
+      "failed": 18,
+      "skipped": 0,
+      "excluded": [
+        "core.test.cjs",
+        "phase-verification.test.cjs",
+        "sync.test.cjs"
+      ],
+      "classifiedExclusions": [
+        {
+          "path": "core.test.cjs",
+          "classification": "retired"
+        },
+        {
+          "path": "phase-verification.test.cjs",
+          "classification": "repository"
+        },
+        {
+          "path": "sync.test.cjs",
+          "classification": "repository"
+        }
+      ],
+      "suites": [
+        {
+          "path": "commands.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 11497,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "config.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 47,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 5104,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "frontmatter.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 103,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 4454,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "init.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 8,
+          "failed": 6,
+          "skipped": 0,
+          "durationMs": 8178,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - init execute-phase returns file paths",
+            "error: |-",
+            "code: 'ERR_ASSERTION'",
+            "name: 'AssertionError'",
+            "expected: '.planning/STATE.md'"
+          ]
+        },
+        {
+          "path": "milestone.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 1591,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "phase.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 54,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 26217,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "roadmap.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 11,
+          "failed": 8,
+          "skipped": 0,
+          "durationMs": 9023,
+          "exitCode": 1,
+          "errors": [
+            "not ok 1 - excludes plan-reference derivatives without narrowing supported plan names",
+            "error: |-",
+            "code: 'ERR_ASSERTION'",
+            "name: 'AssertionError'",
+            "expected: false"
+          ]
+        },
+        {
+          "path": "runtime-overrides.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "fork-runtime",
+          "status": "failed",
+          "passed": 1,
+          "failed": 3,
+          "skipped": 0,
+          "durationMs": 2522,
+          "exitCode": 1,
+          "errors": [
+            "not ok 2 - roadmap analyze and init progress prefer STATE current phase",
+            "error: |-",
+            "code: 'ERR_ASSERTION'",
+            "name: 'AssertionError'",
+            "expected: '41'"
+          ]
+        },
+        {
+          "path": "state.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "failed",
+          "passed": 12,
+          "failed": 1,
+          "skipped": 0,
+          "durationMs": 7241,
+          "exitCode": 1,
+          "errors": [
+            "not ok 5 - update-progress counts ROADMAP-declared future plans",
+            "error: |-",
+            "code: 'ERR_ASSERTION'",
+            "name: 'AssertionError'",
+            "expected: 20"
+          ]
+        },
+        {
+          "path": "template.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 34,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 3194,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "verify.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 2051,
+          "exitCode": 0,
+          "errors": []
+        }
+      ],
+      "errors": [
+        "init.test.cjs: not ok 1 - init execute-phase returns file paths",
+        "init.test.cjs: error: |-",
+        "init.test.cjs: code: 'ERR_ASSERTION'",
+        "init.test.cjs: name: 'AssertionError'",
+        "init.test.cjs: expected: '.planning/STATE.md'",
+        "roadmap.test.cjs: not ok 1 - excludes plan-reference derivatives without narrowing supported plan names",
+        "roadmap.test.cjs: error: |-",
+        "roadmap.test.cjs: code: 'ERR_ASSERTION'",
+        "roadmap.test.cjs: name: 'AssertionError'",
+        "roadmap.test.cjs: expected: false",
+        "runtime-overrides.test.cjs: not ok 2 - roadmap analyze and init progress prefer STATE current phase",
+        "runtime-overrides.test.cjs: error: |-",
+        "runtime-overrides.test.cjs: code: 'ERR_ASSERTION'",
+        "runtime-overrides.test.cjs: name: 'AssertionError'",
+        "runtime-overrides.test.cjs: expected: '41'",
+        "state.test.cjs: not ok 5 - update-progress counts ROADMAP-declared future plans",
+        "state.test.cjs: error: |-",
+        "state.test.cjs: code: 'ERR_ASSERTION'",
+        "state.test.cjs: name: 'AssertionError'",
+        "state.test.cjs: expected: 20"
+      ]
+    }
+  ]
+}

@@ -6,7 +6,7 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { resolveCompatPackageRoot } = require('./helpers/compat-package-root.cjs');
+const { resolveCompatPackageRoot, compatUpstreamAtLeast } = require('./helpers/compat-package-root.cjs');
 const COMPAT_PACKAGE_ROOT = resolveCompatPackageRoot();
 const { createGsdToolsHelpers, createTempProject, cleanup } = require('./helpers.cjs');
 const { runGsdTools } = createGsdToolsHelpers(COMPAT_PACKAGE_ROOT);
@@ -828,9 +828,19 @@ describe('phase complete command', () => {
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
     // Open GSD <=1.6.1 wrote 'Milestone complete'; 1.7.0+ writes 'All phases
     // complete' (state-transition.cjs, ADR-2207 — milestone termination is now
-    // reserved for the milestone-complete command). Accept both so the N=3
-    // matrix can span the vetted manifest's version range.
-    assert.ok(/Milestone complete|All phases complete/.test(state), 'status should reflect last-phase completion');
+    // reserved for the milestone-complete command). Pin the exact string when
+    // the candidate's upstream version is knowable (composed dist meta);
+    // permanent accept-both alternation would let either regression pass.
+    const atLeast170 = compatUpstreamAtLeast(COMPAT_PACKAGE_ROOT, '1.7.0');
+    if (atLeast170 === true) {
+      assert.ok(state.includes('All phases complete'), 'status should be ADR-2207 last-phase completion');
+      assert.ok(!state.includes('Milestone complete'), 'milestone termination is reserved for milestone-complete (ADR-2207)');
+    } else if (atLeast170 === false) {
+      assert.ok(state.includes('Milestone complete'), 'status should reflect pre-1.7.0 last-phase completion');
+    } else {
+      // Legacy direct-run root: version unknowable, keep the version-agnostic check.
+      assert.ok(/Milestone complete|All phases complete/.test(state), 'status should reflect last-phase completion');
+    }
   });
 
   test('updates REQUIREMENTS.md traceability when phase completes', () => {

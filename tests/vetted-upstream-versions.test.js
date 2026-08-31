@@ -273,17 +273,25 @@ describe('vetted upstream versions manifest', () => {
     });
     const updated = applyMatrixEvidence(manifest, {
       matrixReport: 'new-report.json',
-      results: manifest.versions.map(entry => ({
-        version: entry.version,
-        ok: entry.version !== '1.5.0',
-        status: entry.version === '1.5.0' ? 'failed' : 'passed',
-        suites: [{
-          path: 'commands.test.cjs',
-          status: entry.version === '1.5.0' ? 'failed' : 'passed',
-          failed: entry.version === '1.5.0' ? 1 : 0,
-          exitCode: entry.version === '1.5.0' ? 1 : 0,
-        }],
-      })),
+      results: manifest.versions.map(entry => {
+        const row = passingResult(entry);
+        if (entry.version !== '1.5.0') return row;
+        const suites = row.suites.map((suite, index) => (
+          index === 0
+            ? { ...suite, status: 'failed', passed: 0, failed: 1, exitCode: 1, errors: ['red'] }
+            : suite
+        ));
+        return {
+          ...row,
+          ok: false,
+          status: 'failed',
+          exitCode: 1,
+          passed: suites.reduce((total, suite) => total + suite.passed, 0),
+          failed: 1,
+          suites,
+          errors: ['red'],
+        };
+      }),
     }, '2026-07-13', { matrixReportSha256: REPORT_SHA256 });
 
     expect(updated.versions[0]).toMatchObject({
@@ -299,18 +307,20 @@ describe('vetted upstream versions manifest', () => {
   });
 
   test('matrix evidence cannot vet a row with a failed suite', () => {
+    const blocking = baseManifest().versions.find(entry => entry.blocking === true);
+    const row = passingResult(blocking);
+    const suites = row.suites.map((suite, index) => (
+      index === 0
+        ? { ...suite, status: 'failed', passed: 0, failed: 1, exitCode: 1, errors: ['red'] }
+        : suite
+    ));
     const updated = applyMatrixEvidence(baseManifest(), {
       matrixReport: 'new-report.json',
       results: [{
-        version: ACTIVE_UPSTREAM_VERSION,
-        ok: true,
-        status: 'passed',
-        suites: [{
-          path: 'roadmap.test.cjs',
-          status: 'failed',
-          failed: 1,
-          exitCode: 1,
-        }],
+        ...row,
+        passed: suites.reduce((total, suite) => total + suite.passed, 0),
+        failed: 1,
+        suites,
       }],
     }, '2026-07-13', { matrixReportSha256: REPORT_SHA256 });
     const current = updated.versions.find(entry => entry.version === ACTIVE_UPSTREAM_VERSION);
@@ -326,18 +336,66 @@ describe('vetted upstream versions manifest', () => {
   });
 
   test('matrix evidence defaults vettedAt to an ISO calendar date', () => {
+    const blocking = baseManifest().versions.find(entry => entry.blocking === true);
     const updated = applyMatrixEvidence(baseManifest(), {
       matrixReport: 'new-report.json',
-      results: [{
-        version: ACTIVE_UPSTREAM_VERSION,
-        ok: true,
-        status: 'passed',
-        suites: [{ path: 'commands.test.cjs', status: 'passed', failed: 0, exitCode: 0 }],
-      }],
+      results: [passingResult(blocking)],
     }, undefined, { matrixReportSha256: REPORT_SHA256 });
     const current = updated.versions.find(entry => entry.version === ACTIVE_UPSTREAM_VERSION);
 
     expect(current.vettedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  // Deferred step-1 review finding (d): the exported applyMatrixEvidence used a
+  // weaker per-row recheck than the CLI's validator, so a direct library caller
+  // could stamp vettedAt onto evidence the CLI would have rejected. Both now
+  // share isRowEvidencePassing; this pins that they cannot drift apart again.
+  test('applyMatrixEvidence never vets a row the validator would reject', () => {
+    const blocking = baseManifest().versions.find(entry => entry.blocking === true);
+    const weakenings = [
+      ['suite reports skipped tests', row => ({
+        ...row,
+        skipped: 1,
+        suites: row.suites.map((suite, i) => (i === 0 ? { ...suite, skipped: 1 } : suite)),
+      })],
+      ['suite carries errors', row => ({
+        ...row,
+        suites: row.suites.map((suite, i) => (i === 0 ? { ...suite, errors: ['boom'] } : suite)),
+      })],
+      ['row totals disagree with its suites', row => ({ ...row, passed: row.passed + 5 })],
+      ['row exit code is non-zero', row => ({ ...row, exitCode: 1 })],
+      ['row carries errors', row => ({ ...row, errors: ['boom'] })],
+      ['suite is not a candidate classification', row => ({
+        ...row,
+        suites: row.suites.map((suite, i) => (i === 0 ? { ...suite, classification: 'excluded' } : suite)),
+      })],
+    ];
+
+    for (const [label, weaken] of weakenings) {
+      const report = {
+        schemaVersion: 2,
+        packageName: '@opengsd/gsd-core',
+        policy: 'current-pin',
+        ok: true,
+        blockingFailures: [],
+        failedVersions: [],
+        matrixReport: 'new-report.json',
+        results: [weaken(passingResult(blocking))],
+      };
+
+      // The CLI gate rejects it...
+      expect(() => validateMatrixEvidenceReport(baseManifest(), report, {
+        contract: COMPAT_CONTRACT,
+      })).toThrow();
+
+      // ...and the exported helper must not vet it either.
+      const updated = applyMatrixEvidence(baseManifest(), report, '2026-07-13', {
+        matrixReportSha256: REPORT_SHA256,
+      });
+      const current = updated.versions.find(entry => entry.version === ACTIVE_UPSTREAM_VERSION);
+      expect(`${label}:${current.vettedAt}`).toBe(`${label}:${null}`);
+      expect(current.evidence.status).toBe('failed');
+    }
   });
 
   test('CLI applies the SHA-256 of exact durable report bytes to every manifest row', () => {
@@ -626,6 +684,82 @@ describe('vetted upstream versions manifest', () => {
     expect(pruned.versions.filter(entry => entry.blocking)).toEqual([
       expect.objectContaining({ version: '9.9.9', role: 'current' }),
     ]);
+  });
+
+  // Deferred step-1 review finding (c): demoted rows kept reading "passed" with
+  // nothing marking that their evidence belongs to a dead override generation.
+  // Stamping at demotion time makes the marker self-maintaining.
+  test('pruneForBump stamps the outgoing pin as superseded by the new version', () => {
+    const pruned = pruneForBump(baseManifest(), '9.9.9');
+    const demoted = pruned.versions.find(entry => entry.version === ACTIVE_UPSTREAM_VERSION);
+    const untouched = pruned.versions.find(entry => entry.version === '1.6.0');
+    const incoming = pruned.versions.find(entry => entry.version === '9.9.9');
+
+    expect(demoted.role).toBe('historical-candidate');
+    expect(demoted.evidence.supersededBy).toBe('9.9.9');
+    // Already-historical rows keep whatever marker they had; the incoming pin
+    // is live evidence and must never carry one.
+    expect(untouched.evidence.supersededBy).toBeUndefined();
+    expect(incoming.evidence.supersededBy).toBeUndefined();
+    expect(() => validateVettedManifest(pruned, {
+      ...AUTHORITY,
+      active: { ...AUTHORITY.active, version: '9.9.9' },
+    })).not.toThrow();
+  });
+
+  test('supersededBy is rejected on the blocking row and on self-reference', () => {
+    expect(() => validateVettedManifest(baseManifest({
+      versions: baseManifest().versions.map(entry => (
+        entry.blocking
+          ? { ...entry, evidence: { ...entry.evidence, supersededBy: '9.9.9' } }
+          : entry
+      )),
+    }), AUTHORITY)).toThrow('must not carry evidence.supersededBy');
+
+    expect(() => validateVettedManifest(baseManifest({
+      versions: baseManifest().versions.map(entry => (
+        entry.version === '1.6.0'
+          ? { ...entry, evidence: { ...entry.evidence, supersededBy: '1.6.0' } }
+          : entry
+      )),
+    }), AUTHORITY)).toThrow('must differ from the row version');
+  });
+
+  test('re-running a superseded row against live overrides clears its marker', () => {
+    const manifest = baseManifest({
+      versions: baseManifest().versions.map(entry => (
+        entry.blocking
+          ? entry
+          : { ...entry, evidence: { ...entry.evidence, supersededBy: '9.9.9' } }
+      )),
+    });
+    const target = manifest.versions.find(entry => !entry.blocking);
+
+    const updated = applyMatrixEvidence(manifest, {
+      matrixReport: 'new-report.json',
+      results: [passingResult(target)],
+    }, '2026-07-13', { matrixReportSha256: REPORT_SHA256 });
+    const refreshed = updated.versions.find(entry => entry.version === target.version);
+    const untouched = updated.versions.find(entry => (
+      !entry.blocking && entry.version !== target.version
+    ));
+
+    expect(refreshed.evidence.supersededBy).toBeUndefined();
+    expect(refreshed.vettedAt).toBe('2026-07-13');
+    expect(untouched.evidence.supersededBy).toBe('9.9.9');
+  });
+
+  test('the live manifest validates against its own JSON schema', () => {
+    const schema = JSON.parse(fs.readFileSync(
+      path.join(PROJECT_ROOT, '.planning', 'vetted-upstream-versions.schema.json'), 'utf8'
+    ));
+    const ajv = addFormats(new Ajv2020({ allErrors: true }));
+    const validate = ajv.compile(schema);
+    const manifest = loadVettedManifest(
+      path.join(PROJECT_ROOT, '.planning', 'vetted-upstream-versions.json')
+    );
+
+    expect(validate(manifest) ? [] : validate.errors).toEqual([]);
   });
 
   test('test source covers acceptance terms', () => {

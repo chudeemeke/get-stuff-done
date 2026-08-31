@@ -1,32 +1,21 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-30T23:10:00Z",
+  "timestamp": "2026-08-31T00:15:00Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
-  "branch": "chore/upstream-bump-1.8.0",
-  "pr": "see bump_arc.step_2 (opened from this branch)",
-  "status": "issue-53-bump-step-2-COMPLETE-local-gates-green-awaiting-hosted-CI-and-review",
+  "branch": "chore/upstream-bump-1.9.1",
+  "pr": "step 2 merged as PR #62; step 3 PR not yet opened",
+  "status": "issue-53-bump-step-2-MERGED-step-3-not-started",
   "READ_FIRST": "Verify, do not trust: git rev-parse --short HEAD, git worktree list, gh pr checks. The pre-push hook is inert (#49) so every gate below was run by hand and must be re-run by hand. Run the suite as 'bun run test' (never bare 'bun test'); the pass signal is the summary line, never the exit code alone.",
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 (user chose 'Walk increments' via AskUserQuestion 2026-08-30)",
-    "step": "2 of 5: 1.7.0 -> 1.8.0",
+    "step": "3 of 5: 1.8.0 -> 1.9.1 (NOT STARTED)",
     "step_1_merge_evidence": {
       "merge_commit": "0bfac78e",
       "pr": "https://github.com/chudeemeke/get-stuff-done/pull/61",
       "checks": "20/20 SUCCESS on final head 2d83742a"
     },
-    "done": [
-      "Pin advanced in package.json + bun.lock + upstream-authority.json + embedded authority (scripts/lib/upstream-source.js); manifest pruned via --prune-for-bump to 1.6.1/1.7.0/1.8.0; validate green.",
-      "Upgrade Verifier re-aimed --from 1.8.0 --to 1.9.1; N=3 compat set advanced to 1.6.1/1.7.0/1.8.0 (script constant + contract JSON + contract-mirroring fixtures, role-preserving shift).",
-      "Drop-experiment run FIRST (overrides moved aside, pure 1.8.0 composed): 18 failures across 4 suites - init 6, roadmap 8, runtime-overrides 3, state 1. Report preserved at .planning/evidence/bump-1.8.0-drop-experiment.json. Nothing droppable; every override still earns its place.",
-      "6 overrides forward-ported onto PURE 1.8.0 bases (init, roadmap-parser, roadmap, state, plan-scan, bin/install.js). Both gsd-check-update hooks were byte-identical upstream -> no port. Port verified arithmetically: ported-delta line count == recovered semantic-delta count on all 6.",
-      "All 9 REASON.md refreshed (Version, SHA-256, Semantic SHA-256 where present) with dated 1.7.0->1.8.0 bump-review notes; check-overrides 9/9 fresh.",
-      "Four deferred step-1 review findings CLOSED (a/b/c/d) - see commit aad11781.",
-      "Adopted upstream 1.8.0 semantics with test updates: absolute init planning paths (#2376), and installCodexConfig no longer writing per-agent [agents.<name>] tables to config.toml.",
-      "Fixed init.test.cjs binding to the legacy package root (it silently tested the stale repo-root get-stuff-done/ dir on direct runs).",
-      "MAINTENANCE.md gained a 'Forward-porting overrides on an upstream bump' runbook - the mechanical recipe + the arithmetic verification step + the two traps."
-    ],
     "evidence": {
       "matrix": ".planning/evidence/bump-1.8.0-compat.json - single-version current-pin report, 1.8.0 blocking row PASS, 316/316 across 11 candidate suites, 0 failed 0 skipped.",
       "applied": "node scripts/vetted-upstream-versions.js --apply-matrix-evidence .planning/evidence/bump-1.8.0-compat.json --date 2026-08-30 -> manifest 1.8.0 row vettedAt 2026-08-30, sha256 72ece37b9b1339ae3f5c33190bb337f8d049803c43a7499148a52f3e101de34e; historical rows keep their own evidence and now carry supersededBy.",
@@ -38,11 +27,13 @@
       "verify-upgrade.test.js 'rejects an oversized real registry identity response' - local bun 1.4.0 vs pinned 1.3.5 stream behavior. Pinned CI is the authority."
     ],
     "next_steps": [
-      "1. Confirm the final full-suite summary line (fullsuite2 log or a fresh 'bun run test'): expect 1673 tests / 63 files with only the two known local false reds.",
-      "2. Push the branch and open the PR with the evidence-contract body (Summary, Scope, Verification, Explicit non-claims, Risks/blockers, Linked issues). Batch pushes - the Windows perf leg re-rolls its noise dice per commit.",
-      "3. Watch hosted CI to green on the FINAL head (branch protection required checks are configured; still verify rather than trusting --auto).",
-      "4. Cross-AI review per ~/.claude/rules/api-presentation-claude-review.md, then the operator tuicr assembled-diff gate, then squash merge.",
-      "5. Step 3 (1.8.0 -> 1.9.1) repeats the same recipe. MAINTENANCE.md now carries it as a runbook; project_override_forward_port_pattern.md carries the why."
+      "1. Step 3 (1.8.0 -> 1.9.1): follow MAINTENANCE.md -> \"Forward-porting overrides on an upstream bump\" verbatim. It is now a mechanical runbook proven twice.",
+      "2. Sequence: bun install --ignore-scripts the 1.9.1 pin; advance the pin in package.json + .planning/upstream-authority.json + the embedded authority in scripts/lib/upstream-source.js; --prune-for-bump the manifest (NOTE: prune reads the authority, so run it BEFORE advancing the authority or temporarily set the authority back - see gotcha below); re-aim the Upgrade Verifier --from 1.9.1 --to 1.10.0; shift the N=3 compat set to 1.7.0/1.8.0/1.9.1 (script constant + tests/upstream-compat-contract.json + the two contract-mirroring test files, descending-order string replace).",
+      "3. Drop-experiment BEFORE porting: mv overrides overrides-DROP; node scripts/run-compat-matrix.js --version 1.9.1 --report <tmp>; mv back. Record the report as .planning/evidence/bump-1.9.1-drop-experiment.json - it is the evidence that each retained override is still earned.",
+      "4. Forward-port only the overrides whose upstream base actually changed (cmp old vs new pure upstream first). Verify each port arithmetically (ported-delta line count == recovered semantic-delta count). Refresh all 9 REASON.md.",
+      "5. Evidence: node scripts/run-compat-matrix.js --version 1.9.1 --report .planning/evidence/bump-1.9.1-compat.json, then --apply-matrix-evidence. pruneForBump will auto-stamp evidence.supersededBy on the demoted 1.8.0 row.",
+      "6. Gates by hand (pre-push hook inert, #49): bun run lint, lint:docs, compose, bun run test (summary line, not rc), node scripts/check-overrides.js, bash .changelog-conflict-check.sh --self-test. Then PR with the evidence contract, hosted CI green on the FINAL head, review, operator tuicr, squash merge.",
+      "7. The two triaged inbox items (kanbanflow model-catalog opus5, conversations plan-checker effort) execute at the FINAL step (1.11.0) only - verified 1.11.0 fixes neither."
     ],
     "step_3_recipe_pointer": "MAINTENANCE.md -> 'Forward-porting overrides on an upstream bump'. Non-negotiables: never 3-way merge an override; drop-experiment before porting; strip upstream's @typescript-eslint eslint-disable lines; verify the port arithmetically; refresh every REASON.md; adopt deliberate upstream semantic changes via version-conditional fork tests rather than overriding them.",
     "hazards": [
@@ -51,7 +42,29 @@
       "sha256sum on Windows backslash paths prefixes output with a backslash - compare with cmp or normalized paths.",
       "PR perf legs re-roll windows noise dice per commit - batch changes before pushing.",
       "Legacy tracked get-stuff-done/ dir is the LEGACY_PACKAGE_ROOT default and sync.test.cjs's symlink shim collides with it - do NOT delete it casually; the owner decision must account for this."
-    ]
+    ],
+    "step_2_merge_evidence": {
+      "merge_commit": "fce6d8d1",
+      "pr": "https://github.com/chudeemeke/get-stuff-done/pull/62",
+      "final_head": "3390a8f9",
+      "checks": "20/20 SUCCESS on final head 3390a8f9, including Source Parity, Override Staleness (blocking), Audit CI, Secret Scan, OSV, Upgrade Verifier, Vetted Upstream Compat Matrix, Test+Upstream Compat on all 3 platforms, all 3 Perf Budget legs",
+      "tuicr": "operator ran tuicr -r main..HEAD -w on 2026-08-31 (session chore-upstream-bump-1.8.0/staged-and-unstaged-and-commits/3390a8f..0bfac78) and merged; tuicr review list --repo . shows no persisted session, consistent with a zero-comment review (same shape as step 1)",
+      "review": "fresh-context Sonnet-class reviewer (labelled as such; Codex terra quota-blocked until 2026-09-28) - no critical/high/medium findings. One low finding FIXED not deferred: drop-experiment described as 18 checks across FIVE suites with no committed artifact; it is FOUR suites (init 6, roadmap 8, runtime-overrides 3, state 1) and the report is now preserved at .planning/evidence/bump-1.8.0-drop-experiment.json",
+      "evidence": ".planning/evidence/bump-1.8.0-compat.json (316/316, 11 candidate suites) + .planning/evidence/bump-1.8.0-drop-experiment.json (18 failures, proves nothing was droppable)"
+    },
+    "step_2_done": [
+      "Pin advanced in package.json + bun.lock + upstream-authority.json + embedded authority (scripts/lib/upstream-source.js); manifest pruned via --prune-for-bump to 1.6.1/1.7.0/1.8.0; validate green.",
+      "Upgrade Verifier re-aimed --from 1.8.0 --to 1.9.1; N=3 compat set advanced to 1.6.1/1.7.0/1.8.0 (script constant + contract JSON + contract-mirroring fixtures, role-preserving shift).",
+      "Drop-experiment run FIRST (overrides moved aside, pure 1.8.0 composed): 18 failures across 4 suites - init 6, roadmap 8, runtime-overrides 3, state 1. Report preserved at .planning/evidence/bump-1.8.0-drop-experiment.json. Nothing droppable; every override still earns its place.",
+      "6 overrides forward-ported onto PURE 1.8.0 bases (init, roadmap-parser, roadmap, state, plan-scan, bin/install.js). Both gsd-check-update hooks were byte-identical upstream -> no port. Port verified arithmetically: ported-delta line count == recovered semantic-delta count on all 6.",
+      "All 9 REASON.md refreshed (Version, SHA-256, Semantic SHA-256 where present) with dated 1.7.0->1.8.0 bump-review notes; check-overrides 9/9 fresh.",
+      "Four deferred step-1 review findings CLOSED (a/b/c/d) - see commit aad11781.",
+      "Adopted upstream 1.8.0 semantics with test updates: absolute init planning paths (#2376), and installCodexConfig no longer writing per-agent [agents.<name>] tables to config.toml.",
+      "Fixed init.test.cjs binding to the legacy package root (it silently tested the stale repo-root get-stuff-done/ dir on direct runs).",
+      "MAINTENANCE.md gained a 'Forward-porting overrides on an upstream bump' runbook - the mechanical recipe + the arithmetic verification step + the two traps."
+    ],
+    "in_flight": "NONE. Step 2 (1.8.0) MERGED to main as fce6d8d1. This branch (chore/upstream-bump-1.9.1, cut from that main) is the step-3 workspace; no 1.9.1 work has started.",
+    "prune_gotcha": "node scripts/vetted-upstream-versions.js --prune-for-bump <new> validates the manifest against the CURRENT authority first, so it FAILS if you advance the authority before pruning. Either prune first, or temporarily set the authority version back to the old pin for the single prune call (what step 2 did), then restore it."
   },
   "human_actions_pending": [
     {
@@ -90,9 +103,9 @@
   ],
   "remaining_tasks": [
     {
-      "id": "step-2-ship",
-      "name": "Confirm the final full-suite summary line, push, open the PR, take hosted CI green, run cross-AI review + the operator tuicr gate, squash merge.",
-      "status": "in_progress"
+      "id": "issue-53-step-3",
+      "name": "Step 3 of 5: bump 1.8.0 -> 1.9.1 following the MAINTENANCE.md runbook. Steps 4 and 5 (1.10.0, 1.11.0) follow the same recipe.",
+      "status": "not_started"
     },
     {
       "id": "phase-43-plan-coverage",
@@ -105,5 +118,5 @@
       "status": "tracked"
     }
   ],
-  "next_action": "Read remaining_tasks[0]. Confirm the full-suite summary line, then push and open the PR."
+  "next_action": "Step 3 of the issue #53 campaign: bump @opengsd/gsd-core 1.8.0 -> 1.9.1 on this branch, following MAINTENANCE.md -> \"Forward-porting overrides on an upstream bump\"."
 }

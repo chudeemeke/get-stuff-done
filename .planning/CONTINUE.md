@@ -1,7 +1,8 @@
 # Continuation Context
 
-**Refreshed at:** 2026-08-28
-**Trigger:** Manual refresh — this file had gone two months stale and was mis-routing resumption
+**Refreshed at:** 2026-08-31
+**Trigger:** Manual refresh after the issue #53 step-2 merge (the prior body still described
+Phase 43 / PR #23 / pin 1.6.1, all of which are now history)
 
 ## Resume Instructions
 
@@ -23,27 +24,28 @@
 
 **Milestone:** v1.2.0 Ship-Ready Hardening
 
-**Active work:** Phase 43 — upgrade-resilience-verify-matrix-dogfood, on draft PR #23.
+**Active work:** issue #53 upstream bump campaign — an incremental walk of the
+`@opengsd/gsd-core` pin, 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0, one merged PR
+per step. **Steps 1 and 2 are merged** (PR #61 -> `0bfac78e`, PR #62 -> `fce6d8d1`). The pin
+is now **1.8.0**. Step 3 (1.9.1) has not started; this branch is its workspace.
 
-**Status:** 17 of 21 CI jobs green across four workflows (15 of 18 within the CI workflow
-alone). Everything still red is one of three owner **decisions**, not unfinished
-implementation:
+**Phase 43** is no longer the active arc: PR #23 merged 2026-08-29 as `ece379db`, and issues
+ #46, #47 and #48 were closed with evidence before that merge. What remains of Phase 43 is a
+bookkeeping question — 50 PLAN files against 22 SUMMARY files, where it was never established
+whether the 28 gaps are unexecuted or executed-but-unsummarized (several were executed inside
+the 86 commits recovered from an orphaned worktree). Establish that before treating it as
+remaining effort.
 
-- **#46** — perf regression is real: +151 packages (367→504, +41%) → install 1.41x linux /
-  1.39x macOS under paired measurement. Do **not** bump `perf-baseline.json` or loosen a ratio.
-- **#47** — Upgrade Verifier hits npm E409: verdaccio proxies to npmjs where
-  `@chude/get-stuff-done@3.0.2` genuinely exists, so publishing the current version collides.
-- **#48** — Windows perf fix `5b45a921` is correct but **inert**: the job runs
-  `measurement-harness` at pinned SHA `35cbe088`, never PR head. Re-pinning is a
-  trust-boundary change across 6 locations.
+**How to run a bump step:** `MAINTENANCE.md` -> "Forward-porting overrides on an upstream
+bump". It is a mechanical runbook, proven twice. The non-negotiables: never three-way merge an
+override, drop-experiment before porting, verify each port arithmetically, refresh every
+`REASON.md`, and adopt deliberate upstream semantic changes through version-conditional fork
+tests rather than overriding them.
 
-**Upstream:** pinned `@opengsd/gsd-core@1.6.1`; upstream itself is at 1.11.0 (issue #53).
-Do not bump inside Phase 43.
-
-**Next concrete action:** work issues #46, #47, #48. PR #23 cannot go green without them.
+**Next concrete action:** step 3 of the campaign — bump 1.8.0 -> 1.9.1 on this branch.
 
 ---
-*Hand-written 2026-08-28, replacing a 2026-07-01 version that pointed at Phase 41 Plan 04
-(Phase 41 completed 2026-07-03) and asserted STATE.md was "the authoritative resume pointer"
-without the plan-execution qualifier. The GSD PreCompact hook regenerates this file; its
-template was updated in the same commit so regeneration no longer reintroduces that routing.*
+*Hand-written 2026-08-31. The GSD PreCompact hook regenerates this file wholesale from
+STATE.md's first 50 lines on every compaction; its template routes to HANDOFF.json first, so
+regeneration is safe. Durable state belongs in HANDOFF.json, STATE.md, or the phase's
+.continue-here.md — not here.*

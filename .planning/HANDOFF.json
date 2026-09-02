@@ -135,8 +135,8 @@
     },
     {
       "id": "inbox-remaining",
-      "name": "4 active inbox items, all with owners/triggers: memory-nexus health-drift (in-progress, backlog 999.8), authkey gate system (triaged, backlog 999.7), kanbanflow catalog + conversations plan-checker (triaged, execute at the FINAL bump step).",
-      "status": "tracked"
+      "name": "6 active inbox items. HIGH, decision-shaped, next_owner user: 2026-09-01 conversations cost/gate assessment and 2026-09-02 engine-vs-prose plan (D1-D11 unratified; D5/D9 gate step 3 - see bump_arc.sequencing_decision_pending). Owner-tracked: memory-nexus health-drift (in-progress, backlog 999.8), authkey gate system (triaged, backlog 999.7), kanbanflow model-catalog + conversations plan-checker (final bump step; mechanism corrected in next_steps[7]).",
+      "status": "tracked-2-need-user-decision"
     }
   ],
   "next_action": "BLOCKED on the user: decide bump_arc.sequencing_decision_pending (endpoint 1.11.0 vs 1.12.0; gates-first vs continue). Then either step 3 (1.9.1) per MAINTENANCE.md, or phase 1 of the 09-02 plan.",

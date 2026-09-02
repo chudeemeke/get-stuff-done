@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-31T00:15:00Z",
+  "timestamp": "2026-09-02T12:00:00Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
   "pr": "step 2 merged as PR #62; step 3 PR not yet opened",
-  "status": "issue-53-bump-step-2-MERGED-step-3-not-started",
-  "READ_FIRST": "Verify, do not trust: git rev-parse --short HEAD, git worktree list, gh pr checks. The pre-push hook is inert (#49) so every gate below was run by hand and must be re-run by hand. Run the suite as 'bun run test' (never bare 'bun test'); the pass signal is the summary line, never the exit code alone.",
+  "status": "issue-53-bump-step-2-MERGED-step-3-BLOCKED-ON-USER-SEQUENCING-DECISION",
+  "READ_FIRST": "Verify, do not trust: git rev-parse --short HEAD, git worktree list, gh pr checks. The pre-push hook is inert (#49) so every gate must be run by hand. Run the suite as bun run test (never bare bun test); the pass signal is the summary line, never the exit code alone. AS OF 2026-09-02: do NOT start step 3 until the user has decided the two inbox-raised sequencing questions in bump_arc.sequencing_decision_pending.",
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 (user chose 'Walk increments' via AskUserQuestion 2026-08-30)",
     "step": "3 of 5: 1.8.0 -> 1.9.1 (NOT STARTED)",
@@ -33,7 +33,7 @@
       "4. Forward-port only the overrides whose upstream base actually changed (cmp old vs new pure upstream first). Verify each port arithmetically (ported-delta line count == recovered semantic-delta count). Refresh all 9 REASON.md.",
       "5. Evidence: node scripts/run-compat-matrix.js --version 1.9.1 --report .planning/evidence/bump-1.9.1-compat.json, then --apply-matrix-evidence. pruneForBump will auto-stamp evidence.supersededBy on the demoted 1.8.0 row.",
       "6. Gates by hand (pre-push hook inert, #49): bun run lint, lint:docs, compose, bun run test (summary line, not rc), node scripts/check-overrides.js, bash .changelog-conflict-check.sh --self-test. Then PR with the evidence contract, hosted CI green on the FINAL head, review, operator tuicr, squash merge.",
-      "7. The two triaged inbox items (kanbanflow model-catalog opus5, conversations plan-checker effort) execute at the FINAL step (1.11.0) only - verified 1.11.0 fixes neither."
+      "7. The two triaged inbox items (kanbanflow model-catalog opus5, conversations plan-checker effort) execute at the FINAL step. CORRECTION 2026-09-02: the plan-checker effort:low is NOT shipped in agents/*.md and is NOT from a newer installed copy - it is injected at install time by upstream's own resolver (install-effort-resolver.cjs, AGENT_DEFAULT_TIERS light->low) and 1.12.0 still resolves plan-checker to sonnet/low under quality. A bump does not change it; the fix is fork-side (override the tier / route via cross-ai-review) or an upstream PR reclassifying the goal-backward gates. See the 09-01 inbox item, Recommended action 1, and the 09-02 plan D1/D2."
     ],
     "step_3_recipe_pointer": "MAINTENANCE.md -> 'Forward-porting overrides on an upstream bump'. Non-negotiables: never 3-way merge an override; drop-experiment before porting; strip upstream's @typescript-eslint eslint-disable lines; verify the port arithmetically; refresh every REASON.md; adopt deliberate upstream semantic changes via version-conditional fork tests rather than overriding them.",
     "hazards": [
@@ -66,9 +66,20 @@
     ],
     "in_flight": "NONE. Step 2 (1.8.0) MERGED to main as fce6d8d1. This branch (chore/upstream-bump-1.9.1, cut from that main) is the step-3 workspace; no 1.9.1 work has started.",
     "prune_gotcha": "node scripts/vetted-upstream-versions.js --prune-for-bump <new> validates the manifest against the CURRENT authority first, so it FAILS if you advance the authority before pruning. Either prune first, or temporarily set the authority version back to the old pin for the single prune call (what step 2 did), then restore it.",
-    "inbox_checkpoint": "4 active items, all with owners/triggers: authkey gate system (backlog 999.7), memory-nexus health-drift (in-progress, backlog 999.8), kanbanflow model-catalog + conversations plan-checker (both execute at the FINAL bump step, 1.11.0). No new filings needed this session."
+    "inbox_checkpoint": "2026-09-02: 6 active items. NEW and HIGH: 09-01 conversations cost/gate assessment and 09-02 engine-vs-prose split plan (same thread), both triaged with next_owner user - decisions D1-D11 pending ratification, two of which gate step 3 (see sequencing_decision_pending). Unchanged: authkey gate system (backlog 999.7), memory-nexus health-drift (in-progress, backlog 999.8), kanbanflow model-catalog + conversations plan-checker (final bump step; plan-checker mechanism corrected above).",
+    "sequencing_decision_pending": {
+      "raised_by": "docs/inbox/2026-09-01-conversations-framework-cost-and-checker-gate-assessment-against-upstream-1-12-0.md and docs/inbox/2026-09-02-conversations-engine-vs-prose-split-plan-with-owner-decisions.md (both HIGH, both triaged 2026-09-02 with next_owner: user)",
+      "question_1": "ENDPOINT: the campaign was chosen as a walk to 1.11.0 (AskUserQuestion 2026-08-30). Upstream published 1.12.0 on 2026-08-30 and the 09-02 plan (D5) proposes walking to 1.12.0 once, then quarterly. Decide: keep 1.11.0 as the endpoint, or extend the walk by one step to 1.12.0. Either way the per-step recipe is unchanged.",
+      "question_2": "ORDER: the 09-02 plan (D9, phase 1 \"truthful gates\") says close #49 (inert pre-push), #45 (process.exit(0) ends the suite at file 5 with rc 0), #44 (lint red on clean main) BEFORE any further bump step, blocking, on the argument that no gate the fork adds can be trusted until the existing ones report truthfully. Decide: gates first, or continue the walk and take the gates after. Note the fork already works around #49 by running gates by hand.",
+      "what_was_verified_fork_side": "Installed ~/.claude/gsd-core is 1.6.1 (2026-07-14 manifest) while package.json pins 1.8.0: the campaign advances the PACKAGE pin but has never reinstalled the user runtime. Legacy ~/.claude/get-shit-done tree exists. Both true as claimed.",
+      "what_is_NOT_decided_here": "D1-D11 of the 09-02 plan are owner decisions and were NOT ratified at triage. Only the two that change what step 3 does are surfaced here. The rest wait for the user to ratify or override in that inbox item's event log."
+    }
   },
   "human_actions_pending": [
+    {
+      "id": "issue-53-sequencing-decision-2026-09-02",
+      "description": "DECIDE BEFORE STEP 3: (1) campaign endpoint 1.11.0 vs 1.12.0; (2) fix #49/#45/#44 first (blocking) vs continue the walk. Raised by the two HIGH conversations inbox items of 09-01/09-02. Then ratify or override D1-D11 in docs/inbox/2026-09-02-*.md and record outcomes in its event log."
+    },
     {
       "id": "issue-53-upstream-bump",
       "issue": "https://github.com/chudeemeke/get-stuff-done/issues/53",
@@ -105,13 +116,17 @@
     {
       "id": "release-broadcast-absolute-init-paths",
       "description": "AT RELEASE TIME (not now): adopting upstream #2376 changed a consumer-visible output contract - gsd-tools init execute-phase/plan-phase/progress/phase-op now emit ABSOLUTE planning paths anchored on the project root instead of cwd-relative ones. No release of @chude/get-stuff-done was cut this session, so no consumer is running it yet. When a version is published, broadcast to opted-in project inboxes per cross-project-issues.md, because anything parsing those JSON fields (state_path, roadmap_path, config_path, context_path, ...) will see full paths."
+    },
+    {
+      "id": "runtime-install-drift",
+      "description": "Installed ~/.claude/gsd-core is 1.6.1 while the fork pins 1.8.0; every session runs a toolchain two minors behind the fork's own pin, and nothing checks. Reinstall from the current pin and add an installed-VERSION-vs-pin drift check to the staleness gates (09-01 item, action 2; 09-02 plan D8). Legacy ~/.claude/get-shit-done tree is a candidate for deletion (ties to #54 which-copy-is-authoritative)."
     }
   ],
   "remaining_tasks": [
     {
       "id": "issue-53-step-3",
       "name": "Step 3 of 5: bump 1.8.0 -> 1.9.1 following the MAINTENANCE.md runbook. Steps 4 and 5 (1.10.0, 1.11.0) follow the same recipe.",
-      "status": "not_started"
+      "status": "blocked-on-user-decision"
     },
     {
       "id": "phase-43-plan-coverage",
@@ -124,5 +139,6 @@
       "status": "tracked"
     }
   ],
-  "next_action": "Step 3 of the issue #53 campaign: bump @opengsd/gsd-core 1.8.0 -> 1.9.1 on this branch, following MAINTENANCE.md -> \"Forward-porting overrides on an upstream bump\"."
+  "next_action": "BLOCKED on the user: decide bump_arc.sequencing_decision_pending (endpoint 1.11.0 vs 1.12.0; gates-first vs continue). Then either step 3 (1.9.1) per MAINTENANCE.md, or phase 1 of the 09-02 plan.",
+  "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo."
 }

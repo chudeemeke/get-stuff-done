@@ -161,3 +161,23 @@ Required surfaces for every active escape hatch:
 | ID | test-path | platform | issue | deadline | reviewer | status |
 |----|-----------|----------|-------|----------|----------|--------|
 | N/A | N/A | all | N/A | N/A | N/A | No active REL-03 skips |
+
+## Retained local patch generations
+
+Before an update invokes the upstream installer, the wrapper preserves an
+existing `gsd-local-patches/` tree together with its `gsd-pristine/` baseline
+under the installation's `gsd-local-patch-history/before-update-*/` directory.
+Each generation retains the original backup metadata and file bytes. The
+upstream installer may then replace its active backup without destroying the
+older generation. A failed install restores the prior active backup as well.
+
+Archives are copied under `incomplete-*` and renamed only after both available
+trees are copied. An interrupted copy is not a completed generation. Linked or
+special backup entries cause refusal before the upstream installer runs.
+These checks do not claim protection against concurrent filesystem replacement.
+
+The maintainer owns reconciliation: inspect a generation's `backup-meta.json`,
+patches and matching pristine baseline together before porting authored changes.
+Do not combine metadata across generations or automatically reapply an older
+baseline. Retain a generation until its authored changes have been reconciled
+and the replacement verified; deletion is an explicit cleanup decision.

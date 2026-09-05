@@ -285,6 +285,9 @@ function preflightInstallTarget(targetDir, distDir) {
 
 function createInstallTransaction(targetDir, distDir) {
   preflightInstallTarget(targetDir, distDir);
+  for (const name of ['gsd-local-patches', 'gsd-pristine']) {
+    assertRegularBackupTree(path.join(targetDir, name));
+  }
   const snapshotDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-install-transaction-'));
   const distOverlayFiles = readDistOverlayManifest(distDir);
   const relPaths = new Set([
@@ -295,6 +298,8 @@ function createInstallTransaction(targetDir, distDir) {
     '.overlay-manifest.json',
     '.install-meta.json',
     'settings.json',
+    'gsd-local-patches',
+    'gsd-pristine',
   ]);
   const snapshots = [];
 
@@ -326,6 +331,42 @@ function createInstallTransaction(targetDir, distDir) {
     distOverlayFiles,
     snapshots,
   };
+}
+
+// Refuse linked/special backup content rather than following it outside the target.
+function assertRegularBackupTree(entry) {
+  const stat = fs.lstatSync(entry, { throwIfNoEntry: false });
+  if (!stat) return;
+  if (stat.isDirectory()) {
+    for (const name of fs.readdirSync(entry)) assertRegularBackupTree(path.join(entry, name));
+  } else if (!stat.isFile()) {
+    throw new Error(`Cannot preserve non-regular local patch content: ${entry}`);
+  }
+}
+
+function preserveLocalPatchHistory(transaction) {
+  const patches = transaction.snapshots.find(item => item.relPath === 'gsd-local-patches');
+  if (!patches.existed) return null;
+  const history = path.join(transaction.targetDir, 'gsd-local-patch-history');
+  const stat = fs.lstatSync(history, { throwIfNoEntry: false });
+  if (stat && !stat.isDirectory()) throw new Error(`Unsafe local patch history directory: ${history}`);
+  fs.mkdirSync(history, { recursive: true });
+  const staging = fs.mkdtempSync(path.join(history, 'incomplete-'));
+  const generation = path.join(history, path.basename(staging).replace(/^incomplete-/, 'before-update-'));
+  try {
+    for (const name of ['gsd-local-patches', 'gsd-pristine']) {
+      const snapshot = transaction.snapshots.find(item => item.relPath === name);
+      if (snapshot.existed) copySnapshotPath(snapshot.snapshotPath, path.join(staging, name));
+    }
+    fs.renameSync(staging, generation);
+  } catch (err) {
+    fs.rmSync(staging, { recursive: true, force: true });
+    throw err;
+  }
+  // This retained generation intentionally outlives both commit and rollback.
+  // Keep complete metadata/baselines together; merging inventories from different
+  // upstream generations would misrepresent the provenance used by reapply.
+  return generation;
 }
 
 function rollbackInstallTransaction(transaction) {
@@ -881,7 +922,10 @@ function install(distDir, targetDir, userArgs, options = {}) {
 
   try {
     transaction = createInstallTransaction(targetDir, distDir);
+    const patchHistory = preserveLocalPatchHistory(transaction);
+    if (patchHistory) logImpl(`  Local patch generation preserved: ${patchHistory}`);
   } catch (err) {
+    if (transaction) commitInstallTransaction(transaction);
     errorImpl(`${red}Error:${reset} ${err.message}`);
     exitImpl(1);
     return Promise.resolve({

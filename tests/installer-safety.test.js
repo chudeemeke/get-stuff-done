@@ -174,6 +174,8 @@ describe('installer transaction safety', { timeout: SUBPROCESS_TIMEOUT }, () => 
       '.install-meta.json',
       '.overlay-manifest.json',
       'gsd-file-manifest.json',
+      'gsd-local-patches',
+      'gsd-pristine',
       'hooks/gsd-statusline.js',
       'hooks/pre-compact.js',
       'settings.json',
@@ -260,6 +262,117 @@ describe('installer transaction safety', { timeout: SUBPROCESS_TIMEOUT }, () => 
     expect(fs.existsSync(path.join(targetDir, 'hooks', 'gsd-statusline.js'))).toBe(false);
     expect(JSON.parse(fs.readFileSync(path.join(targetDir, 'settings.json'), 'utf-8'))).toEqual({ theme: 'dark' });
   });
+
+  for (const upstreamStatus of [0, 1]) {
+    test(`a later install preserves earlier patch generations before upstream runs (status ${upstreamStatus})`, async () => {
+      const distDir = writeMockDist(tmpDir.path);
+      const targetDir = path.join(tmpDir.path, 'target');
+      const patches = path.join(targetDir, 'gsd-local-patches');
+      const pristine = path.join(targetDir, 'gsd-pristine');
+      fs.mkdirSync(path.join(patches, 'hooks'), { recursive: true });
+      fs.mkdirSync(path.join(pristine, 'hooks'), { recursive: true });
+      const oldMeta = JSON.stringify({ files: ['hooks/gsd-statusline.js', 'retained.md'], pristine_hashes: { 'hooks/gsd-statusline.js': 'old-hash' } });
+      fs.writeFileSync(path.join(patches, 'backup-meta.json'), oldMeta);
+      fs.writeFileSync(path.join(patches, 'hooks/gsd-statusline.js'), 'authored customization');
+      fs.writeFileSync(path.join(patches, 'retained.md'), 'older patch absent from new manifest');
+      fs.writeFileSync(path.join(pristine, 'hooks/gsd-statusline.js'), 'old pristine baseline');
+      const messages = [];
+      let firstGeneration;
+      const options = {
+        spawnImpl: () => {
+          const history = path.join(targetDir, 'gsd-local-patch-history');
+          const generations = fs.readdirSync(history);
+          expect(generations.length).toBeGreaterThan(0);
+          firstGeneration ||= generations[0];
+          const generation = path.join(history, firstGeneration);
+          expect(fs.readFileSync(path.join(generation, 'gsd-local-patches/backup-meta.json'), 'utf8')).toBe(oldMeta);
+          expect(fs.readFileSync(path.join(generation, 'gsd-local-patches/hooks/gsd-statusline.js'), 'utf8')).toBe('authored customization');
+          expect(fs.readFileSync(path.join(generation, 'gsd-local-patches/retained.md'), 'utf8')).toBe('older patch absent from new manifest');
+          expect(fs.readFileSync(path.join(generation, 'gsd-pristine/hooks/gsd-statusline.js'), 'utf8')).toBe('old pristine baseline');
+          // Reproduce upstream saveLocalPatches overwriting the same file and its inventory.
+          fs.writeFileSync(path.join(patches, 'hooks/gsd-statusline.js'), 'generated overlay');
+          fs.writeFileSync(path.join(patches, 'backup-meta.json'), JSON.stringify({ files: ['hooks/gsd-statusline.js'] }));
+          fs.writeFileSync(path.join(pristine, 'hooks/gsd-statusline.js'), 'new baseline');
+          return spawnThatExits(upstreamStatus)();
+        },
+        exitImpl: () => {}, logImpl: text => messages.push(text), errorImpl: () => {},
+      };
+      const result = await install(distDir, targetDir, ['--claude'], options);
+      expect(result.status).toBe(upstreamStatus);
+      expect(result.failureStep).toBe(upstreamStatus === 0 ? undefined : 'upstream');
+      expect(messages.join('\n')).toContain('gsd-local-patch-history');
+      if (upstreamStatus !== 0) {
+        expect(fs.readFileSync(path.join(patches, 'backup-meta.json'), 'utf8')).toBe(oldMeta);
+        expect(fs.readFileSync(path.join(patches, 'hooks/gsd-statusline.js'), 'utf8')).toBe('authored customization');
+        expect(fs.readFileSync(path.join(pristine, 'hooks/gsd-statusline.js'), 'utf8')).toBe('old pristine baseline');
+      } else {
+        const second = await install(distDir, targetDir, ['--claude'], options);
+        expect(second.status).toBe(0);
+        const history = path.join(targetDir, 'gsd-local-patch-history');
+        const generations = fs.readdirSync(history);
+        expect(generations.length).toBe(2);
+        const secondGeneration = path.join(history, generations.find(name => name !== firstGeneration));
+        expect(JSON.parse(fs.readFileSync(path.join(secondGeneration, 'gsd-local-patches/backup-meta.json'), 'utf8'))).toEqual({ files: ['hooks/gsd-statusline.js'] });
+        expect(fs.readFileSync(path.join(secondGeneration, 'gsd-local-patches/hooks/gsd-statusline.js'), 'utf8')).toBe('generated overlay');
+        expect(fs.readFileSync(path.join(secondGeneration, 'gsd-pristine/hooks/gsd-statusline.js'), 'utf8')).toBe('new baseline');
+      }
+    });
+  }
+
+  test('failed archive copy cannot expose a partial completed generation or spawn upstream', async () => {
+    const distDir = writeMockDist(tmpDir.path);
+    const targetDir = path.join(tmpDir.path, 'target');
+    for (const name of ['gsd-local-patches', 'gsd-pristine']) {
+      fs.mkdirSync(path.join(targetDir, name), { recursive: true });
+      fs.writeFileSync(path.join(targetDir, name, 'keep.txt'), name);
+    }
+    const copy = fs.cpSync;
+    let spawned = false;
+    try {
+      fs.cpSync = (source, destination, options) => {
+        if (destination.includes('gsd-local-patch-history') && path.basename(destination) === 'gsd-pristine') {
+          throw new Error('intentional archive copy failure');
+        }
+        return copy(source, destination, options);
+      };
+      const result = await install(distDir, targetDir, ['--claude'], {
+        spawnImpl: () => { spawned = true; return spawnThatExits(0)(); },
+        exitImpl: () => {}, logImpl: () => {}, errorImpl: () => {},
+      });
+      expect(result.status).toBe(1);
+      expect(result.error.message).toContain('intentional archive copy failure');
+      expect(spawned).toBe(false);
+      expect(fs.readdirSync(path.join(targetDir, 'gsd-local-patch-history'))).toEqual([]);
+      for (const name of ['gsd-local-patches', 'gsd-pristine']) {
+        expect(fs.readFileSync(path.join(targetDir, name, 'keep.txt'), 'utf8')).toBe(name);
+      }
+    } finally { fs.cpSync = copy; }
+  });
+
+  for (const linkedPath of ['gsd-local-patches', 'gsd-pristine', 'gsd-local-patches/nested', 'gsd-local-patch-history']) {
+    test(`install refuses linked backup content at ${linkedPath} before upstream mutation`, async () => {
+      const distDir = writeMockDist(tmpDir.path);
+      const targetDir = path.join(tmpDir.path, 'target');
+      const outside = path.join(tmpDir.path, 'outside');
+      fs.mkdirSync(path.join(targetDir, 'gsd-local-patches'), { recursive: true });
+      fs.mkdirSync(outside);
+      fs.writeFileSync(path.join(outside, 'owner.txt'), 'untouched');
+      const link = path.join(targetDir, linkedPath);
+      if (fs.existsSync(link)) fs.rmdirSync(link);
+      fs.symlinkSync(outside, link, process.platform === 'win32' ? 'junction' : 'dir');
+      let spawned = false;
+      const errors = [];
+      const result = await install(distDir, targetDir, ['--claude'], {
+        spawnImpl: () => { spawned = true; return spawnThatExits(0)(); },
+        exitImpl: () => {}, logImpl: () => {}, errorImpl: text => errors.push(text),
+      });
+      expect(result.status).toBe(1);
+      expect(result.failureStep).toBe('preflight');
+      expect(spawned).toBe(false);
+      expect(errors.join('\n')).toMatch(/non-regular|Unsafe local patch history/);
+      expect(fs.readFileSync(path.join(outside, 'owner.txt'), 'utf8')).toBe('untouched');
+    });
+  }
 });
 
 // ---------------------------------------------------------------------------

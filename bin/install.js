@@ -102,10 +102,12 @@ function resolveTargetDir(argv) {
   const hasLocal = argv.includes('--local');
   const hasOpencode = argv.includes('--opencode');
   const hasGemini = argv.includes('--gemini');
+  const hasCodex = argv.includes('--codex');
 
   if (hasLocal) {
     if (hasOpencode) return path.join(process.cwd(), '.opencode');
     if (hasGemini) return path.join(process.cwd(), '.gemini');
+    if (hasCodex) return path.join(process.cwd(), '.codex');
     return path.join(process.cwd(), '.claude');
   }
 
@@ -123,6 +125,11 @@ function resolveTargetDir(argv) {
   if (hasGemini) {
     if (process.env.GEMINI_CONFIG_DIR) return process.env.GEMINI_CONFIG_DIR;
     return path.join(os.homedir(), '.gemini');
+  }
+
+  if (hasCodex) {
+    if (process.env.CODEX_HOME) return process.env.CODEX_HOME;
+    return path.join(os.homedir(), '.codex');
   }
 
   // Default: Claude
@@ -1015,6 +1022,7 @@ async function main() {
     console.log(`    ${cyan}--claude${reset}                  Install for Claude Code`);
     console.log(`    ${cyan}--opencode${reset}                Install for OpenCode`);
     console.log(`    ${cyan}--gemini${reset}                  Install for Gemini`);
+    console.log(`    ${cyan}--codex${reset}                   Install for Codex`);
     console.log(`    ${cyan}--all${reset}                     Install for all runtimes`);
     console.log(`    ${cyan}-g, --global${reset}              Install globally`);
     console.log(`    ${cyan}-l, --local${reset}               Install locally`);

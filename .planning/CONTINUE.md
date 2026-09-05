@@ -47,7 +47,7 @@ tests rather than overriding them.
 
 **Next concrete action:** finish1.9.1 full pre-push and final-head hosted gates,
 then PR integration. The bounded port review found no actionable findings.
-PR65's explicit TAP fix is staged here; its TierD merge decision remains pending.
+PR65 was approved and merged as f77b38d8. PR69 now needs refreshed gates after c9ecc23c corrected two installer review findings. PR67 has20 green checks and a concrete owner merge question pending.
 Independent installer work is in PR66 (drift plus Codex target correction),
 PR67 (hook bootstrap), and PR68 (patch preservation). Resolve current heads and
 checks before integration. D1-D11 remain resolved; no new strategic audit.
@@ -57,3 +57,16 @@ checks before integration. D1-D11 remain resolved; no new strategic audit.
 STATE.md's first 50 lines on every compaction; its template routes to HANDOFF.json first, so
 regeneration is safe. Durable state belongs in HANDOFF.json, STATE.md, or the phase's
 .continue-here.md — not here.*
+
+## September 5 abrupt-session recovery
+
+The corrected 1.9.1 compatibility retry passed 316/316 and its evidence is
+applied and validated. PR70 contains the research digest at 573d9f91, with a
+successful 1712-test pre-push; actual planner consumption remains open.
+PR68's initial strict installer coverage measurement failed (83.83 statements,
+78.43 branches, 82.35 functions, 83.83 lines), despite 60 passing safety tests.
+This is an active agent-owned merge blocker, not an accepted exception. Reuse
+existing tests and repair meaningful failure-path coverage under the shared
+Tier S contract. No user runtime was activated. All five auxiliary worktrees
+are under this repository's existing `.claude/worktrees/`; do not create new
+top-level `C:/Projects` folders without express consent.

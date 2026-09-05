@@ -39,8 +39,8 @@
       "blocking": true,
       "vettedAt": "2026-09-05",
       "evidence": {
-        "matrixReport": ".planning/evidence/bump-1.9.1-compat.json",
-        "matrixReportSha256": "06f41461e26d4ff16bf76f8cc4d873b85ba16e536d33618bbf0824c9559dafcd",
+        "matrixReport": ".planning/evidence/bump-1.9.1-compat-installer-review-retry.json",
+        "matrixReportSha256": "75df5a0694d64194ceaed42f6cca481a801ebf9fc32173753d0db4e5170e2e81",
         "status": "passed"
       }
     }

@@ -5,8 +5,7 @@ Source: `@opengsd/gsd-core@1.9.1`; release tag commit
 The npm integrity is recorded in bun.lock and the retained pack receipt.
 
 After PR64 and PR63 merged, the campaign integrated main `b1f10321`.
-PR65's exact TAP fix is staged by cherry-pick `e29b75c6`; its merge approval
-is pending separately. The bump does not bypass that owner gate.
+PR65's exact TAP fix was approved and merged as `f77b38d8`. Main is integrated.
 
 No-override candidate run:302pass,14fail,0skip,11suites,exit1. Same failing
 assertions as the corrected 1.8.0 experiment, so no adoption-test changes were
@@ -15,7 +14,7 @@ needed. Full suite TAP and failure dispositions are retained in
 
 | Override | Disposition and retained behavior | Adoption / retirement trigger |
 |---|---|---|
-| bin/install.js | Retain null-frontmatter guard and uninstall source-marker cleanup | New installer base adopted; retire each patch when candidate installer fixtures pass without it |
+| bin/install.js | Retain null-frontmatter guard, source-marker cleanup, shared-default rollback and correct Kimi Code help | New installer base adopted; retire each patch when candidate installer fixtures pass without it |
 | init.cjs | Retain STATE current-phase preference and roadmap-only next phase | Adopt upstream shared verification router; helper insertion moved after upstream refactor; negative init assertions remain red without skin |
 | plan-scan.cjs | Retain derivative exclusion and bounded PLAN token matching | Fresh base plus two narrow regex changes; negative roadmap classification assertions |
 | roadmap-parser.cjs | Retain body/active milestone authority and scoped shared details | Keep new unreadable-roadmap diagnostic path; selection is inserted inside existing guarded read; negative stale-frontmatter assertion |
@@ -58,3 +57,24 @@ Independent bounded review of commit 060f5b1a against both pure packages and
 the five authoritative 1.9.1 TypeScript source files found no actionable
 findings (local-confidence-high). The review specifically verified the three
 manual resolutions and did not rerun tests or independently validate receipts.
+
+Pure1.12 installed-effort diagnostic now exercises actual repair followed by
+no-op sync in isolated Windows Claude and Codex homes. Claude checker returns
+to high effort; Codex removes stale Anthropic model/effort pins and inherits
+native host configuration. All three native plan/execute/namespace routes
+exist, including Codex's `.agents/skills` location. Installed helper hashes
+match the prior pure-release receipt. See
+`skin-1.12-pure-effort-write-probe.json`. The temporary agent/config bytes were
+restored after the probe. This does not close final composed-skin or fresh
+session acceptance; installedSkinAcceptance remains false.
+
+The post-review1.9.1 matrix report
+`bump-1.9.1-compat-installer-review.json` records315 passes and one Windows
+PowerShell ETIMEDOUT in roadmap preservation. It is retained as failed evidence
+and was not applied to the vetted manifest. Fresh complete evidence is required.
+
+Recovery after interruption verified the complete retry report
+`bump-1.9.1-compat-installer-review-retry.json`: 316 passed, zero failed or
+skipped, exit 0, generated 2026-09-05T09:31:15Z. This report is now applied to
+the vetted manifest and `--validate` passes. Full candidate pre-push and hosted
+checks still need refreshing after the installer corrections.

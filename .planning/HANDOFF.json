@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-05T05:58:23.8445643Z",
+  "timestamp": "2026-09-05T09:51:54.4687604Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
-  "pr": "PR69 draft at7a745038: 1.9.1 candidate. PR65-68 delivery/gate fixes remain open; PR64/63 merged.",
+  "pr": "PR69 remains draft: local 1d8bb387 contains c9ecc23c installer corrections and fixture-cache correction. Compatibility retry 316/316 applied; refreshed full push and final-head hosted gates required. PR70 draft published at 573d9f91. PR67 owner answer pending.",
   "status": "skin-contract-executing-step3-1.9.1",
   "READ_FIRST": "D1-D11 were ratified or overridden on 2026-09-05 and remain binding. Execute September 5 skin completion contract; do not restart strategic audit or ask for ratification again. Read .planning/SKIN-COMPLETION.md. Refresh git and exact-head CI before integration. Preserve untracked coverage/ and get-stuff-done/memory/. Run bun run test and check both suite summary and exit code.",
   "bump_arc": {
@@ -17,31 +17,26 @@
       "checks": "20/20 SUCCESS on final head 2d83742a"
     },
     "evidence": {
-      "matrix": ".planning/evidence/bump-1.9.1-compat.json: serial formal matrix 316 pass, 0 fail, 0 skip, 11 suites, exit 0. Earlier timing failure retained separately.",
+      "matrix": ".planning/evidence/bump-1.9.1-compat-installer-review-retry.json: generated 2026-09-05T09:31:15Z, 316 passed, zero failed/skipped, 11 suites, exit 0. Prior failed report retained.",
       "applied": "Applied successful 1.9.1 report on 2026-09-05; vetted manifest --validate verified contained evidence hash. Historical 1.7/1.8 rows retain own superseded evidence.",
-      "gates": "1.9.1 lint 0 errors / 809 warnings, docs 0 issues, override hashes fresh, CRLF regression pass, bounded independent port review clear. Full pre-push and hosted final-head checks pending.",
-      "full_suite": "Actual pre-push at7a745038:1680pass,0fail,5779assertions,251.34s,exit0 under Bun1.3.5. New directory-link test subsequently passed focused1test/2assertions; final push and hosted CI still required."
+      "gates": "Corrections c9ecc23c: composed installer 3 passed, 0 failed, 14 assertions; bounded formal review no findings. Refreshed compatibility 316/316 applied and validated. Full pre-push and new hosted checks still required.",
+      "full_suite": "Historical df0d3f9c candidate pre-push: 1681 passed, zero failed, 5781 assertions. This predates the new installer corrections and does not satisfy their final-head gate."
     },
-    "known_local_false_reds": [
-      "platform.test.js 'NO_COLOR env var disables color' - ambient FORCE_COLOR=3 in this shell. Passes in CI.",
-      "verify-upgrade.test.js 'rejects an oversized real registry identity response' - local bun 1.4.0 vs pinned 1.3.5 stream behavior. Pinned CI is the authority."
-    ],
+    "known_local_false_reds": [],
     "next_steps": [
-      "PR64 and PR63 merged; #45 gate fixed. Main b1f10321 integrated. PR65 TAP fix staged, owner merge approval pending. PR66 drift/Codex target, PR67 hook bootstrap, PR68 patch preservation proceed alongside the walk.",
-      "1. Step 3 (1.8.0 -> 1.9.1): follow MAINTENANCE.md -> \"Forward-porting overrides on an upstream bump\" verbatim. It is now a mechanical runbook proven twice.",
-      "2. Sequence: bun install --ignore-scripts the 1.9.1 pin; advance the pin in package.json + .planning/upstream-authority.json + the embedded authority in scripts/lib/upstream-source.js; --prune-for-bump the manifest (NOTE: prune reads the authority, so run it BEFORE advancing the authority or temporarily set the authority back - see gotcha below); re-aim the Upgrade Verifier --from 1.9.1 --to 1.10.0; shift the N=3 compat set to 1.7.0/1.8.0/1.9.1 (script constant + tests/upstream-compat-contract.json + the two contract-mirroring test files - tests/run-upstream-compat.test.js and tests/run-upstream-compat-ci.test.js - via a descending-order string replace (1.8.0 first, then 1.7.0, then 1.6.1, so earlier replacements are not re-matched)).",
-      "3. After adoption corrections, compose the candidate using a scratch overlay directory with no sibling overrides. Run the TAP-explicit compat runner and retain full per-assertion reports. Never rename the live override tree; an all-drop result does not prove each override individually.",
-      "4. Forward-port only the overrides whose upstream base actually changed (cmp old vs new pure upstream first). Verify each retained behavior with candidate-bound tests; line counts are not semantic proof. Refresh all 9 REASON.md.",
-      "Run actual bootstrapped pre-push with pinned Bun 1.3.5, then final-head hosted CI and canonical September 2 Tier M/D review and sign-off policy. Do not treat stale mandatory-tuicr prose as current policy.",
-      "6. Gates by hand (pre-push hook inert, #49): bun run lint, lint:docs, compose, bun run test (summary line, not rc), node scripts/check-overrides.js, bash .changelog-conflict-check.sh --self-test. Then PR with the evidence contract, hosted CI green on the FINAL head, review, operator tuicr, squash merge.",
-      "7. The two triaged inbox items (kanbanflow model-catalog opus5, conversations plan-checker effort) plus the ratified D1 checker-tier override, D2 cross-vendor routing and D7 editor-hook exclusions (kanbanflow model-catalog opus5, conversations plan-checker effort) execute at the FINAL step. CORRECTION 2026-09-02: the plan-checker effort:low is NOT shipped in agents/*.md and is NOT from a newer installed copy - it is injected at install time by upstream's own resolver (install-effort-resolver.cjs, AGENT_DEFAULT_TIERS light->low) and 1.12.0 still resolves plan-checker to sonnet/low under quality. A bump does not change it; the fix is fork-side (override the tier / route via cross-ai-review) or an upstream PR reclassifying the goal-backward gates. See the 09-01 inbox item, Recommended action 1, and the 09-02 plan D1/D2."
+      "PR64, PR63 and approved PR65 are merged, latest main f77b38d8. Preserve separate final-head gates and owner merge decisions for PR66-69.",
+      "Commit applied 1.9.1 compatibility retry and recovery records; run full pre-push and push corrected candidate, then inspect final-head hosted checks and resolve corrected review threads.",
+      "After1.9.1 merges, follow existing MAINTENANCE forward-port runbook for1.10,1.11,1.12, each a separate merged PR. Preserve negative experiments and behavior-based override ledger; do not infer semantics from line counts.",
+      "At final1.12 execute ratified D1/D2 checker judgment and live cross-vendor routing, D4 subagent-planner digest consumption and D7 editor/graphify exclusions. Schema presence does not close D3 writer fixtures.",
+      "Use the actual bootstrapped pre-push gate with Bun1.3.5, final-head hosted CI, bounded review and canonical September2 TierM/D sign-off. An existing low-effort historical note is not current runtime evidence.",
+      "Finish .planning/SKIN-COMPLETION.md installation, staged update, rollback, interruption/recovery and D11 comparison criteria. No source/merge result authorizes a completion claim without those receipts."
     ],
     "step_3_recipe_pointer": "MAINTENANCE.md forward-port runbook, corrected by September5 contract: adoption tests before negative experiment; classify each assertion; line counts do not prove semantic preservation.",
     "hazards": [
       "A compat-matrix run reads the LIVE tests/ tree. Do not edit test files while one runs in the background - a mid-edit run produced 4 phantom init failures that cost real diagnosis time.",
       "node --test tests/<x>.test.cjs from the repo root proves NOTHING about the pinned upstream unless GSD_COMPAT_PACKAGE_ROOT points at a composed candidate: the default legacy root is the stale repo-root get-stuff-done/ v2.4.0 self-install. This is exactly how a genuine 1.8.0 regression looked green locally.",
       "sha256sum on Windows backslash paths prefixes output with a backslash - compare with cmp or normalized paths.",
-      "PR perf legs re-roll windows noise dice per commit - batch changes before pushing.",
+      "Windows performance failures need preserved raw comparison evidence and diagnosis; do not assume noise or change thresholds to obtain green.",
       "Legacy tracked get-stuff-done/ dir is the LEGACY_PACKAGE_ROOT default and sync.test.cjs's symlink shim collides with it - do NOT delete it casually; the owner decision must account for this.",
       "memory sync --embed rewrites MEMORY.md (it owns the <!-- memory-cli --> block) and can race a hand-edit made in the same session. After running it, re-grep any MEMORY.md line you edited by hand before trusting it. A persistence-verification agent read a stale copy of exactly that line this session.",
       "bun run audit:ci (scripts/audit-check.js) spawns bun --version and fails closed with 'Bun runtime does not match the repository version authority' on this host's bun 1.4.0. To run it locally: npx -y -p bun@1.3.5 bun --version (downloads the pinned bun into the npx cache), find its bun.exe under ~/AppData/Local/npm-cache/_npx/*/node_modules/@oven/bun-windows-x64-baseline/bin, put THAT directory (POSIX form) first on PATH, then bun run audit:ci. The sh shim in node_modules/.bin is not enough because spawnSync resolves bun.exe, not the shim. Verified 2026-09-05.",
@@ -67,7 +62,7 @@
       "Fixed init.test.cjs binding to the legacy package root (it silently tested the stale repo-root get-stuff-done/ dir on direct runs).",
       "MAINTENANCE.md gained a 'Forward-porting overrides on an upstream bump' runbook - the mechanical recipe + the arithmetic verification step + the two traps."
     ],
-    "in_flight": "TWO Tier-M PRs open (2026-09-05), both must merge before step 3: PR #64 security/fast-uri-3.1.6 (override 3.1.5->3.1.6 for four HIGH GHSA advisories published 2026-09-02; Audit CI + OSV were red on EVERY PR since main last ran green 2026-08-31) and PR #63 fix/sync-test-skip-without-process-exit (closes #45; all test lanes green, only Audit CI/OSV red = the fast-uri set). Order: merge #64 when hosted CI is green -> merge origin/main into fix/sync-test-skip-without-process-exit and push -> CI reruns -> merge #63 -> merge origin/main into chore/upstream-bump-1.9.1 -> step 3. #44 CLOSED 2026-09-05 with evidence (fixed by ece379db). #49 still open, non-blocking.",
+    "in_flight": "PR64, PR63 and approved PR65 merged. PR66 has unpushed performance diagnostics/cache fixes after Windows budget failure. PR67 has 20 successful checks and owner merge answer pending. PR68 has patch history and transaction corrections; installer coverage remains a failed gate. PR69 compatibility retry passed after correction, full push/hosted refresh pending. PR70 draft digest published; planner consumption remains open.",
     "prune_gotcha": "node scripts/vetted-upstream-versions.js --prune-for-bump <new> validates the manifest against the CURRENT authority first, so it FAILS if you advance the authority before pruning. Either prune first, or temporarily set the authority version back to the old pin for the single prune call (what step 2 did), then restore it.",
     "inbox_checkpoint": "2026-09-05: 10 active items triaged in .planning/SKIN-COMPLETION.md. D1-D11 resolved; no pending ratification. Authkey999.7 and health999.8 retain existing activation triggers.",
     "sequencing_decision_resolved": {
@@ -95,7 +90,11 @@
       },
       "status": "RESOLVED 2026-09-05: all eleven decisions ratified or overridden by the user via AskUserQuestion. See decisions_recorded_2026_09_05 and the ratification section in the 09-02 inbox item."
     },
-    "prs_in_flight_2026_09_05": {
+    "historical_environment_notes": [
+      "platform.test.js 'NO_COLOR env var disables color' - ambient FORCE_COLOR=3 in this shell. Passes in CI.",
+      "verify-upgrade.test.js 'rejects an oversized real registry identity response' - local bun 1.4.0 vs pinned 1.3.5 stream behavior. Pinned CI is the authority."
+    ],
+    "historical_pr_snapshots": {
       "pr_64": {
         "url": "https://github.com/chudeemeke/get-stuff-done/pull/64",
         "branch": "security/fast-uri-3.1.6",
@@ -117,15 +116,6 @@
   },
   "human_actions_pending": [
     {
-      "id": "legacy-self-install-dir",
-      "description": "DECIDE: tracked legacy get-stuff-done/ dir at repo root (101 files, v2.4.0 self-install, on main since a11cb569). Remove or keep? It is the LEGACY_PACKAGE_ROOT default for direct .test.cjs runs and sync.test.cjs's symlink shim collides with it. Ties into #54."
-    },
-    {
-      "id": "issue-54-resume-command",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/54",
-      "description": "DECIDE + FIX: /gsd:resume-work broken (55/58 .claude/commands/gsd/ files import the deleted iCloud path). Decide which GSD copy is authoritative, then rewrite paths."
-    },
-    {
       "id": "issue-51-governance-branch",
       "issue": "https://github.com/chudeemeke/get-stuff-done/issues/51",
       "description": "DECIDE: land or discard docs/pr-issue-evidence-workflow. Landing creates the type:* labels git-workflow.md calls standard."
@@ -142,6 +132,11 @@
     {
       "id": "release-broadcast-absolute-init-paths",
       "description": "AT RELEASE TIME (not now): adopting upstream #2376 changed a consumer-visible output contract - gsd-tools init execute-phase/plan-phase/progress/phase-op now emit ABSOLUTE planning paths anchored on the project root instead of cwd-relative ones. No release of @chude/get-stuff-done was cut this session, so no consumer is running it yet. When a version is published, broadcast to opted-in project inboxes per cross-project-issues.md, because anything parsing those JSON fields (state_path, roadmap_path, config_path, context_path, ...) will see full paths."
+    },
+    {
+      "description": "Concrete TierD merge brief filed in owning inbox. Final a62f25bd has20 green checks and no remaining review findings. Async owner answer pending.",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/pull/67",
+      "id": "pr67-hooks-signoff"
     }
   ],
   "remaining_tasks": [
@@ -159,8 +154,35 @@
       "id": "skin-completion",
       "name": "Execute all acceptance rows in .planning/SKIN-COMPLETION.md; installation, recovery, updates and comparison remain unverified.",
       "status": "in-progress"
+    },
+    {
+      "name": "Content authority is recovered in .planning/RUNTIME-AUTHORITY.md with authored inventory/backups. GSD owns final1.12 delivery and conflict recheck; ask only if new competing authored bytes prevent a safe choice.",
+      "status": "in-progress",
+      "id": "runtime-authority-delivery"
+    },
+    {
+      "name": "GSD retains tracked legacy get-stuff-done tree while direct test fallback depends on it. Reassess removal only after candidate-bound test migration and verified backup; do not treat its version as current upstream authority.",
+      "status": "tracked",
+      "id": "legacy-test-fallback"
     }
   ],
-  "next_action": "Finish latest PR66 push, then push PR69 added link-escape test and desktop preservation receipts. Check all final-head hosted CI and present concrete TierD briefs for PR65-69; no owner answer yet for PR65. Do not merge a dependent PR to bypass that gate. Continue fixed walk only after each prior step merges; no D1-D11 re-ratification.",
-  "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo."
+  "next_action": "Finish corrected 1.9.1 full pre-push and final-head hosted gates. Continue installer Tier S coverage and transaction safety work; do not merge failed coverage. PR67 owner answer remains pending, PR69 previous brief held. Execute remaining fixed walk and D1-D11 criteria without strategic re-audit.",
+  "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
+  "workspace_recovery": {
+    "executionCheckpoint": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/execution-checkpoint.json",
+    "rule": "No new top-level C:/Projects project/temp/worktree directories without express consent.",
+    "campaign": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign",
+    "auxiliaryContainer": "C:/Projects/get-stuff-done/.claude/worktrees",
+    "primary": "C:/Projects/get-stuff-done",
+    "relocationReceipt": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/worktree-relocation.json"
+  },
+  "recovered_after_abrupt_end": {
+    "external_checkpoint": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/execution-checkpoint.json",
+    "date": "2026-09-05",
+    "installer": "PR68 local snapshot cleanup and duplicate child-event regression fixes: expanded Node suite 90 passed. Coverage 96.53 statements/lines, 94.11 functions, 92.95 branches; Tier S gate still FAILED. Full package coverage compliance not established.",
+    "contract_complete": false,
+    "digest": "PR70 573d9f91 pushed; 1712 passing full pre-push tests. Digest-only coverage 100 percent each with 11 mutants killed. Planner consumption not implemented.",
+    "user_runtime_activated": false,
+    "current_worktrees": "C:/Projects/get-stuff-done/.claude/worktrees/"
+  }
 }

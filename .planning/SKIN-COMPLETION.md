@@ -99,7 +99,7 @@ and backup those before activation/removal. Active inbox ignores stay intact.
   Its earlier PowerShell timeout remains recorded with the original threshold.
   Bounded independent port review found no actionable findings. CRLF statusline
   regression passes. Full pre-push and hosted final-head gates remain open.
-- PR65 now includes main at 801650c3; owner merge decision remains pending.
+- PR65 was approved and merged as f77b38d8 after19 successful checks.
 - PR66 local work additionally corrects Codex target selection and tilde home
   expansion. Isolated real Codex installation writes matching metadata and
   VERSION under CODEX_HOME and does not create a Claude directory. Latest local
@@ -107,3 +107,62 @@ and backup those before activation/removal. Active inbox ignores stay intact.
 - PR67 final pre-push passed1673 tests, zero failures. PR68 preserves local
   patch backups and has passed its complete pre-push gate. Their hosted checks
   and owner integration decisions remain open; no user runtime was reinstalled.
+
+### Review corrections and recovery refresh
+
+- PR69 had20 successful checks at df0d3f9c. Two later installer review
+  findings are corrected at c9ecc23c: failed Codex agent generation restores
+  shared defaults, and Kimi Code help uses its distinct selector. Three actual
+  composed-installer cases failed before and pass after. Bounded Astra/xhigh
+  review found no remaining findings. Refreshed final-head gates are pending.
+- PR67 a62f25bd has20 successful checks. Its POSIX accessibility finding is
+  fixed and resolved; final Astra/xhigh review found no findings. The owning
+  inbox contains the concrete TierD brief; its owner answer is pending.
+- PR68 preserves complete prior patch generations, including matching
+  metadata and pristine baselines, before upstream runs. Failure rollback,
+  repeated generations, linked paths and partial archive refusal pass60
+  focused tests; bounded review found no remaining findings. Full push pending.
+- PR66's Windows performance failure is retained (ratio2.10 versus1.75).
+  A new raw-diagnostics upload preserves future failed comparisons without
+  changing the gate or emitting a passing receipt. Focused workflow checks
+  and bounded review passed; full push and final-head CI remain pending.
+- D4 helper focused acceptance passes34 tests with100% of each scoped coverage
+  metric and11 rejected decision mutations. Its full push was refused after
+  1699 passes/13 failures. Serial retry cleared12 original failures; the one
+  persistent test now caches immutable fixtures, retains all5 assertions and
+  the original timeout, and passes234ms. Full push must pass before merge.
+- Five session-created Windows worktrees now live under this repository's
+  existing `.claude/worktrees/` container. Relocation preserved heads/status/
+  dirty byte hashes. No new top-level `C:/Projects` project, temporary or
+  worktree directory may be created without express consent.
+
+### D4 native integration seam verified
+
+Released1.12 already has the needed role-specific `agent_skills` mapping.
+`plan-phase.md` queries the planner block and injects it into both planning
+prompts; `agents/gsd-planner.md` also references the shared self-load bootstrap,
+whose deduplication guard avoids loading a second block. The existing config
+merge preserves per-role user mappings. A bare `global:<skill-name>` resolves
+through the native runtime skill root; plugin-namespaced skills are not portable.
+
+The isolated installed query was exercised for both Claude and Codex using an
+existing delivered skill. It emitted the correct `.claude/skills` and
+`.agents/skills` paths without warnings. Receipt:
+`.planning/evidence/skin-1.12-pure-agent-skills-probe.json`.
+This proves the integration seam, not digest delivery or planner execution.
+Final D4 delivery should use one additive skill and this existing mapping,
+preserving authored mappings and verifying actual planner consumption. A full
+planner/workflow copy or another skill manager is unnecessary for this purpose.
+
+### Abrupt-session recovery, September 5
+
+The corrected 1.9.1 compatibility retry passed 316 tests with no failures or
+skips; its report is applied and the vetted manifest validates. The prior
+failed retry is retained. Full push and hosted evidence still need refresh.
+PR70 publishes the bounded digest at 573d9f91 after 1712 passing pre-push tests;
+actual planner consumption remains open. PR68 has additional reproduced
+snapshot-cleanup and duplicate-child-event fixes. Its expanded 90-test Node
+suite passes, but strict wrapper coverage remains below Tier S: 96.53 percent
+statements/lines, 94.11 functions, 92.95 branches. Agent owner: get-stuff-done;
+retirement trigger: complete file-tier coverage and decision checks before
+merging the installer change. No package-wide coverage compliance is claimed.

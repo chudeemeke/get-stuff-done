@@ -692,10 +692,9 @@ function copyOverlayManifest(distDir, targetDir) {
  * Known orphans:
  * - hooks/dist/: Upstream reads from hooks/dist/ in source but writes to
  *   hooks/ in target (flattening). Previous layouts left this behind.
- * - gsd-local-patches/: Upstream's installer backs up files it considers
- *   "locally modified" before overwriting. Our overlay hooks always differ
- *   from upstream's, so this directory is recreated every install. Since the
- *   overlay step immediately overwrites with our versions, the backup is stale.
+ * Keep gsd-local-patches/: upstream backs up locally modified files there.
+ * Those bytes can include intentional owner edits as well as skin differences;
+ * the directory name cannot establish that every backup is disposable.
  *
  * @param {string} targetDir - Installation target
  * @returns {number} Number of orphaned paths removed
@@ -703,7 +702,6 @@ function copyOverlayManifest(distDir, targetDir) {
 function cleanOrphanedPaths(targetDir) {
   const orphans = [
     path.join(targetDir, 'hooks', 'dist'),
-    path.join(targetDir, 'gsd-local-patches'),
   ];
 
   let removed = 0;

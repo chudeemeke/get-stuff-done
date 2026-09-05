@@ -1076,19 +1076,20 @@ describe('cleanOrphanedPaths', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(fs.existsSync(path.join(hooksDir, 'gsd-statusline.js'))).toBe(true);
   });
 
-  test('removes gsd-local-patches/ created by upstream installer', () => {
+  test('preserves local patch bytes and metadata for owner reconciliation', () => {
     const patchesDir = path.join(tmpDir.path, 'gsd-local-patches');
     fs.mkdirSync(path.join(patchesDir, 'hooks'), { recursive: true });
     fs.writeFileSync(path.join(patchesDir, 'backup-meta.json'), '{}');
-    fs.writeFileSync(path.join(patchesDir, 'hooks', 'gsd-statusline.js'), 'stale');
+    fs.writeFileSync(path.join(patchesDir, 'hooks', 'gsd-statusline.js'), 'intentional user customization');
 
     const removed = cleanOrphanedPaths(tmpDir.path);
 
-    expect(fs.existsSync(patchesDir)).toBe(false);
-    expect(removed).toBeGreaterThan(0);
+    expect(fs.readFileSync(path.join(patchesDir, 'backup-meta.json'), 'utf8')).toBe('{}');
+    expect(fs.readFileSync(path.join(patchesDir, 'hooks', 'gsd-statusline.js'), 'utf8')).toBe('intentional user customization');
+    expect(removed).toBe(0);
   });
 
-  test('removes both orphan types in single call', () => {
+  test('removes generated hooks while retaining local patch metadata', () => {
     const hooksDistDir = path.join(tmpDir.path, 'hooks', 'dist');
     const patchesDir = path.join(tmpDir.path, 'gsd-local-patches');
     fs.mkdirSync(hooksDistDir, { recursive: true });
@@ -1098,8 +1099,8 @@ describe('cleanOrphanedPaths', { timeout: SUBPROCESS_TIMEOUT }, () => {
 
     const removed = cleanOrphanedPaths(tmpDir.path);
 
-    expect(removed).toBe(2);
+    expect(removed).toBe(1);
     expect(fs.existsSync(hooksDistDir)).toBe(false);
-    expect(fs.existsSync(patchesDir)).toBe(false);
+    expect(fs.readFileSync(path.join(patchesDir, 'meta.json'), 'utf8')).toBe('x');
   });
 });

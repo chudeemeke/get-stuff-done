@@ -96,16 +96,26 @@ function parseConfigDir(argv) {
  * @param {string[]} argv - CLI arguments
  * @returns {string} Resolved target directory path
  */
+function expandRuntimeHome(value, home = os.homedir()) {
+  return value === '~' || value.startsWith('~/') ? path.join(home, value.slice(1)) : value;
+}
+
 function resolveTargetDir(argv) {
+  return expandRuntimeHome(resolveTargetDirRaw(argv));
+}
+
+function resolveTargetDirRaw(argv) {
   const configDir = parseConfigDir(argv);
 
   const hasLocal = argv.includes('--local');
   const hasOpencode = argv.includes('--opencode');
   const hasGemini = argv.includes('--gemini');
+  const hasCodex = argv.includes('--codex');
 
   if (hasLocal) {
     if (hasOpencode) return path.join(process.cwd(), '.opencode');
     if (hasGemini) return path.join(process.cwd(), '.gemini');
+    if (hasCodex) return path.join(process.cwd(), '.codex');
     return path.join(process.cwd(), '.claude');
   }
 
@@ -123,6 +133,11 @@ function resolveTargetDir(argv) {
   if (hasGemini) {
     if (process.env.GEMINI_CONFIG_DIR) return process.env.GEMINI_CONFIG_DIR;
     return path.join(os.homedir(), '.gemini');
+  }
+
+  if (hasCodex) {
+    if (process.env.CODEX_HOME) return process.env.CODEX_HOME;
+    return path.join(os.homedir(), '.codex');
   }
 
   // Default: Claude
@@ -1015,6 +1030,7 @@ async function main() {
     console.log(`    ${cyan}--claude${reset}                  Install for Claude Code`);
     console.log(`    ${cyan}--opencode${reset}                Install for OpenCode`);
     console.log(`    ${cyan}--gemini${reset}                  Install for Gemini`);
+    console.log(`    ${cyan}--codex${reset}                   Install for Codex`);
     console.log(`    ${cyan}--all${reset}                     Install for all runtimes`);
     console.log(`    ${cyan}-g, --global${reset}              Install globally`);
     console.log(`    ${cyan}-l, --local${reset}               Install locally`);
@@ -1064,6 +1080,7 @@ module.exports = {
   isSafeToClean,
   parseConfigDir,
   resolveTargetDir,
+  expandRuntimeHome,
   preflightInstallTarget,
   createInstallTransaction,
   rollbackInstallTransaction,

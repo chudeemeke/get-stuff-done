@@ -11,10 +11,11 @@
  * with rc 0 and no summary line (5 of 57 files ran); under `node --test` the
  * file "passes" with zero tests. Either way a partial run reports success.
  *
- * A process.exit inside a function is not the defect: child scripts, captured
- * command handlers and signal handlers all legitimately exit, and none of them
- * run unless something calls them. A process.exit reachable while the module
- * is being loaded is the defect, whatever exit code it carries, because the
+ * The guard detects direct calls, literal computed access, direct IIFEs and
+ * describe callbacks. It does not perform interprocedural analysis of aliases,
+ * called helpers, dynamic properties or arbitrary callback APIs. Deferred
+ * handlers and child-script strings are excluded. An exit during loading is
+ * the defect, whatever exit code it carries, because the
  * loader is the test runner's own process (bun) or the per-file child whose
  * clean exit is read as "no failures" (node --test).
  *
@@ -67,17 +68,17 @@ function isProcessExitCall(node) {
   return (
     node.type === 'CallExpression' &&
     node.callee.type === 'MemberExpression' &&
-    !node.callee.computed &&
     node.callee.object.type === 'Identifier' &&
     node.callee.object.name === 'process' &&
-    node.callee.property.type === 'Identifier' &&
-    node.callee.property.name === 'exit'
+    ((!node.callee.computed && node.callee.property.name === 'exit') ||
+      (node.callee.computed && node.callee.property.type === 'Literal' &&
+        node.callee.property.value === 'exit'))
   );
 }
 
 /**
- * Return the source lines of every process.exit(...) call that is not nested
- * inside any function, i.e. one that executes while the module loads.
+ * Return direct module-load exit locations, including known immediate bodies.
+ * This is a syntactic regression guard, not a general reachability proof.
  */
 function moduleScopeExits(source) {
   const hits = [];
@@ -87,13 +88,29 @@ function moduleScopeExits(source) {
       hits.push(node.loc.start.line);
     }
     const nowInside = insideFunction || FUNCTION_NODE_TYPES.has(node.type);
+    const immediateBodies = new Set();
+    if (!insideFunction && node.type === 'CallExpression') {
+      if (FUNCTION_NODE_TYPES.has(node.callee.type)) immediateBodies.add(node.callee);
+      const calleeName = node.callee.type === 'Identifier' ? node.callee.name : null;
+      if (calleeName === 'describe' || calleeName === 'nodeDescribe') {
+        for (const arg of node.arguments) {
+          if (FUNCTION_NODE_TYPES.has(arg.type)) immediateBodies.add(arg);
+        }
+      }
+    }
+    const visitChild = child => {
+      if (immediateBodies.has(child)) {
+        for (const param of child.params) visit(param, false);
+        visit(child.body, false);
+      } else visit(child, nowInside);
+    };
     for (const key of Object.keys(node)) {
       if (key === 'loc') continue;
       const child = node[key];
       if (Array.isArray(child)) {
-        for (const item of child) visit(item, nowInside);
+        for (const item of child) visitChild(item);
       } else if (child && typeof child.type === 'string') {
-        visit(child, nowInside);
+        visitChild(child);
       }
     }
   };
@@ -102,6 +119,13 @@ function moduleScopeExits(source) {
 }
 
 describe('test-file exit hygiene (issue #45)', () => {
+  test('flags literal computed exits and immediately invoked functions', () => {
+    expect(moduleScopeExits("process['exit'](0)")).toEqual([1]);
+    expect(moduleScopeExits('(() => process.exit(0))()')).toEqual([1]);
+    expect(moduleScopeExits('(function () { process.exit(0); })()')).toEqual([1]);
+    expect(moduleScopeExits('describe("suite", () => { process.exit(0); })')).toEqual([1]);
+  });
+
   test('the walker flags a module-scope exit and ignores exits inside functions', () => {
     expect(moduleScopeExits('try { shim(); } catch (err) { process.exit(0); }')).toEqual([1]);
     expect(moduleScopeExits('if (!ok) {\n  process.exit(2);\n}')).toEqual([2]);

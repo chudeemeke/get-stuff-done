@@ -73,6 +73,9 @@ try {
   if (state === 'dangling') {
     removeShim();
     state = shimState();
+    if (state === 'dangling') {
+      throw new Error(`${SHIM_PATH} remains dangling after removal attempt`);
+    }
   }
   if (state === 'blocked') {
     throw new Error(`${SHIM_PATH} exists and is not a directory`);

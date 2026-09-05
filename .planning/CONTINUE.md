@@ -1,8 +1,8 @@
 # Continuation Context
 
-**Refreshed at:** 2026-08-31
-**Trigger:** Manual refresh after the issue #53 step-2 merge (the prior body still described
-Phase 43 / PR #23 / pin 1.6.1, all of which are now history)
+**Refreshed at:** 2026-09-05
+**Trigger:** Manual refresh after the user resolved the step-3 sequencing decision and ratified
+D1-D11 of the 09-02 engine-versus-prose plan (2026-09-05)
 
 ## Resume Instructions
 
@@ -25,9 +25,10 @@ Phase 43 / PR #23 / pin 1.6.1, all of which are now history)
 **Milestone:** v1.2.0 Ship-Ready Hardening
 
 **Active work:** issue #53 upstream bump campaign — an incremental walk of the
-`@opengsd/gsd-core` pin, 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0, one merged PR
-per step. **Steps 1 and 2 are merged** (PR #61 -> `0bfac78e`, PR #62 -> `fce6d8d1`). The pin
-is now **1.8.0**. Step 3 (1.9.1) has not started; this branch is its workspace.
+`@opengsd/gsd-core` pin, 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0, one merged PR
+per step (endpoint extended to 1.12.0 by user decision 2026-09-05). **Steps 1 and 2 are merged** (PR #61 -> `0bfac78e`, PR #62 -> `fce6d8d1`). The pin
+is now **1.8.0**. Step 3 (1.9.1) has not started; this branch is its workspace. It is gated on the #45 fix
+PR merging first (user decision 2026-09-05; the eleven D1-D11 outcomes are in HANDOFF.json).
 
 **Phase 43** is no longer the active arc: PR #23 merged 2026-08-29 as `ece379db`, and issues
  #46, #47 and #48 were closed with evidence before that merge. What remains of Phase 43 is a
@@ -42,7 +43,9 @@ override, drop-experiment before porting, verify each port arithmetically, refre
 `REASON.md`, and adopt deliberate upstream semantic changes through version-conditional fork
 tests rather than overriding them.
 
-**Next concrete action:** step 3 of the campaign — bump 1.8.0 -> 1.9.1 on this branch.
+**Next concrete action:** fix #45 (module-scope process.exit in `tests/sync.test.cjs`) on a
+`fix/` branch from `main` and merge it; close #44 with evidence; then merge `main` into this
+branch and run step 3 of the campaign — bump 1.8.0 -> 1.9.1.
 
 ---
 *Hand-written 2026-08-31. The GSD PreCompact hook regenerates this file wholesale from

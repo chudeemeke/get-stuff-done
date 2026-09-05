@@ -29,6 +29,21 @@ test('CRLF provenance hashes original bytes while excerpts normalize line ending
   expect(result.markdown).toContain('Use the existing component.');
 });
 
+test('disjoint sections retain source order and accept the exact line budget', () => {
+  const options = { source: 'RESEARCH.md', sections: ['UI', 'Storage'] };
+  let result;
+  assert.doesNotThrow(() => { result = createDigest(Buffer.from(source), options); });
+  expect(result.selected_sections.map(item => item.heading)).toEqual(['Storage', 'UI']);
+  expect(result.markdown).toContain('Keep the journal.');
+  expect(result.markdown).toContain('Use the existing component.');
+  expect(createDigest(Buffer.from(source), { ...options, maxLines: result.digest_lines })).toEqual(result);
+});
+
+test('line budget counts trailing whitespace lines in the emitted Markdown', () => {
+  const bytes = Buffer.from('## UI\nKeep this.\n' + '   \n'.repeat(300));
+  expect(() => createDigest(bytes, { source: 'RESEARCH.md', sections: ['UI'], maxLines: 20 })).toThrow('budget');
+});
+
 test('missing, duplicate and overlapping section selections fail explicitly', () => {
   for (const sections of [[], ['Fake'], ['Storage', 'Storage'], ['Storage', 'Recovery']]) {
     expect(() => createDigest(Buffer.from(source), { source: 'RESEARCH.md', sections })).toThrow();
@@ -79,9 +94,12 @@ test('digest decision mutations are rejected by the behavioral tests', () => {
     const mutants = [
       ['expectedHash !== undefined && expectedHash !== sourceHash', 'false', '^stale hashes'],
       ['digestLines > maxLines', 'false', '^stale hashes'],
+      ["markdown.slice(0, -1).split('\\n').length", "markdown.trimEnd().split('\\n').length", '^line budget counts'],
       ['matches.length !== 1', 'matches.length === 0', '^missing, duplicate'],
       ['selected[i].start <= selected[i - 1].end', 'false', '^missing, duplicate'],
-      ['!inside(sourcePath) || !inside(fs.realpathSync(sourcePath))', 'false', '^CLI confines'],
+      ['selected[i].start <= selected[i - 1].end', 'true', '^disjoint sections'],
+      ['!inside(sourcePath) || !inside(resolvedPath)', 'false', '^CLI confines'],
+      ['fs.realpathSync(sourcePath) !== resolvedPath || identity(fs.fstatSync(descriptor)) !== identity(fs.statSync(resolvedPath))', 'false', '^CLI refuses'],
       ["!Buffer.from(decoded, 'utf8').equals(bytes)", 'false', '^stale hashes'],
       ['!Number.isInteger(maxLines) || maxLines < 1 || maxLines > 2000', 'false', '^stale hashes'],
     ];
@@ -96,7 +114,7 @@ test('digest decision mutations are rejected by the behavioral tests', () => {
       assert.notEqual(result.status, 0, `Behavioral suite must reject mutation: ${before}\n${result.stdout}\n${result.stderr}`);
       assert.match(result.stdout, /^not ok \d+ - /m, 'Mutation must fail a named behavioral test.');
       assert.match(result.stdout, /failureType: 'testCodeFailure'/, 'Mutation must fail a real behavioral assertion.');
-      assert.match(result.stdout, /expect\(received\)\.(?:toThrow|toBe)\((?:expected)?\)/, 'Setup failures cannot count as killed mutations.');
+      assert.match(result.stdout, /expect\(received\)\.(?:toThrow|toBe)\((?:expected)?\)|code: 'ERR_ASSERTION'/, 'Setup failures cannot count as killed mutations.');
       assert.doesNotMatch(result.stderr, /MODULE_NOT_FOUND|SyntaxError/, 'Setup errors cannot count as killed mutations.');
     }
   } finally { fs.rmSync(sandbox, { recursive: true, force: true }); }
@@ -118,5 +136,59 @@ test('CLI confines source to the project including directory links', () => {
   } finally {
     if (fs.existsSync(link)) fs.unlinkSync(link);
     fs.rmSync(sandbox, { recursive: true, force: true });
+  }
+});
+
+test('CLI refuses a directory link retargeted between validation and reading', () => {
+  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-swap-'));
+  const root = path.join(sandbox, 'project'), outside = path.join(sandbox, 'outside');
+  const inner = path.join(root, 'inner'), link = path.join(root, 'linked');
+  fs.mkdirSync(inner, { recursive: true }); fs.mkdirSync(outside);
+  fs.writeFileSync(path.join(inner, 'RESEARCH.md'), source);
+  fs.writeFileSync(path.join(outside, 'RESEARCH.md'), '# Research\n## UI\nOUTSIDE SECRET\n');
+  fs.symlinkSync(inner, link, process.platform === 'win32' ? 'junction' : 'dir');
+  const realpath = fs.realpathSync;
+  let swapped = false, stdout = '', stderr = '';
+  try {
+    fs.realpathSync = function (candidate, ...args) {
+      const resolved = realpath(candidate, ...args);
+      if (candidate === path.join(link, 'RESEARCH.md') && !swapped) {
+        swapped = true;
+        fs.unlinkSync(link);
+        fs.symlinkSync(outside, link, process.platform === 'win32' ? 'junction' : 'dir');
+      }
+      return resolved;
+    };
+    expect(main(['linked/RESEARCH.md', '--section', 'UI'], { cwd: root, stdout: text => { stdout += text; }, stderr: text => { stderr += text; } })).toBe(1);
+    expect(swapped).toBe(true); expect(stdout).toBe(''); expect(stderr).toContain('changed');
+  } finally {
+    fs.realpathSync = realpath;
+    fs.unlinkSync(link);
+    fs.rmSync(sandbox, { recursive: true, force: true });
+  }
+});
+
+test('CLI refuses a file replaced after opening and closes its descriptor', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-replace-'));
+  const research = path.join(root, 'RESEARCH.md');
+  fs.writeFileSync(research, source);
+  const open = fs.openSync;
+  let descriptor, stdout = '', stderr = '';
+  try {
+    fs.openSync = function (candidate, ...args) {
+      const opened = open(candidate, ...args);
+      if (candidate === research && descriptor === undefined) {
+        descriptor = opened;
+        fs.renameSync(research, path.join(root, 'prior-RESEARCH.md'));
+        fs.writeFileSync(research, '# Research\n## UI\nReplacement.\n');
+      }
+      return opened;
+    };
+    expect(main(['RESEARCH.md', '--section', 'UI'], { cwd: root, stdout: text => { stdout += text; }, stderr: text => { stderr += text; } })).toBe(1);
+    expect(stdout).toBe(''); expect(stderr).toContain('changed');
+    assert.throws(() => fs.fstatSync(descriptor), { code: 'EBADF' });
+  } finally {
+    fs.openSync = open;
+    fs.rmSync(root, { recursive: true, force: true });
   }
 });

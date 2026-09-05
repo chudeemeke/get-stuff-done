@@ -40,7 +40,7 @@ function createDigest(bytes, { source, sections, maxLines = 200, expectedHash })
   const header = Object.entries(metadata).map(([key, value]) => `${key}: ${JSON.stringify(value)}`).join('\n');
   const excerpts = selected.map(item => `<!-- source-lines: ${item.start}-${item.end} -->\n${lines.slice(item.start - 1, item.end).join('\n').replace(/\n+$/, '')}`).join('\n\n');
   const markdown = `---\n${header}\n---\n\n# Per-plan research digest\n\n${excerpts}\n`;
-  const digestLines = markdown.trimEnd().split('\n').length;
+  const digestLines = markdown.slice(0, -1).split('\n').length;
   if (digestLines > maxLines) throw new Error(`Digest exceeds line budget (${digestLines}/${maxLines}). Select narrower sections or explicitly increase --max-lines; no content was truncated.`);
   return { ...metadata, digest_lines: digestLines, markdown };
 }
@@ -89,8 +89,20 @@ function main(args = process.argv.slice(2), ports = {}) {
       const relative = path.relative(root, candidate);
       return relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
     };
-    if (!inside(sourcePath) || !inside(fs.realpathSync(sourcePath))) throw new Error('Research source is outside the calling project. Run from its project root.');
-    const result = createDigest(fs.readFileSync(sourcePath), {
+    const resolvedPath = fs.realpathSync(sourcePath);
+    if (!inside(sourcePath) || !inside(resolvedPath)) throw new Error('Research source is outside the calling project. Run from its project root.');
+    // Open the validated canonical path. Revalidate its identity before reading
+    // through that descriptor; never reopen the caller's mutable link path.
+    const descriptor = fs.openSync(resolvedPath, 'r');
+    let bytes;
+    try {
+      const identity = stat => `${stat.dev}:${stat.ino}`;
+      if (fs.realpathSync(sourcePath) !== resolvedPath || identity(fs.fstatSync(descriptor)) !== identity(fs.statSync(resolvedPath))) {
+        throw new Error('Research source changed during validation. Retry against a stable source.');
+      }
+      bytes = fs.readFileSync(descriptor);
+    } finally { fs.closeSync(descriptor); }
+    const result = createDigest(bytes, {
       source: path.relative(root, sourcePath).split(path.sep).join('/'),
       sections: values.section,
       maxLines: Number(values['max-lines']),

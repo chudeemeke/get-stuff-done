@@ -25,7 +25,7 @@ No global installation or activation is authorized by passing these tests.
 
 Risk classification: Tier S for source confinement and provenance validation.
 Coverage target: at least95% statements/functions/lines and100% branches for
-the composed helper, including unloaded files. Seven decision mutants must
+the composed helper, including unloaded files. Ten decision mutants must
 fail behavioral assertions. The existing required CI Test job runs this
 scoped coverage and mutation gate on all three operating systems. This does
 not claim that pre-existing package-wide coverage debt is resolved. Review the

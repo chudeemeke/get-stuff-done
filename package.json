@@ -106,6 +106,7 @@
     "verify-upgrade": "node scripts/verify-upgrade.js",
     "vetted-upstream:validate": "node scripts/vetted-upstream-versions.js --validate",
     "compat:matrix": "node scripts/run-compat-matrix.js",
-    "override:churn": "node scripts/generate-override-churn.js"
+    "override:churn": "node scripts/generate-override-churn.js",
+    "hooks:check": "node -e \"const fs=require('fs'),cp=require('child_process');const p=cp.execFileSync('git',['rev-parse','--git-path','hooks/pre-push'],{encoding:'utf8'}).trim();fs.accessSync(p,fs.constants.X_OK);fs.accessSync('.husky/pre-push',fs.constants.X_OK);console.log('Pre-push hook is accessible: '+p)\""
   }
 }

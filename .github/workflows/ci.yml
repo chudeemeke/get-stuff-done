@@ -319,7 +319,7 @@ jobs:
       - name: Guard against test files in dist/
         run: node scripts/check-no-test-files-in-dist.js
       - name: Verify research digest Tier S coverage and decisions
-        # Path and provenance decisions require Tier S branch and mutation proof.
+        # Input and provenance decisions require Tier S branch and mutation proof.
         run: bun run test:coverage:research-digest
       - name: Run full tests with coverage and JUnit output
         run: bun run test:coverage:bun -- --timeout 30000 --reporter=junit --reporter-outfile test-results.xml

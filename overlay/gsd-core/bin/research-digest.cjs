@@ -9,6 +9,11 @@ const { parseArgs } = require('node:util');
 const { tokenizeHeadings } = require('./lib/markdown-sectionizer.cjs');
 
 function createDigest(bytes, { source, sections, maxLines = 200, expectedHash }) {
+  if (typeof source !== 'string') throw new Error('Provide a relative research source label.');
+  const sourceLabel = source.replace(/\\/g, '/');
+  if (!/(?:^|[/-])RESEARCH\.md$/i.test(sourceLabel) || path.win32.parse(sourceLabel).root !== '' || sourceLabel.split('/').includes('..') || sourceLabel.includes('\0')) {
+    throw new Error('Source label must be a relative RESEARCH.md or phase-RESEARCH.md path without parent traversal.');
+  }
   const decoded = bytes.toString('utf8');
   if (!Buffer.from(decoded, 'utf8').equals(bytes)) throw new Error('Research must be valid UTF-8.');
   if (!Number.isInteger(maxLines) || maxLines < 1 || maxLines > 2000) throw new Error('Line budget must be an integer from 1 to 2000.');
@@ -16,7 +21,7 @@ function createDigest(bytes, { source, sections, maxLines = 200, expectedHash })
     throw new Error('Select at least one distinct heading with --section.');
   }
   const sourceHash = crypto.createHash('sha256').update(bytes).digest('hex');
-  if (expectedHash !== undefined && expectedHash !== sourceHash) throw new Error('Research changed: regenerate and review the digest against the current source.');
+  if (expectedHash !== undefined && expectedHash !== sourceHash) throw new Error('Supplied research bytes changed: regenerate and review the digest.');
   const text = decoded.replace(/\r\n/g, '\n');
   const lines = text.split('\n');
   const headings = tokenizeHeadings(text);
@@ -32,7 +37,8 @@ function createDigest(bytes, { source, sections, maxLines = 200, expectedHash })
   }
   const metadata = {
     research_digest_version: 1,
-    source,
+    source_kind: 'supplied_bytes',
+    source: sourceLabel,
     source_sha256: sourceHash,
     source_lines: lines.length,
     selected_sections: selected,
@@ -48,19 +54,22 @@ function createDigest(bytes, { source, sections, maxLines = 200, expectedHash })
 const HELP = `research-digest - extract cited per-plan research sections
 
 USAGE
-  node research-digest.cjs RESEARCH.md --section HEADING [options]
+  node research-digest.cjs RESEARCH.md --stdin --section HEADING [options]
 
 OPTIONS
+  --stdin               Read research bytes from standard input (required)
   --section HEADING      Exact heading; repeat for multiple sections
   --max-lines N          Markdown line budget (default 200; maximum 2000)
-  --expect-sha256 HASH   Refuse if source bytes changed since review
+  --expect-sha256 HASH   Refuse if supplied bytes differ from the reviewed hash
   --json                Emit metadata and Markdown as JSON
   -h, --help            Show help
   --version             Show the skin artifact version
 
 EXAMPLES
-  node research-digest.cjs .planning/23-RESEARCH.md --section Storage
+  node research-digest.cjs .planning/23-RESEARCH.md --stdin --section Storage
 
+Provide the reader's original byte snapshot on stdin. The path is a caller-
+supplied provenance label; this helper never opens it or verifies disk identity.
 Output is deterministic and read-only. Publish it as a per-plan digest and
 reference that file in PLAN.md read_first. The planner owns section selection;
 the helper does not decide whether the selected research is sufficient.
@@ -74,6 +83,7 @@ function main(args = process.argv.slice(2), ports = {}) {
       section: { type: 'string', multiple: true },
       'max-lines': { type: 'string', default: '200' },
       'expect-sha256': { type: 'string' },
+      stdin: { type: 'boolean' },
       json: { type: 'boolean' }, help: { type: 'boolean', short: 'h' }, version: { type: 'boolean' },
     } });
     if (values.help || (positionals.length === 1 && positionals[0] === 'help')) { stdout(HELP); return 0; }
@@ -82,28 +92,10 @@ function main(args = process.argv.slice(2), ports = {}) {
       stdout(`research-digest ${metadata.overlay_version}\n`);
       return 0;
     }
-    if (positionals.length !== 1 || !/(?:^|[\\/-])RESEARCH\.md$/i.test(positionals[0])) throw new Error('Provide one RESEARCH.md or phase-RESEARCH.md source. See --help.');
-    const root = fs.realpathSync(ports.cwd || process.cwd());
-    const sourcePath = path.resolve(root, positionals[0]);
-    const inside = candidate => {
-      const relative = path.relative(root, candidate);
-      return relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
-    };
-    const resolvedPath = fs.realpathSync(sourcePath);
-    if (!inside(sourcePath) || !inside(resolvedPath)) throw new Error('Research source is outside the calling project. Run from its project root.');
-    // Open the validated canonical path. Revalidate its identity before reading
-    // through that descriptor; never reopen the caller's mutable link path.
-    const descriptor = fs.openSync(resolvedPath, 'r');
-    let bytes;
-    try {
-      const identity = stat => `${stat.dev}:${stat.ino}`;
-      if (fs.realpathSync(sourcePath) !== resolvedPath || identity(fs.fstatSync(descriptor)) !== identity(fs.statSync(resolvedPath))) {
-        throw new Error('Research source changed during validation. Retry against a stable source.');
-      }
-      bytes = fs.readFileSync(descriptor);
-    } finally { fs.closeSync(descriptor); }
+    if (!values.stdin || positionals.length !== 1) throw new Error('Provide one research source label and --stdin. See --help.');
+    const bytes = (ports.readStdin || (() => fs.readFileSync(0)))();
     const result = createDigest(bytes, {
-      source: path.relative(root, sourcePath).split(path.sep).join('/'),
+      source: positionals[0],
       sections: values.section,
       maxLines: Number(values['max-lines']),
       expectedHash: values['expect-sha256'],

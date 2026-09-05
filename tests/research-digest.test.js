@@ -70,7 +70,7 @@ processTest('CLI emits Markdown or JSON without modifying research and rejects i
     fs.writeFileSync(path.join(root, 'RESEARCH.md'), source);
     fs.writeFileSync(path.join(root, 'STATE.md'), source);
     function run(args) {
-      const result = spawnSync(process.execPath, [helper, ...args], { cwd: root, encoding: 'utf8', timeout: 10000 });
+      const result = spawnSync(process.execPath, [helper, '--stdin', ...args], { input: source, cwd: root, encoding: 'utf8', timeout: 10000 });
       assert.equal(result.error, undefined);
       return result;
     }
@@ -78,7 +78,10 @@ processTest('CLI emits Markdown or JSON without modifying research and rejects i
     expect(md.status).toBe(0); expect(md.stderr).toBe(''); expect(md.stdout).toContain('source_sha256:');
     const json = run(['--json', '--section=UI', '--max-lines=100', '--expect-sha256', sha(source), '--', 'RESEARCH.md']);
     expect(json.status).toBe(0); expect(JSON.parse(json.stdout).source_sha256).toBe(sha(source));
-    for (const args of [[], ['RESEARCH.md'], ['missing-RESEARCH.md', '--section', 'UI'], ['STATE.md', '--section', 'UI'], ['RESEARCH.md', '--section', 'UI', '--unknown'], ['RESEARCH.md', 'extra', '--section', 'UI']]) {
+    const missing = run(['missing-RESEARCH.md', '--section', 'UI', '--json']);
+    expect(missing.status).toBe(0);
+    expect(JSON.parse(missing.stdout).source_kind).toBe('supplied_bytes');
+    for (const args of [[], ['RESEARCH.md'], ['STATE.md', '--section', 'UI'], ['RESEARCH.md', '--section', 'UI', '--unknown'], ['RESEARCH.md', 'extra', '--section', 'UI'], ['RESEARCH.md', '--section', 'UI', '--expect-sha256', '0'.repeat(64)]]) {
       const bad = run(args); expect(bad.status).toBe(1); expect(bad.stdout).toBe(''); expect(bad.stderr).toContain('research-digest:');
     }
     for (const args of [['--help'], ['-h'], ['help'], ['--version']]) expect(run(args).status).toBe(0);
@@ -103,8 +106,8 @@ processTest('digest decision mutations are rejected by the behavioral tests', ()
       ['matches.length !== 1', 'matches.length === 0', '^missing, duplicate'],
       ['selected[i].start <= selected[i - 1].end', 'false', '^missing, duplicate'],
       ['selected[i].start <= selected[i - 1].end', 'true', '^disjoint sections'],
-      ['!inside(sourcePath) || !inside(resolvedPath)', 'false', '^CLI confines'],
-      ['fs.realpathSync(sourcePath) !== resolvedPath || identity(fs.fstatSync(descriptor)) !== identity(fs.statSync(resolvedPath))', 'false', '^CLI refuses'],
+      ["sourceLabel.split('/').includes('..')", 'false', '^source labels'],
+      ['!values.stdin || positionals.length !== 1', 'positionals.length !== 1', '^CLI requires'],
       ["!Buffer.from(decoded, 'utf8').equals(bytes)", 'false', '^stale hashes'],
       ['!Number.isInteger(maxLines) || maxLines < 1 || maxLines > 2000', 'false', '^stale hashes'],
     ];
@@ -125,75 +128,38 @@ processTest('digest decision mutations are rejected by the behavioral tests', ()
   } finally { fs.rmSync(sandbox, { recursive: true, force: true }); }
 });
 
-test('CLI confines source to the project including directory links', () => {
-  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-path-'));
-  const root = path.join(sandbox, 'project'), outside = path.join(sandbox, 'outside');
-  fs.mkdirSync(root); fs.mkdirSync(outside);
-  fs.writeFileSync(path.join(outside, 'RESEARCH.md'), source);
-  const link = path.join(root, 'linked');
-  try {
-    fs.symlinkSync(outside, link, process.platform === 'win32' ? 'junction' : 'dir');
-    for (const name of ['../outside/RESEARCH.md', 'linked/RESEARCH.md']) {
-      let stdout = '', stderr = '';
-      expect(main([name, '--section', 'Storage'], { cwd: root, stdout: text => { stdout += text; }, stderr: text => { stderr += text; } })).toBe(1);
-      expect(stdout).toBe(''); expect(stderr).toContain('outside');
-    }
-  } finally {
-    if (fs.existsSync(link)) fs.unlinkSync(link);
-    fs.rmSync(sandbox, { recursive: true, force: true });
+test('source labels require relative research paths without filesystem claims', () => {
+  for (const label of [undefined, '', 'STATE.md', '../RESEARCH.md', 'phase/../RESEARCH.md', '/RESEARCH.md', 'C:/RESEARCH.md', 'C:phase/RESEARCH.md', 'bad\0/RESEARCH.md']) {
+    expect(() => createDigest(Buffer.from(source), { source: label, sections: ['UI'] })).toThrow('label');
+  }
+  expect(createDigest(Buffer.from(source), { source: '.planning\\23-RESEARCH.md', sections: ['UI'] }).source).toBe('.planning/23-RESEARCH.md');
+});
+
+test('CLI requires explicit stdin mode and emits nothing on hash mismatch', () => {
+  for (const args of [['RESEARCH.md', '--section', 'UI'], ['RESEARCH.md', '--stdin', '--section', 'UI', '--expect-sha256', '0'.repeat(64)]]) {
+    let stdout = '', stderr = '';
+    expect(main(args, { readStdin: () => Buffer.from(source), stdout: text => { stdout += text; }, stderr: text => { stderr += text; } })).toBe(1);
+    expect(stdout).toBe(''); expect(stderr).toContain('research-digest:');
   }
 });
 
-test('CLI refuses a directory link retargeted between validation and reading', () => {
-  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-swap-'));
-  const root = path.join(sandbox, 'project'), outside = path.join(sandbox, 'outside');
-  const inner = path.join(root, 'inner'), link = path.join(root, 'linked');
-  fs.mkdirSync(inner, { recursive: true }); fs.mkdirSync(outside);
-  fs.writeFileSync(path.join(inner, 'RESEARCH.md'), source);
-  fs.writeFileSync(path.join(outside, 'RESEARCH.md'), '# Research\n## UI\nOUTSIDE SECRET\n');
-  fs.symlinkSync(inner, link, process.platform === 'win32' ? 'junction' : 'dir');
-  const realpath = fs.realpathSync;
-  let swapped = false, stdout = '', stderr = '';
+test('CLI reads source bytes only from fd0 and never opens a supplied label', () => {
+  const read = fs.readFileSync;
+  const reads = [];
+  let stdout = '', stderr = '';
   try {
-    fs.realpathSync = function (candidate, ...args) {
-      const resolved = realpath(candidate, ...args);
-      if (candidate === path.join(link, 'RESEARCH.md') && !swapped) {
-        swapped = true;
-        fs.unlinkSync(link);
-        fs.symlinkSync(outside, link, process.platform === 'win32' ? 'junction' : 'dir');
-      }
-      return resolved;
+    fs.readFileSync = function (input) {
+      assert.equal(input, 0, 'A provenance label must never become a filesystem read.');
+      reads.push(input);
+      return Buffer.from(source);
     };
-    expect(main(['linked/RESEARCH.md', '--section', 'UI'], { cwd: root, stdout: text => { stdout += text; }, stderr: text => { stderr += text; } })).toBe(1);
-    expect(swapped).toBe(true); expect(stdout).toBe(''); expect(stderr).toContain('changed');
-  } finally {
-    fs.realpathSync = realpath;
-    fs.unlinkSync(link);
-    fs.rmSync(sandbox, { recursive: true, force: true });
-  }
-});
-
-test('CLI refuses a file replaced after opening and closes its descriptor', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-replace-'));
-  const research = path.join(root, 'RESEARCH.md');
-  fs.writeFileSync(research, source);
-  const open = fs.openSync;
-  let descriptor, stdout = '', stderr = '';
-  try {
-    fs.openSync = function (candidate, ...args) {
-      const opened = open(candidate, ...args);
-      if (candidate === research && descriptor === undefined) {
-        descriptor = opened;
-        fs.renameSync(research, path.join(root, 'prior-RESEARCH.md'));
-        fs.writeFileSync(research, '# Research\n## UI\nReplacement.\n');
-      }
-      return opened;
-    };
-    expect(main(['RESEARCH.md', '--section', 'UI'], { cwd: root, stdout: text => { stdout += text; }, stderr: text => { stderr += text; } })).toBe(1);
-    expect(stdout).toBe(''); expect(stderr).toContain('changed');
-    assert.throws(() => fs.fstatSync(descriptor), { code: 'EBADF' });
-  } finally {
-    fs.openSync = open;
-    fs.rmSync(root, { recursive: true, force: true });
-  }
+    expect(main(['nonexistent/23-RESEARCH.md', '--stdin', '--section', 'UI', '--json'], {
+      stdout: text => { stdout += text; }, stderr: text => { stderr += text; },
+    })).toBe(0);
+    expect(reads).toEqual([0]); expect(stderr).toBe('');
+    const result = JSON.parse(stdout);
+    expect(result.source).toBe('nonexistent/23-RESEARCH.md');
+    expect(result.source_kind).toBe('supplied_bytes');
+    expect(result.source_sha256).toBe(sha(source));
+  } finally { fs.readFileSync = read; }
 });

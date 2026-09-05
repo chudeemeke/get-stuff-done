@@ -29,9 +29,13 @@ missing-file lists are recorded in
 `C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/runtime-authored-inventory.json`.
 The inbox and all Git branch/tag refs were backed up before recovery edits.
 
-This inventory covers manifest-owned content. Before activation, enumerate
-untracked additions in GSD-owned directories and preserve any additional
-authored content; do not treat a missing manifest entry as disposable.
+The subsequent GSD-directory inventory found global Claude's extra
+`.install-meta.json`, `.overlay-manifest.json`, and `commands/gsd/upstream.md`,
+plus project Claude's extra `.install-meta.json`. All were copied into the
+same backup. The global upstream command matches the current overlay.
+No additional Codex GSD file was found in that scan. Recheck for edits made
+after the backup before activation; absence from a manifest is not permission
+to discard a file.
 Desktop work remains unclassified and must not be pruned.
 
 ## Activation gates

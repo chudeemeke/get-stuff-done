@@ -75,3 +75,21 @@ and backup those before activation/removal. Active inbox ignores stay intact.
   upstream 1.8.0 commands.cjs (614 versus1565); fixture proof remains required.
 - Target-action feed pulled from the receiver CWD; no delivery blocker or
   unusable worktree; portable gates retain their existing owner and trigger.
+- PR64 merged as `f19045ce`. PR63 final head `57ef0dc1` incorporates it and
+  closes immediate-exit and dangling-shim review findings. At 05:11 UTC all
+  completed checks passed; Windows paired performance still running.
+- PR65 `c6aae6ce` makes the compatibility subprocess emit TAP explicitly and
+  rejects missing summaries. Independent review passed. The repaired negative
+  experiment reports 302 pass /14 fail, with full per-assertion TAP in
+  `evidence/bump-1.8.0-drop-tap-2026-09-05.json`.
+- PR66 `750d8d54` adds read-only install generation drift detection, honors
+  runtime home overrides, and recognizes fork legacy installs. Review fixes
+  applied; focused script coverage 100% on all four metrics. No reinstall yet.
+- PR67 repairs explicit Husky bootstrap. A real push at `1ca1d47a` passed
+  1673 tests /0 failures after an earlier correctly refused ACL timeout.
+  POSIX review correction `91ee489c` requires readable payload rather than
+  executable payload; final push/checks pending.
+- Pure 1.12.0 acceptance baseline: 12 tests /9 pass /3 fail /0 skipped,
+  exit1. State writers, milestone position and five commit-docs configurations
+  pass. Bullet-only roadmap/manager phases and semantic replanned plan count
+  remain red. Fixtures and full TAP are committed; see tests/acceptance/README.md.

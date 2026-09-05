@@ -10,7 +10,7 @@
   "READ_FIRST": "Verify, do not trust: git rev-parse --short HEAD, git worktree list, gh pr checks. The pre-push hook is inert (#49) so every gate must be run by hand. Run the suite as bun run test (never bare bun test); the pass signal is the summary line, never the exit code alone. AS OF 2026-09-02: do NOT start step 3 until the user has decided the two inbox-raised sequencing questions in bump_arc.sequencing_decision_pending.",
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0 (user chose Walk increments 2026-08-30; endpoint extended from 1.11.0 to 1.12.0 by user decision 2026-09-05, then quarterly per D5)",
-    "step": "3 of 6: 1.8.0 -> 1.9.1 (NOT STARTED). Gated on the #45 fix PR merging first (user decision 2026-09-05).",
+    "step": "3 of 6: 1.8.0 -> 1.9.1 (NOT STARTED). Gated on PR #64 and PR #63 merging (both Tier M, agent merges on green with a notice).",
     "step_1_merge_evidence": {
       "merge_commit": "0bfac78e",
       "pr": "https://github.com/chudeemeke/get-stuff-done/pull/61",
@@ -43,7 +43,9 @@
       "sha256sum on Windows backslash paths prefixes output with a backslash - compare with cmp or normalized paths.",
       "PR perf legs re-roll windows noise dice per commit - batch changes before pushing.",
       "Legacy tracked get-stuff-done/ dir is the LEGACY_PACKAGE_ROOT default and sync.test.cjs's symlink shim collides with it - do NOT delete it casually; the owner decision must account for this.",
-      "memory sync --embed rewrites MEMORY.md (it owns the <!-- memory-cli --> block) and can race a hand-edit made in the same session. After running it, re-grep any MEMORY.md line you edited by hand before trusting it. A persistence-verification agent read a stale copy of exactly that line this session."
+      "memory sync --embed rewrites MEMORY.md (it owns the <!-- memory-cli --> block) and can race a hand-edit made in the same session. After running it, re-grep any MEMORY.md line you edited by hand before trusting it. A persistence-verification agent read a stale copy of exactly that line this session.",
+      "bun run audit:ci (scripts/audit-check.js) spawns bun --version and fails closed with 'Bun runtime does not match the repository version authority' on this host's bun 1.4.0. To run it locally: npx -y -p bun@1.3.5 bun --version (downloads the pinned bun into the npx cache), find its bun.exe under ~/AppData/Local/npm-cache/_npx/*/node_modules/@oven/bun-windows-x64-baseline/bin, put THAT directory (POSIX form) first on PATH, then bun run audit:ci. The sh shim in node_modules/.bin is not enough because spawnSync resolves bun.exe, not the shim. Verified 2026-09-05.",
+      "gh api /advisories/<id> with a leading slash is rewritten to a filesystem path by MSYS; use gh api advisories/<id>. In that endpoint first_patched_version is a string, not an object."
     ],
     "step_2_merge_evidence": {
       "merge_commit": "fce6d8d1",
@@ -65,7 +67,7 @@
       "Fixed init.test.cjs binding to the legacy package root (it silently tested the stale repo-root get-stuff-done/ dir on direct runs).",
       "MAINTENANCE.md gained a 'Forward-porting overrides on an upstream bump' runbook - the mechanical recipe + the arithmetic verification step + the two traps."
     ],
-    "in_flight": "Step 3 gated: fix #45 (tests/sync.test.cjs:64 process.exit(0) ends the run at 5 of 57 files with rc 0) as its own small PR from main FIRST, close #44 with evidence, then start 1.9.1 on chore/upstream-bump-1.9.1 (cut from post-1.8.0 main; will need main merged in after the #45 PR lands).",
+    "in_flight": "TWO Tier-M PRs open (2026-09-05), both must merge before step 3: PR #64 security/fast-uri-3.1.6 (override 3.1.5->3.1.6 for four HIGH GHSA advisories published 2026-09-02; Audit CI + OSV were red on EVERY PR since main last ran green 2026-08-31) and PR #63 fix/sync-test-skip-without-process-exit (closes #45; all test lanes green, only Audit CI/OSV red = the fast-uri set). Order: merge #64 when hosted CI is green -> merge origin/main into fix/sync-test-skip-without-process-exit and push -> CI reruns -> merge #63 -> merge origin/main into chore/upstream-bump-1.9.1 -> step 3. #44 CLOSED 2026-09-05 with evidence (fixed by ece379db). #49 still open, non-blocking.",
     "prune_gotcha": "node scripts/vetted-upstream-versions.js --prune-for-bump <new> validates the manifest against the CURRENT authority first, so it FAILS if you advance the authority before pruning. Either prune first, or temporarily set the authority version back to the old pin for the single prune call (what step 2 did), then restore it.",
     "inbox_checkpoint": "2026-09-02: 6 active items. NEW and HIGH: 09-01 conversations cost/gate assessment and 09-02 engine-vs-prose split plan (same thread), both triaged with next_owner user - decisions D1-D11 pending ratification, two of which gate step 3 (see sequencing_decision_pending). Unchanged: authkey gate system (backlog 999.7), memory-nexus health-drift (in-progress, backlog 999.8), kanbanflow model-catalog + conversations plan-checker (final bump step; plan-checker mechanism corrected above).",
     "sequencing_decision_resolved": {
@@ -92,6 +94,25 @@
         "D9": "NARROWED via question_2 (#45 blocking; #44 closed with evidence; #49 and D8 drift check alongside the walk)."
       },
       "status": "RESOLVED 2026-09-05: all eleven decisions ratified or overridden by the user via AskUserQuestion. See decisions_recorded_2026_09_05 and the ratification section in the 09-02 inbox item."
+    },
+    "prs_in_flight_2026_09_05": {
+      "pr_64": {
+        "url": "https://github.com/chudeemeke/get-stuff-done/pull/64",
+        "branch": "security/fast-uri-3.1.6",
+        "head": "7b89424b",
+        "tier": "M",
+        "what": "fast-uri override 3.1.5 -> 3.1.6 (first patched 3.x, inside ajv ^3.0.1); bun.lock regenerated",
+        "local_evidence": "audit:ci under pinned bun 1.3.5: 3 findings, 0 blocking (was 7/4). lint 0 errors; compose green; overrides 9/9 fresh; bun run test 1671 pass / 2 fail (the two known local false reds)."
+      },
+      "pr_63": {
+        "url": "https://github.com/chudeemeke/get-stuff-done/pull/63",
+        "branch": "fix/sync-test-skip-without-process-exit",
+        "head": "2b692738",
+        "tier": "M",
+        "what": "tests/sync.test.cjs: no module-scope process.exit; lstat-based shim detection self-heals the dangling iCloud junction; suites skip with reason when the shim is unavailable. New tests/test-file-exit-hygiene.test.js (acorn AST meta-test: no process.exit at module scope in any test file).",
+        "local_evidence": "RED: offenders [sync.test.cjs:64]; GREEN 2/2. node --test sync.test.cjs: 153 pass (first local run since the 2026-08 move; pre-fix control against the same dangling junction: 1 pass, rc 0, zero real tests). bun run test 1673 pass / 2 fail (known false reds); test:repository-compat 154 pass.",
+        "ci_snapshot": "all Test/Upstream Compat/Matrix/Parity/Overrides/Secret/Lint green; Audit CI + OSV red on fast-uri only (pre-existing, fixed by #64)."
+      }
     }
   },
   "human_actions_pending": [

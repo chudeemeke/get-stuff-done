@@ -96,7 +96,15 @@ function parseConfigDir(argv) {
  * @param {string[]} argv - CLI arguments
  * @returns {string} Resolved target directory path
  */
+function expandRuntimeHome(value, home = os.homedir()) {
+  return value === '~' || value.startsWith('~/') ? path.join(home, value.slice(1)) : value;
+}
+
 function resolveTargetDir(argv) {
+  return expandRuntimeHome(resolveTargetDirRaw(argv));
+}
+
+function resolveTargetDirRaw(argv) {
   const configDir = parseConfigDir(argv);
 
   const hasLocal = argv.includes('--local');
@@ -1072,6 +1080,7 @@ module.exports = {
   isSafeToClean,
   parseConfigDir,
   resolveTargetDir,
+  expandRuntimeHome,
   preflightInstallTarget,
   createInstallTransaction,
   rollbackInstallTransaction,

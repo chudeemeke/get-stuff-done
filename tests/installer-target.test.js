@@ -25,3 +25,10 @@ test('Codex local and explicit configuration match the selected runtime', () => 
   const explicit = path.join(os.tmpdir(), 'explicit-codex');
   expect(resolve(['--codex', '--global', '--config-dir', explicit], { CODEX_HOME: path.join(os.tmpdir(), 'other-codex') })).toBe(explicit);
 });
+
+test('runtime home overrides expand tilde consistently with upstream', () => {
+  expect(resolve(['--codex', '--global'], { CODEX_HOME: '~/.custom-codex' })).toBe(path.join(os.homedir(), '.custom-codex'));
+  expect(resolve(['--codex', '--global'], { CODEX_HOME: '~' })).toBe(os.homedir());
+  expect(resolve(['--codex', '--global', '--config-dir', '~/.explicit-codex'])).toBe(path.join(os.homedir(), '.explicit-codex'));
+  expect(resolve(['--claude', '--global'], { CLAUDE_CONFIG_DIR: '~/.custom-claude' })).toBe(path.join(os.homedir(), '.custom-claude'));
+});

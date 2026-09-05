@@ -5,8 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
-// These two integration cases launch multiple isolated processes. Give their
-// aggregate work the same 30s budget as CI, independently of Bun's 5s default.
+// Integration cases use the same 30s budget as CI, independently of Bun's 5s default.
 const processTest = (name, run) => process.versions.bun
   ? test(name, run, 30000)
   : test(name, { timeout: 30000 }, run);
@@ -80,42 +79,45 @@ test('stale hashes, invalid UTF-8 and line-budget overflow cannot emit partial e
   for (const maxLines of [0, -1, 2.5, NaN, 2001]) expect(() => createDigest(Buffer.from(source), { ...options, maxLines })).toThrow();
 });
 
-processTest('CLI emits Markdown or JSON without modifying research and rejects invalid input', () => {
+function runCli(args) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-test-'));
   try {
     fs.writeFileSync(path.join(root, 'RESEARCH.md'), source);
-    fs.writeFileSync(path.join(root, 'STATE.md'), source);
-    function run(args) {
-      const result = spawnSync(process.execPath, [helper, '--stdin', ...args], { input: source, cwd: root, encoding: 'utf8', timeout: 10000 });
-      assert.equal(result.error, undefined);
-      return result;
-    }
-    const md = run(['RESEARCH.md', '--section', 'UI']);
+    const result = spawnSync(process.execPath, [helper, '--stdin', ...args], { input: source, cwd: root, encoding: 'utf8', timeout: 10000 });
+    assert.equal(result.error, undefined);
+    expect(fs.readFileSync(path.join(root, 'RESEARCH.md'), 'utf8')).toBe(source);
+    return result;
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+}
+
+processTest('CLI emits Markdown without modifying research', () => {
+    const md = runCli(['RESEARCH.md', '--section', 'UI']);
     expect(md.status).toBe(0); expect(md.stderr).toBe(''); expect(md.stdout).toContain('source_sha256:');
-    const json = run(['--json', '--section=UI', '--max-lines=100', '--expect-sha256', sha(source), '--', 'RESEARCH.md']);
+});
+processTest('CLI emits JSON from stdin with matching byte provenance', () => {
+    const json = runCli(['--json', '--section=UI', '--max-lines=100', '--expect-sha256', sha(source), '--', 'RESEARCH.md']);
     expect(json.status).toBe(0); expect(JSON.parse(json.stdout).source_sha256).toBe(sha(source));
-    const missing = run(['missing-RESEARCH.md', '--section', 'UI', '--json']);
+});
+processTest('CLI accepts a nonexistent research label without filesystem claims', () => {
+    const missing = runCli(['missing-RESEARCH.md', '--section', 'UI', '--json']);
     expect(missing.status).toBe(0);
     expect(JSON.parse(missing.stdout).source_kind).toBe('supplied_bytes');
-    for (const args of [[], ['RESEARCH.md'], ['STATE.md', '--section', 'UI'], ['RESEARCH.md', '--section', 'UI', '--unknown'], ['RESEARCH.md', 'extra', '--section', 'UI'], ['RESEARCH.md', '--section', 'UI', '--expect-sha256', '0'.repeat(64)]]) {
-      const bad = run(args); expect(bad.status).toBe(1); expect(bad.stdout).toBe(''); expect(bad.stderr).toContain('research-digest:');
-    }
-    for (const args of [['--help'], ['-h'], ['help'], ['--version']]) expect(run(args).status).toBe(0);
-    expect(fs.readFileSync(path.join(root, 'RESEARCH.md'), 'utf8')).toBe(source);
-  } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
+for (const [index, args] of [[], ['RESEARCH.md'], ['STATE.md', '--section', 'UI'], ['RESEARCH.md', '--section', 'UI', '--unknown'], ['RESEARCH.md', 'extra', '--section', 'UI'], ['RESEARCH.md', '--section', 'UI', '--expect-sha256', '0'.repeat(64)]].entries()) {
+  processTest(`CLI rejects invalid input case ${index + 1} without partial output`, () => {
+    const bad = runCli(args); expect(bad.status).toBe(1); expect(bad.stdout).toBe(''); expect(bad.stderr).toContain('research-digest:');
+  });
+}
+for (const arg of ['--help', '-h', 'help', '--version']) {
+  processTest(`CLI supports ${arg}`, () => { expect(runCli([arg]).status).toBe(0); });
+}
 
-processTest('digest decision mutations are rejected by the behavioral tests', () => {
-  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-mutant-'));
-  try {
-    const bin = path.join(sandbox, 'bin');
-    fs.mkdirSync(bin);
-    fs.cpSync(path.join(path.dirname(helper), 'lib'), path.join(bin, 'lib'), { recursive: true });
-    const original = fs.readFileSync(helper, 'utf8');
-    const childEnv = { ...process.env };
-    // Each mutation is a new Node test run, not a child test-runner worker.
-    delete childEnv.NODE_TEST_CONTEXT;
-    const mutants = [
+let mutationSandbox;
+const afterSuite = process.versions.bun ? require('bun:test').afterAll : require('node:test').after;
+afterSuite(() => {
+  if (mutationSandbox) fs.rmSync(mutationSandbox, { recursive: true, force: true });
+});
+const mutants = [
       ['expectedHash !== undefined && expectedHash !== sourceHash', 'false', '^stale hashes'],
       ['digestLines > maxLines', 'false', '^stale hashes'],
       ["markdown.slice(0, -1).split('\\n').length", "markdown.trimEnd().split('\\n').length", '^line budget counts'],
@@ -127,8 +129,19 @@ processTest('digest decision mutations are rejected by the behavioral tests', ()
       ['!values.stdin || positionals.length !== 1', 'positionals.length !== 1', '^CLI requires'],
       ["!Buffer.from(decoded, 'utf8').equals(bytes)", 'false', '^stale hashes'],
       ['!Number.isInteger(maxLines) || maxLines < 1 || maxLines > 2000', 'false', '^stale hashes'],
-    ];
-    for (const [before, after, pattern] of mutants) {
+];
+for (const [index, [before, after, pattern]] of mutants.entries()) {
+  processTest(`digest rejects decision mutation ${index + 1}`, () => {
+    if (!mutationSandbox) {
+      mutationSandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-mutant-'));
+      fs.mkdirSync(path.join(mutationSandbox, 'bin'));
+      fs.cpSync(path.join(path.dirname(helper), 'lib'), path.join(mutationSandbox, 'bin/lib'), { recursive: true });
+    }
+    const bin = path.join(mutationSandbox, 'bin');
+    const original = fs.readFileSync(helper, 'utf8');
+    const childEnv = { ...process.env };
+    // Each mutation is a new Node test run, not a child test-runner worker.
+    delete childEnv.NODE_TEST_CONTEXT;
       assert.equal(original.split(before).length, 2, `Mutation must target exactly one decision: ${before}`);
       const mutant = path.join(bin, 'research-digest.cjs');
       fs.writeFileSync(mutant, original.replace(before, after));
@@ -141,9 +154,8 @@ processTest('digest decision mutations are rejected by the behavioral tests', ()
       assert.match(result.stdout, /failureType: 'testCodeFailure'/, 'Mutation must fail a real behavioral assertion.');
       assert.match(result.stdout, /expect\(received\)\.(?:toThrow|toBe)\((?:expected)?\)|code: 'ERR_ASSERTION'/, 'Setup failures cannot count as killed mutations.');
       assert.doesNotMatch(result.stderr, /MODULE_NOT_FOUND|SyntaxError/, 'Setup errors cannot count as killed mutations.');
-    }
-  } finally { fs.rmSync(sandbox, { recursive: true, force: true }); }
-});
+  });
+}
 
 test('source labels require relative research paths without filesystem claims', () => {
   for (const label of [undefined, '', 'STATE.md', '../RESEARCH.md', 'phase/../RESEARCH.md', '/RESEARCH.md', 'C:/RESEARCH.md', 'C:phase/RESEARCH.md', 'bad\0/RESEARCH.md']) {

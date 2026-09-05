@@ -166,6 +166,13 @@ describe('run-upstream-compat test discovery', () => {
 });
 
 describe('run-upstream-compat output parsing', () => {
+  test('refuses success without a complete TAP summary', () => {
+    for (const output of ['', 'all good', 'ℹ pass 22\nℹ fail 0\n', '# pass 2\n# fail 0\n']) {
+      const result = parseTestOutput(output, 0);
+      expect(result.ok).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+    }
+  });
   test('parses TAP pass fail and skipped counts', () => {
     const result = parseTestOutput('# pass 10\n# fail 2\n# skipped 1\n', 1);
 
@@ -320,6 +327,7 @@ describe('run-upstream-compat per-suite execution', () => {
       });
 
       expect(calls).toHaveLength(2);
+      expect(calls.every(call => call.args.includes('--test-reporter=tap'))).toBe(true);
       expect(result).toMatchObject({
         ok: false,
         passed: 4,

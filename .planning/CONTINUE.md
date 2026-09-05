@@ -27,15 +27,16 @@ D1-D11 of the 09-02 engine-versus-prose plan (2026-09-05)
 **Active work:** issue #53 upstream bump campaign — an incremental walk of the
 `@opengsd/gsd-core` pin, 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0, one merged PR
 per step (endpoint extended to 1.12.0 by user decision 2026-09-05). **Steps 1 and 2 are merged** (PR #61 -> `0bfac78e`, PR #62 -> `fce6d8d1`). The pin
-is now **1.8.0**. Step 3 (1.9.1) has not started; this branch is its workspace. It is gated on the #45 fix
-PR merging first (user decision 2026-09-05; the eleven D1-D11 outcomes are in HANDOFF.json).
+is now **1.9.1 in the candidate worktree**, not installed or merged. PR64 merged as
+`f19045ce`, then PR63 merged as `b1f10321`, closing #45. Main is integrated here.
+The candidate passed316/316 compatibility tests. Its formal matrix hit a Windows
+PowerShell timeout and is rerunning; no failed evidence has been marked vetted.
 
-**Phase 43** is no longer the active arc: PR #23 merged 2026-08-29 as `ece379db`, and issues
- #46, #47 and #48 were closed with evidence before that merge. What remains of Phase 43 is a
-bookkeeping question — 50 PLAN files against 22 SUMMARY files, where it was never established
-whether the 28 gaps are unexecuted or executed-but-unsummarized (several were executed inside
-the 86 commits recovered from an orphaned worktree). Establish that before treating it as
-remaining effort.
+**Phase 43** remains an acceptance-evidence surface. PR23 merged as `ece379db`,
+and issues46/47/48 closed, but that does not prove all plans completed. The
+referenced `scripts/validate-phase43-evidence.js` is absent from Git history;
+at least some later plans are unexecuted. Keep plan counters unchanged and
+finish the applicable September5 criteria instead of declaring bookkeeping done.
 
 **How to run a bump step:** `MAINTENANCE.md` -> "Forward-porting overrides on an upstream
 bump". It is a mechanical runbook, proven twice. The non-negotiables: never three-way merge an
@@ -43,7 +44,11 @@ override, drop-experiment after adoption test corrections and before porting, ve
 `REASON.md`, and adopt deliberate upstream semantic changes through version-conditional fork
 tests rather than overriding them.
 
-**Next concrete action:** follow `.planning/HANDOFF.json` and `.planning/SKIN-COMPLETION.md`: finish existing PR64 then PR63 integration before step3. D1-D11 are resolved. The September5 contract is execution scope; no new strategic audit.
+**Next concrete action:** finish1.9.1 matrix and final-head gates, review and PR.
+PR65's explicit TAP fix is staged here; its TierD merge decision remains pending.
+Independent installer work is in PR66 (drift plus Codex target correction),
+PR67 (hook bootstrap), and PR68 (patch preservation). Resolve current heads and
+checks before integration. D1-D11 remain resolved; no new strategic audit.
 
 ---
 *Hand-written 2026-08-31. The GSD PreCompact hook regenerates this file wholesale from

@@ -21,6 +21,9 @@ test('reports matching upstream generations independently of fork version', () =
     const report = inspectInstallations({ home, expectedVersion: '1.8.0' });
     expect(report.ok).toBe(true);
     expect(report.runtimes.map(item => item.status)).toEqual(['matching-version', 'matching-version']);
+    const tildeReport = inspectInstallations({ home, expectedVersion: '1.8.0', runtimeRoots: { claude: '~/.claude', codex: '~/.codex' } });
+    expect(tildeReport.ok).toBe(true);
+    expect(tildeReport.runtimes.map(item => item.target)).toEqual([path.join(home, '.claude'), path.join(home, '.codex')]);
     fs.writeFileSync(path.join(home, '.claude/gsd-core/VERSION'), '1.6.1');
     expect(inspectInstallations({ home, expectedVersion: '1.8.0' }).ok).toBe(false);
   } finally { fs.rmSync(home, { recursive: true, force: true }); }

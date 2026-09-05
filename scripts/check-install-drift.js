@@ -6,11 +6,11 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { getActivePackageVersion } = require('./lib/upstream-source');
-const { detectV2 } = require('../bin/install');
+const { detectV2, expandRuntimeHome } = require('../bin/install');
 
 function inspectInstallations({ home = os.homedir(), expectedVersion = getActivePackageVersion(), runtimeRoots = {} } = {}) {
   const runtimes = ['claude', 'codex'].map(runtime => {
-    const target = runtimeRoots[runtime] || path.join(home, `.${runtime}`);
+    const target = expandRuntimeHome(runtimeRoots[runtime] || path.join(home, `.${runtime}`), home);
     const versionPath = path.join(target, 'gsd-core', 'VERSION');
     const legacyPath = path.join(target, 'get-shit-done', 'VERSION');
     const row = { runtime, target, expectedVersion, legacyPresent: fs.existsSync(legacyPath) || detectV2(target).isV2 };

@@ -93,3 +93,17 @@ and backup those before activation/removal. Active inbox ignores stay intact.
   exit1. State writers, milestone position and five commit-docs configurations
   pass. Bullet-only roadmap/manager phases and semantic replanned plan count
   remain red. Fixtures and full TAP are committed; see tests/acceptance/README.md.
+- PR63 merged as b1f10321 after final-head CI and review; main is integrated.
+- 1.9.1 port 060f5b1a retains the nine classified deltas. The formal matrix
+  retry passed316/316, zero skips, exit0; report applied and hash-verified.
+  Its earlier PowerShell timeout remains recorded with the original threshold.
+  Bounded independent port review found no actionable findings. CRLF statusline
+  regression passes. Full pre-push and hosted final-head gates remain open.
+- PR65 now includes main at 801650c3; owner merge decision remains pending.
+- PR66 local work additionally corrects Codex target selection and tilde home
+  expansion. Isolated real Codex installation writes matching metadata and
+  VERSION under CODEX_HOME and does not create a Claude directory. Latest local
+  code and receipt await push; older remote CI is not final-head evidence.
+- PR67 final pre-push passed1673 tests, zero failures. PR68 preserves local
+  patch backups and has passed its complete pre-push gate. Their hosted checks
+  and owner integration decisions remain open; no user runtime was reinstalled.

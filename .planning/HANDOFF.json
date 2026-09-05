@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-05T05:18:00.000Z",
+  "timestamp": "2026-09-05T05:48:55.6372357Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
-  "pr": "PR64 merged f19045ce; PR63 merged b1f10321; step3 candidate preparation started",
+  "pr": "PR64 merged f19045ce; PR63 merged b1f10321; 1.9.1 matrix vetted, full gate and PR pending",
   "status": "skin-contract-executing-step3-1.9.1",
   "READ_FIRST": "D1-D11 were ratified or overridden on 2026-09-05 and remain binding. Execute September 5 skin completion contract; do not restart strategic audit or ask for ratification again. Read .planning/SKIN-COMPLETION.md. Refresh git and exact-head CI before integration. Preserve untracked coverage/ and get-stuff-done/memory/. Run bun run test and check both suite summary and exit code.",
   "bump_arc": {
@@ -17,9 +17,9 @@
       "checks": "20/20 SUCCESS on final head 2d83742a"
     },
     "evidence": {
-      "matrix": ".planning/evidence/bump-1.8.0-compat.json - single-version current-pin report, 1.8.0 blocking row PASS, 316/316 across 11 candidate suites, 0 failed 0 skipped.",
-      "applied": "node scripts/vetted-upstream-versions.js --apply-matrix-evidence .planning/evidence/bump-1.8.0-compat.json --date 2026-08-30 -> manifest 1.8.0 row vettedAt 2026-08-30, sha256 72ece37b9b1339ae3f5c33190bb337f8d049803c43a7499148a52f3e101de34e; historical rows keep their own evidence and now carry supersededBy.",
-      "gates": "lint 0 errors (805 pre-existing warnings); lint:docs 0 issues; compose green (upstream_version 1.8.0, 835 files); check-overrides 9/9 fresh; changelog self-test green.",
+      "matrix": ".planning/evidence/bump-1.9.1-compat.json: serial formal matrix 316 pass, 0 fail, 0 skip, 11 suites, exit 0. Earlier timing failure retained separately.",
+      "applied": "Applied successful 1.9.1 report on 2026-09-05; vetted manifest --validate verified contained evidence hash. Historical 1.7/1.8 rows retain own superseded evidence.",
+      "gates": "1.9.1 lint 0 errors / 809 warnings, docs 0 issues, override hashes fresh, CRLF regression pass, bounded independent port review clear. Full pre-push and hosted final-head checks pending.",
       "full_suite": "Historical final 1.8.0 local run: 1671 pass / 2 fail (recorded local runtime/environment failures); hosted run33341168635 passed. New candidate acceptance needs fresh summary and exit status."
     },
     "known_local_false_reds": [
@@ -27,12 +27,12 @@
       "verify-upgrade.test.js 'rejects an oversized real registry identity response' - local bun 1.4.0 vs pinned 1.3.5 stream behavior. Pinned CI is the authority."
     ],
     "next_steps": [
-      "0. (2026-09-05 decision) BEFORE step 3: (a) fix #45 on a fix/ branch from main, PR, gates by hand, merge; (b) close #44 with evidence (lint rc 0 / 0 errors / 805 warnings verified 2026-09-05 on the bump branch; confirm on main); (c) open separate non-blocking PRs alongside the walk for #49 (pre-push hook) and the D8 installed-version drift check. Then merge main into chore/upstream-bump-1.9.1 and proceed with step 3.",
+      "PR64 and PR63 merged; #45 gate fixed. Main b1f10321 integrated. PR65 TAP fix staged, owner merge approval pending. PR66 drift/Codex target, PR67 hook bootstrap, PR68 patch preservation proceed alongside the walk.",
       "1. Step 3 (1.8.0 -> 1.9.1): follow MAINTENANCE.md -> \"Forward-porting overrides on an upstream bump\" verbatim. It is now a mechanical runbook proven twice.",
       "2. Sequence: bun install --ignore-scripts the 1.9.1 pin; advance the pin in package.json + .planning/upstream-authority.json + the embedded authority in scripts/lib/upstream-source.js; --prune-for-bump the manifest (NOTE: prune reads the authority, so run it BEFORE advancing the authority or temporarily set the authority back - see gotcha below); re-aim the Upgrade Verifier --from 1.9.1 --to 1.10.0; shift the N=3 compat set to 1.7.0/1.8.0/1.9.1 (script constant + tests/upstream-compat-contract.json + the two contract-mirroring test files - tests/run-upstream-compat.test.js and tests/run-upstream-compat-ci.test.js - via a descending-order string replace (1.8.0 first, then 1.7.0, then 1.6.1, so earlier replacements are not re-matched)).",
       "3. After adoption corrections, compose the candidate using a scratch overlay directory with no sibling overrides. Run the TAP-explicit compat runner and retain full per-assertion reports. Never rename the live override tree; an all-drop result does not prove each override individually.",
       "4. Forward-port only the overrides whose upstream base actually changed (cmp old vs new pure upstream first). Verify each retained behavior with candidate-bound tests; line counts are not semantic proof. Refresh all 9 REASON.md.",
-      "5. Evidence: node scripts/run-compat-matrix.js --version 1.9.1 --report .planning/evidence/bump-1.9.1-compat.json, then --apply-matrix-evidence. pruneForBump will auto-stamp evidence.supersededBy on the demoted 1.8.0 row.",
+      "Run actual bootstrapped pre-push with pinned Bun 1.3.5, then final-head hosted CI and canonical September 2 Tier M/D review and sign-off policy. Do not treat stale mandatory-tuicr prose as current policy.",
       "6. Gates by hand (pre-push hook inert, #49): bun run lint, lint:docs, compose, bun run test (summary line, not rc), node scripts/check-overrides.js, bash .changelog-conflict-check.sh --self-test. Then PR with the evidence contract, hosted CI green on the FINAL head, review, operator tuicr, squash merge.",
       "7. The two triaged inbox items (kanbanflow model-catalog opus5, conversations plan-checker effort) plus the ratified D1 checker-tier override, D2 cross-vendor routing and D7 editor-hook exclusions (kanbanflow model-catalog opus5, conversations plan-checker effort) execute at the FINAL step. CORRECTION 2026-09-02: the plan-checker effort:low is NOT shipped in agents/*.md and is NOT from a newer installed copy - it is injected at install time by upstream's own resolver (install-effort-resolver.cjs, AGENT_DEFAULT_TIERS light->low) and 1.12.0 still resolves plan-checker to sonnet/low under quality. A bump does not change it; the fix is fork-side (override the tier / route via cross-ai-review) or an upstream PR reclassifying the goal-backward gates. See the 09-01 inbox item, Recommended action 1, and the 09-02 plan D1/D2."
     ],
@@ -161,6 +161,6 @@
       "status": "in-progress"
     }
   ],
-  "next_action": "Complete bounded review of PR64 and PR63; merge green PR64, integrate main into PR63 and obtain final-head green checks, merge PR63; integrate main into campaign and continue incremental walk to fixed 1.12.0.",
+  "next_action": "Run actual full pre-push for 1.9.1, open candidate PR and finish final-head CI. Port review has no actionable findings. PR65 owner merge approval remains pending. Push latest PR66 Codex target and tilde fixes after the campaign local suite finishes. Continue fixed walk only after each prior step merges.",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo."
 }

@@ -37,8 +37,12 @@
       "version": "1.9.1",
       "role": "current",
       "blocking": true,
-      "vettedAt": null,
-      "evidence": {}
+      "vettedAt": "2026-09-05",
+      "evidence": {
+        "matrixReport": ".planning/evidence/bump-1.9.1-compat.json",
+        "matrixReportSha256": "06f41461e26d4ff16bf76f8cc4d873b85ba16e536d33618bbf0824c9559dafcd",
+        "status": "passed"
+      }
     }
   ]
 }

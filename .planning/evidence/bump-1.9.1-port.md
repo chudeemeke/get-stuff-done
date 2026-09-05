@@ -35,7 +35,7 @@ base, applied reviewed fork patches with zero fuzz, resolved three rejects
 against new functions, then verified base and semantic hashes. Generated patch
 .orig/.rej files were moved outside the overlay tree into the evidence archive.
 The actual composed candidate passed316/316 compatibility tests,0skip,exit0.
-The formal matrix report and remaining final-head gates are pending.
+The formal matrix report subsequently passed; final-head gates remain pending.
 
 The separate pure1.12.0 state/commit acceptance suite also ran under native Linux
 Node24.20.0 (download checksum verified), with the same9pass/3fail result as
@@ -46,3 +46,15 @@ PowerShell ETIMEDOUT; other candidate suites passed. Full failed envelope:
 `bump-1.9.1-compat-timing-failure.json`. It has not been applied to the vetted
 manifest. The prior direct candidate run passed316/316. Rerun the matrix without
 concurrent installer suites, retaining the original timeout and both results.
+
+The serial retry at 2026-09-05T05:43:02Z passed 316 tests, zero failures or
+skips across 11 suites, exit 0. `bump-1.9.1-compat.json` was applied to the
+vetted manifest and its contained report hash verified by `--validate`.
+The original timeout is unchanged and the failed report remains available.
+
+An additional focused statusline regression passes for CRLF STATE input with
+block-list frontmatter, milestone progress and next-command selection.
+Independent bounded review of commit 060f5b1a against both pure packages and
+the five authoritative 1.9.1 TypeScript source files found no actionable
+findings (local-confidence-high). The review specifically verified the three
+manual resolutions and did not rerun tests or independently validate receipts.

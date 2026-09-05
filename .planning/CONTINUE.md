@@ -29,8 +29,9 @@ D1-D11 of the 09-02 engine-versus-prose plan (2026-09-05)
 per step (endpoint extended to 1.12.0 by user decision 2026-09-05). **Steps 1 and 2 are merged** (PR #61 -> `0bfac78e`, PR #62 -> `fce6d8d1`). The pin
 is now **1.9.1 in the candidate worktree**, not installed or merged. PR64 merged as
 `f19045ce`, then PR63 merged as `b1f10321`, closing #45. Main is integrated here.
-The candidate passed316/316 compatibility tests. Its formal matrix hit a Windows
-PowerShell timeout and is rerunning; no failed evidence has been marked vetted.
+The candidate and serial formal matrix both passed316/316 compatibility tests.
+The successful report is applied and hash-verified. The first matrix's Windows
+PowerShell timeout is retained separately; no timeout was relaxed.
 
 **Phase 43** remains an acceptance-evidence surface. PR23 merged as `ece379db`,
 and issues46/47/48 closed, but that does not prove all plans completed. The
@@ -44,7 +45,8 @@ override, drop-experiment after adoption test corrections and before porting, ve
 `REASON.md`, and adopt deliberate upstream semantic changes through version-conditional fork
 tests rather than overriding them.
 
-**Next concrete action:** finish1.9.1 matrix and final-head gates, review and PR.
+**Next concrete action:** finish1.9.1 full pre-push and final-head hosted gates,
+then PR integration. The bounded port review found no actionable findings.
 PR65's explicit TAP fix is staged here; its TierD merge decision remains pending.
 Independent installer work is in PR66 (drift plus Codex target correction),
 PR67 (hook bootstrap), and PR68 (patch preservation). Resolve current heads and

@@ -33,6 +33,9 @@ test('distinguishes legacy, absent, missing and invalid provenance without compa
     fs.mkdirSync(path.join(home, '.claude/get-shit-done'), { recursive: true });
     fs.writeFileSync(path.join(home, '.claude/get-shit-done/VERSION'), '1.32.0');
     expect(inspectInstallations({ home }).runtimes[0].status).toBe('legacy-source');
+    fs.mkdirSync(path.join(home, '.codex/get-stuff-done'), { recursive: true });
+    fs.writeFileSync(path.join(home, '.codex/get-stuff-done/VERSION'), '2.4.0');
+    expect(inspectInstallations({ home }).runtimes[1].status).toBe('legacy-source');
     fs.mkdirSync(path.join(home, '.claude/gsd-core'), { recursive: true });
     fs.writeFileSync(path.join(home, '.claude/gsd-core/VERSION'), getActivePackageVersion());
     expect(inspectInstallations({ home }).runtimes[0].status).toBe('unverified-provenance');
@@ -63,9 +66,15 @@ test('CLI reports truthful exit codes for isolated homes and invalid arguments',
     }
     expect(main(['--home', home], io)).toBe(0);
     const cli = spawnSync(process.execPath, [path.join(__dirname, '../scripts/check-install-drift.js')], {
-      encoding: 'utf8', env: { ...process.env, USERPROFILE: home, HOME: home },
+      encoding: 'utf8', env: { ...process.env, USERPROFILE: home, HOME: home, CLAUDE_CONFIG_DIR: '', CODEX_HOME: '' },
     });
     expect(cli.status).toBe(0);
     expect(JSON.parse(cli.stdout).ok).toBe(true);
+    const configured = spawnSync(process.execPath, [path.join(__dirname, '../scripts/check-install-drift.js')], {
+      encoding: 'utf8', env: { ...process.env, USERPROFILE: home, HOME: home,
+        CLAUDE_CONFIG_DIR: path.join(home, 'configured-claude'), CODEX_HOME: path.join(home, 'configured-codex') },
+    });
+    expect(configured.status).toBe(1);
+    expect(JSON.parse(configured.stdout).runtimes.every(row => row.status === 'missing')).toBe(true);
   } finally { fs.rmSync(home, { recursive: true, force: true }); }
 });

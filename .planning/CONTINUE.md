@@ -39,13 +39,11 @@ remaining effort.
 
 **How to run a bump step:** `MAINTENANCE.md` -> "Forward-porting overrides on an upstream
 bump". It is a mechanical runbook, proven twice. The non-negotiables: never three-way merge an
-override, drop-experiment before porting, verify each port arithmetically, refresh every
+override, drop-experiment after adoption test corrections and before porting, verify retained behavior with tests, refresh every
 `REASON.md`, and adopt deliberate upstream semantic changes through version-conditional fork
 tests rather than overriding them.
 
-**Next concrete action:** fix #45 (module-scope process.exit in `tests/sync.test.cjs`) on a
-`fix/` branch from `main` and merge it; close #44 with evidence; then merge `main` into this
-branch and run step 3 of the campaign — bump 1.8.0 -> 1.9.1.
+**Next concrete action:** follow `.planning/HANDOFF.json` and `.planning/SKIN-COMPLETION.md`: finish existing PR64 then PR63 integration before step3. D1-D11 are resolved. The September5 contract is execution scope; no new strategic audit.
 
 ---
 *Hand-written 2026-08-31. The GSD PreCompact hook regenerates this file wholesale from

@@ -473,7 +473,13 @@ describe('Phase 43 paired performance workflow', () => {
     expect(perfJob).toContain('node evidence-producer/scripts/emit-paired-binding-manifest.js');
     expect(perfJob).toContain('--tool hyperfine');
     expect(perfJob).toContain(`actions/upload-artifact@${ACTION_PINS.uploadArtifact}`);
-    expect(perfJob.match(/actions\/upload-artifact@/g)).toHaveLength(1);
+    expect(perfJob.match(/actions\/upload-artifact@/g)).toHaveLength(2);
+    const diagnostics = perfJob.slice(perfJob.indexOf('name: Upload raw performance diagnostics'), perfJob.indexOf('name: Stage bounded evidence producer'));
+    expect(diagnostics).toContain("if: ${{ !cancelled() && hashFiles('evidence-bundle/comparison.json') != '' }}");
+    expect(diagnostics).toContain('name: performance-diagnostics-${{ matrix.platform }}');
+    expect(diagnostics).toContain('path: evidence-bundle/comparison.json');
+    expect(diagnostics).not.toContain('runtime-receipt.json');
+    expect(diagnostics).not.toContain('binding-manifest.json');
     expect(perfJob).toContain('name: paired-performance-ci-perf-${{ matrix.platform }}');
     for (const file of [
       'evidence-producer/artifacts/comparison.json',

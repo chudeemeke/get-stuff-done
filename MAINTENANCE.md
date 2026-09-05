@@ -45,26 +45,27 @@ Steps, per bump, with `<old>` the previous pin and `<new>` the incoming one:
    (`npm pack @opengsd/gsd-core@<old>` into a scratch directory, then extract)
    and `cmp` each overridden path against the installed new one. Paths that are
    byte-identical need no port at all.
-2. **Drop-experiment before porting.** Move `overrides/` aside, run
-   `node scripts/run-compat-matrix.js --version <new>`, then move it back. The
-   failures enumerate exactly which fork behaviours upstream has not absorbed;
-   anything green is a candidate for deleting the override outright, which is
-   the only way the skin gets thinner.
+2. **Correct adoption tests, then run the drop experiment before porting.**
+   Compose the new upstream with a scratch copy of `overlay/` and no sibling
+   `overrides/`; do not rename the live tree. Run candidate-bound compatibility
+   tests and retain full TAP logs plus the report. Classify every failed
+   assertion as a fork behavior, adopted upstream change, or harness defect.
+   A green all-drop suite is only a retirement candidate; prove each retained
+   override's behavior independently before removing it. The September5 1.8.0
+   recheck found 14 failures, not the earlier confounded 18.
 3. **Recover the fork delta against a like-for-like base.** Strip upstream's
    inline `// eslint-disable-next-line @typescript-eslint/...` lines from both
    the old and the new pure base (whole-line filter — the fork does not load
-   that plugin, so they are hard errors here and are dropped from every ported
-   file). Then `diff -u stripped-old/<file> overrides/<file>` is the fork's
-   semantic delta.
+   that plugin; the current lint glob covers JS, not CJS, so do not claim these
+   comments cause CJS lint failures). Then inspect
+   `diff -u stripped-old/<file> overrides/<file>` to identify the intended delta.
 4. **Rebuild forward.** Copy `stripped-new/<file>` over `overrides/<file>` and
    apply the delta with `patch -p0`. Hunks land with line offsets; a reject
    means upstream rewrote that exact region, so resolve only that hunk by hand.
-5. **Verify the port arithmetically.** `diff stripped-new/<file>
-   overrides/<file>` must report the same number of differing lines as the
-   delta patch's `+`/`-` count minus its two header lines. Equality on every
-   file proves each fork line was re-applied and no upstream line was lost.
-   Follow it with a grep for one distinctive new upstream symbol per file to
-   confirm the incoming features survived beside the fork's own.
+5. **Verify behavior on the composed candidate.** Map each retained delta to
+   tests of its intended behavior and preserve upstream regression assertions.
+   Inspect changed TypeScript sources when the package ships generated CJS.
+   Line counts and symbol greps are inspection aids, not semantic proof.
 6. **Refresh each `REASON.md`**: `- Version:`, `- SHA-256:` and, where present,
    `- Semantic SHA-256:` of the new upstream file, plus a dated bump-review note
    recording what upstream absorbed and what was adopted or deferred. Confirm

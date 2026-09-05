@@ -14,6 +14,7 @@ const {
   main,
   validateMatrixEvidenceReport,
   validateVettedManifest,
+  verifyEvidenceFiles,
   listMatrixEntries,
   pruneForBump,
 } = require('../scripts/vetted-upstream-versions');
@@ -32,6 +33,29 @@ const COMPAT_CONTRACT = JSON.parse(
 );
 const CANDIDATE_SUITES = COMPAT_CONTRACT.suites.filter(suite => suite.classification === 'candidate');
 const EXCLUDED_SUITES = COMPAT_CONTRACT.suites.filter(suite => suite.classification !== 'candidate');
+
+test('evidence validation rejects changed or missing report bytes', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-evidence-hash-'));
+  try {
+    const report = path.join(root, 'report.json');
+    const bytes = '{"verified":true}\n';
+    fs.writeFileSync(report, bytes);
+    const manifest = { versions: [{ version: '1.8.0', vettedAt: '2026-09-05', evidence: {
+      matrixReport: 'report.json', matrixReportSha256: crypto.createHash('sha256').update(bytes).digest('hex'),
+    } }] };
+    expect(() => verifyEvidenceFiles(manifest, root)).not.toThrow();
+    fs.writeFileSync(report, bytes + ' ');
+    expect(() => verifyEvidenceFiles(manifest, root)).toThrow('SHA-256');
+    fs.unlinkSync(report);
+    expect(() => verifyEvidenceFiles(manifest, root)).toThrow();
+    manifest.versions[0].evidence.matrixReport = '../outside.json';
+    expect(() => verifyEvidenceFiles(manifest, root)).toThrow('outside');
+    manifest.versions[0].vettedAt = null;
+    expect(() => verifyEvidenceFiles(manifest, root)).not.toThrow();
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
 
 function passingSuites() {
   return CANDIDATE_SUITES.map(suite => ({
@@ -349,7 +373,7 @@ describe('vetted upstream versions manifest', () => {
   // Deferred step-1 review finding (d): the exported applyMatrixEvidence used a
   // weaker per-row recheck than the CLI's validator, so a direct library caller
   // could stamp vettedAt onto evidence the CLI would have rejected. Both now
-  // share isRowEvidencePassing; this pins that they cannot drift apart again.
+  // enforce the per-row pass criteria; this tests both public entry points.
   test('applyMatrixEvidence never vets a row the validator would reject', () => {
     const blocking = baseManifest().versions.find(entry => entry.blocking === true);
     const weakenings = [

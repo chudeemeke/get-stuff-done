@@ -27,5 +27,5 @@ Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream changes are #2376 (the bulk —
 init projection refinements), #2337, and #2402 — adopted intact via the
 pure-1.8.0 base; none overlaps the fork delta's regions (patch applied with
 only line offsets). Fork delta unchanged and still required (drop-experiment:
-init.test.cjs fails 6 tests on pure 1.8.0): readStateCurrentPhase + post-sort
+init.test.cjs fails 2 tests on pure 1.8.0 after adoption corrections; see September5 full-TAP report): readStateCurrentPhase + post-sort
 STATE-preference current/next selection + state_current_phase output.

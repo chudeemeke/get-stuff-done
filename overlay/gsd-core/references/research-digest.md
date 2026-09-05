@@ -60,7 +60,7 @@ research merely to satisfy the provisional efficiency target.
 
 The header records `source_kind: supplied_bytes`, the caller-supplied `source`
 label, `source_sha256`, and `selected_sections` with one-based inclusive line
-ranges in the supplied input. CRLF is normalized in excerpts; the hash covers
+ranges in the supplied input. CRLF and CR are normalized in excerpts; the hash covers
 the exact supplied bytes. It does not authenticate the label, filesystem
 identity or current on-disk contents. No timestamps are added.
 

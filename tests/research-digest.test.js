@@ -49,6 +49,22 @@ test('line budget counts trailing whitespace lines in the emitted Markdown', () 
   expect(() => createDigest(bytes, { source: 'RESEARCH.md', sections: ['UI'], maxLines: 20 })).toThrow('budget');
 });
 
+test('carriage-return input preserves byte hashes and enforces Markdown line boundaries', () => {
+  const mixed = source.split('\n').join('\r\n').replace('Use transactions.\r\n', 'Use transactions.\r');
+  for (const input of [source.replace(/\n/g, '\r'), mixed]) {
+    const bytes = Buffer.from(input);
+    let result;
+    assert.doesNotThrow(() => { result = createDigest(bytes, { source: 'RESEARCH.md', sections: ['Storage'] }); });
+    expect(result.source_sha256).toBe(sha(bytes));
+    expect(result.source_lines).toBe(source.split('\n').length);
+    expect(result.selected_sections).toEqual([{ heading: 'Storage', start: 3, end: 12 }]);
+    expect(result.markdown).not.toContain('\r');
+  }
+  expect(() => createDigest(Buffer.from('## UI\n' + 'text\r'.repeat(300)), {
+    source: 'RESEARCH.md', sections: ['UI'], maxLines: 20,
+  })).toThrow('budget');
+});
+
 test('missing, duplicate and overlapping section selections fail explicitly', () => {
   for (const sections of [[], ['Fake'], ['Storage', 'Storage'], ['Storage', 'Recovery']]) {
     expect(() => createDigest(Buffer.from(source), { source: 'RESEARCH.md', sections })).toThrow();
@@ -103,6 +119,7 @@ processTest('digest decision mutations are rejected by the behavioral tests', ()
       ['expectedHash !== undefined && expectedHash !== sourceHash', 'false', '^stale hashes'],
       ['digestLines > maxLines', 'false', '^stale hashes'],
       ["markdown.slice(0, -1).split('\\n').length", "markdown.trimEnd().split('\\n').length", '^line budget counts'],
+      ["decoded.replace(/\\r\\n?/g, '\\n')", "decoded.replace(/\\r\\n/g, '\\n')", '^carriage-return input'],
       ['matches.length !== 1', 'matches.length === 0', '^missing, duplicate'],
       ['selected[i].start <= selected[i - 1].end', 'false', '^missing, duplicate'],
       ['selected[i].start <= selected[i - 1].end', 'true', '^disjoint sections'],

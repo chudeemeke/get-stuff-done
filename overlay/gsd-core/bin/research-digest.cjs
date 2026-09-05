@@ -22,7 +22,7 @@ function createDigest(bytes, { source, sections, maxLines = 200, expectedHash })
   }
   const sourceHash = crypto.createHash('sha256').update(bytes).digest('hex');
   if (expectedHash !== undefined && expectedHash !== sourceHash) throw new Error('Supplied research bytes changed: regenerate and review the digest.');
-  const text = decoded.replace(/\r\n/g, '\n');
+  const text = decoded.replace(/\r\n?/g, '\n');
   const lines = text.split('\n');
   const headings = tokenizeHeadings(text);
   const selected = sections.map(heading => {

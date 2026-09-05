@@ -6,7 +6,7 @@
  * - CLI integration tests via runGsdTools
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
+const { test, describe: nodeDescribe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
@@ -51,31 +51,63 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 const SHIM_PATH = path.join(PROJECT_ROOT, 'overlay', 'get-shit-done'); // meta-test:skip — runtime-created symlink (created below at module load)
 const SHIM_TARGET = path.join(PROJECT_ROOT, 'get-stuff-done');
 let shimCreated = false;
+let shimError = null;
+
+// lstat first, stat second. existsSync follows the link, so a DANGLING shim
+// (its target moved or deleted, which is what the 2026-08 project move left
+// behind) reads as absent and symlinkSync then throws EEXIST. Issue #45.
+function shimState() {
+  try { fs.lstatSync(SHIM_PATH); } catch { return 'absent'; }
+  let stat;
+  try { stat = fs.statSync(SHIM_PATH); } catch { return 'dangling'; }
+  return stat.isDirectory() ? 'usable' : 'blocked';
+}
+
+function removeShim() {
+  try { fs.unlinkSync(SHIM_PATH); return; } catch { /* fall through */ }
+  try { fs.rmdirSync(SHIM_PATH); } catch { /* already removed or inaccessible */ }
+}
 
 try {
-  if (!fs.existsSync(SHIM_PATH)) {
+  let state = shimState();
+  if (state === 'dangling') {
+    removeShim();
+    state = shimState();
+  }
+  if (state === 'blocked') {
+    throw new Error(`${SHIM_PATH} exists and is not a directory`);
+  }
+  if (state === 'absent') {
     const type = process.platform === 'win32' ? 'junction' : 'dir';
     fs.symlinkSync(SHIM_TARGET, SHIM_PATH, type);
     shimCreated = true;
   }
 } catch (err) {
-  console.error(`Symlink shim failed: ${err.message}`);
-  console.error('Skipping sync.test.cjs -- symlink creation requires permissions');
-  process.exit(0); // Exit cleanly so test runner does not report failure
+  shimError = err.message;
 }
+
+// Never process.exit from module scope here. Under a shared-process runner that
+// ends the ENTIRE run with rc 0 and no summary line; under node --test this file
+// "passes" with zero tests. Either way a partial run reports success. When the
+// shim is unavailable every suite below is skipped with the reason instead, so
+// the runner records the skip and keeps going. Guarded by
+// tests/test-file-exit-hygiene.test.js.
+const SHIM_SKIP = shimError ? `symlink shim unavailable: ${shimError}` : false;
+const describe = SHIM_SKIP
+  ? (name, fn) => nodeDescribe(name, { skip: SHIM_SKIP }, fn)
+  : nodeDescribe;
 
 // Best-effort cleanup on process exit (only if we created it).
 // The junction is gitignored and setup is idempotent, so leftover shims are harmless.
 if (shimCreated) {
-  const removeShim = () => {
-    try { fs.unlinkSync(SHIM_PATH); } catch { /* already removed or inaccessible */ }
-  };
   process.on('exit', removeShim);
   process.on('SIGINT', () => { removeShim(); process.exit(130); });
   process.on('SIGTERM', () => { removeShim(); process.exit(143); });
 }
 
-// Direct import for internal helper coverage (avoids bun re-require pitfall)
+// Direct import for internal helper coverage (avoids bun re-require pitfall).
+// Loaded only when the shim is usable; a load failure with a usable shim is a
+// real defect and is allowed to throw so the file goes red, not silently green.
 const SYNC_PATH = path.join(__dirname, '..', 'overlay', 'lib', 'sync.cjs');
 const {
   getCommitsInRange,
@@ -103,7 +135,7 @@ const {
   cmdSyncCheckpointCreate,
   cmdSyncCheckpointList,
   cmdSyncCheckpointCleanup,
-} = require(SYNC_PATH);
+} = SHIM_SKIP ? {} : require(SYNC_PATH);
 
 // ─── Local Helpers ─────────────────────────────────────────────────────────────
 

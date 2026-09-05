@@ -10,18 +10,6 @@
   },
   "versions": [
     {
-      "version": "1.6.1",
-      "role": "historical-candidate",
-      "blocking": false,
-      "vettedAt": "2026-07-14",
-      "evidence": {
-        "matrixReport": ".planning/evidence/phase43-compat.json",
-        "matrixReportSha256": "e4b29fab3d07f5fdac1b4c62785ac3a708b7d3bb4f7ca05935c393f39fb84712",
-        "status": "passed",
-        "supersededBy": "1.7.0"
-      }
-    },
-    {
       "version": "1.7.0",
       "role": "historical-candidate",
       "blocking": false,
@@ -35,14 +23,22 @@
     },
     {
       "version": "1.8.0",
-      "role": "current",
-      "blocking": true,
+      "role": "historical-candidate",
+      "blocking": false,
       "vettedAt": "2026-08-30",
       "evidence": {
         "matrixReport": ".planning/evidence/bump-1.8.0-compat.json",
         "matrixReportSha256": "72ece37b9b1339ae3f5c33190bb337f8d049803c43a7499148a52f3e101de34e",
-        "status": "passed"
+        "status": "passed",
+        "supersededBy": "1.9.1"
       }
+    },
+    {
+      "version": "1.9.1",
+      "role": "current",
+      "blocking": true,
+      "vettedAt": null,
+      "evidence": {}
     }
   ]
 }

@@ -57,6 +57,29 @@ test('evidence validation rejects changed or missing report bytes', () => {
   }
 });
 
+test('evidence validation rejects a directory link outside the project even with matching bytes', () => {
+  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-evidence-link-'));
+  const root = path.join(sandbox, 'project');
+  const outside = path.join(sandbox, 'outside');
+  const link = path.join(root, 'reports');
+  try {
+    fs.mkdirSync(root);
+    fs.mkdirSync(outside);
+    const bytes = '{"verified":true}\n';
+    fs.writeFileSync(path.join(outside, 'report.json'), bytes);
+    fs.symlinkSync(outside, link, process.platform === 'win32' ? 'junction' : 'dir');
+    const manifest = { versions: [{ version: ACTIVE_UPSTREAM_VERSION, vettedAt: '2026-09-05', evidence: {
+      matrixReport: 'reports/report.json', matrixReportSha256: crypto.createHash('sha256').update(bytes).digest('hex'),
+    } }] };
+    expect(() => verifyEvidenceFiles(manifest, root)).toThrow('outside');
+    expect(fs.readFileSync(path.join(outside, 'report.json'), 'utf8')).toBe(bytes);
+  } finally {
+    // Remove the link itself before deleting this test's resolved sandbox.
+    if (fs.existsSync(link)) fs.unlinkSync(link);
+    fs.rmSync(sandbox, { recursive: true, force: true });
+  }
+});
+
 function passingSuites() {
   return CANDIDATE_SUITES.map(suite => ({
     path: suite.path,

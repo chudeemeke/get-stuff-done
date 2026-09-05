@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-05T05:48:55.6372357Z",
+  "timestamp": "2026-09-05T05:58:23.8445643Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
-  "pr": "PR64 merged f19045ce; PR63 merged b1f10321; 1.9.1 matrix vetted, full gate and PR pending",
+  "pr": "PR69 draft at7a745038: 1.9.1 candidate. PR65-68 delivery/gate fixes remain open; PR64/63 merged.",
   "status": "skin-contract-executing-step3-1.9.1",
   "READ_FIRST": "D1-D11 were ratified or overridden on 2026-09-05 and remain binding. Execute September 5 skin completion contract; do not restart strategic audit or ask for ratification again. Read .planning/SKIN-COMPLETION.md. Refresh git and exact-head CI before integration. Preserve untracked coverage/ and get-stuff-done/memory/. Run bun run test and check both suite summary and exit code.",
   "bump_arc": {
@@ -20,7 +20,7 @@
       "matrix": ".planning/evidence/bump-1.9.1-compat.json: serial formal matrix 316 pass, 0 fail, 0 skip, 11 suites, exit 0. Earlier timing failure retained separately.",
       "applied": "Applied successful 1.9.1 report on 2026-09-05; vetted manifest --validate verified contained evidence hash. Historical 1.7/1.8 rows retain own superseded evidence.",
       "gates": "1.9.1 lint 0 errors / 809 warnings, docs 0 issues, override hashes fresh, CRLF regression pass, bounded independent port review clear. Full pre-push and hosted final-head checks pending.",
-      "full_suite": "Historical final 1.8.0 local run: 1671 pass / 2 fail (recorded local runtime/environment failures); hosted run33341168635 passed. New candidate acceptance needs fresh summary and exit status."
+      "full_suite": "Actual pre-push at7a745038:1680pass,0fail,5779assertions,251.34s,exit0 under Bun1.3.5. New directory-link test subsequently passed focused1test/2assertions; final push and hosted CI still required."
     },
     "known_local_false_reds": [
       "platform.test.js 'NO_COLOR env var disables color' - ambient FORCE_COLOR=3 in this shell. Passes in CI.",
@@ -161,6 +161,6 @@
       "status": "in-progress"
     }
   ],
-  "next_action": "Run actual full pre-push for 1.9.1, open candidate PR and finish final-head CI. Port review has no actionable findings. PR65 owner merge approval remains pending. Push latest PR66 Codex target and tilde fixes after the campaign local suite finishes. Continue fixed walk only after each prior step merges.",
+  "next_action": "Finish latest PR66 push, then push PR69 added link-escape test and desktop preservation receipts. Check all final-head hosted CI and present concrete TierD briefs for PR65-69; no owner answer yet for PR65. Do not merge a dependent PR to bypass that gate. Continue fixed walk only after each prior step merges; no D1-D11 re-ratification.",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo."
 }

@@ -36,7 +36,30 @@ same backup. The global upstream command matches the current overlay.
 No additional Codex GSD file was found in that scan. Recheck for edits made
 after the backup before activation; absence from a manifest is not permission
 to discard a file.
-Desktop work remains unclassified and must not be pruned.
+Desktop work was classified at HEAD265e3659f0b7477cf8e59bca24433e8904bdf093
+on branch main through read-only `remotely run --stdin`:
+
+- 475 tracked changes are CRLF/LF only; no other tracked content changes.
+- Six deleted metadata paths have corresponding control-character path
+  variants among the untracked files; their normalized bytes match this
+  repository's tracked metadata.
+- Three untracked recovery documents match the already preserved artifacts.
+- Two untracked agent memory files match current overlay memory after EOL
+  normalization.
+- The two untracked hooks match historical revisions5eaf3de9 (check-update)
+  and54fb5841 (statusline), after EOL normalization.
+
+All13 untracked files are accounted for. Nothing was reset, cleaned or pruned.
+The old locked worktree registration remains untouched. Before any future
+desktop mutation, recheck for edits since this inventory.
+
+Desktop backup: `~/Projects/gsd-skin-backup-2026-09-05-KKfilu/` contains all
+Git refs in repository.bundle, tracked.patch, dirty-files.tar.gz, status and
+worktree inventory plus SHA-256 receipts. External local evidence is retained
+under the September5 report directory as desktop-dirty-classification.json,
+desktop-normalized-comparison.json, desktop-backup-receipt.json and
+desktop-backup-verification.json. This is preservation evidence, not authority
+to discard unexplained future work.
 
 ## Activation gates
 

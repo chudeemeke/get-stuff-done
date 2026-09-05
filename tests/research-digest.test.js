@@ -5,6 +5,11 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
+// These two integration cases launch multiple isolated processes. Give their
+// aggregate work the same 30s budget as CI, independently of Bun's 5s default.
+const processTest = (name, run) => process.versions.bun
+  ? test(name, run, 30000)
+  : test(name, { timeout: 30000 }, run);
 const helper = process.env.GSD_RESEARCH_DIGEST_HELPER || path.join(__dirname, '../dist/gsd-core/bin/research-digest.cjs');
 assert.ok(path.isAbsolute(helper), 'Digest test subject must be an absolute artifact path.');
 const { createDigest, main } = require(helper);
@@ -59,7 +64,7 @@ test('stale hashes, invalid UTF-8 and line-budget overflow cannot emit partial e
   for (const maxLines of [0, -1, 2.5, NaN, 2001]) expect(() => createDigest(Buffer.from(source), { ...options, maxLines })).toThrow();
 });
 
-test('CLI emits Markdown or JSON without modifying research and rejects invalid input', () => {
+processTest('CLI emits Markdown or JSON without modifying research and rejects invalid input', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-test-'));
   try {
     fs.writeFileSync(path.join(root, 'RESEARCH.md'), source);
@@ -81,7 +86,7 @@ test('CLI emits Markdown or JSON without modifying research and rejects invalid 
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
 
-test('digest decision mutations are rejected by the behavioral tests', () => {
+processTest('digest decision mutations are rejected by the behavioral tests', () => {
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-digest-mutant-'));
   try {
     const bin = path.join(sandbox, 'bin');

@@ -2280,6 +2280,15 @@ describe('hosted CI infrastructure ports', () => {
 
   test('tracked verification requires strict ancestry and unchanged governed bytes', () => {
     const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
+    // A committed authority file is immutable. Build each fixture once instead
+    // of repeatedly parsing and rewriting the same workflow for every read.
+    const authorityCache = new Map();
+    const readAuthority = filePath => {
+      if (!authorityCache.has(filePath)) {
+        authorityCache.set(filePath, readSubjectCompliantAuthorityPath(filePath, contract));
+      }
+      return Buffer.from(authorityCache.get(filePath));
+    };
     const checkedCommit = 'a'.repeat(40);
     const subjectCommit = 'b'.repeat(40);
     const receiptPath = '.planning/evidence/hosted/43-11r-initial.json';
@@ -2289,7 +2298,7 @@ describe('hosted CI infrastructure ports', () => {
     input.prHead = checkedCommit;
     for (const run of input.runs) run.head_sha = checkedCommit;
     const governedDigests = computeGovernedDigests(contract, filePath =>
-      readSubjectCompliantAuthorityPath(filePath, contract)
+      readAuthority(filePath)
     );
     const envelope = buildPassedEnvelope(evaluateHostedVerdict(input, contract), contract, {
       purpose: 'Plan 11R initial hosted authority',
@@ -2300,7 +2309,7 @@ describe('hosted CI infrastructure ports', () => {
       if (commit === subjectCommit && filePath === receiptPath) {
         return Buffer.from(JSON.stringify(envelope));
       }
-      return readSubjectCompliantAuthorityPath(filePath, contract);
+      return readAuthority(filePath);
     };
     const options = {
       mode: 'verify-receipt',

@@ -14,7 +14,8 @@
  * Origin: Phase 37 -- post-wipe incident safety validation (2026-04-01)
  */
 
-const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
+const { test, describe, expect } = require('./helpers/portable-test-api');
+const { beforeEach, afterEach } = process.versions.bun ? require('bun:test') : require('node:test');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -23,6 +24,8 @@ const { EventEmitter } = require('events');
 const { createTempDir, SUBPROCESS_TIMEOUT } = require('./helpers');
 const {
   readInstalledManifest,
+  parseConfigDir,
+  resolveTargetDir,
   removeGsdFiles,
   detectV2,
   isSafeToClean,
@@ -32,6 +35,8 @@ const {
   createInstallTransaction,
   rollbackInstallTransaction,
   install,
+  copyOverlayFiles,
+  writeInstallMeta,
   copyOverlayManifest,
   cleanOrphanedPaths,
   INSTALLED_MANIFEST_NAME,
@@ -130,6 +135,87 @@ function spawnThatExits(code = 0) {
     return child;
   };
 }
+
+describe('installer arguments and metadata', () => {
+  for (const [args, expected] of [
+    [[], null], [['--claude'], null], [['--config-dir'], null],
+    [['--config-dir', '--global'], null], [['--config-dir', 'custom'], 'custom'],
+    [['-c', '"quoted path"'], 'quoted path'], [['--config-dir=custom'], 'custom'],
+    [["-c='quoted path'"], 'quoted path'],
+  ]) {
+    test(`config directory parsing: ${JSON.stringify(args)}`, () => {
+      expect(parseConfigDir(args)).toBe(expected);
+    });
+  }
+
+  test('target resolution respects local paths, explicit paths and runtime environment priorities', () => {
+    const keys = ['OPENCODE_CONFIG_DIR', 'OPENCODE_CONFIG', 'XDG_CONFIG_HOME', 'GEMINI_CONFIG_DIR', 'CLAUDE_CONFIG_DIR'];
+    const saved = Object.fromEntries(keys.map(key => [key, process.env[key]]));
+    try {
+      for (const key of keys) delete process.env[key];
+      expect(resolveTargetDir(['--local', '--opencode'])).toBe(path.join(process.cwd(), '.opencode'));
+      expect(resolveTargetDir(['--local', '--gemini'])).toBe(path.join(process.cwd(), '.gemini'));
+      expect(resolveTargetDir(['--local', '--config-dir', 'ignored'])).toBe(path.join(process.cwd(), '.claude'));
+      expect(resolveTargetDir(['--config-dir', 'explicit'])).toBe('explicit');
+      expect(resolveTargetDir([])).toBe(path.join(os.homedir(), '.claude'));
+      expect(resolveTargetDir(['--gemini'])).toBe(path.join(os.homedir(), '.gemini'));
+      expect(resolveTargetDir(['--opencode'])).toBe(path.join(os.homedir(), '.config', 'opencode'));
+      process.env.XDG_CONFIG_HOME = path.join(os.tmpdir(), 'xdg');
+      expect(resolveTargetDir(['--opencode'])).toBe(path.join(process.env.XDG_CONFIG_HOME, 'opencode'));
+      process.env.OPENCODE_CONFIG = path.join(os.tmpdir(), 'specific', 'opencode.json');
+      expect(resolveTargetDir(['--opencode'])).toBe(path.dirname(process.env.OPENCODE_CONFIG));
+      process.env.OPENCODE_CONFIG_DIR = path.join(os.tmpdir(), 'opencode-directory');
+      expect(resolveTargetDir(['--opencode'])).toBe(process.env.OPENCODE_CONFIG_DIR);
+      process.env.GEMINI_CONFIG_DIR = path.join(os.tmpdir(), 'gemini-directory');
+      expect(resolveTargetDir(['--gemini'])).toBe(process.env.GEMINI_CONFIG_DIR);
+      process.env.CLAUDE_CONFIG_DIR = path.join(os.tmpdir(), 'claude-directory');
+      expect(resolveTargetDir([])).toBe(process.env.CLAUDE_CONFIG_DIR);
+    } finally {
+      for (const key of keys) {
+        if (saved[key] === undefined) delete process.env[key];
+        else process.env[key] = saved[key];
+      }
+    }
+  });
+
+  test('metadata supports both upstream naming schemes and explicit package identity', () => {
+    const tmp = createTempDir();
+    try {
+      const distDir = writeMockDist(tmp.path, []);
+      const target = path.join(tmp.path, 'target');
+      fs.mkdirSync(target);
+      const packagePath = path.join(tmp.path, 'package.json');
+      fs.writeFileSync(packagePath, JSON.stringify({ name: 'fixture-fork', version: '4.0.0' }));
+      for (const input of [
+        { upstreamPackage: 'upstream-camel', upstreamVersion: '1.2.3' },
+        { upstream_package: 'upstream-snake', upstream_version: '2.3.4' },
+        {},
+      ]) {
+        fs.writeFileSync(path.join(distDir, '.install-meta.json'), JSON.stringify(input));
+        writeInstallMeta(target, distDir, packagePath);
+        const meta = JSON.parse(fs.readFileSync(path.join(target, '.install-meta.json'), 'utf8'));
+        expect(meta.forkPackage).toBe('fixture-fork');
+        expect(meta.forkVersion).toBe('4.0.0');
+        expect(meta.upstreamPackage).toBe(input.upstreamPackage || input.upstream_package || '@opengsd/gsd-core');
+        expect(meta.upstreamVersion).toBe(input.upstreamVersion || input.upstream_version || require('../package.json').devDependencies['@opengsd/gsd-core']);
+        expect(meta.features_disabled).toEqual([]);
+        expect(meta.overrides_applied).toEqual([]);
+      }
+    } finally { tmp.cleanup(); }
+  });
+
+  test('overlay copying reports only available source files', () => {
+    const tmp = createTempDir();
+    try {
+      const distDir = writeMockDist(tmp.path, ['hooks/present.js', 'hooks/absent.js']);
+      fs.unlinkSync(path.join(distDir, 'hooks/absent.js'));
+      const target = path.join(tmp.path, 'target');
+      expect(copyOverlayFiles(distDir, target)).toBe(1);
+      expect(fs.readFileSync(path.join(target, 'hooks/present.js'), 'utf8')).toBe('dist:hooks/present.js');
+      expect(fs.existsSync(path.join(target, 'hooks/absent.js'))).toBe(false);
+    } finally { tmp.cleanup(); }
+  });
+});
 
 // ---------------------------------------------------------------------------
 // Installer transaction preflight and rollback
@@ -262,6 +348,162 @@ describe('installer transaction safety', { timeout: SUBPROCESS_TIMEOUT }, () => 
     expect(fs.existsSync(path.join(targetDir, 'hooks', 'gsd-statusline.js'))).toBe(false);
     expect(JSON.parse(fs.readFileSync(path.join(targetDir, 'settings.json'), 'utf-8'))).toEqual({ theme: 'dark' });
   });
+
+  for (const cleanupFails of [false, true]) {
+  test(`snapshot copy failure preserves diagnostics and never spawns upstream (cleanup failure: ${cleanupFails})`, async () => {
+    const distDir = writeMockDist(tmpDir.path);
+    const targetDir = path.join(tmpDir.path, 'target');
+    fs.mkdirSync(targetDir);
+    fs.writeFileSync(path.join(targetDir, 'settings.json'), 'owner bytes');
+    const copy = fs.copyFileSync;
+    const remove = fs.rmSync;
+    let snapshotDir;
+    let spawned = false;
+    try {
+      fs.rmSync = (target, options) => {
+        if (cleanupFails && target === snapshotDir) throw new Error('snapshot cleanup denied');
+        return remove(target, options);
+      };
+      fs.copyFileSync = (source, destination, ...args) => {
+        if (path.basename(source) === 'settings.json') {
+          snapshotDir = path.dirname(destination);
+          throw new Error('snapshot storage unavailable');
+        }
+        return copy(source, destination, ...args);
+      };
+      const result = await install(distDir, targetDir, [], {
+        spawnImpl: () => { spawned = true; return spawnThatExits()(); },
+        exitImpl: () => {}, logImpl: () => {}, errorImpl: () => {},
+      });
+      expect(result.failureStep).toBe('preflight');
+      expect(result.error.message).toContain('snapshot storage unavailable');
+      expect(spawned).toBe(false);
+      expect(fs.readFileSync(path.join(targetDir, 'settings.json'), 'utf8')).toBe('owner bytes');
+      expect(snapshotDir).toBeDefined();
+      expect(fs.existsSync(snapshotDir)).toBe(cleanupFails);
+      if (cleanupFails) {
+        expect(result.error.message).toContain('snapshot cleanup denied');
+        expect(result.error.message).toContain(snapshotDir);
+      }
+    } finally {
+      fs.copyFileSync = copy;
+      fs.rmSync = remove;
+      if (snapshotDir) {
+        const resolved = path.resolve(snapshotDir);
+        if (path.dirname(resolved) !== path.resolve(os.tmpdir()) || !path.basename(resolved).startsWith('gsd-install-transaction-')) {
+          throw new Error('Refusing cleanup outside this test transaction');
+        }
+        fs.rmSync(resolved, { recursive: true, force: true });
+      }
+    }
+  });
+  }
+
+  for (const finalStatus of [0, 1]) {
+    test(`spawn error followed by exit ${finalStatus} settles once without subsequent mutation`, async () => {
+      const distDir = writeMockDist(tmpDir.path);
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir);
+      fs.writeFileSync(path.join(targetDir, 'settings.json'), '{"owner":true}');
+      const child = new EventEmitter();
+      const exits = [];
+      let overlayCalls = 0;
+      const pending = install(distDir, targetDir, [], {
+        spawnImpl: () => child,
+        copyOverlayFilesImpl: () => { overlayCalls++; return 0; },
+        exitImpl: code => exits.push(code), logImpl: () => {}, errorImpl: () => {},
+      });
+      child.emit('error', new Error('spawn failed'));
+      child.emit('exit', finalStatus);
+      child.emit('error', new Error('late error'));
+      const result = await pending;
+      expect(result.failureStep).toBe('spawn');
+      expect(result.rollback).toBe('applied');
+      expect(exits).toEqual([1]);
+      expect(overlayCalls).toBe(0);
+      expect(fs.readFileSync(path.join(targetDir, 'settings.json'), 'utf8')).toBe('{"owner":true}');
+    });
+  }
+
+  for (const scenario of ['unsafe-target', 'missing-installer', 'corrupt-overlay', 'nonarray-overlay', 'corrupt-metadata']) {
+    test(`preflight refuses ${scenario} without running the installer`, async () => {
+      const distDir = writeMockDist(tmpDir.path);
+      const targetDir = scenario === 'unsafe-target' ? os.homedir() : path.join(tmpDir.path, 'target');
+      if (scenario === 'missing-installer') fs.unlinkSync(path.join(distDir, 'bin/install.js'));
+      if (scenario === 'corrupt-overlay') fs.writeFileSync(path.join(distDir, '.overlay-manifest.json'), '{');
+      if (scenario === 'nonarray-overlay') fs.writeFileSync(path.join(distDir, '.overlay-manifest.json'), '{}');
+      if (scenario === 'corrupt-metadata') fs.writeFileSync(path.join(distDir, '.install-meta.json'), '{');
+      let spawned = false;
+      const result = await install(distDir, targetDir, [], {
+        spawnImpl: () => { spawned = true; return spawnThatExits()(); },
+        exitImpl: () => {}, logImpl: () => {}, errorImpl: () => {},
+      });
+      expect(result.status).toBe(1);
+      expect(result.failureStep).toBe('preflight');
+      expect(result.rollback).toBe('not_started');
+      expect(spawned).toBe(false);
+    });
+  }
+
+  for (const scenario of ['throw', 'signal', 'noninteger']) {
+    test(`upstream ${scenario} produces a nonzero result and restores owner settings`, async () => {
+      const distDir = writeMockDist(tmpDir.path);
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir);
+      fs.writeFileSync(path.join(targetDir, 'settings.json'), 'owner bytes');
+      const exits = [];
+      const result = await install(distDir, targetDir, [], {
+        spawnImpl: () => {
+          fs.writeFileSync(path.join(targetDir, 'settings.json'), 'partial upstream write');
+          if (scenario === 'throw') throw new Error('cannot create child');
+          return spawnThatExits(scenario === 'signal' ? null : 'failure')();
+        },
+        exitImpl: code => exits.push(code), logImpl: () => {}, errorImpl: () => {},
+      });
+      expect(result.status).toBe(1);
+      expect(exits).toEqual([1]);
+      expect(result.rollback).toBe('applied');
+      expect(fs.readFileSync(path.join(targetDir, 'settings.json'), 'utf8')).toBe('owner bytes');
+    });
+  }
+
+  test('successful install keeps a custom statusline and archives patches without a pristine tree', async () => {
+    const distDir = writeMockDist(tmpDir.path);
+    const targetDir = path.join(tmpDir.path, 'target');
+    fs.mkdirSync(path.join(targetDir, 'gsd-local-patches'), { recursive: true });
+    fs.mkdirSync(path.join(targetDir, 'hooks/dist'), { recursive: true });
+    fs.writeFileSync(path.join(targetDir, 'gsd-local-patches/keep'), 'authored');
+    const settings = '{"statusLine":{"command":"my-status"}}';
+    fs.writeFileSync(path.join(targetDir, 'settings.json'), settings);
+    const logs = [];
+    const result = await install(distDir, targetDir, [], {
+      spawnImpl: spawnThatExits(), exitImpl: () => {}, logImpl: text => logs.push(text), errorImpl: () => {},
+    });
+    expect(result.status).toBe(0);
+    expect(fs.readFileSync(path.join(targetDir, 'settings.json'), 'utf8')).toBe(settings);
+    expect(fs.existsSync(path.join(targetDir, 'hooks/dist'))).toBe(false);
+    const history = path.join(targetDir, 'gsd-local-patch-history');
+    const generation = path.join(history, fs.readdirSync(history)[0]);
+    expect(fs.readFileSync(path.join(generation, 'gsd-local-patches/keep'), 'utf8')).toBe('authored');
+    expect(fs.existsSync(path.join(generation, 'gsd-pristine'))).toBe(false);
+    expect(logs.join('\n')).toContain('preserved existing custom setting');
+    expect(logs.join('\n')).toContain('Cleaned 1 orphaned path');
+  });
+
+  for (const overlayValue of ['{', '{}', '[null, "", "hooks/old.js", "../outside.txt"]']) {
+    test(`rollback tolerates old malformed overlay inventory ${overlayValue}`, () => {
+      const distDir = writeMockDist(tmpDir.path);
+      const targetDir = path.join(tmpDir.path, 'target');
+      fs.mkdirSync(targetDir);
+      fs.writeFileSync(path.join(targetDir, '.overlay-manifest.json'), overlayValue);
+      fs.writeFileSync(path.join(tmpDir.path, 'outside.txt'), 'outside owner');
+      const transaction = createInstallTransaction(targetDir, distDir);
+      expect(transaction.snapshots.every(item => !item.relPath.startsWith('../'))).toBe(true);
+      rollbackInstallTransaction(transaction);
+      expect(fs.readFileSync(path.join(tmpDir.path, 'outside.txt'), 'utf8')).toBe('outside owner');
+      expect(fs.readFileSync(path.join(targetDir, '.overlay-manifest.json'), 'utf8')).toBe(overlayValue);
+    });
+  }
 
   for (const upstreamStatus of [0, 1]) {
     test(`a later install preserves earlier patch generations before upstream runs (status ${upstreamStatus})`, async () => {

@@ -288,7 +288,6 @@ function createInstallTransaction(targetDir, distDir) {
   for (const name of ['gsd-local-patches', 'gsd-pristine']) {
     assertRegularBackupTree(path.join(targetDir, name));
   }
-  const snapshotDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-install-transaction-'));
   const distOverlayFiles = readDistOverlayManifest(distDir);
   const relPaths = new Set([
     ...readInstalledManifest(targetDir),
@@ -302,26 +301,38 @@ function createInstallTransaction(targetDir, distDir) {
     'gsd-pristine',
   ]);
   const snapshots = [];
+  const snapshotDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-install-transaction-'));
 
-  for (const relPath of relPaths) {
-    const targetPath = targetRelativePath(targetDir, relPath);
-    if (!targetPath) continue;
+  try {
+    for (const relPath of relPaths) {
+      const targetPath = targetRelativePath(targetDir, relPath);
+      if (!targetPath) continue;
 
-    const snapshotPath = path.join(snapshotDir, relPath);
-    const existed = fs.existsSync(targetPath);
-    const snapshot = {
-      relPath,
-      targetPath,
-      snapshotPath,
-      existed,
-      kind: 'missing',
-    };
+      const snapshotPath = path.join(snapshotDir, relPath);
+      const existed = fs.existsSync(targetPath);
+      const snapshot = {
+        relPath,
+        targetPath,
+        snapshotPath,
+        existed,
+        kind: 'missing',
+      };
 
-    if (existed) {
-      snapshot.kind = copySnapshotPath(targetPath, snapshotPath);
+      if (existed) {
+        snapshot.kind = copySnapshotPath(targetPath, snapshotPath);
+      }
+
+      snapshots.push(snapshot);
     }
-
-    snapshots.push(snapshot);
+  } catch (err) {
+    try {
+      fs.rmSync(snapshotDir, { recursive: true, force: true });
+    } catch (cleanupErr) {
+      throw new AggregateError([err, cleanupErr],
+        `Snapshot failed: ${err.message}; cleanup failed at ${snapshotDir}: ${cleanupErr.message}`,
+        { cause: err });
+    }
+    throw err;
   }
 
   return {
@@ -1020,10 +1031,12 @@ function install(distDir, targetDir, userArgs, options = {}) {
     }
 
     child.on('error', (err) => {
+      if (finished) return;
       failWithRollback('spawn', 1, new Error(`Failed to spawn upstream installer: ${err.message}`));
     });
 
     child.on('exit', (code) => {
+      if (finished) return;
       if (code !== 0) {
         errorImpl(`\n${yellow}Upstream installer exited with code ${code}.${reset}`);
         failWithRollback('upstream', code || 1);

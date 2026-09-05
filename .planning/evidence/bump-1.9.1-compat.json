@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 2,
+  "packageName": "@opengsd/gsd-core",
+  "generatedAt": "2026-09-05T05:43:02.469Z",
+  "matrixReport": ".planning/evidence/bump-1.9.1-compat.json",
+  "policy": "current-pin",
+  "ok": true,
+  "blockingFailures": [],
+  "failedVersions": [],
+  "results": [
+    {
+      "version": "1.9.1",
+      "role": "current",
+      "blocking": true,
+      "ok": true,
+      "exitCode": 0,
+      "durationMs": 206653,
+      "classification": "blocking",
+      "status": "passed",
+      "passed": 316,
+      "failed": 0,
+      "skipped": 0,
+      "excluded": [
+        "core.test.cjs",
+        "phase-verification.test.cjs",
+        "sync.test.cjs"
+      ],
+      "classifiedExclusions": [
+        {
+          "path": "core.test.cjs",
+          "classification": "retired"
+        },
+        {
+          "path": "phase-verification.test.cjs",
+          "classification": "repository"
+        },
+        {
+          "path": "sync.test.cjs",
+          "classification": "repository"
+        }
+      ],
+      "suites": [
+        {
+          "path": "commands.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 26512,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "config.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 47,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 9433,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "frontmatter.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 103,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 10291,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "init.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 14,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 15998,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "milestone.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 2090,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "phase.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 54,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 44136,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "roadmap.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 20,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 42134,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "runtime-overrides.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "fork-runtime",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 7291,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "state.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 13,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 14705,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "template.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 34,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 4602,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "verify.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 7332,
+          "exitCode": 0,
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

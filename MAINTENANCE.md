@@ -32,6 +32,15 @@ process sections are owned by Phase 44.
 
 ## Forward-porting overrides on an upstream bump
 
+After cloning or creating a worktree, install dependencies with
+`bun install --ignore-scripts`, then explicitly run `bun run prepare` and
+`bun run hooks:check`. The explicit preparation installs Husky's shim even
+when dependency lifecycle scripts are disabled. Repeat the check before
+citing a push as local gate evidence; an absent/inaccessible configured hook
+fails loudly. A successful accessibility check is not evidence the suite ran:
+the actual push must print the parity checks and complete with their summary.
+Use the repository-pinned Bun runtime for those checks.
+
 Overrides are rebuilt forward on every pin change, never three-way merged. A
 merge uses the old override's base as the merge base, but that base vintage is
 unverified — `REASON.md` certifies the upstream file, never the override's own

@@ -190,8 +190,10 @@ describe('test-config hygiene (meta-test)', () => {
     expect(pkg.scripts['phase43:hosted-verdict']).toBe('node scripts/verify-hosted-ci.js');
     // The YAML parser behind hosted-CI verdicts must be an exact pin, never a range, so the
     // envelope authority is reproducible. The pin moves only on a deliberate bump: 5.2.0 ->
-    // 5.4.0 on 2026-08-26 to clear GHSA advisory 1139509 (high, js-yaml >=5.0.0 <=5.2.1).
-    expect(pkg.devDependencies['js-yaml']).toBe('5.4.0');
+    // 5.4.0 on 2026-08-26 to clear GHSA advisory 1139509 (high, js-yaml >=5.0.0 <=5.2.1);
+    // 5.4.0 -> 4.3.2 on 2026-09-11 to clear GHSA-2883-xcg3-v3hh (high, nested js-yaml 4.3.1;
+    // Bun lacks nested overrides so the tree is forced to patched 4.3.2).
+    expect(pkg.devDependencies['js-yaml']).toBe('4.3.2');
     expect(pkg.devDependencies['js-yaml']).toMatch(/^\d+\.\d+\.\d+$/);
     expect(contract.evidenceDirectory).toBe('.planning/evidence/hosted');
     expect(gitignore).not.toContain('.planning/evidence/phase43-hosted-verdict.json');

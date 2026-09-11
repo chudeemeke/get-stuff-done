@@ -53,6 +53,10 @@ const PKG_PATH = path.join(__dirname, '..', 'package.json');
 
 /** Filename of the installed-files manifest written by upstream into targetDir. */
 const INSTALLED_MANIFEST_NAME = 'gsd-file-manifest.json';
+/** Directory where upstream backs up locally modified install files. */
+const LOCAL_PATCHES_DIRNAME = 'gsd-local-patches';
+/** Durable sidecar archives of prior local-patch trees (upstream does not own this). */
+const PATCH_ARCHIVE_DIRNAME = '.gsd-patch-archive';
 
 // Colors
 const cyan = '\x1b[36m';
@@ -682,6 +686,158 @@ function copyOverlayManifest(distDir, targetDir) {
   return true;
 }
 
+
+// ---------------------------------------------------------------------------
+// Local patch archive (survive upstream saveLocalPatches overwrites)
+// ---------------------------------------------------------------------------
+
+/**
+ * List files under rootDir as slash-separated paths relative to rootDir.
+ * @param {string} rootDir
+ * @returns {string[]}
+ */
+function listFilesRecursive(rootDir) {
+  const out = [];
+  if (!fs.existsSync(rootDir)) return out;
+
+  const walk = (dir, prefix) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full, rel);
+      } else if (entry.isFile() || entry.isSymbolicLink()) {
+        out.push(rel);
+      }
+    }
+  };
+
+  walk(rootDir, '');
+  return out;
+}
+
+/**
+ * Snapshot existing gsd-local-patches before upstream can overwrite them.
+ * Archives under targetDir/.gsd-patch-archive/<ISO-stamp>/ .
+ *
+ * @param {string} targetDir
+ * @param {{ clock?: () => Date }} [options]
+ * @returns {string|null} archive path, or null if nothing to snapshot
+ */
+function snapshotLocalPatchesBeforeUpstream(targetDir, options = {}) {
+  const clock = options.clock || (() => new Date());
+  const patchesDir = path.join(targetDir, LOCAL_PATCHES_DIRNAME);
+  if (!fs.existsSync(patchesDir)) return null;
+
+  const resolvedTarget = path.resolve(targetDir);
+  const resolvedTargetPrefix = resolvedTarget + path.sep;
+  const stamp = clock().toISOString().replace(/[:.]/g, '-');
+  const archivePath = path.join(targetDir, PATCH_ARCHIVE_DIRNAME, stamp);
+  const resolvedArchive = path.resolve(archivePath);
+
+  if (
+    resolvedArchive !== resolvedTarget &&
+    !resolvedArchive.startsWith(resolvedTargetPrefix)
+  ) {
+    throw new Error(`Refusing to archive patches outside target: ${archivePath}`);
+  }
+
+  fs.mkdirSync(path.dirname(archivePath), { recursive: true });
+  fs.cpSync(patchesDir, archivePath, { recursive: true });
+  return archivePath;
+}
+
+/**
+ * After upstream may have rewritten gsd-local-patches, rehydrate unique files
+ * from .gsd-patch-archive/<stamp>/ and merge backup-meta.json (fail-closed on bad meta).
+ *
+ * @param {string} targetDir
+ * @param {(msg: string) => void} [logImpl]
+ * @returns {{ restored: number, archives: number, metaMerged: boolean }}
+ */
+function reconcileLocalPatchesAfterUpstream(targetDir, logImpl = () => {}) {
+  const archiveRoot = path.join(targetDir, PATCH_ARCHIVE_DIRNAME);
+  const patchesDir = path.join(targetDir, LOCAL_PATCHES_DIRNAME);
+  const resolvedTarget = path.resolve(targetDir);
+  const resolvedTargetPrefix = resolvedTarget + path.sep;
+
+  if (!fs.existsSync(archiveRoot)) {
+    return { restored: 0, archives: 0, metaMerged: false };
+  }
+
+  const archives = fs.readdirSync(archiveRoot)
+    .map(name => path.join(archiveRoot, name))
+    .filter(p => {
+      try {
+        return fs.lstatSync(p).isDirectory();
+      } catch {
+        return false;
+      }
+    })
+    .sort();
+
+  const metaEntries = {};
+  let metaOk = true;
+
+  const ingestMeta = (metaPath) => {
+    if (!fs.existsSync(metaPath)) return true;
+    try {
+      const parsed = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        Object.assign(metaEntries, parsed);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  for (const archive of archives) {
+    if (!ingestMeta(path.join(archive, 'backup-meta.json'))) metaOk = false;
+  }
+
+  fs.mkdirSync(patchesDir, { recursive: true });
+  const currentMetaPath = path.join(patchesDir, 'backup-meta.json');
+  if (!ingestMeta(currentMetaPath)) metaOk = false;
+
+  let restored = 0;
+  for (const archive of archives) {
+    for (const rel of listFilesRecursive(archive)) {
+      if (rel === 'backup-meta.json') continue;
+      const dest = path.join(patchesDir, rel);
+      const resolvedDest = path.resolve(dest);
+      if (
+        resolvedDest !== resolvedTarget &&
+        !resolvedDest.startsWith(resolvedTargetPrefix)
+      ) {
+        continue;
+      }
+      if (fs.existsSync(dest)) continue; // current (newer) run wins
+      const src = path.join(archive, rel);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.copyFileSync(src, dest);
+      restored++;
+    }
+  }
+
+  let metaMerged = false;
+  if (metaOk && Object.keys(metaEntries).length > 0) {
+    fs.writeFileSync(
+      currentMetaPath,
+      `${JSON.stringify(metaEntries, null, 2)}\n`,
+      'utf-8'
+    );
+    metaMerged = true;
+  } else if (!metaOk) {
+    logImpl(
+      '  Warning: could not merge backup-meta.json; leaving archive and current trees intact'
+    );
+  }
+
+  return { restored, archives: archives.length, metaMerged };
+}
+
 // ---------------------------------------------------------------------------
 // Orphan cleanup
 // ---------------------------------------------------------------------------
@@ -934,6 +1090,8 @@ function install(distDir, targetDir, userArgs, options = {}) {
 
     const finishOverlayInstall = () => {
       try {
+        runInstallStep('patch-reconcile', () => reconcileLocalPatchesAfterUpstream(targetDir, logImpl));
+
         const orphansRemoved = runInstallStep('orphan-cleanup', () => cleanOrphanedPathsImpl(targetDir));
         if (orphansRemoved > 0) {
           logImpl(`\n  ${green}Cleaned ${orphansRemoved} orphaned path(s)${reset}`);
@@ -963,6 +1121,13 @@ function install(distDir, targetDir, userArgs, options = {}) {
         failWithRollback(err.failureStep || 'post-upstream', 1, err);
       }
     };
+
+    try {
+      snapshotLocalPatchesBeforeUpstream(targetDir);
+    } catch (err) {
+      failWithRollback('patch-snapshot', 1, err);
+      return;
+    }
 
     let child;
     try {
@@ -1056,6 +1221,8 @@ if (require.main === module) {
 // Exports for unit testing -- available when required as a module
 module.exports = {
   INSTALLED_MANIFEST_NAME,
+  LOCAL_PATCHES_DIRNAME,
+  PATCH_ARCHIVE_DIRNAME,
   readInstalledManifest,
   removeGsdFiles,
   detectV2,
@@ -1070,6 +1237,9 @@ module.exports = {
   copyOverlayFiles,
   copyOverlayManifest,
   cleanOrphanedPaths,
+  snapshotLocalPatchesBeforeUpstream,
+  reconcileLocalPatchesAfterUpstream,
+  listFilesRecursive,
   writeInstallMeta,
   install,
   uninstall,

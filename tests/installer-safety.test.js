@@ -34,7 +34,11 @@ const {
   install,
   copyOverlayManifest,
   cleanOrphanedPaths,
+  snapshotLocalPatchesBeforeUpstream,
+  reconcileLocalPatchesAfterUpstream,
   INSTALLED_MANIFEST_NAME,
+  LOCAL_PATCHES_DIRNAME,
+  PATCH_ARCHIVE_DIRNAME,
 } = require('../bin/install.js');
 
 // ---------------------------------------------------------------------------
@@ -1102,5 +1106,112 @@ describe('cleanOrphanedPaths', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(removed).toBe(1);
     expect(fs.existsSync(hooksDistDir)).toBe(false);
     expect(fs.readFileSync(path.join(patchesDir, 'meta.json'), 'utf8')).toBe('x');
+  });
+});
+
+describe('local patch archive across upstream overwrites', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempDir();
+  });
+
+  afterEach(() => {
+    tmpDir.cleanup();
+  });
+
+  test('two-run simulation: run A hook X survives run B that only backs up Y', () => {
+    const patchesDir = path.join(tmpDir.path, LOCAL_PATCHES_DIRNAME);
+    fs.mkdirSync(path.join(patchesDir, 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(patchesDir, 'hooks', 'hook-x.js'), 'intentional-x');
+    fs.writeFileSync(
+      path.join(patchesDir, 'backup-meta.json'),
+      JSON.stringify({ 'hooks/hook-x.js': { run: 'A' } }, null, 2)
+    );
+
+    const archivePath = snapshotLocalPatchesBeforeUpstream(tmpDir.path, {
+      clock: () => new Date('2026-09-05T10:00:00.000Z'),
+    });
+    expect(archivePath).toContain(PATCH_ARCHIVE_DIRNAME);
+    expect(fs.readFileSync(path.join(archivePath, 'hooks', 'hook-x.js'), 'utf8')).toBe('intentional-x');
+
+    // Simulate upstream saveLocalPatches() for run B: only Y remains in current tree
+    fs.rmSync(patchesDir, { recursive: true, force: true });
+    fs.mkdirSync(path.join(patchesDir, 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(patchesDir, 'hooks', 'hook-y.js'), 'run-b-only');
+    fs.writeFileSync(
+      path.join(patchesDir, 'backup-meta.json'),
+      JSON.stringify({ 'hooks/hook-y.js': { run: 'B' } }, null, 2)
+    );
+
+    const result = reconcileLocalPatchesAfterUpstream(tmpDir.path);
+    expect(result.archives).toBe(1);
+    expect(result.restored).toBe(1);
+    expect(result.metaMerged).toBe(true);
+
+    expect(fs.readFileSync(path.join(patchesDir, 'hooks', 'hook-x.js'), 'utf8')).toBe('intentional-x');
+    expect(fs.readFileSync(path.join(patchesDir, 'hooks', 'hook-y.js'), 'utf8')).toBe('run-b-only');
+
+    const meta = JSON.parse(fs.readFileSync(path.join(patchesDir, 'backup-meta.json'), 'utf8'));
+    expect(meta['hooks/hook-x.js']).toEqual({ run: 'A' });
+    expect(meta['hooks/hook-y.js']).toEqual({ run: 'B' });
+  });
+
+  test('seeded intentional hook+meta survives second upstream-style overwrite of a different set', () => {
+    const patchesDir = path.join(tmpDir.path, LOCAL_PATCHES_DIRNAME);
+    fs.mkdirSync(path.join(patchesDir, 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(patchesDir, 'hooks', 'gsd-statusline.js'), 'intentional user customization');
+    fs.writeFileSync(
+      path.join(patchesDir, 'backup-meta.json'),
+      JSON.stringify({ 'hooks/gsd-statusline.js': { note: 'owner' } }, null, 2)
+    );
+
+    snapshotLocalPatchesBeforeUpstream(tmpDir.path, {
+      clock: () => new Date('2026-09-05T11:00:00.000Z'),
+    });
+
+    // Second upstream-style overwrite: different file set only
+    fs.rmSync(patchesDir, { recursive: true, force: true });
+    fs.mkdirSync(path.join(patchesDir, 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(patchesDir, 'hooks', 'other-hook.js'), 'newer-run');
+    fs.writeFileSync(
+      path.join(patchesDir, 'backup-meta.json'),
+      JSON.stringify({ 'hooks/other-hook.js': { note: 'upstream' } }, null, 2)
+    );
+
+    const result = reconcileLocalPatchesAfterUpstream(tmpDir.path);
+    expect(result.restored).toBeGreaterThan(0);
+    expect(
+      fs.readFileSync(path.join(patchesDir, 'hooks', 'gsd-statusline.js'), 'utf8')
+    ).toBe('intentional user customization');
+    expect(fs.readFileSync(path.join(patchesDir, 'hooks', 'other-hook.js'), 'utf8')).toBe('newer-run');
+
+    const meta = JSON.parse(fs.readFileSync(path.join(patchesDir, 'backup-meta.json'), 'utf8'));
+    expect(meta['hooks/gsd-statusline.js']).toEqual({ note: 'owner' });
+    expect(meta['hooks/other-hook.js']).toEqual({ note: 'upstream' });
+  });
+
+  test('fail-closed: corrupt archive meta leaves trees intact and skips meta merge', () => {
+    const patchesDir = path.join(tmpDir.path, LOCAL_PATCHES_DIRNAME);
+    fs.mkdirSync(path.join(patchesDir, 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(patchesDir, 'hooks', 'hook-x.js'), 'x');
+    fs.writeFileSync(path.join(patchesDir, 'backup-meta.json'), '{not-json');
+
+    snapshotLocalPatchesBeforeUpstream(tmpDir.path, {
+      clock: () => new Date('2026-09-05T12:00:00.000Z'),
+    });
+
+    fs.rmSync(patchesDir, { recursive: true, force: true });
+    fs.mkdirSync(path.join(patchesDir, 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(patchesDir, 'hooks', 'hook-y.js'), 'y');
+    fs.writeFileSync(path.join(patchesDir, 'backup-meta.json'), JSON.stringify({ ok: true }));
+
+    const warnings = [];
+    const result = reconcileLocalPatchesAfterUpstream(tmpDir.path, msg => warnings.push(msg));
+    expect(result.metaMerged).toBe(false);
+    expect(warnings.some(w => w.includes('backup-meta.json'))).toBe(true);
+    // X still rehydrated from archive bytes even when meta merge is skipped
+    expect(fs.readFileSync(path.join(patchesDir, 'hooks', 'hook-x.js'), 'utf8')).toBe('x');
+    expect(fs.readFileSync(path.join(patchesDir, 'backup-meta.json'), 'utf8')).toContain('ok');
   });
 });

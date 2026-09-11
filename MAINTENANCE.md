@@ -32,6 +32,15 @@ process sections are owned by Phase 44.
 
 ## Forward-porting overrides on an upstream bump
 
+After cloning or creating a worktree, install dependencies with
+`bun install --ignore-scripts`, then explicitly run `bun run prepare` and
+`bun run hooks:check`. The explicit preparation installs Husky's shim even
+when dependency lifecycle scripts are disabled. Repeat the check before
+citing a push as local gate evidence; an absent/inaccessible configured hook
+fails loudly. A successful accessibility check is not evidence the suite ran:
+the actual push must print the parity checks and complete with their summary.
+Use the repository-pinned Bun runtime for those checks.
+
 Before and after an installation, run `bun run install:check-drift`.
 For an isolated candidate home, run
 `node scripts/check-install-drift.js --home <candidate-home>`.

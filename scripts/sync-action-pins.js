@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { parseDocument, isMap, isSeq, isScalar } = require('yaml');
+const { isSafeTagLabel } = require('./lib/tag-authority');
 
 const ROOT = path.resolve(__dirname, '..');
 const MANIFEST = 'config/phase43-toolchain-authority.json';
@@ -24,7 +25,7 @@ function synchronize(text, pins) {
     if (!match) throw new Error(`Invalid action reference: ${value}`);
     const action = match[1];
     const pin = pins[action];
-    if (!pin || !/^[0-9a-f]{40}$/.test(pin.sha) || !/^v?\d[\w.-]*$/.test(pin.tag)) {
+    if (!pin || !/^[0-9a-f]{40}$/.test(pin.sha) || !isSafeTagLabel(pin.tag)) {
       throw new Error(`Missing or invalid reviewed authority for ${action}`);
     }
     let [start, end] = node.range;
@@ -35,7 +36,8 @@ function synchronize(text, pins) {
     const quote = original[0] === '"' || original[0] === "'" ? original[0] : '';
     let replacement = `${quote}${action}@${pin.sha}${quote}`;
     // Only consume a version-only comment, preserving every other byte.
-    const comment = /^[ \t]+#\s*v?\d[\w.-]*[ \t]*(?=\r?\n|$)/.exec(text.slice(end));
+    const comment = /^[ \t]+#\s*[A-Za-z0-9][A-Za-z0-9._/-]*[ \t]*(?=\r?\n|$)/
+      .exec(text.slice(end));
     if (comment) {
       end += comment[0].length;
       replacement += ` # ${pin.tag}`;

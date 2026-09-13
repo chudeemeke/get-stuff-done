@@ -52,7 +52,7 @@ function collectLinks(documents, configuration) {
   const patterns = (configuration.exclude || []).map(exclusionPattern);
   const links = new Set();
   for (const document of documents) {
-    for (const match of document.matchAll(/https?:\/\/[^\s<>"`]+/g)) {
+    for (const match of document.matchAll(/https?:\/\/[^\s<>"'`]+/g)) {
       const url = trimLink(match[0]);
       if (/^https?:\/\/localhost(?::|\/|$)/.test(url)) continue;
       if (patterns.some(pattern => pattern.test(url))) links.add(url);

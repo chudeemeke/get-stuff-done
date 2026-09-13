@@ -27,6 +27,14 @@ test('supports quoted values and job-level reusable workflows without reformatti
   expect(synchronize(source, pins)).toBe(source.replace('@old', `@${pins['actions/example'].sha}`));
 });
 
+test('accepts all safe tag labels allowed by the authority schema', () => {
+  const source = workflow('      - uses: actions/example@old # v1\n');
+  for (const tag of ['stable', 'release-v2', '6', 'v2.1.0']) {
+    expect(synchronize(source, { 'actions/example': { sha: 'a'.repeat(40), tag } }))
+      .toContain(`# ${tag}`);
+  }
+});
+
 test('rejects unknown actions and mutable authority', () => {
   expect(() => synchronize(workflow('      - uses: unknown/action@v1'), pins)).toThrow('Missing or invalid');
   expect(() => synchronize(workflow('      - uses: actions/example@v1'), {

@@ -21,6 +21,15 @@ test('preserves balanced URL parentheses while removing Markdown delimiters', ()
   ]);
 });
 
+test('stops at both HTML quote delimiters', () => {
+  expect(collectLinks([
+    `<img src='https://example.org/single'>`,
+    '<img src="https://example.org/double">',
+  ], { exclude: ['^https://example\\.org/'] })).toEqual([
+    'https://example.org/double', 'https://example.org/single',
+  ]);
+});
+
 test('validates actual Lychee exclusions during PR testing', () => {
   const config = parse(fs.readFileSync(path.join(__dirname, '../lychee.toml'), 'utf8'));
   for (const pattern of [...config.exclude, ...config.exclude_path]) {

@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const { isSafeTagLabel } = require('./lib/tag-authority');
 const path = require('path');
 const { TextDecoder } = require('util');
 const yaml = require('js-yaml');
@@ -537,8 +538,7 @@ function validatePins(pins, keys, validateIdentity, label) {
       !name ||
       name.includes('@') ||
       !hasExactKeys(pin, keys) ||
-      typeof pin.tag !== 'string' ||
-      pin.tag.length === 0 ||
+      !isSafeTagLabel(pin.tag) ||
       !validateIdentity(pin) ||
       !hasUpdateTrigger(pin.updateTrigger)
     ) {

@@ -812,6 +812,7 @@ describe('toolchain authority', () => {
         'invalid pin',
       ],
       [manifest => (manifest.githubActions.pins['actions/checkout'].tag = ''), 'invalid pin'],
+      [manifest => (manifest.githubActions.pins['actions/checkout'].tag = 'release # unsafe'), 'invalid pin'],
       [
         manifest => (manifest.githubActions.pins['actions/checkout'].sha = 'v6'),
         'invalid pin',

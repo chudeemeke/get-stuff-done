@@ -39,6 +39,15 @@ timeouts and 5xx responses are availability evidence, not proof of link rot.
 The report names the repository owner for follow-up and sets the next weekly
 review date. An exclusion is not permission to stop monitoring the reference.
 
+The collector and Lychee share a deliberately restricted regex subset, validated
+against `lychee.toml` by PR tests: case-sensitive ASCII literals, escaped regex
+punctuation, anchors, capturing groups, alternation, `?`, `*`, `+`, and `[0-9]`.
+Unescaped wildcard dots, other character classes, counted repetition, shorthand
+or Unicode escapes, lookaround and inline flags (including `(?i)`) are rejected.
+Use explicit case alternatives when needed. An exclusion needing a wider dialect
+requires a reviewed matcher change before it is added; do not assume arbitrary
+Rust regex syntax works in JavaScript. End anchors use absolute-end semantics.
+
 Retry transient failed jobs once after the run completes. GitHub rejects job
 retries while another job in the run is active. Do not cancel valid performance
 evidence solely to enable a retry, and do not change performance gates without

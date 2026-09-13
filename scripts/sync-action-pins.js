@@ -2,23 +2,56 @@
 
 const fs = require('fs');
 const path = require('path');
+const { parseDocument, isMap, isSeq, isScalar } = require('yaml');
 
 const ROOT = path.resolve(__dirname, '..');
 const MANIFEST = 'config/phase43-toolchain-authority.json';
 
 function synchronize(text, pins) {
-  return text.replace(/(uses:\s+)([^\s@]+)@([^\s#]+)([^\S\r\n]*)(#[^\r\n]*)?/g,
-    (match, prefix, action, ref, spacing, comment) => {
-      if (action.startsWith('docker://')) return match;
-      const pin = pins[action];
-      if (!pin || !/^[0-9a-f]{40}$/.test(pin.sha) || !/^v?\d[\w.-]*$/.test(pin.tag)) {
-        throw new Error(`Missing or invalid reviewed authority for ${action}`);
-      }
-      // Preserve explanatory comments; replace only a standalone version label.
-      const nextComment = !comment || /^#\s*v?\d[\w.-]*\s*$/.test(comment)
-        ? `# ${pin.tag}` : comment;
-      return `${prefix}${action}@${pin.sha}${spacing || ' '}${nextComment}`;
-    });
+  const document = parseDocument(text);
+  if (document.errors.length) throw document.errors[0];
+  const edits = [];
+  function update(mapping) {
+    if (!isMap(mapping)) return;
+    const node = mapping.get('uses', true);
+    if (!node) return;
+    if (!isScalar(node) || typeof node.value !== 'string' || !node.range) {
+      throw new Error('Action uses must be a literal scalar, not an alias');
+    }
+    const value = node.value;
+    if (value.startsWith('./') || value.startsWith('docker://')) return;
+    const match = /^([^\s@]+)@([^\s]+)$/.exec(value);
+    if (!match) throw new Error(`Invalid action reference: ${value}`);
+    const action = match[1];
+    const pin = pins[action];
+    if (!pin || !/^[0-9a-f]{40}$/.test(pin.sha) || !/^v?\d[\w.-]*$/.test(pin.tag)) {
+      throw new Error(`Missing or invalid reviewed authority for ${action}`);
+    }
+    let [start, end] = node.range;
+    const original = text.slice(start, end);
+    if (!['PLAIN', 'QUOTE_SINGLE', 'QUOTE_DOUBLE'].includes(node.type)) {
+      throw new Error('Action uses must be a single-line scalar');
+    }
+    const quote = original[0] === '"' || original[0] === "'" ? original[0] : '';
+    let replacement = `${quote}${action}@${pin.sha}${quote}`;
+    // Only consume a version-only comment, preserving every other byte.
+    const comment = /^[ \t]+#\s*v?\d[\w.-]*[ \t]*(?=\r?\n|$)/.exec(text.slice(end));
+    if (comment) {
+      end += comment[0].length;
+      replacement += ` # ${pin.tag}`;
+    }
+    edits.push({ start, end, replacement });
+  }
+  const jobs = document.get('jobs', true);
+  if (isMap(jobs)) for (const { value: job } of jobs.items) {
+    update(job); // reusable workflow invocation
+    const steps = isMap(job) ? job.get('steps', true) : null;
+    if (isSeq(steps)) for (const step of steps.items) update(step);
+  }
+  for (const edit of edits.sort((a, b) => b.start - a.start)) {
+    text = text.slice(0, edit.start) + edit.replacement + text.slice(edit.end);
+  }
+  return text;
 }
 
 function syncActionPins(root = ROOT, write = false) {

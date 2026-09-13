@@ -1016,6 +1016,23 @@ progress:
     expect(output).toContain('next execute-phase 43');
   });
 
+  test('preserves lifecycle fields from CRLF frontmatter and block-list phases', () => {
+    const projectDir = path.join(tempHome, 'project-crlf');
+    fs.mkdirSync(projectDir, { recursive: true });
+    writeStateFile(projectDir, '\nmilestone: v1.2.0\nstatus: executing\nactive_phase: null\nnext_action: execute-phase\nnext_phases:\n  - 43\nprogress:\n  completed_phases: 3\n  total_phases: 10\n  percent: 74\n');
+    const statePath = path.join(projectDir, '.planning', 'STATE.md');
+    fs.writeFileSync(statePath, fs.readFileSync(statePath, 'utf8').replace(/\r?\n/g, '\r\n'));
+    const output = runNodeOrThrow(HOOKS.statusline, {
+      input: JSON.stringify({ model: { display_name: 'Claude Sonnet' }, workspace: { current_dir: projectDir }, context_window: { remaining_percentage: 80 } }),
+      encoding: 'utf8',
+      env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome },
+      timeout: 5000,
+    });
+    expect(output).toContain('v1.2.0');
+    expect(output).toContain('74%');
+    expect(output).toContain('next execute-phase 43');
+  });
+
   test('uses CLAUDE_CODE_AUTO_COMPACT_WINDOW for context scaling', () => {
     const output = runNodeOrThrow(HOOKS.statusline, {
       input: JSON.stringify({

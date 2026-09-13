@@ -7,7 +7,7 @@ preserve `gsd.role` consumer/maintainer routing, and keep the fork's exact
 split-worker resilience model.
 
 ## Upstream snapshot
-- Version: 1.8.0
+- Version: 1.9.1
 - SHA-256: 95bbd1c7ca11246828eb85b0b7b3718771d08d186e8d3b103426749cc9bb5415
 - Semantic SHA-256: 8cd427939dd8c8c9d61a602d7a766ddcfdfc1b317f11bdae592d9ddc872eea40
 
@@ -34,3 +34,7 @@ Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: upstream file is byte-identical between 
 
 Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream file is byte-identical
 between the two versions (hash unchanged); override unchanged.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.

@@ -7,9 +7,9 @@ state when no todo is active, and uses the shared package-lineage cache written
 by `gsd-check-update.js`.
 
 ## Upstream snapshot
-- Version: 1.8.0
-- SHA-256: e73c3cc144cc1e1e4724f28328f00d4a67d4a4ccc2d9ab6bd437bdd1a389af4f
-- Semantic SHA-256: 3316f1edb1127b2259c24b40228f270fb0eb0fa773444a46695b146f2b2e396b
+- Version: 1.9.1
+- SHA-256: e77a84f3d29e64a766ea98b14ceda17ca80e77fe9d2eeac493e54ec462caa6b7
+- Semantic SHA-256: d7eca700bf6fae561f4bf7236d501129ec9898cbfbb665aee48a297db009140d
 
 ## What's different
 - Fork branding in output.
@@ -42,3 +42,7 @@ the 1.7.0 review: the fork statusline is a deliberate rewrite with its own
 theme system and the addition is opt-in, not load-bearing. Standing deferral
 list is now four features (token-count suffix, long-context badge, show_git
 segment, compact state format). Revisit at the next bump or on user request.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.

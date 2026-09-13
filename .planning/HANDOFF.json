@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-05T09:51:54.4687604Z",
+  "timestamp": "2026-09-13T23:25:27.219Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
-  "pr": "PR69 remains draft: local 1d8bb387 contains c9ecc23c installer corrections and fixture-cache correction. Compatibility retry 316/316 applied; refreshed full push and final-head hosted gates required. PR70 draft published at 573d9f91. PR67 owner answer pending.",
-  "status": "skin-contract-executing-step3-1.9.1",
-  "READ_FIRST": "D1-D11 were ratified or overridden on 2026-09-05 and remain binding. Execute September 5 skin completion contract; do not restart strategic audit or ask for ratification again. Read .planning/SKIN-COMPLETION.md. Refresh git and exact-head CI before integration. Preserve untracked coverage/ and get-stuff-done/memory/. Run bun run test and check both suite summary and exit code.",
+  "pr": "PR4 open at17278b2a, blocked on ordinary non-elevated repair. PR69 draft remote df0d3f9c; local application3981cbf0 held on failed native validation and open review findings. PR70 draft unchanged at573d9f91. No user approval or merge/readiness change authorized.",
+  "status": "application-pr-recovery-held",
+  "READ_FIRST": "September14 application ownership checkpoint takes precedence over historical progress below. Read docs/reviews/pr69-application-2026-09-13.md and the PR4 review in .claude/worktrees/pr4-application. PR4 ordinary non-elevated repair is a settled requirement, not a pending question. PR69 remains incomplete; do not advance PR70. Preserve the ratified September5 contract and fixed1.12.0 endpoint; do not restart strategic audit. CI is owned separately. D1-D11 were ratified or overridden on 2026-09-05 and remain binding. Execute September 5 skin completion contract; do not restart strategic audit or ask for ratification again. Read .planning/SKIN-COMPLETION.md. Refresh git and exact-head CI before integration. Preserve untracked coverage/ and get-stuff-done/memory/. Run bun run test and check both suite summary and exit code.",
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0 (user chose Walk increments 2026-08-30; endpoint extended from 1.11.0 to 1.12.0 by user decision 2026-09-05, then quarterly per D5)",
     "step": "3 of 6: 1.8.0 -> 1.9.1 IN PROGRESS after PR64 and PR63 merged and main integrated.",
@@ -184,5 +184,26 @@
     "digest": "PR70 573d9f91 pushed; 1712 passing full pre-push tests. Digest-only coverage 100 percent each with 11 mutants killed. Planner consumption not implemented.",
     "user_runtime_activated": false,
     "current_worktrees": "C:/Projects/get-stuff-done/.claude/worktrees/"
+  },
+  "application_recovery": {
+    "recordedAt": "2026-09-13T23:25:27.219Z",
+    "pr4": {
+      "published": "17278b2a9b28e58f561fcbdf02c96a20cb5415c8",
+      "state": "Blocked: ordinary non-elevated repair must preserve ACL/ownership or refuse. Strict inspection currently refuses on tested nonprivileged hosts.",
+      "tests": "102focusedpass;89Nodepass;bothdoctorfiles100%eachmetric with qualified injected-inspection transaction evidence. No full native repair acceptance."
+    },
+    "pr69": {
+      "applicationCommit": "3981cbf0e5949540041cf86c04a853ffcc7b4725",
+      "remote": "df0d3f9c13134321a050a2d8de79b0622aa161d3",
+      "tests": "96safetypass;complete1745pass/1PowerShelltimeout;matrix313/3;installedstate9/3. Actual upgrade preserves customizations before last wrapper guard changes.",
+      "remaining": "Open inventory/legacy cleanup/metadata/settings findings; fresh validation and final review required. Compiler-free roadmap experiment archived and original source/tests restored. No push of current application changes."
+    },
+    "pr70": {
+      "remote": "573d9f91f291c0569d2c351e7d89e165dbd659c6",
+      "state": "Not advanced; wait for earlier PR application work."
+    },
+    "evidenceRoot": "C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13",
+    "inbox": "PR67 merge confirmed and stale signoff archived; PR69 and skin event logs updated.",
+    "activeProcesses": []
   }
 }

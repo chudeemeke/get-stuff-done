@@ -1,3 +1,14 @@
+# Current application checkpoint - September 14
+
+PR4 remains blocked on the user-required ordinary non-elevated repair. PR69 local
+application commit3981cbf0 is held on native validation and open installer review
+findings; its remote remains df0d3f9c, draft. PR70 has not been advanced.
+Read HANDOFF.json application_recovery and docs/reviews/pr69-application-2026-09-13.md
+before the historical notes below. No approval, merge or readiness change is
+authorized. Existing September5 decisions and fixed endpoint remain binding.
+
+---
+
 # Continuation Context
 
 **Refreshed at:** 2026-09-05

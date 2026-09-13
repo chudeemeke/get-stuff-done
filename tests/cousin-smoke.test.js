@@ -237,6 +237,6 @@ describe('cousin smoke repository contract', () => {
     expect(testText).toContain('npm');
     expect(testText).toContain('pnpm');
     expect(testText).toContain('bun');
-    expect(PROJECT_ROOT).toContain('get-stuff-done');
+    expect(JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf8')).name).toBe('@chude/get-stuff-done');
   });
 });

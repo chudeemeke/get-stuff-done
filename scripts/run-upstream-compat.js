@@ -353,7 +353,7 @@ function runCompatSuite(suite, options) {
   try {
     processResult = options.runProcessImpl(
       process.execPath,
-      ['--test', stagedPath],
+      ['--test', '--test-reporter=tap', stagedPath],
       {
         cwd: options.tempDir,
         encoding: 'utf8',
@@ -535,6 +535,10 @@ function parseTestOutput(output, exitCode) {
   // # pass N
   // # fail N
   // # skipped N
+  // A clean process exit without all summary fields is not suite evidence.
+  if (Object.values(counts).some(value => value === null)) {
+    errors.push('Missing complete TAP summary (pass, fail, skipped).');
+  }
   // If we couldn't parse counts but exit code was non-zero, record error
   if (counts.pass === null && counts.fail === null && exitCode !== 0) {
     errors.push('Failed to parse test output. Raw output may contain errors.');

@@ -4,7 +4,14 @@
 
 const fs = require('fs');
 const path = require('path');
-const { escapeRegex, normalizePhaseName, output, error, findPhaseInternal } = require('./core.cjs');
+const { escapeRegex, normalizePhaseName, output, error, findPhaseInternal, getStateCurrentPhase } = require('./core.cjs');
+
+function extractDeclaredPlanCount(section) {
+  const plansMatch = section.match(/(?:\*\*Plans\*\*:|\*\*Plans:\*\*|(?:^|\n)Plans:)\s*(?:(\d+)\s*\/\s*)?(\d+)\s+plans?/i);
+  if (!plansMatch) return 0;
+  const count = parseInt(plansMatch[2], 10);
+  return Number.isFinite(count) ? count : 0;
+}
 
 function cmdRoadmapGetPhase(cwd, phaseNum, raw) {
   const roadmapPath = path.join(cwd, '.planning', 'ROADMAP.md');
@@ -126,10 +133,11 @@ function cmdRoadmapAnalyze(cwd, raw) {
     // Check completion on disk
     const normalized = normalizePhaseName(phaseNum);
     let diskStatus = 'no_directory';
-    let planCount = 0;
+    let diskPlanCount = 0;
     let summaryCount = 0;
     let hasContext = false;
     let hasResearch = false;
+    const declaredPlanCount = extractDeclaredPlanCount(section);
 
     try {
       const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
@@ -138,22 +146,27 @@ function cmdRoadmapAnalyze(cwd, raw) {
 
       if (dirMatch) {
         const phaseFiles = fs.readdirSync(path.join(phasesDir, dirMatch));
-        planCount = phaseFiles.filter(f => f.endsWith('-PLAN.md') || f === 'PLAN.md').length;
+        diskPlanCount = phaseFiles.filter(f => f.endsWith('-PLAN.md') || f === 'PLAN.md').length;
         summaryCount = phaseFiles.filter(f => f.endsWith('-SUMMARY.md') || f === 'SUMMARY.md').length;
         hasContext = phaseFiles.some(f => f.endsWith('-CONTEXT.md') || f === 'CONTEXT.md');
         hasResearch = phaseFiles.some(f => f.endsWith('-RESEARCH.md') || f === 'RESEARCH.md');
+        const effectivePlanCount = Math.max(diskPlanCount, declaredPlanCount);
 
-        if (summaryCount >= planCount && planCount > 0) diskStatus = 'complete';
+        if (summaryCount >= effectivePlanCount && effectivePlanCount > 0) diskStatus = 'complete';
         else if (summaryCount > 0) diskStatus = 'partial';
-        else if (planCount > 0) diskStatus = 'planned';
+        else if (effectivePlanCount > 0) diskStatus = 'planned';
         else if (hasResearch) diskStatus = 'researched';
         else if (hasContext) diskStatus = 'discussed';
         else diskStatus = 'empty';
       }
     } catch {}
+    const planCount = Math.max(diskPlanCount, declaredPlanCount);
 
     // Check ROADMAP checkbox status
-    const checkboxPattern = new RegExp(`-\\s*\\[(x| )\\]\\s*.*Phase\\s+${escapeRegex(phaseNum)}`, 'i');
+    const checkboxPattern = new RegExp(
+      `^\\s*-\\s*\\[(x| )\\]\\s*(?:\\*\\*)?Phase\\s+${escapeRegex(phaseNum)}\\s*:`,
+      'im'
+    );
     const checkboxMatch = content.match(checkboxPattern);
     const roadmapComplete = checkboxMatch ? checkboxMatch[1] === 'x' : false;
 
@@ -163,6 +176,8 @@ function cmdRoadmapAnalyze(cwd, raw) {
       goal,
       depends_on,
       plan_count: planCount,
+      disk_plan_count: diskPlanCount,
+      declared_plan_count: declaredPlanCount,
       summary_count: summaryCount,
       has_context: hasContext,
       has_research: hasResearch,
@@ -183,7 +198,13 @@ function cmdRoadmapAnalyze(cwd, raw) {
   }
 
   // Find current and next phase
-  const currentPhase = phases.find(p => p.disk_status === 'planned' || p.disk_status === 'partial') || null;
+  const stateCurrentPhase = getStateCurrentPhase(cwd);
+  const statePhase = stateCurrentPhase
+    ? phases.find(p => normalizePhaseName(p.number) === normalizePhaseName(stateCurrentPhase))
+    : null;
+  const currentPhase = statePhase && statePhase.disk_status !== 'complete'
+    ? statePhase
+    : phases.find(p => p.disk_status === 'planned' || p.disk_status === 'partial') || null;
   const nextPhase = phases.find(p => p.disk_status === 'empty' || p.disk_status === 'no_directory' || p.disk_status === 'discussed' || p.disk_status === 'researched') || null;
 
   // Aggregated stats
@@ -209,6 +230,7 @@ function cmdRoadmapAnalyze(cwd, raw) {
     total_plans: totalPlans,
     total_summaries: totalSummaries,
     progress_percent: totalPlans > 0 ? Math.min(100, Math.round((totalSummaries / totalPlans) * 100)) : 0,
+    state_current_phase: stateCurrentPhase,
     current_phase: currentPhase ? currentPhase.number : null,
     next_phase: nextPhase ? nextPhase.number : null,
     missing_phase_details: missingDetails.length > 0 ? missingDetails : null,
@@ -262,7 +284,7 @@ function cmdRoadmapUpdatePlanProgress(cwd, phaseNum, raw) {
 
   // Update plan count in phase detail section
   const planCountPattern = new RegExp(
-    `(#{2,4}\\s*Phase\\s+${phaseEscaped}[\\s\\S]*?\\*\\*Plans:\\*\\*\\s*)[^\\n]+`,
+    `(#{2,4}\\s*Phase\\s+${phaseEscaped}\\s*:[\\s\\S]*?(?:\\*\\*Plans\\*\\*:|\\*\\*Plans:\\*\\*|(?:^|\\n)Plans:)\\s*)[^\\r\\n]+`,
     'i'
   );
   const planCountText = isComplete
@@ -273,10 +295,13 @@ function cmdRoadmapUpdatePlanProgress(cwd, phaseNum, raw) {
   // If complete: check checkbox
   if (isComplete) {
     const checkboxPattern = new RegExp(
-      `(-\\s*\\[)[ ](\\]\\s*.*Phase\\s+${phaseEscaped}[:\\s][^\\n]*)`,
-      'i'
+      `(^[ \\t]*-\\s*\\[)[ ](\\]\\s*(?:\\*\\*)?Phase\\s+${phaseEscaped}\\s*:[^\\r\\n]*)`,
+      'im'
     );
-    roadmapContent = roadmapContent.replace(checkboxPattern, `$1x$2 (completed ${today})`);
+    roadmapContent = roadmapContent.replace(checkboxPattern, (_match, prefix, rest) => {
+      const withoutExistingDate = rest.replace(/\s+\(completed \d{4}-\d{2}-\d{2}\)\s*$/i, '');
+      return `${prefix}x${withoutExistingDate} (completed ${today})`;
+    });
   }
 
   fs.writeFileSync(roadmapPath, roadmapContent, 'utf-8');

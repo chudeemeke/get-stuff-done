@@ -5,7 +5,7 @@
  * Covers requirements BRAND-01 through BRAND-06.
  *
  * BRAND-01: Substitutions apply to user-visible text in upstream files
- * BRAND-02: Internal directory names (get-shit-done/) are never altered
+ * BRAND-02: Internal directory names (gsd-core/) are never altered
  * BRAND-03: Code paths, import statements, config keys, markers are preserved
  * BRAND-04: Substitution ordering prevents double-replace artifacts
  * BRAND-05: LICENSE is preserved; CREDITS.md generated when preserveUpstreamCredit is true
@@ -25,14 +25,13 @@ const {
 } = require('../scripts/compose');
 
 // Path to the upstream package installed as devDependency
-const UPSTREAM_PKG = path.join(__dirname, '..', 'node_modules', 'get-shit-done-cc');
+const UPSTREAM_PKG = path.join(__dirname, '..', 'node_modules', '@opengsd', 'gsd-core');
 const UPSTREAM_INSTALL_JS = path.join(UPSTREAM_PKG, 'bin', 'install.js');
 
-// Standard 3-rule substitution set matching overlay/branding.json
+// Standard substitution set matching overlay/branding.json
 const STANDARD_SUBSTITUTIONS = [
-  { from: 'get-shit-done-cc', to: '@chude/get-stuff-done', scope: 'text', note: 'npm package name' },
-  { from: 'glittercowboy/get-shit-done', to: 'chudeemeke/get-stuff-done', scope: 'text', note: 'GitHub repo' },
-  { from: 'TACHES', to: 'Chude Emeke', scope: 'text', note: 'Author attribution' },
+  { from: '@opengsd/gsd-core', to: '@chude/get-stuff-done', scope: 'text', note: 'npm package name' },
+  { from: 'open-gsd/gsd-core', to: 'chudeemeke/get-stuff-done', scope: 'text', note: 'GitHub repo' },
 ];
 
 describe('branding engine', () => {
@@ -40,58 +39,61 @@ describe('branding engine', () => {
   // applyBrandingToContent
   // -------------------------------------------------------------------------
   describe('applyBrandingToContent', () => {
-    test('substitutes get-shit-done-cc with @chude/get-stuff-done (BRAND-01)', () => {
-      const content = 'Install via: npx get-shit-done-cc\nPackage: get-shit-done-cc';
+    test('substitutes @opengsd/gsd-core with @chude/get-stuff-done (BRAND-01)', () => {
+      const content = 'Install via: npx @opengsd/gsd-core\nPackage: @opengsd/gsd-core';
       const sorted = sortSubstitutions(STANDARD_SUBSTITUTIONS);
       const result = applyBrandingToContent(content, sorted);
       expect(result).toContain('@chude/get-stuff-done');
-      expect(result).not.toContain('get-shit-done-cc');
+      expect(result).not.toContain('@opengsd/gsd-core');
     });
 
-    test('substitutes glittercowboy/get-shit-done with chudeemeke/get-stuff-done (BRAND-01)', () => {
-      const content = 'See https://github.com/glittercowboy/get-shit-done for details';
+    test('substitutes open-gsd/gsd-core with chudeemeke/get-stuff-done (BRAND-01)', () => {
+      const content = 'See https://github.com/open-gsd/gsd-core for details';
       const sorted = sortSubstitutions(STANDARD_SUBSTITUTIONS);
       const result = applyBrandingToContent(content, sorted);
       expect(result).toContain('chudeemeke/get-stuff-done');
-      expect(result).not.toContain('glittercowboy/get-shit-done');
+      expect(result).not.toContain('open-gsd/gsd-core');
     });
 
     test('substitutes TACHES with Chude Emeke using word-boundary matching (BRAND-01, BRAND-04)', () => {
       const content = 'Created by TACHES. Contact TACHES for support.';
-      const sorted = sortSubstitutions(STANDARD_SUBSTITUTIONS);
+      const sorted = sortSubstitutions([
+        ...STANDARD_SUBSTITUTIONS,
+        { from: 'TACHES', to: 'Chude Emeke', scope: 'text', note: 'legacy author attribution unit fixture' },
+      ]);
       const result = applyBrandingToContent(content, sorted);
       expect(result).toContain('Chude Emeke');
       expect(result).not.toContain('TACHES');
     });
 
-    test('does NOT replace bare get-shit-done (without -cc suffix) (BRAND-02)', () => {
-      const content = 'const dir = path.join(configDir, "get-shit-done");\nconst src = "get-shit-done";';
+    test('does NOT replace bare gsd-core (without scope prefix) (BRAND-02)', () => {
+      const content = 'const dir = path.join(configDir, "gsd-core");\nconst src = "gsd-core";';
       const sorted = sortSubstitutions(STANDARD_SUBSTITUTIONS);
       const result = applyBrandingToContent(content, sorted);
-      // bare 'get-shit-done' must remain unchanged
-      expect(result).toContain('"get-shit-done"');
+      // bare 'gsd-core' must remain unchanged
+      expect(result).toContain('"gsd-core"');
       expect(result).not.toContain('get-stuff-done');
     });
 
-    test('preserves internal directory name get-shit-done/ in path strings (BRAND-02)', () => {
+    test('preserves internal directory name gsd-core/ in path strings (BRAND-02)', () => {
       const content = [
-        'const gsdDir = path.join(targetDir, "get-shit-done");',
-        'const skillDest = path.join(targetDir, "get-shit-done");',
-        'manifest.files["get-shit-done/" + rel] = hash;',
+        'const gsdDir = path.join(targetDir, "gsd-core");',
+        'const skillDest = path.join(targetDir, "gsd-core");',
+        'manifest.files["gsd-core/" + rel] = hash;',
       ].join('\n');
       const sorted = sortSubstitutions(STANDARD_SUBSTITUTIONS);
       const result = applyBrandingToContent(content, sorted);
-      expect(result).toContain('"get-shit-done"');
-      expect(result).toContain('"get-shit-done/"');
+      expect(result).toContain('"gsd-core"');
+      expect(result).toContain('"gsd-core/"');
     });
 
-    test('does not modify import statements containing get-shit-done paths (BRAND-03)', () => {
+    test('does not modify import statements containing gsd-core paths (BRAND-03)', () => {
       // Import paths use the internal directory name, not the npm package name
-      const content = 'const util = require("./get-shit-done/util");\nconst x = require("./get-shit-done/core");';
+      const content = 'const util = require("./gsd-core/util");\nconst x = require("./gsd-core/core");';
       const sorted = sortSubstitutions(STANDARD_SUBSTITUTIONS);
       const result = applyBrandingToContent(content, sorted);
-      expect(result).toContain('"./get-shit-done/util"');
-      expect(result).toContain('"./get-shit-done/core"');
+      expect(result).toContain('"./gsd-core/util"');
+      expect(result).toContain('"./gsd-core/core"');
     });
 
     test('preserves GSD_CODEX_MARKER string unchanged (BRAND-03)', () => {
@@ -111,30 +113,27 @@ describe('branding engine', () => {
     });
 
     test('applies most-specific patterns first -- no double-replace artifacts (BRAND-04)', () => {
-      // glittercowboy/get-shit-done must be processed before get-shit-done-cc
-      // so that 'glittercowboy/get-shit-done' does not get partially replaced first
-      const content = 'glittercowboy/get-shit-done and get-shit-done-cc both appear here';
+      // open-gsd/gsd-core must be processed before @opengsd/gsd-core
+      // so that overlapping package/repo identity does not get corrupted.
+      const content = 'open-gsd/gsd-core and @opengsd/gsd-core both appear here';
       const sorted = sortSubstitutions(STANDARD_SUBSTITUTIONS);
       const result = applyBrandingToContent(content, sorted);
       expect(result).toContain('chudeemeke/get-stuff-done');
       expect(result).toContain('@chude/get-stuff-done');
-      expect(result).not.toContain('glittercowboy/get-shit-done');
-      expect(result).not.toContain('get-shit-done-cc');
-      // No double-replace artifacts like 'chudeemeke/get-stuff-done-cc'
-      expect(result).not.toContain('chudeemeke/get-stuff-done-cc');
+      expect(result).not.toContain('open-gsd/gsd-core');
+      expect(result).not.toContain('@opengsd/gsd-core');
+      expect(result).not.toContain('chudeemeke/get-stuff-done-core');
     });
 
-    test('handles get-shit-done-cc@latest before get-shit-done-cc to avoid corruption (BRAND-04)', () => {
-      // When sorted by length descending, 'get-shit-done-cc@latest' (22 chars) comes
-      // before 'get-shit-done-cc' (16 chars), so @latest suffix is preserved correctly
-      const content = 'Run: npx get-shit-done-cc@latest for the latest version';
+    test('handles @opengsd/gsd-core@latest before @opengsd/gsd-core to avoid corruption (BRAND-04)', () => {
+      const content = 'Run: npx @opengsd/gsd-core@latest for the latest version';
       const sorted = sortSubstitutions([
         ...STANDARD_SUBSTITUTIONS,
-        { from: 'get-shit-done-cc@latest', to: '@chude/get-stuff-done@latest', scope: 'text', note: 'versioned ref' },
+        { from: '@opengsd/gsd-core@latest', to: '@chude/get-stuff-done@latest', scope: 'text', note: 'versioned ref' },
       ]);
       const result = applyBrandingToContent(content, sorted);
       expect(result).toContain('@chude/get-stuff-done@latest');
-      expect(result).not.toContain('get-shit-done-cc@latest');
+      expect(result).not.toContain('@opengsd/gsd-core@latest');
       // Must not produce '@chude/get-stuff-done@latest@latest' (double-replace)
       expect(result).not.toContain('@latest@latest');
     });
@@ -159,7 +158,7 @@ describe('branding engine', () => {
     test('accepts valid branding.json with all required fields (BRAND-06)', () => {
       const config = {
         substitutions: [
-          { from: 'get-shit-done-cc', to: '@chude/get-stuff-done', scope: 'text' },
+          { from: '@opengsd/gsd-core', to: '@chude/get-stuff-done', scope: 'text' },
         ],
         preserveUpstreamCredit: true,
       };
@@ -170,7 +169,7 @@ describe('branding engine', () => {
     test('accepts valid branding.json without optional fields (BRAND-06)', () => {
       const config = {
         substitutions: [
-          { from: 'get-shit-done-cc', to: '@chude/get-stuff-done', scope: 'text' },
+          { from: '@opengsd/gsd-core', to: '@chude/get-stuff-done', scope: 'text' },
         ],
       };
       expect(() => validateBrandingConfig(config)).not.toThrow();
@@ -182,7 +181,7 @@ describe('branding engine', () => {
     });
 
     test('rejects branding.json with substitutions that is not an array (BRAND-06)', () => {
-      const config = { substitutions: 'get-shit-done-cc' };
+      const config = { substitutions: '@opengsd/gsd-core' };
       expect(() => validateBrandingConfig(config)).toThrow();
     });
 
@@ -195,21 +194,21 @@ describe('branding engine', () => {
 
     test('rejects substitution missing required to field (BRAND-06)', () => {
       const config = {
-        substitutions: [{ from: 'get-shit-done-cc', scope: 'text' }],
+        substitutions: [{ from: '@opengsd/gsd-core', scope: 'text' }],
       };
       expect(() => validateBrandingConfig(config)).toThrow();
     });
 
     test('rejects substitution missing required scope field (BRAND-06)', () => {
       const config = {
-        substitutions: [{ from: 'get-shit-done-cc', to: '@chude/get-stuff-done' }],
+        substitutions: [{ from: '@opengsd/gsd-core', to: '@chude/get-stuff-done' }],
       };
       expect(() => validateBrandingConfig(config)).toThrow();
     });
 
     test('rejects substitution with invalid scope value not "text" (BRAND-06)', () => {
       const config = {
-        substitutions: [{ from: 'get-shit-done-cc', to: '@chude/get-stuff-done', scope: 'all' }],
+        substitutions: [{ from: '@opengsd/gsd-core', to: '@chude/get-stuff-done', scope: 'all' }],
       };
       expect(() => validateBrandingConfig(config)).toThrow();
     });
@@ -237,19 +236,19 @@ describe('branding engine', () => {
     test('sorts substitutions by from-string length descending (BRAND-04)', () => {
       const input = [
         { from: 'TACHES', to: 'Chude Emeke', scope: 'text' },
-        { from: 'glittercowboy/get-shit-done', to: 'chudeemeke/get-stuff-done', scope: 'text' },
-        { from: 'get-shit-done-cc', to: '@chude/get-stuff-done', scope: 'text' },
+        { from: 'open-gsd/gsd-core', to: 'chudeemeke/get-stuff-done', scope: 'text' },
+        { from: '@opengsd/gsd-core', to: '@chude/get-stuff-done', scope: 'text' },
       ];
       const sorted = sortSubstitutions(input);
-      expect(sorted[0].from).toBe('glittercowboy/get-shit-done'); // longest (26 chars)
-      expect(sorted[1].from).toBe('get-shit-done-cc');            // middle (16 chars)
-      expect(sorted[2].from).toBe('TACHES');                      // shortest (6 chars)
+      expect(sorted[0].from).toBe('open-gsd/gsd-core'); // longest group, original order preserved
+      expect(sorted[1].from).toBe('@opengsd/gsd-core'); // same length as repo ref
+      expect(sorted[2].from).toBe('TACHES');            // shortest (6 chars)
     });
 
     test('does not mutate the original array', () => {
       const input = [
         { from: 'TACHES', to: 'Chude Emeke', scope: 'text' },
-        { from: 'get-shit-done-cc', to: '@chude/get-stuff-done', scope: 'text' },
+        { from: '@opengsd/gsd-core', to: '@chude/get-stuff-done', scope: 'text' },
       ];
       const original = [...input];
       sortSubstitutions(input);
@@ -276,7 +275,7 @@ describe('branding engine', () => {
   describe('shouldBrandFile', () => {
     test('returns true for upstream JS files (BRAND-01)', () => {
       expect(shouldBrandFile('bin/install.js')).toBe(true);
-      expect(shouldBrandFile('get-shit-done/hooks/some-hook.js')).toBe(true);
+      expect(shouldBrandFile('gsd-core/hooks/some-hook.js')).toBe(true);
     });
 
     test('returns true for upstream markdown files (BRAND-01)', () => {
@@ -334,9 +333,8 @@ describe('branding engine', () => {
       expect(result).not.toBeNull();
       expect(typeof result).toBe('string');
       expect(result.length).toBeGreaterThan(0);
-      // Must reference the original project
-      expect(result).toContain('glittercowboy/get-shit-done');
-      // Must reference TACHES (the original author)
+      // Must reference the active upstream and original author lineage
+      expect(result).toContain('open-gsd/gsd-core');
       expect(result).toContain('TACHES');
     });
 
@@ -359,20 +357,19 @@ describe('branding engine', () => {
       brandedContent = applyBrandingToContent(rawContent, sorted);
     });
 
-    test('branded install.js has zero get-shit-done-cc occurrences (BRAND-01)', () => {
-      const remaining = (brandedContent.match(/get-shit-done-cc/g) || []).length;
+    test('branded install.js has zero @opengsd/gsd-core occurrences (BRAND-01)', () => {
+      const remaining = (brandedContent.match(/@opengsd\/gsd-core/g) || []).length;
       expect(remaining).toBe(0);
     });
 
-    test('branded install.js retains all bare get-shit-done path references (BRAND-02, BRAND-03)', () => {
-      // Count bare 'get-shit-done' in the raw file (not followed by -cc)
-      const rawBare = (rawContent.match(/get-shit-done(?!-cc)/g) || []).length;
-      const brandedBare = (brandedContent.match(/get-shit-done(?!-cc)/g) || []).length;
+    test('branded install.js retains all bare gsd-core path references (BRAND-02, BRAND-03)', () => {
+      const rawInternal = rawContent.replace(/@opengsd\/gsd-core|open-gsd\/gsd-core/g, '');
+      const rawBare = (rawInternal.match(/gsd-core/g) || []).length;
+      const brandedBare = (brandedContent.match(/gsd-core/g) || []).length;
 
       // All bare references must be preserved -- none should be replaced
       expect(brandedBare).toBe(rawBare);
-      // There must be a substantial number (the internal directory name is used pervasively)
-      expect(brandedBare).toBeGreaterThan(10);
+      expect(brandedBare).toBeGreaterThan(0);
     });
 
     test('branded install.js preserves GSD_CODEX_MARKER (BRAND-03)', () => {

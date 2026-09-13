@@ -1,0 +1,152 @@
+name: Flake Issue Maintenance
+
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  report-stale-flakes:
+    name: Report stale flake candidates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - name: Report stale flake-report issues
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const fs = require('fs');
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const closeDate = new Date();
+            const cutoff = closeDate.getTime() - (30 * 24 * 60 * 60 * 1000);
+            const maintenance = fs.existsSync('MAINTENANCE.md')
+              ? fs.readFileSync('MAINTENANCE.md', 'utf8')
+              : '';
+
+            function activeRel03TestPaths(markdown) {
+              const paths = new Set();
+              for (const line of markdown.split(/\r?\n/)) {
+                if (!line.startsWith('|')) continue;
+                const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
+                if (cells.length < 7 || cells[0] === 'ID' || cells[0].startsWith('---')) continue;
+                const [id, testPath, , , , , status] = cells;
+                if (/^REL-03-\d+$/.test(id) && ['active', 'extended'].includes(status.toLowerCase())) {
+                  paths.add(testPath);
+                }
+              }
+              return paths;
+            }
+
+            function issueLabels(issue) {
+              return issue.labels.map(label => typeof label === 'string' ? label : label.name);
+            }
+
+            function testPathFromTitle(title) {
+              const prefix = 'Flake: ';
+              if (!title.startsWith(prefix)) return '';
+              return title.slice(prefix.length).split('::')[0];
+            }
+
+            function hitDates(issue, comments) {
+              const dates = [];
+              if ((issue.body || '').includes('Observed in')) {
+                dates.push(Date.parse(issue.created_at));
+              }
+              for (const comment of comments) {
+                if ((comment.body || '').includes('Observed in')) {
+                  dates.push(Date.parse(comment.created_at));
+                }
+              }
+              return dates.filter(Number.isFinite);
+            }
+
+            const activeRel03Paths = activeRel03TestPaths(maintenance);
+            const proposals = [];
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'flake-report',
+              per_page: 100,
+            });
+
+            for (const issue of issues) {
+              if (issue.pull_request) continue;
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner,
+                repo,
+                issue_number: issue.number,
+                per_page: 100,
+              });
+              const hits = hitDates(issue, comments);
+              if (hits.length === 0) continue;
+
+              const lastHitMs = Math.max(...hits);
+              if (lastHitMs >= cutoff) continue;
+
+              const labels = issueLabels(issue);
+              const testPath = testPathFromTitle(issue.title);
+              if (labels.includes('rel-03-candidate') && activeRel03Paths.has(testPath)) {
+                core.info(`Keeping rel-03-candidate issue #${issue.number}; active maintenance row exists for ${testPath}.`);
+                continue;
+              }
+
+              const lastHit = new Date(lastHitMs).toISOString();
+              const closedAt = closeDate.toISOString();
+              proposals.push({
+                key: `stale-flake:${issue.number}`,
+                action: 'close',
+                issueNumber: issue.number,
+                title: issue.title,
+                body: [
+                  'Closing stale flake-report issue after 30 days without a hit.',
+                  '',
+                  `last-hit: ${lastHit}`,
+                  `close-date: ${closedAt}`,
+                  `total-hits: ${hits.length}`,
+                ].join('\n'),
+              });
+            }
+
+            fs.writeFileSync(
+              'flake-maintenance-proposals.json',
+              `${JSON.stringify(proposals, null, 2)}\n`,
+              'utf8'
+            );
+            fs.appendFileSync(
+              process.env.GITHUB_STEP_SUMMARY,
+              `### Stale flake proposals\n\n${proposals.length} closure proposal(s); no issues were mutated.\n`
+            );
+      - name: Upload stale flake proposals
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: stale-flake-proposals-${{ github.run_id }}
+          path: flake-maintenance-proposals.json
+          if-no-files-found: error
+          retention-days: 30
+          overwrite: false

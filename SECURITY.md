@@ -21,6 +21,34 @@ Include:
   - High: 1 week
   - Medium/Low: Next release
 
+## Ship-Ready Hardening Triage Policy
+
+All dependency, secret, static-analysis, and CI runner findings are triaged through
+the same suppression workflow. Scanner-level filtering must not hide findings
+before they can be reviewed.
+
+- **critical** findings are fixed in the current ship-ready hardening milestone
+  before release. They are not suppressed unless the finding is proven
+  non-exploitable in this project and the suppression is explicitly reviewed.
+- **high** findings block CI unless an unexpired suppression covers the exact id.
+  A high-severity suppression must include a concrete exploitability rationale.
+- **moderate** findings are planned for the next hardening milestone unless
+  project-specific exploitability requires immediate handling.
+- **low** findings are backlogged with a review date and remain visible through
+  audit output or durable audit logs.
+
+Every suppression entry in `.planning/audits/suppressions.json` must include:
+
+- `id`
+- `severity`
+- `reason`
+- `reviewer`
+- `reviewedDate`
+- `reReviewDate`
+
+The `reReviewDate` must be no more than 60 calendar days after `reviewedDate`.
+Expired suppressions fail before `audit-ci` is allowed to hide a finding.
+
 ## Scope
 
 Security issues in the GSD codebase that could:

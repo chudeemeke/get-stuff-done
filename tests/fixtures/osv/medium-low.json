@@ -1,0 +1,57 @@
+{
+  "results": [
+    {
+      "source": {
+        "path": "bun.lock",
+        "type": "lockfile"
+      },
+      "packages": [
+        {
+          "package": {
+            "name": "medium-lib",
+            "version": "3.1.4",
+            "ecosystem": "npm"
+          },
+          "vulnerabilities": [
+            {
+              "id": "GHSA-medium-0001",
+              "summary": "Medium fixture vulnerability",
+              "details": "Fixture only: medium severity should create a triage item without blocking.",
+              "database_specific": {
+                "severity": "MEDIUM"
+              },
+              "aliases": ["CVE-2026-0003"]
+            },
+            {
+              "id": "GHSA-medium-0001",
+              "summary": "Medium fixture vulnerability duplicate",
+              "details": "Fixture only: duplicate id for the same package should be removed.",
+              "database_specific": {
+                "severity": "MEDIUM"
+              },
+              "aliases": ["CVE-2026-0003"]
+            }
+          ]
+        },
+        {
+          "package": {
+            "name": "low-lib",
+            "version": "0.9.0",
+            "ecosystem": "npm"
+          },
+          "vulnerabilities": [
+            {
+              "id": "GHSA-low-0001",
+              "summary": "Low fixture vulnerability",
+              "details": "Fixture only: low severity should create a triage item without blocking.",
+              "database_specific": {
+                "severity": "LOW"
+              },
+              "aliases": ["CVE-2026-0004"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

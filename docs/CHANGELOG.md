@@ -465,12 +465,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Research Sources
 
 ### GSD (GlitterCowboy)
-- [GitHub Repository](https://github.com/glittercowboy/get-shit-done) - v1.9.11
-- [Official Website](https://gsd.site)
-- [GSD-STYLE.md](https://github.com/glittercowboy/get-shit-done/blob/main/GSD-STYLE.md)
+- [GitHub Repository](https://github.com/gsd-build/get-shit-done) - v1.9.11
+- Official Website: `gsd.site` (legacy source)
+- [GSD-STYLE.md](../.upstream/GSD-STYLE.md)
 - Custom agent definitions (11 agents): gsd-executor, gsd-planner, gsd-phase-researcher, gsd-project-researcher, gsd-verifier, gsd-plan-checker, gsd-debugger, gsd-roadmapper, gsd-codebase-mapper, gsd-integration-checker, gsd-research-synthesizer
-- [Adaptive Model Selection Issue #210](https://github.com/glittercowboy/get-shit-done/issues/210)
-- [Enhanced statusline Issue #212](https://github.com/glittercowboy/get-shit-done/issues/212)
+- [Adaptive Model Selection Issue #210](https://github.com/gsd-build/get-shit-done/issues/210)
+- [Enhanced statusline Issue #212](https://github.com/gsd-build/get-shit-done/issues/212)
 
 ### Manus.im
 - [Context Engineering Blog Post](https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus)

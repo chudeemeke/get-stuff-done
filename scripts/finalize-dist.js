@@ -38,6 +38,7 @@ const DIST_HOOKS_DIR = path.join(PROJECT_ROOT, 'dist', 'hooks');
 const HOOKS_NEEDING_BUNDLE = [
   'gsd-statusline.js',
   'gsd-check-update.js',
+  'gsd-check-update-worker.js',
   'pre-compact.js',
 ];
 

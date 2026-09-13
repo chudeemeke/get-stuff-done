@@ -1,9 +1,22 @@
 node_modules/
 .DS_Store
 TO-DOS.md
+# Ignore CLAUDE.md at every depth (an upstream-shadow copy under .upstream/ or
+# overlay/ must never become committable), then un-ignore the root one: it is
+# the skin-discipline behavioral contract loaded by Claude Code in this CWD.
 CLAUDE.md
+!/CLAUDE.md
 /research.claude/
 commands.html
+
+# Cross-project issue inbox: active files are local WIP; terminal records
+# under archived/ and rejected/ are tracked for audit.
+docs/inbox/*.md
+!docs/inbox/README.md
+!docs/inbox/archived/
+!docs/inbox/archived/**
+!docs/inbox/rejected/
+!docs/inbox/rejected/**
 
 # Local test installs
 .claude/
@@ -30,3 +43,16 @@ docs/GSD-SYSTEM-SPECIFICATION.md
 gaps.md
 improve.md
 philosophy.md
+.planning/upstream-outreach-drafts.md
+
+# Secret-leakage proactive ignores (Phase 40.5 Wave 1.7-A, A-11)
+# Defense in depth: also gated by gitleaks step in CI + GitHub-native
+# secret scanning + push protection (post-public-flip). These patterns
+# catch common-named secret files before they reach the staging area.
+*.env
+*.pem
+*.key
+id_rsa
+id_ed25519
+credentials*
+secrets.json

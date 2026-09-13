@@ -1,0 +1,48 @@
+{
+  "$schema": "./debt-baseline.schema.json",
+  "version": "2026-05-03",
+  "policy": "ratchet",
+  "rationale": "Counts may decrease (debt paydown is welcome). Counts MUST NOT increase (regression). Periodic threshold ratchets reduce these numbers as debt is paid down. The ratchet gate itself enforces the no-increase invariant in CI; threshold updates are conscious decisions captured in this file with a 'ratchet_history' entry.",
+  "schema_notes": {
+    "value": "Per-threshold value MAY be either a scalar number (OS-independent) or a per-OS object {linux,macos,windows} (OS-dependent). The consumer script (check-debt-ratchet.cjs) handles both shapes without branching at the call site (OCP). When a value is a number, it applies to all platforms. When a value is an OS map, the consumer reads os.platform() and selects the matching key after normalisation (darwin→macos, win32→windows)."
+  },
+  "thresholds": {
+    "boundary_violations_max": {
+      "value": 48,
+      "source_script": "scripts/check-boundary.js",
+      "rationale": "Structural overlay-architecture boundary violations. OS-independent (filesystem-tree comparison). Tolerated indefinitely per v1.0.0 Key Decision (AF-7). Tracked here so CI can detect regression-via-increase.",
+      "established": "2026-04-22",
+      "last_observed": "2026-05-03"
+    },
+    "upstream_compat_diffs_max": {
+      "value": {
+        "linux": 132,
+        "macos": 132,
+        "windows": 133
+      },
+      "source_script": "scripts/run-upstream-compat.js",
+      "rationale": "Branding-caused test differences when running upstream test suite against composed dist/. Per-OS because a small number of tests assert platform-specific path / shell behaviour and Windows reports +1 vs Linux/macOS. Tolerated indefinitely per v1.0.0 Key Decision (AF-7). Tracked here so CI can detect regression-via-increase.",
+      "established": "2026-05-03",
+      "last_observed": "2026-05-03",
+      "observation_method": "CI run 25276236403 on commit d4b4238 (PR #3, v1.39.1 upstream pin)"
+    }
+  },
+  "consumers": [
+    "scripts/check-debt-ratchet.cjs (Wave 1.6 Task 1.6-04)",
+    ".github/workflows/ci.yml :: boundary-override-check job, Ratchet gate step (Wave 1.6 Task 1.6-04)"
+  ],
+  "ratchet_history": [
+    {
+      "date": "2026-05-02",
+      "action": "established",
+      "committer": "Phase 40.5 Wave 1.5d",
+      "note": "SSOT baseline committed. Initial values (boundary=48 from AF-7 historical, compat=130 from memory). Consumer (check-debt-ratchet.cjs + CI step) lands in Wave 1.6 Task 1.6-04."
+    },
+    {
+      "date": "2026-05-03",
+      "action": "corrected",
+      "committer": "Phase 40.5 Wave 1.6 Task 1.6-04",
+      "note": "Corrected upstream_compat_diffs_max from unmeasured scalar 130 to empirical per-OS map {linux:132, macos:132, windows:133} based on CI run 25276236403 against commit d4b4238 at v1.39.1. The original 130 was not empirically measured at the time of Wave 1.5d; the consumer-implementation task in 1.6-04 surfaced this on first run. No regression — these counts are the v1.39.1 baseline. Boundary count observed at 37 (under the 48 threshold by 11), no correction needed."
+    }
+  ]
+}

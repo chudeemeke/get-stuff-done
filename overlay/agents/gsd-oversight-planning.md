@@ -76,6 +76,13 @@ When you find an issue, produce a structured flag:
 Direct to planner. Plan-phase is not high-stakes per CONTEXT.md, so flags go directly to the working agent without lead mediation.
 </monitoring_protocol>
 
+<evidence_before_claim_triggers>
+## Evidence-Before-Claim Triggers
+
+- `EBC-PLAN-METRIC-COMPAT`: Flag test approaches that promise metric targets before checking reporter or tool compatibility; principle: `overlay/memory/oversight-principle-evidence-before-claim.md`.
+  Graduation: PROCESS-07 criteria in `MAINTENANCE.md`; v1.2.0 advisory only.
+</evidence_before_claim_triggers>
+
 <memory_protocol>
 ## Agent Memory
 

@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-08-30T23:10:00Z",
+  "phase": "43",
+  "phase_name": "upgrade-resilience-verify-matrix-dogfood",
+  "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
+  "branch": "chore/upstream-bump-1.8.0",
+  "pr": "see bump_arc.step_2 (opened from this branch)",
+  "status": "issue-53-bump-step-2-COMPLETE-local-gates-green-awaiting-hosted-CI-and-review",
+  "READ_FIRST": "Verify, do not trust: git rev-parse --short HEAD, git worktree list, gh pr checks. The pre-push hook is inert (#49) so every gate below was run by hand and must be re-run by hand. Run the suite as 'bun run test' (never bare 'bun test'); the pass signal is the summary line, never the exit code alone.",
+  "bump_arc": {
+    "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 (user chose 'Walk increments' via AskUserQuestion 2026-08-30)",
+    "step": "2 of 5: 1.7.0 -> 1.8.0",
+    "step_1_merge_evidence": {
+      "merge_commit": "0bfac78e",
+      "pr": "https://github.com/chudeemeke/get-stuff-done/pull/61",
+      "checks": "20/20 SUCCESS on final head 2d83742a"
+    },
+    "done": [
+      "Pin advanced in package.json + bun.lock + upstream-authority.json + embedded authority (scripts/lib/upstream-source.js); manifest pruned via --prune-for-bump to 1.6.1/1.7.0/1.8.0; validate green.",
+      "Upgrade Verifier re-aimed --from 1.8.0 --to 1.9.1; N=3 compat set advanced to 1.6.1/1.7.0/1.8.0 (script constant + contract JSON + contract-mirroring fixtures, role-preserving shift).",
+      "Drop-experiment run FIRST (overrides moved aside, pure 1.8.0 composed): 18 failures across 4 suites - init 6, roadmap 8, runtime-overrides 3, state 1. Report preserved at .planning/evidence/bump-1.8.0-drop-experiment.json. Nothing droppable; every override still earns its place.",
+      "6 overrides forward-ported onto PURE 1.8.0 bases (init, roadmap-parser, roadmap, state, plan-scan, bin/install.js). Both gsd-check-update hooks were byte-identical upstream -> no port. Port verified arithmetically: ported-delta line count == recovered semantic-delta count on all 6.",
+      "All 9 REASON.md refreshed (Version, SHA-256, Semantic SHA-256 where present) with dated 1.7.0->1.8.0 bump-review notes; check-overrides 9/9 fresh.",
+      "Four deferred step-1 review findings CLOSED (a/b/c/d) - see commit aad11781.",
+      "Adopted upstream 1.8.0 semantics with test updates: absolute init planning paths (#2376), and installCodexConfig no longer writing per-agent [agents.<name>] tables to config.toml.",
+      "Fixed init.test.cjs binding to the legacy package root (it silently tested the stale repo-root get-stuff-done/ dir on direct runs).",
+      "MAINTENANCE.md gained a 'Forward-porting overrides on an upstream bump' runbook - the mechanical recipe + the arithmetic verification step + the two traps."
+    ],
+    "evidence": {
+      "matrix": ".planning/evidence/bump-1.8.0-compat.json - single-version current-pin report, 1.8.0 blocking row PASS, 316/316 across 11 candidate suites, 0 failed 0 skipped.",
+      "applied": "node scripts/vetted-upstream-versions.js --apply-matrix-evidence .planning/evidence/bump-1.8.0-compat.json --date 2026-08-30 -> manifest 1.8.0 row vettedAt 2026-08-30, sha256 72ece37b9b1339ae3f5c33190bb337f8d049803c43a7499148a52f3e101de34e; historical rows keep their own evidence and now carry supersededBy.",
+      "gates": "lint 0 errors (805 pre-existing warnings); lint:docs 0 issues; compose green (upstream_version 1.8.0, 835 files); check-overrides 9/9 fresh; changelog self-test green.",
+      "full_suite": "SEE remaining_tasks[0] - final run was in flight at handoff time; the prior run was 1670 pass / 3 fail where all 3 were dispositioned (2 known local false reds + 1 genuine 1.8.0 adoption now fixed)."
+    },
+    "known_local_false_reds": [
+      "platform.test.js 'NO_COLOR env var disables color' - ambient FORCE_COLOR=3 in this shell. Passes in CI.",
+      "verify-upgrade.test.js 'rejects an oversized real registry identity response' - local bun 1.4.0 vs pinned 1.3.5 stream behavior. Pinned CI is the authority."
+    ],
+    "next_steps": [
+      "1. Confirm the final full-suite summary line (fullsuite2 log or a fresh 'bun run test'): expect 1673 tests / 63 files with only the two known local false reds.",
+      "2. Push the branch and open the PR with the evidence-contract body (Summary, Scope, Verification, Explicit non-claims, Risks/blockers, Linked issues). Batch pushes - the Windows perf leg re-rolls its noise dice per commit.",
+      "3. Watch hosted CI to green on the FINAL head (branch protection required checks are configured; still verify rather than trusting --auto).",
+      "4. Cross-AI review per ~/.claude/rules/api-presentation-claude-review.md, then the operator tuicr assembled-diff gate, then squash merge.",
+      "5. Step 3 (1.8.0 -> 1.9.1) repeats the same recipe. MAINTENANCE.md now carries it as a runbook; project_override_forward_port_pattern.md carries the why."
+    ],
+    "step_3_recipe_pointer": "MAINTENANCE.md -> 'Forward-porting overrides on an upstream bump'. Non-negotiables: never 3-way merge an override; drop-experiment before porting; strip upstream's @typescript-eslint eslint-disable lines; verify the port arithmetically; refresh every REASON.md; adopt deliberate upstream semantic changes via version-conditional fork tests rather than overriding them.",
+    "hazards": [
+      "A compat-matrix run reads the LIVE tests/ tree. Do not edit test files while one runs in the background - a mid-edit run produced 4 phantom init failures that cost real diagnosis time.",
+      "node --test tests/<x>.test.cjs from the repo root proves NOTHING about the pinned upstream unless GSD_COMPAT_PACKAGE_ROOT points at a composed candidate: the default legacy root is the stale repo-root get-stuff-done/ v2.4.0 self-install. This is exactly how a genuine 1.8.0 regression looked green locally.",
+      "sha256sum on Windows backslash paths prefixes output with a backslash - compare with cmp or normalized paths.",
+      "PR perf legs re-roll windows noise dice per commit - batch changes before pushing.",
+      "Legacy tracked get-stuff-done/ dir is the LEGACY_PACKAGE_ROOT default and sync.test.cjs's symlink shim collides with it - do NOT delete it casually; the owner decision must account for this."
+    ]
+  },
+  "human_actions_pending": [
+    {
+      "id": "issue-53-upstream-bump",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/53",
+      "description": "Bump @opengsd/gsd-core 1.6.1 -> 1.11.0. Steps 1 (1.7.0) and 2 (1.8.0) done; 1.9.1, 1.10.0, 1.11.0 remain. At the FINAL step also execute the two triaged inbox items (kanbanflow model-catalog opus5 refresh, conversations plan-checker effort) - verified 1.11.0 fixes neither."
+    },
+    {
+      "id": "legacy-self-install-dir",
+      "description": "DECIDE: tracked legacy get-stuff-done/ dir at repo root (101 files, v2.4.0 self-install, on main since a11cb569). Remove or keep? It is the LEGACY_PACKAGE_ROOT default for direct .test.cjs runs and sync.test.cjs's symlink shim collides with it. Ties into #54."
+    },
+    {
+      "id": "issue-54-resume-command",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/54",
+      "description": "DECIDE + FIX: /gsd:resume-work broken (55/58 .claude/commands/gsd/ files import the deleted iCloud path). Decide which GSD copy is authoritative, then rewrite paths."
+    },
+    {
+      "id": "issue-49-inert-hook",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/49",
+      "description": "DECIDE: pre-push hook is inert (--ignore-scripts means husky prepare never runs; git skips missing hooks silently)."
+    },
+    {
+      "id": "issue-51-governance-branch",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/51",
+      "description": "DECIDE: land or discard docs/pr-issue-evidence-workflow. Landing creates the type:* labels git-workflow.md calls standard."
+    },
+    {
+      "id": "issue-55-perf-floor-recalibration",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/55",
+      "description": "Recalibrate windows acceptance floors. Trigger: next harness re-pin. Deadline: acceptance expiry 2026-11-26."
+    },
+    {
+      "id": "pr-4-gsd-doctor",
+      "description": "PR #4 (gsd-doctor) still open, independent of the bump campaign."
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": "step-2-ship",
+      "name": "Confirm the final full-suite summary line, push, open the PR, take hosted CI green, run cross-AI review + the operator tuicr gate, squash merge.",
+      "status": "in_progress"
+    },
+    {
+      "id": "phase-43-plan-coverage",
+      "name": "50 PLAN files vs 22 SUMMARY files. Whether the 28 gaps are unexecuted or executed-but-unsummarized was never established; several were executed inside the 86 recovered commits. Establish before treating as remaining effort, then close out Phase 43 in STATE/ROADMAP.",
+      "status": "not_started"
+    },
+    {
+      "id": "inbox-remaining",
+      "name": "4 active inbox items, all with owners/triggers: memory-nexus health-drift (in-progress, backlog 999.8), authkey gate system (triaged, backlog 999.7), kanbanflow catalog + conversations plan-checker (triaged, execute at the FINAL bump step).",
+      "status": "tracked"
+    }
+  ],
+  "next_action": "Read remaining_tasks[0]. Confirm the full-suite summary line, then push and open the PR."
+}

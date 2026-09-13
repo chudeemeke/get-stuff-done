@@ -4,7 +4,41 @@
 
 const fs = require('fs');
 const path = require('path');
-const { loadConfig, output, error } = require('./core.cjs');
+const { loadConfig, normalizePhaseName, output, error } = require('./core.cjs');
+
+function extractDeclaredPlanCount(section) {
+  const plansMatch = section.match(/(?:\*\*Plans\*\*:|\*\*Plans:\*\*|(?:^|\n)Plans:)\s*(?:(\d+)\s*\/\s*)?(\d+)\s+plans?/i);
+  if (!plansMatch) return 0;
+  const count = parseInt(plansMatch[2], 10);
+  return Number.isFinite(count) ? count : 0;
+}
+
+function readRoadmapDeclaredPlanCounts(cwd) {
+  const roadmapPath = path.join(cwd, '.planning', 'ROADMAP.md');
+  const counts = new Map();
+
+  if (!fs.existsSync(roadmapPath)) return counts;
+
+  const content = fs.readFileSync(roadmapPath, 'utf-8');
+  const phasePattern = /#{2,4}\s*Phase\s+(\d+[A-Z]?(?:\.\d+)*)\s*:\s*[^\n]+/gi;
+  let match;
+
+  while ((match = phasePattern.exec(content)) !== null) {
+    const phaseNum = match[1];
+    const sectionStart = match.index;
+    const restOfContent = content.slice(sectionStart);
+    const nextHeader = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
+    const sectionEnd = nextHeader ? sectionStart + nextHeader.index : content.length;
+    const section = content.slice(sectionStart, sectionEnd);
+    const planCount = extractDeclaredPlanCount(section);
+
+    if (planCount > 0) {
+      counts.set(normalizePhaseName(phaseNum), planCount);
+    }
+  }
+
+  return counts;
+}
 
 function cmdStateLoad(cwd, raw) {
   const config = loadConfig(cwd);
@@ -235,19 +269,31 @@ function cmdStateUpdateProgress(cwd, raw) {
 
   // Count summaries across all phases
   const phasesDir = path.join(cwd, '.planning', 'phases');
-  let totalPlans = 0;
-  let totalSummaries = 0;
+  const totalsByPhase = new Map();
+
+  for (const [phase, planCount] of readRoadmapDeclaredPlanCounts(cwd)) {
+    totalsByPhase.set(phase, { plan_count: planCount, summary_count: 0 });
+  }
 
   if (fs.existsSync(phasesDir)) {
     const phaseDirs = fs.readdirSync(phasesDir, { withFileTypes: true })
       .filter(e => e.isDirectory()).map(e => e.name);
     for (const dir of phaseDirs) {
       const files = fs.readdirSync(path.join(phasesDir, dir));
-      totalPlans += files.filter(f => f.match(/-PLAN\.md$/i)).length;
-      totalSummaries += files.filter(f => f.match(/-SUMMARY\.md$/i)).length;
+      const phaseMatch = dir.match(/^(\d+[A-Z]?(?:\.\d+)*)/i);
+      const phaseKey = normalizePhaseName(phaseMatch ? phaseMatch[1] : dir);
+      const diskPlanCount = files.filter(f => f.match(/-PLAN\.md$/i) || f === 'PLAN.md').length;
+      const diskSummaryCount = files.filter(f => f.match(/-SUMMARY\.md$/i) || f === 'SUMMARY.md').length;
+      const existing = totalsByPhase.get(phaseKey) || { plan_count: 0, summary_count: 0 };
+      totalsByPhase.set(phaseKey, {
+        plan_count: Math.max(existing.plan_count, diskPlanCount),
+        summary_count: existing.summary_count + diskSummaryCount,
+      });
     }
   }
 
+  const totalPlans = [...totalsByPhase.values()].reduce((sum, phase) => sum + phase.plan_count, 0);
+  const totalSummaries = [...totalsByPhase.values()].reduce((sum, phase) => sum + phase.summary_count, 0);
   const percent = totalPlans > 0 ? Math.min(100, Math.round(totalSummaries / totalPlans * 100)) : 0;
   const barWidth = 10;
   const filled = Math.round(percent / 100 * barWidth);

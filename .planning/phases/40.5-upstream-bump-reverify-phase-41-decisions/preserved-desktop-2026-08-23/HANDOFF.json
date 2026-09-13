@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-05-06T08:00:00Z",
+  "phase": "40.5",
+  "phase_name": "upstream-bump-reverify-phase-41-decisions",
+  "phase_dir": ".planning/phases/40.5-upstream-bump-reverify-phase-41-decisions",
+  "plan": "1.5",
+  "task": "1.8-01",
+  "total_tasks": 5,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": "1", "name": "Wave 1: upstream pin bump v1.39.1", "status": "done", "commit": "0fd59c7"},
+    {"id": "1.5a", "name": "Wave 1.5a: bunfig dist exclusion + meta-tests + hooks SSOT manifest", "status": "done", "commit_range": "e612d82..c15cd65"},
+    {"id": "1.5b", "name": "Wave 1.5b: meta-test runtime-symlink escape marker", "status": "done", "commits": ["aa50059", "3bdb3dd"]},
+    {"id": "1.5c", "name": "Wave 1.5c: eslint dist exclusion", "status": "done", "commit": "e14da5d"},
+    {"id": "1.5d", "name": "Wave 1.5d: categorical primitives (.gitattributes + debt-baseline.json + amendment template)", "status": "done", "commit": "724aea3"},
+    {"id": "1.6-01", "name": "Wave 1.6 Task 1.6-01: actionlint integration", "status": "done", "commit": "8942512"},
+    {"id": "1.6-02", "name": "Wave 1.6 Task 1.6-02: Node 24 action upgrades (checkout@v6, cache@v5)", "status": "done", "commit": "1fd7781"},
+    {"id": "1.6-03", "name": "Wave 1.6 Task 1.6-03: no-test-files-in-dist CI guard", "status": "done", "commit": "d4b4238"},
+    {"id": "1.6-04", "name": "Wave 1.6 Task 1.6-04: ratchet gate consumer with per-OS thresholds", "status": "done", "commit": "3567636"},
+    {"id": "1.7-A", "name": "Wave 1.7-A: secret-scanning gate stack (gitleaks CI step + .gitleaks.toml allowlist + .gitignore proactive patterns + outreach-drafts hide + A-11 amendment + public-flip + GitHub-native scanning + push protection + dependabot)", "status": "done", "commits": ["ac785d0", "d218926"]},
+    {"id": "1.7-01", "name": "Wave 1.7 Task 1.7-01: reproducible branch protection script + applied live", "status": "done", "commit": "c41409c"}
+  ],
+  "remaining_tasks": [
+    {"id": "1.8-01", "name": "Wave 1.8 Task 1.8-01: pre-push hook for local-CI parity (husky)", "status": "not_started", "estimate_minutes": 30},
+    {"id": "wave-2", "name": "Wave 2: override drift detection -> DRIFT-LOG.md", "status": "not_started", "estimate_minutes": 45},
+    {"id": "wave-3", "name": "Wave 3: compose collisions including #1859 -> COLLISIONS.md", "status": "not_started", "estimate_minutes": 60},
+    {"id": "wave-4", "name": "Wave 4: 24-decision matrix verification -> DECISION-VERIFY.md", "status": "not_started", "estimate_minutes": 150},
+    {"id": "wave-5", "name": "Wave 5: override review (REWRITE not DELETE for both hook overrides) + VERIFICATION.md synthesis + final commit + PR #3 ready-to-merge", "status": "not_started", "estimate_minutes": 60},
+    {"id": "inbox-triage", "name": "Triage 3 inbox items: HIGH authkey + MEDIUM medesine-rx (both already triaged status, need archive move) + LOW aidev counter-notification (status: open, decision: Keep, needs status: triaged + archive)", "status": "not_started", "estimate_minutes": 5}
+  ],
+  "blockers": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {"decision": "Public-flip the repo (chudeemeke/get-stuff-done now public)", "rationale": "Branch-protection API requires GitHub Pro on private user-owned repos; user declined Pro; OSS-readiness goal aligns; pre-flip audit found zero secret-exposure risk", "phase": "40.5"},
+    {"decision": "Required status checks = A-06+A-10 binding-gate set + Secret Scan (5 jobs)", "rationale": "Test/Compat have 4 chronic failures allowlisted by A-10; including Test would block PR #3 itself; the 5 binding-gate jobs are the operative bar", "phase": "40.5"},
+    {"decision": "required_approving_review_count=1 with enforce_admins=false (Option A)", "rationale": "Solo maintainer can self-merge via admin power; contributor PRs see review-required signal — OSS-ready posture", "phase": "40.5"},
+    {"decision": "Direct gitleaks v8.21.2 binary install in CI (not gitleaks-action wrapper)", "rationale": "Action requires GITLEAKS_LICENSE for org repos; direct install dodges any licensing concern", "phase": "40.5"},
+    {"decision": ".gitleaks.toml path-allowlist for upstream test fixtures (NOT regex-fingerprint)", "rationale": "Regex variant would have embedded the fixture string in HEAD; path allowlist is canonical gitleaks pattern with documented rationale", "phase": "40.5"},
+    {"decision": "G2 (husky pre-commit) + G4 (prepublishOnly) deferred to aidev's inbox; G1+G3+G5 only in this project", "rationale": "G2/G4 are cross-project concerns belonging in aidev (canonical release tooling per tooling-preferences.md); G1/G3/G5 are project-local by definition", "phase": "40.5"},
+    {"decision": "Schema v1.2 closure_notify_to field (canonical inline by user)", "rationale": "Closes structural gap where reporter has no concrete trigger to revisit local workaround when upstream ships; backward-compatible v1.2", "phase": "cross-project"},
+    {"decision": "Disposition for local CI gitleaks step: Keep (defense-in-depth)", "rationale": "PR #3 currently gated on Secret Scan as required check via branch protection; removing would require coordinated branch-protection update; CI step is only check on contributor PRs without aidev's pre-commit hook; aidev's notification also defaults to Keep", "phase": "40.5"}
+  ],
+  "uncommitted_files": [
+    ".planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/40.5-CI-DIAGNOSIS.md (untracked, pre-existing — worktree-only artifact)",
+    "get-stuff-done/memory/ (untracked tool-generated dir, pre-existing)"
+  ],
+  "next_action": "Open with /gsd:resume-work; verify worktree HEAD = c41409c + CI run 25403475329 still latest + branch protection still live (bash .claude/worktrees/agent-a1c0cd52236103329/scripts/setup-branch-protection.sh --check should exit 0). Then triage 3 inbox items (~5 min). Then Wave 1.8 Task 1.8-01: pre-push hook via husky.",
+  "context_notes": "Phase 40.5 is the upstream bump + Phase 41 decision re-verification. The fork is a SKIN over upstream get-shit-done-cc — see project root CLAUDE.md for skin-discipline contract. All this session's commits are on worktree branch worktree-agent-a1c0cd52236103329 (preserves the PR #3 work). Main has only 1 new commit (265e365 STATE.md update). Local main is 38 ahead of origin/main; lands when PR #3 merges (after Wave 5). Closure-loop just demonstrated end-to-end: aidev shipped the secrets-gate fix within 24h of filing, counter-notification arrived in this project's inbox at 2026-05-06 via session-start surface hook. Schema v1.2 design (proposed mid-session 2026-05-05, promoted to canonical inline by user, used in production immediately) proved out as a real cross-project orchestration capability. Local main has uncommitted .gitignore/STATE.md from this session — both committed as 265e365. Repo is now PUBLIC; native scanning + push protection + dependabot enabled; branch protection live with 5 required status checks. PR #3 still DRAFT, gated correctly. The aidev counter-notification's caveat ('gitleaks not installed on dev machine') is stale — gitleaks IS installed at /c/Users/Destiny/.local/bin/gitleaks."
+}

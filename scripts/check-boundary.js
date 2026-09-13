@@ -7,27 +7,30 @@
  * in the repo outside allowed directories (overrides/, dist/, etc.).
  *
  * Purpose: Prevent accidental vendoring of upstream files into the repo.
- * Files from get-shit-done-cc should only exist in node_modules/ (installed),
+ * Files from the active upstream package should only exist in node_modules/ (installed),
  * overrides/ (intentional replacements), or dist/ (composed output).
  *
  * Usage:
  *   node scripts/check-boundary.js
+ *   node scripts/check-boundary.js --report-only
  *   node scripts/check-boundary.js --upstream-dir <path> --project-dir <path>
  *
  * Exit codes:
  *   0 -- no boundary violations found
+ *   0 -- boundary violations detected and --report-only is set
  *   1 -- boundary violations detected
  */
 
 const fs = require('fs');
 const path = require('path');
+const { getPackageDir } = require('./lib/upstream-source');
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const PROJECT_ROOT = path.join(__dirname, '..');
-const DEFAULT_UPSTREAM_DIR = path.join(PROJECT_ROOT, 'node_modules', 'get-shit-done-cc');
+const DEFAULT_UPSTREAM_DIR = getPackageDir({ projectRoot: PROJECT_ROOT });
 const DEFAULT_PROJECT_DIR = PROJECT_ROOT;
 
 /**
@@ -42,6 +45,10 @@ const ALLOWED_PREFIXES = [
   '.planning/',
   'tests/',
   '.github/',
+  // Per-machine harness state. `.claude/worktrees/<name>/` holds full checkouts of this same
+  // repository, so walking it both doubles the traversal and reports a stale copy's paths as
+  // if they were fork source.
+  '.claude/',
 ];
 
 // ---------------------------------------------------------------------------
@@ -70,7 +77,15 @@ function walkDir(dir, base) {
       continue;
     }
 
-    const stat = fs.statSync(abs);
+    // lstat, not stat: stat follows symlinks and throws ENOENT on a dangling one, which would
+    // abort the entire boundary walk over a single broken link anywhere in the tree. A symlink
+    // is reported as a leaf path rather than descended into, so link cycles cannot loop.
+    let stat;
+    try {
+      stat = fs.lstatSync(abs);
+    } catch {
+      continue;
+    }
     if (stat.isDirectory()) {
       results.push(...walkDir(abs, rel));
     } else {
@@ -184,19 +199,25 @@ function formatReport(result) {
 // ---------------------------------------------------------------------------
 
 /**
- * Parse --upstream-dir and --project-dir from process.argv.
+ * Parse --report-only, --upstream-dir, and --project-dir from process.argv.
  *
- * @returns {{ upstreamDir?: string, projectDir?: string }}
+ * @returns {{ reportOnly?: boolean, upstreamDir?: string, projectDir?: string }}
  */
 function parseArgs(argv) {
   const opts = {};
-  for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--upstream-dir' && argv[i + 1]) {
-      opts.upstreamDir = argv[i + 1];
-      i++;
-    } else if (argv[i] === '--project-dir' && argv[i + 1]) {
-      opts.projectDir = argv[i + 1];
-      i++;
+  let pendingValueFor = null;
+
+  for (const arg of argv) {
+    if (pendingValueFor === '--upstream-dir') {
+      opts.upstreamDir = arg;
+      pendingValueFor = null;
+    } else if (pendingValueFor === '--project-dir') {
+      opts.projectDir = arg;
+      pendingValueFor = null;
+    } else if (arg === '--report-only') {
+      opts.reportOnly = true;
+    } else if (arg === '--upstream-dir' || arg === '--project-dir') {
+      pendingValueFor = arg;
     }
   }
   return opts;
@@ -210,7 +231,7 @@ if (require.main === module) {
   const opts = parseArgs(process.argv.slice(2));
   const result = checkBoundary(opts);
   process.stdout.write(formatReport(result));
-  process.exit(result.ok ? 0 : 1);
+  process.exit(result.ok || opts.reportOnly ? 0 : 1);
 }
 
 // ---------------------------------------------------------------------------

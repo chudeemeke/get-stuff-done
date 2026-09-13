@@ -1,5 +1,3 @@
-# gsd-oversight-sync
-
 ---
 name: gsd-oversight-sync
 description: Watches upstream sync for fork integrity violations, branding losses, security risks in cherry-picked code, and protected path modifications. Flags without blocking.

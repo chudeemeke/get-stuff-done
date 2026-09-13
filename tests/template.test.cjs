@@ -10,43 +10,15 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { execFileSync } = require('child_process');
-const { createTempProject, cleanup, runGsdTools } = require('./helpers.cjs');
+const { resolveCompatPackageRoot } = require('./helpers/compat-package-root.cjs');
+const COMPAT_PACKAGE_ROOT = resolveCompatPackageRoot();
+const { createGsdToolsHelpers, createTempProject, cleanup } = require('./helpers.cjs');
+const { runGsdTools } = createGsdToolsHelpers(COMPAT_PACKAGE_ROOT);
 
-const TEMPLATE_PATH = path.join(__dirname, '..', 'get-stuff-done', 'bin', 'lib', 'template.cjs');
+const TEMPLATE_PATH = path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'template.cjs');
 const template = require(TEMPLATE_PATH);
 const { cmdTemplateSelect, cmdTemplateFill } = template;
-
-/**
- * Mock process.exit, stdout.write, stderr.write for in-process tests.
- * exit(0) is non-throwing (prevents template.cjs try/catch from catching it).
- * exit(1) throws to halt execution (error() must stop the control flow).
- */
-function mockProcess() {
-  const origExit = process.exit;
-  const origStdout = process.stdout.write;
-  const origStderr = process.stderr.write;
-  let stdoutBuf = '';
-  let stderrBuf = '';
-  let exitCode = null;
-
-  process.exit = (code) => {
-    if (exitCode === null) exitCode = code;
-    if (code !== 0) throw new Error(`__MOCK_EXIT_${code}__`);
-  };
-  process.stdout.write = (data) => { stdoutBuf += data; return true; };
-  process.stderr.write = (data) => { stderrBuf += data; return true; };
-
-  return {
-    restore() {
-      process.exit = origExit;
-      process.stdout.write = origStdout;
-      process.stderr.write = origStderr;
-    },
-    get stdout() { return stdoutBuf; },
-    get stderr() { return stderrBuf; },
-    get exitCode() { return exitCode; },
-  };
-}
+const { captureCommandOutput } = require('./helpers/capture-command-output.cjs');
 
 /**
  * Helper: create a phase directory structure for template fill tests.
@@ -72,17 +44,13 @@ describe('cmdTemplateSelect()', () => {
   });
 
   test('errors when planPath is not provided', () => {
-    const mock = mockProcess();
-    try { cmdTemplateSelect(tmpDir, null, false); } catch {}
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, null, false));
     assert.strictEqual(mock.exitCode, 1);
     assert.ok(mock.stderr.includes('plan-path required'));
   });
 
   test('errors when planPath is empty string', () => {
-    const mock = mockProcess();
-    try { cmdTemplateSelect(tmpDir, '', false); } catch {}
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, '', false));
     assert.strictEqual(mock.exitCode, 1);
     assert.ok(mock.stderr.includes('plan-path required'));
   });
@@ -97,9 +65,7 @@ Do something with \`src/file.js\`
 `;
     fs.writeFileSync(path.join(tmpDir, 'plan.md'), planContent);
 
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'plan.md', false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'plan.md', false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.type, 'minimal');
@@ -126,9 +92,7 @@ Files: \`src/a.js\`, \`src/b.js\`, \`src/c.js\`, \`src/d.js\`
 `;
     fs.writeFileSync(path.join(tmpDir, 'plan.md'), planContent);
 
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'plan.md', false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'plan.md', false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.type, 'standard');
@@ -147,9 +111,7 @@ Decision: use microservices
 `;
     fs.writeFileSync(path.join(tmpDir, 'plan.md'), planContent);
 
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'plan.md', false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'plan.md', false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.type, 'complex');
@@ -176,9 +138,7 @@ F
 `;
     fs.writeFileSync(path.join(tmpDir, 'plan.md'), planContent);
 
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'plan.md', false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'plan.md', false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.type, 'complex');
@@ -195,9 +155,7 @@ Files: \`src/a.js\`, \`src/b.js\`, \`src/c.js\`, \`src/d.js\`, \`src/e.js\`, \`s
 `;
     fs.writeFileSync(path.join(tmpDir, 'plan.md'), planContent);
 
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'plan.md', false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'plan.md', false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.type, 'complex');
@@ -215,9 +173,7 @@ Use \`file.js\` and \`src/real.js\`
 `;
     fs.writeFileSync(path.join(tmpDir, 'plan.md'), planContent);
 
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'plan.md', false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'plan.md', false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     // Only src/real.js should count (has path separator)
@@ -234,9 +190,7 @@ See \`http://example.com/file.js\` and \`src/real.js\`
 `;
     fs.writeFileSync(path.join(tmpDir, 'plan.md'), planContent);
 
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'plan.md', false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'plan.md', false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.fileCount, 1);
@@ -252,9 +206,7 @@ Edit \`src/file.js\` and then \`src/file.js\` again
 `;
     fs.writeFileSync(path.join(tmpDir, 'plan.md'), planContent);
 
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'plan.md', false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'plan.md', false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.fileCount, 1);
@@ -264,17 +216,13 @@ Edit \`src/file.js\` and then \`src/file.js\` again
     const planContent = '### Task 1\nSimple\n';
     fs.writeFileSync(path.join(tmpDir, 'plan.md'), planContent);
 
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'plan.md', true);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'plan.md', true));
     assert.strictEqual(mock.exitCode, 0);
     assert.strictEqual(mock.stdout, 'templates/summary-minimal.md');
   });
 
   test('falls back to standard on file read error', () => {
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'nonexistent-file.md', false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'nonexistent-file.md', false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.type, 'standard');
@@ -282,9 +230,7 @@ Edit \`src/file.js\` and then \`src/file.js\` again
   });
 
   test('fallback returns raw standard path', () => {
-    const mock = mockProcess();
-    cmdTemplateSelect(tmpDir, 'nonexistent.md', true);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateSelect(tmpDir, 'nonexistent.md', true));
     assert.strictEqual(mock.exitCode, 0);
     assert.strictEqual(mock.stdout, 'templates/summary-standard.md');
   });
@@ -304,25 +250,19 @@ describe('cmdTemplateFill()', () => {
   });
 
   test('errors when templateType is not provided', () => {
-    const mock = mockProcess();
-    try { cmdTemplateFill(tmpDir, null, { phase: '1' }, false); } catch {}
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateFill(tmpDir, null, { phase: '1' }, false));
     assert.strictEqual(mock.exitCode, 1);
     assert.ok(mock.stderr.includes('template type required'));
   });
 
   test('errors when --phase is not provided', () => {
-    const mock = mockProcess();
-    try { cmdTemplateFill(tmpDir, 'summary', { phase: null }, false); } catch {}
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateFill(tmpDir, 'summary', { phase: null }, false));
     assert.strictEqual(mock.exitCode, 1);
     assert.ok(mock.stderr.includes('--phase required'));
   });
 
   test('outputs error when phase is not found', () => {
-    const mock = mockProcess();
-      cmdTemplateFill(tmpDir, 'summary', { phase: '99' }, false);
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateFill(tmpDir, 'summary', { phase: '99' }, false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.error, 'Phase not found');
@@ -331,13 +271,12 @@ describe('cmdTemplateFill()', () => {
   test('creates summary template file', () => {
     const phaseDir = createPhaseDir(tmpDir, 1, 'foundation');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'summary', {
         phase: '1',
         plan: '01',
         name: 'Foundation',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.created, true);
@@ -357,15 +296,14 @@ describe('cmdTemplateFill()', () => {
   test('creates plan template file', () => {
     const phaseDir = createPhaseDir(tmpDir, 2, 'api');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'plan', {
         phase: '2',
         plan: '01',
         name: 'API Layer',
         type: 'execute',
         wave: '1',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.created, true);
@@ -381,12 +319,11 @@ describe('cmdTemplateFill()', () => {
   test('creates verification template file', () => {
     const phaseDir = createPhaseDir(tmpDir, 3, 'testing');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'verification', {
         phase: '3',
         name: 'Testing',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.created, true);
@@ -402,9 +339,7 @@ describe('cmdTemplateFill()', () => {
   test('errors on unknown template type', () => {
     createPhaseDir(tmpDir, 4, 'test');
 
-    const mock = mockProcess();
-    try { cmdTemplateFill(tmpDir, 'unknown', { phase: '4' }, false); } catch {}
-    mock.restore();
+    const mock = captureCommandOutput(() => cmdTemplateFill(tmpDir, 'unknown', { phase: '4' }, false));
     assert.strictEqual(mock.exitCode, 1);
     assert.ok(mock.stderr.includes('Unknown template type: unknown'));
   });
@@ -414,13 +349,12 @@ describe('cmdTemplateFill()', () => {
     // Pre-create the file
     fs.writeFileSync(path.join(phaseDir, '05-01-SUMMARY.md'), 'existing content');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'summary', {
         phase: '5',
         plan: '01',
         name: 'Existing',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
     const result = JSON.parse(mock.stdout);
     assert.strictEqual(result.error, 'File already exists');
@@ -429,12 +363,11 @@ describe('cmdTemplateFill()', () => {
   test('defaults plan number to 01 when not provided', () => {
     const phaseDir = createPhaseDir(tmpDir, 6, 'default-plan');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'summary', {
         phase: '6',
         name: 'Default Plan',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
 
     const filePath = path.join(phaseDir, '06-01-SUMMARY.md');
@@ -444,12 +377,11 @@ describe('cmdTemplateFill()', () => {
   test('uses phase name from phaseInfo when name option not provided', () => {
     createPhaseDir(tmpDir, 7, 'auto-named');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'summary', {
         phase: '7',
         plan: '01',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
 
     const result = JSON.parse(mock.stdout);
@@ -465,12 +397,11 @@ describe('cmdTemplateFill()', () => {
     const phaseDir = path.join(tmpDir, '.planning', 'phases', '08');
     fs.mkdirSync(phaseDir, { recursive: true });
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'summary', {
         phase: '8',
         plan: '01',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
 
     const filePath = path.join(phaseDir, '08-01-SUMMARY.md');
@@ -481,13 +412,12 @@ describe('cmdTemplateFill()', () => {
   test('returns raw relative path when raw=true', () => {
     createPhaseDir(tmpDir, 9, 'raw-test');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'summary', {
         phase: '9',
         plan: '01',
         name: 'Raw Test',
-      }, true);
-    mock.restore();
+      }, true));
     assert.strictEqual(mock.exitCode, 0);
     // Raw mode outputs the relative path string
     assert.ok(mock.stdout.includes('09'));
@@ -497,15 +427,14 @@ describe('cmdTemplateFill()', () => {
   test('plan template includes correct frontmatter fields', () => {
     const phaseDir = createPhaseDir(tmpDir, 10, 'fm-test');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'plan', {
         phase: '10',
         plan: '02',
         name: 'FM Test',
         type: 'tdd',
         wave: '3',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
 
     const filePath = path.join(phaseDir, '10-02-PLAN.md');
@@ -518,13 +447,12 @@ describe('cmdTemplateFill()', () => {
   test('plan template defaults type to execute and wave to 1', () => {
     const phaseDir = createPhaseDir(tmpDir, 11, 'defaults');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'plan', {
         phase: '11',
         plan: '01',
         name: 'Defaults',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
 
     const filePath = path.join(phaseDir, '11-01-PLAN.md');
@@ -536,14 +464,13 @@ describe('cmdTemplateFill()', () => {
   test('merges custom fields into frontmatter', () => {
     const phaseDir = createPhaseDir(tmpDir, 12, 'custom-fields');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'summary', {
         phase: '12',
         plan: '01',
         name: 'Custom Fields',
         fields: { subsystem: 'auth', tags: ['security', 'jwt'] },
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
 
     const filePath = path.join(phaseDir, '12-01-SUMMARY.md');
@@ -556,12 +483,11 @@ describe('cmdTemplateFill()', () => {
   test('verification template includes required sections', () => {
     const phaseDir = createPhaseDir(tmpDir, 13, 'verify-sections');
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'verification', {
         phase: '13',
         name: 'Verify Sections',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
 
     const filePath = path.join(phaseDir, '13-VERIFICATION.md');
@@ -578,13 +504,12 @@ describe('cmdTemplateFill()', () => {
     const phaseDir = path.join(tmpDir, '.planning', 'phases', '14');
     fs.mkdirSync(phaseDir, { recursive: true });
 
-    const mock = mockProcess();
+    const mock = captureCommandOutput(() =>
       cmdTemplateFill(tmpDir, 'summary', {
         phase: '14',
         plan: '01',
         name: 'Custom Name Here',
-      }, false);
-    mock.restore();
+      }, false));
     assert.strictEqual(mock.exitCode, 0);
 
     const filePath = path.join(phaseDir, '14-01-SUMMARY.md');

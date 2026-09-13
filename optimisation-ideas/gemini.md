@@ -17,7 +17,7 @@ The LLM becomes an **Intelligent Worker**, while `gsd-tools` becomes the **Workf
 *   **Logic in Code:** Complex branching logic is moved to `gsd-tools`.
 *   **The "Next Step" Pattern:**
     Instead of reading a map, the Agent simply asks: "What is next?"
-    
+
     ```bash
     # Agent calls:
     node gsd-tools.js next-step --workflow new-project --state-file .planning/state.json

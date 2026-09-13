@@ -12,29 +12,27 @@
  * SAFETY: All tests install to temporary directories. Real ~/.claude is never touched.
  */
 
-const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
+const { test, describe, beforeAll, afterAll, beforeEach, afterEach, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
-const { execSync } = require('child_process');
 
-const { createTempDir } = require('./helpers');
-
-// Path to the upstream package installed as devDependency
-const UPSTREAM_PKG = path.join(__dirname, '..', 'node_modules', 'get-shit-done-cc');
+const { createTempDir, runWithTimeout } = require('./helpers');
+const { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT } = require('./helpers/test-timeouts');
+const { compose } = require('../scripts/compose');
 
 /**
- * Sets up a scratch directory that mirrors the upstream package structure.
- * The scratch directory is a copy of the upstream package root, so that
- * scratch/bin/install.js can reference scratch/commands/gsd/, scratch/get-shit-done/, etc.
+ * Copies the shared composed package fixture into a per-test scratch directory.
+ * The scratch directory is a temp composed package root, so that
+ * scratch/bin/install.js can reference scratch/commands/gsd/, scratch/gsd-core/, etc.
  * via its __dirname-relative resolution.
  *
  * @param {string} tmpDir - Base temp directory path
+ * @param {string} sourceDir - Shared composed package fixture
  * @returns {string} Path to the scratch directory (scratch/bin/install.js is the entry point)
  */
-function setupScratchDir(tmpDir) {
+function setupScratchDir(tmpDir, sourceDir) {
   const scratchDir = path.join(tmpDir, 'scratch');
-  fs.cpSync(UPSTREAM_PKG, scratchDir, { recursive: true });
+  fs.cpSync(sourceDir, scratchDir, { recursive: true });
   return scratchDir;
 }
 
@@ -49,46 +47,62 @@ function setupScratchDir(tmpDir) {
  */
 function runUpstreamInstaller(scratchDir, targetDir, extraArgs = []) {
   const installScript = path.join(scratchDir, 'bin', 'install.js');
-  const args = ['--claude', '--global', '--config-dir', `"${targetDir}"`, ...extraArgs];
-  try {
-    const result = execSync(`node "${installScript}" ${args.join(' ')}`, {
-      encoding: 'utf-8',
-      env: { ...process.env },
-      stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: 30000,
-    });
-    return { success: true, output: result };
-  } catch (err) {
-    return {
-      success: false,
-      output: err.stdout?.toString() || '',
-      error: err.stderr?.toString() || err.message,
-    };
-  }
+  const args = ['--claude', '--global', '--config-dir', targetDir, ...extraArgs];
+  const result = runWithTimeout(process.execPath, [installScript, ...args], {
+    encoding: 'utf-8',
+    env: { ...process.env },
+    stdio: ['pipe', 'pipe', 'pipe'],
+    timeout: SUBPROCESS_TIMEOUT,
+  });
+
+  return {
+    success: result.status === 0 && !result.timedOut,
+    output: result.stdout,
+    error: result.stderr || result.error?.message || '',
+  };
 }
 
 /**
  * Applies surface-only branding to the upstream install.js.
- * CRITICAL: Only replaces exact npm package name strings, NOT bare 'get-shit-done'
- * which is used 130+ times in path resolution and directory naming.
+ * CRITICAL: Only replaces exact public package/repo identity strings, NOT bare
+ * 'gsd-core' which is used for internal path resolution and directory naming.
  *
  * Substitutions:
- * - "get-shit-done-cc@latest" -> "@chude/get-stuff-done@latest" (version-pinned references)
- * - "npx get-shit-done-cc" -> "bunx @chude/get-stuff-done" (install command examples)
- * - "get-shit-done-cc" -> "@chude/get-stuff-done" (npm package name only)
+ * - "@opengsd/gsd-core@latest" -> "@chude/get-stuff-done@latest" (version-pinned references)
+ * - "npx @opengsd/gsd-core" -> "bunx @chude/get-stuff-done" (install command examples)
+ * - "@opengsd/gsd-core" -> "@chude/get-stuff-done" (npm package name only)
+ * - "open-gsd/gsd-core" -> "chudeemeke/get-stuff-done" (GitHub repo only)
  *
  * @param {string} scratchDir - Path to the scratch directory
  */
 function applyBranding(scratchDir) {
-  const installJsPath = path.join(scratchDir, 'bin', 'install.js');
-  let content = fs.readFileSync(installJsPath, 'utf-8');
+  const textExtensions = new Set(['.js', '.cjs', '.mjs', '.json', '.md', '.txt']);
+  const brandFile = filePath => {
+    if (!textExtensions.has(path.extname(filePath))) return;
 
-  // Order matters: most specific patterns first to avoid double-replacing
-  content = content.replace(/get-shit-done-cc@latest/g, '@chude/get-stuff-done@latest');
-  content = content.replace(/npx get-shit-done-cc/g, 'bunx @chude/get-stuff-done');
-  content = content.replace(/get-shit-done-cc/g, '@chude/get-stuff-done');
+    let content = fs.readFileSync(filePath, 'utf-8');
 
-  fs.writeFileSync(installJsPath, content, 'utf-8');
+    // Order matters: most specific patterns first to avoid double-replacing
+    content = content.replace(/@opengsd\/gsd-core@latest/g, '@chude/get-stuff-done@latest');
+    content = content.replace(/npx @opengsd\/gsd-core/g, 'bunx @chude/get-stuff-done');
+    content = content.replace(/@opengsd\/gsd-core/g, '@chude/get-stuff-done');
+    content = content.replace(/open-gsd\/gsd-core/g, 'chudeemeke/get-stuff-done');
+
+    fs.writeFileSync(filePath, content, 'utf-8');
+  };
+
+  const visit = dir => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        visit(fullPath);
+      } else if (entry.isFile()) {
+        brandFile(fullPath);
+      }
+    }
+  };
+
+  visit(scratchDir);
 }
 
 /**
@@ -116,8 +130,21 @@ function copyOverlayAdditions(targetDir) {
 }
 
 describe('Phase 29: Prototype Gate', () => {
+  let composedPackageDir;
+  let cleanupComposedPackage;
   let tmpDir;
   let cleanupTmp;
+
+  beforeAll(() => {
+    const tmp = createTempDir();
+    composedPackageDir = path.join(tmp.path, 'composed-package');
+    cleanupComposedPackage = tmp.cleanup;
+    compose({ distDir: composedPackageDir });
+  }, HEAVY_SUBPROCESS_TIMEOUT);
+
+  afterAll(() => {
+    cleanupComposedPackage();
+  }, SUBPROCESS_TIMEOUT);
 
   beforeEach(() => {
     const tmp = createTempDir();
@@ -129,9 +156,9 @@ describe('Phase 29: Prototype Gate', () => {
     cleanupTmp();
   });
 
-  test('PROTO-01: upstream install.js runs from composed dir preserving internal structure', { timeout: 15000 }, () => {
+  test('PROTO-01: upstream install.js runs from composed dir preserving internal structure', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     // Set up a scratch directory mirroring the upstream package
-    const scratchDir = setupScratchDir(tmpDir.path);
+    const scratchDir = setupScratchDir(tmpDir.path, composedPackageDir);
 
     // Create a target directory for the install
     const targetDir = path.join(tmpDir.path, 'target');
@@ -144,31 +171,31 @@ describe('Phase 29: Prototype Gate', () => {
     expect(result.success).toBe(true);
 
     // Verify installed directory structure
-    expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
-    expect(fs.existsSync(path.join(targetDir, 'commands', 'gsd'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
     expect(fs.existsSync(path.join(targetDir, 'agents'))).toBe(true);
     expect(fs.existsSync(path.join(targetDir, 'hooks'))).toBe(true);
-
-    // Full content verification: at least one .md file in commands/gsd/
-    const commandFiles = fs.readdirSync(path.join(targetDir, 'commands', 'gsd'));
-    expect(commandFiles.some(f => f.endsWith('.md'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'skills'))).toBe(true);
 
     // Full content verification: at least one .md file in agents/
     const agentFiles = fs.readdirSync(path.join(targetDir, 'agents'));
     expect(agentFiles.some(f => f.endsWith('.md'))).toBe(true);
 
+    // Full content verification: at least one skill directory is installed
+    const skillEntries = fs.readdirSync(path.join(targetDir, 'skills'));
+    expect(skillEntries.length).toBeGreaterThan(0);
+
     // Full content verification: at least one .js file in hooks/
     const hookFiles = fs.readdirSync(path.join(targetDir, 'hooks'));
     expect(hookFiles.some(f => f.endsWith('.js'))).toBe(true);
 
-    // Verify get-shit-done/ contains expected subdirectories (confirms __dirname path resolution worked)
-    const gsdSubdirs = fs.readdirSync(path.join(targetDir, 'get-shit-done'));
+    // Verify gsd-core/ contains expected subdirectories (confirms __dirname path resolution worked)
+    const gsdSubdirs = fs.readdirSync(path.join(targetDir, 'gsd-core'));
     expect(gsdSubdirs.length).toBeGreaterThan(0);
   });
 
-  test('PROTO-02: surface branding does not break installation', { timeout: 15000 }, () => {
+  test('PROTO-02: surface branding does not break installation', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     // Set up scratch directory and apply branding
-    const scratchDir = setupScratchDir(tmpDir.path);
+    const scratchDir = setupScratchDir(tmpDir.path, composedPackageDir);
     applyBranding(scratchDir);
 
     // Pre-install branding verification
@@ -178,10 +205,10 @@ describe('Phase 29: Prototype Gate', () => {
     expect(brandedContent).toContain('@chude/get-stuff-done');
 
     // Original npm package name must be gone
-    expect(brandedContent).not.toContain('get-shit-done-cc');
+    expect(brandedContent).not.toContain('@opengsd/gsd-core');
 
-    // CRITICAL: Bare 'get-shit-done' (internal path name) must still be present
-    expect(brandedContent).toContain('get-shit-done');
+    // CRITICAL: Bare 'gsd-core' (internal path name) must still be present
+    expect(brandedContent).toContain('gsd-core');
 
     // Create target directory and run branded installer
     const targetDir = path.join(tmpDir.path, 'target');
@@ -193,33 +220,28 @@ describe('Phase 29: Prototype Gate', () => {
     expect(result.success).toBe(true);
 
     // Structural verification: installation succeeded despite branding
-    expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
-    expect(fs.existsSync(path.join(targetDir, 'commands', 'gsd'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
     expect(fs.existsSync(path.join(targetDir, 'agents'))).toBe(true);
     expect(fs.existsSync(path.join(targetDir, 'hooks'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'skills'))).toBe(true);
 
     // Post-install branding verification: run --help and check output
     const installScript = path.join(scratchDir, 'bin', 'install.js');
-    let helpOutput = '';
-    try {
-      helpOutput = execSync(`node "${installScript}" --help`, {
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 15000,
-      });
-    } catch (err) {
-      // --help may exit non-zero on some versions; capture stdout regardless
-      helpOutput = err.stdout?.toString() || '';
-    }
+    const helpResult = runWithTimeout(process.execPath, [installScript, '--help'], {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: SUBPROCESS_TIMEOUT,
+    });
+    const helpOutput = helpResult.stdout;
     // Branded name should appear in help text (if help text references the package)
     if (helpOutput.length > 0) {
-      expect(helpOutput).not.toContain('get-shit-done-cc');
+      expect(helpOutput).not.toContain('@opengsd/gsd-core');
     }
   });
 
-  test('PROTO-03: overlay additions can be copied after upstream install', { timeout: 15000 }, () => {
+  test('PROTO-03: overlay additions can be copied after upstream install', { timeout: HEAVY_SUBPROCESS_TIMEOUT }, () => {
     // Use branded version for the most realistic prototype scenario
-    const scratchDir = setupScratchDir(tmpDir.path);
+    const scratchDir = setupScratchDir(tmpDir.path, composedPackageDir);
     applyBranding(scratchDir);
 
     // Create target directory and run upstream installer
@@ -248,7 +270,7 @@ describe('Phase 29: Prototype Gate', () => {
     expect(commandContent).toBe('# Test overlay command\nPrototype validation placeholder');
 
     // Verify upstream files still exist (overlay did NOT clobber them)
-    expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
 
     const agentFiles = fs.readdirSync(path.join(targetDir, 'agents'));
     expect(agentFiles.some(f => f.endsWith('.md'))).toBe(true);

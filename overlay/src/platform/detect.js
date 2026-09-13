@@ -128,8 +128,9 @@ function detectEnvironment() {
   }
 
   // Git Bash detection (MinGW + Git in EXEPATH)
-  const isGitBash =
-    isMingw && env.EXEPATH && env.EXEPATH.toLowerCase().includes('git');
+  const isGitBash = Boolean(
+    isMingw && env.EXEPATH && env.EXEPATH.toLowerCase().includes('git')
+  );
 
   return {
     isMingw,

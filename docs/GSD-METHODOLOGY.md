@@ -2,7 +2,7 @@
 
 Comprehensive documentation of TACHES/GlitterCowboy's "Get Stuff Done" framework.
 
-**Source:** https://github.com/glittercowboy/get-shit-done
+**Source:** https://github.com/gsd-build/get-shit-done
 **Version:** 1.9.11 (latest release as of January 23, 2026)
 **Installation:** `npx @chude/get-stuff-done --global` or `npx @chude/get-stuff-done --local`
 
@@ -212,7 +212,7 @@ GSD strips away enterprise ceremony while keeping engineering rigor.
 - GSD Version: 1.9.11 (as of Jan 23, 2026)
 - Latest features: Uncommitted planning mode, Quick Mode, Adaptive model selection
 - Active development: Project is evolving quickly
-- Official website: gsd.site
+- Official website: `gsd.site` (legacy source)
 
 ---
 

@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Fable checkpoint execution receipt",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "checkpoint",
+    "subjectCommit",
+    "nonce",
+    "argv",
+    "startedAt",
+    "completedAt",
+    "exitCode",
+    "manifest",
+    "recordPath",
+    "evidence",
+    "returnedReview"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "checkpoint": { "type": "string", "minLength": 1 },
+    "subjectCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "nonce": { "type": "string", "pattern": "^[0-9a-f]{32,64}$" },
+    "argv": {
+      "type": "array",
+      "items": [
+        { "const": "claude" },
+        { "const": "-p" },
+        { "const": "--model" },
+        { "const": "fable" }
+      ],
+      "minItems": 4,
+      "maxItems": 4,
+      "additionalItems": false
+    },
+    "startedAt": { "type": "string", "minLength": 1 },
+    "completedAt": { "type": "string", "minLength": 1 },
+    "exitCode": { "const": 0 },
+    "manifest": {
+      "type": "object",
+      "required": [
+        "path",
+        "rawSha256",
+        "canonicalInputSha256",
+        "packetSha256"
+      ],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "rawSha256": { "$ref": "#/definitions/sha256" },
+        "canonicalInputSha256": { "$ref": "#/definitions/sha256" },
+        "packetSha256": { "$ref": "#/definitions/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "recordPath": { "type": "string", "minLength": 1 },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "path", "sha256", "byteLength"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["tracked", "external"] },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "$ref": "#/definitions/sha256" },
+          "byteLength": { "type": "integer", "minimum": 0 },
+          "authority": { "type": "string", "minLength": 1 },
+          "checkedCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "returnedReview": {
+      "type": "object",
+      "required": [
+        "sha256",
+        "byteLength",
+        "leadDecision",
+        "leadDecisionSha256",
+        "implementationDirection",
+        "implementationDirectionSha256"
+      ],
+      "properties": {
+        "sha256": { "$ref": "#/definitions/sha256" },
+        "byteLength": { "type": "integer", "minimum": 1 },
+        "leadDecision": { "type": "string", "minLength": 1 },
+        "leadDecisionSha256": { "$ref": "#/definitions/sha256" },
+        "implementationDirection": { "type": "string", "minLength": 1 },
+        "implementationDirectionSha256": { "$ref": "#/definitions/sha256" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

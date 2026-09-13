@@ -1,0 +1,339 @@
+{
+  "schemaVersion": 5,
+  "bun": {
+    "semantics": "exact",
+    "version": "1.3.5",
+    "versionFile": ".bun-version",
+    "updateTrigger": "review a new Bun release and rerun local authority gates"
+  },
+  "githubActions": {
+    "semantics": "exact-commit",
+    "pins": {
+      "actions/cache": {
+        "tag": "v5",
+        "sha": "caa296126883cff596d87d8935842f9db880ef25",
+        "updateTrigger": "resolve tag v5 and review release notes"
+      },
+      "actions/checkout": {
+        "tag": "v6",
+        "sha": "df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "updateTrigger": "resolve tag v6 and review release notes"
+      },
+      "actions/download-artifact": {
+        "tag": "v8",
+        "sha": "3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",
+        "updateTrigger": "resolve tag v8 and review release notes"
+      },
+      "actions/github-script": {
+        "tag": "v8",
+        "sha": "ed597411d8f924073f98dfc5c65a23a2325f34cd",
+        "updateTrigger": "resolve tag v8 and review release notes"
+      },
+      "actions/setup-node": {
+        "tag": "v6",
+        "sha": "249970729cb0ef3589644e2896645e5dc5ba9c38",
+        "updateTrigger": "resolve tag v6 and review release notes"
+      },
+      "actions/upload-artifact": {
+        "tag": "v7",
+        "sha": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+        "updateTrigger": "resolve tag v7 and review release notes"
+      },
+      "gitleaks/gitleaks-action": {
+        "tag": "v3",
+        "sha": "e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e",
+        "updateTrigger": "resolve tag v3 and review release notes"
+      },
+      "lycheeverse/lychee-action": {
+        "tag": "v2",
+        "sha": "e7477775783ea5526144ba13e8db5eec57747ce8",
+        "updateTrigger": "resolve tag v2 and review release notes"
+      },
+      "oven-sh/setup-bun": {
+        "tag": "v2",
+        "sha": "0c5077e51419868618aeaa5fe8019c62421857d6",
+        "updateTrigger": "resolve tag v2 and review release notes"
+      },
+      "step-security/harden-runner": {
+        "tag": "v2",
+        "sha": "bf7454d06d71f1098171f2acdf0cd4708d7b5920",
+        "updateTrigger": "resolve tag v2 and review release notes"
+      }
+    }
+  },
+  "containers": {
+    "semantics": "exact-digest",
+    "pins": {
+      "ghcr.io/google/osv-scanner-action": {
+        "tag": "v2.3.8",
+        "digest": "sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba",
+        "updateTrigger": "resolve v2.3.8 and review the scanner image plus entrypoint"
+      },
+      "verdaccio/verdaccio": {
+        "tag": "6",
+        "digest": "sha256:bcd0dc5f10d0b9cca5a21b1f4fb3b08c6d90978bc87b8b46402abb271e0d573a",
+        "updateTrigger": "resolve tag 6 and rerun authenticated upgrade verification"
+      }
+    }
+  },
+  "node": {
+    "semantics": "compatibility-major",
+    "declaredMajors": [20, 22],
+    "requireResolvedPatch": true
+  },
+  "runtimeTools": {
+    "hyperfine": {
+      "semantics": "exact-release-assets",
+      "version": "1.20.0",
+      "installer": "scripts/install-hyperfine.js",
+      "releaseUrl": "https://github.com/sharkdp/hyperfine/releases/tag/v1.20.0",
+      "assets": {
+        "darwin-arm64": {
+          "archiveFormat": "tar.gz",
+          "executable": "hyperfine",
+          "name": "hyperfine-v1.20.0-aarch64-apple-darwin.tar.gz",
+          "sha256": "8ee7067016620447c9d2d6234ec9a4680f958b7ad983549b56334668f63075b5",
+          "url": "https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine-v1.20.0-aarch64-apple-darwin.tar.gz",
+          "version": "1.20.0"
+        },
+        "darwin-x64": {
+          "archiveFormat": "tar.gz",
+          "executable": "hyperfine",
+          "name": "hyperfine-v1.20.0-x86_64-apple-darwin.tar.gz",
+          "sha256": "f58d0b90993fadfa122a351428c469ce24afef3865f027f0e6e86f0830d088f1",
+          "url": "https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine-v1.20.0-x86_64-apple-darwin.tar.gz",
+          "version": "1.20.0"
+        },
+        "linux-arm64": {
+          "archiveFormat": "tar.gz",
+          "executable": "hyperfine",
+          "name": "hyperfine-v1.20.0-aarch64-unknown-linux-gnu.tar.gz",
+          "sha256": "90875cb1db7a1d797c311174d061728361e58fc70e3b62262a00635ac3b1997c",
+          "url": "https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine-v1.20.0-aarch64-unknown-linux-gnu.tar.gz",
+          "version": "1.20.0"
+        },
+        "linux-x64": {
+          "archiveFormat": "tar.gz",
+          "executable": "hyperfine",
+          "name": "hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz",
+          "sha256": "63ad53934062118f5b0be11785e0bb1603d4b91667d1921f2fd8df9a8712040a",
+          "url": "https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz",
+          "version": "1.20.0"
+        },
+        "win32-x64": {
+          "archiveFormat": "zip",
+          "executable": "hyperfine.exe",
+          "name": "hyperfine-v1.20.0-x86_64-pc-windows-msvc.zip",
+          "sha256": "2508c549b049b1d4342d08edc1cb42bfac169082b6e3069431b5bab9822dbb32",
+          "url": "https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine-v1.20.0-x86_64-pc-windows-msvc.zip",
+          "version": "1.20.0"
+        }
+      },
+      "updateTrigger": "review a new Hyperfine release and rerun installer plus paired gates"
+    }
+  },
+  "runtimeRequirements": {
+    ".github/workflows/ci.yml": {
+      "workflow-lint": "node",
+      "audit-ci": "both",
+      "docs-gates": "bun",
+      "osv-scanner": "both",
+      "lint": "bun",
+      "test": "bun",
+      "perf-budget": "both",
+      "parity": "bun",
+      "upstream-compat": "bun",
+      "boundary-check": "bun",
+      "override-check": "bun"
+    },
+    ".github/workflows/compat-matrix.yml": {
+      "compat-matrix": "both"
+    },
+    ".github/workflows/cousin-install.yml": {
+      "cousin-install": "both"
+    },
+    ".github/workflows/oversight-probes.yml": {
+      "verify-oversight-probes": "bun"
+    },
+    ".github/workflows/upgrade-verifier.yml": {
+      "upgrade-verifier": "both"
+    }
+  },
+  "runtimeSubjects": {
+    "cousin-ubuntu-latest-node-20-npm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 20, npm)",
+      "matrix": { "os": "ubuntu-latest", "node-version": 20, "package-manager": "npm" },
+      "nodeMajor": 20,
+      "requiredTools": []
+    },
+    "cousin-ubuntu-latest-node-20-pnpm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 20, pnpm)",
+      "matrix": { "os": "ubuntu-latest", "node-version": 20, "package-manager": "pnpm" },
+      "nodeMajor": 20,
+      "requiredTools": []
+    },
+    "cousin-ubuntu-latest-node-20-bun": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 20, bun)",
+      "matrix": { "os": "ubuntu-latest", "node-version": 20, "package-manager": "bun" },
+      "nodeMajor": 20,
+      "requiredTools": []
+    },
+    "cousin-ubuntu-latest-node-22-npm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 22, npm)",
+      "matrix": { "os": "ubuntu-latest", "node-version": 22, "package-manager": "npm" },
+      "nodeMajor": 22,
+      "requiredTools": []
+    },
+    "cousin-ubuntu-latest-node-22-pnpm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 22, pnpm)",
+      "matrix": { "os": "ubuntu-latest", "node-version": 22, "package-manager": "pnpm" },
+      "nodeMajor": 22,
+      "requiredTools": []
+    },
+    "cousin-ubuntu-latest-node-22-bun": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (ubuntu-latest, Node 22, bun)",
+      "matrix": { "os": "ubuntu-latest", "node-version": 22, "package-manager": "bun" },
+      "nodeMajor": 22,
+      "requiredTools": []
+    },
+    "cousin-macos-15-node-20-npm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 20, npm)",
+      "matrix": { "os": "macos-15", "node-version": 20, "package-manager": "npm" },
+      "nodeMajor": 20,
+      "requiredTools": []
+    },
+    "cousin-macos-15-node-20-pnpm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 20, pnpm)",
+      "matrix": { "os": "macos-15", "node-version": 20, "package-manager": "pnpm" },
+      "nodeMajor": 20,
+      "requiredTools": []
+    },
+    "cousin-macos-15-node-20-bun": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 20, bun)",
+      "matrix": { "os": "macos-15", "node-version": 20, "package-manager": "bun" },
+      "nodeMajor": 20,
+      "requiredTools": []
+    },
+    "cousin-macos-15-node-22-npm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 22, npm)",
+      "matrix": { "os": "macos-15", "node-version": 22, "package-manager": "npm" },
+      "nodeMajor": 22,
+      "requiredTools": []
+    },
+    "cousin-macos-15-node-22-pnpm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 22, pnpm)",
+      "matrix": { "os": "macos-15", "node-version": 22, "package-manager": "pnpm" },
+      "nodeMajor": 22,
+      "requiredTools": []
+    },
+    "cousin-macos-15-node-22-bun": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (macos-15, Node 22, bun)",
+      "matrix": { "os": "macos-15", "node-version": 22, "package-manager": "bun" },
+      "nodeMajor": 22,
+      "requiredTools": []
+    },
+    "cousin-windows-latest-node-20-npm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 20, npm)",
+      "matrix": { "os": "windows-latest", "node-version": 20, "package-manager": "npm" },
+      "nodeMajor": 20,
+      "requiredTools": []
+    },
+    "cousin-windows-latest-node-20-pnpm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 20, pnpm)",
+      "matrix": { "os": "windows-latest", "node-version": 20, "package-manager": "pnpm" },
+      "nodeMajor": 20,
+      "requiredTools": []
+    },
+    "cousin-windows-latest-node-20-bun": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 20, bun)",
+      "matrix": { "os": "windows-latest", "node-version": 20, "package-manager": "bun" },
+      "nodeMajor": 20,
+      "requiredTools": []
+    },
+    "cousin-windows-latest-node-22-npm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 22, npm)",
+      "matrix": { "os": "windows-latest", "node-version": 22, "package-manager": "npm" },
+      "nodeMajor": 22,
+      "requiredTools": []
+    },
+    "cousin-windows-latest-node-22-pnpm": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 22, pnpm)",
+      "matrix": { "os": "windows-latest", "node-version": 22, "package-manager": "pnpm" },
+      "nodeMajor": 22,
+      "requiredTools": []
+    },
+    "cousin-windows-latest-node-22-bun": {
+      "workflow": ".github/workflows/cousin-install.yml",
+      "job": "cousin-install",
+      "jobName": "Cousin Install (windows-latest, Node 22, bun)",
+      "matrix": { "os": "windows-latest", "node-version": 22, "package-manager": "bun" },
+      "nodeMajor": 22,
+      "requiredTools": []
+    },
+    "ci-perf-linux": {
+      "workflow": ".github/workflows/ci.yml",
+      "job": "perf-budget",
+      "jobName": "Perf Budget (linux)",
+      "matrix": { "os": "ubuntu-latest", "platform": "linux" },
+      "nodeMajor": 22,
+      "requiredTools": ["hyperfine"]
+    },
+    "ci-perf-macos": {
+      "workflow": ".github/workflows/ci.yml",
+      "job": "perf-budget",
+      "jobName": "Perf Budget (macos)",
+      "matrix": { "os": "macos-15", "platform": "macos" },
+      "nodeMajor": 22,
+      "requiredTools": ["hyperfine"]
+    },
+    "ci-perf-windows": {
+      "workflow": ".github/workflows/ci.yml",
+      "job": "perf-budget",
+      "jobName": "Perf Budget (windows)",
+      "matrix": { "os": "windows-latest", "platform": "windows" },
+      "nodeMajor": 22,
+      "requiredTools": ["hyperfine"]
+    }
+  },
+  "governedWorkflows": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/compat-matrix.yml",
+    ".github/workflows/cousin-install.yml",
+    ".github/workflows/oversight-probes.yml",
+    ".github/workflows/upgrade-verifier.yml"
+  ]
+}

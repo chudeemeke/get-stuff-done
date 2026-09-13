@@ -1,0 +1,48 @@
+{
+  "results": [
+    {
+      "source": {
+        "path": "bun.lock",
+        "type": "lockfile"
+      },
+      "packages": [
+        {
+          "package": {
+            "name": "critical-lib",
+            "version": "1.0.0",
+            "ecosystem": "npm"
+          },
+          "vulnerabilities": [
+            {
+              "id": "GHSA-critical-0001",
+              "summary": "Critical fixture vulnerability",
+              "details": "Fixture only: critical severity should block the OSV triage gate.",
+              "database_specific": {
+                "severity": "CRITICAL"
+              },
+              "aliases": ["CVE-2026-0001"]
+            }
+          ]
+        },
+        {
+          "package": {
+            "name": "high-lib",
+            "version": "2.0.0",
+            "ecosystem": "npm"
+          },
+          "vulnerabilities": [
+            {
+              "id": "GHSA-high-0001",
+              "summary": "High fixture vulnerability",
+              "details": "Fixture only: high severity should block the OSV triage gate.",
+              "database_specific": {
+                "severity": "HIGH"
+              },
+              "aliases": ["CVE-2026-0002"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

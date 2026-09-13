@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chudeemeke.github.io/get-stuff-done/schemas/upstream-authority.schema.json",
+  "title": "GetStuffDone Upstream Authority Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contractScope", "active", "legacy", "rules"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contractScope": {
+      "type": "string",
+      "const": "maintainer-build-time"
+    },
+    "active": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["packageName", "version", "repository", "npmUrl", "sourceRoot", "bin", "paths"],
+      "properties": {
+        "packageName": {
+          "type": "string",
+          "const": "@opengsd/gsd-core"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(?!latest$)(?!next$)(?!.*canary)(?!.*dev)[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "repository": {
+          "type": "string",
+          "const": "https://github.com/open-gsd/gsd-core"
+        },
+        "npmUrl": {
+          "type": "string",
+          "const": "https://www.npmjs.com/package/@opengsd/gsd-core"
+        },
+        "sourceRoot": {
+          "type": ["string", "null"]
+        },
+        "bin": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "paths": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "agents",
+            "commands",
+            "hooksRuntime",
+            "hooksSource",
+            "installer",
+            "scripts",
+            "gsdTools",
+            "workflows"
+          ],
+          "properties": {
+            "agents": { "type": "string" },
+            "commands": { "type": "string" },
+            "hooksRuntime": { "type": "string" },
+            "hooksSource": { "type": "string" },
+            "installer": { "type": "string" },
+            "scripts": { "type": "string" },
+            "gsdTools": { "type": "string" },
+            "workflows": { "type": "string" }
+          }
+        }
+      }
+    },
+    "legacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["packageName", "repository", "npmUrl", "status"],
+      "properties": {
+        "packageName": {
+          "type": "string",
+          "const": "get-shit-done-cc"
+        },
+        "repository": {
+          "type": "string",
+          "const": "https://github.com/gsd-build/get-shit-done"
+        },
+        "npmUrl": {
+          "type": "string",
+          "const": "https://www.npmjs.com/package/get-shit-done-cc"
+        },
+        "status": {
+          "type": "string",
+          "const": "deprecated-authority"
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exactVersionPinRequired",
+        "allowLatestTag",
+        "allowPrerelease",
+        "globalInstallMutationAllowed",
+        "runtimeMayReadPlanningManifest"
+      ],
+      "properties": {
+        "exactVersionPinRequired": { "type": "boolean", "const": true },
+        "allowLatestTag": { "type": "boolean", "const": false },
+        "allowPrerelease": { "type": "boolean", "const": false },
+        "globalInstallMutationAllowed": { "type": "boolean", "const": false },
+        "runtimeMayReadPlanningManifest": { "type": "boolean", "const": false }
+      }
+    }
+  }
+}

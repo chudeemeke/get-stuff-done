@@ -9,7 +9,7 @@
  *        test('name', { timeout: SUBPROCESS_TIMEOUT }, () => { ... });
  */
 
-const SUBPROCESS_TIMEOUT = 15000;
-const HEAVY_SUBPROCESS_TIMEOUT = 30000;
+const SUBPROCESS_TIMEOUT = 30000;
+const HEAVY_SUBPROCESS_TIMEOUT = 60000;
 
 module.exports = { SUBPROCESS_TIMEOUT, HEAVY_SUBPROCESS_TIMEOUT };

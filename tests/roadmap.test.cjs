@@ -2,11 +2,79 @@
  * GSD Tools Tests - Roadmap
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
+const { test, describe, beforeEach, afterEach, mock } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
+const { resolveCompatPackageRoot, compatUpstreamAtLeast } = require('./helpers/compat-package-root.cjs');
+const COMPAT_PACKAGE_ROOT = resolveCompatPackageRoot();
+const { createGsdToolsHelpers, createTempProject, cleanup } = require('./helpers.cjs');
+const { captureCommandOutput } = require('./helpers/capture-command-output.cjs');
+const { runGsdTools } = createGsdToolsHelpers(COMPAT_PACKAGE_ROOT);
+
+// Open GSD 1.7.0+ gates roadmap checkbox completion on passed verification
+// evidence (#2022), matching the fork's own phase-completion gate. Harmless on
+// older candidates (<=1.6.1 ignore the file), so the matrix can span the
+// vetted manifest's version range.
+function writePassedVerification(phaseDir, phaseId) {
+  fs.writeFileSync(
+    path.join(phaseDir, `${phaseId}-VERIFICATION.md`),
+    `---\nphase: ${phaseId}\nstatus: passed\n---\n`,
+    'utf-8'
+  );
+}
+const roadmapPersistence = require(
+  path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'fork-roadmap-persistence.cjs')
+);
+const { cmdRoadmapUpdatePlanProgress } = require(
+  path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'roadmap.cjs')
+);
+const planScan = require(
+  path.join(COMPAT_PACKAGE_ROOT, 'bin', 'lib', 'plan-scan.cjs')
+);
+
+describe('shared plan-scan contract', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('excludes plan-reference derivatives without narrowing supported plan names', () => {
+    assert.strictEqual(planScan.isRootPlanFile('42-PLAN-REVIEW.md'), false);
+    assert.strictEqual(planScan.isRootPlanFile('42-plan-review.MD'), false);
+    assert.strictEqual(planScan.isRootPlanFile('PLAN-REVIEW.md'), false);
+    assert.strictEqual(
+      planScan.isRootPlanFile('43-FABLE-PLAN11AC-ADJUDICATION-PACKET-2026-07-19.md'),
+      false
+    );
+    assert.strictEqual(
+      planScan.isRootPlanFile('43-SOL-PLAN11AC-ADVISORY-REVIEW-2026-07-19.md'),
+      false
+    );
+    assert.strictEqual(planScan.isRootPlanFile('PLAN.md'), true);
+    assert.strictEqual(planScan.isRootPlanFile('42-01-PLAN.md'), true);
+    assert.strictEqual(planScan.isRootPlanFile('legacy-plan-draft.md'), true);
+    assert.strictEqual(planScan.isNestedPlanFile('PLAN-01.md'), true);
+    assert.strictEqual(planScan.isNestedPlanFile('42-PLAN-01.md'), true);
+  });
+
+  test('does not include PLAN-REVIEW derivatives in phase scan totals', () => {
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '42-foundation');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '42-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '42-PLAN-REVIEW.md'), '# Review');
+
+    const result = planScan.scanPhasePlans(phaseDir);
+
+    assert.strictEqual(result.planCount, 1);
+    assert.deepStrictEqual(result.planFiles, ['42-01-PLAN.md']);
+  });
+});
 
 describe('roadmap get-phase command', () => {
   let tmpDir;
@@ -256,6 +324,307 @@ describe('roadmap analyze command', () => {
     assert.strictEqual(output.phases[0].depends_on, 'Nothing');
     assert.strictEqual(output.phases[1].goal, 'Build features');
     assert.strictEqual(output.phases[1].depends_on, 'Phase 1');
+  });
+
+  test('does not inflate plan totals for a PLAN-REVIEW artifact', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 42: Foundation
+**Goal:** Build the foundation
+**Plans:** 1 plan
+`
+    );
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '42-foundation');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '42-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '42-PLAN-REVIEW.md'), '# Review');
+
+    const result = runGsdTools('roadmap analyze', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+    const output = JSON.parse(result.output);
+
+    assert.strictEqual(output.total_plans, 1);
+    assert.strictEqual(output.phases[0].disk_plan_count, 1);
+    assert.strictEqual(output.phases[0].plan_count, 1);
+  });
+
+  test('counts ROADMAP-declared plans so future work is not hidden', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 1: Complete Slice
+**Goal:** Ship first slice
+**Plans:** 1 plan
+
+### Phase 2: Future Slice
+**Goal:** Ship remaining work
+**Plans**: 4 plans
+`
+    );
+
+    const p1 = path.join(tmpDir, '.planning', 'phases', '01-complete-slice');
+    fs.mkdirSync(p1, { recursive: true });
+    fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
+
+    const result = runGsdTools('roadmap analyze', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.phases[0].plan_count, 1, 'phase 1 counts disk/declared plan');
+    assert.strictEqual(output.phases[1].plan_count, 4, 'phase 2 counts declared future plans');
+    assert.strictEqual(output.total_plans, 5, 'total plans include ROADMAP-declared future work');
+    assert.strictEqual(output.total_summaries, 1, 'summaries remain disk-backed');
+    assert.strictEqual(output.progress_percent, 20, 'progress should not report 100% with future work remaining');
+  });
+
+  test('prefers STATE current phase over older partial phases', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 40.5: Older Cleanup
+**Goal:** Retired active work
+**Plans:** 2 plans
+
+### Phase 41: Current Hardening
+**Goal:** Active work
+**Plans**: 2 plans
+
+### Phase 42: Next Work
+**Goal:** Future work
+**Plans:** 1 plan
+`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# Session State
+
+## Current Position
+
+Phase: Phase 41 (executing) -- Current Hardening
+Status: In progress
+`
+    );
+
+    const older = path.join(tmpDir, '.planning', 'phases', '40.5-older-cleanup');
+    fs.mkdirSync(older, { recursive: true });
+    fs.writeFileSync(path.join(older, '40.5-01-PLAN.md'), '# Plan');
+
+    const current = path.join(tmpDir, '.planning', 'phases', '41-current-hardening');
+    fs.mkdirSync(current, { recursive: true });
+    fs.writeFileSync(path.join(current, '41-01-PLAN.md'), '# Plan');
+
+    const result = runGsdTools('roadmap analyze', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.state_current_phase, '41', 'STATE current phase is surfaced');
+    assert.strictEqual(output.current_phase, '41', 'STATE current phase wins over stale older partial phase');
+  });
+});
+
+describe('roadmap update-plan-progress command', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('checks only the exact checklist phase and preserves CRLF endings', () => {
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    const roadmapContent = [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 09.2:** Prep notes that mention Phase 09.3 follow-up',
+      '- [ ] **Phase 09.3:** Secure note flow',
+      '',
+      '### Phase 09.2: Prep',
+      '**Plans:** 1 plan',
+      '',
+      '### Phase 09.3: Secure Notes',
+      '**Plans:** 0/1 plans executed',
+      '',
+    ].join('\r\n');
+    fs.writeFileSync(roadmapPath, roadmapContent, 'utf-8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '09.3-secure-notes');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '09.3-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '09.3-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(phaseDir, '09.3');
+
+    const result = runGsdTools('roadmap update-plan-progress 09.3', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    const updated = fs.readFileSync(roadmapPath, 'utf-8');
+    const completedDate = updated.match(/\(completed (\d{4}-\d{2}-\d{2})\)/)?.[1];
+    const expected = [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 09.2:** Prep notes that mention Phase 09.3 follow-up',
+      `- [x] **Phase 09.3:** Secure note flow (completed ${completedDate})`,
+      '',
+      '### Phase 09.2: Prep',
+      '**Plans:** 1 plan',
+      '',
+      '### Phase 09.3: Secure Notes',
+      '**Plans:** 1/1 plans complete',
+      '- [x] 09.3-01-PLAN.md',
+      '',
+    ].join('\r\n');
+
+    assert.strictEqual(output.updated, true, 'roadmap should be updated');
+    assert.match(completedDate, /^\d{4}-\d{2}-\d{2}$/);
+    assert.strictEqual(updated, expected, 'only the requested phase and plan bytes should change');
+    assert.strictEqual(updated.replace(/\r\n/g, '').includes('\n'), false, 'no bare LF should remain');
+  });
+
+  test('refuses checkbox completion without passed verification (#2022, 1.7.0+)', (t) => {
+    // Pin the negative side of the verification gate: writePassedVerification
+    // in the positive tests proves completion works WITH evidence; without
+    // this test a candidate that stopped enforcing the gate would still pass.
+    // Only assertable when the candidate's upstream version is knowable and
+    // gated (composed dist meta); the legacy direct-run root predates #2022.
+    if (compatUpstreamAtLeast(COMPAT_PACKAGE_ROOT, '1.7.0') !== true) {
+      t.skip('verification gate only exists on Open GSD 1.7.0+ candidates');
+      return;
+    }
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    fs.writeFileSync(roadmapPath, [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 11:** Gated',
+      '',
+      '### Phase 11: Gated',
+      '**Plans:** 0/1 plans executed',
+      '',
+    ].join('\n'), 'utf8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '11-gated');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '11-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '11-01-SUMMARY.md'), '# Summary');
+    // Deliberately NO VERIFICATION.md.
+
+    const result = runGsdTools('roadmap update-plan-progress 11', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const updated = fs.readFileSync(roadmapPath, 'utf8');
+    assert.ok(updated.includes('- [ ] **Phase 11:** Gated'), 'checkbox must stay unchecked without passed verification');
+    assert.ok(!updated.includes('- [x] **Phase 11:'), 'no completion checkbox without passed verification');
+    assert.ok(!/\(completed \d{4}-\d{2}-\d{2}\)/.test(updated), 'no completion date without passed verification');
+  });
+
+  test('preserves LF roadmap bytes outside the requested progress edits', () => {
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    const roadmapContent = [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 10:** Delivery',
+      '',
+      '### Phase 10: Delivery',
+      '**Plans:** 0/1 plans executed',
+      'Keep  trailing spaces  ',
+      '',
+    ].join('\n');
+    fs.writeFileSync(roadmapPath, roadmapContent, 'utf8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '10-delivery');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '10-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '10-01-SUMMARY.md'), '# Summary');
+    writePassedVerification(phaseDir, '10');
+
+    const result = runGsdTools('roadmap update-plan-progress 10', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const updated = fs.readFileSync(roadmapPath, 'utf8');
+    const completedDate = updated.match(/\(completed (\d{4}-\d{2}-\d{2})\)/)?.[1];
+    const expected = [
+      '# Roadmap',
+      '',
+      `- [x] **Phase 10:** Delivery (completed ${completedDate})`,
+      '',
+      '### Phase 10: Delivery',
+      '**Plans:** 1/1 plans complete',
+      '- [x] 10-01-PLAN.md',
+      'Keep  trailing spaces  ',
+      '',
+    ].join('\n');
+
+    assert.match(completedDate, /^\d{4}-\d{2}-\d{2}$/);
+    assert.strictEqual(updated, expected);
+    assert.strictEqual(updated.includes('\r'), false);
+  });
+
+  test('propagates publication failure without mutating the roadmap', () => {
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    const roadmapContent = [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 11:** Locked',
+      '',
+      '### Phase 11: Locked',
+      '**Plans:** 0/1 plans executed',
+      '',
+    ].join('\n');
+    fs.writeFileSync(roadmapPath, roadmapContent, 'utf8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '11-locked');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '11-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '11-01-SUMMARY.md'), '# Summary');
+
+    const publishError = Object.assign(new Error('roadmap locked'), { code: 'EPERM' });
+    mock.method(roadmapPersistence, 'publishRoadmapPreservingBytes', () => {
+      throw publishError;
+    });
+    try {
+      assert.throws(
+        () => cmdRoadmapUpdatePlanProgress(tmpDir, '11', false),
+        publishError
+      );
+      assert.strictEqual(fs.readFileSync(roadmapPath, 'utf8'), roadmapContent);
+    } finally {
+      mock.restoreAll();
+    }
+  });
+
+  test('reports updated false when publication suppresses a no-op', () => {
+    const roadmapPath = path.join(tmpDir, '.planning', 'ROADMAP.md');
+    fs.writeFileSync(roadmapPath, [
+      '# Roadmap',
+      '',
+      '- [ ] **Phase 12:** Stable',
+      '',
+      '### Phase 12: Stable',
+      '**Plans:** 0/1 plans executed',
+      '',
+    ].join('\n'), 'utf8');
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '12-stable');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '12-01-PLAN.md'), '# Plan');
+
+    mock.method(roadmapPersistence, 'publishRoadmapPreservingBytes', () => false);
+    try {
+      const result = captureCommandOutput(
+        () => cmdRoadmapUpdatePlanProgress(tmpDir, '12', false)
+      );
+      assert.strictEqual(result.exitCode, 0);
+      assert.strictEqual(JSON.parse(result.stdout).updated, false);
+    } finally {
+      mock.restoreAll();
+    }
   });
 });
 

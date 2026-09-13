@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "acceptances": [
+    {
+      "platform": "windows",
+      "metric": "install",
+      "maxRatio": 1.7,
+      "reason": "Phase 43 devDependency tooling adds 151 packages (367 -> 504): @cyclonedx/cyclonedx-npm (SBOM generation, 132 packages), c8 (per-file coverage gates), expect (portable assertions). The regression is real and reviewed as acceptable: the published package's dependency surface (16 packages) is unchanged, and keeping the tooling in the root lockfile keeps it inside the OSV and bun-audit scanned surface. Bound calibrated from the first two real windows measurements (2026-08-29, runs 33221688225 and 33221613334): ratios 1.60 and 1.46 with the reference itself varying 25% across runners, so 1.7 gives ~6% headroom over the worst observation. The original 1.5 was a pre-measurement estimate extrapolated from linux/macos.",
+      "reviewer": "Chude",
+      "reviewedDate": "2026-08-29",
+      "ticket": "https://github.com/chudeemeke/get-stuff-done/issues/46",
+      "expiresOn": "2026-11-26"
+    },
+    {
+      "platform": "windows",
+      "metric": "compose",
+      "maxRatio": 1.75,
+      "reason": "Covers windows compose MEASUREMENT NOISE, not an accepted real regression: identical code measured 0.59 (candidate 41% faster) and 1.48 (candidate 48% slower) in back-to-back runs (2026-08-29, runs 33221688225 and 33221613334), so the within-run paired signal is not reproducible on this platform-metric at current effect sizes. The 556ms observed swing sits at the 500ms materiality floor; recalibrating the floor requires a harness re-pin and is tracked separately - this entry expires with that work's window.",
+      "reviewer": "Chude",
+      "reviewedDate": "2026-08-29",
+      "ticket": "https://github.com/chudeemeke/get-stuff-done/issues/46",
+      "expiresOn": "2026-11-26"
+    }
+  ]
+}

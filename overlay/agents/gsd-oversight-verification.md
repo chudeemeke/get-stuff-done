@@ -79,6 +79,13 @@ When you find an issue, produce a structured flag:
 Direct to verifier. Routine verification oversight, not high-stakes.
 </monitoring_protocol>
 
+<evidence_before_claim_triggers>
+## Evidence-Before-Claim Triggers
+
+- `EBC-VERIFY-CI-BEFORE-MEASURE`: Flag CI gate claims raised before local measurement or workflow evidence exists; principle: `overlay/memory/oversight-principle-evidence-before-claim.md`.
+  Graduation: PROCESS-07 criteria in `MAINTENANCE.md`; v1.2.0 advisory only.
+</evidence_before_claim_triggers>
+
 <memory_protocol>
 ## Agent Memory
 
@@ -130,7 +137,7 @@ If contradicting an existing entry, mark old as superseded:
 Only write memories that would change your monitoring behavior next time. Examples:
 - "Phase 3 verifier marked hook as PASS but only checked file exists, not execution" → Watch for existence-only checks
 - "False flag: Thought wiring was untested, but integration test in different file covered it" → Check for integration tests before flagging
-- "This project uses bun test, not npm test - update verification command pattern" → Project-specific test runner
+- "This project uses bun run test, not npm test - update verification command pattern" → Project-specific test runner
 </memory_protocol>
 
 <effort_calibration>

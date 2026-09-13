@@ -1,0 +1,41 @@
+{
+  "_doc": "Branch protection rules for chudeemeke/get-stuff-done main. Phase 40.5 Wave 1.7 (amendment A-11). Loaded by scripts/setup-branch-protection.sh. To verify live state: gh api repos/chudeemeke/get-stuff-done/branches/main/protection | jq.",
+
+  "_required_status_checks_rationale": "The list reflects the A-06+A-10 binding-gate set (Workflow Lint, Lint, Source Parity Check, Boundary & Override Check) PLUS the new Secret Scan job from Wave 1.7-A. Test (3 OSes) is intentionally OMITTED because A-10 allowlists 4 chronic test failures inherited from main since 2026-03-31; making Test required would prevent ANY PR from merging until Phase 41 REL-01 closes those chronics. Test joins the required list when REL-01 ships.",
+
+  "required_status_checks": {
+    "strict": true,
+    "contexts": [
+      "Workflow Lint",
+      "Lint",
+      "Source Parity Check",
+      "Boundary & Override Check",
+      "Secret Scan"
+    ]
+  },
+
+  "_required_pull_request_reviews_rationale": "Option A from Wave 1.7 design discussion: required_approving_review_count=1 with enforce_admins=false. Solo maintainer can self-merge via admin power; future contributor PRs see 'review required' signal. Increase to 2 when a second maintainer joins.",
+
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 1,
+    "dismiss_stale_reviews": true,
+    "require_code_owner_reviews": false,
+    "require_last_push_approval": false
+  },
+
+  "enforce_admins": false,
+
+  "required_linear_history": true,
+  "required_conversation_resolution": true,
+
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+
+  "required_signatures": false,
+
+  "_restrictions_note": "restrictions=null means anyone with push access can push (subject to other rules). For solo-maintainer single-account this is correct. Tighten if/when teams form.",
+  "restrictions": null,
+
+  "_block_creations_note": "block_creations=false allows new branches off main. Default GitHub behavior.",
+  "block_creations": false
+}

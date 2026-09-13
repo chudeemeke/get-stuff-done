@@ -1,0 +1,88 @@
+name: Decorative Link Availability
+
+on:
+  schedule:
+    - cron: "29 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    name: Report decorative link availability
+    runs-on: ubuntu-latest
+    steps:
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2
+        with:
+          egress-policy: audit
+          token: ""
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - name: Capture bounded availability report
+        shell: bash
+        run: |
+          grep -oE 'https://api\.star-history\.com/[^"< ]+' README.md | sort -u > decorative-links.txt
+          test -s decorative-links.txt
+
+          {
+            echo "# Decorative link availability"
+            echo ""
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo ""
+            echo "| recurrence key | HTTP | classification | URL |"
+            echo "| --- | ---: | --- | --- |"
+          } > decorative-link-availability.md
+
+          while IFS= read -r url; do
+            code="$(curl --location --silent --show-error --output /dev/null \
+              --write-out '%{http_code}' --retry 3 --retry-all-errors \
+              --retry-delay 5 --max-time 20 "$url" || true)"
+            key="$(printf '%s' "$url" | sha256sum | cut -c1-16)"
+            case "$code" in
+              404|410) classification="link-rot-candidate" ;;
+              5??) classification="availability-degradation" ;;
+              2??) classification="healthy" ;;
+              *) classification="availability-observation" ;;
+            esac
+            # The single quotes are deliberate: the backticks are literal Markdown code spans
+            # for the table cell, and the %s placeholders must reach printf unexpanded. The
+            # values are passed as arguments, so nothing here needs shell expansion.
+            # shellcheck disable=SC2016
+            printf '| `%s` | `%s` | `%s` | %s |\n' "$key" "$code" "$classification" "$url" \
+              >> decorative-link-availability.md
+          done < decorative-links.txt
+
+          {
+            echo ""
+            echo "Repeated 404/410 results with the same recurrence key require owned link-rot follow-up."
+            echo "A single 5xx remains non-blocking third-party availability evidence."
+          } >> decorative-link-availability.md
+          cat decorative-link-availability.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload decorative availability evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: decorative-link-availability-${{ github.run_id }}
+          path: |
+            decorative-links.txt
+            decorative-link-availability.md
+          if-no-files-found: error
+          retention-days: 90
+          overwrite: false

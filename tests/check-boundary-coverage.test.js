@@ -11,6 +11,9 @@
 
 const { checkBoundary, formatReport, parseArgs } = require('../scripts/check-boundary');
 const { describe, test, expect } = require('bun:test');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 describe('check-boundary coverage', () => {
   test('checkBoundary returns report object', () => {
@@ -18,6 +21,39 @@ describe('check-boundary coverage', () => {
     expect(report).toHaveProperty('ok');
     expect(report).toHaveProperty('violations');
     expect(Array.isArray(report.violations)).toBe(true);
+  });
+
+  test('a dangling symlink in the tree does not abort the walk', () => {
+    // Regression: walkDir used fs.statSync, which follows symlinks and throws ENOENT on a
+    // broken one. A single dangling link anywhere (e.g. inside a stale .claude/worktrees/
+    // checkout) crashed the whole boundary gate instead of reporting violations.
+    const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-boundary-'));
+    try {
+      fs.writeFileSync(path.join(projectDir, 'real-file.js'), '// present\n');
+      const nested = path.join(projectDir, 'nested');
+      fs.mkdirSync(nested);
+      fs.writeFileSync(path.join(nested, 'other.js'), '// present\n');
+
+      let linkCreated = true;
+      try {
+        fs.symlinkSync(path.join(projectDir, 'no-such-target'), path.join(nested, 'broken-link'));
+      } catch {
+        // Windows without developer mode/elevation cannot create symlinks.
+        linkCreated = false;
+      }
+
+      const report = checkBoundary({ projectDir });
+      expect(report).toHaveProperty('violations');
+      expect(Array.isArray(report.violations)).toBe(true);
+
+      if (linkCreated) {
+        // Prove the link really was dangling, so this assertion is not vacuous.
+        expect(fs.existsSync(path.join(nested, 'broken-link'))).toBe(false);
+        expect(fs.lstatSync(path.join(nested, 'broken-link')).isSymbolicLink()).toBe(true);
+      }
+    } finally {
+      fs.rmSync(projectDir, { recursive: true, force: true });
+    }
   });
 
   test('formatReport with clean report', () => {

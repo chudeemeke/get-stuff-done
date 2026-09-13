@@ -1,4 +1,9 @@
 [test]
-include = ["**/*.test.js"]
-exclude = ["**/*.test.cjs", "**/node_modules/**"]
+# Bun owns fork-authored functional suites under tests/. Node-native `.test.cjs`
+# compatibility contracts execute through the explicit Node registry instead.
+# Bun 1.3.5 parses but does not enforce pathIgnorePatterns for these files, so
+# the preload and scripts/run-bun-tests.js are the blocking boundary (ADR 004).
+root = "tests"
+pathIgnorePatterns = ["**/*.test.cjs"]
+preload = ["./tests/helpers/enforce-bun-test-authority.js"]
 timeout = 15000

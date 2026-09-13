@@ -1,323 +1,200 @@
-# Project Research Summary
+# Project Research Summary -- v1.2.0 Ship-Ready Hardening
 
-**Project:** GetStuffDone (GSD) v0.2.0 Hardening & Cross-Platform Support
-**Domain:** Meta-prompting CLI tool with git-based auto-update and spec-driven development for Claude Code
-**Researched:** 2026-02-07
-**Confidence:** HIGH
+**Project:** @chude/get-stuff-done (overlay fork of get-shit-done-cc)
+**Domain:** Long-lived overlay fork -- npm-published composition pipeline over an upstream CLI tool
+**Milestone:** v1.2.0 Ship-Ready Hardening (NOT a greenfield; hardening additions to shipped 3.0.2)
+**Researched:** 2026-04-20
+**Overall Confidence:** HIGH -- four researchers agree on core direction; specific tool choices and single-source flags called out below
 
 ## Executive Summary
 
-GSD v0.2.0 adds security hardening, cross-platform support (macOS/Linux/Windows), and enhanced upstream sync to the existing v0.1.0 foundation. Research confirms the current pure Node.js stack (stdlib + AJV + JSON5) remains solid. Recommended additions: security tooling (ESLint + security plugin, npm audit), cross-platform utilities (pathe, execa), and adoption of Claude Code's 2026 capabilities (Opus 4.6 with 1M context, extended thinking, agent teams).
+The v1.2.0 milestone is a hardening milestone on a published overlay whose architecture is already settled (upstream-as-devDependency, overlay/overrides/compose pipeline, cross-platform CI matrix). The research consensus is unambiguous: the hardening work is not about inventing new patterns but about **promoting existing informational signals into blocking gates**, **simulating the full publish -> install cycle end-to-end**, and **installing lightweight forcing functions against the specific failure modes this fork has already lived through** (upstream-scope misattribution, Windows subprocess flake, CHANGELOG merge near-misses, authkey-style ship-readiness theater). The dominant risk is not missing features -- it's theater: coverage badges, "audit passed" labels, and green CI that disguise dropped commits, suppressed findings, or retry-until-green culture.
 
-The critical risk is **arbitrary code execution during upstream cherry-pick**. The 7-stage sync workflow pulls commits from an external repository without pre-validation, creating a vector for malicious code injection through hooks, installers, or shell scripts. Mitigation requires security review checkpoints, automated pattern scanning, and diff preview with explicit user approval before applying changes. Secondary risks include platform detection failures (Windows Git Bash MINGW layer, WSL hybrid environments) and symlink permission issues (Windows junctions vs Unix symlinks).
+The recommended approach layers three categories of additions onto the existing surface with no new top-level directories: (1) **upgrade resilience** via a Verdaccio-backed `verify-upgrade.js` script + a 3-version historical compat matrix driven by a JSON file in `.planning/`; (2) **supply-chain and ship-readiness gates** via `audit-ci`, `publint`, `gitleaks`, `osv-scanner`, `harden-runner`, `zizmor`, and CycloneDX SBOM generation, all wired into `.github/workflows/ci.yml` alongside the existing 5-check matrix; (3) **forcing functions** -- triage data files (audit suppressions with re-review dates, vetted-upstream-versions list, perf baseline with accepted-regression log), a cousin-test CI job, and structured probes added to the four PROCESS-0X oversight agents. Every addition must justify itself against overlay-specific constraints, not ecosystem popularity.
 
-Recommended approach: Phase roadmap in security-first order (audit tooling → cross-platform foundation → sync safety features → UX improvements → AI integration). All additions are backward-compatible with v0.1.0. The existing hybrid architecture (Node.js CLI + shell workflows + markdown context system) requires no restructuring — new features integrate as modules and workflow enhancements.
+Top risks: Windows subprocess flake must be root-caused (or explicitly escape-hatched with a dated decision) before the Reliability SLO can be claimed; override staleness must be flipped to blocking *first* so later gates compose on a clean baseline; CLAUDE.md rule inflation is a real pattern this project is susceptible to, so the four PROCESS-0X agents must pass a consolidation review before landing; the dogfood upstream bump inside the milestone is the only way to prove the resilience system actually works, and it's easy to skip under schedule pressure.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The current v0.1.0 stack (Node.js >=16.7.0, AJV for config validation, JSON5 for human-friendly config, esbuild for hook bundling) is production-ready and should be preserved. Research recommends strategic additions for security, cross-platform compatibility, and developer experience without introducing runtime dependency bloat.
+The existing stack (`bun`, Node 20 LTS+, `esbuild`, `ajv`, `eslint`, `eslint-plugin-security`, `pathe`, `json5`, `get-shit-done-cc` as devDep, GHA cross-platform matrix) is frozen. Additions are tightly scoped to the five hardening goals and are each justified against overlay-specific failure modes, not generic popularity.
 
-**Core technologies:**
-- **bun (package manager)** — Migrate from npm to align with Anthropic's tooling standards; faster installs, native TypeScript support, compatible lockfile
-- **ESLint + eslint-plugin-security** — Baseline code quality and security pattern detection (13 Node.js security patterns); minimally maintained but sufficient for static analysis
-- **pathe + execa** — Cross-platform path handling and command execution; pathe normalizes paths to Unix format (avoiding backslash issues), execa provides promise-based API with automatic Windows/Unix compatibility
-- **npm audit + Snyk** — Multi-layer dependency vulnerability scanning (audit free/built-in, Snyk optional for CI/CD); 60%+ of 2026 security incidents come from compromised dependencies
+**Core additions (MUST tier -- all four researchers converge):**
 
-**What NOT to add:**
-- TypeScript (adds build complexity for marginal benefit in simple Node.js tool)
-- Heavy test frameworks (bun:test sufficient, Jest/Mocha overkill)
-- Logging libraries (console.log adequate for CLI feedback)
-- Lodash/Ramda (native JS methods sufficient)
+- **`audit-ci@7.1.0`** -- CI-blocking wrapper around `bun audit` / `npm audit` with a JSONC allowlist of CVEs carrying explicit TTLs. The only reasonable way to gate on severity without `|| true` escape hatches. Supports Bun's audit format.
+- **`publint@0.3.18`** -- Validates the actual tarball the way npm would. Critical because the overlay's `files:` manifest is hand-curated; silent drops here don't surface until consumers install.
+- **`gitleaks`** (via `gitleaks/gitleaks-action@v2`) -- Pre-commit-safe, fast secrets scanner. The overlay stores `branding.json`, REASON.md files, and install metadata -- paper-cut-prone paths for accidentally committed tokens.
+- **`lychee-action@v2`** -- Rust-fast link checker for MAINTENANCE.md / upgrade guide / README. Link rot is the #1 visible ship-readiness failure.
+- **`verdaccio@6.5.2`** (as GHA service container, Linux-only) -- Local npm registry for true end-to-end upgrade simulation.
+- **`@cyclonedx/cyclonedx-npm@4.2.1`** -- SBOM generation in CycloneDX 1.6 for supply-chain transparency.
+
+**Strong tier:** `osv-scanner` v2, `step-security/harden-runner@v2`, `zizmor@v0`, `hyperfine`, `markdownlint-cli2@0.22.0`, `semver@7.7.4`.
+
+**Explicitly rejected:** `snyk`, `semgrep` Pro, `trufflehog` (primary), `changesets`, `commitizen`/`commitlint`/`husky`/`lint-staged`, `renovate`/`dependabot` on `get-shit-done-cc` pin, monorepo tooling, TS bundlers, `arethetypeswrong/cli` (zero TS types).
+
+*Single-source flags:* `knip`, `doctoc`, `tinybench` (STACK-only nice-to-haves).
 
 ### Expected Features
 
-Research reveals a divide between **table stakes** (features users expect from professional CLI tools) and **differentiators** (Claude Opus 4.6 capabilities that set GSD apart). The upstream sync workflow dominates the feature landscape — most security and UX features cluster around making cherry-pick operations safe and transparent.
+This is ship-readiness, not feature expansion. Floor is OSPS Baseline + SLSA L2 + Keep-a-Changelog + SemVer applied to a private-scope npm CLI + overlay-specific must-haves.
 
-**Must have (table stakes):**
-- **Cross-platform path handling** — Node.js CLIs must work on Windows/macOS/Linux without manual fixes; use path.join(), never string concatenation
-- **Diff preview before sync** — Industry standard (terraform plan, kubectl diff); prevents destructive mistakes; users expect to see what will change
-- **Dry-run mode** — Non-destructive preview operations build user confidence and AI agent compatibility
-- **Signed commit verification** — Security-critical for cherry-pick workflows from external repos; verify GPG signatures before applying upstream commits
-- **Rollback capability** — Failed updates must be reversible without data loss; git reflog-style snapshots with transaction-like validation
+**Must-have (table stakes):**
 
-**Should have (competitive):**
-- **Agent teams integration (Opus 4.6)** — Leverage Claude's parallel agent capabilities for complex tasks; could parallelize research/execution phases
-- **Extended thinking with effort controls** — Adaptive reasoning for complex sync decisions and conflict resolution
-- **1M token context window** — Process entire large repos or documentation sets in single context (Opus 4.6 beta feature)
-- **Upstream change categorization** — Auto-classify upstream commits (breaking/feature/fix/chore) using Claude API for intelligent filtering
-- **Interactive diff viewer** — GitHub-like diff UI in terminal or browser (tools like difit)
+- **TS-2 Override staleness as blocking CI gate** (TRIVIAL P1; one-line CI flip) -- do first.
+- **TS-1 Automated upgrade smoke test** (MODERATE P1) -- install prior -> bump -> recompose -> reinstall -> verify via Verdaccio.
+- **TS-3 Historical-version compat matrix, N=3** (MODERATE P1) -- last 3 vetted; JSON pin file; prune-on-bump.
+- **TS-4 Pre-publish hard gates** (TRIVIAL-MODERATE P1) -- tests + lint + audit + publint + SBOM gate `aidev publish`.
+- **TS-5 Supply-chain audit per release** (TRIVIAL P1) -- `audit-ci` with `audit-suppressions.json` carrying `{id, severity, reason, reviewer, reviewedDate, reReviewDate}`.
+- **TS-6 100% test pass on 3 platforms** (SIGNIFICANT P1) -- blocks TS-1; requires Windows flake root-cause or dated escape hatch.
+- **TS-7/8/9 Changelog, README, reproducible builds** (P1) -- likely present; audit.
+- **TS-10 MAINTENANCE.md** (P1) -- lands late after TS-1/2/3 exist.
+- **TS-11 Security triage policy** (P1) -- critical->v1.2.0, major->v1.3.0, minor->backlog.
+- **D-7 Live dogfood bump** (P1) -- proof-the-system-works.
 
-**Defer (v2+):**
-- Multi-upstream support (very high complexity, requires workflow redesign)
-- Sync conflict auto-resolution (AI-powered, requires change categorization first)
-- Selective sync by category (depends on change categorization)
-- Compaction (only needed if 7-stage sync exceeds context limits)
+**Should-have differentiators:**
+- D-2 perf budget enforcement (P2)
+- D-4 SLSA L2 provenance via `npm publish --provenance` (P2)
+- D-1 semantic override staleness (P2)
+- D-8 override churn in changelog (P2)
+- D-3 oversight graduation advisory->blocking (P2)
+
+**Defer / anti-features:** forward-compat testing vs upstream `main` (AF-1), Gold OpenSSF badge (AF-2), CNCF governance (AF-3), N>=10 matrix (AF-4), public Scorecard badge on private repo (AF-5), runtime filtering (AF-6), converting informational boundary/compat to blocking (AF-7), upstream semver range (AF-8), TS migration (AF-9), LLM-based REASON validation (AF-10), per-override GPG signing (AF-11).
 
 ### Architecture Approach
 
-GSD's existing hybrid architecture remains optimal for a meta-prompting CLI. The system combines Node.js modules (installer, config, theme, hooks) with shell-based workflows (orchestrated through Claude Code's Bash tool) and markdown-based context engineering (templates, references, commands). v0.2.0 features integrate at multiple layers without requiring structural refactoring.
+Four-layer structure (consumer surface / composition / source / verification) retained unchanged. **No new top-level directories.** All new scripts follow `scripts/*.js` convention (pure function + CLI entry + peer test + documented exit codes).
 
-**Major components:**
-1. **Security validation layer** — New SecurityValidator module (`src/security/SecurityValidator.js`) providing input sanitization, registry whitelist validation, secret pattern detection, and package signature verification hooks
-2. **Cross-platform utilities** — New PlatformUtils module with multi-tier platform detection (OS, shell, MINGW, WSL), path normalization, and shell command abstraction
-3. **Update management** — Enhanced UpdateManager module extending existing `gsd-check-update.js` hook with package metadata fetching, changelog parsing, and severity indicators
-4. **Diff rendering** — New DiffRenderer module integrating with theme system for ANSI-colorized git diff output with terminal width detection
-5. **Rollback management** — New RollbackManager module maintaining rollback history (`.planning/rollback/history.json`), git-based snapshots, and transaction-like validation
+**Major components added/modified:**
 
-**Integration points:**
-- Security validation integrates with ConfigSchema (new security settings), installer (source integrity checks), and upstream-sync workflow (Stage 2 security review checkpoint)
-- Cross-platform utilities replace direct path/child_process usage throughout codebase
-- Diff rendering adds Stage 2b checkpoint to upstream-sync workflow (DIFF_PREVIEW between user selection and execution)
-- Rollback creates snapshots at workflow Stage 6a (before publish) with soft reset default (preserves working directory changes)
+1. **`scripts/verify-upgrade.js`** (NEW) -- orchestrator for full upgrade cycle.
+2. **`.planning/vetted-upstream-versions.json`** (NEW) -- N=3 matrix source of truth.
+3. **Split `boundary-override-check` CI job** (MODIFIED) -- `boundary-check` informational + `override-check` blocking (one-line change).
+4. **`scripts/bench.js` + `scripts/check-perf.js` + `perf-baseline.json`** (NEW) -- measure->compare->enforce with `acceptedRegressions[]` escape hatch.
+5. **`scripts/verify-oversight-probes.js` + structured watches tables in `overlay/agents/gsd-oversight-*.md`** (NEW/MODIFIED) -- deterministic probes without OPA/Semgrep dependency.
+6. **`.planning/audits/suppressions.json` + `scripts/check-audit-suppressions.js`** (NEW) -- triage as data with expiry.
+7. **New CI jobs:** `security`, `secret-scan`, `perf-budget`, `compat-matrix`, `upgrade-resilience`, `oversight-verify`; harden-runner injected into existing jobs.
+8. **SBOM step** (MODIFIED `finalize-dist.js`) -- `dist/bom.json` between compose and finalize.
 
-### Critical Pitfalls
+**Critical sequencing:**
+- Override-staleness flip FIRST (requires pre-flip main passes).
+- Security audit EARLY (a CVE re-plans milestone).
+- Perf measure BEFORE budget.
+- Windows SLO BEFORE upgrade smoke test.
+- `verify-upgrade.js` BEFORE compat matrix.
+- Oversight probes PARALLEL (after consolidation review).
+- MAINTENANCE.md LATE.
+- Dogfood AFTER gates exist.
 
-Research identifies 14 domain-specific pitfalls (4 critical, 5 moderate, 5 minor) across security, cross-platform compatibility, git operations, and shell environments. The top critical pitfalls represent immediate risks requiring Phase 1 mitigation.
+### Critical Pitfalls (top 7)
 
-1. **Arbitrary code execution in upstream cherry-pick** — Malicious commits containing shell commands in hooks/installers execute without user review; mitigate with security review checkpoints, automated pattern scanning (eval, exec, network requests, file writes to sensitive locations), upstream URL verification, and sandboxed testing
-2. **Platform detection failures in Windows Git Bash (MINGW)** — process.platform returns 'win32' but environment is POSIX with path translation; mitigate with multi-tier detection (OS + shell + MSYSTEM env var + WSL check), always use path.join(), test shell command compatibility
-3. **Non-interactive shell environment in Claude Code Bash tool** — Hooks assume interactive shell with .bashrc environment (aliases, functions, PATH); mitigate with explicit PATH/tool detection, avoid shell aliases, never use interactive commands, test hooks in Claude Code Bash tool
-4. **Symlink permissions and junction limitations on Windows** — Regular symlinks require admin privilege; junctions only work for directories with absolute paths; mitigate with junction constraint enforcement, permission failure detection, absolute path normalization, link integrity verification
-5. **Cherry-pick commit dependency chain breaks** — User selects commit B depending on earlier commit A (not selected); git applies without file conflict but runtime breaks; mitigate with chronological commit presentation, bulk selection options, post-cherry-pick verification
+1. **Ship-readiness theater** (Pitfall 6) -- authkey incident precedent. Mitigation: every deliverable has anti-theater verification test; assertions-per-test ratio; link-check CI; executable-examples; retry-is-gate-failure; suppressions as reviewable data.
+2. **Override staleness undetected until runtime** (Pitfall 2) -- Mitigation: orphan check + SHA-drift + semantic-drift warning, all blocking.
+3. **Upstream-scope misattribution** (Pitfall 1) -- three prior instances in this fork's memory. Mitigation: oversight agent refuses upstream-issue proposals without reproduction evidence against unmodified upstream.
+4. **Windows subprocess flake masked as "OS-level timing"** (Pitfall 7) -- Mitigation: timebox (2 working days); per-test flake-rate; `Promise.race([child, timer])` not `exec` timeout; central timeout constants; dated escape hatch if truly unfixable.
+5. **CLAUDE.md rule inflation / context rot** (Pitfall 5) -- PROCESS-01..04 landing risk. Mitigation: forcing-function test for new rules; consolidation review before implementation; rules requiring absent tools are worse than none.
+6. **Blanket merge resolution drops code** (Pitfall 9) -- authkey failure #1 precedent + CHANGELOG near-miss (hit twice in 24h per memory). Mitigation: ban `--theirs`/`--ours` in bump runbook; `CONFLICTS_RESOLVED.md` artifact required; programmatic CHANGELOG conflict check.
+7. **Cousin-test scenario install failure** (Pitfall 8) -- Mitigation: cold-install CI (fresh OS x Node x package-manager matrix with minimal-scope token); INSTALL.md; PATH verification.
+
+**Secondary:** compat matrix combinatorial explosion (pitfall 3), audit false-positive swamp (pitfall 4), doc rot (pitfall 10), perf regression untracked (pitfall 11).
 
 ## Implications for Roadmap
 
-Based on combined research, recommended phase structure prioritizes security foundations before cross-platform expansion, then builds safety features (diff preview, rollback) before UX polish. This ordering ensures every subsequent phase operates on a hardened, validated base.
+### Phase 1: Foundation -- Flip the Gate, Install the Audit Surface
 
-### Phase 1: Security Hardening & Tooling
-**Rationale:** Security vulnerabilities in upstream sync represent critical risk (arbitrary code execution). Must establish security baseline before any git operations or cross-platform testing. ESLint + security plugin provides static analysis foundation for all subsequent code.
+**Rationale:** Zero-dependency items that establish policy baseline; audit surface might re-plan milestone; measure baseline now (enforce in Phase 2); Windows flake root-cause OR dated escape-hatch decision (blocks TS-1).
 
-**Delivers:**
-- SecurityValidator module with input sanitization, registry validation, secret detection
-- ESLint + eslint-plugin-security configuration with custom rules for GSD patterns
-- npm audit baseline scan with documented remediation plan
-- Enhanced upstream-sync.md workflow with Stage 2 security review checkpoint
+**Delivers:** override-staleness blocking (one-line flip after pre-flip check), `audit-ci` + suppressions file schema, `gitleaks` + `osv-scanner` in `security` CI job, `harden-runner` in audit mode, `publint` in `prepublishOnly`, `eslint-plugin-security` config audit, `bench.js` + `perf-baseline.json` captured, Windows flake decision, MAINTENANCE.md skeleton with Security Triage section.
 
-**Addresses (from FEATURES.md):**
-- Signed commit verification (table stakes)
-- Auto-update security indicators (differentiator)
+**Addresses:** TS-2, TS-5, TS-11; partial TS-4/6/10; D-2 part 1.
+**Avoids:** pitfalls 2, 4, 7, 11.
 
-**Avoids (from PITFALLS.md):**
-- Pitfall 1: Arbitrary code execution in cherry-pick workflow
-- Pitfall 11: Conflict markers left in files
-- Pitfall 14: Config JSON5 not validated during sync
+### Phase 2: Budget Enforcement + Process Hardening
 
-**Research flags:** Standard patterns (ESLint, npm audit well-documented). Skip phase-specific research.
+**Rationale:** Perf budget needs Phase 1 baseline to be calibrated. PROCESS-01..04 consolidation review precedes implementation. Cousin-test is independent, unblocks ship-readiness confidence early.
 
----
+**Delivers:** `check-perf.js` + `perf-budget` CI job (warning band + hard fail + `acceptedRegressions[]`); PROCESS-01..04 oversight agents with structured watches (consolidation review FIRST); `verify-oversight-probes.js` + weekly CI; cold-install CI (fresh Ubuntu/macOS/Windows x Node 20+22 x bun/npm/pnpm); INSTALL.md; `lychee-action` + `markdownlint-cli2` CI.
 
-### Phase 2: Cross-Platform Foundation
-**Rationale:** Platform detection and path handling underpin all subsequent features. Installer, hooks, and workflows must work identically on macOS/Linux/Windows before adding complex features like diff preview or rollback. Dependencies on Phase 1 security validation for path traversal protection.
+**Addresses:** D-2, D-3; TS-6 completion; partial TS-8/10.
+**Avoids:** pitfalls 5, 8, 10, 11.
 
-**Delivers:**
-- PlatformUtils module with multi-tier detection (OS, shell, MINGW, WSL)
-- pathe integration replacing all path operations
-- execa integration replacing child_process.spawn() for git commands
-- Enhanced installer with platform-specific link/copy fallback logic
-- Cross-platform test matrix (Windows Git Bash, macOS, Linux, WSL)
+### Phase 3: Upgrade Resilience -- Verify + Matrix + Dogfood
 
-**Uses (from STACK.md):**
-- pathe (cross-platform path normalization)
-- execa (promise-based cross-platform command execution)
-- Node.js path, os, process.platform built-ins
+**Rationale:** `verify-upgrade.js` is the heart; compat matrix multiplies it; dogfood closes proof loop.
 
-**Addresses (from FEATURES.md):**
-- Cross-platform path handling (table stakes)
-- Platform detection (table stakes)
-- Permission validation (table stakes)
+**Delivers:** `scripts/verify-upgrade.js` (~300 lines + peer tests + `tests/upgrade/fixtures/`); `upgrade-resilience` Verdaccio CI job (Linux-only, scheduled + on-change); `vetted-upstream-versions.json` (N=3); `compat-matrix` CI (informational on historical, blocking on pinned); live dogfood upstream bump with recorded evidence; override churn CHANGELOG section; CycloneDX SBOM in compose pipeline with `dist/bom.json` in tarball.
 
-**Avoids (from PITFALLS.md):**
-- Pitfall 2: Platform detection failures in MINGW
-- Pitfall 3: Non-interactive shell environment issues
-- Pitfall 4: Symlink permission and junction limitations
-- Pitfall 9: WSL detection missed by process.platform
+**Addresses:** TS-1, TS-3; D-1, D-7, D-8.
+**Avoids:** pitfalls 2, 3, 6, 9.
 
-**Research flags:** Needs testing on all target platforms (manual verification matrix). Skip research-phase (patterns well-documented in cross-platform Node.js guides).
+### Phase 4: Ship Polish -- Publish Flow, Provenance, Final Audit
 
----
+**Rationale:** All gates exist and compose; wire to `aidev release`/`aidev publish`; MAINTENANCE.md can document real processes; final anti-theater checklist.
 
-### Phase 3: Sync Safety Features (Diff Preview + Rollback)
-**Rationale:** Diff preview and rollback represent safety infrastructure for upstream sync workflow. Preview prevents accidental destructive changes; rollback provides recovery path when changes fail. Both features must exist before enabling auto-update notifications (Phase 4) which encourage users to sync more frequently. Dependencies on Phase 1 security validation and Phase 2 cross-platform utilities.
+**Delivers:** `aidev publish` verified with full pre-publish gate chain; npm `--provenance` via GHA OIDC Trusted Publishing (no NPM_TOKEN alongside OIDC -- Axios incident pattern); `zizmor` workflow static analysis CI; harden-runner `audit`->`block` promotion (only if 2+ weeks clean audit log); MAINTENANCE.md complete (upgrade process, override conflict handling, CI staleness response, release cadence, bump runbook prohibiting `--theirs`, security triage, perf budget, escape-hatch decisions log); upgrade guide + README polish; Keep-a-Changelog + SemVer audit; reproducibility verification (compose-twice byte-identical); PITFALLS.md "Looks Done But Isn't" checklist walked through as ship gate.
 
-**Delivers:**
-- DiffRenderer module with ANSI colorization via theme system
-- Enhanced upstream-sync workflow with Stage 2b DIFF_PREVIEW checkpoint
-- RollbackManager module with snapshot creation, git-based rollback, history pruning
-- Snapshot transaction pattern (validate → dry-run → apply → verify → commit or rollback)
-- New commands: `/gsd:preview-diff`, `/gsd:rollback`
-
-**Uses (from STACK.md):**
-- Existing theme system (Style Composer pattern)
-- Git CLI for diff generation and reset operations
-- Node.js fs for snapshot directory management
-
-**Addresses (from FEATURES.md):**
-- Diff preview before sync (table stakes)
-- Rollback capability (table stakes)
-- Dry-run mode (table stakes)
-
-**Avoids (from PITFALLS.md):**
-- Pitfall 5: Cherry-pick dependency chain breaks (post-rollback verification)
-- Pitfall 7: Diff preview timeouts on large changes (progressive disclosure)
-- Pitfall 8: Rollback breaks when local changes exist (stash detection)
-
-**Research flags:** Standard patterns (git diff, git reset well-documented). Skip research-phase.
-
----
-
-### Phase 4: Auto-Update Enhancement
-**Rationale:** Enhanced update notifications improve discoverability of upstream changes, but only safe to promote frequent syncing after diff preview + rollback (Phase 3) exist. Builds on existing `gsd-check-update.js` hook infrastructure. Dependencies on Phase 1 security validation (registry checks), Phase 2 cross-platform utilities (path handling).
-
-**Delivers:**
-- UpdateManager module with npm metadata fetching, changelog parsing
-- Enhanced cache format with security_fixes and breaking_changes indicators
-- Statusline severity display (security icon, breaking change warning)
-- Config extensions: updates.check_interval, updates.auto_check
-- Rate limit handling with exponential backoff
-
-**Uses (from STACK.md):**
-- npm CLI for package metadata
-- Existing statusline hook for display
-- Background spawn pattern (detached process, unref)
-
-**Addresses (from FEATURES.md):**
-- Auto-update notifications (table stakes)
-- Visual progress with ETA (differentiator, extends statusline)
-
-**Avoids (from PITFALLS.md):**
-- Pitfall 6: Upstream notification stale state (multi-stage cache updates)
-- Pitfall 13: Auto-update rate limiting GitHub API (cache with TTL, authenticated requests)
-
-**Research flags:** Standard patterns (npm view, GitHub API well-documented). Skip research-phase.
-
----
-
-### Phase 5: Claude Code Capability Adoption
-**Rationale:** Leverage Claude Opus 4.6's 2026 improvements (extended thinking, agent teams, 1M context) after core functionality stable. AI integration represents optimization, not foundation — defer until Phases 1-4 complete. This phase primarily updates orchestrator prompts and workflows to utilize new API parameters.
-
-**Delivers:**
-- Extended thinking integration for upstream conflict resolution (effort controls)
-- Updated orchestrator prompts leveraging improved agentic coding (better planning)
-- Agent teams evaluation for research phase parallelization (stretch goal)
-- Documentation of Claude Code 2026 feature adoption patterns
-
-**Uses (from STACK.md):**
-- Claude Opus 4.6 API (extended thinking, adaptive effort, 1M context beta)
-- Existing orchestrator workflow architecture
-- Task tool for subagent spawning
-
-**Addresses (from FEATURES.md):**
-- Extended thinking with effort controls (differentiator)
-- Upstream change categorization (differentiator, AI-powered)
-- Agent teams integration (differentiator, stretch goal)
-
-**Avoids (from PITFALLS.md):**
-- No new pitfalls introduced (API-level features, no architecture changes)
-
-**Research flags:** Needs prompt engineering research for optimal effort parameter usage. Run `/gsd:research-phase` for Phase 5 to explore extended thinking best practices and agent teams orchestration patterns.
-
----
+**Addresses:** TS-4, TS-7, TS-8, TS-9, TS-10 completion; D-4.
+**Avoids:** pitfalls 1, 6, 10.
 
 ### Phase Ordering Rationale
 
-**Security first (Phase 1):** Arbitrary code execution risk in upstream sync is critical. Every subsequent phase assumes secure validation layer exists. Delaying security creates vulnerability window.
-
-**Platform foundation second (Phase 2):** Path handling and platform detection affect all components (installer, hooks, workflows). Cross-platform compatibility must be universal before feature additions. Testing burden increases exponentially if added late.
-
-**Safety features third (Phase 3):** Diff preview and rollback make upstream sync safe and confidence-building. These features enable subsequent phases to encourage more frequent syncing (auto-update notifications in Phase 4). Transaction-like validation pattern establishes reliability baseline.
-
-**User experience fourth (Phase 4):** Enhanced update notifications drive engagement with upstream sync, but only safe to promote after safety features (Phase 3) exist. Statusline enhancements are polish, not foundation.
-
-**AI optimization fifth (Phase 5):** Claude Code 2026 capabilities represent performance improvements and workflow automation, not core functionality. Deferring to final phase allows testing with stable codebase and real-world sync scenarios to inform prompt engineering.
-
-**Dependency chain:** Phase 1 → Phase 2 (security validation used in path traversal protection) → Phase 3 (security + cross-platform used in diff/rollback) → Phase 4 (all previous phases) → Phase 5 (optional, no blockers).
+- Phase 1 first: cheapest change (one-line flip); early CVE discovery re-plans milestone cheaply; baseline before budget non-negotiable.
+- Phase 2 before Phase 3: consolidation review is a forcing function before heaviest feature work; cousin-test independent.
+- Phase 3 is the heart: build single upgrade test before matrix; dogfood only works AFTER gates exist.
+- Phase 4 last: MAINTENANCE.md documents processes that must exist; provenance needs publish flow confirmed; anti-theater checklist final.
 
 ### Research Flags
 
-**Phases needing deeper research during planning:**
-- **Phase 5 (Claude Code Capability Adoption)** — Prompt engineering for extended thinking and agent teams orchestration patterns are evolving; official docs sparse; needs experimentation with effort parameters, context management, and team coordination
+**Needs research:** Phase 1 Windows flake session (scheduled per memory `project_todo_windows_flakiness.md`); Phase 2 PROCESS-01..04 consolidation review; Phase 3 `verify-upgrade.js` programmatic API confirmation; Phase 4 npm Trusted Publishing / OIDC current setup.
 
-**Phases with standard patterns (skip research-phase):**
-- **Phase 1 (Security Hardening)** — ESLint configuration, npm audit, input sanitization well-documented in Node.js security best practices
-- **Phase 2 (Cross-Platform)** — Node.js cross-platform guides comprehensive; pathe/execa docs clear; established patterns
-- **Phase 3 (Sync Safety)** — Git diff/reset operations standard; rollback patterns documented in DevOps literature; transaction model common in DB/API domains
-- **Phase 4 (Auto-Update)** — npm registry API well-documented; update notification patterns established in CLI tool domain
+**Standard patterns (skip research):** Phase 1 GHA-action wiring; Phase 2 lychee/markdownlint-cli2; Phase 3 GHA matrix expansion.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All recommendations verified with official sources (Anthropic blog, npm packages, Node.js docs); pathe/execa proven in cross-platform projects; ESLint security plugin has 1.5M weekly downloads despite minimal maintenance |
-| Features | HIGH | Table stakes validated against industry CLIs (terraform, kubectl, gh); Claude Opus 4.6 capabilities from official Anthropic release notes; feature dependencies mapped to architecture |
-| Architecture | HIGH | Existing v0.1.0 architecture documented in codebase; integration points identified in source code analysis; hybrid model (Node.js + shell + markdown) proven in v0.1.0; new components follow existing patterns |
-| Pitfalls | HIGH | Security vulnerabilities confirmed with CVE references (CVE-2025-68145, CVE-2025-48384); cross-platform issues verified in GitHub issues (npm/npm#18499, anthropics/claude-code#9881); platform detection patterns from cross-platform Node.js guide |
+| Stack | HIGH | Versions verified on npm registry same-day; overlay-specific rationales; each rejection includes reason. |
+| Features | HIGH for TS-1..11 (multiple primary-source standards); MEDIUM for D-3, D-8 (clear patterns, varying terminology). |
+| Architecture | HIGH -- all integration points verified against existing files; dependency rationale explicit; no invariant violations. |
+| Pitfalls | HIGH for 1, 3, 4, 5, 8 (direct project-memory precedents); MEDIUM for 2, 6, 7 (external patterns, novel project-specific application). |
 
 **Overall confidence:** HIGH
 
-Research sourced from official documentation (Anthropic, Node.js, npm), industry security reports (OWASP, CVE databases), and proven cross-platform Node.js guides. All critical pitfalls have real-world precedent with documented mitigations. Stack recommendations align with Anthropic's tooling (bun) and 2026 security standards (60%+ incidents from dependencies). Architecture approach preserves existing v0.1.0 foundation while adding modular enhancements.
+**Reconciliation:** Researchers agree on override-staleness one-line first, N=3 compat matrix, measure-before-enforce perf, Windows flake as critical blocker on TS-6.
 
-### Gaps to Address
+**Single-source flags:** `knip`/`doctoc`/`tinybench` (STACK only); structured watches table pattern (ARCHITECTURE only; shape may shift after consolidation); CHANGELOG merge-conflict mitigation (PITFALLS via memory reference -- hit twice in 24h).
 
-**Agent teams orchestration patterns** — Claude Code 2026 feature documentation shows examples (C compiler build) but lacks comprehensive orchestration patterns for meta-prompting workflows. During Phase 5 planning, experiment with parallel subagent spawning patterns: research agents (stack, features, architecture, pitfalls) → synthesizer agent (summary) → roadmapper agent. Document orchestration checkpoints and context handoff patterns.
+### Gaps to Address (decisions needed BEFORE PLAN.md)
 
-**Windows Developer Mode detection** — Research didn't identify reliable method to detect if Windows Developer Mode enabled (allows symlinks without admin). Current approach (try symlink, fall back to junction) works but could optimize by pre-checking. During Phase 2 implementation, investigate `REG QUERY` for Developer Mode registry key or PowerShell `Get-WindowsOptionalFeature` API.
-
-**Extended thinking effort parameter calibration** — Opus 4.6 adaptive thinking uses contextual clues, but optimal prompt patterns for effort control unclear. During Phase 5 planning, run `/gsd:research-phase` to explore: when to request high effort (conflict resolution, breaking change detection) vs low effort (simple cherry-pick), how to phrase prompts for adaptive thinking, whether to make effort user-configurable.
-
-**Cross-platform test automation** — Research identified test matrix (Windows Git Bash, macOS, Linux, WSL, shells, Node.js versions) but didn't specify CI/CD implementation. During Phase 2 planning, decide: GitHub Actions matrix (free tier limits), manual verification checklist, or hybrid approach. Document in `.planning/testing/cross-platform-matrix.md`.
+| Gap | Recommendation |
+|-----|----------------|
+| N for historical compat matrix | **N=3** (revisit quarterly) |
+| Windows escape-hatch if root-cause times out | (a) per-test issue-linked skip with deadline; (b) drop Windows from 100% SLO as fallback |
+| PROCESS-01..04 consolidation outcome | Run review as first Phase 2 task; collapse to 1 rule + 4 triggers if shared pattern |
+| Perf budget tolerance | Warning 1.1x + hard fail 1.25x + `acceptedRegressions[]`; per-platform budgets |
+| harden-runner audit->block timing | Phase 1 audit; Phase 4 block only if 2+ weeks clean log |
+| CHANGELOG merge-conflict mitigation | `.changelog-conflict-check.sh` in Phase 4 bump runbook |
+| Verdaccio matrix scope | Linux-only asymmetry documented in MAINTENANCE.md |
+| SBOM commit location | `dist/bom.json` in tarball + GitHub release artifact; between compose and finalize-dist |
 
 ## Sources
 
 ### Primary (HIGH confidence)
-
-**Claude Code & Opus 4.6:**
-- [Introducing Claude Opus 4.6](https://www.anthropic.com/news/claude-opus-4-6) — Model capabilities (1M context, extended thinking, agent teams)
-- [Claude Code Overview](https://code.claude.com/docs/en/overview) — Platform features and tool architecture
-- [What's New in Claude 4.6](https://platform.claude.com/docs/en/about-claude/models/whats-new-claude-4-6) — API parameters and benchmarks
-- [Claude Agent SDK Overview](https://platform.claude.com/docs/en/agent-sdk/overview) — Agent orchestration patterns
-
-**Security:**
-- [Node.js Security Best Practices 2026](https://medium.com/@sparklewebhelp/node-js-security-best-practices-for-2026-3b27fb1e8160) — Dependency vulnerabilities (60%+ incidents)
-- [OWASP Node.js Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html) — Input validation, command injection prevention
-- [Anthropic MCP Git Server Vulnerabilities](https://www.infosecurity-magazine.com/news/prompt-injection-bugs-anthropic/) — CVE-2025-68145, CVE-2025-68143, CVE-2025-68144
-- [Git CVE-2025-48384 RCE](https://www.helpnetsecurity.com/2025/08/26/git-vulnerability-exploited-cve-2025-48384/) — Git bundle protocol injection
-
-**Cross-Platform Node.js:**
-- [Cross-Platform Node.js Guide: Symlinks](https://github.com/ehmicky/cross-platform-node-guide/blob/main/docs/3_filesystem/symlinks.md) — Junction vs symlink, permission handling
-- [Cross-Platform Node.js Guide: File Paths](https://github.com/ehmicky/cross-platform-node-guide/blob/main/docs/3_filesystem/file_paths.md) — Path normalization, separators
-- [Awesome Cross-Platform Node.js](https://github.com/bcoe/awesome-cross-platform-nodejs) — Tool recommendations (pathe, execa)
-- [Node.js CLI Apps Best Practices](https://github.com/lirantal/nodejs-cli-apps-best-practices) — CLI design patterns
-
-**Git Operations:**
-- [Git Cherry Pick - Atlassian Tutorial](https://www.atlassian.com/git/tutorials/cherry-pick) — Cherry-pick workflow and conflict handling
-- [How LinkedIn Automates Cherry-Picking Commits](https://www.linkedin.com/blog/engineering/developer-experience-productivity/how-linkedin-automates-cherry-picking-commits-to-improve-develop) — Dependency detection patterns
-- [Git Diff Documentation](https://git-scm.com/docs/git-diff) — Diff generation options
+- Project-internal: `.planning/PROJECT.md`, `.planning/research/*`, `package.json`, `.github/workflows/ci.yml`, `scripts/compose.js`, `scripts/check-overrides.js`, `overlay/agents/gsd-oversight-*.md`
+- Project memory: `project_overlay_architecture.md`, `project_windows_test_flakiness.md`, `feedback_verify_upstream_scope.md`, `merge_conflict_changelog_nearmiss.md`, `feedback_oss_contribution_goals.md`
+- OpenSSF Baseline (2025-02-25) / Best Practices / Scorecard; SLSA v1.0; npm Provenance docs; Keep a Changelog; SemVer
+- npm registry version lookups 2026-04-20
 
 ### Secondary (MEDIUM confidence)
+- Downstream precedents: Igalia Chromium blog; OpenShift Kubernetes fork; Debian UsingQuilt; Arch PKGBUILD; Homebrew Formula Cookbook
+- Ship-readiness patterns: Lighthouse CI; reviewdog; github-action-benchmark; test-all-versions
+- Tool comparisons: Gitleaks vs TruffleHog 2026; Knip vs depcheck 2026
+- Security incidents: Axios npm hijack 2026; axios/axios#10636; Spring 2026 OSS incidents
 
-**Tooling:**
-- [A Practical Guide to Execa for Node.js](https://betterstack.com/community/guides/scaling-nodejs/execa-cli/) — Cross-platform command execution
-- [GitHub: unjs/pathe](https://github.com/unjs/pathe) — Modern ESM path handling
-- [Comparing npm audit with Snyk](https://nearform.com/insights/comparing-npm-audit-with-snyk/) — Dependency scanning strategies
-
-**CLI Patterns:**
-- [In Praise of --dry-run](https://henrikwarne.com/2026/01/31/in-praise-of-dry-run/) — Dry-run mode benefits
-- [CLI Tools That Support Previews and Dry Runs](https://nickjanetakis.com/blog/cli-tools-that-support-previews-dry-runs-or-non-destructive-actions) — Industry examples
-
-**Platform-Specific Issues:**
-- [Windows Git Bash MINGW Path Translation Issues](https://github.com/npm/npm/issues/18499) — MINGW path conversion pitfalls
-- [Claude Code Bash Tool Non-Interactive Mode](https://github.com/anthropics/claude-code/issues/581) — Environment persistence limitations
-- [Node.js Symlink Admin Requirements](https://github.com/nodejs/node/issues/47783) — Windows symlink permissions
-
-### Tertiary (LOW confidence - needs validation)
-
-**Emerging Patterns:**
-- [Building a C Compiler with Agent Teams](https://www.anthropic.com/engineering/building-c-compiler) — Agent teams example (complex domain, GSD patterns may differ)
-- [Claude Prompt Engineering 2026](https://promptbuilder.cc/blog/claude-prompt-engineering-best-practices-2026) — Extended thinking patterns (community guide, not official)
+### Tertiary (LOW confidence / single-source)
+- Blog-tier industry trend claims -- used for pattern validation, not load-bearing.
 
 ---
-
-*Research completed: 2026-02-07*
+*Research completed: 2026-04-20*
 *Ready for roadmap: yes*
+*Decisions needed before PLAN.md: 8 items, all with recommendations.*

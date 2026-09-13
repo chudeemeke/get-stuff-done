@@ -303,6 +303,40 @@ None
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
     assert.match(state, /- Vendor quote updated from \$1\.00 to \$2\.00 pending approval/);
   });
+
+  test('update-progress counts ROADMAP-declared future plans', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# Project State
+
+**Progress:** [----------] 0%
+`
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap
+
+### Phase 1: Complete Slice
+**Plans:** 1 plan
+
+### Phase 2: Future Slice
+**Plans**: 4 plans
+`
+    );
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-complete-slice');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), '# Plan');
+    fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), '# Summary');
+
+    const result = runGsdTools('state update-progress', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const output = JSON.parse(result.output);
+    assert.strictEqual(output.percent, 20, 'progress should include future plans declared only in ROADMAP.md');
+    assert.strictEqual(output.completed, 1, 'completed summaries remain disk-backed');
+    assert.strictEqual(output.total, 5, 'total includes ROADMAP-declared plans');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -52,7 +52,7 @@ Line 10: autocompactThreshold = 50 → 75
 Line 15: getConfigValue fallback 50 → 75
 Commit: 13ac7cf
 
-###  src/config/ConfigLoader.js
+### src/config/ConfigLoader.js
 
 Line 29: autocompact_threshold: 50 → 75 (getDefaults)
 Line 71: autocompact_threshold: 50 → 75 (createDefaultConfig)

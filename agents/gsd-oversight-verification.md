@@ -1,5 +1,3 @@
-# gsd-oversight-verification
-
 ---
 name: gsd-oversight-verification
 description: Watches verification process for incomplete coverage, false passes, and untested wiring. Flags without blocking.
@@ -130,7 +128,7 @@ If contradicting an existing entry, mark old as superseded:
 Only write memories that would change your monitoring behavior next time. Examples:
 - "Phase 3 verifier marked hook as PASS but only checked file exists, not execution" → Watch for existence-only checks
 - "False flag: Thought wiring was untested, but integration test in different file covered it" → Check for integration tests before flagging
-- "This project uses bun test, not npm test - update verification command pattern" → Project-specific test runner
+- "This project uses bun run test, not npm test - update verification command pattern" → Project-specific test runner
 </memory_protocol>
 
 <effort_calibration>

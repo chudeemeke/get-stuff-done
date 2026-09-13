@@ -14,7 +14,7 @@ allowed-tools:
 ---
 
 <objective>
-Sync commits from glittercowboy/get-shit-done upstream repository, review and select commits to cherry-pick, verify changes don't break functionality, and publish updated package to npm with proper versioning and changelog.
+Sync commits from the Open GSD upstream repository (`open-gsd/gsd-core`), review and select commits to cherry-pick, verify changes don't break functionality, and publish updated package to npm with proper versioning and changelog.
 
 This is a multi-stage workflow designed for fork maintainers to stay synchronized with upstream while preserving fork-specific changes.
 </objective>
@@ -59,7 +59,7 @@ git config --get remote.upstream.url
 ```
 If empty: Add upstream remote:
 ```bash
-git remote add upstream https://github.com/glittercowboy/get-shit-done.git
+git remote add upstream https://github.com/open-gsd/gsd-core.git
 ```
 
 ## Cache File Initialization

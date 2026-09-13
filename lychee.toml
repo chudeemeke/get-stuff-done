@@ -1,0 +1,44 @@
+# CI writes `.lychee-targets` from `git ls-files "*.md"` after applying the same
+# generated/dependency exclusions used by scripts/lint-docs.js, then passes it
+# with `lychee --files-from .lychee-targets`.
+# Exclusion contract: dependency/vendor/generated markdown only.
+
+exclude_path = [
+  "^node_modules/",
+  "^dist/",
+  "^\\.upstream/",
+  "^overlay/get-shit-done/",
+]
+
+exclude = [
+  # Localhost URLs in command templates are examples, not public documentation links.
+  "^http://localhost(:[0-9]+)?(/|$)",
+  # Decorative chart availability is monitored by docs-link-availability.yml.
+  "^https://api\\.star-history\\.com/",
+  # slsa.dev intermittently times out for GitHub runner IPs (3 CI failures on
+  # 2026-08-23 across PRs #33/#35; the URL answers 200 in ~1s from residential
+  # IPs). Verified alive at exclusion time; re-check if the reference changes.
+  '^https://slsa\.dev/',
+  # contribute.cncf.io resets connections from GitHub runners (PR #35 run 32671249795,
+  # 2026-08-23) while answering 200 from other networks. Same runner-hostile class.
+  '^https://contribute\.cncf\.io/',
+  # scorecard.dev: connection failed from a runner on PR #33 run 32673327547 (2026-08-24)
+  # while PR #24 passed the same check minutes earlier. Same runner-hostile class.
+  '^https://scorecard\.dev/',
+  # diva-portal.org PDF timed out twice on PR #71 tip 41bff0d Docs Gates
+  # (run 34638810337 job 103393170144, 2026-09-11) while the same check was green
+  # on tip 89d96be and on main 2fc1086 minutes earlier. Runner-hostile / flaky
+  # academic host; link remains in .planning/research/PITFALLS.md for humans.
+  '^https?://(www\.)?diva-portal\.org/',
+]
+
+accept = [
+  "100..=103",
+  "200..=299",
+  "403",
+  "429",
+]
+
+max_retries = 2
+retry_wait_time = 2
+timeout = 20

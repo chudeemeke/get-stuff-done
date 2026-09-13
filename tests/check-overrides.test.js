@@ -15,10 +15,17 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
-const { spawnSync } = require('child_process');
+const { runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const CHECK_OVERRIDES_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'check-overrides.js');
+
+function runCheckOverridesCli(args = [], options = {}) {
+  return runWithTimeout(process.execPath, [CHECK_OVERRIDES_SCRIPT, ...args], {
+    cwd: options.cwd,
+    encoding: 'utf-8',
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -35,8 +42,8 @@ function computeHash(content) {
 /**
  * Build the standard REASON.md content for a given relPath, version, and hash.
  */
-function createReasonMd(relPath, version, hash) {
-  return [
+function createReasonMd(relPath, version, hash, opts = {}) {
+  const lines = [
     `# Override: ${relPath}`,
     '',
     '## Why',
@@ -45,13 +52,22 @@ function createReasonMd(relPath, version, hash) {
     '## Upstream snapshot',
     `- Version: ${version}`,
     `- SHA-256: ${hash}`,
+  ];
+
+  if (opts.semanticHash) {
+    lines.push(`- Semantic SHA-256: ${opts.semanticHash}`);
+  }
+
+  lines.push(
     '',
     "## What's different",
     '- Test change',
     '',
     '## Review trigger',
     `When upstream ${relPath} changes.`,
-  ].join('\n');
+  );
+
+  return lines.join('\n');
 }
 
 /**
@@ -91,7 +107,7 @@ function createFixture(opts = {}) {
   fs.mkdirSync(upstreamDir, { recursive: true });
   fs.writeFileSync(
     path.join(upstreamDir, 'package.json'),
-    JSON.stringify({ name: 'get-shit-done-cc', version: upstreamVersion }),
+    JSON.stringify({ name: '@opengsd/gsd-core', version: upstreamVersion }),
     'utf-8'
   );
 
@@ -123,7 +139,9 @@ function createFixture(opts = {}) {
           ? f.reasonHash
           : computeHash(upstreamContent || f.content);
       const version = f.reasonVersion || upstreamVersion;
-      const reasonContent = createReasonMd(f.relPath, version, hash);
+      const reasonContent = createReasonMd(f.relPath, version, hash, {
+        semanticHash: f.reasonSemanticHash,
+      });
       fs.writeFileSync(abs + '.REASON.md', reasonContent, 'utf-8');
     }
   }
@@ -372,6 +390,174 @@ describe('stale override', () => {
       upstreamDir: fixture.upstreamDir,
     });
     expect(result.summary.stale).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// JavaScript semantic override staleness
+// ---------------------------------------------------------------------------
+
+describe('JavaScript semantic override staleness', () => {
+  let tmpDir;
+
+  afterEach(() => rmDir(tmpDir));
+
+  function semanticHash(source, filePath = 'hooks/example.js') {
+    const { semanticHashJavaScript } = require('../scripts/lib/semantic-js');
+    const result = semanticHashJavaScript(source, filePath);
+    expect(result.ok).toBe(true);
+    return result.hash;
+  }
+
+  test('comment-only JavaScript upstream changes return fresh-semantic when Semantic SHA-256 matches', () => {
+    const original = 'function answer() {\n  return 42;\n}\n';
+    const commentOnly = '// upstream note changed\nfunction answer() {\n  return 42;\n}\n';
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'hooks/example.js', content: commentOnly }],
+      overrideFiles: [
+        {
+          relPath: 'hooks/example.js',
+          content: 'function forkAnswer() { return 42; }\n',
+          reasonHash: computeHash(original),
+          reasonSemanticHash: semanticHash(original),
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const { checkOverrides } = require('../scripts/check-overrides');
+    const result = checkOverrides({
+      overridesDir: fixture.overridesDir,
+      upstreamDir: fixture.upstreamDir,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.overrides[0].status).toBe('fresh-semantic');
+    expect(result.summary.fresh).toBe(1);
+  });
+
+  test('whitespace-only JavaScript upstream changes return fresh-semantic when Semantic SHA-256 matches', () => {
+    const original = 'const value = 1 + 2;\nmodule.exports = value;\n';
+    const whitespaceOnly = 'const   value=1+2;\n\nmodule.exports=value;\n';
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'hooks/space.js', content: whitespaceOnly }],
+      overrideFiles: [
+        {
+          relPath: 'hooks/space.js',
+          content: 'module.exports = 3;\n',
+          reasonHash: computeHash(original),
+          reasonSemanticHash: semanticHash(original, 'hooks/space.js'),
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const { checkOverrides } = require('../scripts/check-overrides');
+    const result = checkOverrides({
+      overridesDir: fixture.overridesDir,
+      upstreamDir: fixture.upstreamDir,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.overrides[0].status).toBe('fresh-semantic');
+  });
+
+  test('semantic JavaScript AST changes return stale even when byte hash differs', () => {
+    const original = 'function answer() {\n  return 42;\n}\n';
+    const changed = 'function answer() {\n  return 43;\n}\n';
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'hooks/changed.js', content: changed }],
+      overrideFiles: [
+        {
+          relPath: 'hooks/changed.js',
+          content: 'function forkAnswer() { return 42; }\n',
+          reasonHash: computeHash(original),
+          reasonSemanticHash: semanticHash(original, 'hooks/changed.js'),
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const { checkOverrides } = require('../scripts/check-overrides');
+    const result = checkOverrides({
+      overridesDir: fixture.overridesDir,
+      upstreamDir: fixture.upstreamDir,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.overrides[0].status).toBe('stale');
+  });
+
+  test('JavaScript byte mismatch with missing Semantic SHA-256 remains stale', () => {
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'hooks/missing-semantic.js', content: 'const value = 2;\n' }],
+      overrideFiles: [
+        {
+          relPath: 'hooks/missing-semantic.js',
+          content: 'const value = 1;\n',
+          reasonHash: computeHash('const value = 1;\n'),
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const { checkOverrides } = require('../scripts/check-overrides');
+    const result = checkOverrides({
+      overridesDir: fixture.overridesDir,
+      upstreamDir: fixture.upstreamDir,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.overrides[0].status).toBe('stale');
+  });
+
+  test('non-JS overrides keep byte-hash behavior even if Semantic SHA-256 is present', () => {
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'docs/example.md', content: '# Title\n\nchanged\n' }],
+      overrideFiles: [
+        {
+          relPath: 'docs/example.md',
+          content: '# Fork\n',
+          reasonHash: computeHash('# Title\n\noriginal\n'),
+          reasonSemanticHash: 'a'.repeat(64),
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const { checkOverrides } = require('../scripts/check-overrides');
+    const result = checkOverrides({
+      overridesDir: fixture.overridesDir,
+      upstreamDir: fixture.upstreamDir,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.overrides[0].status).toBe('stale');
+  });
+
+  test('parse failure falls back to byte-hash behavior and returns stale when hashes differ', () => {
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'hooks/broken.js', content: 'function broken( {\n' }],
+      overrideFiles: [
+        {
+          relPath: 'hooks/broken.js',
+          content: 'function forkBroken() {}\n',
+          reasonHash: computeHash('function oldBroken() {}\n'),
+          reasonSemanticHash: 'b'.repeat(64),
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const { checkOverrides } = require('../scripts/check-overrides');
+    const result = checkOverrides({
+      overridesDir: fixture.overridesDir,
+      upstreamDir: fixture.upstreamDir,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.overrides[0].status).toBe('stale');
+    expect(result.overrides[0].semanticError).toContain('parse');
   });
 });
 
@@ -759,6 +945,22 @@ describe('formatReport', () => {
     const report = formatReport(result);
     expect(report).toContain('OK');
   });
+
+  test('fresh-semantic entry shows OK semantic status', () => {
+    const { formatReport } = require('../scripts/check-overrides');
+    const result = {
+      ok: true,
+      overrides: [
+        {
+          relPath: 'hooks/example.js',
+          status: 'fresh-semantic',
+        },
+      ],
+      summary: { total: 1, fresh: 1, stale: 0, missingReason: 0, orphaned: 0 },
+    };
+    const report = formatReport(result);
+    expect(report).toContain('OK (semantic)');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -774,11 +976,7 @@ describe('CLI exit codes', () => {
     const fixture = createFixture({ upstreamFiles: [] });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.status).toBe(0);
   });
 
@@ -789,11 +987,7 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.status).toBe(0);
   });
 
@@ -811,12 +1005,32 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.status).toBe(1);
+  });
+
+  test('stale override CLI output names path and mismatch action', () => {
+    const oldHash = computeHash('old upstream content');
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'lib/config.cjs', content: 'updated upstream content' }],
+      overrideFiles: [
+        {
+          relPath: 'lib/config.cjs',
+          content: 'fork content',
+          reasonHash: oldHash,
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
+    const output = `${result.stdout}\n${result.stderr}`;
+
+    expect(result.status).toBe(1);
+    expect(output).toContain('overrides/lib/config.cjs');
+    expect(output).toContain('STALE');
+    expect(output).toContain('Current hash:');
+    expect(output).toContain('Action:');
   });
 
   test('exits 1 when REASON.md is missing', () => {
@@ -832,23 +1046,37 @@ describe('CLI exit codes', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.status).toBe(1);
+  });
+
+  test('missing REASON.md CLI output names expected companion file', () => {
+    const fixture = createFixture({
+      upstreamFiles: [{ relPath: 'bin/helper.js', content: 'upstream content' }],
+      overrideFiles: [
+        {
+          relPath: 'bin/helper.js',
+          content: 'fork content',
+          reasonHash: null,
+        },
+      ],
+    });
+    tmpDir = fixture.tmpDir;
+
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
+    const output = `${result.stdout}\n${result.stderr}`;
+
+    expect(result.status).toBe(1);
+    expect(output).toContain('overrides/bin/helper.js');
+    expect(output).toContain('MISSING REASON.md');
+    expect(output).toContain('bin/helper.js.REASON.md');
   });
 
   test('CLI output includes the report header', () => {
     const fixture = createFixture({ upstreamFiles: [] });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT, '--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli(['--overrides-dir', fixture.overridesDir, '--upstream-dir', fixture.upstreamDir]);
     expect(result.stdout).toContain('Override staleness report');
   });
 });
@@ -1108,11 +1336,7 @@ describe('CLI entry: default args', () => {
 
   test('node scripts/check-overrides.js with default dirs exits 0 (zero overrides)', () => {
     // Default overrides/ dir in the repo has only .gitkeep
-    const result = spawnSync(
-      process.execPath,
-      [CHECK_OVERRIDES_SCRIPT],
-      { encoding: 'utf-8', cwd: PROJECT_ROOT }
-    );
+    const result = runCheckOverridesCli([], { cwd: PROJECT_ROOT });
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('Override staleness report');
   });
@@ -1131,15 +1355,12 @@ describe('CLI entry: default args', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [
-        CHECK_OVERRIDES_SCRIPT,
-        '--overrides-dir', fixture.overridesDir,
-        '--upstream-dir', fixture.upstreamDir,
-      ],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli([
+      '--overrides-dir',
+      fixture.overridesDir,
+      '--upstream-dir',
+      fixture.upstreamDir,
+    ]);
     expect(result.status).toBe(1);
     expect(result.stdout).toContain('STALE');
   });
@@ -1157,15 +1378,12 @@ describe('CLI entry: default args', () => {
     });
     tmpDir = fixture.tmpDir;
 
-    const result = spawnSync(
-      process.execPath,
-      [
-        CHECK_OVERRIDES_SCRIPT,
-        '--overrides-dir', fixture.overridesDir,
-        '--upstream-dir', fixture.upstreamDir,
-      ],
-      { encoding: 'utf-8' }
-    );
+    const result = runCheckOverridesCli([
+      '--overrides-dir',
+      fixture.overridesDir,
+      '--upstream-dir',
+      fixture.upstreamDir,
+    ]);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('OK');
   });

@@ -21,7 +21,7 @@ User requested applying GSD (Get Stuff Done) framework by TACHES/GlitterCowboy.
 
 ### Sources Fetched
 
-1. **GitHub repo main page:** https://github.com/glittercowboy/get-stuff-done
+1. **GitHub repo main page:** legacy `glittercowboy/get-stuff-done`; current canonical upstream is [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done)
 2. **README.md (raw):** Full methodology extraction
 3. **Commits:** Checked for recent methodology updates (found v1.8.0 features)
 4. **taches-cc-resources:** Found `/consider:inversion` command

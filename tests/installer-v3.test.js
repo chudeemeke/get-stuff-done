@@ -12,69 +12,92 @@
  * Real ~/.claude is never touched.
  */
 
-const { test, describe, beforeEach, afterEach, expect } = require('bun:test');
+const { test, describe, beforeAll, afterAll, beforeEach, afterEach, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
-const { execSync } = require('child_process');
 
-const { createTempDir } = require('./helpers');
+const { createTempDir, runWithTimeout } = require('./helpers');
+const { compose } = require('../scripts/compose');
 
 // Paths
 const PROJECT_ROOT = path.join(__dirname, '..');
 const INSTALL_SCRIPT = path.join(PROJECT_ROOT, 'bin', 'install.js');
-const DIST_DIR = path.join(PROJECT_ROOT, 'dist');
-const OVERLAY_MANIFEST = path.join(DIST_DIR, '.overlay-manifest.json');
+const PACKAGE_JSON = path.join(PROJECT_ROOT, 'package.json');
+
+let installerPackage;
+
+function createInstallerPackageFixture() {
+  const tmp = createTempDir();
+  const packageRoot = tmp.path;
+  const distDir = path.join(packageRoot, 'dist');
+  const installScript = path.join(packageRoot, 'bin', 'install.js');
+
+  fs.mkdirSync(path.dirname(installScript), { recursive: true });
+  fs.copyFileSync(INSTALL_SCRIPT, installScript);
+  fs.copyFileSync(PACKAGE_JSON, path.join(packageRoot, 'package.json'));
+  compose({ distDir });
+
+  return {
+    cleanup: tmp.cleanup,
+    distDir,
+    installScript,
+    overlayManifest: path.join(distDir, '.overlay-manifest.json'),
+  };
+}
 
 /**
  * Runs the v3.0 installer with --config-dir for test isolation.
- * Uses execSync with piped stdio to capture output.
  *
  * @param {string} targetDir - Installation target directory (--config-dir value)
  * @param {string[]} extraArgs - Additional CLI args
  * @returns {{ success: boolean, output: string, error: string, exitCode: number }}
  */
 function runV3Installer(targetDir, extraArgs = []) {
-  const args = ['--claude', '--global', '--config-dir', `"${targetDir}"`, ...extraArgs];
-  try {
-    const result = execSync(`node "${INSTALL_SCRIPT}" ${args.join(' ')}`, {
-      encoding: 'utf-8',
-      env: { ...process.env },
-      stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: 30000,
-    });
-    return { success: true, output: result, error: '', exitCode: 0 };
-  } catch (err) {
-    return {
-      success: false,
-      output: err.stdout?.toString() || '',
-      error: err.stderr?.toString() || err.message,
-      exitCode: err.status || 1,
-    };
-  }
+  const args = ['--claude', '--global', '--config-dir', targetDir, ...extraArgs];
+  const result = runWithTimeout(process.execPath, [installerPackage.installScript, ...args], {
+    encoding: 'utf-8',
+    env: { ...process.env },
+    stdio: ['pipe', 'pipe', 'pipe'],
+    timeout: 30000,
+  });
+
+  return {
+    success: result.status === 0 && !result.timedOut,
+    output: result.stdout,
+    error: result.stderr || result.error?.message || '',
+    exitCode: result.status || 1,
+  };
 }
 
 describe('v3.0 Delegation Installer', () => {
   let tmpDir;
   let cleanupTmp;
 
+  beforeAll(() => {
+    installerPackage = createInstallerPackageFixture();
+  }, 30000);
+
+  afterAll(() => {
+    installerPackage.cleanup();
+  }, 30000);
+
   beforeEach(() => {
     const tmp = createTempDir();
     tmpDir = tmp;
     cleanupTmp = tmp.cleanup;
-  });
+  }, 30000);
 
   afterEach(() => {
     cleanupTmp();
-  });
+  }, 30000);
 
   // -----------------------------------------------------------------------
   // Pre-condition: overlay manifest exists
   // -----------------------------------------------------------------------
 
   test('pre-condition: dist/.overlay-manifest.json exists', () => {
-    expect(fs.existsSync(OVERLAY_MANIFEST)).toBe(true);
-    const manifest = JSON.parse(fs.readFileSync(OVERLAY_MANIFEST, 'utf-8'));
+    expect(fs.existsSync(installerPackage.overlayManifest)).toBe(true);
+    const manifest = JSON.parse(fs.readFileSync(installerPackage.overlayManifest, 'utf-8'));
     expect(Array.isArray(manifest)).toBe(true);
     expect(manifest.length).toBeGreaterThan(0);
   });
@@ -93,8 +116,8 @@ describe('v3.0 Delegation Installer', () => {
       // v3.0 installer must delegate to upstream and exit 0
       expect(result.success).toBe(true);
 
-      // Upstream files must exist in target (upstream writes to get-shit-done/ subdir)
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      // Upstream files must exist in target (Open GSD writes gsd-core/ as its package root)
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
       expect(fs.existsSync(path.join(targetDir, 'commands', 'gsd'))).toBe(true);
       expect(fs.existsSync(path.join(targetDir, 'agents'))).toBe(true);
       expect(fs.existsSync(path.join(targetDir, 'hooks'))).toBe(true);
@@ -126,7 +149,7 @@ describe('v3.0 Delegation Installer', () => {
       expect(result.success).toBe(true);
 
       // Read the manifest to know which files should be there
-      const manifest = JSON.parse(fs.readFileSync(OVERLAY_MANIFEST, 'utf-8'));
+      const manifest = JSON.parse(fs.readFileSync(installerPackage.overlayManifest, 'utf-8'));
 
       // Check representative overlay files
       const representativeFiles = [
@@ -152,7 +175,7 @@ describe('v3.0 Delegation Installer', () => {
       const result = runV3Installer(targetDir);
       expect(result.success).toBe(true);
 
-      const manifest = JSON.parse(fs.readFileSync(OVERLAY_MANIFEST, 'utf-8'));
+      const manifest = JSON.parse(fs.readFileSync(installerPackage.overlayManifest, 'utf-8'));
 
       for (const relPath of manifest) {
         expect(fs.existsSync(path.join(targetDir, relPath))).toBe(true);
@@ -172,8 +195,8 @@ describe('v3.0 Delegation Installer', () => {
       const result = runV3Installer(targetDir);
       expect(result.success).toBe(true);
 
-      // .install-meta.json should be in the get-shit-done/ subdirectory
-      const metaPath = path.join(targetDir, 'get-shit-done', '.install-meta.json');
+      // .install-meta.json should be written at the target root for the composed install
+      const metaPath = path.join(targetDir, '.install-meta.json');
       expect(fs.existsSync(metaPath)).toBe(true);
 
       const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
@@ -197,8 +220,8 @@ describe('v3.0 Delegation Installer', () => {
       const result = runV3Installer(targetDir);
       expect(result.success).toBe(true);
 
-      const distMeta = JSON.parse(fs.readFileSync(path.join(DIST_DIR, '.install-meta.json'), 'utf-8'));
-      const metaPath = path.join(targetDir, 'get-shit-done', '.install-meta.json');
+      const distMeta = JSON.parse(fs.readFileSync(path.join(installerPackage.distDir, '.install-meta.json'), 'utf-8'));
+      const metaPath = path.join(targetDir, '.install-meta.json');
       const installedMeta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
 
       expect(installedMeta.upstream_version).toBe(distMeta.upstream_version);
@@ -217,16 +240,16 @@ describe('v3.0 Delegation Installer', () => {
       // First install
       const installResult = runV3Installer(targetDir);
       expect(installResult.success).toBe(true);
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
 
       // Then uninstall
       const uninstallResult = runV3Installer(targetDir, ['--uninstall']);
       expect(uninstallResult.success).toBe(true);
 
-      // Target directory should be empty or removed
+      // GSD-owned files should be removed. settings.json is preserved as user content.
       if (fs.existsSync(targetDir)) {
         const remaining = fs.readdirSync(targetDir);
-        expect(remaining.length).toBe(0);
+        expect(remaining).toEqual(['settings.json']);
       }
     });
 
@@ -284,13 +307,13 @@ describe('v3.0 Delegation Installer', () => {
       expect(fs.existsSync(gsdDir)).toBe(false);
 
       // v3.0 files should be installed
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
 
       // Auto-clean output contains migration banner
       expect(result.output).toContain('Upgrading from v2.x to v3.0');
     });
 
-    test('detects v2.x via get-stuff-done/ without get-shit-done/', { timeout: 30000 }, () => {
+    test('detects v2.x via get-stuff-done/ without Open GSD root/', { timeout: 30000 }, () => {
       const targetDir = path.join(tmpDir.path, 'target');
 
       // Create mock v2.x installation with old directory name
@@ -306,7 +329,7 @@ describe('v3.0 Delegation Installer', () => {
       expect(fs.existsSync(gsdDir)).toBe(false);
 
       // v3.0 files should be installed
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
     });
 
     test('--force suppresses migration banner (quiet mode)', { timeout: 30000 }, () => {
@@ -329,7 +352,7 @@ describe('v3.0 Delegation Installer', () => {
       expect(result.output).not.toContain('Upgrading from v2.x to v3.0');
 
       // v3.0 files should still be installed
-      expect(fs.existsSync(path.join(targetDir, 'get-shit-done'))).toBe(true);
+      expect(fs.existsSync(path.join(targetDir, 'gsd-core'))).toBe(true);
     });
   });
 
@@ -350,10 +373,9 @@ describe('v3.0 Delegation Installer', () => {
 
     test('does NOT detect v2.x for v3.0 installation', { timeout: 30000 }, () => {
       const targetDir = path.join(tmpDir.path, 'v3-target');
-      const gshDir = path.join(targetDir, 'get-shit-done');
-      fs.mkdirSync(gshDir, { recursive: true });
+      fs.mkdirSync(targetDir, { recursive: true });
       fs.writeFileSync(
-        path.join(gshDir, '.install-meta.json'),
+        path.join(targetDir, '.install-meta.json'),
         JSON.stringify({ overlay_version: '3.0.0', version: '3.0.0' }),
         'utf-8'
       );

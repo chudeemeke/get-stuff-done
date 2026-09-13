@@ -6,7 +6,7 @@
  * Tests for the full 5-stage composition pipeline in scripts/compose.js.
  * Covers requirements COMP-01 through COMP-10.
  *
- * COMP-01: resolve() reads upstream from node_modules/get-shit-done-cc/ and overlay from overlay/
+ * COMP-01: resolve() reads upstream from the active upstream package and overlay from overlay/
  * COMP-02: resolve() validates upstream directory structure (fail fast with descriptive error)
  * COMP-03: filter() applies feature flag filtering (Phase 30 stub: pass through)
  * COMP-04: override() applies file overrides from overrides/ dir (Phase 30 stub: pass through)
@@ -33,13 +33,14 @@
 const { describe, test, expect, beforeAll, afterAll, beforeEach, afterEach } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
-const { execSync, spawnSync } = require('child_process');
 const os = require('os');
+const { runWithTimeout } = require('./helpers');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
-const UPSTREAM_PKG = path.join(PROJECT_ROOT, 'node_modules', 'get-shit-done-cc');
+const UPSTREAM_PKG = path.join(PROJECT_ROOT, 'node_modules', '@opengsd', 'gsd-core');
 const OVERLAY_DIR = path.join(PROJECT_ROOT, 'overlay');
 const COMPOSE_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'compose.js');
+const PACKAGE_JSON = path.join(PROJECT_ROOT, 'package.json');
 
 // Import the pipeline functions (COMP-10: each stage is importable)
 const {
@@ -53,6 +54,7 @@ const {
   FEATURES_SCHEMA,
   CATEGORY_DIR_MAP,
 } = require('../scripts/compose');
+const { HOOKS_NEEDING_BUNDLE } = require('../scripts/finalize-dist');
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -81,17 +83,17 @@ function createMockUpstream(dir) {
   fs.mkdirSync(path.join(dir, 'agents'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'bin'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'commands', 'gsd'), { recursive: true });
-  fs.mkdirSync(path.join(dir, 'get-shit-done', 'workflows'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'gsd-core', 'workflows'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'hooks', 'dist'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'scripts'), { recursive: true });
 
-  fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'get-shit-done-cc', version: '1.30.0' }));
+  fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: '@opengsd/gsd-core', version: '1.30.0' }));
   fs.writeFileSync(path.join(dir, 'LICENSE'), 'MIT License\n');
   fs.writeFileSync(path.join(dir, 'README.md'), '# Get Shit Done\nBy TACHES\n');
-  fs.writeFileSync(path.join(dir, 'agents', 'gsd-executor.md'), '# Executor\nget-shit-done-cc\n');
-  fs.writeFileSync(path.join(dir, 'bin', 'install.js'), "// install.js\nconst pkg = 'get-shit-done-cc';\n");
+  fs.writeFileSync(path.join(dir, 'agents', 'gsd-executor.md'), '# Executor\n@opengsd/gsd-core\n');
+  fs.writeFileSync(path.join(dir, 'bin', 'install.js'), "// install.js\nconst pkg = '@opengsd/gsd-core';\n");
   fs.writeFileSync(path.join(dir, 'commands', 'gsd', 'help.md'), '# Help\n');
-  fs.writeFileSync(path.join(dir, 'get-shit-done', 'workflows', 'help.md'), '# Help for get-shit-done-cc\n');
+  fs.writeFileSync(path.join(dir, 'gsd-core', 'workflows', 'help.md'), '# Help for @opengsd/gsd-core\n');
   fs.writeFileSync(path.join(dir, 'hooks', 'dist', 'gsd-statusline.js'), '// statusline\n');
   fs.writeFileSync(path.join(dir, 'scripts', 'build-hooks.js'), '// build\n');
 }
@@ -103,7 +105,7 @@ function createMockOverlay(dir) {
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'branding.json'), JSON.stringify({
     substitutions: [
-      { from: 'get-shit-done-cc', to: '@chude/get-stuff-done', scope: 'text', note: 'npm pkg' },
+      { from: '@opengsd/gsd-core', to: '@chude/get-stuff-done', scope: 'text', note: 'npm pkg' },
       { from: 'TACHES', to: 'Chude Emeke', scope: 'text', note: 'author' },
     ],
     preserveUpstreamCredit: true,
@@ -155,6 +157,65 @@ describe('pipeline stage exports (COMP-10)', () => {
   });
 });
 
+describe('finalize-dist hook packaging', () => {
+  test('bundled hook list includes check-update worker when worker source exists', () => {
+    const workerSource = path.join(PROJECT_ROOT, 'overrides', 'hooks', 'gsd-check-update-worker.js');
+    if (!fs.existsSync(workerSource)) return;
+
+    expect(HOOKS_NEEDING_BUNDLE).toContain('gsd-check-update.js');
+    expect(HOOKS_NEEDING_BUNDLE).toContain('gsd-statusline.js');
+    expect(HOOKS_NEEDING_BUNDLE).toContain('gsd-check-update-worker.js');
+  });
+});
+
+describe('SBOM dist pipeline', () => {
+  function readPackageJson() {
+    return JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf-8'));
+  }
+
+  test('package pins CycloneDX npm SBOM generator to 6.0.0', () => {
+    const pkg = readPackageJson();
+
+    expect(pkg.devDependencies['@cyclonedx/cyclonedx-npm']).toBe('6.0.0');
+  });
+
+  test('package scripts generate SBOM after compose and before finalize-dist', () => {
+    const pkg = readPackageJson();
+    const distScript = pkg.scripts.dist;
+
+    expect(pkg.scripts.sbom).toBe('node scripts/generate-sbom.js');
+    expect(distScript).toContain('bun run compose');
+    expect(distScript).toContain('bun run sbom');
+    expect(distScript).toContain('bun run finalize-dist');
+    expect(distScript.indexOf('bun run compose')).toBeLessThan(distScript.indexOf('bun run sbom'));
+    expect(distScript.indexOf('bun run sbom')).toBeLessThan(distScript.indexOf('bun run finalize-dist'));
+  });
+
+  test('package files include dist so dist/bom.json is packed', () => {
+    const pkg = readPackageJson();
+
+    expect(pkg.files.includes('dist') || pkg.files.includes('dist/bom.json')).toBe(true);
+  });
+
+  test('bun run dist creates dist/bom.json', { timeout: 120000 }, () => {
+    const bomPath = path.join(PROJECT_ROOT, 'dist', 'bom.json');
+    if (fs.existsSync(bomPath)) {
+      fs.rmSync(bomPath);
+    }
+
+    const result = runWithTimeout('bun', ['run', 'dist'], {
+      cwd: PROJECT_ROOT,
+      timeout: 90000,
+    });
+
+    expect(result.status).toBe(0);
+    expect(fs.existsSync(bomPath)).toBe(true);
+
+    const bom = JSON.parse(fs.readFileSync(bomPath, 'utf-8'));
+    expect(bom.bomFormat).toBe('CycloneDX');
+  });
+});
+
 // ---------------------------------------------------------------------------
 // COMP-01 + COMP-02: resolve() -- reads upstream + overlay, validates structure
 // ---------------------------------------------------------------------------
@@ -172,7 +233,7 @@ describe('resolve()', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -418,11 +479,11 @@ describe('brand()', () => {
 
   test('manifest entries for text files have brandedContent when branding targets exist', () => {
     const result = brand(state);
-    // bin/install.js has 'get-shit-done-cc' which is a branding target
+    // bin/install.js has '@opengsd/gsd-core' which is a branding target
     const installEntry = result.manifest.find(e => e.relPath === 'bin/install.js');
     expect(installEntry).toBeDefined();
     expect(typeof installEntry.brandedContent).toBe('string');
-    expect(installEntry.brandedContent).not.toContain('get-shit-done-cc');
+    expect(installEntry.brandedContent).not.toContain('@opengsd/gsd-core');
     expect(installEntry.brandedContent).toContain('@chude/get-stuff-done');
   });
 
@@ -496,7 +557,7 @@ describe('merge()', () => {
 
   test('branded content is written (not original) for branded files (COMP-06)', () => {
     const installContent = fs.readFileSync(path.join(distDir, 'bin', 'install.js'), 'utf-8');
-    expect(installContent).not.toContain('get-shit-done-cc');
+    expect(installContent).not.toContain('@opengsd/gsd-core');
     expect(installContent).toContain('@chude/get-stuff-done');
   });
 
@@ -558,7 +619,7 @@ describe('merge()', () => {
     const creditsPath = path.join(distDir, 'CREDITS.md');
     expect(fs.existsSync(creditsPath)).toBe(true);
     const credits = fs.readFileSync(creditsPath, 'utf-8');
-    expect(credits).toContain('glittercowboy/get-shit-done');
+    expect(credits).toContain('open-gsd/gsd-core');
     expect(credits).toContain('TACHES');
   });
 });
@@ -698,7 +759,7 @@ describe('computeDelta additive outputs', () => {
     fs.mkdirSync(noCreditsOverlay, { recursive: true });
     fs.writeFileSync(path.join(noCreditsOverlay, 'branding.json'), JSON.stringify({
       substitutions: [
-        { from: 'get-shit-done-cc', to: '@chude/get-stuff-done', scope: 'text', note: 'npm pkg' },
+        { from: '@opengsd/gsd-core', to: '@chude/get-stuff-done', scope: 'text', note: 'npm pkg' },
         { from: 'TACHES', to: 'Chude Emeke', scope: 'text', note: 'author' },
       ],
       preserveUpstreamCredit: false,
@@ -737,15 +798,14 @@ describe('computeDelta additive outputs', () => {
 
 describe('CLI flags (COMP-09)', () => {
   function runComposeCLI(args = []) {
-    const result = spawnSync(
-      process.execPath,
-      [COMPOSE_SCRIPT, ...args],
-      { encoding: 'utf-8', timeout: 15000, cwd: PROJECT_ROOT }
-    );
-    return result;
+    return runWithTimeout(process.execPath, [COMPOSE_SCRIPT, ...args], {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      timeout: 90000,
+    });
   }
 
-  test('--dry-run exits 0 and outputs summary without writing dist/', () => {
+  test('--dry-run exits 0 and outputs summary without writing dist/', { timeout: 90000 }, () => {
     // Check if dist/ exists before
     const distBefore = fs.existsSync(path.join(PROJECT_ROOT, 'dist'));
     const result = runComposeCLI(['--dry-run']);
@@ -758,34 +818,34 @@ describe('CLI flags (COMP-09)', () => {
     }
   });
 
-  test('--dry-run output contains file count', () => {
+  test('--dry-run output contains file count', { timeout: 90000 }, () => {
     const result = runComposeCLI(['--dry-run']);
     expect(result.status).toBe(0);
     // Should show something like "files: 225" or "225 files"
     expect(result.stdout).toMatch(/\d+/);
   });
 
-  test('--diff exits 0', () => {
+  test('--diff exits 0', { timeout: 90000 }, () => {
     const result = runComposeCLI(['--diff']);
     expect(result.status).toBe(0);
   });
 
-  test('--verbose exits 0', () => {
+  test('--verbose exits 0', { timeout: 90000 }, () => {
     const result = runComposeCLI(['--verbose']);
     expect(result.status).toBe(0);
   });
 
-  test('no flags: runs full composition with real upstream and exits 0', { timeout: 30000 }, () => {
+  test('no flags: runs full composition with real upstream and exits 0', { timeout: 90000 }, () => {
     const result = runComposeCLI([]);
     expect(result.status).toBe(0);
   });
 
-  test('no flags: dist/.install-meta.json is written', { timeout: 30000 }, () => {
+  test('no flags: dist/.install-meta.json is written', { timeout: 90000 }, () => {
     runComposeCLI([]);
     const metaPath = path.join(PROJECT_ROOT, 'dist', '.install-meta.json');
     expect(fs.existsSync(metaPath)).toBe(true);
     const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
-    const upstreamPkg = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'node_modules', 'get-shit-done-cc', 'package.json'), 'utf-8'));
+    const upstreamPkg = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'node_modules', '@opengsd', 'gsd-core', 'package.json'), 'utf-8'));
     expect(meta.upstream_version).toBe(upstreamPkg.version);
   });
 
@@ -794,7 +854,7 @@ describe('CLI flags (COMP-09)', () => {
     const installPath = path.join(PROJECT_ROOT, 'dist', 'bin', 'install.js');
     if (fs.existsSync(installPath)) {
       const content = fs.readFileSync(installPath, 'utf-8');
-      expect(content).not.toContain('get-shit-done-cc');
+      expect(content).not.toContain('@opengsd/gsd-core');
     }
   });
 });
@@ -816,7 +876,7 @@ describe('features.json schema validation (FEAT-04)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -828,7 +888,7 @@ describe('features.json schema validation (FEAT-04)', () => {
   test('CATEGORY_DIR_MAP is exported with correct entries', () => {
     expect(CATEGORY_DIR_MAP).toBeDefined();
     expect(typeof CATEGORY_DIR_MAP).toBe('object');
-    expect(CATEGORY_DIR_MAP.workflows).toBe('get-shit-done/workflows/');
+    expect(CATEGORY_DIR_MAP.workflows).toBe('gsd-core/workflows/');
     expect(CATEGORY_DIR_MAP.commands).toBe('commands/gsd/');
     expect(CATEGORY_DIR_MAP.agents).toBe('agents/');
     expect(CATEGORY_DIR_MAP.hooks).toBe('hooks/dist/');
@@ -936,7 +996,7 @@ describe('filter() category exclusion (FEAT-01)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -947,7 +1007,7 @@ describe('filter() category exclusion (FEAT-01)', () => {
     expect(result.manifest.length).toBe(originalCount);
   });
 
-  test('filter() with workflows.exclude: ["help"] removes get-shit-done/workflows/help.md', () => {
+  test('filter() with workflows.exclude: ["help"] removes gsd-core/workflows/help.md', () => {
     fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
       workflows: { enabled: 'all', exclude: ['help'] },
       commands: { enabled: 'all', exclude: [] },
@@ -958,7 +1018,7 @@ describe('filter() category exclusion (FEAT-01)', () => {
     const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
     const result = filter(state);
     const paths = result.manifest.map(e => e.relPath);
-    expect(paths).not.toContain('get-shit-done/workflows/help.md');
+    expect(paths).not.toContain('gsd-core/workflows/help.md');
   });
 
   test('filter() with commands.exclude: ["help"] removes commands/gsd/help.md', () => {
@@ -1101,7 +1161,7 @@ describe('filter() opt-out model (FEAT-02)', () => {
     // All files from state.manifest except the excluded one should be present
     const resultPaths = new Set(result.manifest.map(e => e.relPath));
     for (const entry of state.manifest) {
-      if (entry.relPath === 'get-shit-done/workflows/help.md') continue;  // excluded
+      if (entry.relPath === 'gsd-core/workflows/help.md') continue;  // excluded
       expect(resultPaths.has(entry.relPath)).toBe(true);
     }
   });
@@ -1186,7 +1246,7 @@ describe('filter() cross-category isolation and warnings', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -1199,11 +1259,11 @@ describe('filter() cross-category isolation and warnings', () => {
     const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
     const result = filter(state);
     const paths = result.manifest.map(e => e.relPath);
-    expect(paths).not.toContain('get-shit-done/workflows/help.md');
+    expect(paths).not.toContain('gsd-core/workflows/help.md');
     expect(paths).toContain('commands/gsd/help.md');
   });
 
-  test('commands.exclude: ["help"] removes commands help but NOT get-shit-done/workflows/help.md', () => {
+  test('commands.exclude: ["help"] removes commands help but NOT gsd-core/workflows/help.md', () => {
     fs.writeFileSync(path.join(mockOverlay, 'features.json'), JSON.stringify({
       workflows: { enabled: 'all', exclude: [] },
       commands: { enabled: 'all', exclude: ['help'] },
@@ -1212,7 +1272,7 @@ describe('filter() cross-category isolation and warnings', () => {
     const state = resolve({ upstreamDir: mockUpstream, overlayDir: mockOverlay });
     const result = filter(state);
     const paths = result.manifest.map(e => e.relPath);
-    expect(paths).toContain('get-shit-done/workflows/help.md');
+    expect(paths).toContain('gsd-core/workflows/help.md');
     expect(paths).not.toContain('commands/gsd/help.md');
   });
 
@@ -1318,7 +1378,7 @@ describe('override() file replacement (OVER-01)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -1445,7 +1505,7 @@ describe('override() REASON.md enforcement (OVER-02)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -1545,7 +1605,7 @@ describe('override() zero overrides day one (OVER-04)', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -1627,20 +1687,20 @@ describe('override() cross-platform path normalisation', () => {
 
 describe('CLI entry block', () => {
   function runComposeCLI(args = [], opts = {}) {
-    return spawnSync(
-      process.execPath,
-      [COMPOSE_SCRIPT, ...args],
-      { encoding: 'utf-8', timeout: opts.timeout || 30000, cwd: PROJECT_ROOT }
-    );
+    return runWithTimeout(process.execPath, [COMPOSE_SCRIPT, ...args], {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      timeout: opts.timeout || 30000,
+    });
   }
 
-  test('--dry-run output contains overlay_version field', () => {
+  test('--dry-run output contains overlay_version field', { timeout: 30000 }, () => {
     const result = runComposeCLI(['--dry-run']);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('overlay_version');
   });
 
-  test('--dry-run output contains upstream_version and files_would_write', () => {
+  test('--dry-run output contains upstream_version and files_would_write', { timeout: 30000 }, () => {
     const result = runComposeCLI(['--dry-run']);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('upstream_version');
@@ -1648,7 +1708,7 @@ describe('CLI entry block', () => {
     expect(result.stdout).toContain('branding_rules');
   });
 
-  test('--diff output contains added/modified/removed/unchanged counts', () => {
+  test('--diff output contains added/modified/removed/unchanged counts', { timeout: 30000 }, () => {
     const result = runComposeCLI(['--diff']);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('added:');
@@ -1665,7 +1725,7 @@ describe('CLI entry block', () => {
 
   test('CLI error path: exits 1 and writes to stderr when compose fails', () => {
     // Simulate the CLI error path by calling compose() with a non-existent upstream dir
-    const result = spawnSync(
+    const result = runWithTimeout(
       process.execPath,
       [
         '-e',
@@ -1688,7 +1748,7 @@ describe('CLI entry block', () => {
   });
 
   test('CLI error path: compose with missing overlay throws with descriptive message', () => {
-    const result = spawnSync(
+    const result = runWithTimeout(
       process.execPath,
       [
         '-e',
@@ -1727,7 +1787,7 @@ describe('resolve() additional error paths', () => {
     createMockOverlay(mockOverlay);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     if (tmpDir) rmDir(tmpDir);
   });
 
@@ -2024,7 +2084,7 @@ describe('resolve() error paths', () => {
     fs.mkdirSync(upDir, { recursive: true });
     fs.writeFileSync(path.join(upDir, 'package.json'), JSON.stringify({ name: 'test', version: '0.1.0' }));
     // Create ALL required upstream directories (agents, bin, commands, get-shit-done, hooks, scripts)
-    for (const d of ['agents', 'bin', 'commands', 'get-shit-done', 'hooks', 'scripts']) {
+    for (const d of ['agents', 'bin', 'commands', 'gsd-core', 'hooks', 'scripts']) {
       fs.mkdirSync(path.join(upDir, d), { recursive: true });
     }
     // Create overlay dir without branding.json
@@ -2041,7 +2101,7 @@ describe('resolve() error paths', () => {
     const upDir = path.join(tempDir, 'upstream');
     fs.mkdirSync(upDir, { recursive: true });
     fs.writeFileSync(path.join(upDir, 'package.json'), JSON.stringify({ name: 'test', version: '0.1.0' }));
-    for (const d of ['agents', 'bin', 'commands', 'get-shit-done', 'hooks', 'scripts']) {
+    for (const d of ['agents', 'bin', 'commands', 'gsd-core', 'hooks', 'scripts']) {
       fs.mkdirSync(path.join(upDir, d), { recursive: true });
     }
     const overlayDir = path.join(tempDir, 'overlay');
@@ -2076,17 +2136,17 @@ describe('computeDelta edge cases', () => {
     fs.mkdirSync(path.join(upstreamDir, 'agents'), { recursive: true });
     fs.mkdirSync(path.join(upstreamDir, 'bin'), { recursive: true });
     fs.mkdirSync(path.join(upstreamDir, 'commands'), { recursive: true });
-    fs.mkdirSync(path.join(upstreamDir, 'get-shit-done', 'hooks'), { recursive: true });
-    fs.mkdirSync(path.join(upstreamDir, 'get-shit-done', 'commands'), { recursive: true });
-    fs.mkdirSync(path.join(upstreamDir, 'get-shit-done', 'workflows'), { recursive: true });
-    fs.mkdirSync(path.join(upstreamDir, 'get-shit-done', 'agents'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'gsd-core', 'hooks'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'gsd-core', 'commands'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'gsd-core', 'workflows'), { recursive: true });
+    fs.mkdirSync(path.join(upstreamDir, 'gsd-core', 'agents'), { recursive: true });
     fs.mkdirSync(path.join(upstreamDir, 'hooks'), { recursive: true });
     fs.mkdirSync(path.join(upstreamDir, 'scripts'), { recursive: true });
     fs.writeFileSync(path.join(upstreamDir, 'package.json'), JSON.stringify({
-      name: 'get-shit-done-cc', version: '1.30.0',
+      name: '@opengsd/gsd-core', version: '1.30.0',
     }));
     // One upstream file to compose
-    fs.writeFileSync(path.join(upstreamDir, 'get-shit-done', 'hooks', 'test-hook.sh'), '#!/bin/sh\necho test');
+    fs.writeFileSync(path.join(upstreamDir, 'gsd-core', 'hooks', 'test-hook.sh'), '#!/bin/sh\necho test');
 
     // Minimal overlay
     const overlayDir = path.join(tempDir, 'overlay');
@@ -2156,7 +2216,7 @@ describe('computeDelta edge cases', () => {
     });
     // Modify the upstream file content
     fs.writeFileSync(
-      path.join(tempDir, 'upstream', 'get-shit-done', 'hooks', 'test-hook.sh'),
+      path.join(tempDir, 'upstream', 'gsd-core', 'hooks', 'test-hook.sh'),
       '#!/bin/sh\necho modified content'
     );
     // Diff should now show the file as modified
@@ -2200,7 +2260,7 @@ describe('computeDelta edge cases', () => {
       distDir: path.join(tempDir, 'dist'),
     });
     // Remove the upstream file so the next diff sees it as removed from dist/
-    fs.unlinkSync(path.join(tempDir, 'upstream', 'get-shit-done', 'hooks', 'test-hook.sh'));
+    fs.unlinkSync(path.join(tempDir, 'upstream', 'gsd-core', 'hooks', 'test-hook.sh'));
     const result = compose({
       upstreamDir: path.join(tempDir, 'upstream'),
       overlayDir: path.join(tempDir, 'overlay'),

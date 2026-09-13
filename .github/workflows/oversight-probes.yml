@@ -1,0 +1,49 @@
+name: Oversight Probes
+
+on:
+  schedule:
+    - cron: "41 8 * * 1"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "overlay/memory/oversight-principle-evidence-before-claim.md"
+      - "overlay/agents/gsd-oversight-execution.md"
+      - "overlay/agents/gsd-oversight-verification.md"
+      - "overlay/agents/gsd-oversight-planning.md"
+      - "scripts/verify-oversight-probes.js"
+      - "tests/fixtures/oversight-probes/**"
+      - "tests/verify-oversight-probes.test.js"
+      - ".github/workflows/oversight-probes.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-oversight-probes:
+    name: Verify Oversight Probes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact event subject
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: .
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify execution subject
+        shell: bash
+        env:
+          GSD_EXPECTED_SUBJECT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          GSD_SUBJECT_PATH: .
+        run: |-
+          actual="$(git -C "$GSD_SUBJECT_PATH" rev-parse HEAD)"
+          if [ "$actual" != "$GSD_EXPECTED_SUBJECT" ]; then
+            echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
+            exit 1
+          fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
+      - run: node scripts/verify-oversight-probes.js

@@ -73,7 +73,7 @@ const VERSION = '0.1.0';
  * Group 2 captures the full `"PATH"` form so the replacement is a clean
  * `node ${m[2]}` with no manual quote re-appending (correct-by-construction).
  */
-const BROKEN_RE = /^& "([^"]*bunx(?:\.exe)?)" ("[^"]+\.(?:js|cjs|mjs)")$/;
+const BROKEN_RE = /^& "((?:[^"\r\n]*[/\\])?bunx(?:\.exe)?)" ("[^"\r\n]+\.(?:js|cjs|mjs)")$/;
 
 /**
  * Detect-and-repair a single command string.
@@ -156,6 +156,10 @@ function repair({ settingsPath, dryRun = false } = {}) {
   if (!settingsPath) {
     settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
   }
+  if (!dryRun && fs.lstatSync(settingsPath).isSymbolicLink()) {
+    throw new Error('Refusing to replace a symbolic link. Link and target are unchanged. ' +
+      'Inspect its target and pass that regular file explicitly with --settings.');
+  }
   const raw = fs.readFileSync(settingsPath, 'utf8');
   const settings = JSON.parse(raw); // throws if not valid JSON
   const findings = diagnose(settings);
@@ -193,15 +197,26 @@ function repair({ settingsPath, dryRun = false } = {}) {
   // Backup
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const backupPath = settingsPath + '.bak.' + ts;
-  fs.writeFileSync(backupPath, raw, { mode: origMode });
+  fs.writeFileSync(backupPath, raw, { mode: origMode, flag: 'wx' });
 
   // Atomic write
   const tmpPath = settingsPath + '.tmp.' + ts;
-  fs.writeFileSync(tmpPath, newRaw, { mode: origMode });
-  // Defensive chmod in case the platform ignores writeFile's mode option
-  // (verified harmless across POSIX/WSL/Windows-native).
-  try { fs.chmodSync(tmpPath, origMode); } catch { /* Windows may reject */ }
-  fs.renameSync(tmpPath, settingsPath);
+  // Exclusive creation preserves any pre-existing backup/staging artifact.
+  const fd = fs.openSync(tmpPath, 'wx', origMode);
+  try {
+    try {
+      fs.writeFileSync(fd, newRaw);
+    } finally {
+      fs.closeSync(fd);
+    }
+    fs.renameSync(tmpPath, settingsPath);
+  } catch (error) {
+    try { fs.unlinkSync(tmpPath); } catch (cleanupError) {
+      throw new AggregateError([error, cleanupError],
+        `${error.message}; temporary repair cleanup failed at ${tmpPath}: ${cleanupError.message}`);
+    }
+    throw error;
+  }
 
   return { settingsPath, backupPath, changed, findings, dryRun: false };
 }
@@ -219,10 +234,11 @@ Subcommands:
   check               Diagnose ~/.claude/settings.json hook commands.
                       Exits 0 if clean, 1 if broken state detected.
   repair              Repair broken hook commands. Creates timestamped
-                      backup before any modification.
+                      backup before any modification. Refuses symbolic links;
+                      inspect the target and select it explicitly with --settings.
 
 Options:
-  --settings <path>   Override settings.json path (testing).
+  --settings <path>   Select the settings.json file to inspect or repair.
   --dry-run           (repair only) Report changes without writing.
   --verbose           Print per-entry decisions.
   --help, -h          Show this help.
@@ -260,7 +276,7 @@ function parseArgs(argv) {
       // falls back to ~/.claude/settings.json — would overwrite real live
       // config when the user intended a fixture path.
       const next = argv[++i];
-      if (next === undefined || next.startsWith('--')) {
+      if (!next || next.startsWith('-')) {
         throw new Error(`--settings requires a value (got ${next === undefined ? 'nothing' : next})`);
       }
       opts.settingsPath = next;
@@ -268,11 +284,12 @@ function parseArgs(argv) {
     else if (!opts.subcommand && (a === 'check' || a === 'repair')) opts.subcommand = a;
     else throw new Error(`Unknown argument: ${a}`);
   }
+  if (opts.subcommand === 'check' && opts.dryRun) throw new Error('--dry-run is only supported by repair');
   return opts;
 }
 
-function formatFinding(f, verbose) {
-  if (!verbose) return `  ${f.event}/${f.matcher}: would repair`;
+function formatFinding(f, verbose, action = 'would repair') {
+  if (!verbose) return `  ${f.event}/${f.matcher}: ${action}`;
   return [
     `  ${f.event}/${f.matcher}:`,
     `    - ${f.before}`,
@@ -296,7 +313,13 @@ function runCheck(opts) {
   for (const f of findings) {
     process.stdout.write(formatFinding(f, opts.verbose) + '\n');
   }
-  process.stdout.write(`Run: node scripts/gsd-doctor.cjs repair\n`);
+  // Shell-specific literal quoting avoids expansion of $, apostrophes and spaces.
+  // Absolute paths keep the suggestion bound to the diagnosed file from any cwd.
+  const args = [__filename, 'repair', '--settings', path.resolve(settingsPath)];
+  const bashArgs = args.map(arg => "'" + arg.replace(/'/g, "'\"'\"'") + "'");
+  const powershellArgs = args.map(arg => "'" + arg.replace(/'/g, "''") + "'");
+  process.stdout.write(`Run (Bash): node ${bashArgs.join(' ')}\n`);
+  process.stdout.write(`Run (PowerShell): node ${powershellArgs.join(' ')}\n`);
   return 1;
 }
 
@@ -317,7 +340,7 @@ function runRepair(opts) {
     process.stdout.write(`  backup: ${result.backupPath}\n`);
   }
   for (const f of result.findings) {
-    process.stdout.write(formatFinding(f, opts.verbose) + '\n');
+    process.stdout.write(formatFinding(f, opts.verbose, result.dryRun ? 'would repair' : 'repaired') + '\n');
   }
   return 0;
 }
@@ -343,17 +366,16 @@ function main(argv) {
     return 2;
   }
   try {
-    if (opts.subcommand === 'check') return runCheck(opts);
-    if (opts.subcommand === 'repair') return runRepair(opts);
+    // parseArgs admits only check/repair; the missing-command case returned above.
+    return opts.subcommand === 'check' ? runCheck(opts) : runRepair(opts);
   } catch (e) {
     process.stderr.write(`gsd-doctor: ${e.message}\n`);
     return 1;
   }
-  return 2;
 }
 
 if (require.main === module) {
-  process.exit(main(process.argv.slice(2)));
+  process.exitCode = main(process.argv.slice(2));
 }
 
 module.exports = {

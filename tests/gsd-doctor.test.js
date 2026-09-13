@@ -13,14 +13,15 @@
  * exit codes.
  */
 
-const { describe, test, expect, beforeEach, afterEach } = require('bun:test');
+const { describe, test, expect } = require('./helpers/portable-test-api');
+const { beforeEach, afterEach } = process.versions.bun ? require('bun:test') : require('node:test');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { spawnSync } = require('child_process');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
-const SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'gsd-doctor.cjs');
+const SCRIPT = process.env.GSD_DOCTOR_TEST_SUBJECT || path.join(PROJECT_ROOT, 'scripts', 'gsd-doctor.cjs');
 const doctor = require(SCRIPT);
 
 // ---------------------------------------------------------------------------
@@ -99,6 +100,8 @@ describe('BROKEN_RE — pattern detection', () => {
     '& "C:/path/bunx.exe" "C:/script.sh"', // bunx but .sh — out of scope
     '& "C:/path/bunx.exe" script.js', // missing quotes around script path
     '  & "C:/.bunx" "C:/x.js"', // leading whitespace (anchor ^ fails)
+    '& "C:/custom-bunx.exe" "C:/x.js"',
+    '& "notbunx" "C:/x.js"',
   ];
 
   for (const s of POSITIVES) {
@@ -236,6 +239,38 @@ describe('repair — filesystem operations', () => {
     }
     expect(brokenInBackup).toBe(3);
   });
+
+  test('refuses a symlinked settings file without replacing the link or changing its target', () => {
+    const targetDir = path.join(tmp, 'owner settings with spaces');
+    fs.mkdirSync(targetDir);
+    const target = writeSettings(targetDir, { ...buildSettings({ broken: 1 }), theme: 'owner theme' });
+    const link = path.join(tmp, 'linked settings.json');
+    fs.symlinkSync(target, link, 'file');
+    const before = fs.readFileSync(target);
+    expect(() => doctor.repair({ settingsPath: link })).toThrow(/symbolic link.*--settings/i);
+    expect(fs.lstatSync(link).isSymbolicLink()).toBe(true);
+    expect(fs.readFileSync(target)).toEqual(before);
+    expect(fs.readdirSync(tmp).sort()).toEqual(['linked settings.json', 'owner settings with spaces']);
+    expect(fs.readdirSync(targetDir)).toEqual(['settings.json']);
+    expect(doctor.repair({ settingsPath: link, dryRun: true }).changed).toBe(1);
+    const repaired = doctor.repair({ settingsPath: target });
+    expect(repaired.changed).toBe(1);
+    expect(readSettings(link).theme).toBe('owner theme');
+    expect(doctor.diagnose(readSettings(link))).toEqual([]);
+    expect(fs.lstatSync(link).isSymbolicLink()).toBe(true);
+  });
+
+  for (const content of ['{}', '{ invalid']) {
+    test(`non-dry repair refuses linked settings before parsing ${content}`, () => {
+      const target = path.join(tmp, 'owner.json');
+      const link = path.join(tmp, 'settings link.json');
+      fs.writeFileSync(target, content);
+      fs.symlinkSync(target, link, 'file');
+      expect(() => doctor.repair({ settingsPath: link })).toThrow(/symbolic link/);
+      expect(fs.readFileSync(target, 'utf8')).toBe(content);
+      expect(fs.lstatSync(link).isSymbolicLink()).toBe(true);
+    });
+  }
 
   test('idempotent — second run is a no-op', () => {
     settingsPath = writeSettings(tmp, buildSettings({ broken: 2, clean: 1 }));
@@ -377,6 +412,12 @@ describe('CLI — exit codes and output', () => {
     expect(r.stderr).toMatch(/--settings requires a value/);
   });
 
+  for (const value of ['', '-h']) {
+    test(`rejects unsafe --settings value ${JSON.stringify(value)} instead of selecting default`, () => {
+      expect(() => doctor.parseArgs(['repair', '--settings', value])).toThrow(/--settings requires a value/);
+    });
+  }
+
   test('check on clean settings exits 0', () => {
     const p = writeSettings(tmp, buildSettings({ broken: 0, clean: 2 }));
     const r = runCLI(['check', '--settings', p]);
@@ -391,14 +432,53 @@ describe('CLI — exit codes and output', () => {
     expect(r.stdout).toMatch(/2 broken/);
   });
 
+  for (const shell of (process.platform === 'win32' ? ['Bash', 'PowerShell'] : ['Bash'])) {
+    test(`suggested ${shell} repair preserves the custom settings path and shell metacharacters`, { timeout: 30000 }, () => {
+      const custom = path.join(tmp, "owner's settings $literal with spaces");
+      fs.mkdirSync(custom);
+      const p = writeSettings(custom, { ...buildSettings({ broken: 1, clean: 1 }), permissions: { allow: ['Read'] } });
+      const home = path.join(tmp, 'isolated home');
+      fs.mkdirSync(path.join(home, '.claude'), { recursive: true });
+      const defaultPath = writeSettings(path.join(home, '.claude'), buildSettings({ broken: 1 }));
+      const originalDefault = fs.readFileSync(defaultPath);
+      const env = { ...process.env, HOME: home, USERPROFILE: home };
+      const diagnosis = runCLI(['check', '--settings', p], env);
+      const prefix = `Run (${shell}): `;
+      const suggestion = diagnosis.stdout.split('\n').find(line => line.startsWith(prefix));
+      expect(suggestion).toBeDefined();
+      const command = suggestion.slice(prefix.length);
+      const result = spawnSync(shell === 'Bash' ? 'bash' : 'pwsh',
+        shell === 'Bash' ? ['--noprofile', '--norc', '-c', command] : ['-NoProfile', '-NonInteractive', '-Command', command],
+        { cwd: tmp, env, encoding: 'utf8', timeout: 15000 });
+      expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' });
+      expect(doctor.diagnose(readSettings(p))).toEqual([]);
+      expect(readSettings(p).permissions).toEqual({ allow: ['Read'] });
+      expect(readSettings(p).hooks.PreToolUse[1].hooks[0].command).toBe('node "C:/Users/X/.claude/hooks/clean-0.js"');
+      expect(fs.readFileSync(defaultPath)).toEqual(originalDefault);
+    });
+  }
+
   test('repair on broken settings exits 0 and fixes', () => {
     const p = writeSettings(tmp, buildSettings({ broken: 2, clean: 0 }));
     const r = runCLI(['repair', '--settings', p]);
     expect(r.status).toBe(0);
     expect(r.stdout).toMatch(/repaired 2/);
+    expect(r.stdout).not.toContain('would repair');
     // Re-check should now be clean
     const r2 = runCLI(['check', '--settings', p]);
     expect(r2.status).toBe(0);
+  });
+
+  test('check rejects the repair-only dry-run flag', () => {
+    expect(() => doctor.parseArgs(['check', '--dry-run'])).toThrow(/repair/);
+  });
+
+  test('large verbose diagnosis is fully flushed to a pipe', { timeout: 30000 }, () => {
+    const p = writeSettings(tmp, buildSettings({ broken: 1500 }));
+    const result = runCLI(['check', '--verbose', '--settings', p]);
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain('BrokenMatcher1499');
+    expect(result.stdout).toContain('Run (PowerShell):');
   });
 
   test('repair --dry-run does not modify file', () => {
@@ -417,5 +497,124 @@ describe('CLI — exit codes and output', () => {
     expect(r.status).toBe(0);
     expect(r.stdout).toMatch(/nothing to repair/);
     expect(fs.readFileSync(p, 'utf8')).toBe(before);
+  });
+});
+
+describe('doctor failure boundaries', () => {
+  test('default settings resolution is confined to an explicitly isolated home', () => {
+    const tmp = makeTempDir();
+    const homedir = os.homedir;
+    try {
+      os.homedir = () => tmp;
+      fs.mkdirSync(path.join(tmp, '.claude'));
+      const p = writeSettings(path.join(tmp, '.claude'), buildSettings({ broken: 1 }));
+      expect(doctor.repair().settingsPath).toBe(p);
+      const result = runCLI(['check'], { HOME: tmp, USERPROFILE: tmp });
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain(p);
+    } finally { os.homedir = homedir; fs.rmSync(tmp, { recursive: true, force: true }); }
+  });
+
+  test('verbose dry-run and missing-file errors report useful CLI results', () => {
+    const tmp = makeTempDir();
+    try {
+      const p = writeSettings(tmp, buildSettings({ broken: 1 }));
+      const preview = runCLI(['repair', '--dry-run', '--verbose', '--settings', p]);
+      expect(preview.status).toBe(0);
+      expect(preview.stdout).toContain('would repair 1 entry');
+      expect(preview.stdout).toContain('    - &');
+      expect(preview.stdout).toContain('    + node');
+      expect(runCLI(['repair', '--settings', path.join(tmp, 'missing')]).status).toBe(1);
+      expect(runCLI(['-h']).status).toBe(0);
+    } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  });
+
+  test('refuses to write if diagnosis and mutation disagree', () => {
+    const tmp = makeTempDir();
+    const parse = JSON.parse;
+    try {
+      const p = writeSettings(tmp, buildSettings({ broken: 1 }));
+      const before = fs.readFileSync(p);
+      let reads = 0;
+      const hook = { get command() { return ++reads < 4 ? '& "C:/bunx" "C:/h.js"' : 'node clean.js'; } };
+      JSON.parse = () => ({ hooks: { PreToolUse: [{ hooks: [hook] }] } });
+      expect(() => doctor.repair({ settingsPath: p })).toThrow(/diagnose found 1 but walk repaired 0/);
+      expect(fs.readFileSync(p)).toEqual(before);
+      expect(fs.readdirSync(tmp)).toEqual(['settings.json']);
+    } finally { JSON.parse = parse; fs.rmSync(tmp, { recursive: true, force: true }); }
+  });
+
+  test('write failure cleans only its own temporary output and retains the original backup', () => {
+    const tmp = makeTempDir();
+    const write = fs.writeFileSync;
+    try {
+      const p = writeSettings(tmp, buildSettings({ broken: 1 }));
+      const before = fs.readFileSync(p);
+      fs.writeFileSync = (target, ...args) => {
+        if (typeof target === 'number') throw new Error('disk full');
+        return write(target, ...args);
+      };
+      expect(() => doctor.repair({ settingsPath: p })).toThrow('disk full');
+      expect(fs.readFileSync(p)).toEqual(before);
+      expect(fs.readdirSync(tmp).some(name => name.includes('.tmp.'))).toBe(false);
+    } finally { fs.writeFileSync = write; fs.rmSync(tmp, { recursive: true, force: true }); }
+  });
+
+  test('cleanup failure retains both diagnostics and leaves the original settings intact', () => {
+    const tmp = makeTempDir();
+    const rename = fs.renameSync;
+    const unlink = fs.unlinkSync;
+    try {
+      const p = writeSettings(tmp, buildSettings({ broken: 1 }));
+      const before = fs.readFileSync(p);
+      fs.renameSync = () => { throw new Error('rename denied'); };
+      fs.unlinkSync = () => { throw new Error('cleanup denied'); };
+      expect(() => doctor.repair({ settingsPath: p })).toThrow(/rename denied.*cleanup failed.*cleanup denied/);
+      expect(fs.readFileSync(p)).toEqual(before);
+    } finally { fs.renameSync = rename; fs.unlinkSync = unlink; fs.rmSync(tmp, { recursive: true, force: true }); }
+  });
+
+  test('malformed hook entries are ignored without changing unrelated values', () => {
+    for (const settings of [null, 42, {}, { hooks: 42 }]) {
+      expect(doctor.walkHookCommands(settings, () => 'unexpected')).toBe(0);
+    }
+    const settings = { hooks: { Invalid: {}, PreToolUse: [null, {}, { hooks: [null, {}, { command: 42 },
+      { command: '& "C:/bunx" "C:/h.js"' }, { command: 'node clean.js' }] }] }, theme: 'dark' };
+    const findings = doctor.diagnose(settings);
+    expect(findings).toHaveLength(1);
+    expect(findings[0].matcher).toBe('(none)');
+    expect(doctor.walkHookCommands(settings, cmd => doctor.repairCommand(cmd).after || cmd)).toBe(1);
+    expect(settings.theme).toBe('dark');
+    expect(doctor.diagnose(settings)).toEqual([]);
+  });
+
+  test('failed atomic rename retains original settings and backup, cleans temporary output', () => {
+    const tmp = makeTempDir();
+    const rename = fs.renameSync;
+    try {
+      const settingsPath = writeSettings(tmp, buildSettings({ broken: 1 }));
+      const original = fs.readFileSync(settingsPath);
+      fs.renameSync = () => { throw new Error('rename denied'); };
+      expect(() => doctor.repair({ settingsPath })).toThrow('rename denied');
+      expect(fs.readFileSync(settingsPath)).toEqual(original);
+      const names = fs.readdirSync(tmp);
+      expect(names.some(name => name.includes('.tmp.'))).toBe(false);
+      expect(fs.readFileSync(path.join(tmp, names.find(name => name.includes('.bak.'))))).toEqual(original);
+    } finally { fs.renameSync = rename; fs.rmSync(tmp, { recursive: true, force: true }); }
+  });
+
+  test('existing backup is never overwritten on timestamp collision', () => {
+    const tmp = makeTempDir();
+    const iso = Date.prototype.toISOString;
+    try {
+      Date.prototype.toISOString = () => '2026-09-13T20:00:00.000Z';
+      const settingsPath = writeSettings(tmp, buildSettings({ broken: 1 }));
+      const original = fs.readFileSync(settingsPath);
+      const backupPath = settingsPath + '.bak.2026-09-13T20-00-00-000Z';
+      fs.writeFileSync(backupPath, 'earlier owner backup');
+      expect(() => doctor.repair({ settingsPath })).toThrow();
+      expect(fs.readFileSync(backupPath, 'utf8')).toBe('earlier owner backup');
+      expect(fs.readFileSync(settingsPath)).toEqual(original);
+    } finally { Date.prototype.toISOString = iso; fs.rmSync(tmp, { recursive: true, force: true }); }
   });
 });

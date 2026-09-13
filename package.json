@@ -54,13 +54,15 @@
     "@hono/node-server": "1.19.15",
     "body-parser": "2.3.0",
     "brace-expansion": "1.1.18",
-    "fast-uri": "3.1.5",
+    "fast-uri": "3.1.6",
     "flatted": "3.4.2",
     "hono": "4.12.34",
     "ip-address": "10.3.1",
     "minimatch": "3.1.5",
     "qs": "6.15.2",
-    "tar": "7.5.22"
+    "tar": "7.5.22",
+    "smol-toml": "1.7.1",
+    "js-yaml": "4.3.2"
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "6.0.0",
@@ -72,9 +74,9 @@
     "eslint-plugin-security": "^3.0.1",
     "expect": "30.4.1",
     "husky": "^9.1.7",
-    "js-yaml": "5.4.0",
+    "js-yaml": "4.3.2",
     "markdownlint-cli2": "0.23.2",
-    "sharp": "^0.35.0"
+    "sharp": "0.35.4"
   },
   "scripts": {
     "prepare": "husky",
@@ -106,6 +108,8 @@
     "verify-upgrade": "node scripts/verify-upgrade.js",
     "vetted-upstream:validate": "node scripts/vetted-upstream-versions.js --validate",
     "compat:matrix": "node scripts/run-compat-matrix.js",
-    "override:churn": "node scripts/generate-override-churn.js"
+    "override:churn": "node scripts/generate-override-churn.js",
+    "install:check-drift": "node scripts/check-install-drift.js",
+    "hooks:check": "node -e \"const fs=require('fs'),cp=require('child_process');const p=cp.execFileSync('git',['rev-parse','--git-path','hooks/pre-push'],{encoding:'utf8'}).trim();fs.accessSync(p,fs.constants.X_OK);fs.accessSync('.husky/pre-push',fs.constants.R_OK);console.log('Pre-push hook is accessible: '+p)\""
   }
 }

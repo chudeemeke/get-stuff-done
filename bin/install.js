@@ -53,10 +53,6 @@ const PKG_PATH = path.join(__dirname, '..', 'package.json');
 
 /** Filename of the installed-files manifest written by upstream into targetDir. */
 const INSTALLED_MANIFEST_NAME = 'gsd-file-manifest.json';
-/** Directory where upstream backs up locally modified install files. */
-const LOCAL_PATCHES_DIRNAME = 'gsd-local-patches';
-/** Durable sidecar archives of prior local-patch trees (upstream does not own this). */
-const PATCH_ARCHIVE_DIRNAME = '.gsd-patch-archive';
 
 // Colors
 const cyan = '\x1b[36m';
@@ -215,14 +211,28 @@ function readDistOverlayManifest(distDir) {
     throw new Error(`Invalid .overlay-manifest.json at ${manifestPath}: expected an array`);
   }
 
-  return manifest.filter(entry => typeof entry === 'string' && entry.length > 0);
+  for (const entry of manifest) {
+    if (typeof entry !== 'string' || entry.length === 0) throw new Error('Invalid dist overlay source entry');
+    const source = targetRelativePath(distDir, entry);
+    if (!source || !fs.lstatSync(source, { throwIfNoEntry: false })?.isFile()) {
+      throw new Error('Invalid or missing dist overlay source: ' + entry);
+    }
+  }
+  return [...new Set(manifest)];
 }
 
 function targetRelativePath(targetDir, relPath) {
   const resolvedTarget = path.resolve(targetDir);
   const fullPath = path.resolve(targetDir, relPath);
-  if (fullPath !== resolvedTarget && !fullPath.startsWith(resolvedTarget + path.sep)) {
+  if (!fullPath.startsWith(resolvedTarget + path.sep)) {
     return null;
+  }
+  // A lexical prefix does not contain filesystem traversal through a junction
+  // or symlink. The explicitly selected target may itself be an alias, but
+  // entries below it must not redirect installer operations elsewhere.
+  for (let entry = fullPath; entry !== resolvedTarget; entry = path.dirname(entry)) {
+    const stat = fs.lstatSync(entry, { throwIfNoEntry: false });
+    if (stat && stat.isSymbolicLink()) return null;
   }
   return fullPath;
 }
@@ -240,21 +250,24 @@ function copySnapshotPath(sourcePath, snapshotPath) {
   return 'file';
 }
 
-function restoreSnapshotPath(snapshot) {
+function restoreSnapshotPath(snapshot, targetDir) {
+  // Upstream may change a leaf's type. Revalidate ancestors before restoring,
+  // and remove a substituted leaf itself without following it.
+  const parent = path.dirname(snapshot.targetPath);
+  if (parent !== path.resolve(targetDir) && !targetRelativePath(targetDir, path.relative(targetDir, parent))) {
+    throw new Error('Unsafe rollback ancestor for ' + snapshot.relPath);
+  }
+  const current = fs.lstatSync(snapshot.targetPath, { throwIfNoEntry: false });
   if (!snapshot.existed) {
-    if (fs.existsSync(snapshot.targetPath)) {
-      fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
-    }
+    if (current) fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
     return false;
   }
-
-  fs.mkdirSync(path.dirname(snapshot.targetPath), { recursive: true });
+  fs.mkdirSync(parent, { recursive: true });
   if (snapshot.kind === 'directory') {
-    if (fs.existsSync(snapshot.targetPath)) {
-      fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
-    }
+    if (current) fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
     fs.cpSync(snapshot.snapshotPath, snapshot.targetPath, { recursive: true });
   } else {
+    if (current && !current.isFile()) fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
     fs.copyFileSync(snapshot.snapshotPath, snapshot.targetPath);
   }
   return true;
@@ -304,7 +317,9 @@ function preflightInstallTarget(targetDir, distDir) {
 
 function createInstallTransaction(targetDir, distDir) {
   preflightInstallTarget(targetDir, distDir);
-  const snapshotDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-install-transaction-'));
+  for (const name of ['gsd-local-patches', 'gsd-pristine']) {
+    assertRegularBackupTree(path.join(targetDir, name));
+  }
   const distOverlayFiles = readDistOverlayManifest(distDir);
   const relPaths = new Set([
     ...readInstalledManifest(targetDir),
@@ -314,28 +329,42 @@ function createInstallTransaction(targetDir, distDir) {
     '.overlay-manifest.json',
     '.install-meta.json',
     'settings.json',
+    'gsd-local-patches',
+    'gsd-pristine',
   ]);
   const snapshots = [];
+  const snapshotDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-install-transaction-'));
 
-  for (const relPath of relPaths) {
-    const targetPath = targetRelativePath(targetDir, relPath);
-    if (!targetPath) continue;
+  try {
+    for (const relPath of relPaths) {
+      const targetPath = targetRelativePath(targetDir, relPath);
+      if (!targetPath) throw new Error(`Unsafe managed install path: ${relPath}`);
 
-    const snapshotPath = path.join(snapshotDir, relPath);
-    const existed = fs.existsSync(targetPath);
-    const snapshot = {
-      relPath,
-      targetPath,
-      snapshotPath,
-      existed,
-      kind: 'missing',
-    };
+      const snapshotPath = path.join(snapshotDir, relPath);
+      const existed = fs.existsSync(targetPath);
+      const snapshot = {
+        relPath,
+        targetPath,
+        snapshotPath,
+        existed,
+        kind: 'missing',
+      };
 
-    if (existed) {
-      snapshot.kind = copySnapshotPath(targetPath, snapshotPath);
+      if (existed) {
+        snapshot.kind = copySnapshotPath(targetPath, snapshotPath);
+      }
+
+      snapshots.push(snapshot);
     }
-
-    snapshots.push(snapshot);
+  } catch (err) {
+    try {
+      fs.rmSync(snapshotDir, { recursive: true, force: true });
+    } catch (cleanupErr) {
+      throw new AggregateError([err, cleanupErr],
+        `Snapshot failed: ${err.message}; cleanup failed at ${snapshotDir}: ${cleanupErr.message}`,
+        { cause: err });
+    }
+    throw err;
   }
 
   return {
@@ -348,32 +377,21 @@ function createInstallTransaction(targetDir, distDir) {
 }
 
 function rollbackInstallTransaction(transaction) {
-  const snapshotByRelPath = new Map(
-    transaction.snapshots.map(snapshot => [snapshot.relPath, snapshot])
-  );
   let removed = 0;
   let restored = 0;
-
-  for (const relPath of transaction.distOverlayFiles) {
-    const snapshot = snapshotByRelPath.get(relPath);
-    if (snapshot && snapshot.existed) continue;
-
-    const targetPath = targetRelativePath(transaction.targetDir, relPath);
-    if (targetPath && fs.existsSync(targetPath)) {
-      fs.rmSync(targetPath, { recursive: true, force: true });
-      removed++;
-      pruneEmptyParents(transaction.targetDir, relPath);
-    }
-  }
-
+  const errors = [];
   for (const snapshot of transaction.snapshots) {
-    if (restoreSnapshotPath(snapshot)) {
-      restored++;
-    } else if (!snapshot.existed) {
-      pruneEmptyParents(transaction.targetDir, snapshot.relPath);
-    }
+    try {
+      if (restoreSnapshotPath(snapshot, transaction.targetDir)) restored++;
+      else if (!snapshot.existed) {
+        removed++;
+        pruneEmptyParents(transaction.targetDir, snapshot.relPath);
+      }
+    } catch (error) { errors.push(new Error(snapshot.relPath + ': ' + error.message, { cause: error })); }
   }
-
+  if (errors.length) {
+    throw new AggregateError(errors, 'Rollback incomplete; recovery retained at ' + transaction.snapshotDir + ': ' + errors.map(error => error.message).join('; '));
+  }
   fs.rmSync(transaction.snapshotDir, { recursive: true, force: true });
   return { rollback: 'applied', restored, removed };
 }
@@ -406,17 +424,12 @@ function removeGsdFiles(targetDir, quiet) {
   let skipped = 0;
   let strategy;
 
-  // Path containment boundary -- all resolved paths must start with this prefix
-  const resolvedTarget = path.resolve(targetDir) + path.sep;
-
   if (manifestFiles.length > 0) {
     // Strategy 1: Manifest-driven -- remove exactly what the previous install put down
     strategy = 'manifest';
     for (const relPath of manifestFiles) {
-      const fullPath = path.join(targetDir, relPath);
-      const resolvedFull = path.resolve(fullPath);
-      // Path containment: reject entries that escape targetDir
-      if (!resolvedFull.startsWith(resolvedTarget)) {
+      const fullPath = targetRelativePath(targetDir, relPath);
+      if (!fullPath) {
         skipped++;
         continue;
       }
@@ -437,10 +450,8 @@ function removeGsdFiles(targetDir, quiet) {
     }
     const sortedDirs = [...dirs].sort((a, b) => b.split('/').length - a.split('/').length);
     for (const dir of sortedDirs) {
-      const fullDir = path.join(targetDir, dir);
-      const resolvedDir = path.resolve(fullDir);
-      // Path containment: skip directory pruning outside targetDir
-      if (!resolvedDir.startsWith(resolvedTarget)) {
+      const fullDir = targetRelativePath(targetDir, dir);
+      if (!fullDir) {
         continue;
       }
       try {
@@ -490,9 +501,8 @@ function removeGsdFiles(targetDir, quiet) {
   }
 
   for (const relPath of ['scripts/changeset', 'scripts/lib']) {
-    const fullPath = path.join(targetDir, relPath);
-    const resolvedFull = path.resolve(fullPath);
-    if (!resolvedFull.startsWith(resolvedTarget)) {
+    const fullPath = targetRelativePath(targetDir, relPath);
+    if (!fullPath) {
       skipped++;
       continue;
     }
@@ -503,9 +513,8 @@ function removeGsdFiles(targetDir, quiet) {
   }
 
   for (const relPath of ['scripts']) {
-    const fullPath = path.join(targetDir, relPath);
-    const resolvedFull = path.resolve(fullPath);
-    if (!resolvedFull.startsWith(resolvedTarget)) continue;
+    const fullPath = targetRelativePath(targetDir, relPath);
+    if (!fullPath) continue;
     try {
       if (fs.existsSync(fullPath) && fs.readdirSync(fullPath).length === 0) {
         fs.rmdirSync(fullPath);
@@ -664,9 +673,8 @@ function copyOverlayFiles(distDir, targetDir) {
 
   for (const relPath of manifest) {
     const srcPath = path.join(distDir, relPath);
-    const destPath = path.join(targetDir, relPath);
-
-    if (!fs.existsSync(srcPath)) continue;
+    const destPath = targetRelativePath(targetDir, relPath);
+    if (!destPath) throw new Error('Unsafe overlay destination: ' + relPath);
 
     const destDir = path.dirname(destPath);
     fs.mkdirSync(destDir, { recursive: true });
@@ -702,155 +710,40 @@ function copyOverlayManifest(distDir, targetDir) {
 }
 
 
-// ---------------------------------------------------------------------------
-// Local patch archive (survive upstream saveLocalPatches overwrites)
-// ---------------------------------------------------------------------------
-
-/**
- * List files under rootDir as slash-separated paths relative to rootDir.
- * @param {string} rootDir
- * @returns {string[]}
- */
-function listFilesRecursive(rootDir) {
-  const out = [];
-  if (!fs.existsSync(rootDir)) return out;
-
-  const walk = (dir, prefix) => {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        walk(full, rel);
-      } else if (entry.isFile() || entry.isSymbolicLink()) {
-        out.push(rel);
-      }
-    }
-  };
-
-  walk(rootDir, '');
-  return out;
+// Refuse linked/special backup content rather than following it outside the target.
+function assertRegularBackupTree(entry) {
+  const stat = fs.lstatSync(entry, { throwIfNoEntry: false });
+  if (!stat) return;
+  if (stat.isDirectory()) {
+    for (const name of fs.readdirSync(entry)) assertRegularBackupTree(path.join(entry, name));
+  } else if (!stat.isFile()) {
+    throw new Error(`Cannot preserve non-regular local patch content: ${entry}`);
+  }
 }
 
-/**
- * Snapshot existing gsd-local-patches before upstream can overwrite them.
- * Archives under targetDir/.gsd-patch-archive/<ISO-stamp>/ .
- *
- * @param {string} targetDir
- * @param {{ clock?: () => Date }} [options]
- * @returns {string|null} archive path, or null if nothing to snapshot
- */
-function snapshotLocalPatchesBeforeUpstream(targetDir, options = {}) {
-  const clock = options.clock || (() => new Date());
-  const patchesDir = path.join(targetDir, LOCAL_PATCHES_DIRNAME);
-  if (!fs.existsSync(patchesDir)) return null;
-
-  const resolvedTarget = path.resolve(targetDir);
-  const resolvedTargetPrefix = resolvedTarget + path.sep;
-  const stamp = clock().toISOString().replace(/[:.]/g, '-');
-  const archivePath = path.join(targetDir, PATCH_ARCHIVE_DIRNAME, stamp);
-  const resolvedArchive = path.resolve(archivePath);
-
-  if (
-    resolvedArchive !== resolvedTarget &&
-    !resolvedArchive.startsWith(resolvedTargetPrefix)
-  ) {
-    throw new Error(`Refusing to archive patches outside target: ${archivePath}`);
-  }
-
-  fs.mkdirSync(path.dirname(archivePath), { recursive: true });
-  fs.cpSync(patchesDir, archivePath, { recursive: true });
-  return archivePath;
-}
-
-/**
- * After upstream may have rewritten gsd-local-patches, rehydrate unique files
- * from .gsd-patch-archive/<stamp>/ and merge backup-meta.json (fail-closed on bad meta).
- *
- * @param {string} targetDir
- * @param {(msg: string) => void} [logImpl]
- * @returns {{ restored: number, archives: number, metaMerged: boolean }}
- */
-function reconcileLocalPatchesAfterUpstream(targetDir, logImpl = () => {}) {
-  const archiveRoot = path.join(targetDir, PATCH_ARCHIVE_DIRNAME);
-  const patchesDir = path.join(targetDir, LOCAL_PATCHES_DIRNAME);
-  const resolvedTarget = path.resolve(targetDir);
-  const resolvedTargetPrefix = resolvedTarget + path.sep;
-
-  if (!fs.existsSync(archiveRoot)) {
-    return { restored: 0, archives: 0, metaMerged: false };
-  }
-
-  const archives = fs.readdirSync(archiveRoot)
-    .map(name => path.join(archiveRoot, name))
-    .filter(p => {
-      try {
-        return fs.lstatSync(p).isDirectory();
-      } catch {
-        return false;
-      }
-    })
-    .sort();
-
-  const metaEntries = {};
-  let metaOk = true;
-
-  const ingestMeta = (metaPath) => {
-    if (!fs.existsSync(metaPath)) return true;
-    try {
-      const parsed = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        Object.assign(metaEntries, parsed);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
+function preserveLocalPatchHistory(transaction) {
+  const patches = transaction.snapshots.find(item => item.relPath === 'gsd-local-patches');
+  if (!patches.existed) return null;
+  const history = path.join(transaction.targetDir, 'gsd-local-patch-history');
+  const stat = fs.lstatSync(history, { throwIfNoEntry: false });
+  if (stat && !stat.isDirectory()) throw new Error(`Unsafe local patch history directory: ${history}`);
+  fs.mkdirSync(history, { recursive: true });
+  const staging = fs.mkdtempSync(path.join(history, 'incomplete-'));
+  const generation = path.join(history, path.basename(staging).replace(/^incomplete-/, 'before-update-'));
+  try {
+    for (const name of ['gsd-local-patches', 'gsd-pristine']) {
+      const snapshot = transaction.snapshots.find(item => item.relPath === name);
+      if (snapshot.existed) copySnapshotPath(snapshot.snapshotPath, path.join(staging, name));
     }
-  };
-
-  for (const archive of archives) {
-    if (!ingestMeta(path.join(archive, 'backup-meta.json'))) metaOk = false;
+    fs.renameSync(staging, generation);
+  } catch (err) {
+    fs.rmSync(staging, { recursive: true, force: true });
+    throw err;
   }
-
-  fs.mkdirSync(patchesDir, { recursive: true });
-  const currentMetaPath = path.join(patchesDir, 'backup-meta.json');
-  if (!ingestMeta(currentMetaPath)) metaOk = false;
-
-  let restored = 0;
-  for (const archive of archives) {
-    for (const rel of listFilesRecursive(archive)) {
-      if (rel === 'backup-meta.json') continue;
-      const dest = path.join(patchesDir, rel);
-      const resolvedDest = path.resolve(dest);
-      if (
-        resolvedDest !== resolvedTarget &&
-        !resolvedDest.startsWith(resolvedTargetPrefix)
-      ) {
-        continue;
-      }
-      if (fs.existsSync(dest)) continue; // current (newer) run wins
-      const src = path.join(archive, rel);
-      fs.mkdirSync(path.dirname(dest), { recursive: true });
-      fs.copyFileSync(src, dest);
-      restored++;
-    }
-  }
-
-  let metaMerged = false;
-  if (metaOk && Object.keys(metaEntries).length > 0) {
-    fs.writeFileSync(
-      currentMetaPath,
-      `${JSON.stringify(metaEntries, null, 2)}\n`,
-      'utf-8'
-    );
-    metaMerged = true;
-  } else if (!metaOk) {
-    logImpl(
-      '  Warning: could not merge backup-meta.json; leaving archive and current trees intact'
-    );
-  }
-
-  return { restored, archives: archives.length, metaMerged };
+  // This retained generation intentionally outlives both commit and rollback.
+  // Keep complete metadata/baselines together; merging inventories from different
+  // upstream generations would misrepresent the provenance used by reapply.
+  return generation;
 }
 
 // ---------------------------------------------------------------------------
@@ -1051,8 +944,16 @@ function install(distDir, targetDir, userArgs, options = {}) {
   let transaction;
 
   try {
+    if (userArgs.includes('--all')) throw new Error('--all is not supported transactionally; install one runtime at a time with an explicit runtime selector.');
     transaction = createInstallTransaction(targetDir, distDir);
+    const patchHistory = preserveLocalPatchHistory(transaction);
+    if (patchHistory) logImpl(`  Local patch generation preserved: ${patchHistory}`);
   } catch (err) {
+    if (transaction) {
+      try { commitInstallTransaction(transaction); } catch (cleanupErr) {
+        err = new AggregateError([err, cleanupErr], `${err.message}; cleanup failed at ${transaction.snapshotDir}: ${cleanupErr.message}`, { cause: err });
+      }
+    }
     errorImpl(`${red}Error:${reset} ${err.message}`);
     exitImpl(1);
     return Promise.resolve({
@@ -1105,8 +1006,6 @@ function install(distDir, targetDir, userArgs, options = {}) {
 
     const finishOverlayInstall = () => {
       try {
-        runInstallStep('patch-reconcile', () => reconcileLocalPatchesAfterUpstream(targetDir, logImpl));
-
         const orphansRemoved = runInstallStep('orphan-cleanup', () => cleanOrphanedPathsImpl(targetDir));
         if (orphansRemoved > 0) {
           logImpl(`\n  ${green}Cleaned ${orphansRemoved} orphaned path(s)${reset}`);
@@ -1137,13 +1036,6 @@ function install(distDir, targetDir, userArgs, options = {}) {
       }
     };
 
-    try {
-      snapshotLocalPatchesBeforeUpstream(targetDir);
-    } catch (err) {
-      failWithRollback('patch-snapshot', 1, err);
-      return;
-    }
-
     let child;
     try {
       child = spawnImpl(process.execPath, [upstreamScript, ...userArgs], {
@@ -1156,10 +1048,12 @@ function install(distDir, targetDir, userArgs, options = {}) {
     }
 
     child.on('error', (err) => {
+      if (finished) return;
       failWithRollback('spawn', 1, new Error(`Failed to spawn upstream installer: ${err.message}`));
     });
 
     child.on('exit', (code) => {
+      if (finished) return;
       if (code !== 0) {
         errorImpl(`\n${yellow}Upstream installer exited with code ${code}.${reset}`);
         failWithRollback('upstream', code || 1);
@@ -1237,8 +1131,6 @@ if (require.main === module) {
 // Exports for unit testing -- available when required as a module
 module.exports = {
   INSTALLED_MANIFEST_NAME,
-  LOCAL_PATCHES_DIRNAME,
-  PATCH_ARCHIVE_DIRNAME,
   readInstalledManifest,
   removeGsdFiles,
   detectV2,
@@ -1254,9 +1146,6 @@ module.exports = {
   copyOverlayFiles,
   copyOverlayManifest,
   cleanOrphanedPaths,
-  snapshotLocalPatchesBeforeUpstream,
-  reconcileLocalPatchesAfterUpstream,
-  listFilesRecursive,
   writeInstallMeta,
   install,
   uninstall,

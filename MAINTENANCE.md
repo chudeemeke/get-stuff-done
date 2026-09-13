@@ -32,6 +32,26 @@ process sections are owned by Phase 44.
 
 ## Forward-porting overrides on an upstream bump
 
+After cloning or creating a worktree, install dependencies with
+`bun install --ignore-scripts`, then explicitly run `bun run prepare` and
+`bun run hooks:check`. The explicit preparation installs Husky's shim even
+when dependency lifecycle scripts are disabled. Repeat the check before
+citing a push as local gate evidence; an absent/inaccessible configured hook
+fails loudly. A successful accessibility check is not evidence the suite ran:
+the actual push must print the parity checks and complete with their summary.
+Use the repository-pinned Bun runtime for those checks.
+
+Before and after an installation, run `bun run install:check-drift`.
+For an isolated candidate home, run
+`node scripts/check-install-drift.js --home <candidate-home>`.
+Exit 0 means Claude and Codex VERSION files and fork installation metadata
+agree with the pinned Open-GSD version. Missing, legacy, unreadable, unverified
+or mismatched installs exit 1. Legacy versions belong to a different lineage
+and are not semver-compared with Open-GSD. This read-only check does not certify
+artifact hashes, skill routing or effective model configuration; those remain
+installation acceptance gates. Back up and resolve authored-content authority
+before repairing an install (#54).
+
 Overrides are rebuilt forward on every pin change, never three-way merged. A
 merge uses the old override's base as the merge base, but that base vintage is
 unverified — `REASON.md` certifies the upstream file, never the override's own

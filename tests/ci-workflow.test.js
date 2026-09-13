@@ -7,14 +7,14 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 const WORKFLOWS_DIR = path.join(PROJECT_ROOT, '.github', 'workflows');
 const CI_WORKFLOW = path.join(WORKFLOWS_DIR, 'ci.yml');
 const ACTION_PINS = {
-  cache: 'caa296126883cff596d87d8935842f9db880ef25',
-  checkout: 'df4cb1c069e1874edd31b4311f1884172cec0e10',
+  cache: '55cc8345863c7cc4c66a329aec7e433d2d1c52a9',
+  checkout: '3d3c42e5aac5ba805825da76410c181273ba90b1',
   downloadArtifact: '3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c',
-  githubScript: 'ed597411d8f924073f98dfc5c65a23a2325f34cd',
+  githubScript: '3a2844b7e9c422d3c10d287c895573f7108da1b3',
   gitleaks: 'e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e',
-  hardenRunner: 'bf7454d06d71f1098171f2acdf0cd4708d7b5920',
+  hardenRunner: '05e31511f85b41b11d1cf0ef85d0992719546e2c',
   lychee: 'e7477775783ea5526144ba13e8db5eec57747ce8',
-  setupNode: '249970729cb0ef3589644e2896645e5dc5ba9c38',
+  setupNode: '820762786026740c76f36085b0efc47a31fe5020',
   setupBun: '0c5077e51419868618aeaa5fe8019c62421857d6',
   uploadArtifact: '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
 };

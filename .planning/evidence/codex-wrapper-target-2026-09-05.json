@@ -1,0 +1,13 @@
+{
+  "home": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-codex-target-proof-BaNp2S",
+  "target": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-codex-target-proof-BaNp2S\\.codex",
+  "exitCode": 0,
+  "metadataExists": true,
+  "versionExists": true,
+  "claudeExists": false,
+  "sourceCommit": "a102d8bed038377b5f67ac4a3b2d9cf812c44b7c",
+  "upstreamVersion": "1.8.0",
+  "command": "node bin/install.js --codex --global",
+  "runtimeHomeOverride": "CODEX_HOME=~/.codex, USERPROFILE/HOME point to isolated temporary home",
+  "nonClaim": "Scoped wrapper destination proof; not final1.12.0 installation, route, effort or rollback acceptance."
+}

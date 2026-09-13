@@ -38,6 +38,8 @@ compared across runs. Repeated 404/410 responses require an owned repair;
 timeouts and 5xx responses are availability evidence, not proof of link rot.
 The report names the repository owner for follow-up and sets the next weekly
 review date. An exclusion is not permission to stop monitoring the reference.
+Markdown links, autolinks, bare links and quoted HTML URL attributes are parsed
+structurally so punctuation and apostrophes are not confused with delimiters.
 
 The collector and Lychee share a deliberately restricted regex subset, validated
 against `lychee.toml` by PR tests: case-sensitive ASCII literals, escaped regex

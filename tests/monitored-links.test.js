@@ -1,5 +1,5 @@
 const { test, expect } = require('bun:test');
-const { collectLinks, exclusionPattern } = require('../scripts/collect-monitored-links');
+const { collectLinks, documentLinks, exclusionPattern } = require('../scripts/collect-monitored-links');
 const fs = require('fs');
 const path = require('path');
 const { parse } = require('smol-toml');
@@ -28,6 +28,16 @@ test('stops at both HTML quote delimiters', () => {
   ], { exclude: ['^https://example\\.org/'] })).toEqual([
     'https://example.org/double', 'https://example.org/single',
   ]);
+});
+
+test('preserves apostrophes in structurally parsed Markdown URLs', () => {
+  expect(documentLinks(`<https://example.org/O'Reilly> [book](https://example.org/D'Angelo)`))
+    .toEqual(["https://example.org/O'Reilly", "https://example.org/D'Angelo"]);
+});
+
+test('extracts quoted HTML URL attributes and srcset candidates', () => {
+  expect(documentLinks(`<source srcset='https://example.org/one 1x, https://example.org/two 2x'>`))
+    .toEqual(['https://example.org/one', 'https://example.org/two']);
 });
 
 test('preserves valid trailing punctuation inside structural URL delimiters', () => {

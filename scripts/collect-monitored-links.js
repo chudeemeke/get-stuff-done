@@ -4,6 +4,9 @@ const fs = require('fs');
 const { execFileSync } = require('child_process');
 const { parse } = require('smol-toml');
 const isSafeRegex = require('safe-regex');
+const MarkdownIt = require('markdown-it');
+
+const markdown = new MarkdownIt({ html: true, linkify: true });
 
 // Deliberately small, case-sensitive ASCII subset shared with Rust regex.
 // Validate in PR tests, rather than discovering dialect drift in the weekly job.
@@ -41,28 +44,39 @@ function exclusionPattern(pattern) {
   return new RegExp(source);
 }
 
-function trimLink(candidate, before, after) {
-  const structurallyDelimited =
-    (before === '<' && after === '>') ||
-    ((before === "'" || before === '"') && after === before);
-  if (structurallyDelimited) return candidate;
-  let url = candidate.replace(/[.,;]+$/, '');
-  // Markdown closes its destination with an extra ')'; keep balanced URL ones.
-  let balance = [...url].reduce((n, char) => n + (char === '(' ? 1 : char === ')' ? -1 : 0), 0);
-  while (url.endsWith(')') && balance < 0) {
-    url = url.slice(0, -1);
-    balance++;
+function htmlAttributeLinks(source) {
+  const links = [];
+  for (const attribute of source.matchAll(/\b(href|src|srcset)\s*=\s*(["'])([\s\S]*?)\2/gi)) {
+    if (attribute[1].toLowerCase() !== 'srcset') {
+      links.push(attribute[3].trim());
+      continue;
+    }
+    for (const match of markdown.linkify.match(attribute[3]) || []) links.push(match.url);
   }
-  return url;
+  return links;
+}
+
+function documentLinks(source) {
+  const links = [];
+  function visit(tokens) {
+    for (const token of tokens || []) {
+      if (token.type === 'link_open') links.push(token.attrGet('href'));
+      if (token.type === 'image') links.push(token.attrGet('src'));
+      if (token.type === 'html_block' || token.type === 'html_inline') {
+        links.push(...htmlAttributeLinks(token.content));
+      }
+      visit(token.children);
+    }
+  }
+  visit(markdown.parse(source, {}));
+  return links.filter(url => /^https?:\/\//.test(url));
 }
 
 function collectLinks(documents, configuration) {
   const patterns = (configuration.exclude || []).map(exclusionPattern);
   const links = new Set();
   for (const document of documents) {
-    for (const match of document.matchAll(/https?:\/\/[^\s<>"'`]+/g)) {
-      const start = match.index;
-      const url = trimLink(match[0], document[start - 1], document[start + match[0].length]);
+    for (const url of documentLinks(document)) {
       if (/^https?:\/\/localhost(?::|\/|$)/.test(url)) continue;
       if (patterns.some(pattern => pattern.test(url))) links.add(url);
     }
@@ -80,4 +94,4 @@ if (require.main === module) {
   process.stdout.write(`${urls.join('\n')}\n`);
 }
 
-module.exports = { collectLinks, exclusionPattern };
+module.exports = { collectLinks, documentLinks, exclusionPattern };

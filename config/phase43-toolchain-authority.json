@@ -30,9 +30,9 @@
         "updateTrigger": "resolve tag v8 and review release notes"
       },
       "actions/setup-node": {
-        "tag": "v6",
-        "sha": "249970729cb0ef3589644e2896645e5dc5ba9c38",
-        "updateTrigger": "resolve tag v6 and review release notes"
+        "tag": "v7.0.0",
+        "sha": "820762786026740c76f36085b0efc47a31fe5020",
+        "updateTrigger": "resolve tag v7.0.0 and review release notes"
       },
       "actions/upload-artifact": {
         "tag": "v7",

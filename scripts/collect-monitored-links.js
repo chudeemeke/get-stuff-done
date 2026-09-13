@@ -14,6 +14,12 @@ const SINGLE_URL_ATTRIBUTES = new Set([
 ]);
 const MULTI_URL_ATTRIBUTES = new Set(['archive', 'imagesrcset', 'itemtype', 'ping', 'srcset']);
 
+function normalizeSingleUrl(value) {
+  // The URL standard removes ASCII tabs and newlines before parsing. Keeping
+  // them would corrupt the collector's newline-delimited transport as well.
+  return value.replace(/[\t\n\r]/g, '').trim();
+}
+
 // Deliberately small, case-sensitive ASCII subset shared with Rust regex.
 // Validate in PR tests, rather than discovering dialect drift in the weekly job.
 function exclusionPattern(pattern) {
@@ -58,9 +64,11 @@ function htmlAttributeLinks(source) {
   const links = [];
   function visit(node) {
     for (const { name, value } of node.attrs || []) {
-      if (SINGLE_URL_ATTRIBUTES.has(name)) links.push(value.trim());
+      if (SINGLE_URL_ATTRIBUTES.has(name)) links.push(normalizeSingleUrl(value));
       if (MULTI_URL_ATTRIBUTES.has(name)) {
-        for (const match of markdown.linkify.match(value) || []) links.push(match.url);
+        for (const match of markdown.linkify.match(value) || []) {
+          links.push(normalizeSingleUrl(match.url));
+        }
       }
     }
     for (const child of node.childNodes || []) visit(child);
@@ -83,7 +91,7 @@ function documentLinks(source) {
     }
   }
   visit(markdown.parse(source, {}));
-  return links.filter(url => /^https?:\/\//.test(url));
+  return links.filter(url => /^https?:\/\//i.test(url));
 }
 
 function collectLinks(documents, configuration) {
@@ -91,7 +99,7 @@ function collectLinks(documents, configuration) {
   const links = new Set();
   for (const document of documents) {
     for (const url of documentLinks(document)) {
-      if (/^https?:\/\/localhost(?::|\/|$)/.test(url)) continue;
+      if (/^https?:\/\/localhost(?::|\/|$)/i.test(url)) continue;
       if (patterns.some(pattern => pattern.test(url))) links.add(url);
     }
   }

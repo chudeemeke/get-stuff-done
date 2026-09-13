@@ -71,6 +71,19 @@ test('HTML parsing preserves backslashes and decodes entities only once', () => 
     .toEqual(['https://example.org/a\\*b?x=&amp;']);
 });
 
+test('normalizes URL-standard ASCII tabs and newlines in HTML attributes', () => {
+  expect(documentLinks('<a href="https://example.org/a&#10;b&#x9;c&#13;d">link</a>'))
+    .toEqual(['https://example.org/abcd']);
+});
+
+test('accepts case-insensitive HTTP schemes before applying configured exclusions', () => {
+  const url = 'HTTPS://example.org/resource';
+  expect(documentLinks(`<a href="${url}">link</a>`)).toEqual([url]);
+  expect(collectLinks([`<a href="${url}">link</a>`], {
+    exclude: ['^HTTPS://example\\.org/'],
+  })).toEqual([url]);
+});
+
 test('decodes HTML entities in URL attributes before monitoring', () => {
   expect(documentLinks('<a href="https://example.org/?a=1&amp;b=2">link</a>'))
     .toEqual(['https://example.org/?a=1&b=2']);

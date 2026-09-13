@@ -41,7 +41,7 @@ compared across runs. Repeated 404/410 responses require an owned repair;
 timeouts and 5xx responses are availability evidence, not proof of link rot.
 The report names the repository owner for follow-up and sets the next weekly
 review date. An exclusion is not permission to stop monitoring the reference.
-Markdown links, autolinks, bare links and quoted HTML URL attributes are parsed
+Markdown links, autolinks, bare links and quoted or unquoted HTML URL attributes are parsed
 structurally so punctuation and apostrophes are not confused with delimiters.
 HTML character references in URL attributes are decoded to their browser target
 before availability checks and recurrence-key hashing.
@@ -56,6 +56,9 @@ requires a reviewed matcher change before it is added; do not assume arbitrary
 Rust regex syntax works in JavaScript. End anchors use absolute-end semantics.
 The validator also rejects expressions considered unsafe for JavaScript's
 backtracking engine, even if Lychee's linear-time Rust engine accepts them.
+Unbounded repetition of groups (`(...)*` and `(...)+`) is always rejected,
+including overlapping alternatives missed by repetition-depth heuristics.
+Optional groups remain supported for the existing host exclusions.
 
 Retry transient failed jobs once after the run completes. GitHub rejects job
 retries while another job in the run is active. Do not cancel valid performance

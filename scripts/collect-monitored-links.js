@@ -5,6 +5,7 @@ const { execFileSync } = require('child_process');
 const { parse } = require('smol-toml');
 const isSafeRegex = require('safe-regex');
 const MarkdownIt = require('markdown-it');
+const { parseFragment } = require('parse5');
 
 const markdown = new MarkdownIt({ html: true, linkify: true });
 
@@ -32,6 +33,10 @@ function exclusionPattern(pattern) {
       continue;
     } else if (pattern[i] === '(' && pattern[i + 1] === '?') {
       throw new Error(`Unsupported exclusion group/flags: ${pattern}`);
+    } else if (pattern[i] === ')' && ['*', '+'].includes(pattern[i + 1])) {
+      // safe-regex's repetition-depth heuristic misses overlapping alternatives.
+      // Reject all unbounded group repetition, not just known ambiguous examples.
+      throw new Error(`Repeated exclusion groups are unsupported: ${pattern}`);
     } else if ('{}].'.includes(pattern[i])) {
       throw new Error(`Unsupported exclusion syntax: ${pattern}`);
     }
@@ -46,14 +51,17 @@ function exclusionPattern(pattern) {
 
 function htmlAttributeLinks(source) {
   const links = [];
-  for (const attribute of source.matchAll(/\b(href|src|srcset)\s*=\s*(["'])([\s\S]*?)\2/gi)) {
-    const value = markdown.utils.unescapeAll(attribute[3].trim());
-    if (attribute[1].toLowerCase() !== 'srcset') {
-      links.push(value);
-      continue;
+  function visit(node) {
+    for (const { name, value } of node.attrs || []) {
+      if (name === 'href' || name === 'src') links.push(value.trim());
+      if (name === 'srcset') {
+        for (const match of markdown.linkify.match(value) || []) links.push(match.url);
+      }
     }
-    for (const match of markdown.linkify.match(value) || []) links.push(match.url);
+    for (const child of node.childNodes || []) visit(child);
+    if (node.content) visit(node.content); // HTML template contents
   }
+  visit(parseFragment(source));
   return links;
 }
 

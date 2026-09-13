@@ -40,6 +40,21 @@ test('extracts quoted HTML URL attributes and srcset candidates', () => {
     .toEqual(['https://example.org/one', 'https://example.org/two']);
 });
 
+test('parses unquoted HTML attributes and ignores attribute-like text', () => {
+  expect(documentLinks('<img SRC=https://example.org/chart data-src=https://example.org/ignored>'))
+    .toEqual(['https://example.org/chart']);
+  expect(documentLinks('<a href=https://example.org/?a&amp;b>link</a>'))
+    .toEqual(['https://example.org/?a&b']);
+  expect(documentLinks('<img alt="src=https://example.org/ignored" srcset=https://example.org/one>'))
+    .toEqual(['https://example.org/one']);
+  expect(documentLinks('<!-- <img src=https://example.org/ignored> -->')).toEqual([]);
+});
+
+test('HTML parsing preserves backslashes and decodes entities only once', () => {
+  expect(documentLinks('<img src="https://example.org/a\\*b?x=&amp;amp;">'))
+    .toEqual(['https://example.org/a\\*b?x=&amp;']);
+});
+
 test('decodes HTML entities in URL attributes before monitoring', () => {
   expect(documentLinks('<a href="https://example.org/?a=1&amp;b=2">link</a>'))
     .toEqual(['https://example.org/?a=1&b=2']);
@@ -73,6 +88,14 @@ test('rejects patterns unsafe for JavaScript backtracking evaluation', () => {
   for (const pattern of ['^https?://(a+)+$', '^https?://(a*)*$', '^https?://(a+){2}$']) {
     expect(() => exclusionPattern(pattern)).toThrow();
   }
+});
+
+test('rejects unbounded group repetition including overlapping alternatives', () => {
+  for (const pattern of ['^https://example\\.org/(a|aa)+$', '(ab|a)*$', '(a|a?)+$', '(abc)+']) {
+    expect(() => exclusionPattern(pattern)).toThrow('Repeated exclusion groups');
+  }
+  expect(exclusionPattern('^https?://(www\\.)?example\\.org/').test('https://www.example.org/'))
+    .toBe(true);
 });
 
 test('shared subset preserves literal escapes, groups, digits and absolute end', () => {

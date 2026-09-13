@@ -40,6 +40,13 @@ test('extracts quoted HTML URL attributes and srcset candidates', () => {
     .toEqual(['https://example.org/one', 'https://example.org/two']);
 });
 
+test('decodes HTML entities in URL attributes before monitoring', () => {
+  expect(documentLinks('<a href="https://example.org/?a=1&amp;b=2">link</a>'))
+    .toEqual(['https://example.org/?a=1&b=2']);
+  expect(documentLinks('<img src="https://example.org/&#x4f;%27Reilly">'))
+    .toEqual(["https://example.org/O%27Reilly"]);
+});
+
 test('preserves valid trailing punctuation inside structural URL delimiters', () => {
   expect(collectLinks([
     '<https://example.org/items;>',

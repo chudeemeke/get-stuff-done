@@ -47,11 +47,12 @@ function exclusionPattern(pattern) {
 function htmlAttributeLinks(source) {
   const links = [];
   for (const attribute of source.matchAll(/\b(href|src|srcset)\s*=\s*(["'])([\s\S]*?)\2/gi)) {
+    const value = markdown.utils.unescapeAll(attribute[3].trim());
     if (attribute[1].toLowerCase() !== 'srcset') {
-      links.push(attribute[3].trim());
+      links.push(value);
       continue;
     }
-    for (const match of markdown.linkify.match(attribute[3]) || []) links.push(match.url);
+    for (const match of markdown.linkify.match(value) || []) links.push(match.url);
   }
   return links;
 }

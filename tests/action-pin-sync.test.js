@@ -7,7 +7,7 @@ const workflow = steps => `name: test\non: push\njobs:\n  test:\n    runs-on: ub
 test('synchronizes actual steps and is idempotent', () => {
   const source = workflow('      - uses: actions/example@v1 # v1\n      - uses: actions/example@old\n');
   const result = synchronize(source, pins);
-  expect(result).toBe(source.replace('@v1 # v1', `@${pins['actions/example'].sha} # v2.0.0`)
+  expect(result).toBe(source.replace('@v1 # v1', `@${pins['actions/example'].sha} # pin: v2.0.0`)
     .replace('@old', `@${pins['actions/example'].sha}`));
   expect(synchronize(result, pins)).toBe(result);
 });
@@ -31,8 +31,17 @@ test('accepts all safe tag labels allowed by the authority schema', () => {
   const source = workflow('      - uses: actions/example@old # v1\n');
   for (const tag of ['stable', 'release-v2', '6', 'v2.1.0']) {
     expect(synchronize(source, { 'actions/example': { sha: 'a'.repeat(40), tag } }))
-      .toContain(`# ${tag}`);
+      .toContain(`# pin: ${tag}`);
   }
+});
+
+test('preserves one-word explanatory comments and updates explicit managed comments', () => {
+  for (const comment of ['temporary', 'reviewed', 'security-reviewed']) {
+    const source = workflow(`      - uses: actions/example@old # ${comment}\n`);
+    expect(synchronize(source, pins)).toBe(source.replace('@old', `@${pins['actions/example'].sha}`));
+  }
+  const managed = workflow('      - uses: actions/example@old # pin: stable\n');
+  expect(synchronize(managed, pins)).toContain(`# pin: ${pins['actions/example'].tag}`);
 });
 
 test('rejects unknown actions and mutable authority', () => {

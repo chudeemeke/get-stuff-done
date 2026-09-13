@@ -35,12 +35,15 @@ function synchronize(text, pins) {
     }
     const quote = original[0] === '"' || original[0] === "'" ? original[0] : '';
     let replacement = `${quote}${action}@${pin.sha}${quote}`;
-    // Only consume a version-only comment, preserving every other byte.
-    const comment = /^[ \t]+#\s*[A-Za-z0-9][A-Za-z0-9._/-]*[ \t]*(?=\r?\n|$)/
-      .exec(text.slice(end));
-    if (comment) {
+    // Legacy numeric version labels are unambiguous. New generated comments use
+    // an explicit marker so nonnumeric tags cannot be confused with prose.
+    const comment = /^[ \t]+#([^\r\n]*)(?=\r?\n|$)/.exec(text.slice(end));
+    const body = comment?.[1].trim();
+    const legacyTag = body && /^v?\d[\w.-]*$/.test(body) ? body : null;
+    const managedTag = body?.match(/^pin:\s*([A-Za-z0-9][A-Za-z0-9._/-]*)$/)?.[1];
+    if (comment && (legacyTag || managedTag) && (legacyTag || managedTag) !== pin.tag) {
       end += comment[0].length;
-      replacement += ` # ${pin.tag}`;
+      replacement += ` # pin: ${pin.tag}`;
     }
     edits.push({ start, end, replacement });
   }

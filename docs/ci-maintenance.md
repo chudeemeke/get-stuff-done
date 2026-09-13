@@ -19,6 +19,9 @@ remain with the development workflow. Passing CI does not approve a feature.
 The manifest is the approved pin authority. Workflow tests consume its SHAs;
 separate schema tests validate immutable commits and the authority structure.
 Dependabot proposes changes but does not approve a new authority automatically.
+Generated action-version comments use `# pin: <tag>`. Legacy numeric version
+comments are migrated on their next update; other comments are human context and
+are preserved even when they contain a single word.
 
 ## Failure triage
 
@@ -40,6 +43,8 @@ The report names the repository owner for follow-up and sets the next weekly
 review date. An exclusion is not permission to stop monitoring the reference.
 Markdown links, autolinks, bare links and quoted HTML URL attributes are parsed
 structurally so punctuation and apostrophes are not confused with delimiters.
+HTML character references in URL attributes are decoded to their browser target
+before availability checks and recurrence-key hashing.
 
 The collector and Lychee share a deliberately restricted regex subset, validated
 against `lychee.toml` by PR tests: case-sensitive ASCII literals, escaped regex

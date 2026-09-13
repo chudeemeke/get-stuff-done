@@ -14,7 +14,7 @@ const ACTION_PINS = {
   gitleaks: 'e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e',
   hardenRunner: 'bf7454d06d71f1098171f2acdf0cd4708d7b5920',
   lychee: 'e7477775783ea5526144ba13e8db5eec57747ce8',
-  setupNode: '249970729cb0ef3589644e2896645e5dc5ba9c38',
+  setupNode: '820762786026740c76f36085b0efc47a31fe5020',
   setupBun: '0c5077e51419868618aeaa5fe8019c62421857d6',
   uploadArtifact: '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
 };

@@ -25,9 +25,9 @@
         "updateTrigger": "resolve tag v8 and review release notes"
       },
       "actions/github-script": {
-        "tag": "v8",
-        "sha": "ed597411d8f924073f98dfc5c65a23a2325f34cd",
-        "updateTrigger": "resolve tag v8 and review release notes"
+        "tag": "v9.0.0",
+        "sha": "3a2844b7e9c422d3c10d287c895573f7108da1b3",
+        "updateTrigger": "resolve tag v9 and review release notes"
       },
       "actions/setup-node": {
         "tag": "v6",

@@ -15,9 +15,9 @@
         "updateTrigger": "resolve tag v5 and review release notes"
       },
       "actions/checkout": {
-        "tag": "v6",
-        "sha": "df4cb1c069e1874edd31b4311f1884172cec0e10",
-        "updateTrigger": "resolve tag v6 and review release notes"
+        "tag": "v7.0.1",
+        "sha": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "updateTrigger": "resolve tag v7.0.1 and review release notes"
       },
       "actions/download-artifact": {
         "tag": "v8",

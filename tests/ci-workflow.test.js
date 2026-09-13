@@ -8,7 +8,7 @@ const WORKFLOWS_DIR = path.join(PROJECT_ROOT, '.github', 'workflows');
 const CI_WORKFLOW = path.join(WORKFLOWS_DIR, 'ci.yml');
 const ACTION_PINS = {
   cache: 'caa296126883cff596d87d8935842f9db880ef25',
-  checkout: 'df4cb1c069e1874edd31b4311f1884172cec0e10',
+  checkout: '3d3c42e5aac5ba805825da76410c181273ba90b1',
   downloadArtifact: '3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c',
   githubScript: 'ed597411d8f924073f98dfc5c65a23a2325f34cd',
   gitleaks: 'e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e',

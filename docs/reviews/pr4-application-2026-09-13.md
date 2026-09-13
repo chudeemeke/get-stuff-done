@@ -3,65 +3,110 @@
 PR: https://github.com/chudeemeke/get-stuff-done/pull/4
 
 Recovered remote head: `81951b255cb8b7796fa28ae5311ed96da133b339`.
+First published safety fixes: `9376358f6f43aeeb56d339da7cad9d173fd13632`.
 Fetched main: `3d1ae34f29084d0c538fd9d8db37aa6f09c13ed1`.
-The complete application diff is the standalone doctor and its tests. Existing
-unregistered doctor files and other worktrees were preserved.
+Existing doctor work and all other worktrees were preserved.
+
+## Acceptance decision: blocked
+
+On September 13 the user selected both strict refusal when custom ACLs or
+ownership cannot safely be preserved, and ordinary non-elevated repair as a
+release requirement. The current implementation satisfies the refusal policy
+but does not satisfy ordinary non-elevated repair. Keep PR 4 blocked; no approval,
+merge, or readiness change is authorized. This decision is settled, not pending.
+
+Application development owns the remaining design and native implementation.
+The retirement trigger is a real non-elevated repair on each supported platform,
+with security metadata preservation/refusal, atomic visibility, durable backup,
+and failure recovery verified together. Injected inspection is not acceptance
+proof. A privileged-only implementation cannot close this requirement.
 
 ## Findings and changes
 
-- Non-dry repair refuses symbolic links before reading, parsing or creating
-  backups. Diagnosis and dry-run can inspect a link. The actionable refusal
-  directs the caller to inspect and explicitly select the regular target.
-- Suggested repair commands include the absolute script and settings paths,
-  quoted separately for Bash and PowerShell. Tests execute both suggestions
-  from another working directory with spaces, apostrophes and dollar signs.
-- Empty and flag-shaped settings values fail as usage errors. `check
-  --dry-run` is rejected rather than silently ignored.
-- Backup and staging creation is exclusive. Failed staging writes and renames
-  preserve the original, retain the backup, and clean only owned staging data.
-  Cleanup failure retains both diagnostics and the temporary path.
-- Pattern matching accepts the exact bunx executable basename, not arbitrary
-  executables ending in bunx. Successful repair output says repaired. CLI
-  output uses natural process termination to flush pipes.
+- Non-dry repair refuses final symbolic links before parsing or creating backups.
+  Diagnosis and dry-run can inspect them. The refusal explains how to inspect
+  and explicitly select the regular target.
+- Suggested commands retain the absolute custom settings path and script path,
+  with separate Bash and PowerShell literal quoting. Actual shell tests cover
+  spaces, apostrophes and dollar signs from a different working directory.
+- Empty or flag-shaped settings arguments and check with dry-run fail as usage
+  errors. Only an exact bunx executable basename is recognized. Repair output
+  distinguishes actual changes from dry-run and uses natural pipe flushing.
+- Security inspection precedes backup and replacement. Hard links, unsupported
+  filesystems, custom metadata, failed or malformed inspection, and incomplete
+  inspection are refused. Empty inspection probes are cleaned; simultaneous
+  inspection and cleanup failures retain both diagnostics.
+- Staged files receive and verify the original POSIX mode after creation, so a
+  restrictive umask cannot silently remove group access.
+- Unrelated JSON numbers that cannot round-trip losslessly are refused before
+  writing. Repaired hook paths with Bash expansion characters use literal
+  quoting, including embedded apostrophes.
+- Backup bytes are staged, flushed, and published exclusively by a hard link.
+  Partial backups never acquire the final backup name. Replacement bytes are
+  flushed before rename; parent directories are flushed on POSIX. Existing
+  backups are never overwritten. Failure cleanup retains the original or its
+  complete backup and reports cleanup failures. Windows directory flushing is
+  not provided by Node and is not claimed.
 
-## Validation
+## Validation and its limits
 
-- Pinned Bun 1.3.5: 69 tests passed, zero failed, 185 assertions across the
-  functional and decision suites.
-- Node/C8: 60 functional tests passed; `scripts/gsd-doctor.cjs` has 100 percent
-  statements, branches, functions and lines. Tier S decision tests reject nine
-  deliberately incorrect safety implementations.
-- Linux Node 20.20.2 probe: link refusal, dry-run, ordinary repair, exact backup,
-  link retention, unrelated settings, idempotence, and target/backup 0600 modes
-  passed. The earlier probe source hash is retained externally; repeat if its
-  relevant implementation changes.
-- Focused ESLint and whitespace checks passed. Complete pre-push results and
-  hosted checks must be attached to the actual published head separately.
-- Independent full-source review ran through Codex 0.154.0, live-resolved
-  gpt-5.6-sol at xhigh. Its seven findings were inspected. Six are fixed
-  (including the staging-write fix completed while review ran); security
-  metadata remains the blocker below.
+- Pinned Bun 1.3.5: 102 tests passed, zero failed, 324 assertions across four
+  focused files. Thirteen deliberately incorrect implementations are rejected.
+- Node: 89 functional, security and durability tests passed with no skips.
+- C8 reports 100 percent statements, branches, functions and lines separately
+  for both doctor modules. The per-file Tier S branch gate passes. This combines
+  Windows receipts and source-hash-verified Linux transaction receipts. Native
+  predicate logic is also exercised with injected inspection results; coverage
+  does not establish that privileged native inspection succeeds.
+- Native Linux Node 20.20.2 / Python 3.12.3: transaction tests with explicitly
+  injected successful inspection verify real filesystem repair, exact backup,
+  0660 target and backup under umask 0077, unrelated settings, symlink refusal
+  and preservation, dry-run and idempotence. A separate real security inspection
+  refuses on that account. The receipt says nativeRepairAvailable=false.
+- Windows CLI tests likewise verify actual safe refusal when audit inspection
+  is unavailable. Read-only Get-Acl -Audit fails on this account because
+  SeSecurityPrivilege is unavailable. Virtual PowerShell predicate tests do
+  not change on-disk ACLs. Native Windows repair success is not claimed.
+- Earlier native positive receipts predate the stricter inspector and are
+  historical. A complete Linux suite setup timed out downloading dependencies;
+  that is failed setup evidence, not a test pass.
 
-## Remaining blocker and recommendation
+Linux inspection currently requires an existing CAP_SYS_ADMIN capability to
+avoid silently missing trusted xattrs, checks inode flags and project metadata,
+and accepts only explicitly listed native filesystem types. Windows inspection
+compares full descriptors, rejects custom/audit rules, extra streams and unusual
+attributes. These restrictions leave ordinary non-elevated repair unsupported
+on both tested accounts. No elevation or permission reset was added. Authkey's
+inspected credential-broker code provides no established elevation route for
+this operation; Tailscale is not involved. Neither project was modified.
 
-The original atomic replacement preserves permission bits, but does not
-explicitly preserve custom Windows DACLs, extended POSIX ACLs, ownership or
-extended attributes. Ordinary-file and mode tests do not certify those cases.
-The attempted isolated Windows ACL-mutation probe was rejected by automatic
-approval review and did not execute. A user decision is pending between safe
-refusal for unsupported custom metadata and platform-specific preservation.
-Owner: application agent; trigger: resolve that policy and implement/test it
-before recommending approval. No approval or merge is recommended yet.
+The complete PR and a subsequent security packet were independently reviewed
+with Codex 0.154.0, live-resolved gpt-5.6-sol at xhigh. The subsequent review
+returned five findings: umask, hidden Linux metadata, unrelated number loss,
+hook quoting, and backup durability. The changes above address those concrete
+paths, but native successful inspection and final-revision independent review
+remain unverified. No clean final review verdict is claimed.
 
-No global settings were repaired. This is repository-local tooling, not a new
-npm-installed command. There is no whole-repository coverage or final hosted-CI
-compliance claim. CI workflow changes and monitoring belong to the CI owner.
+Evidence is retained under
+`C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13/`:
+`pr4-review-fixes-tests.log`, `pr4-security-coverage-final.log`,
+`pr4-linux-transaction-final.log`, `pr4-security-coverage/coverage-summary.json`,
+and `pr4-security-review-retry.md` with its raw review log. The first security
+review attempt stalled in startup hooks and was cancelled without a verdict.
+
+No global settings were repaired. This remains repository-local tooling, not
+an npm-installed command. No whole-repository coverage or hosted-CI compliance
+is claimed. An earlier ACL-modification probe was rejected by automatic review
+and never executed; subsequent Windows native inspection was read-only.
 
 ## CI owner handoff
 
-Use the published PR head, not the recovered head or historical green checks.
-Changes are limited to doctor source, tests and this application review.
-Run the existing required checks unchanged; report infrastructure failures
-separately from application failures. The focused command is `bun run test
-tests/gsd-doctor.test.js tests/gsd-doctor-decisions.test.js`. Do not approve,
-merge or change draft/readiness state on the strength of this handoff.
+Use the newly published head, not historical checks. Changes are limited to
+application source, regression tests and this review. Run existing required
+checks unchanged; CI workflows and monitoring remain with the CI owner.
+Focused command: `bun run test tests/gsd-doctor.test.js
+tests/gsd-doctor-security.test.js tests/gsd-doctor-durability.test.js
+tests/gsd-doctor-decisions.test.js`.
+
+Passing CI cannot close the non-elevated repair blocker. No infrastructure
+redesign, approval, merge, or readiness change is requested.

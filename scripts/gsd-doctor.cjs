@@ -47,6 +47,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { assertRepairSafe } = require('./lib/doctor-security.cjs');
 
 const VERSION = '0.1.0';
 
@@ -60,7 +61,7 @@ const VERSION = '0.1.0';
  * Anchors:
  *   ^                                        — start of string (& must lead)
  *   & "                                      — literal PowerShell call-op + quote
- *   ([^"]*bunx(?:\.exe)?)                    — group 1: any path ending in bunx or bunx.exe
+ *   runner basename bunx or bunx.exe         — group 1: optional directory plus exact basename
  *   "                                        — close runner-path quote
  *   space
  *   ("[^"]+\.(?:js|cjs|mjs)")                — group 2: FULL quoted script path (incl. both quotes)
@@ -70,8 +71,8 @@ const VERSION = '0.1.0';
  * invocations of node-runnable scripts. .sh / .ps1 / other shapes are out
  * of scope (and never had this bug per investigation).
  *
- * Group 2 captures the full `"PATH"` form so the replacement is a clean
- * `node ${m[2]}` with no manual quote re-appending (correct-by-construction).
+ * Group 2 captures the full quoted path. Paths containing Bash expansion or
+ * escape characters are re-quoted as literal single-quoted arguments.
  */
 const BROKEN_RE = /^& "((?:[^"\r\n]*[/\\])?bunx(?:\.exe)?)" ("[^"\r\n]+\.(?:js|cjs|mjs)")$/;
 
@@ -83,7 +84,62 @@ function repairCommand(cmd) {
   if (typeof cmd !== 'string') return { fixed: false };
   const m = cmd.match(BROKEN_RE);
   if (!m) return { fixed: false };
-  return { fixed: true, before: cmd, after: `node ${m[2]}` };
+  const scriptPath = m[2].slice(1, -1);
+  const argument = /[$`\\]/.test(scriptPath)
+    ? "'" + scriptPath.replace(/'/g, "'\"'\"'") + "'"
+    : m[2];
+  return { fixed: true, before: cmd, after: `node ${argument}` };
+}
+
+function canonicalNumber(token) {
+  const parts = token.toLowerCase().match(/^(-?)(\d+)(?:\.(\d+))?(?:e([+-]?\d+))?$/);
+  const fraction = parts[3] || '';
+  const digits = (parts[2] + fraction).replace(/^0+/, '');
+  if (!digits) return parts[1] + '0';
+  const trailing = digits.match(/0*$/)[0].length;
+  const power = BigInt(parts[4] || '0') - BigInt(fraction.length) + BigInt(trailing);
+  return parts[1] + digits.slice(0, digits.length - trailing) + 'e' + power;
+}
+
+function assertLosslessNumbers(raw) {
+  // JSON was parsed successfully already. Skip complete string tokens so
+  // digits in keys, escaped strings and hook commands are never inspected.
+  const tokens = raw.matchAll(/"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g);
+  for (const [token] of tokens) {
+    if (token.startsWith('"')) continue;
+    const value = Number(token);
+    if (!Number.isFinite(value) || canonicalNumber(token) !== canonicalNumber(JSON.stringify(value))) {
+      throw new Error('An unrelated JSON number cannot be represented losslessly; settings are unchanged.');
+    }
+  }
+}
+
+function removeFailedStage(file, error) {
+  try { fs.unlinkSync(file); } catch (cleanupError) {
+    throw new AggregateError([error, cleanupError],
+      `${error.message}; temporary repair cleanup failed at ${file}: ${cleanupError.message}`);
+  }
+  throw error;
+}
+
+function writeDurableStage(file, contents, mode) {
+  // Opening outside the cleanup catch protects a pre-existing file on EEXIST.
+  const fd = fs.openSync(file, 'wx', mode);
+  try {
+    try {
+      fs.fchmodSync(fd, mode);
+      if ((fs.fstatSync(fd).mode & 0o777) !== mode) throw new Error('Repair file permission verification failed');
+      fs.writeFileSync(fd, contents);
+      fs.fsyncSync(fd);
+    } finally { fs.closeSync(fd); }
+  } catch (error) { removeFailedStage(file, error); }
+}
+
+function syncParent(file) {
+  // Node does not expose a supported directory flush on Windows.
+  if (process.platform === 'win32') return;
+  const fd = fs.openSync(path.dirname(file), 'r');
+  try { fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
 }
 
 /**
@@ -152,7 +208,7 @@ function diagnose(settings) {
  *   - post-repair content fails round-trip JSON.parse
  *   - filesystem write fails
  */
-function repair({ settingsPath, dryRun = false } = {}) {
+function repair({ settingsPath, dryRun = false, inspectSecurity = assertRepairSafe } = {}) {
   if (!settingsPath) {
     settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
   }
@@ -172,6 +228,8 @@ function repair({ settingsPath, dryRun = false } = {}) {
     return { settingsPath, backupPath: null, changed: findings.length, findings, dryRun: true };
   }
 
+  assertLosslessNumbers(raw);
+
   // Apply repair (mutates settings in place)
   const changed = walkHookCommands(settings, (cmd) => {
     const r = repairCommand(cmd);
@@ -188,6 +246,11 @@ function repair({ settingsPath, dryRun = false } = {}) {
   const newRaw = JSON.stringify(settings, null, 2) + '\n';
   JSON.parse(newRaw); // throws if invalid (defensive — should never trigger)
 
+  // No original bytes or backup bytes may be written before this proves that
+  // replacement can retain the supported security metadata. Inspection failure
+  // and custom metadata are refusals, never implicit permission resets.
+  inspectSecurity(settingsPath);
+
   // Capture original file mode for permission preservation. On POSIX/WSL a
   // 0600 settings.json must remain 0600 after repair; default Node fs.writeFile
   // creates files at 0644 which would broaden access. No-op on Windows native
@@ -197,26 +260,18 @@ function repair({ settingsPath, dryRun = false } = {}) {
   // Backup
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const backupPath = settingsPath + '.bak.' + ts;
-  fs.writeFileSync(backupPath, raw, { mode: origMode, flag: 'wx' });
+  const backupStage = backupPath + '.incomplete';
+  writeDurableStage(backupStage, raw, origMode);
+  // Atomic, exclusive publication: an existing backup cannot be replaced.
+  try { fs.linkSync(backupStage, backupPath); } catch (error) { removeFailedStage(backupStage, error); }
+  fs.unlinkSync(backupStage);
+  syncParent(backupPath);
 
   // Atomic write
   const tmpPath = settingsPath + '.tmp.' + ts;
-  // Exclusive creation preserves any pre-existing backup/staging artifact.
-  const fd = fs.openSync(tmpPath, 'wx', origMode);
-  try {
-    try {
-      fs.writeFileSync(fd, newRaw);
-    } finally {
-      fs.closeSync(fd);
-    }
-    fs.renameSync(tmpPath, settingsPath);
-  } catch (error) {
-    try { fs.unlinkSync(tmpPath); } catch (cleanupError) {
-      throw new AggregateError([error, cleanupError],
-        `${error.message}; temporary repair cleanup failed at ${tmpPath}: ${cleanupError.message}`);
-    }
-    throw error;
-  }
+  writeDurableStage(tmpPath, newRaw, origMode);
+  try { fs.renameSync(tmpPath, settingsPath); } catch (error) { removeFailedStage(tmpPath, error); }
+  syncParent(settingsPath);
 
   return { settingsPath, backupPath, changed, findings, dryRun: false };
 }
@@ -236,6 +291,11 @@ Subcommands:
   repair              Repair broken hook commands. Creates timestamped
                       backup before any modification. Refuses symbolic links;
                       inspect the target and select it explicitly with --settings.
+                      Refuses custom or uninspectable security metadata. Windows
+                      requires audit-security read privilege; supported native
+                      Linux filesystems require Python 3, complete xattr/ioctl
+                      inspection and an existing CAP_SYS_ADMIN capability.
+                      The doctor never elevates or changes permissions to inspect.
 
 Options:
   --settings <path>   Select the settings.json file to inspect or repair.

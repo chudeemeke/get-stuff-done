@@ -22,7 +22,21 @@ const { spawnSync } = require('child_process');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const SCRIPT = process.env.GSD_DOCTOR_TEST_SUBJECT || path.join(PROJECT_ROOT, 'scripts', 'gsd-doctor.cjs');
-const doctor = require(SCRIPT);
+const implementation = require(SCRIPT);
+const { assertRepairSafe } = require('../scripts/lib/doctor-security.cjs');
+const capabilityDir = fs.mkdtempSync(path.join(os.tmpdir(), 'doctor-capability-'));
+let nativeRepairAvailable = true;
+try {
+  const probe = path.join(capabilityDir, 'settings.json');
+  fs.writeFileSync(probe, '{}', { mode: 0o600 });
+  try { assertRepairSafe(probe); } catch { nativeRepairAvailable = false; }
+} finally { fs.rmSync(capabilityDir, { recursive: true, force: true }); }
+// Transaction/fault tests use an injected successful security inspection on
+// hosts without native inspection privileges. CLI tests below retain the real
+// inspector and verify refusal. Native Linux validation exercises both together.
+const doctor = { ...implementation, repair: options => implementation.repair({
+  ...options, ...(!nativeRepairAvailable ? { inspectSecurity: () => {} } : {}),
+}) };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -450,6 +464,14 @@ describe('CLI — exit codes and output', () => {
       const result = spawnSync(shell === 'Bash' ? 'bash' : 'pwsh',
         shell === 'Bash' ? ['--noprofile', '--norc', '-c', command] : ['-NoProfile', '-NonInteractive', '-Command', command],
         { cwd: tmp, env, encoding: 'utf8', timeout: 15000 });
+      if (!nativeRepairAvailable) {
+        expect(result.status).toBe(1);
+        expect(result.stderr).toContain(`Refusing repair of ${p}: security metadata cannot be safely preserved`);
+        expect(doctor.diagnose(readSettings(p))).toHaveLength(1);
+        expect(fs.readFileSync(defaultPath)).toEqual(originalDefault);
+        expect(fs.readdirSync(custom)).toEqual(['settings.json']);
+        return;
+      }
       expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' });
       expect(doctor.diagnose(readSettings(p))).toEqual([]);
       expect(readSettings(p).permissions).toEqual({ allow: ['Read'] });
@@ -458,9 +480,16 @@ describe('CLI — exit codes and output', () => {
     });
   }
 
-  test('repair on broken settings exits 0 and fixes', () => {
+  test('repair fixes ordinary settings when inspection succeeds, otherwise refuses unchanged', () => {
     const p = writeSettings(tmp, buildSettings({ broken: 2, clean: 0 }));
     const r = runCLI(['repair', '--settings', p]);
+    if (!nativeRepairAvailable) {
+      expect(r.status).toBe(1);
+      expect(r.stderr).toContain(`Refusing repair of ${p}: security metadata cannot be safely preserved`);
+      expect(doctor.diagnose(readSettings(p))).toHaveLength(2);
+      expect(fs.readdirSync(tmp)).toEqual(['settings.json']);
+      return;
+    }
     expect(r.status).toBe(0);
     expect(r.stdout).toMatch(/repaired 2/);
     expect(r.stdout).not.toContain('would repair');
@@ -568,7 +597,10 @@ describe('doctor failure boundaries', () => {
       const p = writeSettings(tmp, buildSettings({ broken: 1 }));
       const before = fs.readFileSync(p);
       fs.renameSync = () => { throw new Error('rename denied'); };
-      fs.unlinkSync = () => { throw new Error('cleanup denied'); };
+      fs.unlinkSync = candidate => {
+        if (candidate.includes('.tmp.')) throw new Error('cleanup denied');
+        return unlink(candidate);
+      };
       expect(() => doctor.repair({ settingsPath: p })).toThrow(/rename denied.*cleanup failed.*cleanup denied/);
       expect(fs.readFileSync(p)).toEqual(before);
     } finally { fs.renameSync = rename; fs.unlinkSync = unlink; fs.rmSync(tmp, { recursive: true, force: true }); }

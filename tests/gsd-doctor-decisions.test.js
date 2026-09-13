@@ -9,25 +9,28 @@ const { spawnSync } = require('child_process');
 const source = fs.readFileSync(path.join(__dirname, '../scripts/gsd-doctor.cjs'), 'utf8');
 const cases = [
   ['link refusal', 'fs.lstatSync(settingsPath).isSymbolicLink()', 'false', 'refuses a symlinked'],
-  ['backup exclusion', "mode: origMode, flag: 'wx'", "mode: origMode, flag: 'w'", 'timestamp collision'],
-  ['cleanup', 'fs.unlinkSync(tmpPath);', 'void tmpPath;', 'failed atomic rename'],
+  ['backup exclusion', 'fs.linkSync(backupStage, backupPath);', 'fs.copyFileSync(backupStage, backupPath);', 'timestamp collision'],
+  ['cleanup', 'fs.unlinkSync(file);', 'void file;', 'failed atomic rename'],
   ['empty path refusal', "!next || next.startsWith('-')", "next === undefined || next.startsWith('--')", 'rejects unsafe --settings'],
   ['diagnostic agreement', 'changed !== findings.length', 'false', 'diagnosis and mutation disagree'],
   ['dry run', 'if (dryRun)', 'if (false)', 'dry-run reports without writing'],
   ['unrelated commands', 'return r.fixed ? r.after : cmd;', "return r.fixed ? r.after : 'changed';", 'preserves unrelated hook commands'],
-  ['repair output', 'after: `node ${m[2]}`', 'after: cmd', 'repairs a canonical broken shape'],
+  ['repair output', 'after: `node ${argument}`', 'after: cmd', 'repairs a canonical broken shape'],
   ['custom settings binding', 'path.resolve(settingsPath)', "path.join(os.homedir(), '.claude', 'settings.json')", 'suggested Bash'],
+  ['security guard invocation', 'inspectSecurity(settingsPath);', 'void settingsPath;', 'security refusal precedes', 'gsd-doctor-security.test.js'],
 ];
 
 describe('doctor safety decision checks', () => {
-  for (const [name, before, after, pattern] of cases) {
+  for (const [name, before, after, pattern, testFile = 'gsd-doctor.test.js'] of cases) {
     test(`rejects incorrect ${name}`, { timeout: 30000 }, () => {
       expect(source.split(before).length - 1).toBe(1);
       const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-doctor-decision-'));
       try {
         const subject = path.join(directory, 'doctor.cjs');
         fs.writeFileSync(subject, source.replace(before, after));
-        const result = spawnSync('node', ['--test', '--test-name-pattern', pattern, path.join(__dirname, 'gsd-doctor.test.js')], {
+        fs.mkdirSync(path.join(directory, 'lib'));
+        fs.copyFileSync(path.join(__dirname, '../scripts/lib/doctor-security.cjs'), path.join(directory, 'lib/doctor-security.cjs'));
+        const result = spawnSync('node', ['--test', '--test-name-pattern', pattern, path.join(__dirname, testFile)], {
           encoding: 'utf8', timeout: 20000,
           env: { ...process.env, GSD_DOCTOR_TEST_SUBJECT: subject },
         });
@@ -44,3 +47,29 @@ describe('doctor safety decision checks', () => {
     });
   }
 });
+
+const securitySource = fs.readFileSync(path.join(__dirname, '../scripts/lib/doctor-security.cjs'), 'utf8');
+for (const [name, before, after, pattern] of [
+  ['explicit security proof', 'evidence.safe !== true', 'false', 'native security protocol: custom metadata'],
+  ['successful inspector exit', 'result.error || result.status !== 0', 'result.error', 'native security protocol: failed inspection'],
+  ['single-link ownership', 'stat.nlink !== 1', 'false', 'refuses hard links'],
+]) {
+  test(`rejects incorrect ${name}`, { timeout: 30000 }, () => {
+    expect(securitySource.split(before).length - 1).toBe(1);
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-doctor-security-decision-'));
+    try {
+      const subject = path.join(directory, 'security.cjs');
+      fs.writeFileSync(subject, securitySource.replace(before, after));
+      const result = spawnSync('node', ['--test', '--test-name-pattern', pattern, path.join(__dirname, 'gsd-doctor-security.test.js')], {
+        encoding: 'utf8', timeout: 20000,
+        env: { ...process.env, GSD_DOCTOR_SECURITY_SUBJECT: subject },
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.status).toBe(1);
+      expect(result.stdout + result.stderr).toMatch(/Expected|expect\(|AssertionError/);
+    } finally {
+      if (path.dirname(path.resolve(directory)) !== path.resolve(os.tmpdir()) || !path.basename(directory).startsWith('gsd-doctor-security-decision-')) throw new Error('Unsafe decision-fixture cleanup');
+      fs.rmSync(directory, { recursive: true, force: true });
+    }
+  });
+}

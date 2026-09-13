@@ -3,6 +3,7 @@
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 const { parse } = require('smol-toml');
+const isSafeRegex = require('safe-regex');
 
 // Deliberately small, case-sensitive ASCII subset shared with Rust regex.
 // Validate in PR tests, rather than discovering dialect drift in the weekly job.
@@ -34,10 +35,17 @@ function exclusionPattern(pattern) {
     // Rust's $ is absolute end; JavaScript's also accepts a final newline.
     source += pattern[i] === '$' ? '(?![\\s\\S])' : pattern[i];
   }
+  if (!isSafeRegex(pattern)) {
+    throw new Error(`Exclusion is unsafe for JavaScript regex evaluation: ${pattern}`);
+  }
   return new RegExp(source);
 }
 
-function trimLink(candidate) {
+function trimLink(candidate, before, after) {
+  const structurallyDelimited =
+    (before === '<' && after === '>') ||
+    ((before === "'" || before === '"') && after === before);
+  if (structurallyDelimited) return candidate;
   let url = candidate.replace(/[.,;]+$/, '');
   // Markdown closes its destination with an extra ')'; keep balanced URL ones.
   let balance = [...url].reduce((n, char) => n + (char === '(' ? 1 : char === ')' ? -1 : 0), 0);
@@ -53,7 +61,8 @@ function collectLinks(documents, configuration) {
   const links = new Set();
   for (const document of documents) {
     for (const match of document.matchAll(/https?:\/\/[^\s<>"'`]+/g)) {
-      const url = trimLink(match[0]);
+      const start = match.index;
+      const url = trimLink(match[0], document[start - 1], document[start + match[0].length]);
       if (/^https?:\/\/localhost(?::|\/|$)/.test(url)) continue;
       if (patterns.some(pattern => pattern.test(url))) links.add(url);
     }

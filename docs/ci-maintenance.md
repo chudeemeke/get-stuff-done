@@ -47,6 +47,8 @@ or Unicode escapes, lookaround and inline flags (including `(?i)`) are rejected.
 Use explicit case alternatives when needed. An exclusion needing a wider dialect
 requires a reviewed matcher change before it is added; do not assume arbitrary
 Rust regex syntax works in JavaScript. End anchors use absolute-end semantics.
+The validator also rejects expressions considered unsafe for JavaScript's
+backtracking engine, even if Lychee's linear-time Rust engine accepts them.
 
 Retry transient failed jobs once after the run completes. GitHub rejects job
 retries while another job in the run is active. Do not cancel valid performance

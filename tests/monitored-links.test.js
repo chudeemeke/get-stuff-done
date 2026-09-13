@@ -30,6 +30,15 @@ test('stops at both HTML quote delimiters', () => {
   ]);
 });
 
+test('preserves valid trailing punctuation inside structural URL delimiters', () => {
+  expect(collectLinks([
+    '<https://example.org/items;>',
+    `<a href='https://example.org/item,'>item</a>`,
+  ], { exclude: ['^https://example\\.org/'] })).toEqual([
+    'https://example.org/item,', 'https://example.org/items;',
+  ]);
+});
+
 test('validates actual Lychee exclusions during PR testing', () => {
   const config = parse(fs.readFileSync(path.join(__dirname, '../lychee.toml'), 'utf8'));
   for (const pattern of [...config.exclude, ...config.exclude_path]) {
@@ -43,11 +52,18 @@ test('rejects dialect-specific patterns explicitly rather than silently changing
   }
 });
 
+test('rejects patterns unsafe for JavaScript backtracking evaluation', () => {
+  for (const pattern of ['^https?://(a+)+$', '^https?://(a*)*$', '^https?://(a+){2}$']) {
+    expect(() => exclusionPattern(pattern)).toThrow();
+  }
+});
+
 test('shared subset preserves literal escapes, groups, digits and absolute end', () => {
-  const regex = exclusionPattern('^http://localhost(:[0-9]+)?(/|$)');
-  expect(regex.test('http://localhost:123/')).toBe(true);
-  expect(regex.test('http://localhost')).toBe(true);
-  expect(regex.test('http://localhost\n')).toBe(false);
+  const host = exclusionPattern('^http://localhost(/|$)');
+  const port = exclusionPattern('^http://localhost:[0-9]+(/|$)');
+  expect(port.test('http://localhost:123/')).toBe(true);
+  expect(host.test('http://localhost')).toBe(true);
+  expect(host.test('http://localhost\n')).toBe(false);
   expect(exclusionPattern('^https://example\\.org/').test('https://exampleXorg/')).toBe(false);
 });
 

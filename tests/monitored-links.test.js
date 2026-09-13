@@ -40,6 +40,22 @@ test('extracts quoted HTML URL attributes and srcset candidates', () => {
     .toEqual(['https://example.org/one', 'https://example.org/two']);
 });
 
+test('extracts standard single and multi URL-bearing HTML attributes', () => {
+  expect(documentLinks([
+    '<form action="https://example.org/submit">',
+    '<video poster=https://example.org/poster>',
+    '<blockquote cite="https://example.org/source">',
+    '<object data=https://example.org/object>',
+    '<button formaction=https://example.org/button>',
+    '<a ping="https://example.org/ping-one https://example.org/ping-two">',
+  ].join(''))).toEqual([
+    'https://example.org/submit', 'https://example.org/poster',
+    'https://example.org/source', 'https://example.org/object',
+    'https://example.org/button', 'https://example.org/ping-one',
+    'https://example.org/ping-two',
+  ]);
+});
+
 test('parses unquoted HTML attributes and ignores attribute-like text', () => {
   expect(documentLinks('<img SRC=https://example.org/chart data-src=https://example.org/ignored>'))
     .toEqual(['https://example.org/chart']);

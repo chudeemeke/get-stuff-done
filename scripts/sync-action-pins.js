@@ -39,8 +39,10 @@ function synchronize(text, pins) {
     // an explicit marker so nonnumeric tags cannot be confused with prose.
     const comment = /^[ \t]+#([^\r\n]*)(?=\r?\n|$)/.exec(text.slice(end));
     const body = comment?.[1].trim();
-    const legacyTag = body && /^v?\d[\w.-]*$/.test(body) ? body : null;
-    const managedTag = body?.match(/^pin:\s*([A-Za-z0-9][A-Za-z0-9._/-]*)$/)?.[1];
+    // Legacy comments predate the explicit marker and only used numeric majors
+    // or dotted versions. Do not guess from numeric-prefixed human prose.
+    const legacyTag = body && /^v\d+(?:\.\d+){0,2}$/.test(body) ? body : null;
+    const managedTag = body?.startsWith('pin: ') ? body.slice(5) : null;
     if (comment && (legacyTag || managedTag) && (legacyTag || managedTag) !== pin.tag) {
       end += comment[0].length;
       replacement += ` # pin: ${pin.tag}`;

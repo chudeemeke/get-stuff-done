@@ -19,9 +19,10 @@ remain with the development workflow. Passing CI does not approve a feature.
 The manifest is the approved pin authority. Workflow tests consume its SHAs;
 separate schema tests validate immutable commits and the authority structure.
 Dependabot proposes changes but does not approve a new authority automatically.
-Generated action-version comments use `# pin: <tag>`. Legacy numeric version
-comments are migrated on their next update; other comments are human context and
-are preserved even when they contain a single word.
+Generated action-version comments use `# pin: <tag>`. Git-valid tag punctuation
+is accepted when it is safe in a single-line YAML comment. Only legacy `vN` and
+`vN.N[.N]` comments are migrated on their next update; numeric-prefixed prose and
+all other comments are preserved as human context.
 
 ## Failure triage
 
@@ -41,10 +42,13 @@ compared across runs. Repeated 404/410 responses require an owned repair;
 timeouts and 5xx responses are availability evidence, not proof of link rot.
 The report names the repository owner for follow-up and sets the next weekly
 review date. An exclusion is not permission to stop monitoring the reference.
-Markdown links, autolinks, bare links and quoted or unquoted HTML URL attributes are parsed
-structurally so punctuation and apostrophes are not confused with delimiters.
+Markdown links, autolinks, bare links and standard URL-bearing HTML attributes
+are parsed structurally, whether quoted or unquoted, so punctuation and
+apostrophes are not confused with delimiters. Multi-URL attributes such as
+`srcset` and `ping` are expanded into individual monitored URLs.
 HTML character references in URL attributes are decoded to their browser target
-before availability checks and recurrence-key hashing.
+before availability checks and recurrence-key hashing. URLs are escaped when
+rendered in Markdown evidence tables without changing the requested URL or key.
 
 The collector and Lychee share a deliberately restricted regex subset, validated
 against `lychee.toml` by PR tests: case-sensitive ASCII literals, escaped regex

@@ -71,7 +71,9 @@ jobs:
             # for the table cell, and the %s placeholders must reach printf unexpanded. The
             # values are passed as arguments, so nothing here needs shell expansion.
             # shellcheck disable=SC2016
-            printf '| `%s` | `%s` | `%s` | %s |\n' "$key" "$code" "$classification" "$url" \
+            display_url="${url//\\/\\\\}"
+            display_url="${display_url//|/\\|}"
+            printf '| `%s` | `%s` | `%s` | %s |\n' "$key" "$code" "$classification" "$display_url" \
               >> decorative-link-availability.md
           done < decorative-links.txt
 

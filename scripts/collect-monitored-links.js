@@ -8,6 +8,11 @@ const MarkdownIt = require('markdown-it');
 const { parseFragment } = require('parse5');
 
 const markdown = new MarkdownIt({ html: true, linkify: true });
+const SINGLE_URL_ATTRIBUTES = new Set([
+  'action', 'background', 'cite', 'codebase', 'data', 'formaction', 'href',
+  'itemid', 'longdesc', 'manifest', 'poster', 'profile', 'src', 'usemap',
+]);
+const MULTI_URL_ATTRIBUTES = new Set(['archive', 'imagesrcset', 'itemtype', 'ping', 'srcset']);
 
 // Deliberately small, case-sensitive ASCII subset shared with Rust regex.
 // Validate in PR tests, rather than discovering dialect drift in the weekly job.
@@ -53,8 +58,8 @@ function htmlAttributeLinks(source) {
   const links = [];
   function visit(node) {
     for (const { name, value } of node.attrs || []) {
-      if (name === 'href' || name === 'src') links.push(value.trim());
-      if (name === 'srcset') {
+      if (SINGLE_URL_ATTRIBUTES.has(name)) links.push(value.trim());
+      if (MULTI_URL_ATTRIBUTES.has(name)) {
         for (const match of markdown.linkify.match(value) || []) links.push(match.url);
       }
     }

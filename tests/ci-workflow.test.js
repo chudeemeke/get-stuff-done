@@ -12,7 +12,7 @@ const ACTION_PINS = {
   downloadArtifact: '3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c',
   githubScript: 'ed597411d8f924073f98dfc5c65a23a2325f34cd',
   gitleaks: 'e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e',
-  hardenRunner: 'bf7454d06d71f1098171f2acdf0cd4708d7b5920',
+  hardenRunner: '05e31511f85b41b11d1cf0ef85d0992719546e2c',
   lychee: 'e7477775783ea5526144ba13e8db5eec57747ce8',
   setupNode: '249970729cb0ef3589644e2896645e5dc5ba9c38',
   setupBun: '0c5077e51419868618aeaa5fe8019c62421857d6',

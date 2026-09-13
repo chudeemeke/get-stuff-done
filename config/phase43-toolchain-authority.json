@@ -55,9 +55,9 @@
         "updateTrigger": "resolve tag v2 and review release notes"
       },
       "step-security/harden-runner": {
-        "tag": "v2",
-        "sha": "bf7454d06d71f1098171f2acdf0cd4708d7b5920",
-        "updateTrigger": "resolve tag v2 and review release notes"
+        "tag": "v2.21.0",
+        "sha": "05e31511f85b41b11d1cf0ef85d0992719546e2c",
+        "updateTrigger": "resolve tag v2.21.0 and review release notes"
       }
     }
   },

@@ -12,7 +12,8 @@ const SINGLE_URL_ATTRIBUTES = new Set([
   'action', 'background', 'cite', 'codebase', 'data', 'formaction', 'href',
   'itemid', 'longdesc', 'manifest', 'poster', 'profile', 'src', 'usemap',
 ]);
-const MULTI_URL_ATTRIBUTES = new Set(['archive', 'imagesrcset', 'itemtype', 'ping', 'srcset']);
+const SPACE_SEPARATED_URL_ATTRIBUTES = new Set(['archive', 'itemtype', 'ping']);
+const SRCSET_ATTRIBUTES = new Set(['imagesrcset', 'srcset']);
 
 function normalizeSingleUrl(value) {
   // The URL standard removes ASCII tabs and newlines anywhere, then trims only
@@ -25,6 +26,33 @@ function normalizeSingleUrl(value) {
   // percent escapes, scheme spelling, or non-ASCII URL data.
   return normalized.replace(/[\x00-\x08\x0b\x0c\x0e-\x20]/g, character =>
     `%${character.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`);
+}
+
+function spaceSeparatedUrls(value) {
+  return value.split(/[\t\n\f\r ]+/).filter(Boolean).map(normalizeSingleUrl);
+}
+
+function srcsetUrls(value) {
+  const urls = [];
+  let position = 0;
+  while (position < value.length) {
+    while (position < value.length && /[\t\n\f\r ,]/.test(value[position])) position++;
+    const start = position;
+    while (position < value.length && !/[\t\n\f\r ]/.test(value[position])) position++;
+    let url = value.slice(start, position);
+    while (url.endsWith(',')) url = url.slice(0, -1);
+    if (url) urls.push(normalizeSingleUrl(url));
+
+    // Descriptors end at a comma outside parentheses. They are irrelevant to
+    // availability, but consuming them keeps commas inside URLs intact.
+    let parentheses = 0;
+    while (position < value.length) {
+      if (value[position] === '(') parentheses++;
+      if (value[position] === ')' && parentheses > 0) parentheses--;
+      if (value[position++] === ',' && parentheses === 0) break;
+    }
+  }
+  return urls;
 }
 
 // Deliberately small, case-sensitive ASCII subset shared with Rust regex.
@@ -77,11 +105,8 @@ function htmlAttributeLinks(source) {
   function visit(node) {
     for (const { name, value } of node.attrs || []) {
       if (SINGLE_URL_ATTRIBUTES.has(name)) links.push(normalizeSingleUrl(value));
-      if (MULTI_URL_ATTRIBUTES.has(name)) {
-        for (const match of markdown.linkify.match(value) || []) {
-          links.push(normalizeSingleUrl(match.url));
-        }
-      }
+      if (SPACE_SEPARATED_URL_ATTRIBUTES.has(name)) links.push(...spaceSeparatedUrls(value));
+      if (SRCSET_ATTRIBUTES.has(name)) links.push(...srcsetUrls(value));
     }
     for (const child of node.childNodes || []) visit(child);
     if (node.content) visit(node.content); // HTML template contents

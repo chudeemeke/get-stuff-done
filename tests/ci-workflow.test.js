@@ -52,6 +52,7 @@ test('external availability report escapes Markdown table delimiters in URLs', (
   const workflow = readWorkflow('docs-link-availability.yml');
   expect(workflow).toContain('display_url="${display_url//|/\\\\|}"');
   expect(workflow).toContain('"$display_url"');
+  expect(workflow).toContain('curl --globoff');
 });
 
 function workflowFiles() {

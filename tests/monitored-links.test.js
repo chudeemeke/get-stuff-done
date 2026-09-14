@@ -38,6 +38,8 @@ test('preserves apostrophes in structurally parsed Markdown URLs', () => {
 test('extracts quoted HTML URL attributes and srcset candidates', () => {
   expect(documentLinks(`<source srcset='https://example.org/one 1x, https://example.org/two 2x'>`))
     .toEqual(['https://example.org/one', 'https://example.org/two']);
+  expect(documentLinks(`<img srcset='https://example.org/a,b 1x, https://example.org/c 2x'>`))
+    .toEqual(['https://example.org/a,b', 'https://example.org/c']);
 });
 
 test('extracts standard single and multi URL-bearing HTML attributes', () => {
@@ -53,6 +55,18 @@ test('extracts standard single and multi URL-bearing HTML attributes', () => {
     'https://example.org/source', 'https://example.org/object',
     'https://example.org/button', 'https://example.org/ping-one',
     'https://example.org/ping-two',
+  ]);
+});
+
+test('preserves punctuation in whitespace-delimited URL attributes', () => {
+  expect(documentLinks([
+    '<a ping="https://example.org/item, https://example.org/item;">',
+    '<object archive="https://example.org/a(1)\thttps://example.org/b!">',
+    '<meta itemtype="https://example.org/Type?">',
+  ].join(''))).toEqual([
+    'https://example.org/item,', 'https://example.org/item;',
+    'https://example.org/a(1)', 'https://example.org/b!',
+    'https://example.org/Type?',
   ]);
 });
 

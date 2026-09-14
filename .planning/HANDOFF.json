@@ -215,5 +215,14 @@
     "evidenceRoot": "C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13",
     "inbox": "PR67 merge confirmed and stale signoff archived; PR69 and skin event logs updated.",
     "activeProcesses": []
+  },
+  "application_checkpoint_2026_09_14": {
+    "pr4_decision": "Pending user support-scope answer; successor proposal committed in PR4 worktree at62f281c0. No closure or merge authorized.",
+    "active_processes": [],
+    "source_head": "b166e174e50ba1616b8536315c21d270039b8573",
+    "final_validation": "Incomplete; local focused passes do not close native timeout, matrix, complete installer Tier S coverage or final review.",
+    "current_report": "docs/reviews/pr69-application-2026-09-13.md",
+    "next_application_work": "Complete candidate write inventory and rollback, move legacy cleanup inside recovery boundary, remove name-only deletion of side files/scripts, preserve honest patch provenance, fix metadata/settings publication and remaining runtime-mode boundaries. Resolve native roadmap timeout; then fresh full suite/matrix/TierS/finalreview and guarded remote-head push. Do not treat runtime-artifact-install-plan or dry-run as complete write inventories.",
+    "external_checkpoint": "C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13/application-checkpoint.json"
   }
 }

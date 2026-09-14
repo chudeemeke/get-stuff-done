@@ -51,8 +51,9 @@ before availability checks and recurrence-key hashing. URLs are escaped when
 rendered in Markdown evidence tables without changing the requested URL or key.
 URL-standard ASCII tabs and newlines are removed from single-URL attributes,
 leading and trailing C0 ASCII whitespace is trimmed, and non-ASCII whitespace
-is preserved as URL data. HTTP scheme matching is case-insensitive before
-exclusions are evaluated.
+is preserved as URL data. Retained interior C0 controls and spaces are
+percent-encoded before curl and recurrence-key hashing. HTTP scheme matching is
+case-insensitive before exclusions are evaluated.
 
 The collector and Lychee share a deliberately restricted regex subset, validated
 against `lychee.toml` by PR tests: case-sensitive ASCII literals, escaped regex
@@ -65,8 +66,10 @@ Rust regex syntax works in JavaScript. End anchors use absolute-end semantics.
 The validator also rejects expressions considered unsafe for JavaScript's
 backtracking engine, even if Lychee's linear-time Rust engine accepts them.
 Unbounded repetition of groups (`(...)*` and `(...)+`) is always rejected,
-including overlapping alternatives missed by repetition-depth heuristics.
-Optional groups remain supported for the existing host exclusions.
+including overlapping alternatives missed by repetition-depth heuristics. A
+pattern may contain at most one other unbounded repetition, preventing adjacent
+or separated repetitions from creating polynomial backtracking. Optional groups
+remain supported for the existing host exclusions.
 
 Retry transient failed jobs once after the run completes. GitHub rejects job
 retries while another job in the run is active. Do not cancel valid performance

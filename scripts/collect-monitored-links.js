@@ -18,8 +18,13 @@ function normalizeSingleUrl(value) {
   // The URL standard removes ASCII tabs and newlines anywhere, then trims only
   // leading/trailing C0 controls and spaces. String.trim() is intentionally not
   // used because non-ASCII whitespace such as NBSP is part of the URL path.
-  return value.replace(/[\t\n\r]/g, '')
+  const normalized = value.replace(/[\t\n\r]/g, '')
     .replace(/^[\x00-\x20]+|[\x00-\x20]+$/g, '');
+  // curl rejects raw interior controls, while a browser URL serializes them.
+  // Encode the remaining C0 controls and spaces without altering existing
+  // percent escapes, scheme spelling, or non-ASCII URL data.
+  return normalized.replace(/[\x00-\x08\x0b\x0c\x0e-\x20]/g, character =>
+    `%${character.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`);
 }
 
 // Deliberately small, case-sensitive ASCII subset shared with Rust regex.
@@ -29,6 +34,7 @@ function exclusionPattern(pattern) {
     throw new Error('Exclusions must use the documented shared regex subset');
   }
   let source = '';
+  let unboundedRepetitions = 0;
   for (let i = 0; i < pattern.length; i++) {
     if (pattern[i] === '\\') {
       source += pattern[i];
@@ -50,6 +56,10 @@ function exclusionPattern(pattern) {
       // safe-regex's repetition-depth heuristic misses overlapping alternatives.
       // Reject all unbounded group repetition, not just known ambiguous examples.
       throw new Error(`Repeated exclusion groups are unsupported: ${pattern}`);
+    } else if (['*', '+'].includes(pattern[i]) && ++unboundedRepetitions > 1) {
+      // Multiple unbounded repetitions can create polynomial backtracking even
+      // without nesting (for example a+a+). Keep the shared subset linear.
+      throw new Error(`Multiple unbounded exclusions are unsupported: ${pattern}`);
     } else if ('{}].'.includes(pattern[i])) {
       throw new Error(`Unsupported exclusion syntax: ${pattern}`);
     }

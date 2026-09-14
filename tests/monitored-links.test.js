@@ -81,6 +81,11 @@ test('trims URL-standard C0 whitespace without removing non-ASCII URL data', () 
     .toEqual(['https://example.org/a\u00a0']);
 });
 
+test('percent-encodes interior C0 URL data after HTML entity decoding', () => {
+  expect(documentLinks('<a href="https://example.org/a&#12;b c">link</a>'))
+    .toEqual(['https://example.org/a%0Cb%20c']);
+});
+
 test('accepts case-insensitive HTTP schemes before applying configured exclusions', () => {
   const url = 'HTTPS://example.org/resource';
   expect(documentLinks(`<a href="${url}">link</a>`)).toEqual([url]);
@@ -129,6 +134,14 @@ test('rejects unbounded group repetition including overlapping alternatives', ()
     expect(() => exclusionPattern(pattern)).toThrow('Repeated exclusion groups');
   }
   expect(exclusionPattern('^https?://(www\\.)?example\\.org/').test('https://www.example.org/'))
+    .toBe(true);
+});
+
+test('rejects multiple unbounded repetitions that can backtrack polynomially', () => {
+  for (const pattern of ['^https://example\\.org/a+a+$', '[0-9]+[0-9]+$', 'a+b*']) {
+    expect(() => exclusionPattern(pattern)).toThrow('Multiple unbounded exclusions');
+  }
+  expect(exclusionPattern('^https://example\\.org/a+$').test('https://example.org/aaa'))
     .toBe(true);
 });
 

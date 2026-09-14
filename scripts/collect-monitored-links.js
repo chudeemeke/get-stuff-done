@@ -45,8 +45,10 @@ function srcsetUrls(value) {
     const start = position;
     while (position < value.length && !/[\t\n\f\r ]/.test(value[position])) position++;
     let url = value.slice(start, position);
+    const endedWithComma = url.endsWith(',');
     while (url.endsWith(',')) url = url.slice(0, -1);
     if (url) urls.push(normalizeSingleUrl(url));
+    if (endedWithComma) continue;
 
     // Descriptors end at a comma outside parentheses. They are irrelevant to
     // availability, but consuming them keeps commas inside URLs intact.

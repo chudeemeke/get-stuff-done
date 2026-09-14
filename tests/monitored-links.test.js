@@ -36,6 +36,8 @@ test('preserves apostrophes in structurally parsed Markdown URLs', () => {
 });
 
 test('extracts quoted HTML URL attributes and srcset candidates', () => {
+  expect(documentLinks('<img srcset="https://example.org/one, https://example.org/two 2x">'))
+    .toEqual(['https://example.org/one', 'https://example.org/two']);
   expect(documentLinks(`<source srcset='https://example.org/one 1x, https://example.org/two 2x'>`))
     .toEqual(['https://example.org/one', 'https://example.org/two']);
   expect(documentLinks(`<img srcset='https://example.org/a,b 1x, https://example.org/c 2x'>`))

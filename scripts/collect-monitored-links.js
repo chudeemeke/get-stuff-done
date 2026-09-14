@@ -15,9 +15,11 @@ const SINGLE_URL_ATTRIBUTES = new Set([
 const MULTI_URL_ATTRIBUTES = new Set(['archive', 'imagesrcset', 'itemtype', 'ping', 'srcset']);
 
 function normalizeSingleUrl(value) {
-  // The URL standard removes ASCII tabs and newlines before parsing. Keeping
-  // them would corrupt the collector's newline-delimited transport as well.
-  return value.replace(/[\t\n\r]/g, '').trim();
+  // The URL standard removes ASCII tabs and newlines anywhere, then trims only
+  // leading/trailing C0 controls and spaces. String.trim() is intentionally not
+  // used because non-ASCII whitespace such as NBSP is part of the URL path.
+  return value.replace(/[\t\n\r]/g, '')
+    .replace(/^[\x00-\x20]+|[\x00-\x20]+$/g, '');
 }
 
 // Deliberately small, case-sensitive ASCII subset shared with Rust regex.

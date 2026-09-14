@@ -17,12 +17,12 @@ if command -v actionlint >/dev/null 2>&1; then
 fi
 
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
-  # Pin to the official image. -color forces ANSI output even when stdout
-  # is not a TTY (useful in CI logs).
+  # Pin the official image by digest so lint behavior cannot drift between
+  # otherwise identical commits. -color keeps CI output readable.
   exec docker run --rm \
     -v "$REPO_ROOT:/repo" \
     -w /repo \
-    rhysd/actionlint:latest -color
+    rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 -color
 fi
 
 exec npx --yes github-actionlint@1.7.12 -color .github/workflows/*.yml

@@ -50,7 +50,9 @@ HTML character references in URL attributes are decoded to their browser target
 before availability checks and recurrence-key hashing. URLs are escaped when
 rendered in Markdown evidence tables without changing the requested URL or key.
 URL-standard ASCII tabs and newlines are removed from single-URL attributes,
-and HTTP scheme matching is case-insensitive before exclusions are evaluated.
+leading and trailing C0 ASCII whitespace is trimmed, and non-ASCII whitespace
+is preserved as URL data. HTTP scheme matching is case-insensitive before
+exclusions are evaluated.
 
 The collector and Lychee share a deliberately restricted regex subset, validated
 against `lychee.toml` by PR tests: case-sensitive ASCII literals, escaped regex

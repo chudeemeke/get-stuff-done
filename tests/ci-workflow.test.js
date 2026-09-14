@@ -23,6 +23,8 @@ const ACTION_PINS = {
 };
 const OSV_IMAGE = 'ghcr.io/google/osv-scanner-action';
 const OSV_IMAGE_DIGEST = 'sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba';
+const ACTIONLINT_IMAGE = 'rhysd/actionlint';
+const ACTIONLINT_IMAGE_DIGEST = 'sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667';
 const ACTION_TOKEN_DEFAULTS = new Map([
   ['actions/setup-node', 'token'],
   ['lycheeverse/lychee-action', 'token'],
@@ -92,6 +94,17 @@ describe('bun per-test timeout is applied by flag, not env', () => {
 });
 
 describe('CI workflow security action contracts', () => {
+  test('workflow lint executes the reviewed container by immutable digest', () => {
+    const script = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts/lint-workflows.sh'), 'utf8');
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(PROJECT_ROOT, 'config', 'phase43-toolchain-authority.json'), 'utf8')
+    );
+
+    expect(manifest.containers.pins[ACTIONLINT_IMAGE].digest).toBe(ACTIONLINT_IMAGE_DIGEST);
+    expect(script).toContain(`${ACTIONLINT_IMAGE}@${ACTIONLINT_IMAGE_DIGEST}`);
+    expect(script).not.toContain(`${ACTIONLINT_IMAGE}:latest`);
+  });
+
   test('gitleaks receives the GitHub token required for pull request scans', () => {
     const workflow = readCiWorkflow();
     const gitleaksStepMarker = `uses: gitleaks/gitleaks-action@${ACTION_PINS.gitleaks}`;

@@ -243,6 +243,9 @@ describe('toolchain authority', () => {
     expect(manifest.containers.pins['ghcr.io/google/osv-scanner-action'].digest).toBe(
       'sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba'
     );
+    expect(manifest.containers.pins['rhysd/actionlint'].digest).toBe(
+      'sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667'
+    );
   });
 
   test('hosted authority governs every toolchain authority input', () => {

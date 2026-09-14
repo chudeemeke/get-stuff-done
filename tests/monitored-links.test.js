@@ -76,6 +76,11 @@ test('normalizes URL-standard ASCII tabs and newlines in HTML attributes', () =>
     .toEqual(['https://example.org/abcd']);
 });
 
+test('trims URL-standard C0 whitespace without removing non-ASCII URL data', () => {
+  expect(documentLinks('<a href="&#x20;https://example.org/a&#xA0;&#x20;">link</a>'))
+    .toEqual(['https://example.org/a\u00a0']);
+});
+
 test('accepts case-insensitive HTTP schemes before applying configured exclusions', () => {
   const url = 'HTTPS://example.org/resource';
   expect(documentLinks(`<a href="${url}">link</a>`)).toEqual([url]);

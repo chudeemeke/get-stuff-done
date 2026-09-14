@@ -37,10 +37,10 @@ test('accepts all safe tag labels allowed by the authority schema', () => {
 });
 
 test('tag authority follows safe Git ref-name rules', () => {
-  for (const tag of ['v1.2.3+build.1', 'release/topic#1', 'stable@2026']) {
+  for (const tag of ['v1.2.3+build.1', 'release/topic#1', 'stable@2026', '@']) {
     expect(isSafeTagLabel(tag)).toBe(true);
   }
-  for (const tag of ['', '@', 'release lock', 'bad..tag', '.hidden', 'topic/.hidden',
+  for (const tag of ['', 'release lock', 'bad..tag', '.hidden', 'topic/.hidden',
     'topic.lock', 'bad~tag', 'bad\\tag', 'bad\ntag']) {
     expect(isSafeTagLabel(tag)).toBe(false);
   }

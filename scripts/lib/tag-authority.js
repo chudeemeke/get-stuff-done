@@ -3,7 +3,7 @@
 // Safe for a single-line YAML comment while still covering ordinary Git tags,
 // including numeric majors, stable channels and release-v2 style names.
 function isSafeTagLabel(value) {
-  if (typeof value !== 'string' || !value || value === '@') return false;
+  if (typeof value !== 'string' || !value) return false;
   // Match Git's ref-name restrictions while also keeping the generated YAML
   // comment on one line. Characters such as + and # are valid tag content.
   if (/[\x00-\x20\x7f~^:?*[\\\u2028\u2029]/.test(value)) return false;

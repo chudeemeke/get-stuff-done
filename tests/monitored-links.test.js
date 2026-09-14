@@ -80,9 +80,11 @@ test('parses unquoted HTML attributes and ignores attribute-like text', () => {
   expect(documentLinks('<!-- <img src=https://example.org/ignored> -->')).toEqual([]);
 });
 
-test('HTML parsing preserves backslashes and decodes entities only once', () => {
+test('HTML parsing decodes entities once and serializes the browser destination', () => {
   expect(documentLinks('<img src="https://example.org/a\\*b?x=&amp;amp;">'))
-    .toEqual(['https://example.org/a\\*b?x=&amp;']);
+    .toEqual(['https://example.org/a/*b?x=&amp;']);
+  expect(documentLinks('<a href="https://example.org/a&quot;b&lt;c&gt;`d">'))
+    .toEqual(['https://example.org/a%22b%3Cc%3E%60d']);
 });
 
 test('normalizes URL-standard ASCII tabs and newlines in HTML attributes', () => {
@@ -92,7 +94,7 @@ test('normalizes URL-standard ASCII tabs and newlines in HTML attributes', () =>
 
 test('trims URL-standard C0 whitespace without removing non-ASCII URL data', () => {
   expect(documentLinks('<a href="&#x20;https://example.org/a&#xA0;&#x20;">link</a>'))
-    .toEqual(['https://example.org/a\u00a0']);
+    .toEqual(['https://example.org/a%C2%A0']);
 });
 
 test('percent-encodes interior C0 URL data after HTML entity decoding', () => {

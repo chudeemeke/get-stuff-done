@@ -16,16 +16,21 @@ const SPACE_SEPARATED_URL_ATTRIBUTES = new Set(['archive', 'itemtype', 'ping']);
 const SRCSET_ATTRIBUTES = new Set(['imagesrcset', 'srcset']);
 
 function normalizeSingleUrl(value) {
-  // The URL standard removes ASCII tabs and newlines anywhere, then trims only
-  // leading/trailing C0 controls and spaces. String.trim() is intentionally not
-  // used because non-ASCII whitespace such as NBSP is part of the URL path.
+  // Apply the URL Standard's preprocessing before parsing. String.trim() is
+  // intentionally not used because non-ASCII whitespace is URL data.
   const normalized = value.replace(/[\t\n\r]/g, '')
     .replace(/^[\x00-\x20]+|[\x00-\x20]+$/g, '');
-  // curl rejects raw interior controls, while a browser URL serializes them.
-  // Encode the remaining C0 controls and spaces without altering existing
-  // percent escapes, scheme spelling, or non-ASCII URL data.
-  return normalized.replace(/[\x00-\x08\x0b\x0c\x0e-\x20]/g, character =>
-    `%${character.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`);
+  if (!/^https?:\/\//i.test(normalized)) return normalized;
+  try {
+    const scheme = normalized.slice(0, normalized.indexOf(':'));
+    const serialized = new URL(normalized).href;
+    // Preserve source scheme spelling for matching the same case-sensitive
+    // Lychee exclusion while serializing the browser-equivalent destination.
+    return `${scheme}${serialized.slice(serialized.indexOf(':'))}`;
+  } catch {
+    // Keep malformed absolute links observable as failed availability evidence.
+    return normalized;
+  }
 }
 
 function spaceSeparatedUrls(value) {

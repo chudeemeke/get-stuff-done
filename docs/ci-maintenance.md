@@ -50,12 +50,14 @@ grammar; both are expanded into individual monitored URLs.
 HTML character references in URL attributes are decoded to their browser target
 before availability checks and recurrence-key hashing. URLs are escaped when
 rendered in Markdown evidence tables without changing the requested URL or key.
-URL-standard ASCII tabs and newlines are removed from single-URL attributes,
-leading and trailing C0 ASCII whitespace is trimmed, and non-ASCII whitespace
-is preserved as URL data. Retained interior C0 controls and spaces are
-percent-encoded before curl and recurrence-key hashing. HTTP scheme matching is
-case-insensitive before exclusions are evaluated. Curl URL globbing is disabled
-so literal braces and brackets cannot expand one documented URL into requests.
+HTTP URLs from HTML attributes are serialized to their browser-equivalent
+destination before curl and recurrence-key hashing. This removes URL-standard
+ASCII tabs and newlines, trims leading and trailing C0 ASCII whitespace, and
+percent-encodes path characters such as spaces, controls, quotes and non-ASCII
+whitespace. Source scheme spelling is preserved for the same case-sensitive
+Lychee exclusion, while scheme recognition is case-insensitive. Curl URL
+globbing is disabled so literal braces and brackets cannot expand one documented
+URL into multiple requests.
 
 The collector and Lychee share a deliberately restricted regex subset, validated
 against `lychee.toml` by PR tests: case-sensitive ASCII literals, escaped regex

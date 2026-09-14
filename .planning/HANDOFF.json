@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-13T23:25:27.219Z",
+  "timestamp": "2026-09-14T13:08:38.761Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
-  "pr": "PR4 open at17278b2a, blocked on ordinary non-elevated repair. PR69 draft remote df0d3f9c; local application3981cbf0 held on failed native validation and open review findings. PR70 draft unchanged at573d9f91. No user approval or merge/readiness change authorized.",
-  "status": "application-pr-recovery-held",
-  "READ_FIRST": "September14 application ownership checkpoint takes precedence over historical progress below. Read docs/reviews/pr69-application-2026-09-13.md and the PR4 review in .claude/worktrees/pr4-application. PR4 ordinary non-elevated repair is a settled requirement, not a pending question. PR69 remains incomplete; do not advance PR70. Preserve the ratified September5 contract and fixed1.12.0 endpoint; do not restart strategic audit. CI is owned separately. D1-D11 were ratified or overridden on 2026-09-05 and remain binding. Execute September 5 skin completion contract; do not restart strategic audit or ask for ratification again. Read .planning/SKIN-COMPLETION.md. Refresh git and exact-head CI before integration. Preserve untracked coverage/ and get-stuff-done/memory/. Run bun run test and check both suite summary and exit code.",
+  "pr": "PR4 scope decision pending; production remote17278b2a unchanged. PR69 draft remote df0d3f9c, local application b6743baf. PR70 draft573d9f91 unchanged. No approve, merge or readiness change authorized.",
+  "status": "application-fixes-local-validation-incomplete",
+  "READ_FIRST": "Read application_checkpoint_2026_09_14 below before historical fields. PR4 successor support scope is pending the structured user answer; do not re-ask or infer acceptance. PR69 application work continues under the decision-held exception. Local script ownership fix passes135 tests; real failure acceptance still leaves622 files. Full PR, Tier S, matrix and native validation remain incomplete. Preserve all work and execute the ratified September5 skin contract through fixed1.12.0; do not restart the strategic audit. CI is separately owned. Disk space is volatile; do not start storage-heavy tests without headroom.",
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0 (user chose Walk increments 2026-08-30; endpoint extended from 1.11.0 to 1.12.0 by user decision 2026-09-05, then quarterly per D5)",
     "step": "3 of 6: 1.8.0 -> 1.9.1 IN PROGRESS after PR64 and PR63 merged and main integrated.",
@@ -219,10 +219,16 @@
   "application_checkpoint_2026_09_14": {
     "pr4_decision": "Pending user support-scope answer; successor proposal committed in PR4 worktree at62f281c0. No closure or merge authorized.",
     "active_processes": [],
-    "source_head": "b166e174e50ba1616b8536315c21d270039b8573",
+    "source_head": "b6743bafe756ec8c5e996fd489f035db21d7a9d2",
     "final_validation": "Incomplete; local focused passes do not close native timeout, matrix, complete installer Tier S coverage or final review.",
     "current_report": "docs/reviews/pr69-application-2026-09-13.md",
-    "next_application_work": "Complete candidate write inventory and rollback, move legacy cleanup inside recovery boundary, remove name-only deletion of side files/scripts, preserve honest patch provenance, fix metadata/settings publication and remaining runtime-mode boundaries. Resolve native roadmap timeout; then fresh full suite/matrix/TierS/finalreview and guarded remote-head push. Do not treat runtime-artifact-install-plan or dry-run as complete write inventories.",
-    "external_checkpoint": "C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13/application-checkpoint.json"
+    "next_application_work": "Complete new-upstream/side-metadata write inventory and recovery, including partial failure and concurrency. Keep legacy cleanup within recovery; resolve remaining metadata/settings and runtime boundaries, native timeout and final validation before publishing. Do not replace complete inventory with a successful-install manifest alone.",
+    "external_checkpoint": "C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13/application-checkpoint.json",
+    "recorded_at": "2026-09-14T13:08:38.761Z",
+    "recovery_probe_commit": "32ec332c5114bd75ec16a8811101bc6585a55243",
+    "tests": "Pinned Bun1.3.5:135 passed,0 failed,614 assertions across installer-safety,installer-cli-safety,installer-v3. Compose passes,9 overrides fresh,ESLint0 errors/6 existing warnings,diff check passes. No broad or Tier S acceptance inferred.",
+    "new_findings": "Real upstream manifest-publication failure left622 files while wrapper claimed Rollback applied; explicit acceptance test and failing receipt committed. Owner helper deletion and new false script ownership corrected. Earlier tainted manifests and other ownership paths remain open.",
+    "cleanup": "User restricted cleanup to this project. No cleanup deletion executed: automatic approval review rejected recursive and narrower generated-binary removal. About700MB of generated output in old agent-a1c0cd52236103329 worktree identified; source preserved. Disk subsequently hit0 during an override edit; that clean-at-start file was restored exactly to Git before the verified ownership delta was applied by staged write. No source loss remains.",
+    "external_checkpoint_status": "Historical through1ca90e1c; this tracked checkpoint and current report supersede its PR69 head/tests/next-step fields."
   }
 }

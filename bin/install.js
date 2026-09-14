@@ -157,18 +157,7 @@ function resolveTargetDirRaw(argv) {
  * @returns {string[]} Relative paths of GSD-installed files, empty if no manifest
  */
 function readInstalledManifest(targetDir) {
-  const manifestPath = path.join(targetDir, INSTALLED_MANIFEST_NAME);
-  if (!fs.existsSync(manifestPath)) return [];
-
-  try {
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-    if (manifest.files && typeof manifest.files === 'object') {
-      return Object.keys(manifest.files);
-    }
-  } catch {
-    // Corrupt manifest -- return empty (fallback will handle cleanup)
-  }
-  return [];
+  return readOwnershipManifest(targetDir, INSTALLED_MANIFEST_NAME).files;
 }
 
 /**
@@ -178,18 +167,39 @@ function readInstalledManifest(targetDir) {
  * @returns {string[]} Relative paths of overlay-installed files, empty if no manifest
  */
 function readOverlayManifest(targetDir) {
-  const manifestPath = path.join(targetDir, '.overlay-manifest.json');
-  if (!fs.existsSync(manifestPath)) return [];
+  return readOwnershipManifest(targetDir, '.overlay-manifest.json').files;
+}
 
+// Absence permits legacy detection; a valid empty inventory owns no files.
+// Invalid or unreadable ownership must never activate broader cleanup.
+function readOwnershipManifest(targetDir, name) {
+  const manifestPath = path.join(targetDir, name);
   try {
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-    if (Array.isArray(manifest)) {
-      return manifest.filter(entry => typeof entry === 'string' && entry.length > 0);
+    const safePath = targetRelativePath(targetDir, name);
+    if (!safePath) throw new Error('manifest path is linked or outside the selected target');
+    const stat = fs.lstatSync(safePath, { throwIfNoEntry: false });
+    if (!stat) return { present: false, files: [] };
+    if (!stat.isFile()) throw new Error('manifest must be a regular file');
+    const manifest = JSON.parse(fs.readFileSync(safePath, 'utf8'));
+    let files;
+    if (name === INSTALLED_MANIFEST_NAME) {
+      if (!manifest || Array.isArray(manifest) || !manifest.files ||
+          typeof manifest.files !== 'object' || Array.isArray(manifest.files) ||
+          Object.values(manifest.files).some(hash => typeof hash !== 'string' || hash.length === 0)) {
+        throw new Error('expected an object with a files map of content hashes');
+      }
+      files = Object.keys(manifest.files);
+    } else {
+      if (!Array.isArray(manifest)) throw new Error('expected an array of installed paths');
+      files = manifest;
     }
-  } catch {
-    // Corrupt overlay manifest -- return empty and let metadata cleanup continue.
+    if (files.some(file => typeof file !== 'string' || file.length === 0)) {
+      throw new Error('installed paths must be nonempty strings');
+    }
+    return { present: true, files: [...new Set(files)] };
+  } catch (err) {
+    throw new Error(`Cannot establish installed ownership from ${manifestPath}: ${err.message}. Restore a valid manifest before retrying; no cleanup was started.`, { cause: err });
   }
-  return [];
 }
 
 function readJsonFile(filePath, description) {
@@ -416,15 +426,17 @@ function commitInstallTransaction(transaction) {
  * @returns {{ removed: number, strategy: string }}
  */
 function removeGsdFiles(targetDir, quiet) {
+  const installed = readOwnershipManifest(targetDir, INSTALLED_MANIFEST_NAME);
+  const overlay = readOwnershipManifest(targetDir, '.overlay-manifest.json');
   const manifestFiles = [...new Set([
-    ...readInstalledManifest(targetDir),
-    ...readOverlayManifest(targetDir),
+    ...installed.files,
+    ...overlay.files,
   ])];
   let removed = 0;
   let skipped = 0;
   let strategy;
 
-  if (manifestFiles.length > 0) {
+  if (installed.present || overlay.present) {
     // Strategy 1: Manifest-driven -- remove exactly what the previous install put down
     strategy = 'manifest';
     for (const relPath of manifestFiles) {

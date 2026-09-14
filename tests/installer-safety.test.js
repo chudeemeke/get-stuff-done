@@ -492,15 +492,13 @@ describe('installer transaction safety', { timeout: SUBPROCESS_TIMEOUT }, () => 
   });
 
   for (const overlayValue of ['{', '{}', '[null, "", "hooks/old.js"]']) {
-    test(`rollback tolerates old malformed overlay inventory ${overlayValue}`, () => {
+    test(`malformed overlay ownership refuses a transaction before mutation ${overlayValue}`, () => {
       const distDir = writeMockDist(tmpDir.path);
       const targetDir = path.join(tmpDir.path, 'target');
       fs.mkdirSync(targetDir);
       fs.writeFileSync(path.join(targetDir, '.overlay-manifest.json'), overlayValue);
       fs.writeFileSync(path.join(tmpDir.path, 'outside.txt'), 'outside owner');
-      const transaction = createInstallTransaction(targetDir, distDir);
-      expect(transaction.snapshots.every(item => !item.relPath.startsWith('../'))).toBe(true);
-      rollbackInstallTransaction(transaction);
+      expect(() => createInstallTransaction(targetDir, distDir)).toThrow('.overlay-manifest.json');
       expect(fs.readFileSync(path.join(tmpDir.path, 'outside.txt'), 'utf8')).toBe('outside owner');
       expect(fs.readFileSync(path.join(targetDir, '.overlay-manifest.json'), 'utf8')).toBe(overlayValue);
     });
@@ -673,25 +671,44 @@ describe('readInstalledManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(result).toEqual([]);
   });
 
-  test('returns empty array when manifest is corrupt JSON', () => {
+  test('refuses corrupt JSON instead of interpreting missing ownership', () => {
     fs.writeFileSync(
       path.join(tmpDir.path, INSTALLED_MANIFEST_NAME),
       '{ invalid json !!!'
     );
 
-    const result = readInstalledManifest(tmpDir.path);
-    expect(result).toEqual([]);
+    expect(() => readInstalledManifest(tmpDir.path)).toThrow('Cannot establish installed ownership');
   });
 
-  test('returns empty array when manifest.files is missing', () => {
-    fs.writeFileSync(
-      path.join(tmpDir.path, INSTALLED_MANIFEST_NAME),
-      JSON.stringify({ version: '1.0.0', timestamp: '2026-01-01' })
-    );
-
-    const result = readInstalledManifest(tmpDir.path);
-    expect(result).toEqual([]);
+  test('refuses a non-file ownership manifest', () => {
+    fs.mkdirSync(path.join(tmpDir.path, INSTALLED_MANIFEST_NAME));
+    expect(() => readInstalledManifest(tmpDir.path)).toThrow('manifest must be a regular file');
+    expect(fs.statSync(path.join(tmpDir.path, INSTALLED_MANIFEST_NAME)).isDirectory()).toBe(true);
   });
+
+  test('refuses linked ownership metadata without reading or deleting its target', () => {
+    const outside = path.join(tmpDir.path, 'outside');
+    const target = path.join(tmpDir.path, 'target');
+    fs.mkdirSync(outside);
+    fs.mkdirSync(target);
+    fs.writeFileSync(path.join(outside, 'owner.txt'), 'owner');
+    fs.symlinkSync(outside, path.join(target, INSTALLED_MANIFEST_NAME), process.platform === 'win32' ? 'junction' : 'dir');
+    expect(() => removeGsdFiles(target, true)).toThrow('manifest path is linked');
+    expect(fs.readFileSync(path.join(outside, 'owner.txt'), 'utf8')).toBe('owner');
+    expect(fs.lstatSync(path.join(target, INSTALLED_MANIFEST_NAME)).isSymbolicLink()).toBe(true);
+  });
+
+  for (const manifest of [null, [], {}, { files: null }, { files: [] }, { files: 'owned' }, { files: { 'owned.js': null } }]) {
+    test(`invalid installed ownership refuses removal: ${JSON.stringify(manifest)}`, () => {
+      const raw = JSON.stringify(manifest);
+      fs.mkdirSync(path.join(tmpDir.path, 'gsd-core'));
+      fs.writeFileSync(path.join(tmpDir.path, 'gsd-core/owner.md'), 'owner content');
+      fs.writeFileSync(path.join(tmpDir.path, INSTALLED_MANIFEST_NAME), raw);
+      expect(() => removeGsdFiles(tmpDir.path, true)).toThrow('Cannot establish installed ownership');
+      expect(fs.readFileSync(path.join(tmpDir.path, INSTALLED_MANIFEST_NAME), 'utf8')).toBe(raw);
+      expect(fs.readFileSync(path.join(tmpDir.path, 'gsd-core/owner.md'), 'utf8')).toBe('owner content');
+    });
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -699,6 +716,18 @@ describe('readInstalledManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
 // ---------------------------------------------------------------------------
 
 describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('a valid empty ownership manifest does not activate recursive legacy cleanup', () => {
+    const tmp = createTempDir();
+    try {
+      fs.mkdirSync(path.join(tmp.path, 'gsd-core'));
+      fs.writeFileSync(path.join(tmp.path, 'gsd-core/owner.md'), 'owner content');
+      writeManifest(tmp.path, []);
+      const result = removeGsdFiles(tmp.path, true);
+      expect(result.strategy).toBe('manifest');
+      expect(fs.readFileSync(path.join(tmp.path, 'gsd-core/owner.md'), 'utf8')).toBe('owner content');
+    } finally { tmp.cleanup(); }
+  });
+
   test('cleanup does not follow a linked scripts directory into owner content', () => {
     const tmp = createTempDir();
     try {

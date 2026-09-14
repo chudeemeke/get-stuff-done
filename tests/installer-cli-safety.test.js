@@ -23,6 +23,47 @@ function invoke(tmp, args) {
 }
 
 describe('installer CLI safety', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('corrupt overlay ownership refuses legacy install before cleanup or upstream writes', () => {
+    const tmp = createTempDir();
+    try {
+      const target = path.join(tmp.path, 'target with spaces');
+      fs.mkdirSync(path.join(target, 'get-stuff-done'), { recursive: true });
+      const original = {
+        '.overlay-manifest.json': '{ invalid overlay ownership',
+        'get-stuff-done/.install-meta.json': '{"version":"2.5.0"}',
+        'get-stuff-done/owner.md': 'owner changes inside legacy tree',
+        'settings.json': '{"owner":true}',
+      };
+      for (const [name, bytes] of Object.entries(original)) fs.writeFileSync(path.join(target, name), bytes);
+      const result = invoke(tmp, ['--claude', '--global', '--config-dir', target]);
+      expect(result.timedOut).toBe(false);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('.overlay-manifest.json');
+      for (const [name, bytes] of Object.entries(original)) expect(fs.readFileSync(path.join(target, name), 'utf8')).toBe(bytes);
+      expect(fs.readdirSync(target).sort()).toEqual(['.overlay-manifest.json', 'get-stuff-done', 'settings.json']);
+    } finally { tmp.cleanup(); }
+  });
+
+  test('corrupt installed ownership refuses uninstall without removing owner or legacy files', () => {
+    const tmp = createTempDir();
+    try {
+      const target = path.join(tmp.path, 'target with spaces');
+      fs.mkdirSync(path.join(target, 'get-stuff-done'), { recursive: true });
+      const original = {
+        'gsd-file-manifest.json': '{ invalid ownership',
+        'get-stuff-done/owner.md': 'owner changes inside legacy tree',
+        'package.json': '{"name":"owner-package"}',
+        'settings.json': '{"owner":true}',
+      };
+      for (const [name, bytes] of Object.entries(original)) fs.writeFileSync(path.join(target, name), bytes);
+      const result = invoke(tmp, ['--claude', '--global', '--config-dir', target, '--uninstall']);
+      expect(result.timedOut).toBe(false);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('gsd-file-manifest.json');
+      for (const [name, bytes] of Object.entries(original)) expect(fs.readFileSync(path.join(target, name), 'utf8')).toBe(bytes);
+    } finally { tmp.cleanup(); }
+  });
+
   for (const flag of ['--help', '-h']) {
     test(`${flag} documents the public installer without creating a runtime`, () => {
       const tmp = createTempDir();

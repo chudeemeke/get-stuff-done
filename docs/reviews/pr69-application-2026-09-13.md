@@ -65,14 +65,36 @@ final-revision review is claimed.
 
 ## Remaining application blockers
 
+September 14 progress: installed and overlay ownership reads now distinguish
+absent, valid-empty and invalid inventories. Corrupt JSON, malformed maps/arrays,
+non-file and linked manifest paths refuse before cleanup. A valid empty manifest
+no longer triggers recursive legacy fallback. Actual isolated CLI install and
+uninstall regressions preserve the original owner/legacy bytes on refusal.
+
+The initial CLI regression failed (exit 0 instead of 1); the expanded ownership
+run reproduced 11 failures out of 14 cases before correction. Pinned Bun 1.3.5
+now passes 114 tests / 0 failures / 489 assertions across installer-safety,
+installer-cli-safety and installer-codex-defaults. ESLint has zero errors and the
+same six existing argument-parser warnings. An initial Node invocation included
+the Bun-only defaults suite and failed to load `bun:test`; its 111 other tests
+passed, but that combined run is not a successful gate. The proper Bun run above
+is the verification result. Logs: `pr69-invalid-ownership-red.log`,
+`pr69-manifest-shapes-red.log`, `pr69-ownership-node.log`, `pr69-ownership-bun.log`.
+
+This corrects malformed/empty-manifest handling, not all ownership cleanup.
+Absent-manifest legacy inference and name-only deletion of side artifacts remain
+open below. Whole-file Tier S coverage, final revision review and full-suite
+acceptance are still outstanding. No PR69 application changes are pushed yet.
+
 Owner: get-stuff-done application development. Retirement trigger: implemented
 and tested before recommending PR 69 adoption; no new strategic audit needed.
 
 1. Complete rollback inventory for new upstream-only files and side metadata,
    including partial upstream failure. Old-manifest plus overlay inventory can
    leave a mixed installation.
-2. Distinguish absent and invalid ownership manifests. Corrupt metadata must
-   not select destructive legacy fallback.
+2. Invalid and valid-empty ownership metadata now refuse/avoid legacy fallback
+   as appropriate. Complete the remaining absent-manifest behavior using positive
+   ownership evidence and safe handling of uncertain legacy content.
 3. Begin reversible legacy migration before its first cleanup; current main
    invokes cleanup before the transaction snapshot.
 4. Preserve uncertain owner files in name-based cleanup of legacy roots,
@@ -90,6 +112,9 @@ and tested before recommending PR 69 adoption; no new strategic audit needed.
    transaction, beyond the implemented --all refusal.
 9. Resolve the current roadmap timeout evidence; obtain a fresh complete matrix,
    full-suite and Tier S evidence and a final independent review.
+10. Apply the existing unsafe-target guard to uninstall as well as installation.
+    Inspection found that uninstall currently calls removal without that guard;
+    verify refusal with isolated fixtures, never probe deletion on real homes.
 
 The three installed state failures remain on the existing skin acceptance map.
 No broader STATE authority or final contract closure is implied.

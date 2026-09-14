@@ -1500,10 +1500,9 @@ describe('cleanOrphanedPaths', { timeout: SUBPROCESS_TIMEOUT }, () => {
     tmpDir.cleanup();
   });
 
-  test('removes hooks/dist/ directory if it exists', () => {
+  test('removes an empty hooks/dist/ directory', () => {
     const hooksDistDir = path.join(tmpDir.path, 'hooks', 'dist');
     fs.mkdirSync(hooksDistDir, { recursive: true });
-    fs.writeFileSync(path.join(hooksDistDir, 'gsd-statusline.js'), 'stale');
 
     const removed = cleanOrphanedPaths(tmpDir.path);
 
@@ -1543,7 +1542,7 @@ describe('cleanOrphanedPaths', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(removed).toBe(0);
   });
 
-  test('removes generated hooks while retaining local patch metadata', () => {
+  test('preserves unclassified hook bytes and local patch metadata', () => {
     const hooksDistDir = path.join(tmpDir.path, 'hooks', 'dist');
     const patchesDir = path.join(tmpDir.path, 'gsd-local-patches');
     fs.mkdirSync(hooksDistDir, { recursive: true });
@@ -1553,9 +1552,20 @@ describe('cleanOrphanedPaths', { timeout: SUBPROCESS_TIMEOUT }, () => {
 
     const removed = cleanOrphanedPaths(tmpDir.path);
 
-    expect(removed).toBe(1);
-    expect(fs.existsSync(hooksDistDir)).toBe(false);
+    expect(removed).toBe(0);
+    expect(fs.readFileSync(path.join(hooksDistDir, 'old.js'), 'utf8')).toBe('x');
     expect(fs.readFileSync(path.join(patchesDir, 'meta.json'), 'utf8')).toBe('x');
+  });
+
+  test('orphan cleanup does not traverse a linked hooks ancestor', () => {
+    const target = path.join(tmpDir.path, 'target');
+    const outside = path.join(tmpDir.path, 'outside');
+    fs.mkdirSync(target);
+    fs.mkdirSync(path.join(outside, 'dist'), { recursive: true });
+    fs.writeFileSync(path.join(outside, 'dist/owner.md'), 'outside owner bytes');
+    fs.symlinkSync(outside, path.join(target, 'hooks'), process.platform === 'win32' ? 'junction' : 'dir');
+    expect(cleanOrphanedPaths(target)).toBe(0);
+    expect(fs.readFileSync(path.join(outside, 'dist/owner.md'), 'utf8')).toBe('outside owner bytes');
   });
 });
 

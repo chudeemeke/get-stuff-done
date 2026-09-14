@@ -770,11 +770,12 @@ function preserveLocalPatchHistory(transaction) {
 // ---------------------------------------------------------------------------
 
 /**
- * Remove known orphaned paths from previous install layouts.
+ * Prune empty directories left by previous install layouts.
  *
  * Known orphans:
  * - hooks/dist/: Upstream reads from hooks/dist/ in source but writes to
- *   hooks/ in target (flattening). Previous layouts left this behind.
+ *   hooks/ in target (flattening). Previous layouts left this behind, but
+ *   its name does not prove ownership of any remaining files.
  * Keep gsd-local-patches/: upstream backs up locally modified files there.
  * Those bytes can include intentional owner edits as well as skin differences;
  * the directory name cannot establish that every backup is disposable.
@@ -783,22 +784,17 @@ function preserveLocalPatchHistory(transaction) {
  * @returns {number} Number of orphaned paths removed
  */
 function cleanOrphanedPaths(targetDir) {
-  const orphans = [
-    path.join(targetDir, 'hooks', 'dist'),
-  ];
-
-  let removed = 0;
-  for (const orphanPath of orphans) {
-    try {
-      if (fs.existsSync(orphanPath) && fs.lstatSync(orphanPath).isDirectory()) {
-        fs.rmSync(orphanPath, { recursive: true, force: true });
-        removed++;
-      }
-    } catch (_) {
-      // Graceful: orphan cleanup is best-effort, never crashes installer
-    }
+  const orphanPath = targetRelativePath(targetDir, 'hooks/dist');
+  if (!orphanPath) return 0;
+  try {
+    // rmdir refuses nonempty directories, including a file added after preflight.
+    // Unknown content stays in place for owner reconciliation.
+    fs.rmdirSync(orphanPath);
+    return 1;
+  } catch (_) {
+    // Optional empty-directory pruning is best-effort; never delete its contents.
+    return 0;
   }
-  return removed;
 }
 
 // ---------------------------------------------------------------------------

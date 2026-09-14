@@ -99,6 +99,14 @@ and tested before recommending PR 69 adoption; no new strategic audit needed.
    invokes cleanup before the transaction snapshot.
 4. Preserve uncertain owner files in name-based cleanup of legacy roots,
    scripts/lib, scripts/changeset and hooks/dist.
+   The hooks/dist case is now corrected: only an empty, contained directory is
+   pruned using rmdir. Nonempty content is preserved and linked ancestors are
+   not traversed. Two RED fixtures demonstrated deletion of unclassified bytes
+   and traversal into an outside directory; both now pass. Pinned Bun 1.3.5:
+   115 passed, 0 failed, 487 assertions over installer-safety and CLI safety.
+   Evidence: pr69-orphan-preserve-red.log and pr69-orphan-bun.log. Unclassified
+   remnants remain owner-reconciliation items; no filename-based ownership claim
+   is made. Other paths in this item remain open.
 5. Finish containment checks for every metadata/settings publication path.
    Overlay and rollback-leaf tests cover only part of this boundary.
 6. Reconcile active patch-tree residue with upstream reapply consumption.
@@ -125,6 +133,15 @@ and tested before recommending PR 69 adoption; no new strategic audit needed.
 
 The three installed state failures remain on the existing skin acceptance map.
 No broader STATE authority or final contract closure is implied.
+
+Next inventory investigation must reuse existing upstream seams where possible.
+The 1.9.1 `runtime-artifact-install-plan.cjs` plans staged command/skill/agent
+copy destinations, but explicitly leaves pruning, migrations and final cleanup
+to the installer. `--dry-run` previews legacy cleanup only. Neither is currently
+proof of a complete candidate write inventory for settings, side metadata and
+all failure paths. Codex has its own runtime-specific rollback; the wrapper
+must not claim that applies to every runtime. Source presence is not a reason
+to replace the open inventory requirement with another incomplete path list.
 
 ## CI handoff
 

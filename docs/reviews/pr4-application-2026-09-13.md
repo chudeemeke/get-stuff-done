@@ -9,6 +9,14 @@ Existing doctor work and all other worktrees were preserved.
 
 ## Acceptance decision: blocked
 
+September 14 update: the user explicitly reopened the assumptions behind strict
+refusal and asked to assess PR4 against the project end state. The earlier
+decision below is the acceptance baseline, not a prohibition on reconsidering
+the contract. See `pr4-first-principles-2026-09-14.md`; no weaker implementation,
+approval or merge has been authorized. TxF is not adopted. Existing upstream
+migration and context-blind doctor diagnosis have been reproduced, so establish
+whether a separate doctor remains necessary before adding more repair machinery.
+
 On September 13 the user selected both strict refusal when custom ACLs or
 ownership cannot safely be preserved, and ordinary non-elevated repair as a
 release requirement. The current implementation satisfies the refusal policy

@@ -1,0 +1,152 @@
+$ node scripts/run-bun-tests.js tests/installer-safety.test.js tests/installer-cli-safety.test.js "tests/installer-v3.test.js"
+bun test v1.3.5 (1e86cebd)
+
+tests\installer-cli-safety.test.js:
+(pass) installer CLI safety > CLI uninstall refuses the isolated home without deleting its inventory [625.00ms]
+(pass) installer CLI safety > corrupt overlay ownership refuses legacy install before cleanup or upstream writes [266.00ms]
+(pass) installer CLI safety > corrupt installed ownership refuses uninstall without removing owner or legacy files [266.00ms]
+(pass) installer CLI safety > --help documents the public installer without creating a runtime [203.00ms]
+(pass) installer CLI safety > -h documents the public installer without creating a runtime [234.00ms]
+(pass) installer CLI safety > CLI uninstall is idempotent and preserves untracked owner files [797.00ms]
+(pass) installer CLI safety > real install and uninstall preserve owner script helpers without claiming them [8656.00ms]
+(pass) installer CLI safety > real CLI migration preserves owner content and installs composed metadata [6766.00ms]
+
+tests\installer-safety.test.js:
+(pass) installer arguments and metadata > config directory parsing: []
+(pass) installer arguments and metadata > config directory parsing: ["--claude"]
+(pass) installer arguments and metadata > config directory parsing: ["--config-dir"]
+(pass) installer arguments and metadata > config directory parsing: ["--config-dir","--global"]
+(pass) installer arguments and metadata > config directory parsing: ["--config-dir","custom"]
+(pass) installer arguments and metadata > config directory parsing: ["-c","\"quoted path\""]
+(pass) installer arguments and metadata > config directory parsing: ["--config-dir=custom"]
+(pass) installer arguments and metadata > config directory parsing: ["-c='quoted path'"]
+(pass) installer arguments and metadata > target resolution respects local paths, explicit paths and runtime environment priorities [15.00ms]
+(pass) installer arguments and metadata > metadata supports both upstream naming schemes and explicit package identity [78.00ms]
+(pass) installer arguments and metadata > overlay copying refuses an incomplete manifest before copying any files [47.00ms]
+(pass) installer transaction safety > preflightInstallTarget rejects missing dist manifests before mutation [32.00ms]
+(pass) installer transaction safety > createInstallTransaction snapshots previous metadata and settings.json [234.00ms]
+(pass) installer transaction safety > rollback restores settings.json and removes newly copied overlay files [141.00ms]
+(pass) installer transaction safety > rollback preserves previously installed overlay files while removing new overlay files [125.00ms]
+(pass) installer transaction safety > install reports rollback: "applied" when overlay copy fails after upstream success [93.00ms]
+(pass) installer transaction safety > snapshot copy failure preserves diagnostics and never spawns upstream (cleanup failure: false) [94.00ms]
+(pass) installer transaction safety > snapshot copy failure preserves diagnostics and never spawns upstream (cleanup failure: true) [94.00ms]
+(pass) installer transaction safety > spawn error followed by exit 0 settles once without subsequent mutation [62.00ms]
+(pass) installer transaction safety > spawn error followed by exit 1 settles once without subsequent mutation [63.00ms]
+(pass) installer transaction safety > preflight refuses unsafe-target without running the installer [47.00ms]
+(pass) installer transaction safety > preflight refuses missing-installer without running the installer [31.00ms]
+(pass) installer transaction safety > preflight refuses corrupt-overlay without running the installer [31.00ms]
+(pass) installer transaction safety > preflight refuses nonarray-overlay without running the installer [31.00ms]
+(pass) installer transaction safety > preflight refuses corrupt-metadata without running the installer [47.00ms]
+(pass) installer transaction safety > upstream throw produces a nonzero result and restores owner settings [110.00ms]
+(pass) installer transaction safety > upstream signal produces a nonzero result and restores owner settings [93.00ms]
+(pass) installer transaction safety > upstream noninteger produces a nonzero result and restores owner settings [79.00ms]
+(pass) installer transaction safety > successful install keeps a custom statusline and archives patches without a pristine tree [140.00ms]
+(pass) installer transaction safety > malformed overlay ownership refuses a transaction before mutation { [47.00ms]
+(pass) installer transaction safety > malformed overlay ownership refuses a transaction before mutation {} [47.00ms]
+(pass) installer transaction safety > malformed overlay ownership refuses a transaction before mutation [null, "", "hooks/old.js"] [47.00ms]
+(pass) installer transaction safety > unsafe managed install path ../outside.txt refuses upstream before owner bytes change [94.00ms]
+(pass) installer transaction safety > unsafe managed install path . refuses upstream before owner bytes change [187.00ms]
+(pass) installer transaction safety > unsafe managed install path hooks/gsd-statusline.js refuses upstream before owner bytes change [141.00ms]
+(pass) installer transaction safety > a later install preserves earlier patch generations before upstream runs (status 0) [406.00ms]
+(pass) installer transaction safety > a later install preserves earlier patch generations before upstream runs (status 1) [187.00ms]
+(pass) installer transaction safety > failed archive copy cannot expose a partial completed generation or spawn upstream [79.00ms]
+(pass) installer transaction safety > install refuses linked backup content at gsd-local-patches before upstream mutation [46.00ms]
+(pass) installer transaction safety > install refuses linked backup content at gsd-pristine before upstream mutation [47.00ms]
+(pass) installer transaction safety > install refuses linked backup content at gsd-local-patches/nested before upstream mutation [31.00ms]
+(pass) installer transaction safety > install refuses linked backup content at gsd-local-patch-history before upstream mutation [78.00ms]
+(pass) readInstalledManifest > returns array of relative paths when valid manifest exists
+(pass) readInstalledManifest > returns empty array when no manifest file exists [16.00ms]
+(pass) readInstalledManifest > refuses corrupt JSON instead of interpreting missing ownership [16.00ms]
+(pass) readInstalledManifest > refuses a non-file ownership manifest
+(pass) readInstalledManifest > refuses linked ownership metadata without reading or deleting its target [15.00ms]
+(pass) readInstalledManifest > invalid installed ownership refuses removal: null [16.00ms]
+(pass) readInstalledManifest > invalid installed ownership refuses removal: [] [15.00ms]
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {}
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {"files":null} [32.00ms]
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {"files":[]} [15.00ms]
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {"files":"owned"} [16.00ms]
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {"files":{"owned.js":null}} [16.00ms]
+(pass) removeGsdFiles > a valid empty ownership manifest does not activate recursive legacy cleanup [31.00ms]
+(pass) removeGsdFiles > cleanup does not follow a linked scripts directory into owner content [15.00ms]
+(pass) removeGsdFiles > INST-01: manifest strategy removes listed files, user content survives [125.00ms]
+(pass) removeGsdFiles > INST-03: legacy fallback removes only known GSD package roots [94.00ms]
+(pass) removeGsdFiles > manifest strategy prunes empty directories after file removal [31.00ms]
+(pass) removeGsdFiles > manifest strategy also removes overlay-manifest files [63.00ms]
+(pass) removeGsdFiles > does NOT prune directory containing user file (co-located content) [31.00ms]
+  [2mStrategy: manifest (3 items removed)[0m
+(pass) removeGsdFiles > uninstall removes listed script helpers and preserves co-located owner scripts [47.00ms]
+(pass) removeGsdFiles > always removes GSD metadata files [47.00ms]
+(pass) removeGsdFiles > returns correct strategy and removed count [31.00ms]
+(pass) removeGsdFiles > path containment (traversal rejection) > rejects manifest entry with ../ traversal [16.00ms]
+(pass) removeGsdFiles > path containment (traversal rejection) > rejects manifest entry with deeply nested traversal (../../) [31.00ms]
+(pass) removeGsdFiles > path containment (traversal rejection) > rejects absolute paths that resolve outside targetDir
+(pass) removeGsdFiles > path containment (traversal rejection) > rejects entries using platform-native absolute paths [31.00ms]
+(pass) removeGsdFiles > path containment (traversal rejection) > mixed valid and traversal entries: deletes valid, skips traversal, user content intact [110.00ms]
+(pass) detectV2 > INST-02: returns false for overlay-installed dir with src/ and overlay_version [47.00ms]
+(pass) detectV2 > INST-02: returns false when only src/ exists (no meta files) [15.00ms]
+(pass) detectV2 > returns true with signal meta for v2.x meta without overlay_version [16.00ms]
+(pass) detectV2 > returns true with version string from v2.x meta [15.00ms]
+(pass) detectV2 > returns true with signal meta-corrupt for corrupt meta JSON [16.00ms]
+(pass) detectV2 > returns true with signal directory-name when get-stuff-done/ exists without gsd-core/ [16.00ms]
+(pass) detectV2 > returns false for empty directory
+(pass) detectV2 > returns false when both get-stuff-done/ and gsd-core/ exist (active install present) [15.00ms]
+(pass) detectV2 > returns false when only get-shit-done/ exists (v3 baseline, not v2) [16.00ms]
+(pass) isSafeToClean > refuses home directory
+(pass) isSafeToClean > refuses filesystem root
+(pass) isSafeToClean > refuses shallow paths (single segment below root)
+(pass) isSafeToClean > accepts valid deep path
+(pass) uninstall > refuses the home directory before deleting even manifest-listed files [31.00ms]
+(pass) uninstall > home-directory protection also covers a selected directory alias [31.00ms]
+  [2mStrategy: manifest (3 items removed)[0m
+(pass) uninstall > removes GSD files via manifest and preserves user content [79.00ms]
+(pass) uninstall > handles non-existent directory without throwing
+  [2mStrategy: legacy-fallback (1 items removed)[0m
+(pass) uninstall > legacy fallback path through uninstall removes only known dirs [62.00ms]
+(pass) patchStatusLine > creates settings.json and adds statusLine when file missing [16.00ms]
+(pass) patchStatusLine > adds statusLine to existing settings with other keys [15.00ms]
+(pass) patchStatusLine > preserves custom non-GSD statusLine (per D-06) [16.00ms]
+(pass) patchStatusLine > updates existing GSD statusLine path [16.00ms]
+(pass) patchStatusLine > uses forward-slash paths in command [31.00ms]
+  Warning: C:\Users\Destiny\AppData\Local\Temp\gsd-test-n8RRDv\settings.json is corrupt JSON. Backed up to C:\Users\Destiny\AppData\Local\Temp\gsd-test-n8RRDv\settings.json.backup
+(pass) patchStatusLine > handles corrupt settings.json with backup and warning (not silent reset) [31.00ms]
+(pass) patchStatusLine > returns correct action for empty settings (no statusLine key) [16.00ms]
+(pass) patchStatusLine > uses atomic write (temp file + rename) to prevent TOCTOU
+(pass) copyOverlayManifest > copies .overlay-manifest.json to target root [15.00ms]
+(pass) copyOverlayManifest > does not require an upstream package root in target [16.00ms]
+(pass) copyOverlayManifest > skips gracefully if .overlay-manifest.json does not exist in dist [16.00ms]
+(pass) cleanOrphanedPaths > removes an empty hooks/dist/ directory [15.00ms]
+(pass) cleanOrphanedPaths > returns 0 if no orphans exist
+(pass) cleanOrphanedPaths > does not touch hooks/ directory itself [16.00ms]
+(pass) cleanOrphanedPaths > preserves local patch bytes and metadata for owner reconciliation [15.00ms]
+(pass) cleanOrphanedPaths > preserves unclassified hook bytes and local patch metadata [16.00ms]
+(pass) cleanOrphanedPaths > orphan cleanup does not traverse a linked hooks ancestor [31.00ms]
+(pass) reviewed installer publication boundaries > rejects all-runtime installation before spawning or writing a target [32.00ms]
+(pass) reviewed installer publication boundaries > missing overlay source refuses before upstream mutation [15.00ms]
+(pass) reviewed installer publication boundaries > overlay publication refuses a destination redirected by upstream [47.00ms]
+(pass) reviewed installer publication boundaries > rollback continues after a locked first file and retains recovery evidence [203.00ms]
+(pass) reviewed installer publication boundaries > rollback restores an incompatible leaf without writing through a link [110.00ms]
+
+tests\installer-v3.test.js:
+(pass) v3.0 Delegation Installer > pre-condition: dist/.overlay-manifest.json exists [47.00ms]
+(pass) v3.0 Delegation Installer > INST-01: subprocess delegation > delegates to upstream and produces installed file structure [14828.00ms]
+(pass) v3.0 Delegation Installer > INST-01: subprocess delegation > passes all user flags through to upstream [11328.00ms]
+(pass) v3.0 Delegation Installer > INST-02: overlay files copied > overlay-only files exist in target after install [15157.00ms]
+(pass) v3.0 Delegation Installer > INST-02: overlay files copied > all manifest files are copied to target [9078.00ms]
+(pass) v3.0 Delegation Installer > INST-03: .install-meta.json written > writes v3.0 format install metadata [10890.00ms]
+(pass) v3.0 Delegation Installer > INST-03: .install-meta.json written > upstream_version matches dist metadata [8750.00ms]
+(pass) v3.0 Delegation Installer > INST-04: --uninstall > removes installed files and exits 0 [7875.00ms]
+(pass) v3.0 Delegation Installer > INST-04: --uninstall > idempotent: uninstall on empty dir exits 0 [219.00ms]
+(pass) v3.0 Delegation Installer > INST-04: --uninstall > idempotent: double uninstall exits 0 [6609.00ms]
+(pass) v3.0 Delegation Installer > INST-05: v2.x detection > detects v2.x via .install-meta.json (no overlay_version) [7797.00ms]
+(pass) v3.0 Delegation Installer > INST-05: v2.x detection > detects v2.x via get-stuff-done/ without Open GSD root/ [9641.00ms]
+(pass) v3.0 Delegation Installer > INST-05: v2.x detection > --force suppresses migration banner (quiet mode) [12437.00ms]
+(pass) v3.0 Delegation Installer > INST-05b: negative v2.x detection > does NOT detect v2.x for fresh empty directory [9391.00ms]
+(pass) v3.0 Delegation Installer > INST-05b: negative v2.x detection > does NOT detect v2.x for v3.0 installation [8750.00ms]
+(pass) v3.0 Delegation Installer > INST-05c: safety guard (isSafeToClean) > safety guard function exists in install.js
+(pass) v3.0 Delegation Installer > INST-05c: safety guard (isSafeToClean) > readline is not imported in install.js [16.00ms]
+(pass) v3.0 Delegation Installer > INST-05c: safety guard (isSafeToClean) > askConfirmation function does not exist in install.js
+
+ 135 pass
+ 0 fail
+ 614 expect() calls
+Ran 135 tests across 3 files. [164.52s]

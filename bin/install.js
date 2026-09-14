@@ -512,27 +512,18 @@ function removeGsdFiles(targetDir, quiet) {
     }
   }
 
-  for (const relPath of ['scripts/changeset', 'scripts/lib']) {
+  // Upstream records its script helpers in the file manifest. Their parent
+  // directories are shared with owner scripts and convey no extra ownership.
+  for (const relPath of ['scripts/changeset', 'scripts/lib', 'scripts']) {
     const fullPath = targetRelativePath(targetDir, relPath);
     if (!fullPath) {
       skipped++;
       continue;
     }
-    if (fs.existsSync(fullPath) && fs.lstatSync(fullPath).isDirectory()) {
-      fs.rmSync(fullPath, { recursive: true, force: true });
-      removed++;
-    }
-  }
-
-  for (const relPath of ['scripts']) {
-    const fullPath = targetRelativePath(targetDir, relPath);
-    if (!fullPath) continue;
     try {
-      if (fs.existsSync(fullPath) && fs.readdirSync(fullPath).length === 0) {
-        fs.rmdirSync(fullPath);
-      }
+      fs.rmdirSync(fullPath);
     } catch {
-      // Directory already gone or not empty -- fine
+      // Missing or nonempty directories need no further cleanup.
     }
   }
 

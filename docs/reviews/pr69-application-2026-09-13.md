@@ -92,6 +92,14 @@ and tested before recommending PR 69 adoption; no new strategic audit needed.
 1. Complete rollback inventory for new upstream-only files and side metadata,
    including partial upstream failure. Old-manifest plus overlay inventory can
    leave a mixed installation.
+   Now reproduced through the real composed CLI: injecting failure at its first
+   manifest publication leaves 622 candidate files while the wrapper prints
+   `Rollback applied`. Original settings and the independent owner file survive.
+   The explicit acceptance command `node tests/acceptance/installer-recovery.cjs`
+   fails on those residual files; its project-local fixture is removed afterward.
+   Receipt: `.planning/evidence/pr69-installer-recovery-red-2026-09-14.json`.
+   This is a failing acceptance gate, not a passing unit-test substitute. The
+   reproduction precedes this session's script-ownership correction.
 2. Invalid and valid-empty ownership metadata now refuse/avoid legacy fallback
    as appropriate. Complete the remaining absent-manifest behavior using positive
    ownership evidence and safe handling of uncertain legacy content.
@@ -106,7 +114,27 @@ and tested before recommending PR 69 adoption; no new strategic audit needed.
    115 passed, 0 failed, 487 assertions over installer-safety and CLI safety.
    Evidence: pr69-orphan-preserve-red.log and pr69-orphan-bun.log. Unclassified
    remnants remain owner-reconciliation items; no filename-based ownership claim
-   is made. Other paths in this item remain open.
+   is made. Script-directory cleanup is now empty-only too: manifest-owned
+   helper files are removed individually, while co-located owner scripts remain.
+   The actual install/uninstall test exposed a second cause in upstream 1.9.1:
+   manifest creation claimed every destination `.cjs` file, including owner
+   scripts. The existing installer override now enumerates regular package
+   source files, matching what it copies and including helper documentation.
+   The real CLI regression passes with a target and owner filenames containing
+   spaces; it verifies ownership and preservation as well as managed removal.
+   RED/GREEN receipts: `.planning/evidence/pr69-script-ownership-*-2026-09-14.log`
+   and `pr69-script-cleanup-*-2026-09-14.log`. This prevents new false ownership
+   entries in these directories; previously contaminated manifests still need
+   the provenance reconciliation in item 2. Legacy roots and side metadata
+   remain open. No owner-file recovery from a hash alone is claimed.
+   Final pinned Bun 1.3.5 validation: 135 passed, 0 failed, 614 assertions over
+   installer-safety, installer-cli-safety and installer-v3. The first expanded
+   run's 134/1 result caught a lost skipped-path count for linked directories;
+   that diagnostic is restored and the original assertion passes unchanged.
+   Both runs are retained in `pr69-script-installer-suites*-2026-09-14.log`.
+   Compose succeeds; all nine override hashes remain fresh; ESLint has zero
+   errors and the same six existing argument-parser warnings. These focused
+   results do not satisfy the outstanding whole-file Tier S or full PR gate.
 5. Finish containment checks for every metadata/settings publication path.
    Overlay and rollback-leaf tests cover only part of this boundary.
 6. Reconcile active patch-tree residue with upstream reapply consumption.

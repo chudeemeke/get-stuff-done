@@ -120,6 +120,40 @@ describe('installer CLI safety', { timeout: SUBPROCESS_TIMEOUT }, () => {
   });
 
   // The outer test must allow the existing 30-second real-installer budget.
+  test('real install and uninstall preserve owner script helpers without claiming them', { timeout: SUBPROCESS_TIMEOUT }, () => {
+    const tmp = createTempDir();
+    try {
+      const target = path.join(tmp.path, 'runtime with spaces');
+      const ownerFiles = ['scripts/lib/owner helper.cjs', 'scripts/changeset/owner check.cjs'];
+      for (const name of ownerFiles) {
+        const file = path.join(target, name);
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, 'owner:' + name);
+      }
+      const args = ['--claude', '--global', '--config-dir', target];
+      const installed = invoke(tmp, args);
+      expect({ status: installed.status, stderr: installed.stderr, timedOut: installed.timedOut }).toEqual({
+        status: 0, stderr: '', timedOut: false,
+      });
+      const manifest = JSON.parse(fs.readFileSync(path.join(target, 'gsd-file-manifest.json'), 'utf8'));
+      for (const name of ownerFiles) expect(Object.hasOwn(manifest.files, name)).toBe(false);
+      for (const group of ['changeset', 'lib']) {
+        const source = path.join(__dirname, '../dist/scripts', group);
+        for (const file of fs.readdirSync(source)) {
+          if (fs.statSync(path.join(source, file)).isFile()) {
+            expect(Object.hasOwn(manifest.files, `scripts/${group}/${file}`)).toBe(true);
+          }
+        }
+      }
+      const managed = Object.keys(manifest.files).filter(name => /^scripts\/(lib|changeset)\//.test(name));
+      expect(managed.length).toBeGreaterThan(0);
+      const removed = invoke(tmp, [...args, '--uninstall']);
+      expect(removed.status).toBe(0);
+      for (const name of ownerFiles) expect(fs.readFileSync(path.join(target, name), 'utf8')).toBe('owner:' + name);
+      for (const name of managed) expect(fs.existsSync(path.join(target, name))).toBe(false);
+    } finally { tmp.cleanup(); }
+  });
+
   test('real CLI migration preserves owner content and installs composed metadata', { timeout: SUBPROCESS_TIMEOUT }, () => {
     const tmp = createTempDir();
     try {

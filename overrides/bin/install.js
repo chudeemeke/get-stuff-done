@@ -9614,20 +9614,17 @@ function writeManifest(configDir, runtime = DEFAULT_RUNTIME, options = {}) {
     }
   }
 
-  // Track scripts/changeset/ and scripts/lib/ so saveLocalPatches() can detect drift
-  const changesetInstallDir = path.join(configDir, 'scripts', 'changeset');
-  if (fs.existsSync(changesetInstallDir)) {
-    for (const file of fs.readdirSync(changesetInstallDir)) {
-      if (file.endsWith('.cjs')) {
-        manifest.files['scripts/changeset/' + file] = fileHash(path.join(changesetInstallDir, file));
-      }
-    }
-  }
-  const scriptsLibInstallDir = path.join(configDir, 'scripts', 'lib');
-  if (fs.existsSync(scriptsLibInstallDir)) {
-    for (const file of fs.readdirSync(scriptsLibInstallDir)) {
-      if (file.endsWith('.cjs')) {
-        manifest.files['scripts/lib/' + file] = fileHash(path.join(scriptsLibInstallDir, file));
+  // Track the regular files the package copies, including helper documentation.
+  // Destination enumeration would also claim unrelated owner .cjs files.
+  for (const group of ['changeset', 'lib']) {
+    const sourceDir = path.join(__dirname, '..', 'scripts', group);
+    const installedDir = path.join(configDir, 'scripts', group);
+    if (fs.existsSync(sourceDir) && fs.existsSync(installedDir)) {
+      for (const file of fs.readdirSync(sourceDir)) {
+        const installedFile = path.join(installedDir, file);
+        if (fs.statSync(path.join(sourceDir, file)).isFile() && fs.existsSync(installedFile)) {
+          manifest.files['scripts/' + group + '/' + file] = fileHash(installedFile);
+        }
       }
     }
   }

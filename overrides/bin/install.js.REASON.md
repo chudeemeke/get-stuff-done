@@ -16,12 +16,21 @@ Memory-nexus recovery exposed a Codex global install crash after upstream copied
   installer fault injection covers both prior states.
 - Documents `--kimi-code` as the distinct Kimi Code selector and removes the
   obsolete example that directed the Python Kimi runtime into its directory.
+- Records script-helper ownership from regular package source files, matching
+  the copy operation, instead of claiming every destination `.cjs` file.
+  Includes copied documentation so uninstall can remove managed files without
+  recursively deleting shared helper directories.
 
 ## Review trigger
 When upstream `bin/install.js` changes, check whether Open GSD natively handles absent agent frontmatter in Codex config generation and remove this override once upstream behavior covers the case.
 
 Also retire the defaults rollback and Kimi help deltas individually when the
 same composed-installer regression cases pass against the pure candidate.
+
+Retire the script ownership delta when pure upstream passes the real install /
+uninstall owner-script regression in `tests/installer-cli-safety.test.js`,
+including complete inventory of the regular helper files it copies. The
+September 14 RED receipt proves destination enumeration claims owner scripts.
 
 ## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
 

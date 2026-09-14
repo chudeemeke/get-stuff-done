@@ -902,6 +902,23 @@ describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
     expect(fs.readFileSync(path.join(tmpDir.path, 'hooks', 'my-custom-hook.js'), 'utf-8')).toBe('user hook content');
   });
 
+  test('uninstall removes listed script helpers and preserves co-located owner scripts', () => {
+    const managed = ['scripts/lib/gsd-helper.cjs', 'scripts/changeset/gsd-check.cjs'];
+    const owner = ['scripts/lib/owner helper.cjs', 'scripts/changeset/owner check.cjs'];
+    for (const name of [...managed, ...owner]) {
+      const file = path.join(tmpDir.path, name);
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, name);
+    }
+    writeManifest(tmpDir.path, managed);
+
+    const result = uninstall(tmpDir.path, { exit: false });
+
+    expect(result.strategy).toBe('manifest');
+    for (const name of managed) expect(fs.existsSync(path.join(tmpDir.path, name))).toBe(false);
+    for (const name of owner) expect(fs.readFileSync(path.join(tmpDir.path, name), 'utf8')).toBe(name);
+  });
+
   test('always removes GSD metadata files', () => {
     // Create metadata files at target root
     fs.writeFileSync(path.join(tmpDir.path, INSTALLED_MANIFEST_NAME), '{}');

@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  schedule:
+    - cron: "43 5 * * 1"
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:

@@ -6,20 +6,25 @@ const yaml = require('js-yaml');
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const WORKFLOWS_DIR = path.join(PROJECT_ROOT, '.github', 'workflows');
 const CI_WORKFLOW = path.join(WORKFLOWS_DIR, 'ci.yml');
+const REVIEWED_ACTIONS = JSON.parse(
+  fs.readFileSync(path.join(PROJECT_ROOT, 'config/phase43-toolchain-authority.json'), 'utf8')
+).githubActions.pins;
 const ACTION_PINS = {
-  cache: '55cc8345863c7cc4c66a329aec7e433d2d1c52a9',
-  checkout: '3d3c42e5aac5ba805825da76410c181273ba90b1',
-  downloadArtifact: '3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c',
-  githubScript: '3a2844b7e9c422d3c10d287c895573f7108da1b3',
-  gitleaks: 'e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e',
-  hardenRunner: '05e31511f85b41b11d1cf0ef85d0992719546e2c',
-  lychee: 'e7477775783ea5526144ba13e8db5eec57747ce8',
-  setupNode: '820762786026740c76f36085b0efc47a31fe5020',
-  setupBun: '0c5077e51419868618aeaa5fe8019c62421857d6',
-  uploadArtifact: '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
+  cache: REVIEWED_ACTIONS['actions/cache'].sha,
+  checkout: REVIEWED_ACTIONS['actions/checkout'].sha,
+  downloadArtifact: REVIEWED_ACTIONS['actions/download-artifact'].sha,
+  githubScript: REVIEWED_ACTIONS['actions/github-script'].sha,
+  gitleaks: REVIEWED_ACTIONS['gitleaks/gitleaks-action'].sha,
+  hardenRunner: REVIEWED_ACTIONS['step-security/harden-runner'].sha,
+  lychee: REVIEWED_ACTIONS['lycheeverse/lychee-action'].sha,
+  setupNode: REVIEWED_ACTIONS['actions/setup-node'].sha,
+  setupBun: REVIEWED_ACTIONS['oven-sh/setup-bun'].sha,
+  uploadArtifact: REVIEWED_ACTIONS['actions/upload-artifact'].sha,
 };
 const OSV_IMAGE = 'ghcr.io/google/osv-scanner-action';
 const OSV_IMAGE_DIGEST = 'sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba';
+const ACTIONLINT_IMAGE = 'rhysd/actionlint';
+const ACTIONLINT_IMAGE_DIGEST = 'sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667';
 const ACTION_TOKEN_DEFAULTS = new Map([
   ['actions/setup-node', 'token'],
   ['lycheeverse/lychee-action', 'token'],
@@ -42,6 +47,13 @@ function readAllWorkflowText() {
     .map(fileName => readWorkflow(fileName))
     .join('\n');
 }
+
+test('external availability report escapes Markdown table delimiters in URLs', () => {
+  const workflow = readWorkflow('docs-link-availability.yml');
+  expect(workflow).toContain('display_url="${display_url//|/\\\\|}"');
+  expect(workflow).toContain('"$display_url"');
+  expect(workflow).toContain('curl --globoff');
+});
 
 function workflowFiles() {
   return fs
@@ -83,6 +95,17 @@ describe('bun per-test timeout is applied by flag, not env', () => {
 });
 
 describe('CI workflow security action contracts', () => {
+  test('workflow lint executes the reviewed container by immutable digest', () => {
+    const script = fs.readFileSync(path.join(PROJECT_ROOT, 'scripts/lint-workflows.sh'), 'utf8');
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(PROJECT_ROOT, 'config', 'phase43-toolchain-authority.json'), 'utf8')
+    );
+
+    expect(manifest.containers.pins[ACTIONLINT_IMAGE].digest).toBe(ACTIONLINT_IMAGE_DIGEST);
+    expect(script).toContain(`${ACTIONLINT_IMAGE}@${ACTIONLINT_IMAGE_DIGEST}`);
+    expect(script).not.toContain(`${ACTIONLINT_IMAGE}:latest`);
+  });
+
   test('gitleaks receives the GitHub token required for pull request scans', () => {
     const workflow = readCiWorkflow();
     const gitleaksStepMarker = `uses: gitleaks/gitleaks-action@${ACTION_PINS.gitleaks}`;

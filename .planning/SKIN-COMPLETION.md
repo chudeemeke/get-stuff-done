@@ -40,6 +40,14 @@ tuicr is optional and must never be claimed without actual review evidence.
 All remaining acceptance cells are pending until evidence is recorded. A merged
 bump alone cannot close this contract.
 
+September14 consumer dependency: Conversations O01 reproduced mixed-generation
+reads and partial multi-file publication. Final recovery/state-integrity
+acceptance also requires `.planning/COHERENT-RESUME-INTEGRATION.md`. Consumer
+source/installed paths are inventoried; the shared protocol is still under
+review. Conversations supplies its versioned contract receipt before GSD
+implements/adopts it. Existing application PR work continues, with no claim that
+single-file atomicity establishes coherent recovery.
+
 ## Inbox triage (2026-09-05)
 
 | Item | Disposition and next owner/trigger |

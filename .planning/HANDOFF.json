@@ -185,6 +185,16 @@
     "user_runtime_activated": false,
     "current_worktrees": "C:/Projects/get-stuff-done/.claude/worktrees/"
   },
+  "coherent_resume_integration": {
+    "recordedAt": "2026-09-14",
+    "status": "consumer-preparation-complete-awaiting-protocol-receipt",
+    "applicationOwner": "get-stuff-done CLI session",
+    "nextExternalOwner": "conversations",
+    "plan": ".planning/COHERENT-RESUME-INTEGRATION.md",
+    "evidence": ".planning/evidence/coherent-resume-consumers-2026-09-14.json",
+    "impact": "Extends final recovery and state-integrity acceptance. Does not change PR4 repair policy or authorize a guessed protocol, authority migration, or installed edits.",
+    "trigger": "Conversations supplies a versioned implementation and distribution contract; integrate actual state/init, pause/resume and overlay pre-compact consumers, preserving locks and scoped membership."
+  },
   "application_recovery": {
     "recordedAt": "2026-09-13T23:25:27.219Z",
     "pr4": {

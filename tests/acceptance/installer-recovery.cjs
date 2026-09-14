@@ -44,6 +44,7 @@ try {
   fs.writeFileSync(path.join(target, 'settings.json'), settings);
   fs.writeFileSync(path.join(target, 'owner.txt'), 'owner bytes\n');
   const preload = path.join(scratch, 'inject write failure.cjs');
+  const traceFile = path.join(scratch, 'upstream-write-trace.json');
   // Inject only at the first manifest publication in the real upstream child,
   // after materialization has started. The wrapper's recovery is not mocked.
   fs.writeFileSync(preload, `
@@ -51,12 +52,32 @@ try {
     const path = require('node:path');
     if (path.resolve(process.argv[1]) === ${JSON.stringify(upstream)}) {
       const write = fs.writeFileSync;
-      fs.writeFileSync = function(destination, ...args) {
-        if (typeof destination === 'string' && path.resolve(destination) === ${JSON.stringify(path.join(target, 'gsd-file-manifest.json'))}) {
-          throw new Error('INJECTED_MANIFEST_PUBLICATION_FAILURE');
-        }
-        return write.call(this, destination, ...args);
-      };
+      const trace = [];
+      const home = ${JSON.stringify(home)};
+      const methods = { writeFileSync: [0], copyFileSync: [1], appendFileSync: [0],
+        unlinkSync: [0], rmSync: [0], rmdirSync: [0], mkdirSync: [0], renameSync: [0, 1] };
+      for (const [method, indices] of Object.entries(methods)) {
+        const original = fs[method];
+        fs[method] = function(...args) {
+          const paths = indices.flatMap(index => {
+            if (typeof args[index] !== 'string') return [];
+            const absolute = path.resolve(args[index]);
+            return absolute.startsWith(home + path.sep) ? [path.relative(home, absolute).replaceAll('\\\\', '/')] : [];
+          });
+          try {
+            if (method === 'writeFileSync' && typeof args[0] === 'string' && path.resolve(args[0]) === ${JSON.stringify(path.join(target, 'gsd-file-manifest.json'))}) {
+              throw new Error('INJECTED_MANIFEST_PUBLICATION_FAILURE');
+            }
+            const result = original.apply(this, args);
+            if (paths.length) trace.push({ method, paths, completed: true });
+            return result;
+          } catch (error) {
+            if (paths.length) trace.push({ method, paths, completed: false });
+            throw error;
+          }
+        };
+      }
+      process.on('exit', () => write(${JSON.stringify(traceFile)}, JSON.stringify(trace)));
     }
   `);
   const env = {
@@ -77,6 +98,8 @@ try {
   report.claimedRollbackApplied = result.stderr.includes('Rollback applied');
   report.settingsPreserved = fs.readFileSync(path.join(target, 'settings.json'), 'utf8') === settings;
   report.ownerPreserved = fs.readFileSync(path.join(target, 'owner.txt'), 'utf8') === 'owner bytes\n';
+  report.upstreamWriteTrace = JSON.parse(fs.readFileSync(traceFile, 'utf8'));
+  report.traceLimit = 'Observed synchronous path-based calls under the isolated home; not proof of every filesystem mutation route.';
   const remaining = inventory(target).filter(name => !['owner.txt', 'settings.json'].includes(name));
   report.residualFileCount = remaining.length;
   report.residualExamples = remaining.slice(0, 12);

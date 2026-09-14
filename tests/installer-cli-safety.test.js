@@ -23,6 +23,21 @@ function invoke(tmp, args) {
 }
 
 describe('installer CLI safety', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('unsupported --all refuses before legacy cleanup can remove owner content', () => {
+    const tmp = createTempDir();
+    try {
+      const target = path.join(tmp.path, 'runtime with spaces');
+      fs.mkdirSync(path.join(target, 'get-stuff-done'), { recursive: true });
+      const ownerFile = path.join(target, 'get-stuff-done/owner.md');
+      fs.writeFileSync(ownerFile, 'owner legacy changes');
+      const result = invoke(tmp, ['--all', '--global', '--config-dir', target]);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('--all is not supported transactionally');
+      expect(fs.readFileSync(ownerFile, 'utf8')).toBe('owner legacy changes');
+      expect(fs.readdirSync(target)).toEqual(['get-stuff-done']);
+    } finally { tmp.cleanup(); }
+  });
+
   test('CLI uninstall refuses the isolated home without deleting its inventory', () => {
     const tmp = createTempDir();
     try {

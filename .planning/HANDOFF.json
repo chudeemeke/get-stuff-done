@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-14T13:08:38.761Z",
+  "timestamp": "2026-09-14T13:23:40.424Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
   "pr": "PR4 scope decision pending; production remote17278b2a unchanged. PR69 draft remote df0d3f9c, local application b6743baf. PR70 draft573d9f91 unchanged. No approve, merge or readiness change authorized.",
-  "status": "application-fixes-local-validation-incomplete",
-  "READ_FIRST": "Read application_checkpoint_2026_09_14 below before historical fields. PR4 successor support scope is pending the structured user answer; do not re-ask or infer acceptance. PR69 application work continues under the decision-held exception. Local script ownership fix passes135 tests; real failure acceptance still leaves622 files. Full PR, Tier S, matrix and native validation remain incomplete. Preserve all work and execute the ratified September5 skin contract through fixed1.12.0; do not restart the strategic audit. CI is separately owned. Disk space is volatile; do not start storage-heavy tests without headroom.",
+  "status": "application-work-held-on-disk-exhaustion",
+  "READ_FIRST": "Read application_checkpoint_2026_09_14 below before historical fields. Disk repeatedly reaches zero and has interrupted two source writes; both files were restored exactly to Git before subsequent verified changes. Current application source remains b6743baf. New tests/evidence reproduce --all cleanup-before-refusal and map upstream writes; those defects remain open. Architecture review failed on disk exhaustion and produced no final result; its process is confirmed missing. Do not treat the launcher exit0 as review success. Resume only after stable disk headroom, preserving all work. PR4 scope decision remains pending; no re-ask or inferred approval. Execute the ratified September5 contract through fixed1.12.0, with separate CI ownership; do not restart strategy.",
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0 (user chose Walk increments 2026-08-30; endpoint extended from 1.11.0 to 1.12.0 by user decision 2026-09-05, then quarterly per D5)",
     "step": "3 of 6: 1.8.0 -> 1.9.1 IN PROGRESS after PR64 and PR63 merged and main integrated.",
@@ -222,13 +222,19 @@
     "source_head": "b6743bafe756ec8c5e996fd489f035db21d7a9d2",
     "final_validation": "Incomplete; local focused passes do not close native timeout, matrix, complete installer Tier S coverage or final review.",
     "current_report": "docs/reviews/pr69-application-2026-09-13.md",
-    "next_application_work": "Complete new-upstream/side-metadata write inventory and recovery, including partial failure and concurrency. Keep legacy cleanup within recovery; resolve remaining metadata/settings and runtime boundaries, native timeout and final validation before publishing. Do not replace complete inventory with a successful-install manifest alone.",
+    "next_application_work": "After stable disk headroom: resume bounded recovery design review using a launcher that requires a final review artifact and fails on redirection errors; implement complete inventory/recovery. First finish RED --all preflight ordering fix and invalid-artifact-before-legacy-cleanup test. Use staged source edits to avoid truncating files on disk-full errors. No installer or broader acceptance gate is closed.",
     "external_checkpoint": "C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13/application-checkpoint.json",
-    "recorded_at": "2026-09-14T13:08:38.761Z",
+    "recorded_at": "2026-09-14T13:23:40.424Z",
     "recovery_probe_commit": "32ec332c5114bd75ec16a8811101bc6585a55243",
     "tests": "Pinned Bun1.3.5:135 passed,0 failed,614 assertions across installer-safety,installer-cli-safety,installer-v3. Compose passes,9 overrides fresh,ESLint0 errors/6 existing warnings,diff check passes. No broad or Tier S acceptance inferred.",
     "new_findings": "Real upstream manifest-publication failure left622 files while wrapper claimed Rollback applied; explicit acceptance test and failing receipt committed. Owner helper deletion and new false script ownership corrected. Earlier tainted manifests and other ownership paths remain open.",
     "cleanup": "User restricted cleanup to this project. No cleanup deletion executed: automatic approval review rejected recursive and narrower generated-binary removal. About700MB of generated output in old agent-a1c0cd52236103329 worktree identified; source preserved. Disk subsequently hit0 during an override edit; that clean-at-start file was restored exactly to Git before the verified ownership delta was applied by staged write. No source loss remains.",
-    "external_checkpoint_status": "Historical through1ca90e1c; this tracked checkpoint and current report supersede its PR69 head/tests/next-step fields."
+    "external_checkpoint_status": "Historical through1ca90e1c; this tracked checkpoint and current report supersede its PR69 head/tests/next-step fields.",
+    "preflight_finding": "New actual CLI test proves --all rejects only after legacy cleanup deletes owner bytes. No production fix applied: disk-full write truncated bin/install.js, restored exactly from currentHEAD; git diff confirmed no production change.",
+    "trace_receipt": ".planning/evidence/pr69-installer-recovery-trace-2026-09-14.json",
+    "trace_result": "622 residual files;634 observed synchronous path-based calls under isolated home. Cache invalidation outside target was an unsuccessful unlink of an absent fixture cache, not an observed modified cache. Trace is diagnostic, not an exhaustive mutation guarantee. Wrapper/upstream SHA256 are bound in receipt.",
+    "design_review": "Fable/high exit1 out of credits. Codex0.154.0 fresh visible registry resolves astra priority1/xhigh; banner verified. Session01a0a010-5031-72a1-8bbe-fe35b01ec695 ended without final output when disk exhausted. No matching codex process remains. Log retained; failed launcher reported0, not accepted. Packet docs/reviews/pr69-rollback-design-packet-2026-09-14.md remains ready.",
+    "skill_ledger": "Both existing cross-ai-review SKILL runtime mirrors updated with Sep14 live astra/xhigh resolution; hashes agree. Global model/effort configuration and memories unchanged.",
+    "disk_block": "Observed free space repeatedly alternated from roughly1GB to0. Latest44MB. Project-only cleanup was already authorized but automatic approval review rejected both recursive generated-directory and narrower binary removal. No cleanup deletion executed; do not bypass that policy."
   }
 }

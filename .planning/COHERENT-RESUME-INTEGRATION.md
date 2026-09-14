@@ -64,6 +64,18 @@ entrypoint invocations, bound to the fork and protocol revisions.
 
 ## Contract receipt required before implementation
 
+September14 partial receipt consumed:
+`C:/Projects/conversations-cron-delivery/docs/reviews/2026-09-14-coherent-resume-contract.md`.
+Conversations qualified its existing handoff CLI's exit3 for unstable/unverified
+observations and exit4 for incomplete pointer publication, including package
+command propagation. Its receipt explicitly says source-qualified, not delivered;
+no generation store, commit/merge or authority activation is present. This is
+useful interim failure reporting, not the versioned coherent snapshot API below.
+GSD has no qualified installed caller of that CLI to update from this receipt.
+Conversations still owns the final shared protocol/distribution receipt; GSD
+consumer integration remains pending that contract. No sibling checkout import
+or new committed-state authority is introduced.
+
 Conversations must supply the versioned schema/CLI or library contract, source
 revision, expected-parent token semantics, explicit adoption signal, result and
 conflict statuses, membership rules, packaging/availability contract, and the

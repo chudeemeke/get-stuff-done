@@ -610,10 +610,17 @@ function detectV2(targetDir) {
  * @returns {{ safe: boolean, reason?: string }}
  */
 function isSafeToClean(targetDir) {
-  const resolved = path.resolve(targetDir);
-  const home = os.homedir();
+  // Selected runtime-root aliases are supported, but may not disguise a home
+  // directory or filesystem root. Existing paths must be checked by identity.
+  const canonical = value => {
+    const absolute = path.resolve(value);
+    const resolvedPath = fs.existsSync(absolute) ? fs.realpathSync(absolute) : absolute;
+    return process.platform === 'win32' ? resolvedPath.toLowerCase() : resolvedPath;
+  };
+  const resolved = canonical(targetDir);
+  const home = canonical(os.homedir());
 
-  if (resolved === path.resolve(home)) {
+  if (resolved === home) {
     return { safe: false, reason: 'target is home directory' };
   }
 
@@ -909,6 +916,8 @@ function patchStatusLine(targetDir) {
  * @returns {{ removed: number, skipped: number, strategy: string, missing?: boolean } | void}
  */
 function uninstall(targetDir, { exit: shouldExit = true } = {}) {
+  const safety = isSafeToClean(targetDir);
+  if (!safety.safe) throw new Error(`Refusing to uninstall from unsafe target: ${safety.reason}`);
   if (!fs.existsSync(targetDir)) {
     if (!shouldExit) return { removed: 0, skipped: 0, strategy: 'none', missing: true };
     console.log(`${dim}Nothing to uninstall at ${targetDir}${reset}`);

@@ -1224,6 +1224,36 @@ describe('isSafeToClean', { timeout: SUBPROCESS_TIMEOUT }, () => {
 // ---------------------------------------------------------------------------
 
 describe('uninstall', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('refuses the home directory before deleting even manifest-listed files', () => {
+    const tmp = createTempDir();
+    const originalHome = os.homedir;
+    try {
+      fs.writeFileSync(path.join(tmp.path, 'owner.txt'), 'owner bytes');
+      writeManifest(tmp.path, ['owner.txt']);
+      os.homedir = () => tmp.path;
+      expect(() => uninstall(tmp.path, { exit: false })).toThrow('target is home directory');
+      expect(fs.readFileSync(path.join(tmp.path, 'owner.txt'), 'utf8')).toBe('owner bytes');
+      expect(fs.existsSync(path.join(tmp.path, INSTALLED_MANIFEST_NAME))).toBe(true);
+    } finally { os.homedir = originalHome; tmp.cleanup(); }
+  });
+
+  test('home-directory protection also covers a selected directory alias', () => {
+    const tmp = createTempDir();
+    const originalHome = os.homedir;
+    try {
+      const home = path.join(tmp.path, 'home');
+      const alias = path.join(tmp.path, 'runtime-alias');
+      fs.mkdirSync(home);
+      fs.writeFileSync(path.join(home, 'owner.txt'), 'owner bytes');
+      writeManifest(home, ['owner.txt']);
+      fs.symlinkSync(home, alias, process.platform === 'win32' ? 'junction' : 'dir');
+      os.homedir = () => home;
+      expect(() => uninstall(alias, { exit: false })).toThrow('target is home directory');
+      expect(fs.readFileSync(path.join(home, 'owner.txt'), 'utf8')).toBe('owner bytes');
+      expect(fs.lstatSync(alias).isSymbolicLink()).toBe(true);
+    } finally { os.homedir = originalHome; tmp.cleanup(); }
+  });
+
   let tmpDir;
 
   beforeEach(() => {

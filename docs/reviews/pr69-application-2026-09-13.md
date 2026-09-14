@@ -112,9 +112,16 @@ and tested before recommending PR 69 adoption; no new strategic audit needed.
    transaction, beyond the implemented --all refusal.
 9. Resolve the current roadmap timeout evidence; obtain a fresh complete matrix,
    full-suite and Tier S evidence and a final independent review.
-10. Apply the existing unsafe-target guard to uninstall as well as installation.
-    Inspection found that uninstall currently calls removal without that guard;
-    verify refusal with isolated fixtures, never probe deletion on real homes.
+10. Corrected: uninstall now applies the existing unsafe-target guard before
+    reading/removing inventory. The guard resolves existing selected-root aliases
+    and Windows path casing before comparing against the home/root boundary.
+    RED fixtures demonstrated deletion in an isolated fake home and through its
+    alias; both now refuse with bytes intact. Actual CLI fake-home refusal and
+    normal runtime selection pass. Pinned Bun 1.3.5: 117 passed, 0 failed,
+    501 assertions across installer-safety, installer-cli-safety and
+    installer-target; `pr69-target-guard-bun.log`. ESLint has no errors and the
+    same six pre-existing argument-parser warnings. This is not protection
+    against every concurrent target substitution or a full release gate.
 
 The three installed state failures remain on the existing skin acceptance map.
 No broader STATE authority or final contract closure is implied.

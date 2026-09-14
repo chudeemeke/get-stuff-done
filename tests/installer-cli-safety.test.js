@@ -23,6 +23,21 @@ function invoke(tmp, args) {
 }
 
 describe('installer CLI safety', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('CLI uninstall refuses the isolated home without deleting its inventory', () => {
+    const tmp = createTempDir();
+    try {
+      const target = path.join(tmp.path, 'home');
+      fs.mkdirSync(target);
+      fs.writeFileSync(path.join(target, 'owner.txt'), 'owner bytes');
+      fs.writeFileSync(path.join(target, 'gsd-file-manifest.json'), JSON.stringify({ files: { 'owner.txt': 'hash' } }));
+      const result = invoke(tmp, ['--claude', '--global', '--config-dir', target, '--uninstall']);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('target is home directory');
+      expect(fs.readFileSync(path.join(target, 'owner.txt'), 'utf8')).toBe('owner bytes');
+      expect(fs.existsSync(path.join(target, 'gsd-file-manifest.json'))).toBe(true);
+    } finally { tmp.cleanup(); }
+  });
+
   test('corrupt overlay ownership refuses legacy install before cleanup or upstream writes', () => {
     const tmp = createTempDir();
     try {

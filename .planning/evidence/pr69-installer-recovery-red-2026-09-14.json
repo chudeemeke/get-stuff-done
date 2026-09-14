@@ -1,0 +1,27 @@
+{
+  "platform": "win32",
+  "node": "v24.20.0",
+  "accepted": false,
+  "status": 1,
+  "injectedFailureReached": true,
+  "claimedRollbackApplied": true,
+  "settingsPreserved": true,
+  "ownerPreserved": true,
+  "residualFileCount": 622,
+  "residualExamples": [
+    ".gsd-source",
+    "agents/gsd-advisor-researcher.md",
+    "agents/gsd-ai-researcher.md",
+    "agents/gsd-assumptions-analyzer.md",
+    "agents/gsd-code-fixer.md",
+    "agents/gsd-code-reviewer.md",
+    "agents/gsd-codebase-mapper.md",
+    "agents/gsd-debug-session-manager.md",
+    "agents/gsd-debugger.md",
+    "agents/gsd-doc-classifier.md",
+    "agents/gsd-doc-synthesizer.md",
+    "agents/gsd-doc-verifier.md"
+  ],
+  "failure": "failed installation must not leave unowned candidate files\n\n622 !== 0\n",
+  "fixtureRemoved": true
+}

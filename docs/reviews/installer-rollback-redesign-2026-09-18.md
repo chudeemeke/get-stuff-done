@@ -8,13 +8,20 @@ been edited. Subject: `bin/install.js` on `chore/upstream-bump-1.9.1` (draft PR 
 Supersedes the "Opinion" section of `docs/reviews/pr69-frontier-review-2026-09-18.md`
 where the two differ.
 
+Amendment status: the last row of the table below is PROPOSED, 2026-09-18. It was
+written during implementation planning, touches none of the eleven owner decisions,
+and has not yet been independently reviewed or accepted by the owner. It changes one
+supporting fact, the guard-test criterion, two proof items, and adds a table of
+readings. Everything else in this note stands as accepted.
+
 | Revision | Date | What changed | Trigger |
 |---|---|---|---|
 | `3fe53109` | 2026-09-18 | First proposal, approved with two amendments | Owner decisions, round one |
 | `5d5033f0` | 2026-09-18 | Content pre-image, lock, journal, quarantine before restore | First review: two lanes NOT PASS; owner decisions, round two |
 | `fe0ac33b` | 2026-09-18 | Names table, copy-only pre-image with caps, names only outside the roots, fresh-or-retire recovery, uninstall lock | Second review: two lanes NOT PASS; owner decisions, round three |
 | `5f8b8258` | 2026-09-18 | Legacy class, lock and journal lifecycle, bounded child-pid check, fuller messages | Third review: one PASS WITH CHANGES, one NOT PASS as written; no owner decision touched |
-| this revision | 2026-09-18 | Journal deleted before snapshot, bad snapshot copies never displaced, exit codes 5 and 6, wording fixes | Fourth review: both lanes PASS WITH CHANGES |
+| `5a6e552d` | 2026-09-18 | Journal deleted before snapshot, bad snapshot copies never displaced, exit codes 5 and 6, wording fixes | Fourth review: both lanes PASS WITH CHANGES |
+| this revision (proposed) | 2026-09-18 | `child_process` fact corrected to the require graph; guard test observed, not token-scanned; acceptance assertion aligned with the kept quarantine; second acceptance scenario so the mutation check can fail; readings table | Implementation planning: the guard test as written could not go green on 1.9.1 |
 
 Commit subjects and inbox events written on 2026-09-18 call the first four rows v1 to
 v4; this table is the mapping.
@@ -225,7 +232,9 @@ exclusion list, and the installer opening `.credentials.json`); a birthtime filt
 tag (NTFS tunneling and rename hide residue); process start time in the lock (needs a
 subprocess per platform; the failure mode is an actionable refusal); killing the
 child's process tree (the wrapper has no timeout path, so the direct child is dead
-before any rollback; grandchildren are covered by the guard test below); a
+before any rollback; the supporting fact recorded in the review, that the pinned
+installer "never requires `child_process`", is true of that one file and false of its
+require graph, see "Guard test" below, which now carries this rejection); a
 `NODE_OPTIONS` preload shim (possible follow-up, not planned).
 
 ## Blockers from `pr69-application-2026-09-13.md`
@@ -241,10 +250,34 @@ residue, 8 multi-destination modes, 9 fresh matrix and Tier S evidence.
 step run it (F5). Transaction functions are Tier S: 100% branches, and each case
 asserts the message and exit code as well as the bytes.
 
-Guard test, derived at test time from the composed `dist/bin/install.js` and every
-file it requires: no `child_process`, `spawn`, `exec`, `fork`, `Bun.spawn` or
-`process.binding`. A bump that adds one fails the gate and reopens the process-tree
-decision. Residual risk recorded: grandchildren only.
+Acceptance assertion (proposed amendment). The test asserted that no file remains in
+the target besides the owner's. Step 9 keeps the quarantine in the target, so that
+assertion can never pass. It becomes: no residue outside Protected names; every root
+byte-identical to its pre-image; the quarantine holds exactly the residue; the message
+and the exit code are asserted, not only recorded.
+
+Guard test (proposed amendment). Measured on the composed 1.9.1 installer, 2026-09-18:
+`dist/bin/install.js:21` requires `gsd-core/bin/lib/shell-command-projection.cjs`,
+which loads `node:child_process` (line 57) and spawns at lines 478, 489, 500 and 618.
+The installer binds twelve names from it, all pure text projection (module lines 108
+to 455), and none of `execGit`, `execNpm`, `execTool`, `dispatchGsdCommand` or
+`probeTty`. The installer also has twelve `require(path.join(_gsdLibDir, ...))` sites
+and `capability-loader.cjs` requires more at runtime, so a graph derived by scanning
+source text is neither closed nor green. The guard therefore observes instead of
+predicting: the real composed child runs under one preload that hooks `Module._load`,
+recording the requiring module for `child_process`, `node:child_process` and
+`cluster`, and wraps every spawn entry point (`ChildProcess.prototype.spawn`, the sync
+exports, `process.binding`, followed by `syncBuiltinESMExports()`). It asserts, across
+a fresh install, an upgrade and a failed install: the modules that loaded a process
+API are a subset of a one-entry allowlist and that entry is present; the installer
+binds exactly the twelve known names from it; zero spawn events. Controls: the preload
+is gated on the child's script path so the wrapper's own spawn is not counted; one
+record is appended per event, never dumped at exit; a missing trace or a missing
+"preload loaded" marker is a failure, never zero; a fixture child that does spawn must
+be detected. The observed part is Node-only, and a source scan for `Bun.spawn` is
+kept. A bump that adds a loader, a bound name or a spawn fails the gate and reopens
+the process-tree decision. Residual risk recorded: paths these three runs do not
+exercise, non-JavaScript spawn routes such as native addons, and grandchildren.
 
 Adversarial cases: owner write inside a root during the window; a `settings.json`
 write landing between quarantine and restore; concurrent `settings.json` edit
@@ -279,7 +312,30 @@ live entry in place and reported; every refusal exiting 6 with the target
 byte-identical; a verified recovery exiting 5 when top-level names changed; a journal
 in the `child-closed` phase recovered although its pid is reused by a live process.
 One mutation check per gate: force the
-verify comparison to always-equal and assert the acceptance test goes red.
+verify comparison to always-equal and assert the acceptance test goes red. Proposed
+amendment: against a clean rollback that mutant survives, because verification would
+have passed anyway. The acceptance test therefore gains a second scenario, a restore
+that is forced to fail, expecting `Rollback incomplete`, exit 4 and a retired
+directory. Under the mutant it reports `applied`, which is what turns the gate red.
+
+## Readings settled for implementation (proposed amendment)
+
+Points on which two implementers could differ. Each is the reading the failing tests
+encode; none changes an owner decision.
+
+| Point | Reading |
+|---|---|
+| Refusals before the lock: `--all`, a missing `dist/`, a corrupt overlay manifest, an unsafe target | Exit 6. Step 9 defines 6 as every refusal before any mutation and 1 as "failed and rolled back" |
+| Links inside `gsd-local-patches` and `gsd-pristine` | `assertRegularBackupTree` still refuses at preflight, exit 6, because the kept patch-history generation copies those trees. Elsewhere step 3 applies |
+| Target directory absent on a fresh install | Created after `isSafeToClean` and before the lock; removed on a refusal if this run created it and it is empty |
+| "Roots named by the existing manifests" | The first path segment of each manifest entry; a Protected segment refuses, exit 6 |
+| Third `EEXIST` on restore, step 8(c) | The newcomer stays where it is and the entry is listed under `Rollback incomplete` |
+| Lock file empty or unparseable | Liveness cannot be decided: refuse with the delete instruction |
+| Journal last-updated time in the future | Stale, so retired. Retiring keeps everything; an automatic rollback mutates |
+| Journal "expected writes" field | Informational. Protected names are already recognised and unreported |
+| New directory created by the child | Moved to `new/` as one unit; the count printed is units moved |
+| Pre-image digest | Taken from the snapshot copy, so the index describes exactly what can be restored |
+| Caps counting owner files in shared roots | As decided in D1: refuse and print the largest entries |
 
 ## Decisions (owner, 2026-09-18, each via AskUserQuestion with the evidence inside)
 

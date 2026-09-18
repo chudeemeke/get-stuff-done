@@ -235,6 +235,32 @@ applied. The changes of this last round were not themselves re-reviewed; both la
 classed all but two as settleable in the failing tests, and those two are one-sentence
 ordering rules that the proof plan now covers with named cases.
 
+## Implementation planning: proposed amendment (same day, not yet reviewed)
+
+Found while planning the implementation, before any `bin/install.js` edit. Status:
+written into the note as a PROPOSED last revision; no lane has reviewed it and the
+owner has not accepted it. It goes to the available lanes first, and the owner is
+asked afterwards with the evidence inside the question.
+
+What the author got wrong:
+
+1. The first review rejected killing the child's process tree on the recorded fact
+   that the pinned installer "never requires `child_process`" (615 KB file, one match
+   in a comment). That was checked on one file. Its require graph does load a process
+   API: `dist/bin/install.js:21` requires `shell-command-projection.cjs`, which loads
+   `node:child_process` (line 57) and spawns at lines 478, 489, 500 and 618. No lane
+   caught it in four rounds, and the guard test written from that fact could never
+   have gone green. The installer binds only twelve text-projection names from the
+   module and none that spawn, so the rejection's conclusion still appears to hold;
+   its evidence did not.
+2. The acceptance test's central assertion (no file left in the target) contradicts
+   step 9, which keeps the quarantine in the target. Nobody compared the two.
+3. The mutation check was specified against a scenario in which the mutant survives.
+
+Proposed dispositions are in the note under "Proof" and "Readings settled for
+implementation". The readings table is the design critique's list of points where two
+implementers would differ, each given the reading closest to the accepted text.
+
 ## Owner decisions, round two (answered after the first review)
 
 D1 content plus hashes of the roots. D2 three outcomes, hashed one level deep, with

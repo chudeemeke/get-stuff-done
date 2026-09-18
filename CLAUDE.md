@@ -62,7 +62,7 @@ If step 2 says STOP, **do not edit**. The right action is one of:
 | Path | Status | Notes |
 |---|---|---|
 | `.github/` | fork-only | Upstream package ships no `.github/`. All CI/workflows are the fork's responsibility. |
-| `.planning/` | fork-only | This project's GSD planning artifacts. `STATE.md` is the canonical position. |
+| `.planning/` | fork-only | This project's GSD planning artifacts. `HANDOFF.json` is the session position; `STATE.md` is canonical only for plan-execution position (see "Operating the project"). |
 | `docs/` | fork-only | ADRs (`docs/decisions/`), cross-project inbox (`docs/inbox/`), reviews. |
 | `tests/` | fork-only | Upstream ships no `tests/` to the consumer. All meta-tests and suites are fork additions. |
 | `scripts/` | fork-only | Fork tooling (compose, parity, boundary, overrides, ratchet, perf, audit, flake/OSV triage, cousin smoke, branch protection). Before adding a script, grep `node_modules/@opengsd/gsd-core/` for a filename collision. |
@@ -110,7 +110,11 @@ check for anything uncertain; surface violations to the user before continuing
 ## Operating the project
 
 - **Position and resume:** read `.planning/HANDOFF.json` first, then the active phase's
-  `.continue-here.md`. Both are self-contained and tracked in git.
+  `.continue-here.md`. Both are self-contained and tracked in git. **Each worktree has
+  its own copy, and the checkout you opened may hold a stale one.** Run
+  `git worktree list`, compare the internal timestamp of every worktree's
+  `.planning/HANDOFF.json`, and treat the newest as the position; start at its
+  `SECTION_INDEX` when it has one.
   `.planning/STATE.md` is canonical for **plan-execution** position (which plan is next)
   and carries its own READ FIRST block explaining that distinction — its progress block
   can be many weeks behind the session position when non-plan work has happened.

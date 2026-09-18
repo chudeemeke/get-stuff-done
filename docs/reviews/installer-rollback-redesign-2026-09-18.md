@@ -1,8 +1,9 @@
 # Installer rollback redesign: observe, do not predict
 
-Status: v3, APPROVED by the owner 2026-09-18 after two review rounds. v1 (`3fe53109`)
-and v2 (`5d5033f0`) were each reviewed NOT PASS by two independent lanes; findings,
-dispositions and what the author got wrong are in
+Status: v4, APPROVED by the owner 2026-09-18. v1 (`3fe53109`) and v2 (`5d5033f0`) were
+each reviewed NOT PASS by two independent lanes; v3 (`fe0ac33b`) was reviewed PASS WITH
+CHANGES by one lane and NOT PASS as written by the other, every change textual and none
+touching an owner decision. Findings, dispositions and what the author got wrong are in
 `docs/reviews/installer-rollback-design-review-2026-09-18.md`. The owner made eleven
 decisions across three rounds; this text is the result. No installer code has been
 edited. Subject: `bin/install.js` on `chore/upstream-bump-1.9.1` (draft PR 69).
@@ -47,17 +48,24 @@ overwrites whatever currently sits at a path (lines 272, 277, 281).
 | Class | Members | Roots | Cleanup may delete | Rollback and verify |
 |---|---|---|---|---|
 | Generated | `gsd-file-manifest.json`, `.install-meta.json`, `.overlay-manifest.json`, `.gsd-profile`, `.gsd-source`, `CREDITS.md`, `gsd-install-state.json`, `package.json` | yes | yes | yes |
+| Legacy | `get-stuff-done/`, `get-shit-done/`, `gsd-core/` | yes | yes, recursively, in the no-manifest branch only | yes |
 | Observed | `settings.json`, `gsd-local-patches`, `gsd-pristine`, `gsd-migration-journal` | yes | no | yes |
-| Protected (wrapper-owned) | `gsd-install-transaction/`, `gsd-install-transaction-retired-*`, `gsd-install.lock`, `gsd-local-patch-history/` | no | no | never touched; recognised, not reported, in the top-level check |
+| Protected (wrapper-owned) | `gsd-install-transaction/`, `gsd-install-transaction-retired-*`, `gsd-install.lock`, `gsd-install.lock.stale-*`, `gsd-local-patch-history/` | no | no | rollback and verify never touch them; recognised, not reported, in the top-level check |
 
-The Generated row replaces the inline list at lines 498-507. The containment helper
-refuses any manifest path under a Protected name.
+The Generated row replaces the inline list at lines 498-507 and the Legacy row the
+list at lines 482-486, so cleanup deletes nothing that is not a root with a pre-image.
+The containment helper refuses any manifest path under a Protected name.
 
 ## Derived structure
 
-1. **Lock, then journal, then open.** `gsd-install.lock` is created with `wx` and holds
-   the pid and creation time. A lock whose pid is dead is claimed by renaming it to a
-   unique name; only the run whose rename succeeds proceeds. A pid that is alive, or
+1. **Lock, then journal, then open.** After the target passes `isSafeToClean` (so a
+   mistyped `--config-dir` is never written to), `gsd-install.lock` is created with
+   `wx` and holds the pid and creation time. A lock whose pid is dead is claimed by
+   renaming it to `gsd-install.lock.stale-<unique>`; only the run whose rename succeeds
+   proceeds, and it immediately creates its own lock with `wx` (refusing if that
+   fails) before deleting the renamed one. The lock is released on every exit path after acquisition: commit, verified
+   rollback, recovery, refusal, and both `process.exit` calls in `uninstall()`. A lock
+   left by a crash is what the takeover rule is for. A pid that is alive, or
    whose liveness cannot be decided, refuses with: `Another install appears to be
    running (pid <pid>, lock <path>, created <time>). If no installer is running,
    delete that file and run again.` Crash matrix: stale lock without journal, take
@@ -77,22 +85,28 @@ refuses any manifest path under a Protected name.
    `snapshot/` with a SHA-256. Stored names are kept exactly; comparison keys fold
    case on win32 and fold case plus NFC on darwin, and two entries folding to one key
    abort. Caps: 32 MiB per file, 256 MiB total. Free space required: twice the
-   snapshot bytes plus the `dist/` bytes plus 64 MiB. A cap or the free-space check
+   snapshot bytes, plus the `dist/` bytes, plus the bytes of `gsd-local-patches` and
+   `gsd-pristine` (the patch-history generation is a further copy), plus 64 MiB. A cap or the free-space check
    failing refuses at preflight, printing the numbers and the largest entries. Any
    read error aborts. The abort path deletes the incomplete snapshot and never commits.
 5. **Journal.** Written once the hashed snapshot is complete and before the first
-   mutation, by writing a temp file in the transaction directory and renaming over.
-   Fields: schema version, transaction id, wrapper version, created and last-updated
-   times, the pre-image index, the phase, completed steps, the child's pid, and the
-   wrapper's own expected writes. An unparseable journal or an unknown schema version
+   mutation. Every write, first and later, goes to a temp file in the transaction
+   directory and is renamed over. Fields: schema version, transaction id, wrapper
+   version, created and last-updated times, the pre-image index (with its time), the
+   top-level names taken with the pre-image, the phase, the child's pid, and the
+   wrapper's own expected writes. The phase becomes `spawning` before the child is
+   spawned and the pid is added right after, so a journal in that phase without a pid
+   means the child's liveness cannot be decided. An unparseable journal or an unknown schema version
    refuses with the path and the version; it is never read as "no journal".
 6. **Order inside `install()`.** Lock; journal check (step 10); preflight and
    pre-image; journal; `preserveLocalPatchHistory` (reads `snapshot/`, writes the
    durable `gsd-local-patch-history/` generation, journaled as an expected write);
    v2 detection and cleanup; child; overlay steps; commit. Everything after the
    journal runs under `failWithRollback`. `main()` no longer runs cleanup.
-7. **Outside the roots (names only).** One `readdir` of the target before the child
-   and one after. No file outside the roots is opened; no birthtime is consulted.
+7. **Outside the roots (names only).** One `readdir` of the target taken with the
+   pre-image, before cleanup, and one at verification. Names that appeared and names
+   that disappeared are both reported. No file outside the roots is opened; no
+   birthtime is consulted.
 8. **On failure,** after the child's `close` event, each entry is handled by checking
    its current state, so every step is idempotent: (a) the snapshot is re-hashed
    against the journal index, and a mismatched copy is never restored from; (b) an
@@ -101,34 +115,60 @@ refuses any manifest path under a Protected name.
    whose current bytes or type differ has the current entry moved to `displaced/`, then
    is restored with `COPYFILE_EXCL`; on `EEXIST` the newcomer is quarantined and the
    restore retried, three times at most; if the move to quarantine fails, that entry
-   is not restored; (d) missing pre-image files and directories are restored. Errors
+   is not restored; an entry whose bytes match but whose stored name differs only by
+   case is renamed back to the stored name; (d) missing pre-image files and
+   directories are restored. Errors
    (EBUSY, EPERM, EXDEV, ENOSPC) are collected per entry, never stop the remaining
    entries, and never trigger copy-then-delete.
 9. **Verify, then speak.** Match means: identical entry set by exact stored name and
    type, identical SHA-256 for every file, identical target string for every link.
    Size, mtime and ctime are never inputs. Outcomes: `Rollback applied: GSD roots
-   restored and verified` (exit: the child's non-zero code, else 1); `Rollback applied
-   to the GSD roots; new top-level entries appeared and were left untouched: <names>`
-   (exit 3); `Rollback incomplete`, listing what moved and where, what did not and
-   why, the snapshot path and one recovery instruction (exit 4). Codes 3 and 4 take
-   precedence over the child's code, which is printed.
-10. **A later run that finds a journal,** under the lock: if the journal's child pid is
-    alive, refuse. If the journal was last updated within 60 minutes: print its date
-    and every entry about to move, run steps 8 and 9, print `Recovered an interrupted
-    install from <date>` with each moved entry and its quarantine path, mark the
-    journal complete, delete `snapshot/`, keep the quarantine, exit non-zero asking for
-    a re-run. If older: do not roll back. Rename the transaction directory to
-    `gsd-install-transaction-retired-<date>`, print where it is and that it holds the
-    pre-install copies, name it on every run until the owner deletes it, and start a
-    fresh transaction from the current state. A `snapshot/` with no journal is deleted
-    at preflight and reported; a quarantine with no journal is kept and named. No flag.
+   restored to their state at <pre-image time> and verified` (exit 1); `Rollback
+   applied to the GSD roots; top-level entries appeared or disappeared and were left
+   untouched: <names>` (exit 3); `Rollback incomplete`, listing what did not move or
+   restore and why, and one recovery instruction (exit 4). The child's own exit code
+   is printed, never returned, so it cannot collide with 3 or 4. Every outcome also
+   prints each `displaced/` entry with its quarantine path (these are bytes someone
+   else wrote during the window), the count of `new/` entries with the quarantine
+   path, and writes the full list of moved entries to `moved.txt` beside them. After
+   either `applied` outcome the snapshot and the journal are deleted and the
+   quarantine kept. After `incomplete` the transaction directory is retired at once
+   (step 10) and the message names the retired path, so nothing loops and nothing the
+   message points at is deleted. A journal has no "complete" state: it exists or it
+   does not.
+10. **A later run that finds a journal,** under the lock. Such a journal comes only
+    from a wrapper that was killed. If it was last updated more than 60 minutes ago,
+    it is retired whatever its pid says. If it is fresh and its child pid is alive, or
+    it is in the `spawning` phase with no pid, refuse with: `An interrupted install
+    from <time> may still be running (child pid <pid or unknown>). If none is, run
+    again after <time + 60 minutes>; the interrupted transaction will then be set
+    aside and kept.` Otherwise, fresh: print its date and every entry about to move,
+    run steps 8 and 9, print `Recovered an interrupted install from <date>` with the
+    step 9 listing, exit 5 asking for a re-run (exit 4 and retirement if incomplete).
+    Retiring: rename the transaction directory to
+    `gsd-install-transaction-retired-<UTC timestamp to the second>-<transaction id>`;
+    if that rename fails, refuse with the path and the error, mutating nothing else.
+    Write into it the list of root entries present now that its pre-image did not
+    have. Print its path, that its `snapshot/` holds the copies from before the
+    interrupted install, how many displaced entries its `quarantine/` holds, and how
+    many entries that install or later activity left in the roots. Repeat that notice
+    in every outcome message of every run until the owner deletes the directory. Then
+    start a fresh transaction from the current state. A `snapshot/` with no journal is
+    deleted at preflight and reported; a quarantine with no journal is kept and named.
+    No flag.
 11. **Commit.** Delete `snapshot/` and the journal. A quarantined file is deleted only
     when it is byte-identical to the file this install placed at the same relative
     path; everything else stays and is named on every run. Older `before-update-*`
-    generations under `gsd-local-patch-history/` are pruned to one (finding F4).
-12. **Uninstall** takes the same lock and refuses while a journal exists. Running it
-    inside a transaction is tracked as a GitHub issue linked to PR 69, trigger: before
-    the release that ships this transaction.
+    generations under `gsd-local-patch-history/` are pruned to one (finding F4), except
+    that any generation older than a retired transaction still on disk is kept, since
+    it is the only patch baseline taken from the true pre-install state.
+12. **Uninstall** takes the same lock, releases it before both of its `process.exit`
+    calls, and refuses while a journal exists with: `An interrupted install was found.
+    Run the installer once to recover it or set it aside, then uninstall.` Because an
+    incomplete rollback retires its journal at once, the only journal uninstall can
+    meet is a killed wrapper's, and one installer run clears it. Running uninstall
+    inside a transaction is tracked as issue #75, trigger: before the release that
+    ships this transaction.
 
 ## Against what exists
 
@@ -199,7 +239,17 @@ byte-identical; manifest path under a Protected name refused; caps and free-spac
 refusal before mutation; EPERM during pre-image aborting with no commit; ENOSPC through
 the fs seam during snapshot, quarantine creation and restore; a locked file held by a
 PowerShell helper with `FileShare.None`; child exit by signal with a null code;
-uninstall refused by the lock and by a journal. One mutation check per gate: force the
+uninstall refused by the lock and by a journal, with its instruction; a no-manifest
+target whose `get-shit-done/` is deleted by cleanup and restored by rollback; a
+mistyped config dir left without a lock file; the lock released on every exit path
+including both uninstall exits; a child exiting 3 or 4 not changing the wrapper's
+code; a top-level entry that disappears during the window; a case-only rename restored
+to the stored name; a journal in the `spawning` phase with no pid refused with its
+instruction; a stale journal whose pid now belongs to an unrelated live process still
+retired; an incomplete rollback retired at once with the message naming the retired
+path; a patch-history generation older than a retired transaction surviving the prune;
+displaced entries printed in every outcome and `moved.txt` written. One mutation check
+per gate: force the
 verify comparison to always-equal and assert the acceptance test goes red.
 
 ## Decisions (owner, 2026-09-18, each via AskUserQuestion with the evidence inside)

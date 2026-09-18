@@ -136,6 +136,56 @@ pre-image; D2 revised to names only outside the roots; D4 revised to automatic
 recovery within 60 minutes and retirement of a stale journal; uninstall takes the lock
 now, with its transaction tracked as an issue. All are written into v3.
 
+## Confirmation pass on v3 (same day)
+
+Packet: 55,790 bytes, SHA-256
+`5e320d8f81a0332c367197cb8b0f32fd31a956c66487ed5452a8a348e9209e2c`: this document,
+v3 of the note, and `bin/install.js` lines 234-426, 428-515, 640-679, 724-776, 905-941
+and 948-1137. Lanes: `gemini-3.8-flash-high` PASS WITH CHANGES (9.4 KB); `fable` at
+high effort NOT PASS as written, eight required changes, all textual (9.1 KB). Both
+confirm the three v2 blocker gaps closed and every recorded rejection sound given the
+code. Codex still quota-walled.
+
+What the author got wrong in v3:
+
+1. The names table covered the metadata list at lines 498-507 but not the legacy list
+   at lines 482-486. In a no-manifest target, `get-stuff-done/` and `get-shit-done/`
+   would have been deleted recursively without being roots, so with no pre-image
+   (Fable, HIGH, verified). The owner's real target has a `get-shit-done/`.
+2. Nothing released the lock, and nothing deleted the journal after an ordinary clean
+   rollback, so every run would have met a stale lock and the next run would have been
+   pulled into recovery (both lanes).
+3. The recovery path deleted `snapshot/` unconditionally, including after an
+   incomplete rollback whose message points the owner at that snapshot (Fable, HIGH).
+4. The journal's child-pid check had no instruction and ran before the age test, so a
+   reused pid could block retirement for ever (Fable, HIGH).
+
+Accepted into v4, none touching an owner decision: a Legacy class in the names table;
+the lock created after `isSafeToClean`, a new lock written at once after a stale
+takeover, release on every exit path, the claimed-rename pattern Protected; every
+journal write atomic, a `spawning` phase, the pid added after spawn; the journal and
+snapshot deleted after either `applied` outcome; an incomplete rollback retired at
+once so nothing loops and nothing the message names is deleted; a stale journal
+retired whatever its pid, a fresh journal with a live or unknown child refused with a
+bounded instruction; every outcome printing displaced entries, the count of new ones
+and writing `moved.txt`; outcome 1 stating the pre-image time; the child's exit code
+printed and never returned; exit 5 for a verified recovery; disappeared top-level
+names reported and the first `readdir` taken with the pre-image; a case-only rename
+restored to the stored name; the free-space formula counting the patch-history copy;
+the retired directory's name, a failed retire rename, and its notice enumerating the
+retired quarantine; the patch-history prune keeping a generation older than a retired
+transaction; eleven further proof cases.
+
+Rejected or kept as decided: restoring from the retired snapshot before a fresh
+transaction (Google; that is the stale rollback the owner decided against, and the
+truthfulness concern is met by stating the pre-image time and repeating the retirement
+notice); cutting the 60-minute split (Google; owner decision D4); flat displaced
+directory (Google; the attempt level is what makes a replay collision-free); uninstall
+refusing only on an incomplete journal (Fable; moot, since an incomplete rollback no
+longer leaves a journal, and the owner's chosen text stays with a printed instruction
+added); cutting the per-file cap (Fable, LOW; the owner's round-three decision names
+both caps, and a refusal prints the numbers and the largest entries).
+
 ## Owner decisions, round two (answered before the confirmation pass above)
 
 D1 content plus hashes of the roots. D2 three outcomes, hashed one level deep, with

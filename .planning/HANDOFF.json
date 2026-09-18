@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-18T17:59:58.526Z",
+  "timestamp": "2026-09-18T18:06:16.707Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
@@ -8,7 +8,34 @@
   "pr": "UPDATED 2026-09-18 evening: PR4 supersession ACCEPTED by the owner (closure of PR4 not yet authorized); PR69 draft branch is pushed and in sync with origin. See session_2026_09_18_b. (Earlier wording removed 2026-09-18 evening; see git history of this file.)",
   "status": "awaiting-owner-review-of-rollback-redesign-note",
   "READ_FIRST": "READ session_2026_09_18_b FIRST; it supersedes everything below in this field. Short form: the three owed answers are in (push approved and done, PR4 supersession accepted, rollback one-pager approved and written). The ONLY thing owed now is the owner's review of docs/reviews/installer-rollback-redesign-2026-09-18.md (three decisions at its end). No installer code edits until that is approved. bin/install.js is no longer dirty: the --all fix is wip commit 632eac00 on this branch. (Earlier wording removed 2026-09-18 evening; see git history of this file.)",
+  "SECTION_INDEX": {
+    "CURRENT": [
+      "session_2026_09_18_b",
+      "human_actions_pending",
+      "blockers",
+      "decisions",
+      "next_action",
+      "remaining_tasks",
+      "uncommitted_files",
+      "context_notes"
+    ],
+    "MIXED": [
+      "bump_arc"
+    ],
+    "HISTORICAL": [
+      "frontier_review_2026_09_18",
+      "application_checkpoint_2026_09_14",
+      "application_recovery",
+      "recovered_after_abrupt_end",
+      "workspace_recovery"
+    ],
+    "NOT_REVIEWED": [
+      "coherent_resume_integration"
+    ],
+    "rule": "When a session appends a new dated section, it updates this index and stamps SECTION_STATUS on every section it supersedes, in the same commit."
+  },
   "bump_arc": {
+    "SECTION_STATUS": "MIXED. CURRENT: campaign, step, hazards, step_3_recipe_pointer, merge evidence. DATED 2026-09-05 to 09-14: evidence, next_steps (read them as the walk plan, not as PR status). in_flight was rewritten 2026-09-18 evening.",
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0 (user chose Walk increments 2026-08-30; endpoint extended from 1.11.0 to 1.12.0 by user decision 2026-09-05, then quarterly per D5)",
     "step": "3 of 6: 1.8.0 -> 1.9.1 IN PROGRESS after PR64 and PR63 merged and main integrated.",
     "step_1_merge_evidence": {
@@ -62,7 +89,7 @@
       "Fixed init.test.cjs binding to the legacy package root (it silently tested the stale repo-root get-stuff-done/ dir on direct runs).",
       "MAINTENANCE.md gained a 'Forward-porting overrides on an upstream bump' runbook - the mechanical recipe + the arithmetic verification step + the two traps."
     ],
-    "in_flight": "PR64, PR63 and approved PR65 merged. PR66 has unpushed performance diagnostics/cache fixes after Windows budget failure. PR67 has 20 successful checks and owner merge answer pending. PR68 has patch history and transaction corrections; installer coverage remains a failed gate. PR69 compatibility retry passed after correction, full push/hosted refresh pending. PR70 draft digest published; planner consumption remains open.",
+    "in_flight": "As of 2026-09-18 evening: PRs 63, 64, 65, 66, 67, 68 and 71 are merged. PR 69 is draft, pushed and in sync; installer work on it is paused pending the owner rollback-redesign decision. PR 70 draft digest unchanged. PR 4 open; supersession accepted, closure not authorized.",
     "prune_gotcha": "node scripts/vetted-upstream-versions.js --prune-for-bump <new> validates the manifest against the CURRENT authority first, so it FAILS if you advance the authority before pruning. Either prune first, or temporarily set the authority version back to the old pin for the single prune call (what step 2 did), then restore it.",
     "inbox_checkpoint": "2026-09-05: 10 active items triaged in .planning/SKIN-COMPLETION.md. D1-D11 resolved; no pending ratification. Authkey999.7 and health999.8 retain existing activation triggers.",
     "sequencing_decision_resolved": {
@@ -150,8 +177,8 @@
   "remaining_tasks": [
     {
       "id": "issue-53-step-3",
-      "name": "Step 3 of 6: 1.8.0 to 1.9.1 after PR64 then PR63; continue 1.10.0, 1.11.0, 1.12.0.",
-      "status": "waiting-on-integration-gates"
+      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Installer work paused pending the owner rollback-redesign decision; then 1.10.0, 1.11.0, 1.12.0.",
+      "status": "paused-awaiting-owner-decision"
     },
     {
       "id": "phase-43-plan-coverage",
@@ -177,6 +204,7 @@
   "next_action": "CURRENT (2026-09-18 evening): wait for the owner's answers to the three decisions at the end of docs/reviews/installer-rollback-redesign-2026-09-18.md. On approval, brief the implementation from that note (transaction opens before cleanupV2; scoped observation roots; quarantine, never delete; verify before claiming 'Rollback applied'; wire tests/acceptance/installer-recovery.cjs into a package script and CI). (Earlier wording removed 2026-09-18 evening; see git history of this file.)",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
   "workspace_recovery": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
     "executionCheckpoint": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/execution-checkpoint.json",
     "rule": "No new top-level C:/Projects project/temp/worktree directories without express consent.",
     "campaign": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign",
@@ -185,6 +213,7 @@
     "relocationReceipt": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/worktree-relocation.json"
   },
   "recovered_after_abrupt_end": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
     "external_checkpoint": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/execution-checkpoint.json",
     "date": "2026-09-05",
     "installer": "PR68 local snapshot cleanup and duplicate child-event regression fixes: expanded Node suite 90 passed. Coverage 96.53 statements/lines, 94.11 functions, 92.95 branches; Tier S gate still FAILED. Full package coverage compliance not established.",
@@ -194,6 +223,7 @@
     "current_worktrees": "C:/Projects/get-stuff-done/.claude/worktrees/"
   },
   "coherent_resume_integration": {
+    "SECTION_STATUS": "NOT REVIEWED on 2026-09-18; dated by its own recordedAt. Its inbox item (2026-09-14 coherent-resume-consumer-contract) has next_owner conversations.",
     "recordedAt": "2026-09-14",
     "status": "consumer-preparation-complete-awaiting-protocol-receipt",
     "applicationOwner": "get-stuff-done CLI session",
@@ -204,6 +234,7 @@
     "trigger": "Conversations supplies a versioned implementation and distribution contract; integrate actual state/init, pause/resume and overlay pre-compact consumers, preserving locks and scoped membership."
   },
   "application_recovery": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
     "recordedAt": "2026-09-13T23:25:27.219Z",
     "pr4": {
       "published": "17278b2a9b28e58f561fcbdf02c96a20cb5415c8",
@@ -225,6 +256,7 @@
     "activeProcesses": []
   },
   "application_checkpoint_2026_09_14": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
     "pr4_decision": "Pending user support-scope answer; successor proposal committed in PR4 worktree at62f281c0. No closure or merge authorized.",
     "active_processes": [],
     "source_head": "b6743bafe756ec8c5e996fd489f035db21d7a9d2",
@@ -320,7 +352,7 @@
     ],
     "persistence": {
       "mechanism": "document-for-clear skill via the Skill tool, with the gsd-pause-work workflow for step 7; an earlier by-hand checkpoint the same evening was incomplete and is superseded",
-      "verification_gate": "Round 1, fresh-context agent on a cheaper model, 13 probes, read-only, transcripts forbidden: could a cold session resume correctly = YES; zero MATERIAL gaps; three PARTIAL. Closed: stale within-file notes in frontier_review_2026_09_18 (now marked HISTORICAL); stale owed-by-user wording in memory project_state.md (the agent attributed it to project_dual_harness_resume.md; grep showed the real location). Left open for the owner: CLAUDE.md file table calls STATE.md the canonical position and does not say which checkout holds the live HANDOFF.json; needs its own docs PR off main."
+      "verification_gate": "Round 1, fresh-context agent on a cheaper model, 13 probes, read-only, transcripts forbidden: could a cold session resume correctly = YES; zero MATERIAL gaps; three PARTIAL. Closed: stale within-file notes in frontier_review_2026_09_18 (now marked HISTORICAL); stale owed-by-user wording in memory project_state.md (the agent attributed it to project_dual_harness_resume.md; grep showed the real location). Left open for the owner: CLAUDE.md file table calls STATE.md the canonical position and does not say which checkout holds the live HANDOFF.json; needs its own docs PR off main. Round 2 (narrow re-probe of staleness only): both closures confirmed, owed-item and HEAD consistent; it found four more unmarked stale lines in older sections (bump_arc.in_flight, application_checkpoint_2026_09_14). Closed as a category: SECTION_INDEX added and SECTION_STATUS stamped on every superseded section. The re-probe agent ran a prohibited git fetch; harmless (remote-tracking refs only)."
     }
   },
   "plan": null,

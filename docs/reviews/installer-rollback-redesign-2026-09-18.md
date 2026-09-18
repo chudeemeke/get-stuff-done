@@ -63,16 +63,24 @@ loop (uses the containment helper, F3), the file header (stops overclaiming, F2)
 Upstream's `runtime-artifact-install-plan.cjs` is a partial plan and is not adopted
 as authority; Codex's own runtime rollback is not claimed for other runtimes.
 
-## Alternative, and the one open question
+## Alternative considered: stage, then publish (spiked, not adopted)
 
-**Stage, then publish.** Run the child against a seeded staging directory via
-`--config-dir`, diff it, and publish the delta with the wrapper's own verified writer.
-A child failure then costs `rm staging` and the live target is never at risk. It is
-the stronger design *if* the child's output is relocatable; it is unknown whether
-paths are baked into settings hook commands or generated files. A one-hour spike in
-temp directories answers it: install into staging, grep the output for the staging
-path. If clean, staging supersedes items 3 and 4 and this note is revised before any
-implementation. Recommendation: run the spike first.
+Run the child against a staging directory via `--config-dir`, diff it, and publish
+the delta with the wrapper's own verified writer; a child failure then costs
+`rm staging`. It is the stronger design only if the child's output is relocatable.
+
+Spike, 2026-09-18, owner-approved, temp directories and a fake HOME only (the real
+`~/.claude` fingerprint was identical before and after): the composed 1.9.1 child
+exited 0 and wrote 632 files, none outside the config dir. **204 of the 632 (32%)
+embed the absolute config-dir path**, 703 occurrences: 110 files under `gsd-core/`,
+62 skills, 31 agents, and `settings.json`. All 703 use one encoding (`C:/...`,
+forward slashes), so a token rewrite is mechanically possible, but it is a second
+writer over 204 files that needs the same proof as the first; 18 files also carry
+`~/` or `$HOME` forms, so the output shape may depend on where the config dir sits
+relative to HOME, which one run does not settle; and the child reads live state
+(settings merge, local-patch detection), so staging must be seeded faithfully.
+Verdict: not clean, does not supersede. Revisit only if upstream stops baking
+paths (#3662 moved the hook runner that way; the generated content has not followed).
 
 ## Blockers from `pr69-application-2026-09-13.md`
 
@@ -92,5 +100,5 @@ Each case asserts the message as well as the bytes.
 ## Decisions requested
 
 1. Approve the observe model with scoped roots and quarantine.
-2. Approve the staging spike before implementation.
-3. Confirm the roots authority: `dist/` top-level entries plus existing manifests.
+2. Confirm the roots authority: `dist/` top-level entries plus existing manifests.
+3. Confirm quarantine retention: one directory, pruned by the next successful install.

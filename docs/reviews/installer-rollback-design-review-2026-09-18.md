@@ -4,6 +4,11 @@ Date: 2026-09-18. Subject: `docs/reviews/installer-rollback-redesign-2026-09-18.
 approved by the owner the same day (commit `3fe53109`). Gate: the owner required an
 independent review of the approved design before any `bin/install.js` edit.
 
+Four review rounds ran that day, each against a named commit of the note: `3fe53109`
+(the sections up to "Proof plan additions"), then `5d5033f0`, `fe0ac33b` and
+`5f8b8258`, each under its own heading below. The note's Revision history table maps
+these to the v1 to v4 labels that the day's commit subjects and inbox events use.
+
 ## Lanes
 
 | Lane | Model and effort | Result |
@@ -26,7 +31,7 @@ marked "verified" below was checked against the file by the frontier session.
    measuring the roots. Measured after the review: every root present in the real
    `~/.claude` totals 19 MB in about 1,000 files. The listing-only pre-image, and the
    "reported, not restored" weakness the owner was asked to accept, were not forced.
-3. Amendment B's proof was a path-name match. `package.json` is in the generated-names
+3. The quarantine-pruning proof (then called Amendment B) was a path-name match. `package.json` is in the generated-names
    list (line 506); a name proves nothing about bytes (both lanes).
 
 ## Findings and disposition
@@ -37,7 +42,7 @@ Accepted into the design (both lanes agree unless marked):
 |---|---|---|---|
 | 1 | mtime comparison defeats itself; same-size same-tick rewrites are invisible | BLOCKER | Compare content hashes and entry sets. mtime is not compared |
 | 2 | Pre-image can hold content for the roots at 19 MB | MEDIUM, decisive | Owner decision D1 |
-| 3 | Path-name proof in Amendment B can delete owner bytes | BLOCKER | Owner decision D3: prune only a quarantined file byte-identical to the file the successful install placed at the same relative path |
+| 3 | Path-name proof in the quarantine-pruning rule can delete owner bytes | BLOCKER | Owner decision D3: prune only a quarantined file byte-identical to the file the successful install placed at the same relative path |
 | 4 | 4(b) deletes manifest-named new entries on the child's word | MEDIUM | Owner decision D3: cut; everything new is quarantined |
 | 5 | Restore overwrites a file another session edited during the window (lines 277, 281, verified); line 272 also recursively deletes whatever now sits at a path that did not exist before (found while verifying) | HIGH (Fable) | Rollback never deletes or overwrites in place: any current entry whose bytes differ from the snapshot, or that did not exist before, is moved to quarantine first |
 | 6 | No single-writer exclusion; two installers quarantine each other's files | HIGH | Exclusive lock file created with `wx`, holding the pid, stale detection by pid liveness; its name joins the generated-names constant |
@@ -86,30 +91,30 @@ mutation; ENOSPC during quarantine creation through the fs seam. One mutation ch
 gate: force the verify comparison to always-equal and assert the acceptance test goes
 red. Case tests skip on Linux by name, never silently.
 
-## Confirmation pass on v2 (same day)
+## Second review: confirmation of commit `5d5033f0` (same day)
 
 Packet: 45,904 bytes, SHA-256
 `57413161f06f0a8f64f652be2822aafb141001ca9151fdde16089855c9ec0809`: this document,
-v2 of the note, and `bin/install.js` lines 234-426, 428-515, 640-679, 724-776, 948-1137.
+the note at `5d5033f0`, and `bin/install.js` lines 234-426, 428-515, 640-679, 724-776, 948-1137.
 Lanes: `gemini-3.8-flash-high` NOT PASS (21 KB); `fable` at high effort NOT PASS as
 written, all fixes textual (15.5 KB). Codex still quota-walled.
 
-What the author got wrong in v2:
+What the author got wrong in that revision:
 
 1. The transaction directory and the lock were put in the generated-names constant,
-   which v2 also made the cleanup list and a source of roots. Cleanup would have
+   which it also made the cleanup list and a source of roots. Cleanup would have
    deleted the rollback state, and the directory would have been pre-imaged,
    quarantined and re-verified as a root (both lanes, BLOCKER).
-2. v2 folded the `before-update` patch-history generation into the transaction
+2. It folded the `before-update` patch-history generation into the transaction
    directory on a reviewer's suggestion without reading the code. Line 753 says that
    generation deliberately outlives commit and rollback (verified afterwards).
-3. v2's roots dropped `settings.json`, `gsd-local-patches` and `gsd-pristine`, which
+3. Its roots dropped `settings.json`, `gsd-local-patches` and `gsd-pristine`, which
    today's snapshot list names at lines 341-343 (Fable, HIGH, verified).
-4. v2 hashed every top-level file. That opens `.credentials.json`, and 3 of the 28
+4. It hashed every top-level file. That opens `.credentials.json`, and 3 of the 28
    top-level files change within an hour, so `applied` was unreachable. Neither lane
    raised the credentials read; it was found while measuring Fable's churn claim.
 
-Accepted into v3 without an owner decision: names table with three classes; the
+Accepted into the next revision (`fe0ac33b`) without an owner decision: names table with three classes; the
 transaction directory excluded from roots, pre-image, rollback and verification;
 "match" defined as entry set by exact name and type plus per-file SHA-256; links
 recorded as target strings and never descended; case folding only on win32, case plus
@@ -134,19 +139,19 @@ owner decision D3); "reporting only violates truth 3" and the `skills/` example
 Owner decisions, round three: D1 revised to a preflight refusal with a copy-only
 pre-image; D2 revised to names only outside the roots; D4 revised to automatic
 recovery within 60 minutes and retirement of a stale journal; uninstall takes the lock
-now, with its transaction tracked as an issue. All are written into v3.
+now, with its transaction tracked as an issue. All are written into `fe0ac33b`.
 
-## Confirmation pass on v3 (same day)
+## Third review: confirmation of commit `fe0ac33b` (same day)
 
 Packet: 55,790 bytes, SHA-256
 `5e320d8f81a0332c367197cb8b0f32fd31a956c66487ed5452a8a348e9209e2c`: this document,
-v3 of the note, and `bin/install.js` lines 234-426, 428-515, 640-679, 724-776, 905-941
+the note at `fe0ac33b`, and `bin/install.js` lines 234-426, 428-515, 640-679, 724-776, 905-941
 and 948-1137. Lanes: `gemini-3.8-flash-high` PASS WITH CHANGES (9.4 KB); `fable` at
 high effort NOT PASS as written, eight required changes, all textual (9.1 KB). Both
-confirm the three v2 blocker gaps closed and every recorded rejection sound given the
+confirm the three blocker gaps from the second review closed and every recorded rejection sound given the
 code. Codex still quota-walled.
 
-What the author got wrong in v3:
+What the author got wrong in that revision:
 
 1. The names table covered the metadata list at lines 498-507 but not the legacy list
    at lines 482-486. In a no-manifest target, `get-stuff-done/` and `get-shit-done/`
@@ -160,7 +165,7 @@ What the author got wrong in v3:
 4. The journal's child-pid check had no instruction and ran before the age test, so a
    reused pid could block retirement for ever (Fable, HIGH).
 
-Accepted into v4, none touching an owner decision: a Legacy class in the names table;
+Accepted into the next revision (`5f8b8258`), none touching an owner decision: a Legacy class in the names table;
 the lock created after `isSafeToClean`, a new lock written at once after a stale
 takeover, release on every exit path, the claimed-rename pattern Protected; every
 journal write atomic, a `spawning` phase, the pid added after spawn; the journal and
@@ -186,10 +191,54 @@ longer leaves a journal, and the owner's chosen text stays with a printed instru
 added); cutting the per-file cap (Fable, LOW; the owner's round-three decision names
 both caps, and a refusal prints the numbers and the largest entries).
 
-## Owner decisions, round two (answered before the confirmation pass above)
+## Fourth review: confirmation of commit `5f8b8258` (same day)
+
+Packet: 63,142 bytes, SHA-256
+`72e1f8636bb0d8e783c985e7baf959a6a2e3f7784c26152a0dc9cd0b88c76883`: this document,
+the note at `5f8b8258`, and the same code ranges as the third review. The ask was a
+landing check plus seven failure sequences walked through the steps. Lanes:
+`gemini-3.8-flash-high` PASS WITH CHANGES (10.4 KB), two wording fixes, both "can be
+settled while writing the failing tests"; `fable` at high effort PASS WITH CHANGES
+(8.6 KB), two changes that must precede implementation and six that can wait for the
+tests. Both walked all seven sequences to a state where the next run proceeds without
+the owner editing a file, and neither found a recorded rejection wrong given the code.
+Codex still quota-walled, so no OpenAI lane reviewed any revision.
+
+What the author got wrong in that revision:
+
+1. Steps 9 and 11 deleted the snapshot before the journal. A kill between the two left
+   a journal with no pre-image, and the next run would have "rolled back" a committed
+   install: about 630 files quarantined, `settings.json` displaced, nothing restored
+   (Fable, HIGH). Truth 7 stated the invariant and the steps broke it.
+2. Step 8(a) forbade restoring from a bad snapshot copy but step 8(c) still displaced
+   the live entry first, removing a file from the roots with nothing put back (Fable,
+   HIGH).
+3. The Legacy class was added to the names table and left out of step 3's list of
+   roots; the lock-release list omitted the incomplete outcome (both lanes).
+
+Accepted, all in the current revision of the note: journal deleted before snapshot in
+steps 9 and 11; an entry with a missing or failed snapshot copy neither displaced nor
+restored and reported; Legacy named in step 3; the lock-release list naming incomplete
+rollback, a failed retire rename and every refusal; `isSafeToClean` before the lock,
+repeated by preflight; truths 7 and 8 reworded; the exit-3 message carrying the
+pre-image time and "verified"; exit 5 for a verified recovery whatever the top-level
+names did; exit 6 for every refusal before mutation, so 1 always means rolled back
+and 6 always means untouched; the retire notice naming `moved.txt`; the commit prune
+walking every earlier quarantine; the uninstall message saying a stale journal makes
+the installer run install as well; a `child-closed` journal phase after which the pid
+is never consulted (Fable's optional item, taken because it removes a reused-pid
+delay for one sentence); six further proof cases. Rejected: nothing.
+
+Gate status: the owner's requirement, an independent review of the approved design
+before implementation, is met by two lanes at PASS WITH CHANGES with every change
+applied. The changes of this last round were not themselves re-reviewed; both lanes
+classed all but two as settleable in the failing tests, and those two are one-sentence
+ordering rules that the proof plan now covers with named cases.
+
+## Owner decisions, round two (answered after the first review)
 
 D1 content plus hashes of the roots. D2 three outcomes, hashed one level deep, with
-the birthtime filter. D3 byte-identity pruning, and v1 step 4(b) is cut. D4 journal
-plus automatic completion of an aborted rollback. All four are written into v2 of the
-redesign note, which goes back to the available lanes for a confirmation pass before
+the birthtime filter. D3 byte-identity pruning, and step 4(b) of `3fe53109` is cut. D4 journal
+plus automatic completion of an aborted rollback. All four are written into the
+redesign note at `5d5033f0`, which goes back to the available lanes for a confirmation pass before
 any `bin/install.js` edit.

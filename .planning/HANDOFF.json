@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-14T13:23:40.424Z",
+  "timestamp": "2026-09-18T16:45:00.000Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
   "pr": "PR4 scope decision pending; production remote17278b2a unchanged. PR69 draft remote df0d3f9c, local application b6743baf. PR70 draft573d9f91 unchanged. No approve, merge or readiness change authorized.",
-  "status": "application-work-held-on-disk-exhaustion",
-  "READ_FIRST": "Read application_checkpoint_2026_09_14 below before historical fields. Disk repeatedly reaches zero and has interrupted two source writes; both files were restored exactly to Git before subsequent verified changes. Current application source remains b6743baf. New tests/evidence reproduce --all cleanup-before-refusal and map upstream writes; those defects remain open. Architecture review failed on disk exhaustion and produced no final result; its process is confirmed missing. Do not treat the launcher exit0 as review success. Resume only after stable disk headroom, preserving all work. PR4 scope decision remains pending; no re-ask or inferred approval. Execute the ratified September5 contract through fixed1.12.0, with separate CI ownership; do not restart strategy.",
+  "status": "paused-after-frontier-review-awaiting-three-user-answers",
+  "READ_FIRST": "NOTHING IS RUNNING. 2026-09-18: a Claude Code session established that Codex ran last (paused 2026-09-14 for disk), reviewed the unpushed installer work and the PR4 proposal, and edited NO code. Read frontier_review_2026_09_18 next, then application_checkpoint_2026_09_14. Disk had 9.7 GB free on 2026-09-18; re-check before any test or review run. The uncommitted bin/install.js --all preflight fix is STILL uncommitted and must be preserved; its green log is .planning/evidence/pr69-all-preflight-green-2026-09-14.log. 27 local commits are unpushed. Do not resume implementation until the user answers the three items in frontier_review_2026_09_18.awaiting_user. Earlier text: USER PAUSED for session restart to address disk pressure. Do not auto-resume tests, reviews or implementation until the user resumes. Read application_checkpoint_2026_09_14 below first. HEAD1e359c61 has recovery/preflight failure evidence. bin/install.js now has an UNCOMMITTED small --all preflight fix applied by staged write;3 focused tests pass, broader validation remains outstanding. Preserve this dirty fix and its green log. Both earlier disk-full truncations were restored; no source loss remains. Review retry is still required, with no active reviewer process. PR4 scope decision remains pending; no re-ask or inferred approval. The full September5 contract and CI/application ownership boundaries remain unchanged.",
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0 (user chose Walk increments 2026-08-30; endpoint extended from 1.11.0 to 1.12.0 by user decision 2026-09-05, then quarterly per D5)",
     "step": "3 of 6: 1.8.0 -> 1.9.1 IN PROGRESS after PR64 and PR63 merged and main integrated.",
@@ -166,7 +166,7 @@
       "id": "legacy-test-fallback"
     }
   ],
-  "next_action": "Finish corrected 1.9.1 full pre-push and final-head hosted gates. Continue installer Tier S coverage and transaction safety work; do not merge failed coverage. PR67 owner answer remains pending, PR69 previous brief held. Execute remaining fixed walk and D1-D11 criteria without strategic re-audit.",
+  "next_action": "Wait for the user on frontier_review_2026_09_18.awaiting_user. If they approve the push: git push origin chore/upstream-bump-1.9.1 (draft PR 69 stays draft). If they approve the rollback redesign: write the one-page design FIRST, no installer edits before it is approved. Previous next_action, still valid underneath: Finish corrected 1.9.1 full pre-push and final-head hosted gates. Continue installer Tier S coverage and transaction safety work; do not merge failed coverage. PR67 owner answer remains pending, PR69 previous brief held. Execute remaining fixed walk and D1-D11 criteria without strategic re-audit.",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
   "workspace_recovery": {
     "executionCheckpoint": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/execution-checkpoint.json",
@@ -222,9 +222,9 @@
     "source_head": "b6743bafe756ec8c5e996fd489f035db21d7a9d2",
     "final_validation": "Incomplete; local focused passes do not close native timeout, matrix, complete installer Tier S coverage or final review.",
     "current_report": "docs/reviews/pr69-application-2026-09-13.md",
-    "next_application_work": "After stable disk headroom: resume bounded recovery design review using a launcher that requires a final review artifact and fails on redirection errors; implement complete inventory/recovery. First finish RED --all preflight ordering fix and invalid-artifact-before-legacy-cleanup test. Use staged source edits to avoid truncating files on disk-full errors. No installer or broader acceptance gate is closed.",
+    "next_application_work": "On user resume, verify disk headroom and preserve the dirty preflight fix. Check helper/JSDoc placement, expand refusal coverage to uninstall and invalid dist artifacts before legacy cleanup, then appropriate focused validation/commit. Resume bounded architecture review with reliable exit/artifact validation; complete inventory/recovery and remaining PR69 application gates. No PR70 advancement or PR4 support-scope inference.",
     "external_checkpoint": "C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13/application-checkpoint.json",
-    "recorded_at": "2026-09-14T13:23:40.424Z",
+    "recorded_at": "2026-09-14T13:28:56.402Z",
     "recovery_probe_commit": "32ec332c5114bd75ec16a8811101bc6585a55243",
     "tests": "Pinned Bun1.3.5:135 passed,0 failed,614 assertions across installer-safety,installer-cli-safety,installer-v3. Compose passes,9 overrides fresh,ESLint0 errors/6 existing warnings,diff check passes. No broad or Tier S acceptance inferred.",
     "new_findings": "Real upstream manifest-publication failure left622 files while wrapper claimed Rollback applied; explicit acceptance test and failing receipt committed. Owner helper deletion and new false script ownership corrected. Earlier tainted manifests and other ownership paths remain open.",
@@ -235,6 +235,39 @@
     "trace_result": "622 residual files;634 observed synchronous path-based calls under isolated home. Cache invalidation outside target was an unsuccessful unlink of an absent fixture cache, not an observed modified cache. Trace is diagnostic, not an exhaustive mutation guarantee. Wrapper/upstream SHA256 are bound in receipt.",
     "design_review": "Fable/high exit1 out of credits. Codex0.154.0 fresh visible registry resolves astra priority1/xhigh; banner verified. Session01a0a010-5031-72a1-8bbe-fe35b01ec695 ended without final output when disk exhausted. No matching codex process remains. Log retained; failed launcher reported0, not accepted. Packet docs/reviews/pr69-rollback-design-packet-2026-09-14.md remains ready.",
     "skill_ledger": "Both existing cross-ai-review SKILL runtime mirrors updated with Sep14 live astra/xhigh resolution; hashes agree. Global model/effort configuration and memories unchanged.",
-    "disk_block": "Observed free space repeatedly alternated from roughly1GB to0. Latest44MB. Project-only cleanup was already authorized but automatic approval review rejected both recursive generated-directory and narrower binary removal. No cleanup deletion executed; do not bypass that policy."
+    "disk_block": "Observed free space repeatedly alternated from roughly1GB to0. Latest44MB. Project-only cleanup was already authorized but automatic approval review rejected both recursive generated-directory and narrower binary removal. No cleanup deletion executed; do not bypass that policy.",
+    "user_pause": "Explicitly requested pause for session restart; implementation, tests and reviews stopped.",
+    "working_head": "1e359c61432a8b8b3a2ca8f87a0b75c3eff7b35e",
+    "dirty_preflight_fix": {
+      "file": "bin/install.js",
+      "sha256": "78ba71870597700880c1dcd5c1ebb093cec790fd5393ac06507334c1160b0bb3",
+      "description": "Extracted assertSupportedInstallMode; main calls it before any cleanup/uninstall; install keeps the existing guard; removed unsupported --all advertisement from help. Applied with exclusive staging + fsync + source comparison + rename to avoid truncation on disk-full.",
+      "tests": "3 Node tests passed: unsupported --all preserves legacy bytes; help does not create runtime; existing mocked overlay failure rollback. .planning/evidence/pr69-all-preflight-green-2026-09-14.log. Not committed; no broader final-head gate."
+    }
+  },
+  "frontier_review_2026_09_18": {
+    "by": "Claude Code session, Fable 5.1, effort high, read-only",
+    "report": "docs/reviews/pr69-frontier-review-2026-09-18.md",
+    "ran_tests": false,
+    "last_harness_finding": "Codex last wrote 2026-09-14 14:29 (rollout file lives under ~/.codex/sessions/2026/09/05/ because resumed sessions keep their original folder). Last Claude Code session before 2026-09-18 ended 2026-09-11.",
+    "headline": "Discipline is high and the small pieces are correct. Not ready. Six of the ten blockers in docs/reviews/pr69-application-2026-09-13.md share one cause: ownership and rollback are PREDICTED from path lists while the upstream child is a black box.",
+    "findings_not_in_codex_report": [
+      "F4: preserveLocalPatchHistory writes an unpruned, unordered before-update-<random> generation into the user config dir on every install, and every install copies the whole managed tree to OS temp.",
+      "F5: tests/acceptance/installer-recovery.cjs is referenced by no package script or workflow, so the failing acceptance gates nothing; no coverage gate names bin/install.js.",
+      "F2 addendum: the bin/install.js header still claims never-recursive and structurally-impossible deletion, which the legacy fallback contradicts.",
+      "F6: 1,500 lines of code against 6,600 lines of planning/evidence; this file is 30 KB of narrative and is hard to cold-read."
+    ],
+    "opinion": "Stop patching sites. Change the rollback model from predicting writes to observing them: names-only pre-listing of the target, remove what is new on failure, restore the snapshot, move legacy cleanup inside the transaction. Narrow the owner-write window by intersecting with the new manifest when the child wrote one. This is a design decision for the user and the frontier session, not a Codex patch.",
+    "pr4": "All three load-bearing claims verified against code: upstream 1.9.1 has rewriteLegacyManagedNodeHookCommands and node_modules/@opengsd/gsd-core/bin/install.js:12119 calls it; it ignores shell and type (skips only on non-empty args); scripts/gsd-doctor.cjs is not in package.json files. Recommendation to the user: ACCEPT supersession, keep the one-reproduced-case-reopens trigger verbatim. Understated by the proposal: H1-H8 move PR4 hard problems onto an installer with ten open blockers.",
+    "awaiting_user": [
+      "1. Push the unpushed commits to origin/chore/upstream-bump-1.9.1 (they exist only on a disk that filled twice). Not done because the user chose review-first over commit-and-push.",
+      "2. PR4 supersession answer: accept / keep the doctor / defer. Inbox item docs/inbox/2026-09-14-get-stuff-done-pr4-successor-decision.md in the MAIN checkout, next_owner user.",
+      "3. Approve a one-page rollback redesign before anyone touches the installer again."
+    ],
+    "also_surfaced": [
+      "The MAIN checkout C:/Projects/get-stuff-done is on merged branch fix/codex-install-target with a HANDOFF.json dated 2026-08-30. CLAUDE.md tells sessions to read that file first. User has not decided what to do with it.",
+      "User asked whether ultracode suits this project. Answer given: not as a standing mode (Windows deadlocks above ~3 process-heavy shells, tight disk, quota is why the user switches harnesses, remaining installer work is serial in one file); yes per task for read-only fan-outs such as a rollback-design judge panel or adversarial verification of a final PR69 review."
+    ],
+    "global_rule_added": "~/.claude/rules/harness-continuity.md (dual-harness resume check), indexed in ~/.claude/CLAUDE.md"
   }
 }

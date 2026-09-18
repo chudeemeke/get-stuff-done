@@ -1,3 +1,15 @@
+# Position as of 2026-09-18: paused, three answers owed by the user
+
+Nothing is running. Codex ran last (paused 2026-09-14 for disk). On 2026-09-18 a Claude
+Code session reviewed the unpushed installer work and the PR4 proposal and edited no code.
+Read `.planning/HANDOFF.json` -> `frontier_review_2026_09_18` first, then
+`docs/reviews/pr69-frontier-review-2026-09-18.md`. The user owes: (1) push approval for the
+local-only commits, (2) the PR4 supersession answer, (3) approval of a rollback redesign
+before more installer patching. The uncommitted `bin/install.js` fix must be preserved.
+**This worktree holds the live handoff; the main checkout's copy is dated 2026-08-30.**
+
+---
+
 # Current application checkpoint - September 14
 
 PR4 remains blocked on the user-required ordinary non-elevated repair. PR69 local

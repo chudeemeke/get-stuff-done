@@ -939,6 +939,12 @@ function uninstall(targetDir, { exit: shouldExit = true } = {}) {
  * @param {object} options - Injectable process and step dependencies for tests
  * @returns {Promise<object>}
  */
+function assertSupportedInstallMode(args) {
+  if (args.includes('--all')) {
+    throw new Error('--all is not supported transactionally; install one runtime at a time with an explicit runtime selector.');
+  }
+}
+
 function install(distDir, targetDir, userArgs, options = {}) {
   const spawnImpl = options.spawnImpl || spawn;
   const copyOverlayFilesImpl = options.copyOverlayFilesImpl || copyOverlayFiles;
@@ -952,7 +958,7 @@ function install(distDir, targetDir, userArgs, options = {}) {
   let transaction;
 
   try {
-    if (userArgs.includes('--all')) throw new Error('--all is not supported transactionally; install one runtime at a time with an explicit runtime selector.');
+    assertSupportedInstallMode(userArgs);
     transaction = createInstallTransaction(targetDir, distDir);
     const patchHistory = preserveLocalPatchHistory(transaction);
     if (patchHistory) logImpl(`  Local patch generation preserved: ${patchHistory}`);
@@ -1096,7 +1102,6 @@ async function main() {
     console.log(`    ${cyan}--opencode${reset}                Install for OpenCode`);
     console.log(`    ${cyan}--gemini${reset}                  Install for Gemini`);
     console.log(`    ${cyan}--codex${reset}                   Install for Codex`);
-    console.log(`    ${cyan}--all${reset}                     Install for all runtimes`);
     console.log(`    ${cyan}-g, --global${reset}              Install globally`);
     console.log(`    ${cyan}-l, --local${reset}               Install locally`);
     console.log(`    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory`);
@@ -1106,6 +1111,7 @@ async function main() {
     process.exit(0);
   }
 
+  assertSupportedInstallMode(args);
   const hasUninstall = args.includes('--uninstall') || args.includes('-u');
   const targetDir = resolveTargetDir(args);
   const hasForce = args.includes('--force');

@@ -86,7 +86,57 @@ mutation; ENOSPC during quarantine creation through the fs seam. One mutation ch
 gate: force the verify comparison to always-equal and assert the acceptance test goes
 red. Case tests skip on Linux by name, never silently.
 
-## Owner decisions (D1 to D4, answered 2026-09-18)
+## Confirmation pass on v2 (same day)
+
+Packet: 45,904 bytes, SHA-256
+`57413161f06f0a8f64f652be2822aafb141001ca9151fdde16089855c9ec0809`: this document,
+v2 of the note, and `bin/install.js` lines 234-426, 428-515, 640-679, 724-776, 948-1137.
+Lanes: `gemini-3.8-flash-high` NOT PASS (21 KB); `fable` at high effort NOT PASS as
+written, all fixes textual (15.5 KB). Codex still quota-walled.
+
+What the author got wrong in v2:
+
+1. The transaction directory and the lock were put in the generated-names constant,
+   which v2 also made the cleanup list and a source of roots. Cleanup would have
+   deleted the rollback state, and the directory would have been pre-imaged,
+   quarantined and re-verified as a root (both lanes, BLOCKER).
+2. v2 folded the `before-update` patch-history generation into the transaction
+   directory on a reviewer's suggestion without reading the code. Line 753 says that
+   generation deliberately outlives commit and rollback (verified afterwards).
+3. v2's roots dropped `settings.json`, `gsd-local-patches` and `gsd-pristine`, which
+   today's snapshot list names at lines 341-343 (Fable, HIGH, verified).
+4. v2 hashed every top-level file. That opens `.credentials.json`, and 3 of the 28
+   top-level files change within an hour, so `applied` was unreachable. Neither lane
+   raised the credentials read; it was found while measuring Fable's churn claim.
+
+Accepted into v3 without an owner decision: names table with three classes; the
+transaction directory excluded from roots, pre-image, rollback and verification;
+"match" defined as entry set by exact name and type plus per-file SHA-256; links
+recorded as target strings and never descended; case folding only on win32, case plus
+NFC on darwin, abort on a folded collision; directories recorded; lock claimed by
+rename, lock-then-journal order, crash matrix, refusal message text; journal written
+after the complete snapshot, atomically, with schema version, child pid and expected
+wrapper writes; unparseable or unknown journal refuses; state-checked idempotent
+rollback steps; snapshot re-hashed before restore; `COPYFILE_EXCL` restore with bounded
+retry; a failed quarantine move skips that restore; quarantine layout by subtree
+instead of suffixes; exit-code precedence; the preflight catch never commits; the
+guard test broadened to the composed installer, its requires, `Bun.spawn` and
+`process.binding`; seventeen further proof cases.
+
+Rejected: process start time in the lock (Fable; needs a subprocess per platform, and
+the failure mode is an actionable refusal); killing the process tree (Google; the
+wrapper has no timeout path, lines 1053-1078 verified, so the direct child is dead
+before any rollback); cutting the top-level names check (Google; `gsd-migration-journal/`
+was found the same day as a second side-write no list had); cutting pruning (Google;
+owner decision D3); "reporting only violates truth 3" and the `skills/` example
+(Google; `skills/` is a root, and not moving unknown entries is the owner's decision).
+
+Owner decisions, round three: D1 revised to a preflight refusal with a copy-only
+pre-image; D2 revised to names only outside the roots; D4 revised to automatic
+recovery within 60 minutes and retirement of a stale journal; uninstall takes the lock
+now, with its transaction tracked as an issue. All are written into v3.
+
+## Owner decisions, round two (answered before the confirmation pass above)
 
 D1 content plus hashes of the roots. D2 three outcomes, hashed one level deep, with
 the birthtime filter. D3 byte-identity pruning, and v1 step 4(b) is cut. D4 journal

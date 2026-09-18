@@ -398,7 +398,7 @@
     ],
     "persistence": {
       "mechanism": "document-for-clear skill via the Skill tool; gsd-pause-work workflow for step 7",
-      "verification_gate": "see context_notes; filled in after the gate runs"
+      "verification_gate": "One round, fresh-context agent on a cheaper model, 11 probes plus a stale-assertion sweep, read-only, transcripts and git fetch forbidden. Could a cold session resume correctly: YES WITH CAVEATS. Zero MATERIAL gaps, zero PARTIAL. Its single caveat was a timing artifact: it ran while the push of handoff commit 34210b86 was in flight and could not fetch, so it saw the branch one commit ahead. That push then succeeded (1764 pass, 0 fail; origin at 34210b86; 0 ahead, 0 behind), so the in-sync claims in this file are true. No second round was needed."
     }
   },
   "plan": null,

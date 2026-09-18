@@ -490,7 +490,7 @@ describe('installer transaction safety', { timeout: SUBPROCESS_TIMEOUT }, () => 
     expect(logs.join('\n')).toContain('Cleaned 1 orphaned path');
   });
 
-  for (const overlayValue of ['{', '{}', '[null, "", "hooks/old.js", "../outside.txt"]']) {
+  for (const overlayValue of ['{', '{}', '[null, "", "hooks/old.js"]']) {
     test(`rollback tolerates old malformed overlay inventory ${overlayValue}`, () => {
       const distDir = writeMockDist(tmpDir.path);
       const targetDir = path.join(tmpDir.path, 'target');
@@ -502,6 +502,29 @@ describe('installer transaction safety', { timeout: SUBPROCESS_TIMEOUT }, () => 
       rollbackInstallTransaction(transaction);
       expect(fs.readFileSync(path.join(tmpDir.path, 'outside.txt'), 'utf8')).toBe('outside owner');
       expect(fs.readFileSync(path.join(targetDir, '.overlay-manifest.json'), 'utf8')).toBe(overlayValue);
+    });
+  }
+
+  for (const unsafePath of ['../outside.txt', '.', 'hooks/gsd-statusline.js']) {
+    test(`unsafe managed install path ${unsafePath} refuses upstream before owner bytes change`, async () => {
+      const distDir = writeMockDist(tmpDir.path);
+      const targetDir = path.join(tmpDir.path, 'target');
+      const outside = path.join(tmpDir.path, 'outside');
+      fs.mkdirSync(targetDir);
+      fs.mkdirSync(outside);
+      fs.writeFileSync(path.join(outside, 'gsd-statusline.js'), 'outside owner bytes');
+      fs.writeFileSync(path.join(targetDir, '.overlay-manifest.json'), JSON.stringify([unsafePath]));
+      if (unsafePath.startsWith('hooks/')) {
+        fs.symlinkSync(outside, path.join(targetDir, 'hooks'), process.platform === 'win32' ? 'junction' : 'dir');
+      }
+      let spawned = false;
+      const result = await install(distDir, targetDir, [], {
+        spawnImpl: () => { spawned = true; return spawnThatExits()(); },
+        exitImpl: () => {}, logImpl: () => {}, errorImpl: () => {},
+      });
+      expect(result.failureStep).toBe('preflight');
+      expect(spawned).toBe(false);
+      expect(fs.readFileSync(path.join(outside, 'gsd-statusline.js'), 'utf8')).toBe('outside owner bytes');
     });
   }
 
@@ -675,6 +698,21 @@ describe('readInstalledManifest', { timeout: SUBPROCESS_TIMEOUT }, () => {
 // ---------------------------------------------------------------------------
 
 describe('removeGsdFiles', { timeout: SUBPROCESS_TIMEOUT }, () => {
+  test('cleanup does not follow a linked scripts directory into owner content', () => {
+    const tmp = createTempDir();
+    try {
+      const target = path.join(tmp.path, 'target');
+      const outside = path.join(tmp.path, 'outside');
+      fs.mkdirSync(target);
+      fs.mkdirSync(path.join(outside, 'lib'), { recursive: true });
+      fs.writeFileSync(path.join(outside, 'lib/owner.txt'), 'outside owner content');
+      fs.symlinkSync(outside, path.join(target, 'scripts'), process.platform === 'win32' ? 'junction' : 'dir');
+      const result = removeGsdFiles(target, true);
+      expect(fs.readFileSync(path.join(outside, 'lib/owner.txt'), 'utf8')).toBe('outside owner content');
+      expect(result.skipped).toBeGreaterThan(0);
+    } finally { tmp.cleanup(); }
+  });
+
   let tmpDir;
 
   beforeEach(() => {

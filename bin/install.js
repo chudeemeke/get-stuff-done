@@ -202,8 +202,15 @@ function readDistOverlayManifest(distDir) {
 function targetRelativePath(targetDir, relPath) {
   const resolvedTarget = path.resolve(targetDir);
   const fullPath = path.resolve(targetDir, relPath);
-  if (fullPath !== resolvedTarget && !fullPath.startsWith(resolvedTarget + path.sep)) {
+  if (!fullPath.startsWith(resolvedTarget + path.sep)) {
     return null;
+  }
+  // A lexical prefix does not contain filesystem traversal through a junction
+  // or symlink. The explicitly selected target may itself be an alias, but
+  // entries below it must not redirect installer operations elsewhere.
+  for (let entry = fullPath; entry !== resolvedTarget; entry = path.dirname(entry)) {
+    const stat = fs.lstatSync(entry, { throwIfNoEntry: false });
+    if (stat && stat.isSymbolicLink()) return null;
   }
   return fullPath;
 }
@@ -306,7 +313,7 @@ function createInstallTransaction(targetDir, distDir) {
   try {
     for (const relPath of relPaths) {
       const targetPath = targetRelativePath(targetDir, relPath);
-      if (!targetPath) continue;
+      if (!targetPath) throw new Error(`Unsafe managed install path: ${relPath}`);
 
       const snapshotPath = path.join(snapshotDir, relPath);
       const existed = fs.existsSync(targetPath);
@@ -439,17 +446,12 @@ function removeGsdFiles(targetDir, quiet) {
   let skipped = 0;
   let strategy;
 
-  // Path containment boundary -- all resolved paths must start with this prefix
-  const resolvedTarget = path.resolve(targetDir) + path.sep;
-
   if (manifestFiles.length > 0) {
     // Strategy 1: Manifest-driven -- remove exactly what the previous install put down
     strategy = 'manifest';
     for (const relPath of manifestFiles) {
-      const fullPath = path.join(targetDir, relPath);
-      const resolvedFull = path.resolve(fullPath);
-      // Path containment: reject entries that escape targetDir
-      if (!resolvedFull.startsWith(resolvedTarget)) {
+      const fullPath = targetRelativePath(targetDir, relPath);
+      if (!fullPath) {
         skipped++;
         continue;
       }
@@ -470,10 +472,8 @@ function removeGsdFiles(targetDir, quiet) {
     }
     const sortedDirs = [...dirs].sort((a, b) => b.split('/').length - a.split('/').length);
     for (const dir of sortedDirs) {
-      const fullDir = path.join(targetDir, dir);
-      const resolvedDir = path.resolve(fullDir);
-      // Path containment: skip directory pruning outside targetDir
-      if (!resolvedDir.startsWith(resolvedTarget)) {
+      const fullDir = targetRelativePath(targetDir, dir);
+      if (!fullDir) {
         continue;
       }
       try {
@@ -523,9 +523,8 @@ function removeGsdFiles(targetDir, quiet) {
   }
 
   for (const relPath of ['scripts/changeset', 'scripts/lib']) {
-    const fullPath = path.join(targetDir, relPath);
-    const resolvedFull = path.resolve(fullPath);
-    if (!resolvedFull.startsWith(resolvedTarget)) {
+    const fullPath = targetRelativePath(targetDir, relPath);
+    if (!fullPath) {
       skipped++;
       continue;
     }
@@ -536,9 +535,8 @@ function removeGsdFiles(targetDir, quiet) {
   }
 
   for (const relPath of ['scripts']) {
-    const fullPath = path.join(targetDir, relPath);
-    const resolvedFull = path.resolve(fullPath);
-    if (!resolvedFull.startsWith(resolvedTarget)) continue;
+    const fullPath = targetRelativePath(targetDir, relPath);
+    if (!fullPath) continue;
     try {
       if (fs.existsSync(fullPath) && fs.readdirSync(fullPath).length === 0) {
         fs.rmdirSync(fullPath);

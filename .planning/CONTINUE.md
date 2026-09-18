@@ -1,16 +1,21 @@
-# Position as of 2026-09-18: paused, three answers owed by the user
+# Position as of 2026-09-18 evening: one owner review owed, nothing else
 
-Nothing is running. Codex ran last (paused 2026-09-14 for disk). On 2026-09-18 a Claude
-Code session reviewed the unpushed installer work and the PR4 proposal and edited no code.
-Read `.planning/HANDOFF.json` -> `frontier_review_2026_09_18` first, then
-`docs/reviews/pr69-frontier-review-2026-09-18.md`. The user owes: (1) push approval for the
-local-only commits, (2) the PR4 supersession answer, (3) approval of a rollback redesign
-before more installer patching. The uncommitted `bin/install.js` fix must be preserved.
+Nothing is running. Claude Code ran last. The three answers owed earlier today are in and
+executed: branches pushed (two merged-PR branches were rejected and parked under
+`backup/2026-09-18/`, never forced), PR 4 supersession ACCEPTED (PR 4 closure not
+authorized), rollback one-pager written and its staging alternative spiked and rejected.
+Read `.planning/HANDOFF.json` -> `session_2026_09_18_b` first, then
+`docs/reviews/installer-rollback-redesign-2026-09-18.md`. The owner owes answers to the three
+decisions at the end of that note. **No `bin/install.js` edits before that approval.** The
+`--all` fix is no longer uncommitted; it is wip commit `632eac00` on this branch. Every
+`git push` needs pinned bun 1.3.5 first on PATH or the pre-push hook fails one known false
+red; never `--no-verify`.
 **This worktree holds the live handoff; the main checkout's copy is dated 2026-08-30.**
 
 ---
 
-> Everything below this line predates 2026-09-18. Where it calls PR 66, 67 or 68 open or
+> Everything below this line predates 2026-09-18 evening. "Three answers owed" and
+> "uncommitted bin/install.js fix" anywhere below are resolved. Where it calls PR 66, 67 or 68 open or
 > awaiting an owner answer, it is stale: all three merged 2026-09-11.
 
 # Current application checkpoint - September 14

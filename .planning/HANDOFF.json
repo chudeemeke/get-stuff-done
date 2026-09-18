@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-18T17:28:55.588Z",
+  "timestamp": "2026-09-18T17:51:21.472Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
-  "pr": "UPDATED 2026-09-18 evening: PR4 supersession ACCEPTED by the owner (closure of PR4 not yet authorized); PR69 draft branch is pushed and in sync with origin. See session_2026_09_18_b. Earlier text: PR4 scope decision pending; production remote17278b2a unchanged. PR69 draft remote df0d3f9c, local application b6743baf. PR70 draft573d9f91 unchanged. No approve, merge or readiness change authorized.",
+  "pr": "UPDATED 2026-09-18 evening: PR4 supersession ACCEPTED by the owner (closure of PR4 not yet authorized); PR69 draft branch is pushed and in sync with origin. See session_2026_09_18_b. (Earlier wording removed 2026-09-18 evening; see git history of this file.)",
   "status": "awaiting-owner-review-of-rollback-redesign-note",
-  "READ_FIRST": "READ session_2026_09_18_b FIRST; it supersedes everything below in this field. Short form: the three owed answers are in (push approved and done, PR4 supersession accepted, rollback one-pager approved and written). The ONLY thing owed now is the owner's review of docs/reviews/installer-rollback-redesign-2026-09-18.md (three decisions at its end). No installer code edits until that is approved. bin/install.js is no longer dirty: the --all fix is wip commit 632eac00 on this branch. SUPERSEDED TEXT FOLLOWS. NOTHING IS RUNNING. 2026-09-18: a Claude Code session established that Codex ran last (paused 2026-09-14 for disk), reviewed the unpushed installer work and the PR4 proposal, and edited NO code. Read frontier_review_2026_09_18 next, then application_checkpoint_2026_09_14. Disk had 9.7 GB free on 2026-09-18; re-check before any test or review run. The uncommitted bin/install.js --all preflight fix is STILL uncommitted and must be preserved; its green log is .planning/evidence/pr69-all-preflight-green-2026-09-14.log. 27 local commits are unpushed. Do not resume implementation until the user answers the three items in frontier_review_2026_09_18.awaiting_user. Earlier text: USER PAUSED for session restart to address disk pressure. Do not auto-resume tests, reviews or implementation until the user resumes. Read application_checkpoint_2026_09_14 below first. HEAD1e359c61 has recovery/preflight failure evidence. bin/install.js now has an UNCOMMITTED small --all preflight fix applied by staged write;3 focused tests pass, broader validation remains outstanding. Preserve this dirty fix and its green log. Both earlier disk-full truncations were restored; no source loss remains. Review retry is still required, with no active reviewer process. PR4 scope decision remains pending; no re-ask or inferred approval. The full September5 contract and CI/application ownership boundaries remain unchanged.",
+  "READ_FIRST": "READ session_2026_09_18_b FIRST; it supersedes everything below in this field. Short form: the three owed answers are in (push approved and done, PR4 supersession accepted, rollback one-pager approved and written). The ONLY thing owed now is the owner's review of docs/reviews/installer-rollback-redesign-2026-09-18.md (three decisions at its end). No installer code edits until that is approved. bin/install.js is no longer dirty: the --all fix is wip commit 632eac00 on this branch. (Earlier wording removed 2026-09-18 evening; see git history of this file.)",
   "bump_arc": {
     "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0 (user chose Walk increments 2026-08-30; endpoint extended from 1.11.0 to 1.12.0 by user decision 2026-09-05, then quarterly per D5)",
     "step": "3 of 6: 1.8.0 -> 1.9.1 IN PROGRESS after PR64 and PR63 merged and main integrated.",
@@ -116,6 +116,12 @@
   },
   "human_actions_pending": [
     {
+      "id": "rollback-redesign-review",
+      "action": "Answer the three decisions at the end of docs/reviews/installer-rollback-redesign-2026-09-18.md",
+      "context": "bin/install.js is frozen until answered; observe model with scoped roots and quarantine, roots authority, quarantine retention",
+      "blocking": true
+    },
+    {
       "id": "issue-51-governance-branch",
       "issue": "https://github.com/chudeemeke/get-stuff-done/issues/51",
       "description": "DECIDE: land or discard docs/pr-issue-evidence-workflow. Landing creates the type:* labels git-workflow.md calls standard."
@@ -127,7 +133,8 @@
     },
     {
       "id": "pr-4-gsd-doctor",
-      "description": "PR #4 (gsd-doctor) still open, independent of the bump campaign."
+      "description": "UPDATED 2026-09-18: supersession ACCEPTED by the owner. PR 4 stays open until the owner separately authorizes closing it as superseded. Successor H1-H8 open with get-stuff-done.",
+      "blocking": false
     },
     {
       "id": "release-broadcast-absolute-init-paths",
@@ -167,7 +174,7 @@
       "id": "legacy-test-fallback"
     }
   ],
-  "next_action": "CURRENT (2026-09-18 evening): wait for the owner's answers to the three decisions at the end of docs/reviews/installer-rollback-redesign-2026-09-18.md. On approval, brief the implementation from that note (transaction opens before cleanupV2; scoped observation roots; quarantine, never delete; verify before claiming 'Rollback applied'; wire tests/acceptance/installer-recovery.cjs into a package script and CI). SUPERSEDED: Wait for the user on frontier_review_2026_09_18.awaiting_user. If they approve the push: git push origin chore/upstream-bump-1.9.1 (draft PR 69 stays draft). If they approve the rollback redesign: write the one-page design FIRST, no installer edits before it is approved. Previous next_action, still valid underneath: Finish corrected 1.9.1 full pre-push and final-head hosted gates. Continue installer Tier S coverage and transaction safety work; do not merge failed coverage. PR67 owner answer remains pending, PR69 previous brief held. Execute remaining fixed walk and D1-D11 criteria without strategic re-audit.",
+  "next_action": "CURRENT (2026-09-18 evening): wait for the owner's answers to the three decisions at the end of docs/reviews/installer-rollback-redesign-2026-09-18.md. On approval, brief the implementation from that note (transaction opens before cleanupV2; scoped observation roots; quarantine, never delete; verify before claiming 'Rollback applied'; wire tests/acceptance/installer-recovery.cjs into a package script and CI). (Earlier wording removed 2026-09-18 evening; see git history of this file.)",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
   "workspace_recovery": {
     "executionCheckpoint": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/execution-checkpoint.json",
@@ -310,5 +317,39 @@
       "Decided endpoint 1.12.0 is two minor releases behind npm latest 1.14.0. Not reopened.",
       "Disk 12 GB free (96%) at session start."
     ]
-  }
+  },
+  "plan": null,
+  "task": 3,
+  "total_tasks": 6,
+  "blockers": [
+    {
+      "description": "Owner review of the rollback redesign note",
+      "type": "human_action",
+      "workaround": "None for installer work. Non-installer work (walk steps, docs) is not blocked."
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "PR 4 superseded by the vetted installer path; reopen trigger kept verbatim",
+      "rationale": "Upstream 1.9.1 through 1.14.0 migrates the common case; the doctor would not ship; gap in shell/type/empty-args is real and unfixed upstream",
+      "phase": "43"
+    },
+    {
+      "decision": "Rollback model: observe GSD roots, quarantine new entries, verify before claiming applied",
+      "rationale": "Predicted path lists caused six of ten blockers; whole-target listing would delete other sessions transcripts; staging rejected because 204 of 632 files embed the config-dir path",
+      "phase": "43"
+    },
+    {
+      "decision": "Diverged merged-PR branches parked under backup/2026-09-18, never forced",
+      "rationale": "Whether the PR 66 and PR 68 squash merges contain the local 09-05 lineages is unverified",
+      "phase": "43"
+    }
+  ],
+  "uncommitted_files": [
+    ".planning/evidence/pr69-all-preflight-green-2026-09-14.log (untracked)",
+    ".planning/evidence/pr69-rollback-astra-2026-09-14.log (untracked)",
+    ".planning/evidence/pr69-rollback-fable-2026-09-14.log (untracked)"
+  ],
+  "async_jobs": [],
+  "context_notes": "Persisted 2026-09-18 evening through the document-for-clear skill (Skill tool) and the gsd-pause-work workflow, after an earlier by-hand checkpoint the same evening was found incomplete. Existing custom sections were merged, not replaced. The owner pauses decisions to ask for one more fact; put evidence inside AskUserQuestion text."
 }

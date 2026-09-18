@@ -1,20 +1,21 @@
-# Position as of 2026-09-18 evening: one owner review owed, nothing else
+# Position as of 2026-09-18 night: rollback design accepted, implementation planning is next
 
-Nothing is running. Claude Code ran last. The three answers owed earlier today are in and
-executed: branches pushed (two merged-PR branches were rejected and parked under
-`backup/2026-09-18/`, never forced), PR 4 supersession ACCEPTED (PR 4 closure not
-authorized), rollback one-pager written and its staging alternative spiked and rejected.
-Read `.planning/HANDOFF.json` -> `session_2026_09_18_b` first, then
-`docs/reviews/installer-rollback-redesign-2026-09-18.md`. The owner owes answers to the three
-decisions at the end of that note. **No `bin/install.js` edits before that approval.** The
-`--all` fix is no longer uncommitted; it is wip commit `632eac00` on this branch. Every
-`git push` needs pinned bun 1.3.5 first on PATH or the pre-push hook fails one known false
-red; never `--no-verify`.
+Nothing is running. Claude Code ran last. The installer rollback redesign is **Accepted** by
+the owner after four independent review rounds and eleven decisions, and the independent
+review the owner required is done. **`bin/install.js` has not been edited.** Read
+`.planning/HANDOFF.json` -> `session_2026_09_18_c` first, then
+`docs/reviews/installer-rollback-redesign-2026-09-18.md` (the design) and
+`docs/reviews/installer-rollback-design-review-2026-09-18.md` (the review record). Next: plan
+the implementation test-first; do not edit the installer outside that plan. Nothing is owed
+by the owner for the installer work; PR 4 closure still needs its own authorization. PR 74
+merged, issue 75 filed. Every `git push`, including `--delete`, needs pinned bun 1.3.5 first
+on PATH or the pre-push hook fails one known false red; never `--no-verify`.
 **This worktree holds the live handoff; the main checkout's copy is dated 2026-08-30.**
 
 ---
 
-> Everything below this line predates 2026-09-18 evening. "Three answers owed" and
+> Everything below this line predates 2026-09-18 night. "One owner review owed", "three
+> decisions owed", "Three answers owed" and
 > "uncommitted bin/install.js fix" anywhere below are resolved. Where it calls PR 66, 67 or 68 open or
 > awaiting an owner answer, it is stale: all three merged 2026-09-11.
 

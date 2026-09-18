@@ -1,16 +1,16 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-18T18:06:16.707Z",
+  "timestamp": "2026-09-18T20:15:04.102Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
-  "pr": "UPDATED 2026-09-18 evening: PR4 supersession ACCEPTED by the owner (closure of PR4 not yet authorized); PR69 draft branch is pushed and in sync with origin. See session_2026_09_18_b. (Earlier wording removed 2026-09-18 evening; see git history of this file.)",
-  "status": "awaiting-owner-review-of-rollback-redesign-note",
-  "READ_FIRST": "READ session_2026_09_18_b FIRST; it supersedes everything below in this field. Short form: the three owed answers are in (push approved and done, PR4 supersession accepted, rollback one-pager approved and written). The ONLY thing owed now is the owner's review of docs/reviews/installer-rollback-redesign-2026-09-18.md (three decisions at its end). No installer code edits until that is approved. bin/install.js is no longer dirty: the --all fix is wip commit 632eac00 on this branch. (Earlier wording removed 2026-09-18 evening; see git history of this file.)",
+  "pr": "UPDATED 2026-09-18 night: draft PR 69 branch pushed and in sync at 5a6e552d plus the handoff commit; PR 74 merged (323b4708); issue 75 filed; PR 4 supersession accepted but PR 4 closure NOT authorized. See session_2026_09_18_c.",
+  "status": "rollback-design-accepted-implementation-planning-next",
+  "READ_FIRST": "READ session_2026_09_18_c FIRST; it supersedes everything else in this file where they differ. Short form: the installer rollback redesign is ACCEPTED by the owner after four independent review rounds and eleven decisions; the review gate the owner required is met; bin/install.js has NOT been edited. Next: plan the implementation test-first from docs/reviews/installer-rollback-redesign-2026-09-18.md. Every git push, including --delete, needs pinned bun 1.3.5 first on PATH; never --no-verify. This worktree holds the live handoff.",
   "SECTION_INDEX": {
     "CURRENT": [
-      "session_2026_09_18_b",
+      "session_2026_09_18_c",
       "human_actions_pending",
       "blockers",
       "decisions",
@@ -20,7 +20,8 @@
       "context_notes"
     ],
     "MIXED": [
-      "bump_arc"
+      "bump_arc",
+      "session_2026_09_18_b"
     ],
     "HISTORICAL": [
       "frontier_review_2026_09_18",
@@ -143,12 +144,6 @@
   },
   "human_actions_pending": [
     {
-      "id": "rollback-redesign-review",
-      "action": "Answer the three decisions at the end of docs/reviews/installer-rollback-redesign-2026-09-18.md",
-      "context": "bin/install.js is frozen until answered; observe model with scoped roots and quarantine, roots authority, quarantine retention",
-      "blocking": true
-    },
-    {
       "id": "issue-51-governance-branch",
       "issue": "https://github.com/chudeemeke/get-stuff-done/issues/51",
       "description": "DECIDE: land or discard docs/pr-issue-evidence-workflow. Landing creates the type:* labels git-workflow.md calls standard."
@@ -177,8 +172,8 @@
   "remaining_tasks": [
     {
       "id": "issue-53-step-3",
-      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Installer work paused pending the owner rollback-redesign decision; then 1.10.0, 1.11.0, 1.12.0.",
-      "status": "paused-awaiting-owner-decision"
+      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Rollback design accepted 2026-09-18; implement the installer transaction in bin/install.js test-first per docs/reviews/installer-rollback-redesign-2026-09-18.md, then the remaining PR 69 blockers (6, 8, 9), then 1.10.0, 1.11.0, 1.12.0.",
+      "status": "ready-to-plan"
     },
     {
       "id": "phase-43-plan-coverage",
@@ -201,7 +196,7 @@
       "id": "legacy-test-fallback"
     }
   ],
-  "next_action": "CURRENT (2026-09-18 evening): wait for the owner's answers to the three decisions at the end of docs/reviews/installer-rollback-redesign-2026-09-18.md. On approval, brief the implementation from that note (transaction opens before cleanupV2; scoped observation roots; quarantine, never delete; verify before claiming 'Rollback applied'; wire tests/acceptance/installer-recovery.cjs into a package script and CI). (Earlier wording removed 2026-09-18 evening; see git history of this file.)",
+  "next_action": "CURRENT (2026-09-18 night): plan the bin/install.js implementation of docs/reviews/installer-rollback-redesign-2026-09-18.md before writing code (planning-first; Tier S). Start RED: make tests/acceptance/installer-recovery.cjs a package script and CI gate, then the names table, lock, copy-only pre-image with caps, journal, quarantine-before-restore, verify-then-speak outcomes and exit codes, fresh-or-retire recovery, uninstall lock. Offer the owner an elegance review of any Codex-written installer code before building on it. Do not edit bin/install.js outside that plan.",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
   "workspace_recovery": {
     "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
@@ -321,6 +316,7 @@
     "verification_gate_2026_09_18": "Two fresh-context read-only probes (one opened at the main checkout, one at this worktree) both recovered the correct position, the three owed answers and the main pitfall from disk alone. No material gap. Partial gaps closed afterwards: other worktrees itemised above; stale pr67 pending entry marked resolved; CONTINUE.md lower sections flagged as predating the 2026-09-11 merges. Not re-probed: a second round costs about 500k tokens and the closures were checked by grep instead. Known residue: the project CLAUDE.md says read .planning/HANDOFF.json first without saying which checkout, calls STATE.md the canonical position in its table, and still describes the pre-push hook as inert although PR 67 merged; fixing it belongs with the user decision on the stale main checkout. MEMORY.md memory-cli block still prints Last synced 2026-09-02 although memory sync --embed completed 2026-09-18 (3,509 messages)."
   },
   "session_2026_09_18_b": {
+    "SECTION_STATUS": "MIXED as of 2026-09-18 night. Still true: pushed, push_gate, pr4_upstream_recheck, and every still_open item except the CLAUDE.md one (fixed by PR 74). SUPERSEDED: owed_by_owner (all answered) and rollback_note (the note was revised four times after review). Current truth: session_2026_09_18_c.",
     "by": "Claude Code session, Fable 5.1. Read-only re-verification, then owner-approved pushes, docs and one temp-dir spike. No installer code edited.",
     "last_harness": "Claude Code, 2026-09-18 evening. Codex last wrote 2026-09-14 14:29; the 71 newer Codex rollouts belong to other projects.",
     "owner_answers": {
@@ -355,16 +351,60 @@
       "verification_gate": "Round 1, fresh-context agent on a cheaper model, 13 probes, read-only, transcripts forbidden: could a cold session resume correctly = YES; zero MATERIAL gaps; three PARTIAL. Closed: stale within-file notes in frontier_review_2026_09_18 (now marked HISTORICAL); stale owed-by-user wording in memory project_state.md (the agent attributed it to project_dual_harness_resume.md; grep showed the real location). Left open for the owner: CLAUDE.md file table calls STATE.md the canonical position and does not say which checkout holds the live HANDOFF.json; needs its own docs PR off main. Round 2 (narrow re-probe of staleness only): both closures confirmed, owed-item and HEAD consistent; it found four more unmarked stale lines in older sections (bump_arc.in_flight, application_checkpoint_2026_09_14). Closed as a category: SECTION_INDEX added and SECTION_STATUS stamped on every superseded section. The re-probe agent ran a prohibited git fetch; harmless (remote-tracking refs only)."
     }
   },
+  "session_2026_09_18_c": {
+    "by": "Claude Code session, Fable 5.1, 2026-09-18 night. Owner decisions, docs commits, reviewer lanes, one docs PR merged, one issue filed. No installer code edited.",
+    "last_harness": "Claude Code, 2026-09-18 night. Codex last wrote 2026-09-14 and was quota-walled all day (limit lifts 2026-09-19 09:37); it reviewed nothing.",
+    "position": "The installer rollback redesign is ACCEPTED by the owner and the required independent review is done. bin/install.js is still unedited. The next action is to plan the implementation test-first.",
+    "read_in_order": [
+      "docs/reviews/installer-rollback-redesign-2026-09-18.md (the design: 8 truths, names table with Generated/Legacy/Observed/Protected classes, 12 steps, exit codes 1/3/4/5/6, Revision history table)",
+      "docs/reviews/installer-rollback-design-review-2026-09-18.md (four review rounds, every finding dispositioned, what the author got wrong in each round, rejections with reasons)",
+      ".planning/evidence/pr69-installer-recovery-red-2026-09-14.json (the red acceptance evidence the design answers)"
+    ],
+    "branch_state": "chore/upstream-bump-1.9.1 pushed and in sync with origin at 5a6e552d plus this handoff commit. Docs commits this session: 3fe53109, 5d5033f0, fe0ac33b, 5f8b8258, 5a6e552d. Both hooked pushes ran the unmodified pre-push hook under pinned bun 1.3.5: 1764 pass, 0 fail, 69 files.",
+    "owner_decisions": {
+      "round_one": "Observe model with scoped roots and quarantine; roots extended by known names plus a top-level check (after .gsd-source was found outside the proposed roots); quarantine pruned selectively.",
+      "round_two_after_first_review": "Content plus SHA-256 pre-image of the roots (roots measured at 19 MB, about 1,000 files); three outcomes for the check outside the roots; byte-identity quarantine pruning with the manifest-trusting delete path cut; journal with automatic completion.",
+      "round_three_after_second_review": "Pre-image copy-only with preflight refusal over caps (32 MiB per file, 256 MiB total) or short free space; NAMES ONLY outside the roots, the installer never opens a file it does not own (.credentials.json is a top-level file there); recovery automatic within 60 minutes and a stale journal RETIRED, no flag; uninstall takes the lock now, its transaction is issue 75.",
+      "document_naming": "Owner adopted: no v1/v2 labels on durable documents; Status line, Revision history table keyed by commit, review rounds named by the commit reviewed. Their original remark was about scratch filenames; asked, they chose to keep the convention for durable docs. Earlier commit subjects and inbox events still say v2/v3/v4 and are not rewritten."
+    },
+    "review_gate": "MET. Four rounds against commits 3fe53109, 5d5033f0, fe0ac33b, 5f8b8258. Lanes: Google gemini-3.8-flash-high via agy 1.2.2, Anthropic fable at high effort in plan mode. Results by round: NOT PASS / NOT PASS; NOT PASS / NOT PASS; PASS WITH CHANGES / NOT PASS as written; PASS WITH CHANGES / PASS WITH CHANGES. Every accepted change is applied in 5a6e552d. CAVEAT: the last round's edits (journal deleted before snapshot; a bad snapshot copy never displaced; exit codes 5 and 6; wording) were not themselves re-reviewed, and no OpenAI lane reviewed any revision.",
+    "facts_found_by_measuring": [
+      "Roots present in the real ~/.claude total 19 MB in about 1,000 files; projects/ is 843 MB; 62 top-level entries; 12 or more non-root directories are written continuously by other sessions; 3 of 28 top-level files changed within an hour.",
+      "Upstream side-writes TWO top-level names outside dist and the manifest: .gsd-source and gsd-migration-journal/ (installer-migrations.cjs). The wrapper knew only the first.",
+      "The no-manifest cleanup (bin/install.js:482-486) recursively deletes get-stuff-done/, get-shit-done/ and gsd-core/; the owner's target has a get-shit-done/.",
+      "preserveLocalPatchHistory (line 753) deliberately outlives commit and rollback; it is NOT folded into the transaction directory.",
+      "The pinned upstream installer never requires child_process, and the wrapper has no timeout path (lines 1053-1078), so the direct child is dead before any rollback."
+    ],
+    "also_done": [
+      "PR 74 merged as 323b4708 (Tier M, 18 checks green): CLAUDE.md no longer calls STATE.md the canonical position and warns that each worktree has its own HANDOFF.json. Branch and worktree removed.",
+      "Issue 75 filed: run --uninstall inside the installer transaction; trigger is the release that ships this transaction. Unlabelled because the repo has none of the four standard type:* labels.",
+      "Inbox item docs/inbox/2026-09-18-get-stuff-done-installer-rollback-redesign-decision.md (MAIN checkout, gitignored WIP) is now next_owner get-stuff-done, status in-progress, four events appended.",
+      "cross-ai-review skill ledger updated in both mirrors (Codex walled; agy 1.2.2 handled 34 to 63 KB stdin packets).",
+      "Feedback memories added: measure the scoped set and review before recommending; no v-labels on durable documents."
+    ],
+    "near_misses": [
+      "The owner approved recommended options that independent review then overturned, in two separate rounds. Run the review on the PROPOSED note first next time.",
+      "A reviewer's consolidation suggestion was accepted without reading the code it touched (line 753).",
+      "git push --delete is still a push: run without pinned bun it spent two minutes in the hook and was refused. Every push form needs pinned bun 1.3.5 first on PATH."
+    ],
+    "still_open_surfaced_not_decided": [
+      "PR 4 closure as superseded needs a separate explicit owner authorization.",
+      "Are the backup/2026-09-18/* lineages superseded by the PR 66 / PR 68 squash merges? Unverified. Do not delete those worktrees or branches on that assumption.",
+      "Untracked and only on this disk: three .planning/evidence/pr69-*-2026-09-14.log files here; tests/acceptance/ in pr4-application; two archived inbox sign-off files and get-stuff-done/memory/ in the main checkout.",
+      "The main checkout still holds a HANDOFF.json dated 2026-08-30 on fix/codex-install-target; CLAUDE.md on main now tells a session to compare worktree handoffs, but this branch predates that merge.",
+      "memory sync --embed fails at offset 452613 of 453286 every time (friction 383 and 384); probably one message Ollama cannot embed. Not retried again.",
+      "Decided endpoint 1.12.0 is two minor releases behind npm latest 1.14.0. Not reopened.",
+      "Disk 11 GB free (96%)."
+    ],
+    "persistence": {
+      "mechanism": "document-for-clear skill via the Skill tool; gsd-pause-work workflow for step 7",
+      "verification_gate": "see context_notes; filled in after the gate runs"
+    }
+  },
   "plan": null,
   "task": 3,
   "total_tasks": 6,
-  "blockers": [
-    {
-      "description": "Owner review of the rollback redesign note",
-      "type": "human_action",
-      "workaround": "None for installer work. Non-installer work (walk steps, docs) is not blocked."
-    }
-  ],
+  "blockers": [],
   "decisions": [
     {
       "decision": "PR 4 superseded by the vetted installer path; reopen trigger kept verbatim",
@@ -380,6 +420,21 @@
       "decision": "Diverged merged-PR branches parked under backup/2026-09-18, never forced",
       "rationale": "Whether the PR 66 and PR 68 squash merges contain the local 09-05 lineages is unverified",
       "phase": "43"
+    },
+    {
+      "decision": "Installer rollback redesign accepted: lock, copy-only content pre-image of scoped roots, journal, quarantine before restore, verify then speak, fresh-or-retire recovery",
+      "rationale": "Four independent review rounds; owner decided eleven points across three rounds with measured evidence in each question; see docs/reviews/installer-rollback-design-review-2026-09-18.md",
+      "phase": "43"
+    },
+    {
+      "decision": "Outside the roots the installer reads top-level names only and never opens a file",
+      "rationale": "Hashing top-level files opened .credentials.json and made a verified outcome unreachable on a live target",
+      "phase": "43"
+    },
+    {
+      "decision": "Uninstall takes the install lock now; its transaction is issue 75",
+      "rationale": "Owner chose the small change now with a tracked trigger over growing PR 69",
+      "phase": "43"
     }
   ],
   "uncommitted_files": [
@@ -388,5 +443,5 @@
     ".planning/evidence/pr69-rollback-fable-2026-09-14.log (untracked)"
   ],
   "async_jobs": [],
-  "context_notes": "Persisted 2026-09-18 evening through the document-for-clear skill (Skill tool) and the gsd-pause-work workflow, after an earlier by-hand checkpoint the same evening was found incomplete. Existing custom sections were merged, not replaced. The owner pauses decisions to ask for one more fact; put evidence inside AskUserQuestion text."
+  "context_notes": "Persisted 2026-09-18 night through the document-for-clear skill (Skill tool) and the gsd-pause-work workflow. Existing custom sections were merged, not replaced. The owner answers decision batches quickly when the evidence is inside the AskUserQuestion text, and accepted every recommended option this session; twice those recommendations were then overturned by independent review, so review first, ask second."
 }

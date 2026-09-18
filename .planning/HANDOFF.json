@@ -136,7 +136,8 @@
     {
       "description": "Concrete TierD merge brief filed in owning inbox. Final a62f25bd has20 green checks and no remaining review findings. Async owner answer pending.",
       "issue": "https://github.com/chudeemeke/get-stuff-done/pull/67",
-      "id": "pr67-hooks-signoff"
+      "id": "pr67-hooks-signoff",
+      "status": "RESOLVED 2026-09-11: PR 67 merged as 2fc10863 and its sign-off item is archived. Not owed. Kept only so the history reads straight."
     }
   ],
   "remaining_tasks": [
@@ -260,7 +261,7 @@
     "opinion": "Stop patching sites. Change the rollback model from predicting writes to observing them: names-only pre-listing of the target, remove what is new on failure, restore the snapshot, move legacy cleanup inside the transaction. Narrow the owner-write window by intersecting with the new manifest when the child wrote one. This is a design decision for the user and the frontier session, not a Codex patch.",
     "pr4": "All three load-bearing claims verified against code: upstream 1.9.1 has rewriteLegacyManagedNodeHookCommands and node_modules/@opengsd/gsd-core/bin/install.js:12119 calls it; it ignores shell and type (skips only on non-empty args); scripts/gsd-doctor.cjs is not in package.json files. Recommendation to the user: ACCEPT supersession, keep the one-reproduced-case-reopens trigger verbatim. Understated by the proposal: H1-H8 move PR4 hard problems onto an installer with ten open blockers.",
     "awaiting_user": [
-      "1. Push the unpushed commits to origin/chore/upstream-bump-1.9.1 (they exist only on a disk that filled twice). Not done because the user chose review-first over commit-and-push.",
+      "1. Push approval. Primary: the 28 local-only commits on chore/upstream-bump-1.9.1. Also at risk on the same disk: see other_local_only_work_verified_2026_09_18, especially 62f281c0 (the PR4 proposal itself).",
       "2. PR4 supersession answer: accept / keep the doctor / defer. Inbox item docs/inbox/2026-09-14-get-stuff-done-pr4-successor-decision.md in the MAIN checkout, next_owner user.",
       "3. Approve a one-page rollback redesign before anyone touches the installer again."
     ],
@@ -268,6 +269,14 @@
       "The MAIN checkout C:/Projects/get-stuff-done is on merged branch fix/codex-install-target with a HANDOFF.json dated 2026-08-30. CLAUDE.md tells sessions to read that file first. User has not decided what to do with it.",
       "User asked whether ultracode suits this project. Answer given: not as a standing mode (Windows deadlocks above ~3 process-heavy shells, tight disk, quota is why the user switches harnesses, remaining installer work is serial in one file); yes per task for read-only fan-outs such as a rollback-design judge panel or adversarial verification of a final PR69 review."
     ],
-    "global_rule_added": "~/.claude/rules/harness-continuity.md (dual-harness resume check), indexed in ~/.claude/CLAUDE.md"
+    "global_rule_added": "~/.claude/rules/harness-continuity.md (dual-harness resume check), indexed in ~/.claude/CLAUDE.md",
+    "other_local_only_work_verified_2026_09_18": {
+      "note": "Found by the verification gate, then confirmed with git. Whether the three 2026-09-05 branches are superseded by the PR 66 / PR 68 squash merges of 2026-09-11 is UNVERIFIED; do not delete or reset any of them on that assumption.",
+      "main_checkout": "C:/Projects/get-stuff-done on fix/codex-install-target: 1 unpushed commit 95f380da (normalize runtime home overrides); untracked docs/inbox/archived pr65 and pr67 sign-off files and get-stuff-done/memory/.",
+      "install_preserve": ".claude/worktrees/install-preserve on fix/preserve-install-patches: 3 unpushed commits (15ecc95b, a6a1f1af, 39c18827) plus UNCOMMITTED bin/install.js and tests/installer-safety.test.js.",
+      "install_drift": ".claude/worktrees/install-drift on fix/install-generation-drift: 2 unpushed commits (97652857, 7691b39a).",
+      "pr4_application": ".claude/worktrees/pr4-application on fix/doctor-application (upstream origin/worktree-gsd-doctor): 1 unpushed commit 62f281c0, which IS the PR4 successor proposal the user is being asked to decide on, plus untracked tests/acceptance/. It exists only on this disk."
+    },
+    "verification_gate_2026_09_18": "Two fresh-context read-only probes (one opened at the main checkout, one at this worktree) both recovered the correct position, the three owed answers and the main pitfall from disk alone. No material gap. Partial gaps closed afterwards: other worktrees itemised above; stale pr67 pending entry marked resolved; CONTINUE.md lower sections flagged as predating the 2026-09-11 merges. Not re-probed: a second round costs about 500k tokens and the closures were checked by grep instead. Known residue: the project CLAUDE.md says read .planning/HANDOFF.json first without saying which checkout, calls STATE.md the canonical position in its table, and still describes the pre-push hook as inert although PR 67 merged; fixing it belongs with the user decision on the stale main checkout. MEMORY.md memory-cli block still prints Last synced 2026-09-02 although memory sync --embed completed 2026-09-18 (3,509 messages)."
   }
 }

@@ -10,6 +10,9 @@ before more installer patching. The uncommitted `bin/install.js` fix must be pre
 
 ---
 
+> Everything below this line predates 2026-09-18. Where it calls PR 66, 67 or 68 open or
+> awaiting an owner answer, it is stale: all three merged 2026-09-11.
+
 # Current application checkpoint - September 14
 
 PR4 remains blocked on the user-required ordinary non-elevated repair. PR69 local

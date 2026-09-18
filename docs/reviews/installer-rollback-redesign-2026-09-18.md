@@ -1,6 +1,8 @@
 # Installer rollback redesign: observe, do not predict
 
-Status: PROPOSED, awaiting owner approval. No installer code changes until approved.
+Status: APPROVED WITH TWO AMENDMENTS by the owner, 2026-09-18 (see "Decisions" at the
+end). Next gate: an independent review of this approved design. No installer code
+changes until that review is dispositioned.
 Date: 2026-09-18. Author: Claude Code frontier session. Subject: `bin/install.js`
 on `chore/upstream-bump-1.9.1` (draft PR 69). Supersedes the "Opinion" section of
 `docs/reviews/pr69-frontier-review-2026-09-18.md` where the two differ.
@@ -31,9 +33,17 @@ deletion in the file is the one step with no rollback (blocker 3, finding F2).
 
 1. **Open first.** `install()` creates the transaction before any mutation; the v2
    detection and cleanup move inside it as the first step.
-2. **Observation roots, not the target.** Roots are the top-level entries of `dist/`
-   plus roots named by the existing manifests. `projects/`, `todos/` and everything
-   else outside the roots is never listed, never touched.
+2. **Observation roots, not the target.** Roots are the top-level entries of `dist/`,
+   roots named by the existing manifests, and the wrapper's generated-names list
+   (today inline in the "always clean metadata" loop; it becomes one constant shared
+   by cleanup and rollback). `projects/`, `todos/` and everything else outside the
+   roots is never recursed into, never touched. *Amendment A:* the child side-writes
+   `.gsd-source` outside both `dist/` and the manifest (it is the first residual path
+   in the 09-14 evidence), so roots alone would let a false `Rollback applied` back
+   in. In addition to the roots, the target's top level is listed by name only,
+   non-recursively, for verification only: an unrecognised new top-level entry is
+   reported as `Rollback incomplete` and is never moved, because it may belong to
+   another live session.
 3. **Pre-image.** For the roots: a listing of path, type, size and mtime (no content).
    Content snapshots stay as today (old manifests, overlay list, `settings.json`,
    patch trees) plus the legacy roots that cleanup is about to remove.
@@ -45,8 +55,12 @@ deletion in the file is the one step with no rollback (blocker 3, finding F2).
    `Rollback applied`. Otherwise: `Rollback incomplete`, naming each path that was
    modified but not snapshotted, and the recovery directory. Exit code is non-zero
    in both cases; only the claim differs.
-6. **Bounded disk.** One quarantine and one `before-update` generation are kept;
-   the next successful install prunes older ones (finding F4).
+6. **Bounded disk.** One quarantine and one `before-update` generation are kept
+   (finding F4). *Amendment B:* an owner file created inside a root during the
+   install window lands in quarantine, so a wholesale prune would break truth 3 on a
+   delay. The next successful install deletes only quarantined entries that its new
+   manifest or the generated-names constant proves GSD-owned; anything else stays,
+   and every run names it and its path until the owner removes it.
 
 Correction to the 09-18 review: it proposed a names-only listing of the *target* and
 *removing* what is new. On this machine that would delete other sessions' new
@@ -97,8 +111,19 @@ cases for an owner write inside a root during the window, a junction inside a ro
 a locked file on Windows, a child killed mid-write, and disk-full during snapshot.
 Each case asserts the message as well as the bytes.
 
-## Decisions requested
+## Decisions (owner, 2026-09-18, via AskUserQuestion with the evidence in the question)
 
-1. Approve the observe model with scoped roots and quarantine.
-2. Confirm the roots authority: `dist/` top-level entries plus existing manifests.
-3. Confirm quarantine retention: one directory, pruned by the next successful install.
+1. Model: **observe with scoped roots and quarantine.** Rejected: truthful message
+   only (leaves the 622 files); stage then publish (spike above). Accepted weakness:
+   a file the child overwrites inside a root with no content snapshot is reported,
+   not restored.
+2. Roots authority: **`dist/` top-level entries, existing manifests, the
+   generated-names constant, plus the names-only top-level check** (Amendment A).
+   Rejected: the roots as first written; roots plus known names without the check
+   (a future upstream side-write would be missed silently).
+3. Quarantine retention: **one directory, pruning only proven-GSD entries**
+   (Amendment B). Rejected: wholesale prune; keep until the owner deletes.
+
+Both amendments add adversarial cases to "Proof": a child side-write to a new
+top-level name, another session creating a top-level entry during the window, and an
+owner file in quarantine surviving the next successful install.

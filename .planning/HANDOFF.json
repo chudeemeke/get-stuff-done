@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-18T17:51:21.472Z",
+  "timestamp": "2026-09-18T17:59:58.526Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
@@ -254,6 +254,7 @@
     }
   },
   "frontier_review_2026_09_18": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Its awaiting_user items are answered, every commit it lists as local-only is now on origin (62f281c0 on origin/fix/doctor-application; the two 09-05 lineages under origin backup/2026-09-18/), and its MEMORY.md Last-synced residue is fixed. Current truth: session_2026_09_18_b.",
     "by": "Claude Code session, Fable 5.1, effort high, read-only",
     "report": "docs/reviews/pr69-frontier-review-2026-09-18.md",
     "ran_tests": false,
@@ -316,7 +317,11 @@
       "Upstream issue for the shell/type/empty-args gap is unfiled; owner chose plain accept, not accept-plus-draft.",
       "Decided endpoint 1.12.0 is two minor releases behind npm latest 1.14.0. Not reopened.",
       "Disk 12 GB free (96%) at session start."
-    ]
+    ],
+    "persistence": {
+      "mechanism": "document-for-clear skill via the Skill tool, with the gsd-pause-work workflow for step 7; an earlier by-hand checkpoint the same evening was incomplete and is superseded",
+      "verification_gate": "Round 1, fresh-context agent on a cheaper model, 13 probes, read-only, transcripts forbidden: could a cold session resume correctly = YES; zero MATERIAL gaps; three PARTIAL. Closed: stale within-file notes in frontier_review_2026_09_18 (now marked HISTORICAL); stale owed-by-user wording in memory project_state.md (the agent attributed it to project_dual_harness_resume.md; grep showed the real location). Left open for the owner: CLAUDE.md file table calls STATE.md the canonical position and does not say which checkout holds the live HANDOFF.json; needs its own docs PR off main."
+    }
   },
   "plan": null,
   "task": 3,

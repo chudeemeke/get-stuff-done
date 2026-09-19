@@ -237,10 +237,10 @@ ordering rules that the proof plan now covers with named cases.
 
 ## Implementation planning: proposed amendment (same day, not yet reviewed)
 
-Found while planning the implementation, before any `bin/install.js` edit. Status:
-written into the note as a PROPOSED last revision; no lane has reviewed it and the
-owner has not accepted it. It goes to the available lanes first, and the owner is
-asked afterwards with the evidence inside the question.
+Found while planning the implementation, before any `bin/install.js` edit. This
+section describes the proposal as committed at `e235c9f2`. It then went to two lanes
+and to the owner; see "Fifth review" below, which supersedes items here where they
+differ (notably item 1's closing sentence, which was itself wrong).
 
 What the author got wrong:
 
@@ -260,6 +260,65 @@ What the author got wrong:
 Proposed dispositions are in the note under "Proof" and "Readings settled for
 implementation". The readings table is the design critique's list of points where two
 implementers would differ, each given the reading closest to the accepted text.
+
+## Fifth review: the proposed amendment at `e235c9f2` (2026-09-18 to 09-19)
+
+Packet: 74,486 bytes, SHA-256
+`0a7b47e46aa55cb9768a350df2e5644e96a3060b3dbda8e5e0e217832a57f3f3`: the ask, the
+note and this record at `e235c9f2`, `tests/acceptance/installer-recovery.cjs`,
+`dist/bin/install.js` lines 1-30, `shell-command-projection.cjs` lines 50-60, 456-520
+and 555-625, and `bin/install.js` lines 948-1080. Lanes: `fable` at high effort, plan
+mode, NOT PASS (18.7 KB, 7 min), every required change textual; `gemini-3.8-flash-high`
+via `agy` 1.2.6, PASS WITH CHANGES (14.8 KB, 2 min). Codex not run: usage limit until
+2026-09-19 09:37. The `fable` lane read a composed build outside the packet, from the
+main checkout (upstream 1.8.0); each of its repository claims was re-verified against
+this branch's 1.9.1 build before use, and all held with shifted line numbers.
+
+What the author got wrong in the proposal:
+
+1. It corrected "the installer file never requires `child_process`" by checking ONE
+   module and then claimed the installer "spawns nothing": the same error one level
+   up (`fable`, BLOCKER). The graph also reaches `execGit` in `worktree-base-ref.cjs`,
+   `git check-ignore` in `config-loader.cjs` and a pid probe in `capability-lock.cjs`.
+2. It asserted zero spawn events without running anything. Measured afterwards: the
+   real child makes one spawn on a fresh Windows install, so the proposed guard would
+   have been red. The lane's own prediction, that the probe runs only when a lock
+   already exists, was also wrong. Neither had measured.
+3. Its replacement acceptance assertion exempted every Protected name, which is weaker
+   than the original and passes an implementation that deletes residue (both lanes).
+4. Its second scenario did not kill the verify mutant, because the note never said
+   what decides `incomplete`; under any sensible rule a forced error yields
+   `incomplete` whatever the comparison returns (`fable`, HIGH).
+5. Four readings were decisions in disguise or unsafe: exit 6 for misuse, a
+   future-dated journal as stale, the first-segment manifest rule, and the digest
+   taken from the copy alone (both lanes, between them).
+
+Accepted into the note: the rejection rests on the measurement and the guard is a
+tripwire; spawn-shape allowlist with two entries; "twelve bound names" dropped;
+marker inside the gate, one armed process per run, per-route controls inside the real
+child, `getBuiltinModule`, `worker_threads`, `dlopen` and `execve` wrapped, the `node:`
+prefix stripped, CommonJS-only attribution stated, Bun named as residual risk; exact
+acceptance allowlist, twin fixture, upgrade fixture with the test's own walker, exact
+outcome string, `status === 1`; the outcome rule written into step 9; the verify
+mutant killed by a byte appended after a successful restore, with the forced-`EPERM`
+case kept separately and no mutation switch in product code; digest from copy and
+source; target created only after every refusal is decided; unit move falling back
+to per-entry moves; `linkSync` publication of the lock; an exit code for a failed
+snapshot deletion at commit; the D1 consequence for shared roots stated.
+
+Rejected or narrowed: an AST audit of the twelve bound names (Google; moot once the
+assertion is dropped and spawns are observed); a static or `module.register` check for
+ESM imports (Google; the spawn wraps already catch what an `import()` does, and the
+limit is recorded); removing the journal's "expected writes" field (`fable`, as one of
+two options; the other is taken: a test proves nothing reads it, so accepted step 5 is
+not edited); raising the acceptance child's 30 s timeout now (`fable`, LOW; settled
+when the scenario runs under the real transaction, with the measured time in hand).
+
+Owner decisions, round four, each asked with the evidence inside the question:
+process-tree rejection confirmed on the corrected evidence; exit 2 for misuse;
+future-dated journal stale and retired, chosen over the author's post-review
+recommendation with both lanes' objection stated; manifest roots limited to shipped or
+known names. The revised text was not itself re-reviewed.
 
 ## Owner decisions, round two (answered after the first review)
 

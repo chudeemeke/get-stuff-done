@@ -8,11 +8,13 @@ been edited. Subject: `bin/install.js` on `chore/upstream-bump-1.9.1` (draft PR 
 Supersedes the "Opinion" section of `docs/reviews/pr69-frontier-review-2026-09-18.md`
 where the two differ.
 
-Amendment status: the last row of the table below is PROPOSED, 2026-09-18. It was
-written during implementation planning, touches none of the eleven owner decisions,
-and has not yet been independently reviewed or accepted by the owner. It changes one
-supporting fact, the guard-test criterion, two proof items, and adds a table of
-readings. Everything else in this note stands as accepted.
+Amendment status, 2026-09-19: the last two rows of the table below come from
+implementation planning. The first (`e235c9f2`) was reviewed by two lanes, NOT PASS
+and PASS WITH CHANGES; every finding is dispositioned in the review record. The owner
+then decided four points (round four, under "Decisions"). Two of them refine earlier
+decisions: the exit-code contract of step 9 and the freshness rule of D4. The revised
+text of the last row has not itself been re-reviewed, and no OpenAI lane has reviewed
+any revision. Everything else in this note stands as accepted.
 
 | Revision | Date | What changed | Trigger |
 |---|---|---|---|
@@ -21,7 +23,8 @@ readings. Everything else in this note stands as accepted.
 | `fe0ac33b` | 2026-09-18 | Names table, copy-only pre-image with caps, names only outside the roots, fresh-or-retire recovery, uninstall lock | Second review: two lanes NOT PASS; owner decisions, round three |
 | `5f8b8258` | 2026-09-18 | Legacy class, lock and journal lifecycle, bounded child-pid check, fuller messages | Third review: one PASS WITH CHANGES, one NOT PASS as written; no owner decision touched |
 | `5a6e552d` | 2026-09-18 | Journal deleted before snapshot, bad snapshot copies never displaced, exit codes 5 and 6, wording fixes | Fourth review: both lanes PASS WITH CHANGES |
-| this revision (proposed) | 2026-09-18 | `child_process` fact corrected to the require graph; guard test observed, not token-scanned; acceptance assertion aligned with the kept quarantine; second acceptance scenario so the mutation check can fail; readings table | Implementation planning: the guard test as written could not go green on 1.9.1 |
+| `e235c9f2` | 2026-09-18 | Proposed: `child_process` fact corrected to the require graph; guard test observed, not token-scanned; acceptance assertion aligned with the kept quarantine; second acceptance scenario; readings table | Implementation planning: the guard test as written could not go green on 1.9.1 |
+| this revision | 2026-09-19 | Spawn behaviour measured, not argued: one blocking read-only pid probe; guard allowlists that probe shape; "twelve bound names" dropped; acceptance uses an exact allowlist, a twin fixture and an upgrade fixture; outcome rule written into step 9; verify mutant killed by a post-restore byte; exit 2 for misuse; manifest roots limited to shipped or known names; digest from source and copy; target created only after every refusal is decided | Fifth review (of `e235c9f2`): NOT PASS and PASS WITH CHANGES; owner decisions, round four |
 
 Commit subjects and inbox events written on 2026-09-18 call the first four rows v1 to
 v4; this table is the mapping.
@@ -153,7 +156,10 @@ The containment helper refuses any manifest path under a Protected name.
    the top-level names did, which the message reports. Exit 6 is every refusal made
    before any mutation: lock held, child possibly alive, caps or free space, a link
    root, an unreadable journal, a failed retire rename. So 1 always means "failed and
-   rolled back" and 6 always means "nothing was touched". The child's own exit code
+   rolled back" and 6 always means "nothing was touched". Amended 2026-09-19: the
+   outcome is `incomplete` if any entry error was collected or verification found a
+   mismatch, and `applied` only when both are clean; argument misuse such as `--all`
+   exits 2, by owner decision, which leaves both sentences true. The child's own exit code
    is printed, never returned, so it cannot collide with these. Every outcome also
    prints each `displaced/` entry with its quarantine path (these are bytes someone
    else wrote during the window), the count of `new/` entries with the quarantine
@@ -232,9 +238,14 @@ exclusion list, and the installer opening `.credentials.json`); a birthtime filt
 tag (NTFS tunneling and rename hide residue); process start time in the lock (needs a
 subprocess per platform; the failure mode is an actionable refusal); killing the
 child's process tree (the wrapper has no timeout path, so the direct child is dead
-before any rollback; the supporting fact recorded in the review, that the pinned
-installer "never requires `child_process`", is true of that one file and false of its
-require graph, see "Guard test" below, which now carries this rejection); a
+before any rollback. The fact first recorded for this, that the pinned installer
+"never requires `child_process`", was false of its require graph. The rejection now
+rests on a measurement, confirmed by the owner on 2026-09-19: on 1.9.1 the only spawn
+reached during an install is one blocking, read-only, time-bounded pid probe, which
+cannot write to the target and cannot outlive the child's `close` event. The guard
+test below is a tripwire behind that argument, not the argument. When the wrapper
+itself is killed nothing is left to kill a tree, so tree-killing would not cover the
+one case in which a descendant could matter); a
 `NODE_OPTIONS` preload shim (possible follow-up, not planned).
 
 ## Blockers from `pr69-application-2026-09-13.md`
@@ -250,34 +261,67 @@ residue, 8 multi-destination modes, 9 fresh matrix and Tier S evidence.
 step run it (F5). Transaction functions are Tier S: 100% branches, and each case
 asserts the message and exit code as well as the bytes.
 
-Acceptance assertion (proposed amendment). The test asserted that no file remains in
-the target besides the owner's. Step 9 keeps the quarantine in the target, so that
-assertion can never pass. It becomes: no residue outside Protected names; every root
-byte-identical to its pre-image; the quarantine holds exactly the residue; the message
-and the exit code are asserted, not only recorded.
+Acceptance assertion (amended). The test asserted that no file remains in the target
+besides the owner's. Step 9 keeps the quarantine in the target, so that assertion can
+never pass. A blanket exemption for Protected names would be weaker than the original
+and would pass an implementation that deletes residue, so the replacement is an exact
+allowlist. Fresh-target scenario: the top level equals `owner.txt`, `settings.json`
+and `gsd-install-transaction`; inside that directory only `quarantine/<one id>/` with
+`new/**`, `displaced/**` and `moved.txt`; no lock, journal, `snapshot/`, stale lock,
+retired directory or `gsd-local-patch-history/`. "Exactly the residue" has an
+independent source: the same failure-injected child runs without the wrapper against
+a twin fixture, and the relative paths under `new/` must equal that inventory and be
+non-empty; the write trace is a lower bound only. Upgrade scenario: a successful
+install first, then the test hashes the whole tree with its own walker (type, SHA-256,
+link targets, empty directories), runs the failing install over it and requires deep
+equality outside the allowlist. The test never reads the wrapper's journal or snapshot
+to learn the pre-image. It asserts the exact outcome string ending "and verified" and
+`status === 1`, not merely non-zero.
 
-Guard test (proposed amendment). Measured on the composed 1.9.1 installer, 2026-09-18:
+Guard test (amended). Measured on the composed 1.9.1 installer, 2026-09-18 and 09-19:
 `dist/bin/install.js:21` requires `gsd-core/bin/lib/shell-command-projection.cjs`,
 which loads `node:child_process` (line 57) and spawns at lines 478, 489, 500 and 618.
-The installer binds twelve names from it, all pure text projection (module lines 108
-to 455), and none of `execGit`, `execNpm`, `execTool`, `dispatchGsdCommand` or
-`probeTty`. The installer also has twelve `require(path.join(_gsdLibDir, ...))` sites
-and `capability-loader.cjs` requires more at runtime, so a graph derived by scanning
-source text is neither closed nor green. The guard therefore observes instead of
-predicting: the real composed child runs under one preload that hooks `Module._load`,
-recording the requiring module for `child_process`, `node:child_process` and
-`cluster`, and wraps every spawn entry point (`ChildProcess.prototype.spawn`, the sync
-exports, `process.binding`, followed by `syncBuiltinESMExports()`). It asserts, across
-a fresh install, an upgrade and a failed install: the modules that loaded a process
-API are a subset of a one-entry allowlist and that entry is present; the installer
-binds exactly the twelve known names from it; zero spawn events. Controls: the preload
-is gated on the child's script path so the wrapper's own spawn is not counted; one
-record is appended per event, never dumped at exit; a missing trace or a missing
-"preload loaded" marker is a failure, never zero; a fixture child that does spawn must
-be detected. The observed part is Node-only, and a source scan for `Bun.spawn` is
-kept. A bump that adds a loader, a bound name or a spawn fails the gate and reopens
-the process-tree decision. Residual risk recorded: paths these three runs do not
-exercise, non-JavaScript spawn routes such as native addons, and grandchildren.
+That one `require` is not the whole graph. In the 1.9.1 build the installer also
+reaches `worktree-base-ref.cjs` (`execGit` at four sites), `config-loader.cjs`
+(`git check-ignore` in `isGitIgnored`), and `capability-lock.cjs` (a pid start-time
+probe); 51 modules in that directory reference the projection module or
+`child_process`. Reachability across them was not argued; it was measured. One real
+run of the composed child, fresh install, isolated home, win32, exit 0, 632 files:
+one loader (`shell-command-projection.cjs`) and ONE spawn,
+`spawnSync('powershell', ... '(Get-Process -Id <pid>).StartTime.Ticks')` from
+`capability-lock.cjs` through `execTool`, 5 s timeout. It is blocking and read-only;
+the darwin form is `ps -p <pid> -o lstart=`. `git check-ignore` did not fire with the
+working directory inside a git work tree. The first proposal asserted zero spawn
+events and would have been red on Windows.
+
+The guard observes instead of predicting. The real composed child runs under one
+preload that records, for CommonJS loads only, which module required `child_process`,
+`cluster` or `worker_threads` (the `node:` prefix stripped before matching), and wraps
+`ChildProcess.prototype.spawn`, the three sync exports, `process.binding`,
+`process.getBuiltinModule`, `process.dlopen` and, where present, `process.execve`,
+followed by `syncBuiltinESMExports()`. It captures its own `appendFileSync` first.
+Asserted across a fresh install, an upgrade, a failed install, and runs with the
+working directory inside and outside a git work tree and with a pre-existing consent
+lock: every observed spawn matches an allowlisted SHAPE (api, program, argument
+pattern, calling module), of which there are two, the `powershell` and the `ps` pid
+probe, both from `capability-lock.cjs`; the observed loader set, keyed by
+dist-relative POSIX path and case-folded on win32, is a subset of the allowlist. The
+"twelve bound names" assertion is dropped: a thirteenth pure helper would turn the
+gate red with no safety content, and a new caller of `execGit` would leave the count
+at twelve. Controls: the "armed" marker is written INSIDE the script-path gate, with
+the pid and `argv[1]`, and exactly one armed process per run is required, so a path
+mismatch cannot read as zero events; one record is appended per event; a missing trace
+is a failure. The guard is proved non-vacuous inside the real composed child, not a
+toy fixture: one injected event per route (`spawn`, `spawnSync`, `execFileSync`, a
+`require` from a module outside the allowlist, a Worker, `getBuiltinModule`) must each
+be caught with the right attribution. A failure message names this section, so the
+allowlist is not simply edited. The failed-install run shares one child with the
+acceptance scenario. Residual risk recorded: paths these runs do not exercise; native
+addons and other non-JavaScript routes; descendants of an allowed probe; loader
+attribution for ESM `import()` (the spawn wraps still catch what it does); and Bun,
+since the child is started with `process.execPath` and a source scan for `Bun.spawn`
+does not cover Bun's `node:child_process`. A bump that adds a spawn shape or a loader
+fails the gate and reopens the process-tree decision.
 
 Adversarial cases: owner write inside a root during the window; a `settings.json`
 write landing between quarantine and restore; concurrent `settings.json` edit
@@ -310,32 +354,54 @@ between deleting the journal and deleting the snapshot, the next run discarding 
 snapshot and touching nothing else; a snapshot copy that fails its re-hash leaving the
 live entry in place and reported; every refusal exiting 6 with the target
 byte-identical; a verified recovery exiting 5 when top-level names changed; a journal
-in the `child-closed` phase recovered although its pid is reused by a live process.
+in the `child-closed` phase recovered although its pid is reused by a live process;
+a journal dated in the future retired whatever its pid says, including the sequence
+wrapper killed, child alive, clock stepped back, which pins the owner's round-four
+choice; argument misuse exiting 2 with the target byte-identical; a manifest entry
+whose first segment is neither shipped nor known refused with the entry named; a
+source file rewritten during its snapshot copy aborting as a read error; a unit move
+failing with `EBUSY` falling back to per-entry moves.
 One mutation check per gate: force the
-verify comparison to always-equal and assert the acceptance test goes red. Proposed
-amendment: against a clean rollback that mutant survives, because verification would
-have passed anyway. The acceptance test therefore gains a second scenario, a restore
-that is forced to fail, expecting `Rollback incomplete`, exit 4 and a retired
-directory. Under the mutant it reports `applied`, which is what turns the gate red.
+verify comparison to always-equal and assert the acceptance test goes red. Amended:
+against a clean rollback that mutant survives, because verification would have passed
+anyway. A forced restore ERROR does not kill it either, because a collected error
+already yields `incomplete` whatever the comparison returns (the outcome rule, now in
+step 9). The mutant is killed by a rollback that reports no error and is still wrong:
+a preload gated on the wrapper's script path lets the restore copy of one named file
+succeed and then appends a byte to the destination. Correct code reports `Rollback
+incomplete`, exits 4 and retires the directory; the mutant reports `applied` and exits
+1. It runs identically on the three operating systems, with no file lock and no
+timing. The forced-error scenario is kept as a separate case for error collection:
+the same preload throws `EPERM` for one destination on every copy primitive the
+restore could use, and the test asserts the injection was reached. No `chmod` (CI
+containers run as root); the PowerShell `FileShare.None` helper stays in the
+adversarial list and out of the gate. The mutant is a copy of the transaction module
+with one exact text replacement whose match count is asserted to be one, reached
+through a wrapper-path override that lives in the test; no mutation switch exists in
+Tier S product code.
 
-## Readings settled for implementation (proposed amendment)
+## Readings settled for implementation (amended 2026-09-19)
 
-Points on which two implementers could differ. Each is the reading the failing tests
-encode; none changes an owner decision.
+Points on which two implementers could differ, each with the reading the tests will
+encode. Rows marked OWNER were decided by the owner in round four; the rest are the
+author's readings as corrected by the fifth review.
 
 | Point | Reading |
 |---|---|
-| Refusals before the lock: `--all`, a missing `dist/`, a corrupt overlay manifest, an unsafe target | Exit 6. Step 9 defines 6 as every refusal before any mutation and 1 as "failed and rolled back" |
-| Links inside `gsd-local-patches` and `gsd-pristine` | `assertRegularBackupTree` still refuses at preflight, exit 6, because the kept patch-history generation copies those trees. Elsewhere step 3 applies |
-| Target directory absent on a fresh install | Created after `isSafeToClean` and before the lock; removed on a refusal if this run created it and it is empty |
-| "Roots named by the existing manifests" | The first path segment of each manifest entry; a Protected segment refuses, exit 6 |
-| Third `EEXIST` on restore, step 8(c) | The newcomer stays where it is and the entry is listed under `Rollback incomplete` |
-| Lock file empty or unparseable | Liveness cannot be decided: refuse with the delete instruction |
-| Journal last-updated time in the future | Stale, so retired. Retiring keeps everything; an automatic rollback mutates |
-| Journal "expected writes" field | Informational. Protected names are already recognised and unreported |
-| New directory created by the child | Moved to `new/` as one unit; the count printed is units moved |
-| Pre-image digest | Taken from the snapshot copy, so the index describes exactly what can be restored |
-| Caps counting owner files in shared roots | As decided in D1: refuse and print the largest entries |
+| Outcome rule, step 9 | `incomplete` if any entry error was collected OR verification found a mismatch; `applied` only when both are clean |
+| Argument misuse such as `--all` (OWNER) | Exit 2, the owner's CLI standard. "6 always means nothing was touched" stays true; 2 means "fix your command" |
+| Other refusals before the lock: a missing `dist/`, a corrupt overlay manifest, an unsafe target | Exit 6. Step 9 defines 6 as every refusal before any mutation and 1 as "failed and rolled back" |
+| Commit cannot delete `snapshot/` after deleting the journal | The install succeeded: exit 0 with a warning naming the path. The next run discards a snapshot that has no journal (step 10) |
+| Links inside `gsd-local-patches` and `gsd-pristine` | Existing behaviour kept: `assertRegularBackupTree` refuses at preflight, exit 6, because the kept patch-history generation copies those trees. The message names the link and the remedy. Elsewhere step 3 applies |
+| Target directory absent on a fresh install | An absent target cannot hold a lock, a journal, a link root or a cap breach, and free space is measured on the nearest existing ancestor, so every refusal is decided BEFORE the directory is created. The run records the first ancestor it created; if lock creation then loses a race, it removes only directories it made, with a non-recursive `rmdir`, ignoring `ENOTEMPTY` |
+| "Roots named by the existing manifests" (OWNER) | A manifest entry counts only if its first segment is a top-level entry of `dist/` or a Generated, Legacy or Observed name. Any other entry, and any Protected segment, refuses at preflight, exit 6, naming the entry and the manifest. Ownership validation checks only that entries are non-empty strings inside the target, so without this rule an entry such as `projects/x` or `.credentials.json` would have been pre-imaged. Measured: the 28 top-level names of `dist/` are identical between upstream 1.8.0 and 1.9.1. If upstream drops a name, the next upgrade refuses until that manifest line is removed, and the message says so |
+| Third `EEXIST` on restore, step 8(c) | Three attempts in total. After the third, the newcomer stays where it is and the entry is listed under `Rollback incomplete` |
+| Lock file empty or unparseable | Liveness cannot be decided: refuse with the delete instruction, in a message form that does not need a pid or a time. The lock is published by `linkSync` from a fully written temp file, so it is never observable empty |
+| Journal last-updated time in the future (OWNER) | Stale, so retired, whatever its pid says, as for any stale journal under D4. The clock is the journal's embedded last-updated field, never the file's modification time. Both review lanes objected: if the clock stepped back while an orphaned child is still writing, retiring starts a second writer. The owner chose this reading with that objection in front of them; a proof case pins the sequence |
+| Journal "expected writes" field | Informational. A test proves the outcome is identical with and without entries, so the field cannot silently become an input |
+| New directory created by the child | Moved to `new/` as one unit. If the unit move fails (`EBUSY` when any file inside is open on Windows), fall back to per-entry moves and report what did not move. `moved.txt` lists every file; the message prints units and files |
+| Pre-image digest | Hash the snapshot copy, re-hash the source, require the two to match; retry, then abort as a read error, exit 6. A copy torn by a concurrent writer, or corrupted on the way to disk, is therefore never recorded as the truth. Content only, so step 9's ban on size and time as inputs holds |
+| Caps counting owner files in shared roots | As decided in D1: refuse and print the largest entries. Consequence, stated for the owner: one owner file over 32 MiB in a shared root such as `skills/` blocks every install until it is moved |
 
 ## Decisions (owner, 2026-09-18, each via AskUserQuestion with the evidence inside)
 
@@ -356,3 +422,18 @@ Round three, after the second review (of `5d5033f0`):
   stale.** Rejected: always automatic; `--recover` and `--abandon` flags.
 - Uninstall: **lock now, transaction as a tracked issue.** Rejected: fully inside
   now; accept as is.
+
+Round four, 2026-09-19, after the fifth review (of `e235c9f2`) and a measurement of
+the real child:
+
+- Process tree: **rejection confirmed on the corrected evidence; the guard allowlists
+  the one measured probe shape.** Rejected: reopening process-tree handling; holding
+  for an OpenAI lane.
+- Argument misuse: **exit 2; exit 6 for every other refusal before mutation.**
+  Rejected: 6 for everything; keeping 1.
+- Future-dated journal: **stale, so retired.** Rejected: "age undecidable, refuse if
+  the child may be alive, otherwise retire" (the author's recommendation after
+  review); always refuse; fresh. Both lanes' second-writer objection was in the
+  question.
+- Manifest roots: **only shipped or known names, otherwise refuse at preflight.**
+  Rejected: the exact path only; the whole first segment.

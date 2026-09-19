@@ -1,16 +1,16 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-18T20:15:04.102Z",
+  "timestamp": "2026-09-19T02:09:22.913Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
-  "pr": "UPDATED 2026-09-18 night: draft PR 69 branch pushed and in sync at 5a6e552d plus the handoff commit; PR 74 merged (323b4708); issue 75 filed; PR 4 supersession accepted but PR 4 closure NOT authorized. See session_2026_09_18_c.",
-  "status": "rollback-design-accepted-implementation-planning-next",
-  "READ_FIRST": "READ session_2026_09_18_c FIRST; it supersedes everything else in this file where they differ. Short form: the installer rollback redesign is ACCEPTED by the owner after four independent review rounds and eleven decisions; the review gate the owner required is met; bin/install.js has NOT been edited. Next: plan the implementation test-first from docs/reviews/installer-rollback-redesign-2026-09-18.md. Every git push, including --delete, needs pinned bun 1.3.5 first on PATH; never --no-verify. This worktree holds the live handoff.",
+  "pr": "UPDATED 2026-09-19 early: draft PR 69 branch pushed and in sync at f978fc13 (hooked push under pinned bun 1.3.5: 1764 pass, 0 fail). bin/install.js unedited. PR 4 closure NOT authorized. See session_2026_09_19_a.",
+  "status": "installer-plan-approved-step-0-done-step-1-next",
+  "READ_FIRST": "READ session_2026_09_19_a FIRST; it supersedes everything else in this file where they differ. Short form: the implementation plan is owner-approved and is in the repo at docs/plans/features/installer-transaction.md. Step 0 is DONE: the accepted note was amended after a fifth review, a measurement of the real child and four owner decisions (round four). bin/install.js has NOT been edited. Next: Step 1, the acceptance gate in expected-red mode. Every git push, including --delete, needs pinned bun 1.3.5 first on PATH; never --no-verify. This worktree holds the live handoff. In Claude Code the Bash cwd silently resets to the MAIN checkout: start every command with an explicit cd into this worktree and a branch check.",
   "SECTION_INDEX": {
     "CURRENT": [
-      "session_2026_09_18_c",
+      "session_2026_09_19_a",
       "human_actions_pending",
       "blockers",
       "decisions",
@@ -21,7 +21,8 @@
     ],
     "MIXED": [
       "bump_arc",
-      "session_2026_09_18_b"
+      "session_2026_09_18_b",
+      "session_2026_09_18_c"
     ],
     "HISTORICAL": [
       "frontier_review_2026_09_18",
@@ -172,8 +173,8 @@
   "remaining_tasks": [
     {
       "id": "issue-53-step-3",
-      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Rollback design accepted 2026-09-18; implement the installer transaction in bin/install.js test-first per docs/reviews/installer-rollback-redesign-2026-09-18.md, then the remaining PR 69 blockers (6, 8, 9), then 1.10.0, 1.11.0, 1.12.0.",
-      "status": "ready-to-plan"
+      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Installer transaction: plan approved, Step 0 (note amended) done 2026-09-19; Steps 1 to 6 of docs/plans/features/installer-transaction.md remain, then PR 69 blockers 6, 8 and 9, then 1.10.0, 1.11.0, 1.12.0.",
+      "status": "in-progress"
     },
     {
       "id": "phase-43-plan-coverage",
@@ -196,7 +197,7 @@
       "id": "legacy-test-fallback"
     }
   ],
-  "next_action": "CURRENT (2026-09-18 night): plan the bin/install.js implementation of docs/reviews/installer-rollback-redesign-2026-09-18.md before writing code (planning-first; Tier S). Start RED: make tests/acceptance/installer-recovery.cjs a package script and CI gate, then the names table, lock, copy-only pre-image with caps, journal, quarantine-before-restore, verify-then-speak outcomes and exit codes, fresh-or-retire recovery, uninstall lock. Offer the owner an elegance review of any Codex-written installer code before building on it. Do not edit bin/install.js outside that plan.",
+  "next_action": "CURRENT (2026-09-19 early): Step 1 of docs/plans/features/installer-transaction.md. Rewrite the assertions of tests/acceptance/installer-recovery.cjs per the amended note (exact allowlist, twin fixture, upgrade fixture, exact outcome string, status === 1); add package script test:acceptance:installer-recovery; add scripts/expect-red.cjs (passes only on the KNOWN red; fails on an unexpected pass or a red for the wrong reason); add one step after the Bun step in the test job of .github/workflows/ci.yml; assert it in tests/ci-workflow.test.js. Then Step 2: bin/lib/install-names.js complete, a throwing skeleton of bin/lib/install-transaction.js, tests/coverage/install-transaction.test.cjs registered in tests/coverage-contract.json, script test:coverage:install-transaction at 100 on all four metrics. Offer the owner a Codex pass over the amended note (quota returns 2026-09-19 09:37).",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
   "workspace_recovery": {
     "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
@@ -352,6 +353,7 @@
     }
   },
   "session_2026_09_18_c": {
+    "SECTION_STATUS": "MIXED as of 2026-09-19 early; session_2026_09_19_a holds the truth. Still true: owner_decisions rounds one to three, facts_found_by_measuring, also_done, still_open_surfaced_not_decided. Superseded: position and branch_state (the branch is at f978fc13, not 5a6e552d or 34210b86); \"the next action is to plan the implementation\" (the plan is approved and Step 0 is done); in facts_found_by_measuring, the line saying the pinned upstream installer never requires child_process is FALSE of its require graph (measured: one read-only pid-probe spawn); review_gate now has a fifth round.",
     "by": "Claude Code session, Fable 5.1, 2026-09-18 night. Owner decisions, docs commits, reviewer lanes, one docs PR merged, one issue filed. No installer code edited.",
     "last_harness": "Claude Code, 2026-09-18 night. Codex last wrote 2026-09-14 and was quota-walled all day (limit lifts 2026-09-19 09:37); it reviewed nothing.",
     "position": "The installer rollback redesign is ACCEPTED by the owner and the required independent review is done. bin/install.js is still unedited. The next action is to plan the implementation test-first.",
@@ -435,6 +437,26 @@
       "decision": "Uninstall takes the install lock now; its transaction is issue 75",
       "rationale": "Owner chose the small change now with a tracked trigger over growing PR 69",
       "phase": "43"
+    },
+    {
+      "decision": "Process-tree rejection confirmed on measured evidence; guard test allowlists the pid-probe spawn shape",
+      "rationale": "The real 1.9.1 child makes exactly one spawn on a fresh install: a blocking, read-only, 5 s pid start-time probe that cannot write to the target or outlive close. Both review lanes concur.",
+      "phase": "43"
+    },
+    {
+      "decision": "Exit 2 for argument misuse; exit 6 for every other refusal before mutation",
+      "rationale": "The owner's CLI standard; three situations were folded into one code; both sentences of step 9 stay true.",
+      "phase": "43"
+    },
+    {
+      "decision": "A future-dated journal is stale and is retired",
+      "rationale": "Owner decision, chosen over the author's post-review recommendation with the second-writer objection stated in the question. A proof case pins it.",
+      "phase": "43"
+    },
+    {
+      "decision": "Manifest roots only for shipped or known first segments; otherwise refuse at preflight",
+      "rationale": "Ownership validation checks only non-empty strings inside the target, so projects/ or .credentials.json could have been pre-imaged. The 28 dist top-level names are identical between upstream 1.8.0 and 1.9.1.",
+      "phase": "43"
     }
   ],
   "uncommitted_files": [
@@ -443,5 +465,50 @@
     ".planning/evidence/pr69-rollback-fable-2026-09-14.log (untracked)"
   ],
   "async_jobs": [],
-  "context_notes": "Persisted 2026-09-18 night through the document-for-clear skill (Skill tool) and the gsd-pause-work workflow. Existing custom sections were merged, not replaced. The owner answers decision batches quickly when the evidence is inside the AskUserQuestion text, and accepted every recommended option this session; twice those recommendations were then overturned by independent review, so review first, ask second."
+  "context_notes": "Persisted 2026-09-19 early through the document-for-clear skill (Skill tool) and the gsd-pause-work skill. Existing custom sections were merged, not replaced. The owner answers decision batches quickly when the evidence is inside the AskUserQuestion text. This session the review ran BEFORE the owner was asked, and the owner was asked once. On one of four questions the owner chose against the recommendation; that is a decision, not an error to be re-raised.",
+  "session_2026_09_19_a": {
+    "by": "Claude Code session, Fable 5.1, 2026-09-18 late to 2026-09-19 early. Planning, docs commits, two reviewer lanes, one measurement, four owner decisions, one test-isolation fix. No installer code edited.",
+    "last_harness": "Claude Code, 2026-09-19 early. Codex last wrote 2026-09-14; its quota returns 2026-09-19 09:37 and it has reviewed no revision of the design. A Codex pass over the amended note is OFFERED to the owner, not run.",
+    "position": "Implementation plan approved. Step 0 (amend the note) is done and pushed. Step 1 (acceptance gate, expected-red) is next. bin/install.js is unedited.",
+    "read_in_order": [
+      "docs/plans/features/installer-transaction.md (the approved plan, Steps 0 to 6, with a status header; the original is at C:/Users/Destiny/.claude/plans/cuddly-weaving-sprout.md)",
+      "docs/reviews/installer-rollback-redesign-2026-09-18.md (the design as amended; Amendment status paragraph, Proof section, \"Readings settled for implementation\", Decisions round four)",
+      "docs/reviews/installer-rollback-design-review-2026-09-18.md (\"Fifth review\" section: findings, dispositions, what the author got wrong)",
+      ".planning/evidence/pr69-child-spawn-measurement-2026-09-19.json (the measurement) and the two lane outputs beside it"
+    ],
+    "branch_state": "chore/upstream-bump-1.9.1 pushed and in sync with origin at f978fc13 before this handoff commit. Commits this session: e235c9f2 (proposed amendment), 95e4cc2f (revision after review, measurement and owner decisions, plus five evidence files), f978fc13 (tests/platform.test.js isolation fix). First push REFUSED by the hook, 1763 pass 1 fail; second push 1764 pass 0 fail, 69 files, pinned bun 1.3.5.",
+    "what_step_0_found": [
+      "The accepted note said the pinned installer never requires child_process. True of the one file, false of its require graph: dist/bin/install.js requires shell-command-projection.cjs (spawns), worktree-base-ref.cjs (execGit), and reaches config-loader.cjs (git check-ignore) and capability-lock.cjs (pid probe). 51 lib modules reference the projection module or child_process.",
+      "MEASURED, real composed 1.9.1 child, fresh install, isolated home, win32, exit 0, 632 files: ONE loader and ONE spawn, spawnSync powershell Get-Process StartTime.Ticks from capability-lock.cjs via execTool, 5 s timeout, blocking, read-only. git check-ignore did not fire inside a git work tree. macOS and Linux are NOT measured; the darwin form in source is ps -p <pid> -o lstart=.",
+      "The acceptance test asserts zero residual files; step 9 keeps the quarantine in the target, so it could never pass. Replaced by an exact allowlist, a twin fixture and an upgrade fixture.",
+      "The always-equal verify mutant survives a clean rollback and a forced restore error. It is killed by a preload that lets one restore copy succeed and then appends a byte to the destination."
+    ],
+    "owner_decisions_round_four": {
+      "process_tree": "Rejection CONFIRMED on the measured evidence; the guard test allowlists spawn SHAPES (the powershell and ps pid probes from capability-lock.cjs) and fails on anything else. Rejected: reopening; holding for Codex.",
+      "misuse_exit_code": "Exit 2 for argument misuse such as --all; exit 6 for every other refusal before mutation. Rejected: 6 for everything; keeping 1.",
+      "future_dated_journal": "STALE, so retired whatever its pid says. The owner chose this over the author's post-review recommendation (age undecidable: refuse if the child may be alive, else retire) with both lanes' second-writer objection inside the question. Disagreement was stated once; a proof case pins the sequence. Do not reopen.",
+      "manifest_roots": "A manifest entry counts only if its first segment is a top-level entry of dist/ or a Generated, Legacy or Observed name; anything else refuses at preflight, exit 6, naming the entry. Rejected: exact path only; whole first segment."
+    },
+    "review_gate": "Fifth round, of e235c9f2: Anthropic fable at high effort NOT PASS (18.7 KB); Google gemini-3.8-flash-high via agy 1.2.6 PASS WITH CHANGES (14.8 KB). Packet 74,486 bytes, SHA-256 0a7b47e46aa55cb9768a350df2e5644e96a3060b3dbda8e5e0e217832a57f3f3. Every finding is dispositioned in the review record. CAVEAT: the revised text (95e4cc2f) was not re-reviewed, and no OpenAI lane has reviewed any revision.",
+    "settled_without_the_owner": "Digest from the snapshot copy AND a re-hash of the source, must match; the target directory is created only after every refusal is decided; the twelve-bound-names assertion is dropped; a failed unit move falls back to per-entry moves; the lock is published by linkSync from a fully written temp file; the outcome rule (incomplete if any entry error OR a mismatch) is written into step 9; exit 0 with a warning if commit cannot delete snapshot/ after the journal is gone.",
+    "near_misses": [
+      "I corrected a false fact by checking one module and then claimed the installer spawns nothing: the same error one level up. The reviewer caught it; only a measurement settled it, and it overturned my own proposed zero-spawn guard.",
+      "The fable lane, run from a temp cwd, read the MAIN checkout's dist (upstream 1.8.0), not this branch's 1.9.1 build. Its claims held with shifted line numbers, but each was re-verified here before use.",
+      "The Bash cwd reset to the main checkout between calls and produced plausible \"file not found\" results about files that exist in this worktree.",
+      "The first push was refused: tests/platform.test.js NO_COLOR case never cleared an inherited FORCE_COLOR, and the harness shell exports FORCE_COLOR=3. Fixed in f978fc13, not worked around."
+    ],
+    "still_open_surfaced_not_decided": [
+      "The five test:coverage:phase43-* c8 gates run in no workflow and not in the pre-push hook; they are package scripts only.",
+      "scripts/setup-branch-protection.json requires a context named \"Boundary & Override Check\"; ci.yml has two separate jobs and no job of that name.",
+      "PR 69's body cites head df0d3f9c in its Verification text; the head is f978fc13 or later.",
+      "Three untracked .planning/evidence/pr69-*-2026-09-14.log files, only on this disk.",
+      "Everything under session_2026_09_18_c.still_open_surfaced_not_decided is unchanged, including PR 4 closure needing its own authorization.",
+      "memory SESSION_LOG.md is over 50 KB; archive is due at the next session start."
+    ],
+    "worktree_inventory_2026_09_19": "Measured after git fetch origin, behind/ahead of upstream and dirty count excluding coverage/: main checkout 0/0 dirty 3 (two archived inbox sign-off files and get-stuff-done/memory/, all pre-existing); compat-tap 2/0 clean; install-drift 4/2 clean and install-preserve 7/4 clean (the two known parked divergences, local lineages at backup/2026-09-18/*-local, never force); pr4-application 0/2 dirty 1 (two unpushed commits and untracked tests/acceptance/, pre-existing); research-digest 0/0 clean; skin-campaign 0/0 before this handoff commit. This session changed only skin-campaign. .planning/CONTINUE.md is regenerated by the pre-compact hook (hooks/pre-compact.js and its overlay copy); its template was corrected 2026-08-28 and was not re-examined now.",
+    "persistence": {
+      "mechanism": "document-for-clear skill via the Skill tool; gsd-pause-work skill for step 7",
+      "verification_gate": "see the closing handoff block of the session; recorded in a follow-up commit if it ran"
+    }
+  }
 }

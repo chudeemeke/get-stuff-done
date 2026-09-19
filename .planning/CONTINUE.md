@@ -1,4 +1,26 @@
-# Position as of 2026-09-18 night: rollback design accepted, implementation planning is next
+# Position as of 2026-09-19 early: plan approved, Step 0 done, Step 1 (expected-red acceptance gate) is next
+
+Nothing is running. Claude Code ran last. The implementation plan for the installer
+transaction is **owner-approved** and is in the repo: `docs/plans/features/installer-transaction.md`.
+**Step 0 is done and pushed**: the accepted rollback note was amended after a fifth independent
+review (fable NOT PASS, Gemini PASS WITH CHANGES), a measurement of the real composed child
+(one read-only pid-probe spawn, not zero) and four owner decisions (round four, recorded at the
+end of the note). **`bin/install.js` has not been edited.** Read `.planning/HANDOFF.json` ->
+`session_2026_09_19_a` first, then the plan, then the note's "Proof" and "Readings settled for
+implementation" sections. Next: **Step 1**, make `tests/acceptance/installer-recovery.cjs` a
+package script and a CI step in expected-red mode. Nothing is owed by the owner for the
+installer work; a Codex pass over the amended note is offered, not run; PR 4 closure still
+needs its own authorization. Every `git push`, including `--delete`, needs pinned bun 1.3.5
+first on PATH; never `--no-verify`. In Claude Code, start every Bash command with an explicit
+`cd` into this worktree: the cwd silently resets to the main checkout.
+**This worktree holds the live handoff; the main checkout's copy is dated 2026-08-30.**
+
+---
+
+> The block below is the 2026-09-18 night position. Its "Next: plan the implementation
+> test-first" is DONE; everything else in it still holds.
+
+# Position as of 2026-09-18 night: rollback design accepted, implementation planning was next
 
 Nothing is running. Claude Code ran last. The installer rollback redesign is **Accepted** by
 the owner after four independent review rounds and eleven decisions, and the independent

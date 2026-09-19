@@ -1,4 +1,4 @@
-name: Decorative Link Availability
+name: External Link Availability
 
 on:
   schedule:
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   report:
-    name: Report decorative link availability
+    name: Report excluded external link availability
     runs-on: ubuntu-latest
     steps:
       - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
@@ -36,14 +36,19 @@ jobs:
             echo "::error::Expected $GSD_EXPECTED_SUBJECT but checked out $actual"
             exit 1
           fi
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+          token: ""
+      - run: bun install --frozen-lockfile --ignore-scripts
       - name: Capture bounded availability report
         shell: bash
         run: |
-          grep -oE 'https://api\.star-history\.com/[^"< ]+' README.md | sort -u > decorative-links.txt
+          bun scripts/collect-monitored-links.js > decorative-links.txt
           test -s decorative-links.txt
 
           {
-            echo "# Decorative link availability"
+            echo "# Excluded external link availability"
             echo ""
             echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             echo ""
@@ -52,7 +57,7 @@ jobs:
           } > decorative-link-availability.md
 
           while IFS= read -r url; do
-            code="$(curl --location --silent --show-error --output /dev/null \
+            code="$(curl --globoff --location --silent --show-error --output /dev/null \
               --write-out '%{http_code}' --retry 3 --retry-all-errors \
               --retry-delay 5 --max-time 20 "$url" || true)"
             key="$(printf '%s' "$url" | sha256sum | cut -c1-16)"
@@ -65,13 +70,16 @@ jobs:
             # The single quotes are deliberate: the backticks are literal Markdown code spans
             # for the table cell, and the %s placeholders must reach printf unexpanded. The
             # values are passed as arguments, so nothing here needs shell expansion.
+            display_url="${url//\\/\\\\}"
+            display_url="${display_url//|/\\|}"
             # shellcheck disable=SC2016
-            printf '| `%s` | `%s` | `%s` | %s |\n' "$key" "$code" "$classification" "$url" \
+            printf '| `%s` | `%s` | `%s` | %s |\n' "$key" "$code" "$classification" "$display_url" \
               >> decorative-link-availability.md
           done < decorative-links.txt
 
           {
             echo ""
+            echo "Follow-up owner: ${{ github.repository_owner }}; next review: $(date -u -d '+7 days' +%F)."
             echo "Repeated 404/410 results with the same recurrence key require owned link-rot follow-up."
             echo "A single 5xx remains non-blocking third-party availability evidence."
           } >> decorative-link-availability.md

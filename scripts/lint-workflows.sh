@@ -12,17 +12,22 @@ set -euo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-if command -v actionlint >/dev/null 2>&1; then
+if [[ "${CI:-}" != "true" && "${GITHUB_ACTIONS:-}" != "true" ]] && command -v actionlint >/dev/null 2>&1; then
   exec actionlint -color .github/workflows/*.yml
 fi
 
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
-  # Pin to the official image. -color forces ANSI output even when stdout
-  # is not a TTY (useful in CI logs).
+  # Pin the official image by digest so lint behavior cannot drift between
+  # otherwise identical commits. -color keeps CI output readable.
   exec docker run --rm \
     -v "$REPO_ROOT:/repo" \
     -w /repo \
-    rhysd/actionlint:latest -color
+    rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 -color
+fi
+
+if [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
+  echo 'CI workflow lint requires the pinned Docker image and a running Docker daemon.' >&2
+  exit 1
 fi
 
 exec npx --yes github-actionlint@1.7.12 -color .github/workflows/*.yml

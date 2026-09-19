@@ -64,6 +64,11 @@
   "containers": {
     "semantics": "exact-digest",
     "pins": {
+      "rhysd/actionlint": {
+        "tag": "latest",
+        "digest": "sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667",
+        "updateTrigger": "resolve the reviewed actionlint image and rerun workflow lint"
+      },
       "ghcr.io/google/osv-scanner-action": {
         "tag": "v2.3.8",
         "digest": "sha256:48406c58197201fe55e56615ad9d414f85063da320e204d0b0ed460fb3908dba",

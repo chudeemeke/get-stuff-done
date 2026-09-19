@@ -12,7 +12,8 @@ exclude_path = [
 
 exclude = [
   # Localhost URLs in command templates are examples, not public documentation links.
-  "^http://localhost(:[0-9]+)?(/|$)",
+  "^http://localhost(/|$)",
+  "^http://localhost:[0-9]+(/|$)",
   # Decorative chart availability is monitored by docs-link-availability.yml.
   "^https://api\\.star-history\\.com/",
   # slsa.dev intermittently times out for GitHub runner IPs (3 CI failures on

@@ -41,7 +41,9 @@ through a heredoc. **This worktree holds the live handoff; the main checkout's c
 ---
 
 > The block below is the 2026-09-19 early position. Its "Next: Step 1" is DONE, and its
-> "pushed" describes pushes into a locked CI; everything else in it still holds.
+> "pushed" describes pushes into a locked CI. Its "a Codex pass ... is offered, not run" is
+> superseded: the pass ran on 2026-09-19 and returned NOT PASS (top block). Everything else
+> in it still holds.
 
 Claude Code ran last. The implementation plan for the installer
 transaction is **owner-approved** and is in the repo: `docs/plans/features/installer-transaction.md`.

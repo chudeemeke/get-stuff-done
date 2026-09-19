@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-19T11:50:00.000Z",
+  "timestamp": "2026-09-19T12:15:00.000Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
   "pr": "UPDATED 2026-09-19 morning: draft PR 69. origin is at 897116f9 (Step 1). The branch is AHEAD of origin by the Step 2 commits 19f83943 and 7c955a59 plus the handoff commit that wrote this sentence, and that is deliberate: GitHub Actions is account-locked (every job steps=0 since 2026-09-19T02:05Z), so every push is held. Measure, do not trust this text: git fetch origin, then git rev-list --left-right --count origin/chore/upstream-bump-1.9.1...HEAD (expect 0 behind, 3 or more ahead). Before ANY push read the last run step counts (recipe in session_2026_09_19_b.ci_halt). Every hooked push needs pinned bun 1.3.5 first on PATH; never --no-verify.",
-  "status": "installer-lock-seam-done-codex-continues-review-to-disposition-ci-account-locked-hold-pushes",
-  "READ_FIRST": "READ session_2026_09_19_c FIRST; it supersedes everything else in this file where they differ. Short form: the LOCK SEAM is DONE (4eb3201f, local). The owner decided 2026-09-19 that CODEX CONTINUES this work because Anthropic quota is ending for the week; the Codex brief is docs/plans/features/installer-transaction-codex-brief.md. First unit for the next session: disposition the read-only Codex review launched 2026-09-19T10:42Z (.planning/evidence/codex-lock-seam-review-2026-09-19.final.md). Then the preflight-and-snapshot seam, its shape approved by the owner first; renderOutcome lands LAST. origin is at 897116f9 and everything after it is LOCAL ON PURPOSE: GitHub Actions is account-locked (every job steps=0, re-verified 2026-09-19T08:46Z). HOLD EVERY PUSH and read the last run step counts before the first push of any session. bin/install.js has NOT been edited. This worktree holds the live handoff; the main checkout is another branch with stale .planning files. Never pass text containing a backslash through a heredoc or an inline interpreter argument.",
+  "status": "installer-lock-seam-done-then-codex-review-NOT-PASS-blocker-in-lock-dispositions-owed-codex-continues-ci-account-locked",
+  "READ_FIRST": "READ session_2026_09_19_c FIRST; it supersedes everything else in this file where they differ. Short form: the LOCK SEAM is DONE (4eb3201f, local). The owner decided 2026-09-19 that CODEX CONTINUES this work because Anthropic quota is ending for the week; the Codex brief is docs/plans/features/installer-transaction-codex-brief.md. The Codex review FINISHED 2026-09-19: NOT PASS, one BLOCKER (a takeover can remove a live holder lock: the recorded residual, plus a link-back failing with EPERM deletes the rival live lock), five HIGH, two MEDIUM. Verbatim: docs/reviews/installer-lock-seam-codex-review-2026-09-19.md. The author preliminary assessment and a proposed disposition per finding: docs/reviews/installer-rollback-design-review-2026-09-18.md, \"Sixth review\". NOTHING IS DISPOSITIONED; the owner decides every row (the next harness may be Codex, the same vendor as the reviewer). First unit for the next session: take the owner through those eight rows, then fix the lock as decided, RED first. Do NOT start the preflight-and-snapshot seam before finding 1 is dispositioned and fixed; then its shape is approved by the owner first; renderOutcome lands LAST. origin is at 897116f9 and everything after it is LOCAL ON PURPOSE: GitHub Actions is account-locked (every job steps=0, re-verified 2026-09-19T08:46Z). HOLD EVERY PUSH and read the last run step counts before the first push of any session. bin/install.js has NOT been edited. This worktree holds the live handoff; the main checkout is another branch with stale .planning files. Never pass text containing a backslash through a heredoc or an inline interpreter argument.",
   "SECTION_INDEX": {
     "CURRENT": [
       "session_2026_09_19_c",
@@ -204,7 +204,7 @@
       "id": "legacy-test-fallback"
     }
   ],
-  "next_action": "Codex: read .planning/CONTINUE.md top block, then docs/plans/features/installer-transaction-codex-brief.md. Unit one: disposition the Codex review of the lock seam with the owner. Unit two: preflight-and-snapshot seam, shape approved by the owner first. Do not push while CI is account-locked.",
+  "next_action": "Read .planning/CONTINUE.md top block, then docs/plans/features/installer-transaction-codex-brief.md. Unit one: with the owner, disposition the eight findings of the sixth review (NOT PASS, BLOCKER in the lock takeover) and record each disposition in the review record. Unit two: fix the lock as decided, RED first, mutants extended. Only then the preflight-and-snapshot seam. Do not push while CI is account-locked.",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
   "workspace_recovery": {
     "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
@@ -609,7 +609,7 @@
   "session_2026_09_19_c": {
     "by": "Claude Code session, Fable 5.1, 2026-09-19 late morning to midday. Session unit: the lock seam only. One work commit (4eb3201f), one tooling-and-handoff commit, one detached read-only Codex review launched. bin/install.js not edited. Nothing pushed.",
     "last_harness": "Claude Code. OWNER DECISION 2026-09-19 (AskUserQuestion): Codex continues this project because the weekly Fable quota is ending; this session was told to make the work continuable by Codex with minimal friction. The same answer chose: launch the Codex review now, detached; persist with the full document-for-clear skill including its verification gate.",
-    "position": "Plan Steps 0, 1, 2 done. Step 3 seams done: names and comparison keys; the lock. Remaining Step 3 seams in order: preflight and snapshot; journal; plan, apply, verify; recover and retire; commit and prune; render LAST (order change, reason in the brief, open to owner veto). Then Steps 4, 5, 6 as planned.",
+    "position": "Plan Steps 0, 1, 2 done. Step 3 seams done: names and comparison keys; the lock. Remaining Step 3 seams in order: preflight and snapshot; journal; plan, apply, verify; recover and retire; commit and prune; render LAST (order change, reason in the brief, open to owner veto). Then Steps 4, 5, 6 as planned. UPDATE after the review: the lock seam is committed but NOT accepted; its takeover protocol must change before anything builds on it.",
     "read_in_order": [
       ".planning/CONTINUE.md (top block)",
       "docs/plans/features/installer-transaction-codex-brief.md (role, allowlist, per-seam loop, gate commands, proposed shapes, traps)",
@@ -633,9 +633,9 @@
     ],
     "codex_review_lane": {
       "launched": "2026-09-19T10:42:56Z, detached (Start-Process bash.exe with a no-argument wrapper script). Banner verified: model gpt-6-astra, reasoning effort xhigh, sandbox read-only, workdir this worktree, session id 01a0b943-174b-7612-bd24-6a8fc40df756. Reviewer resolved live per the cross-ai-review skill: registry fetched 2026-09-19T10:40Z ranks gpt-6-astra first; both skill mirrors byte-identical.",
-      "outputs": ".planning/evidence/codex-lock-seam-review-2026-09-19.final.md (the review; written by the CLI on completion), .log (full transcript), .heartbeat (start line). These are untracked evidence; commit the final review under docs/reviews when it is dispositioned.",
+      "outputs": ".planning/evidence/codex-lock-seam-review-2026-09-19.final.md (the review; written by the CLI on completion), .log (full transcript), .heartbeat (start line). These are untracked evidence; commit the final review under docs/reviews when it is dispositioned. UPDATE: the final review is now committed verbatim as docs/reviews/installer-lock-seam-codex-review-2026-09-19.md.",
       "completion_rule": "Only the final.md file is completion evidence. A log that ends without it means the lane died (quota, logoff); record that, do not substitute a reviewer silently.",
-      "status_when_this_was_written": "running; not dispositioned."
+      "status_when_this_was_written": "SUPERSEDED: The Codex review FINISHED 2026-09-19: NOT PASS, one BLOCKER (a takeover can remove a live holder lock: the recorded residual, plus a link-back failing with EPERM deletes the rival live lock), five HIGH, two MEDIUM. Verbatim: docs/reviews/installer-lock-seam-codex-review-2026-09-19.md. The author preliminary assessment and a proposed disposition per finding: docs/reviews/installer-rollback-design-review-2026-09-18.md, \"Sixth review\". NOTHING IS DISPOSITIONED; the owner decides every row (the next harness may be Codex, the same vendor as the reviewer)."
     },
     "ci_halt_rechecked": "Still locked. Newest runs 2026-09-19T08:44Z to 08:46Z (dependabot PRs) have steps=0 on every job; annotation \"The job was not started because your account is locked due to a billing issue\". No hosted run has executed since 8c78d21f on 2026-09-18T20:22Z.",
     "new_facts": [
@@ -667,6 +667,12 @@
     "checkpoints": "Cross-project inbox checkpoint: no local item changed state; no cross-project write this session. First-party infrastructure broadcast: N/A, nothing consumes the new module and no release was cut.",
     "persistence": {
       "mechanism": "document-for-clear skill via the Skill tool, by owner decision 2026-09-19; verification gate: see the line added after it ran."
+    },
+    "review_result": {
+      "verdict": "NOT PASS: 1 BLOCKER, 5 HIGH, 2 MEDIUM. Every cited path exists. The reviewer ran in-memory reproductions only; the author re-measured nothing.",
+      "author_position": "Agrees with all eight in substance. Two wrong predictions named in the review record: that the three-installer residual was acceptable with link-back errors swallowed, and that pid plus creation time identify an acquisition. Finding 4 (liveness domain) is directly relevant here: WSL and Windows share one ~/.claude, and a WSL pid reads as dead to a Windows probe.",
+      "proposed_fix_for_the_blocker": "Owner decision, because it changes step 1 of the note: take over through an exclusive marker keyed to the dead lock identity (linkSync to <lock>.stale-<digest of the dead lock text>); only the marker holder may move that lock, and it re-reads the lock after taking the marker. A crashed marker refuses with the delete instruction. Fallback if rejected: no automatic takeover; a dead holder refuses with the delete instruction. An OS-held lock, the reviewer suggestion, is not available from Node builtins.",
+      "not_done_on_purpose": "No patch was made to the lock after the review. Reason: the fix is a protocol change that needs the owner, piecemeal patches would be rewritten by it, the module is required by nothing so no user is exposed, and the session unit and quota were spent."
     }
   }
 }

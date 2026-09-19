@@ -34,14 +34,22 @@ allowed, stop and report why instead of building it.
   stale handoff; ignore it.
 - Done: plan Steps 0, 1, 2, and the first two seams of Step 3 (names and comparison
   keys; the lock). `bin/install.js` is unedited; nothing requires the new modules yet.
-- A read-only Codex review of the amended note and the lock seam was launched
-  2026-09-19T10:42Z. Its result is `.planning/evidence/codex-lock-seam-review-2026-09-19.final.md`
-  (full log beside it), its packet `docs/reviews/installer-lock-seam-review-packet-2026-09-19.md`.
-  FIRST UNIT of your first session: read it and disposition every finding with the
-  owner (fix now, defer with owner and trigger, or reject with rationale), recording the
-  dispositions in `docs/reviews/installer-rollback-design-review-2026-09-18.md` as a new
-  dated round. If the final file does not exist, the lane died: say so, do not
-  substitute another reviewer silently.
+- A read-only Codex review (`gpt-6-astra`, `xhigh`) of the amended note and the lock seam
+  finished 2026-09-19: **NOT PASS, one BLOCKER, five HIGH, two MEDIUM.** Verbatim:
+  `docs/reviews/installer-lock-seam-codex-review-2026-09-19.md`; packet beside it. The
+  author's preliminary assessment and a proposed disposition per finding are in
+  `docs/reviews/installer-rollback-design-review-2026-09-18.md`, "Sixth review". NOTHING is
+  dispositioned.
+  FIRST UNIT of your first session: take the owner through the eight rows and record the
+  owner's disposition of each in that section (fix now, defer with owner and trigger, or
+  reject with rationale). You are the same vendor as the reviewer: the owner decides every
+  row, you do not.
+  **The BLOCKER is in the lock seam itself** (a takeover can remove a live holder's lock).
+  Do NOT start the preflight-and-snapshot seam until the owner has dispositioned finding 1
+  and the lock is fixed accordingly, RED first, with its mutants. Findings 1, 3, 4 and 7
+  change `acquireLock` and its cases, which are inside your allowlist once approved.
+  Findings 2, 6 and 8 amend the design note and finding 5 edits `scripts/expect-red.cjs`:
+  both are outside the allowlist below until the owner says otherwise.
 - GitHub Actions is ACCOUNT-LOCKED (billing) since 2026-09-19T02:05Z: every job reports
   zero steps. DO NOT PUSH while it is locked; commits stay local. Check before the first
   push of any session:

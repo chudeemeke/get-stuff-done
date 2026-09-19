@@ -327,3 +327,40 @@ the birthtime filter. D3 byte-identity pruning, and step 4(b) of `3fe53109` is c
 plus automatic completion of an aborted rollback. All four are written into the
 redesign note at `5d5033f0`, which goes back to the available lanes for a confirmation pass before
 any `bin/install.js` edit.
+
+## Sixth review: the amended note and the lock seam at `4eb3201f` (2026-09-19)
+
+Lane: OpenAI Codex, `gpt-6-astra`, reasoning effort `xhigh`, read-only sandbox, banner
+verified, launched detached 2026-09-19T10:42Z; the first OpenAI review of any revision of
+this design. Packet: `installer-lock-seam-review-packet-2026-09-19.md`. Review, verbatim:
+`installer-lock-seam-codex-review-2026-09-19.md`. Full transcript (untracked evidence):
+`.planning/evidence/codex-lock-seam-review-2026-09-19.log`. **Verdict: NOT PASS**, one
+BLOCKER, five HIGH, two MEDIUM. Every path it cites exists. It ran in-memory
+reproductions only and says so; nothing below has been re-measured by the author.
+
+**STATUS: NOT DISPOSITIONED.** What follows is the author's preliminary assessment,
+written by the Claude Code session that built the lock seam, in the last minutes of its
+quota. Dispositions are the owner's, in the next session. The next session may be Codex: a
+vendor dispositioning its own review is weak evidence, so the owner decides each row.
+
+What the author got wrong: the recorded three-installer residual was judged acceptable
+and errors on the link-back were swallowed; the reviewer reproduced a wider failure in
+which an `EPERM` on the link-back deletes the rival's live lock outright. Pid plus
+creation time was also treated as enough identity for `release()`. Both were predictions,
+and both were wrong.
+
+| # | Finding | Author's assessment | Proposed disposition |
+|---|---|---|---|
+| 1 | BLOCKER: takeover can remove a live holder's lock | Correct. Part one is the recorded residual; part two (link-back failing for a reason other than `EEXIST`, then the claim deleted) is new and worse. The proposed fix, an OS-held lock, is not available from Node builtins, and the module may require nothing else | Fix before any further seam builds on the lock. Proposal for the owner, because it changes step 1 of the note: never rename a lock on the strength of a read. Take over through an exclusive marker KEYED TO THE DEAD LOCK'S IDENTITY (`linkSync` to `<lock>.stale-<digest of the dead lock's text>`). Only the marker's holder may move that lock, and it re-reads the lock after taking the marker, so a late contender either meets `EEXIST` or sees a different text and refuses. A marker left by a crash refuses with the delete instruction: safe, and manual. If the owner rejects a marker, the fallback is no automatic takeover at all: a dead holder refuses with the delete instruction |
+| 2 | HIGH: `COPYFILE_EXCL` is not atomic, so an owner write during a restore can be overwritten | Correct, and it is the same lesson as the lock: publish finished bytes by link, never write in place | Amend step 8(c): stage the restore copy privately in the transaction directory, then `linkSync` it to the destination. Add the interleaving case to "Proof" |
+| 3 | HIGH: pid and time do not identify an acquisition | Correct. Narrow in practice (one acquisition per process) and cheap to close | Put the acquisition id in the lock text and make `release()` terminal after its first call. The suite pins the lock text exactly, so its cases change with it |
+| 4 | HIGH: liveness is probed without checking the liveness domain | Correct, and directly relevant on the owner's machines: WSL and Windows share one `~/.claude`, and a WSL pid means nothing to a Windows probe, so a live WSL installer reads as dead | Record a domain in the lock (platform plus hostname at the least) and refuse takeover of a foreign or unknown domain. Needs a `hostname` port, which is a new port: owner approval |
+| 5 | HIGH: the expected-red judges accept extra regressions | Partly by design (extra acceptance failures were allowed because only win32 could be measured), but the reviewer is right that an owner-data check failing must never be acceptable, that `not implemented: acquireLock` must stop being an accepted red now that the seam has landed, and that a report with no coverage table must fail | Fix in `scripts/expect-red.cjs` with negative controls. Outside the Step 3 allowlist in the Codex brief, so it needs the owner's go-ahead |
+| 6 | HIGH: a failed retirement after a rollback has no consistent outcome | Correct: steps 9 and 10 of the note contradict each other there | Amend the note: retirement failing after mutation keeps exit 4, names the live transaction directory and the error, and defines what the next run does with that journal |
+| 7 | MEDIUM: a partial write of the temp file leaves it behind under "Nothing was changed" | Correct | Separate exclusive creation from the write so the file is known to be this run's, remove it on failure, and name the path if removal fails |
+| 8 | MEDIUM: moving a new directory as one unit conflicts with "links are never moved" | Correct: a contradiction inside the note | Amend the reading: a new directory that contains a link is handled per entry, the link stays, and the outcome is incomplete |
+
+The reviewer accepts the refusal on filesystems without hard links as a defensible trade.
+Not checked by the reviewer, by its own statement: the unit suite, coverage, the mutants,
+the full suite, the installer, and native macOS, Linux, APFS, overlay or network filesystem
+behaviour.

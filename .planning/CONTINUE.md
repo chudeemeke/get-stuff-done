@@ -8,10 +8,14 @@ Claude Code ran last and is out of quota for the week; the owner decided on 2026
 `docs/plans/features/installer-transaction-codex-brief.md` (your role, the allowlist, the
 per-seam loop, the gate commands, the proposed operation shapes);
 `.planning/HANDOFF.json` -> `session_2026_09_19_c`; then the design note and the plan the
-brief names. **First unit:** disposition the read-only Codex review launched
-2026-09-19T10:42Z (`.planning/evidence/codex-lock-seam-review-2026-09-19.final.md`; if that
-file is missing, the lane died). **Then:** the preflight-and-snapshot seam, shape approved by
-the owner first. Render lands LAST (the brief says why). The origin branch is at `897116f9`;
+brief names. **First unit:** the read-only Codex review of the lock seam came back **NOT PASS, one
+BLOCKER (a takeover can remove a live holder's lock), five HIGH, two MEDIUM**
+(`docs/reviews/installer-lock-seam-codex-review-2026-09-19.md`). Nothing is dispositioned.
+Take the owner through the eight rows of "Sixth review" in
+`docs/reviews/installer-rollback-design-review-2026-09-18.md`, which holds the author's
+assessment and a proposed disposition for each; the owner decides every row. Fix the lock
+as the owner decides, RED first. **Only then:** the preflight-and-snapshot seam, shape
+approved by the owner first. Render lands LAST (the brief says why). The origin branch is at `897116f9`;
 everything after it is LOCAL on purpose: GitHub Actions is account-locked, every job reports
 zero steps, so nothing since 2026-09-19 is verified on Linux or macOS. Do not push until the
 recipe in the brief shows steps above zero. `bin/install.js` has not been edited. PR 4

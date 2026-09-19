@@ -18,7 +18,15 @@
 > harness checks, not one failure string; adding `setup-node` to the `test` job required
 > declaring that job as `both` in `config/phase43-toolchain-authority.json`; Step 2 landed the
 > RED cases for the lock and `renderOutcome` only, and each remaining seam gets its RED cases
-> immediately before its GREEN commit. **Next: Step 3, the lock seam first.**
+> immediately before its GREEN commit.
+>
+> **Status, 2026-09-19 midday: Step 3, the lock seam is DONE** (`4eb3201f`, local). Codex
+> continues from here by the owner's decision; its brief is
+> `docs/plans/features/installer-transaction-codex-brief.md`. One change to the Step 3 seam
+> order, open to the owner's veto: `renderOutcome` lands LAST, because its ten cases are the
+> only RED ones left and `scripts/expect-red.cjs` reports an unexpected pass once nothing
+> fails. New dev gate: `bun run test:mutants:install-transaction` (not in CI).
+> **Next: disposition the Codex review of the lock seam, then preflight and snapshot.**
 
 # Plan: installer transaction implementation (PR 69), test-first
 

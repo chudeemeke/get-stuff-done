@@ -1,16 +1,16 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-19T08:13:55.237Z",
+  "timestamp": "2026-09-19T11:30:00.000Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
   "pr": "UPDATED 2026-09-19 morning: draft PR 69. origin is at 897116f9 (Step 1). The branch is AHEAD of origin by the Step 2 commits 19f83943 and 7c955a59 plus the handoff commit that wrote this sentence, and that is deliberate: GitHub Actions is account-locked (every job steps=0 since 2026-09-19T02:05Z), so every push is held. Measure, do not trust this text: git fetch origin, then git rev-list --left-right --count origin/chore/upstream-bump-1.9.1...HEAD (expect 0 behind, 3 or more ahead). Before ANY push read the last run step counts (recipe in session_2026_09_19_b.ci_halt). Every hooked push needs pinned bun 1.3.5 first on PATH; never --no-verify.",
   "status": "installer-steps-0-1-2-done-step-3-next-ci-account-locked-hold-pushes",
-  "READ_FIRST": "READ session_2026_09_19_b FIRST; it supersedes everything else in this file where they differ. Short form: installer transaction plan Steps 0, 1 and 2 are DONE. Step 1 (897116f9) is pushed; Step 2 (19f83943, 7c955a59) is LOCAL and unpushed ON PURPOSE because GitHub Actions is account-locked: every job has steps=0 since 2026-09-19T02:05Z. HOLD EVERY PUSH until the owner clears it, and read the last run step counts before the first push of any session. bin/install.js has NOT been edited. Next: Step 3, GREEN one seam per commit, lock first. This worktree holds the live handoff. In Claude Code the Bash cwd silently resets to the MAIN checkout: start every command with an explicit cd into this worktree and a branch check. Never pass text containing a backslash through a heredoc or an inline interpreter argument; use the Write or Edit tool.",
+  "READ_FIRST": "READ session_2026_09_19_c FIRST; it supersedes everything else in this file where they differ. Short form: the LOCK SEAM is DONE (4eb3201f, local). The owner decided 2026-09-19 that CODEX CONTINUES this work because Anthropic quota is ending for the week; the Codex brief is docs/plans/features/installer-transaction-codex-brief.md. First unit for the next session: disposition the read-only Codex review launched 2026-09-19T10:42Z (.planning/evidence/codex-lock-seam-review-2026-09-19.final.md). Then the preflight-and-snapshot seam, its shape approved by the owner first; renderOutcome lands LAST. origin is at 897116f9 and everything after it is LOCAL ON PURPOSE: GitHub Actions is account-locked (every job steps=0, re-verified 2026-09-19T08:46Z). HOLD EVERY PUSH and read the last run step counts before the first push of any session. bin/install.js has NOT been edited. This worktree holds the live handoff; the main checkout is another branch with stale .planning files. Never pass text containing a backslash through a heredoc or an inline interpreter argument.",
   "SECTION_INDEX": {
     "CURRENT": [
-      "session_2026_09_19_b",
+      "session_2026_09_19_c",
       "human_actions_pending",
       "blockers",
       "decisions",
@@ -20,6 +20,7 @@
       "context_notes"
     ],
     "MIXED": [
+      "session_2026_09_19_b",
       "session_2026_09_19_a",
       "bump_arc",
       "session_2026_09_18_b",
@@ -203,7 +204,7 @@
       "id": "legacy-test-fallback"
     }
   ],
-  "next_action": "CURRENT (2026-09-19 morning): FIRST check whether CI is still account-locked (session_2026_09_19_b.ci_halt.recipe). If it is, do not push; keep committing locally. If it has cleared, push once with pinned bun 1.3.5 first on PATH and rerun the main run on 323b4708. Offer the owner a Codex pass over the amended note and over session_2026_09_19_b.design_choices_to_review. Then Step 3 of docs/plans/features/installer-transaction.md, one GREEN commit per seam, starting with the lock: add the RED case for the takeover race first, implement acquireLock in bin/lib/install-transaction.js until the 12 lock cases pass, keep both modules at 100 on all four metrics (bun run test:coverage:install-transaction must then fail ONLY with \"not implemented\" cases; node scripts/expect-red.cjs install-transaction-coverage must exit 0), run the FULL suite, commit. SESSION UNIT: the lock seam only. When its commit is green, CHECKPOINT (persist, hand back a resume prompt) instead of starting the next seam; one seam per context window is the default for Step 3, because each seam needs different reading and the owner asked on 2026-09-19 that sessions stop running past clean boundaries (rule: ~/.claude/rules/checkpoint-clear.md, tightened 2026-09-19).",
+  "next_action": "Codex: read .planning/CONTINUE.md top block, then docs/plans/features/installer-transaction-codex-brief.md. Unit one: disposition the Codex review of the lock seam with the owner. Unit two: preflight-and-snapshot seam, shape approved by the owner first. Do not push while CI is account-locked.",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
   "workspace_recovery": {
     "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
@@ -596,6 +597,70 @@
       "Rejected: file a new next_owner: user inbox item for the CI lock. Chosen: append a blocked event to the existing conversations billing thread. Why: one owner action should appear once.",
       "Rejected: keep pushing because a locked account bills nothing. Chosen: hold every push. Why: the standing rule says each push into a halt manufactures an all-red run that means nothing, and the local commits are visible to the other harness through the worktree."
     ],
-    "known_stale_pointer_not_fixed": "CLAUDE.md on THIS branch (and on the main checkout branch fix/codex-install-target) still has the pre-PR-74 table row saying STATE.md is the canonical position; PR 74 (323b4708) fixed that on main only, and neither branch has merged main since. The prose under \"Operating the project\" on this branch already says to read HANDOFF.json first, so the misdirection is limited to the table row. It resolves when main is merged into this branch, which is not done while CI is locked (a merge commit wants a hosted run). Do not hand-edit CLAUDE.md here: that would conflict with the merge."
+    "known_stale_pointer_not_fixed": "CLAUDE.md on THIS branch (and on the main checkout branch fix/codex-install-target) still has the pre-PR-74 table row saying STATE.md is the canonical position; PR 74 (323b4708) fixed that on main only, and neither branch has merged main since. The prose under \"Operating the project\" on this branch already says to read HANDOFF.json first, so the misdirection is limited to the table row. It resolves when main is merged into this branch, which is not done while CI is locked (a merge commit wants a hosted run). Do not hand-edit CLAUDE.md here: that would conflict with the merge.",
+    "SECTION_STATUS": "MIXED as of 2026-09-19 midday. SUPERSEDED: position (the lock seam is done), last_harness (the Codex pass was launched, and Codex continues the work), the deferred lock items under design_choices_to_review (decided in session_2026_09_19_c), and \"rerun the main run on 323b4708\" (main moved to 9f008c4d). STILL TRUE: commits, ci_halt (fact, recipe, owner_action), measured_this_session, alternatives_rejected, governed_change, near_misses, known_stale_pointer_not_fixed."
+  },
+  "session_2026_09_19_c": {
+    "by": "Claude Code session, Fable 5.1, 2026-09-19 late morning to midday. Session unit: the lock seam only. One work commit (4eb3201f), one tooling-and-handoff commit, one detached read-only Codex review launched. bin/install.js not edited. Nothing pushed.",
+    "last_harness": "Claude Code. OWNER DECISION 2026-09-19 (AskUserQuestion): Codex continues this project because the weekly Fable quota is ending; this session was told to make the work continuable by Codex with minimal friction. The same answer chose: launch the Codex review now, detached; persist with the full document-for-clear skill including its verification gate.",
+    "position": "Plan Steps 0, 1, 2 done. Step 3 seams done: names and comparison keys; the lock. Remaining Step 3 seams in order: preflight and snapshot; journal; plan, apply, verify; recover and retire; commit and prune; render LAST (order change, reason in the brief, open to owner veto). Then Steps 4, 5, 6 as planned.",
+    "read_in_order": [
+      ".planning/CONTINUE.md (top block)",
+      "docs/plans/features/installer-transaction-codex-brief.md (role, allowlist, per-seam loop, gate commands, proposed shapes, traps)",
+      "docs/reviews/installer-rollback-redesign-2026-09-18.md (the note wins over the plan and the brief)",
+      "bin/lib/install-transaction.js and the lock cases in tests/coverage/install-transaction.test.cjs (the exemplar to match)"
+    ],
+    "commits": {
+      "4eb3201f": "LOCAL. feat(install): the install lock seam. acquireLock(targetDir) -> frozen { path, tookOver, release() } or throws InstallRefusal (exitCode 6). 29 lock cases; unit suite 51 cases, 41 pass, the 10 render cases RED as \"not implemented\"; c8 100/100/100/100 on both bin/lib modules; 18 of 18 mutants killed; bun run lint 0 errors and no new warning; full suite under bun 1.3.5: 1796 pass, 0 fail, 70 files. win32 only.",
+      "the commit after it": "LOCAL. scripts/install-transaction-mutants.cjs plus package script test:mutants:install-transaction (dev gate, not in CI); the Codex brief; the Codex review packet; plan status header; CONTINUE.md; this section."
+    },
+    "lock_design_choices": [
+      "All inside the fifteen owner decisions. They are what the Codex review packet asks the reviewer to attack: docs/reviews/installer-lock-seam-review-packet-2026-09-19.md.",
+      "Published by linkSync from a fully written temp file; NO fallback where hard links are unsupported (refuses, exit 6). A lock written in place is observable empty, an empty lock prints \"delete that file\", and a user could then delete a live lock.",
+      "Takeover is rename, verify, publish. rename is not compare-and-swap: the moved file must hold the dead lock exact text, otherwise it is linked back and the run refuses. RESIDUAL RISK, recorded and not closed: a third installer arriving between the mistaken rename and the link-back takes the lock, and the rival then runs beside it with its lock file gone.",
+      "THE DEFERRED RACE QUESTION IS DECIDED: every lost race (rename ENOENT; moved the wrong lock; publish after the claim EEXIST; holder released between the refused publish and the read) refuses with ONE message: \"The install lock changed hands while this run was starting (lock <path>). Run again. If it still refuses and no installer is running, delete that file and run again.\"",
+      "Every unexpected filesystem error refuses with \"The install lock could not be created (lock <path>): <error message>. Nothing was changed.\"",
+      "THE OTHER DEFERRED QUESTION IS DECIDED: acquireLock refuses an absent target and does not create it. Creating the target belongs to preflight. OPEN SHAPE QUESTION carried to the owner in the brief: that creation must happen BEFORE the lock, openTransaction runs AFTER it, and the pinned list of sixteen operations has no slot for it.",
+      "A lock is readable only with a positive integer pid and a created string that round-trips through toISOString, because the refusal prints it verbatim. Pid 0 is unreadable (a probe of 0 signals the process group).",
+      "Temp file <lock>.stale-<id>.new and claim <lock>.stale-<id> stay inside the protected gsd-install.lock.stale-* family, so the owner-accepted names table is unchanged; a case asserts all three names against install-names.js on three platforms.",
+      "release() deletes only a lock that still holds this run exact text, never throws, is safe to call twice. Default ports are references (Date.now, process.kill, crypto.randomUUID), so the function gate needs no wrapper."
+    ],
+    "codex_review_lane": {
+      "launched": "2026-09-19T10:42:56Z, detached (Start-Process bash.exe with a no-argument wrapper script). Banner verified: model gpt-6-astra, reasoning effort xhigh, sandbox read-only, workdir this worktree, session id 01a0b943-174b-7612-bd24-6a8fc40df756. Reviewer resolved live per the cross-ai-review skill: registry fetched 2026-09-19T10:40Z ranks gpt-6-astra first; both skill mirrors byte-identical.",
+      "outputs": ".planning/evidence/codex-lock-seam-review-2026-09-19.final.md (the review; written by the CLI on completion), .log (full transcript), .heartbeat (start line). These are untracked evidence; commit the final review under docs/reviews when it is dispositioned.",
+      "completion_rule": "Only the final.md file is completion evidence. A log that ends without it means the lane died (quota, logoff); record that, do not substitute a reviewer silently.",
+      "status_when_this_was_written": "running; not dispositioned."
+    },
+    "ci_halt_rechecked": "Still locked. Newest runs 2026-09-19T08:44Z to 08:46Z (dependabot PRs) have steps=0 on every job; annotation \"The job was not started because your account is locked due to a billing issue\". No hosted run has executed since 8c78d21f on 2026-09-18T20:22Z.",
+    "new_facts": [
+      "PR 72 (ci/maintenance-feedback) was merged to main by the owner at 2026-09-19T08:43Z with 20 SUCCESS checks from before the lock. main is now 9f008c4d and its push produced NO CI run. After the lock clears, trigger CI on main at 9f008c4d; \"rerun 323b4708\" is obsolete. This branch has not merged main.",
+      "Codex session cwd: its 2026-09-14 rollout has the MAIN checkout as cwd and worked in this worktree by absolute path; that rollout file was touched again 2026-09-19T10:14Z. A fresh Codex start in the main checkout reads a CONTINUE.md dated 2026-08-28. The start prompt must name this worktree. Surfaced to the owner, not fixed: a repo-level AGENTS.md pointing here would be the forcing function, and is an owner decision.",
+      "Disk: 15 GB free on C: (Codex stopped on 2026-09-14 at 56 MB free).",
+      "codex mcp list shows context7 \"Not logged in\"; the lane started anyway."
+    ],
+    "near_misses": [
+      "mistakes-log Workflow 12 again: an inline node -e carrying backslashes, used to read a Codex rollout. It failed harmlessly (empty path argument) and was redone as a script file. Third session running.",
+      "Lint: landed[name] added one security/detect-object-injection warning; replaced with a Map before commit, then every gate was re-run because an edit voids an earlier green."
+    ],
+    "alternatives_rejected": [
+      "Rejected: a wx write fallback for filesystems without hard links. Why: it re-creates the observable-empty lock the note ruled out.",
+      "Rejected: retry loops on a lost race. Why: the note says only the run whose rename succeeds proceeds; one refusal with \"run again\" is deterministic and needs no sleep.",
+      "Rejected: a third protected prefix for the temp file. Why: it would change the owner-accepted names table for no behavioural gain.",
+      "Rejected: acquireLock creating an absent target and undoing it on refusal. Why: the free-space refusal must be decided before creation and lives in preflight; the lock stays single-purpose.",
+      "Rejected: flipping the coverage gate to a plain gate when render lands mid-Step-3. Chosen: render lands last. Why: no early workflow edit, and the wrong-red detection stays on for every seam.",
+      "Rejected: more seams in this session. Chosen: the Codex brief, the mutant gate and this handoff. Why: the owner is handing to Codex; remaining capability goes into making the handoff mechanical."
+    ],
+    "still_open_surfaced_not_decided": [
+      "Everything under session_2026_09_19_b.still_open_surfaced_not_decided still stands, with main now at 9f008c4d.",
+      "The residual three-installer window in the takeover (above). The Codex review is asked whether it is acceptable.",
+      "Where target-directory creation lives (above).",
+      "Render-last seam order: owner may veto.",
+      "A repo-level AGENTS.md: owner decision.",
+      "Concern stated once to the owner: codex-delegation.md says Codex implements and does not design, and the remaining seams have unfixed shapes. Mitigation in the brief: shapes are proposals the owner approves seam by seam."
+    ],
+    "checkpoints": "Cross-project inbox checkpoint: no local item changed state; no cross-project write this session. First-party infrastructure broadcast: N/A, nothing consumes the new module and no release was cut.",
+    "persistence": {
+      "mechanism": "document-for-clear skill via the Skill tool, by owner decision 2026-09-19; verification gate: see the line added after it ran."
+    }
   }
 }

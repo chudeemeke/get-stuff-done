@@ -103,6 +103,7 @@
     "test:coverage:phase43-audit-sbom": "node node_modules/c8/bin/c8.js --allowExternal --per-file '--include=**/scripts/audit-check.js' '--include=**/scripts/generate-sbom.js' --check-coverage --statements 95 --branches 95 --functions 95 --lines 95 --reporter=text --reporter=json-summary node --test tests/audit-check.test.js tests/generate-sbom.test.js",
     "test:coverage:install-transaction": "node node_modules/c8/bin/c8.js --all --per-file '--include=bin/lib/install-names.js' '--include=bin/lib/install-transaction.js' --check-coverage --statements 100 --branches 100 --functions 100 --lines 100 --reporter=text --reporter=json-summary node --test --test-reporter=tap tests/coverage/install-transaction.test.cjs",
     "test:acceptance:installer-recovery": "node tests/acceptance/installer-recovery.cjs",
+    "test:mutants:install-transaction": "node scripts/install-transaction-mutants.cjs",
     "test:repository-compat": "node scripts/run-repository-compat.js",
     "test:upstream": "node --test tests/*.test.cjs",
     "phase43:hosted-verdict": "node scripts/verify-hosted-ci.js",

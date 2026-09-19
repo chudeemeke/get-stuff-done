@@ -1,4 +1,27 @@
-# Position as of 2026-09-19 morning: plan Steps 0, 1 and 2 done; Step 3 (GREEN per seam, lock first) is next; CI is account-locked, hold every push
+# Position as of 2026-09-19 midday: the lock seam is done (`4eb3201f`, local); CODEX CONTINUES from here by the owner's decision; CI is still account-locked, hold every push
+
+Claude Code ran last and is out of quota for the week; the owner decided on 2026-09-19 that
+**Codex continues this work**. Work ONLY in this worktree
+(`C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign`, branch
+`chore/upstream-bump-1.9.1`, draft PR 69); the main checkout is another branch and its
+`.planning` files are stale. Read, in order: this block;
+`docs/plans/features/installer-transaction-codex-brief.md` (your role, the allowlist, the
+per-seam loop, the gate commands, the proposed operation shapes);
+`.planning/HANDOFF.json` -> `session_2026_09_19_c`; then the design note and the plan the
+brief names. **First unit:** disposition the read-only Codex review launched
+2026-09-19T10:42Z (`.planning/evidence/codex-lock-seam-review-2026-09-19.final.md`; if that
+file is missing, the lane died). **Then:** the preflight-and-snapshot seam, shape approved by
+the owner first. Render lands LAST (the brief says why). The origin branch is at `897116f9`;
+everything after it is LOCAL on purpose: GitHub Actions is account-locked, every job reports
+zero steps, so nothing since 2026-09-19 is verified on Linux or macOS. Do not push until the
+recipe in the brief shows steps above zero. `bin/install.js` has not been edited. PR 4
+closure is not authorized.
+
+---
+
+> The block below is the 2026-09-19 morning position. Its "Step 3, lock first" is DONE
+> (`4eb3201f`) and its "A Codex pass is still only offered" is superseded: the pass was
+> launched. Everything else in it still holds.
 
 Nothing is running. Claude Code ran last. Step 1 (`897116f9`, the acceptance gate in
 expected-red mode) is pushed. Step 2 (`19f83943` names table at 100 percent, `7c955a59`

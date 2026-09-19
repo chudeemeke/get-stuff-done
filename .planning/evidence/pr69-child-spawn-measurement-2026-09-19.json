@@ -1,0 +1,28 @@
+{
+  "insideGitWorkTree": true,
+  "node": "v24.20.0",
+  "platform": "win32",
+  "status": 0,
+  "error": null,
+  "armed": 1,
+  "loaders": [
+    "child_process <- dist/gsd-core/bin/lib/shell-command-projection.cjs"
+  ],
+  "spawns": [
+    {
+      "api": "spawnSync",
+      "file": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "(Get-Process -Id 6824).StartTime.Ticks"
+      ],
+      "from": "at execTool (/dist/gsd-core/bin/lib/shell-command-projection.cjs:500:49)"
+    }
+  ],
+  "spawnCount": 1,
+  "filesWritten": 632,
+  "realClaudeNamesUnchanged": true,
+  "fixtureRemoved": true
+}

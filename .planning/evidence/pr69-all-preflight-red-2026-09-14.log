@@ -1,0 +1,32 @@
+▶ installer CLI safety
+  ✖ unsupported --all refuses before legacy cleanup can remove owner content (488.3771ms)
+✖ installer CLI safety (494.4956ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1513.3142
+
+✖ failing tests:
+
+test at tests\installer-cli-safety.test.js:26:3
+✖ unsupported --all refuses before legacy cleanup can remove owner content (488.3771ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\Destiny\AppData\Local\Temp\gsd-test-xmcjEa\runtime with spaces\get-stuff-done\owner.md'
+      at Object.readFileSync (node:fs:484:20)
+      at TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\installer-cli-safety.test.js:36:17)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.start (node:internal/test_runner/test:1257:17)
+      at node:internal/test_runner/test:1887:71
+      at node:internal/per_context/primordials:504:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:478:3)
+      at node:internal/per_context/primordials:504:9 {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-test-xmcjEa\\runtime with spaces\\get-stuff-done\\owner.md'
+  }

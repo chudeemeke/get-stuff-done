@@ -368,6 +368,11 @@ jobs:
             echo "Interim flake collector scope cap: more than 5 flaky files/week requires Tailscale collector planning."
           } >> "$GITHUB_STEP_SUMMARY"
           node scripts/flake-triage.js --validate-rel03-wrappers
+      # Expected red until the installer transaction lands: passes only on the known
+      # failure, fails on an unexpected pass. Last in the job so its failure cannot
+      # trigger the failure()-conditioned flake steps above against a green JUnit file.
+      - name: Installer recovery acceptance (expected red)
+        run: node scripts/expect-red.cjs installer-recovery
 
   perf-budget:
     name: Perf Budget (${{ matrix.platform }})

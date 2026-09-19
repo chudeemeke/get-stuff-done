@@ -1,25 +1,89 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-30T23:10:00Z",
+  "timestamp": "2026-09-19T02:09:22.913Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
-  "branch": "chore/upstream-bump-1.8.0",
-  "pr": "see bump_arc.step_2 (opened from this branch)",
-  "status": "issue-53-bump-step-2-COMPLETE-local-gates-green-awaiting-hosted-CI-and-review",
-  "READ_FIRST": "Verify, do not trust: git rev-parse --short HEAD, git worktree list, gh pr checks. The pre-push hook is inert (#49) so every gate below was run by hand and must be re-run by hand. Run the suite as 'bun run test' (never bare 'bun test'); the pass signal is the summary line, never the exit code alone.",
+  "branch": "chore/upstream-bump-1.9.1",
+  "pr": "UPDATED 2026-09-19 early: draft PR 69 branch pushed and in sync. The last WORK commit is f978fc13; the commits after it (33dc0b74 and the one that wrote this sentence) are handoff-only. A hash written inside a handoff is always one commit stale, so measure instead: git fetch origin, then git rev-list --left-right --count origin/chore/upstream-bump-1.9.1...HEAD must print 0 0. Every hooked push this session ran 1764 pass, 0 fail under pinned bun 1.3.5. bin/install.js unedited. PR 4 closure NOT authorized. See session_2026_09_19_a.",
+  "status": "installer-plan-approved-step-0-done-step-1-next",
+  "READ_FIRST": "READ session_2026_09_19_a FIRST; it supersedes everything else in this file where they differ. Short form: the implementation plan is owner-approved and is in the repo at docs/plans/features/installer-transaction.md. Step 0 is DONE: the accepted note was amended after a fifth review, a measurement of the real child and four owner decisions (round four). bin/install.js has NOT been edited. Next: Step 1, the acceptance gate in expected-red mode. Every git push, including --delete, needs pinned bun 1.3.5 first on PATH; never --no-verify. This worktree holds the live handoff. In Claude Code the Bash cwd silently resets to the MAIN checkout: start every command with an explicit cd into this worktree and a branch check.",
+  "SECTION_INDEX": {
+    "CURRENT": [
+      "session_2026_09_19_a",
+      "human_actions_pending",
+      "blockers",
+      "decisions",
+      "next_action",
+      "remaining_tasks",
+      "uncommitted_files",
+      "context_notes"
+    ],
+    "MIXED": [
+      "bump_arc",
+      "session_2026_09_18_b",
+      "session_2026_09_18_c"
+    ],
+    "HISTORICAL": [
+      "frontier_review_2026_09_18",
+      "application_checkpoint_2026_09_14",
+      "application_recovery",
+      "recovered_after_abrupt_end",
+      "workspace_recovery"
+    ],
+    "NOT_REVIEWED": [
+      "coherent_resume_integration"
+    ],
+    "rule": "When a session appends a new dated section, it updates this index and stamps SECTION_STATUS on every section it supersedes, in the same commit."
+  },
   "bump_arc": {
-    "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 (user chose 'Walk increments' via AskUserQuestion 2026-08-30)",
-    "step": "2 of 5: 1.7.0 -> 1.8.0",
+    "SECTION_STATUS": "MIXED. CURRENT: campaign, step, hazards, step_3_recipe_pointer, merge evidence. DATED 2026-09-05 to 09-14: evidence, next_steps (read them as the walk plan, not as PR status). in_flight was rewritten 2026-09-18 evening.",
+    "campaign": "issue #53 incremental walk 1.6.1 -> 1.7.0 -> 1.8.0 -> 1.9.1 -> 1.10.0 -> 1.11.0 -> 1.12.0 (user chose Walk increments 2026-08-30; endpoint extended from 1.11.0 to 1.12.0 by user decision 2026-09-05, then quarterly per D5)",
+    "step": "3 of 6: 1.8.0 -> 1.9.1 IN PROGRESS after PR64 and PR63 merged and main integrated.",
     "step_1_merge_evidence": {
       "merge_commit": "0bfac78e",
       "pr": "https://github.com/chudeemeke/get-stuff-done/pull/61",
       "checks": "20/20 SUCCESS on final head 2d83742a"
     },
-    "done": [
+    "evidence": {
+      "matrix": ".planning/evidence/bump-1.9.1-compat-installer-review-retry.json: generated 2026-09-05T09:31:15Z, 316 passed, zero failed/skipped, 11 suites, exit 0. Prior failed report retained.",
+      "applied": "Applied successful 1.9.1 report on 2026-09-05; vetted manifest --validate verified contained evidence hash. Historical 1.7/1.8 rows retain own superseded evidence.",
+      "gates": "Corrections c9ecc23c: composed installer 3 passed, 0 failed, 14 assertions; bounded formal review no findings. Refreshed compatibility 316/316 applied and validated. Full pre-push and new hosted checks still required.",
+      "full_suite": "Historical df0d3f9c candidate pre-push: 1681 passed, zero failed, 5781 assertions. This predates the new installer corrections and does not satisfy their final-head gate."
+    },
+    "known_local_false_reds": [],
+    "next_steps": [
+      "PR64, PR63 and approved PR65 are merged, latest main f77b38d8. Preserve separate final-head gates and owner merge decisions for PR66-69.",
+      "Commit applied 1.9.1 compatibility retry and recovery records; run full pre-push and push corrected candidate, then inspect final-head hosted checks and resolve corrected review threads.",
+      "After1.9.1 merges, follow existing MAINTENANCE forward-port runbook for1.10,1.11,1.12, each a separate merged PR. Preserve negative experiments and behavior-based override ledger; do not infer semantics from line counts.",
+      "At final1.12 execute ratified D1/D2 checker judgment and live cross-vendor routing, D4 subagent-planner digest consumption and D7 editor/graphify exclusions. Schema presence does not close D3 writer fixtures.",
+      "Use the actual bootstrapped pre-push gate with Bun1.3.5, final-head hosted CI, bounded review and canonical September2 TierM/D sign-off. An existing low-effort historical note is not current runtime evidence.",
+      "Finish .planning/SKIN-COMPLETION.md installation, staged update, rollback, interruption/recovery and D11 comparison criteria. No source/merge result authorizes a completion claim without those receipts."
+    ],
+    "step_3_recipe_pointer": "MAINTENANCE.md forward-port runbook, corrected by September5 contract: adoption tests before negative experiment; classify each assertion; line counts do not prove semantic preservation.",
+    "hazards": [
+      "A compat-matrix run reads the LIVE tests/ tree. Do not edit test files while one runs in the background - a mid-edit run produced 4 phantom init failures that cost real diagnosis time.",
+      "node --test tests/<x>.test.cjs from the repo root proves NOTHING about the pinned upstream unless GSD_COMPAT_PACKAGE_ROOT points at a composed candidate: the default legacy root is the stale repo-root get-stuff-done/ v2.4.0 self-install. This is exactly how a genuine 1.8.0 regression looked green locally.",
+      "sha256sum on Windows backslash paths prefixes output with a backslash - compare with cmp or normalized paths.",
+      "Windows performance failures need preserved raw comparison evidence and diagnosis; do not assume noise or change thresholds to obtain green.",
+      "Legacy tracked get-stuff-done/ dir is the LEGACY_PACKAGE_ROOT default and sync.test.cjs's symlink shim collides with it - do NOT delete it casually; the owner decision must account for this.",
+      "memory sync --embed rewrites MEMORY.md (it owns the <!-- memory-cli --> block) and can race a hand-edit made in the same session. After running it, re-grep any MEMORY.md line you edited by hand before trusting it. A persistence-verification agent read a stale copy of exactly that line this session.",
+      "bun run audit:ci (scripts/audit-check.js) spawns bun --version and fails closed with 'Bun runtime does not match the repository version authority' on this host's bun 1.4.0. To run it locally: npx -y -p bun@1.3.5 bun --version (downloads the pinned bun into the npx cache), find its bun.exe under ~/AppData/Local/npm-cache/_npx/*/node_modules/@oven/bun-windows-x64-baseline/bin, put THAT directory (POSIX form) first on PATH, then bun run audit:ci. The sh shim in node_modules/.bin is not enough because spawnSync resolves bun.exe, not the shim. Verified 2026-09-05.",
+      "gh api /advisories/<id> with a leading slash is rewritten to a filesystem path by MSYS; use gh api advisories/<id>. In that endpoint first_patched_version is a string, not an object."
+    ],
+    "step_2_merge_evidence": {
+      "merge_commit": "fce6d8d1",
+      "pr": "https://github.com/chudeemeke/get-stuff-done/pull/62",
+      "final_head": "3390a8f9",
+      "checks": "20/20 SUCCESS on final head 3390a8f9, including Source Parity, Override Staleness (blocking), Audit CI, Secret Scan, OSV, Upgrade Verifier, Vetted Upstream Compat Matrix, Test+Upstream Compat on all 3 platforms, all 3 Perf Budget legs",
+      "tuicr": "Historical record claimed operator review; no persisted session was available to verify it. Do not certify retrospectively. Current Sept2 policy makes tuicr optional.",
+      "review": "fresh-context Sonnet-class reviewer (labelled as such; Codex terra quota-blocked until 2026-09-28) - no critical/high/medium findings. One low finding FIXED not deferred: drop-experiment described as 18 checks across FIVE suites with no committed artifact; it is FOUR suites (init 6, roadmap 8, runtime-overrides 3, state 1) and the report is now preserved at .planning/evidence/bump-1.8.0-drop-experiment.json",
+      "evidence": "Positive: .planning/evidence/bump-1.8.0-compat.json 316/316. Corrected drop: bump-1.8.0-drop-tap-2026-09-05.json 302 pass/14 fail/0 skip; original 18 was confounded and proves no per-override retirement claim."
+    },
+    "step_2_done": [
       "Pin advanced in package.json + bun.lock + upstream-authority.json + embedded authority (scripts/lib/upstream-source.js); manifest pruned via --prune-for-bump to 1.6.1/1.7.0/1.8.0; validate green.",
       "Upgrade Verifier re-aimed --from 1.8.0 --to 1.9.1; N=3 compat set advanced to 1.6.1/1.7.0/1.8.0 (script constant + contract JSON + contract-mirroring fixtures, role-preserving shift).",
-      "Drop-experiment run FIRST (overrides moved aside, pure 1.8.0 composed): 18 failures across 4 suites - init 6, roadmap 8, runtime-overrides 3, state 1. Report preserved at .planning/evidence/bump-1.8.0-drop-experiment.json. Nothing droppable; every override still earns its place.",
+      "Corrected September5 drop experiment: 14 failures across four suites after adoption expectations were corrected; full TAP retained. Individual override retirement still requires focused proof.",
       "6 overrides forward-ported onto PURE 1.8.0 bases (init, roadmap-parser, roadmap, state, plan-scan, bin/install.js). Both gsd-check-update hooks were byte-identical upstream -> no port. Port verified arithmetically: ported-delta line count == recovered semantic-delta count on all 6.",
       "All 9 REASON.md refreshed (Version, SHA-256, Semantic SHA-256 where present) with dated 1.7.0->1.8.0 bump-review notes; check-overrides 9/9 fresh.",
       "Four deferred step-1 review findings CLOSED (a/b/c/d) - see commit aad11781.",
@@ -27,52 +91,59 @@
       "Fixed init.test.cjs binding to the legacy package root (it silently tested the stale repo-root get-stuff-done/ dir on direct runs).",
       "MAINTENANCE.md gained a 'Forward-porting overrides on an upstream bump' runbook - the mechanical recipe + the arithmetic verification step + the two traps."
     ],
-    "evidence": {
-      "matrix": ".planning/evidence/bump-1.8.0-compat.json - single-version current-pin report, 1.8.0 blocking row PASS, 316/316 across 11 candidate suites, 0 failed 0 skipped.",
-      "applied": "node scripts/vetted-upstream-versions.js --apply-matrix-evidence .planning/evidence/bump-1.8.0-compat.json --date 2026-08-30 -> manifest 1.8.0 row vettedAt 2026-08-30, sha256 72ece37b9b1339ae3f5c33190bb337f8d049803c43a7499148a52f3e101de34e; historical rows keep their own evidence and now carry supersededBy.",
-      "gates": "lint 0 errors (805 pre-existing warnings); lint:docs 0 issues; compose green (upstream_version 1.8.0, 835 files); check-overrides 9/9 fresh; changelog self-test green.",
-      "full_suite": "SEE remaining_tasks[0] - final run was in flight at handoff time; the prior run was 1670 pass / 3 fail where all 3 were dispositioned (2 known local false reds + 1 genuine 1.8.0 adoption now fixed)."
+    "in_flight": "As of 2026-09-18 evening: PRs 63, 64, 65, 66, 67, 68 and 71 are merged. PR 69 is draft, pushed and in sync; installer work on it is paused pending the owner rollback-redesign decision. PR 70 draft digest unchanged. PR 4 open; supersession accepted, closure not authorized.",
+    "prune_gotcha": "node scripts/vetted-upstream-versions.js --prune-for-bump <new> validates the manifest against the CURRENT authority first, so it FAILS if you advance the authority before pruning. Either prune first, or temporarily set the authority version back to the old pin for the single prune call (what step 2 did), then restore it.",
+    "inbox_checkpoint": "2026-09-05: 10 active items triaged in .planning/SKIN-COMPLETION.md. D1-D11 resolved; no pending ratification. Authkey999.7 and health999.8 retain existing activation triggers.",
+    "sequencing_decision_resolved": {
+      "raised_by": "docs/inbox/2026-09-01-conversations-framework-cost-and-checker-gate-assessment-against-upstream-1-12-0.md and docs/inbox/2026-09-02-conversations-engine-vs-prose-split-plan-with-owner-decisions.md (both HIGH, both triaged 2026-09-02 with next_owner: user)",
+      "question_1": "ENDPOINT: the campaign was chosen as a walk to 1.11.0 (AskUserQuestion 2026-08-30). Upstream published 1.12.0 on 2026-08-30 and the 09-02 plan (D5) proposes walking to 1.12.0 once, then quarterly. Decide: keep 1.11.0 as the endpoint, or extend the walk by one step to 1.12.0. Either way the per-step recipe is unchanged.",
+      "question_2": "ORDER: the 09-02 plan (D9, phase 1 \"truthful gates\") says close #49 (inert pre-push), #45 (process.exit(0) ends the suite at file 5 with rc 0), #44 (lint red on clean main) BEFORE any further bump step, blocking, on the argument that no gate the fork adds can be trusted until the existing ones report truthfully. Decide: gates first, or continue the walk and take the gates after. Note the fork already works around #49 by running gates by hand.",
+      "what_was_verified_fork_side": "Installed ~/.claude/gsd-core is 1.6.1 (2026-07-14 manifest) while package.json pins 1.8.0: the campaign advances the PACKAGE pin but has never reinstalled the user runtime. Legacy ~/.claude/get-shit-done tree exists. Both true as claimed.",
+      "what_is_NOT_decided_here": "D1-D11 of the 09-02 plan are owner decisions and were NOT ratified at triage. Only the two that change what step 3 does are surfaced here. The rest wait for the user to ratify or override in that inbox item's event log.",
+      "decisions_recorded_2026_09_05": {
+        "question_1_endpoint": "EXTEND TO 1.12.0. User chose via AskUserQuestion. Ratifies D5: walk to 1.12.0 once, then quarterly against vetted versions, out-of-cycle only for security advisories. Endpoint fixed at 1.12.0 even if a 1.13 appears mid-walk. Campaign is now 6 steps: 1.9.1, 1.10.0, 1.11.0, 1.12.0 remain.",
+        "question_2_order": "#45 FIRST, THEN WALK. User chose via AskUserQuestion. Only the gate that can fabricate green evidence blocks step 3: fix tests/sync.test.cjs:64 process.exit(0) (small PR), close #44 with evidence (bun run lint rc=0, 0 errors, 805 warnings on chore/upstream-bump-1.9.1, verified 2026-09-05; confirm on main), then resume step 3. #49 (inert pre-push) and the D8 install-drift check proceed as separate PRs alongside the walk, not blocking it. This narrows D9 (which said all three blocking).",
+        "question_3_d1_d11": "COMPLETE: all outcomes below are ratified; D4 keeps subagent planner, D7 retains read/workflow guards and context warnings.",
+        "verified_before_asking": "features.json already has hooks.exclude (empty). All D7 hook names exist in node_modules/@opengsd/gsd-core/hooks at 1.8.0. ~/.claude/get-shit-done holds 2 files (near-empty); ~/.claude/gsd-core 403 files (1.6.1); project-local .claude/get-shit-done 134 files. Upstream #3873 STATE.md schema NOT verified present in 1.12.0 (only fork docs mention it).",
+        "D1": "RATIFIED as written: fork override (checker at planner tier) with the final bump step; upstream PR reclassifying plan-checker/verifier to standard tier filed AFTER the D11 benchmark supplies a second run of evidence. The owner-authorized effort:high hand-edit in ~/.claude/agents reverts once the override ships.",
+        "D2": "RATIFIED as written: checker routed via cross-ai-review, fallback same-family opus with provenance in checker output + REVIEWS/VERIFICATION artifact, never sonnet. Acknowledged: external lanes dead until ~2026-09-28 so opus fallback is the working path for the first month.",
+        "D3": "RATIFIED as end state, SEQUENCED: tool-owned STATE.md only after (a) the 2026-09-02 gsd-tools frontmatter-strip inbox item closes and (b) upstream #3873 schema is verified present in the pinned version. STATE.md unchanged until both hold.",
+        "D4": "OVERRIDDEN: keep the subagent planner. Land the phase-6 per-plan research digest first, measure with D11; adopt the inline-planner gate only if the digest alone misses the 300k total target. Rationale: the 568k spend was re-reads, which the digest removes at the cause.",
+        "D6": "RATIFIED as written: Prompt Golf (#4139) not enabled as a mechanism; read golfed variants as a droppability signal for fork-owned prose. Revisit only if upstream ships golf as the sole variant.",
+        "D7": "NARROWED: exclude only the editor/non-Claude hooks now via overlay/features.json hooks.exclude (gsd-cursor-*, gsd-windsurf-*, gsd-graphify-update.sh) with the final bump step. KEEP gsd-read-guard.js, gsd-workflow-guard.js and context_warnings until the D11 benchmark shows their per-call spawn cost is material on Windows. Verified 2026-09-05: hooks.exclude exists (empty) and every named hook file exists in upstream 1.8.0.",
+        "D8": "SEQUENCED: add the installed-VERSION-versus-pin drift check as its own PR alongside the walk (uncontroversial). Deleting ~/.claude/get-shit-done (2 files) and reinstalling gsd-core from the pin wait for the #54 authoritative-copy decision and happen in that same change, with a backup first. Nothing unrecoverable before the decision exists.",
+        "D10": "RATIFIED, each gated on a pre-filing audit: (a) init.plan-phase applicable-sections emission and (b) the D1 tier reclassification are filed only after confirming the gap still exists at the current upstream head and searching open/closed upstream issues+PRs for duplicates (feedback_verify_upstream_scope). Audit recorded in the inbox item event log before filing. (b) also waits for the D11 second run per D1.",
+        "D11": "RATIFIED with PROVISIONAL targets: conversations re-runs the Phase 24 --reviews replan on the lean profile against the 2026-09-01 baseline as the milestone VERIFICATION evidence. Targets (orchestration read <8k, planner prompt <300 lines, total <300k, checker catches the injected error with no hand brief) stand, but a miss triggers a review of target and change together rather than an automatic fail.",
+        "D5": "RATIFIED via question_1 (endpoint 1.12.0, then quarterly).",
+        "D9": "NARROWED via question_2 (#45 blocking; #44 closed with evidence; #49 and D8 drift check alongside the walk)."
+      },
+      "status": "RESOLVED 2026-09-05: all eleven decisions ratified or overridden by the user via AskUserQuestion. See decisions_recorded_2026_09_05 and the ratification section in the 09-02 inbox item."
     },
-    "known_local_false_reds": [
+    "historical_environment_notes": [
       "platform.test.js 'NO_COLOR env var disables color' - ambient FORCE_COLOR=3 in this shell. Passes in CI.",
       "verify-upgrade.test.js 'rejects an oversized real registry identity response' - local bun 1.4.0 vs pinned 1.3.5 stream behavior. Pinned CI is the authority."
     ],
-    "next_steps": [
-      "1. Confirm the final full-suite summary line (fullsuite2 log or a fresh 'bun run test'): expect 1673 tests / 63 files with only the two known local false reds.",
-      "2. Push the branch and open the PR with the evidence-contract body (Summary, Scope, Verification, Explicit non-claims, Risks/blockers, Linked issues). Batch pushes - the Windows perf leg re-rolls its noise dice per commit.",
-      "3. Watch hosted CI to green on the FINAL head (branch protection required checks are configured; still verify rather than trusting --auto).",
-      "4. Cross-AI review per ~/.claude/rules/api-presentation-claude-review.md, then the operator tuicr assembled-diff gate, then squash merge.",
-      "5. Step 3 (1.8.0 -> 1.9.1) repeats the same recipe. MAINTENANCE.md now carries it as a runbook; project_override_forward_port_pattern.md carries the why."
-    ],
-    "step_3_recipe_pointer": "MAINTENANCE.md -> 'Forward-porting overrides on an upstream bump'. Non-negotiables: never 3-way merge an override; drop-experiment before porting; strip upstream's @typescript-eslint eslint-disable lines; verify the port arithmetically; refresh every REASON.md; adopt deliberate upstream semantic changes via version-conditional fork tests rather than overriding them.",
-    "hazards": [
-      "A compat-matrix run reads the LIVE tests/ tree. Do not edit test files while one runs in the background - a mid-edit run produced 4 phantom init failures that cost real diagnosis time.",
-      "node --test tests/<x>.test.cjs from the repo root proves NOTHING about the pinned upstream unless GSD_COMPAT_PACKAGE_ROOT points at a composed candidate: the default legacy root is the stale repo-root get-stuff-done/ v2.4.0 self-install. This is exactly how a genuine 1.8.0 regression looked green locally.",
-      "sha256sum on Windows backslash paths prefixes output with a backslash - compare with cmp or normalized paths.",
-      "PR perf legs re-roll windows noise dice per commit - batch changes before pushing.",
-      "Legacy tracked get-stuff-done/ dir is the LEGACY_PACKAGE_ROOT default and sync.test.cjs's symlink shim collides with it - do NOT delete it casually; the owner decision must account for this."
-    ]
+    "historical_pr_snapshots": {
+      "pr_64": {
+        "url": "https://github.com/chudeemeke/get-stuff-done/pull/64",
+        "branch": "security/fast-uri-3.1.6",
+        "head": "7b89424b",
+        "tier": "M",
+        "what": "fast-uri override 3.1.5 -> 3.1.6 (first patched 3.x, inside ajv ^3.0.1); bun.lock regenerated",
+        "local_evidence": "audit:ci under pinned bun 1.3.5: 3 findings, 0 blocking (was 7/4). lint 0 errors; compose green; overrides 9/9 fresh; bun run test 1671 pass / 2 fail (the two known local false reds)."
+      },
+      "pr_63": {
+        "url": "https://github.com/chudeemeke/get-stuff-done/pull/63",
+        "branch": "fix/sync-test-skip-without-process-exit",
+        "head": "2b692738",
+        "tier": "M",
+        "what": "tests/sync.test.cjs: no module-scope process.exit; lstat-based shim detection self-heals the dangling iCloud junction; suites skip with reason when the shim is unavailable. New tests/test-file-exit-hygiene.test.js (acorn AST meta-test: no process.exit at module scope in any test file).",
+        "local_evidence": "RED: offenders [sync.test.cjs:64]; GREEN 2/2. node --test sync.test.cjs: 153 pass (first local run since the 2026-08 move; pre-fix control against the same dangling junction: 1 pass, rc 0, zero real tests). bun run test 1673 pass / 2 fail (known false reds); test:repository-compat 154 pass.",
+        "ci_snapshot": "all Test/Upstream Compat/Matrix/Parity/Overrides/Secret/Lint green; Audit CI + OSV red on fast-uri only (pre-existing, fixed by #64)."
+      }
+    }
   },
   "human_actions_pending": [
-    {
-      "id": "issue-53-upstream-bump",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/53",
-      "description": "Bump @opengsd/gsd-core 1.6.1 -> 1.11.0. Steps 1 (1.7.0) and 2 (1.8.0) done; 1.9.1, 1.10.0, 1.11.0 remain. At the FINAL step also execute the two triaged inbox items (kanbanflow model-catalog opus5 refresh, conversations plan-checker effort) - verified 1.11.0 fixes neither."
-    },
-    {
-      "id": "legacy-self-install-dir",
-      "description": "DECIDE: tracked legacy get-stuff-done/ dir at repo root (101 files, v2.4.0 self-install, on main since a11cb569). Remove or keep? It is the LEGACY_PACKAGE_ROOT default for direct .test.cjs runs and sync.test.cjs's symlink shim collides with it. Ties into #54."
-    },
-    {
-      "id": "issue-54-resume-command",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/54",
-      "description": "DECIDE + FIX: /gsd:resume-work broken (55/58 .claude/commands/gsd/ files import the deleted iCloud path). Decide which GSD copy is authoritative, then rewrite paths."
-    },
-    {
-      "id": "issue-49-inert-hook",
-      "issue": "https://github.com/chudeemeke/get-stuff-done/issues/49",
-      "description": "DECIDE: pre-push hook is inert (--ignore-scripts means husky prepare never runs; git skips missing hooks silently)."
-    },
     {
       "id": "issue-51-governance-branch",
       "issue": "https://github.com/chudeemeke/get-stuff-done/issues/51",
@@ -85,14 +156,25 @@
     },
     {
       "id": "pr-4-gsd-doctor",
-      "description": "PR #4 (gsd-doctor) still open, independent of the bump campaign."
+      "description": "UPDATED 2026-09-18: supersession ACCEPTED by the owner. PR 4 stays open until the owner separately authorizes closing it as superseded. Successor H1-H8 open with get-stuff-done.",
+      "blocking": false
+    },
+    {
+      "id": "release-broadcast-absolute-init-paths",
+      "description": "AT RELEASE TIME (not now): adopting upstream #2376 changed a consumer-visible output contract - gsd-tools init execute-phase/plan-phase/progress/phase-op now emit ABSOLUTE planning paths anchored on the project root instead of cwd-relative ones. No release of @chude/get-stuff-done was cut this session, so no consumer is running it yet. When a version is published, broadcast to opted-in project inboxes per cross-project-issues.md, because anything parsing those JSON fields (state_path, roadmap_path, config_path, context_path, ...) will see full paths."
+    },
+    {
+      "description": "Concrete TierD merge brief filed in owning inbox. Final a62f25bd has20 green checks and no remaining review findings. Async owner answer pending.",
+      "issue": "https://github.com/chudeemeke/get-stuff-done/pull/67",
+      "id": "pr67-hooks-signoff",
+      "status": "RESOLVED 2026-09-11: PR 67 merged as 2fc10863 and its sign-off item is archived. Not owed. Kept only so the history reads straight."
     }
   ],
   "remaining_tasks": [
     {
-      "id": "step-2-ship",
-      "name": "Confirm the final full-suite summary line, push, open the PR, take hosted CI green, run cross-AI review + the operator tuicr gate, squash merge.",
-      "status": "in_progress"
+      "id": "issue-53-step-3",
+      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Installer transaction: plan approved, Step 0 (note amended) done 2026-09-19; Steps 1 to 6 of docs/plans/features/installer-transaction.md remain, then PR 69 blockers 6, 8 and 9, then 1.10.0, 1.11.0, 1.12.0.",
+      "status": "in-progress"
     },
     {
       "id": "phase-43-plan-coverage",
@@ -100,10 +182,333 @@
       "status": "not_started"
     },
     {
-      "id": "inbox-remaining",
-      "name": "4 active inbox items, all with owners/triggers: memory-nexus health-drift (in-progress, backlog 999.8), authkey gate system (triaged, backlog 999.7), kanbanflow catalog + conversations plan-checker (triaged, execute at the FINAL bump step).",
-      "status": "tracked"
+      "id": "skin-completion",
+      "name": "Execute all acceptance rows in .planning/SKIN-COMPLETION.md; installation, recovery, updates and comparison remain unverified.",
+      "status": "in-progress"
+    },
+    {
+      "name": "Content authority is recovered in .planning/RUNTIME-AUTHORITY.md with authored inventory/backups. GSD owns final1.12 delivery and conflict recheck; ask only if new competing authored bytes prevent a safe choice.",
+      "status": "in-progress",
+      "id": "runtime-authority-delivery"
+    },
+    {
+      "name": "GSD retains tracked legacy get-stuff-done tree while direct test fallback depends on it. Reassess removal only after candidate-bound test migration and verified backup; do not treat its version as current upstream authority.",
+      "status": "tracked",
+      "id": "legacy-test-fallback"
     }
   ],
-  "next_action": "Read remaining_tasks[0]. Confirm the full-suite summary line, then push and open the PR."
+  "next_action": "CURRENT (2026-09-19 early): Step 1 of docs/plans/features/installer-transaction.md. Rewrite the assertions of tests/acceptance/installer-recovery.cjs per the amended note (exact allowlist, twin fixture, upgrade fixture, exact outcome string, status === 1); add package script test:acceptance:installer-recovery; add scripts/expect-red.cjs (passes only on the KNOWN red; fails on an unexpected pass or a red for the wrong reason); add one step after the Bun step in the test job of .github/workflows/ci.yml; assert it in tests/ci-workflow.test.js. Then Step 2: bin/lib/install-names.js complete, a throwing skeleton of bin/lib/install-transaction.js, tests/coverage/install-transaction.test.cjs registered in tests/coverage-contract.json, script test:coverage:install-transaction at 100 on all four metrics. Offer the owner a Codex pass over the amended note (quota returns 2026-09-19 09:37).",
+  "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
+  "workspace_recovery": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
+    "executionCheckpoint": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/execution-checkpoint.json",
+    "rule": "No new top-level C:/Projects project/temp/worktree directories without express consent.",
+    "campaign": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign",
+    "auxiliaryContainer": "C:/Projects/get-stuff-done/.claude/worktrees",
+    "primary": "C:/Projects/get-stuff-done",
+    "relocationReceipt": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/worktree-relocation.json"
+  },
+  "recovered_after_abrupt_end": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
+    "external_checkpoint": "C:/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/execution-checkpoint.json",
+    "date": "2026-09-05",
+    "installer": "PR68 local snapshot cleanup and duplicate child-event regression fixes: expanded Node suite 90 passed. Coverage 96.53 statements/lines, 94.11 functions, 92.95 branches; Tier S gate still FAILED. Full package coverage compliance not established.",
+    "contract_complete": false,
+    "digest": "PR70 573d9f91 pushed; 1712 passing full pre-push tests. Digest-only coverage 100 percent each with 11 mutants killed. Planner consumption not implemented.",
+    "user_runtime_activated": false,
+    "current_worktrees": "C:/Projects/get-stuff-done/.claude/worktrees/"
+  },
+  "coherent_resume_integration": {
+    "SECTION_STATUS": "NOT REVIEWED on 2026-09-18; dated by its own recordedAt. Its inbox item (2026-09-14 coherent-resume-consumer-contract) has next_owner conversations.",
+    "recordedAt": "2026-09-14",
+    "status": "consumer-preparation-complete-awaiting-protocol-receipt",
+    "applicationOwner": "get-stuff-done CLI session",
+    "nextExternalOwner": "conversations",
+    "plan": ".planning/COHERENT-RESUME-INTEGRATION.md",
+    "evidence": ".planning/evidence/coherent-resume-consumers-2026-09-14.json",
+    "impact": "Extends final recovery and state-integrity acceptance. Does not change PR4 repair policy or authorize a guessed protocol, authority migration, or installed edits.",
+    "trigger": "Conversations supplies a versioned implementation and distribution contract; integrate actual state/init, pause/resume and overlay pre-compact consumers, preserving locks and scoped membership."
+  },
+  "application_recovery": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
+    "recordedAt": "2026-09-13T23:25:27.219Z",
+    "pr4": {
+      "published": "17278b2a9b28e58f561fcbdf02c96a20cb5415c8",
+      "state": "Blocked: ordinary non-elevated repair must preserve ACL/ownership or refuse. Strict inspection currently refuses on tested nonprivileged hosts.",
+      "tests": "102focusedpass;89Nodepass;bothdoctorfiles100%eachmetric with qualified injected-inspection transaction evidence. No full native repair acceptance."
+    },
+    "pr69": {
+      "applicationCommit": "3981cbf0e5949540041cf86c04a853ffcc7b4725",
+      "remote": "df0d3f9c13134321a050a2d8de79b0622aa161d3",
+      "tests": "96safetypass;complete1745pass/1PowerShelltimeout;matrix313/3;installedstate9/3. Actual upgrade preserves customizations before last wrapper guard changes.",
+      "remaining": "Open inventory/legacy cleanup/metadata/settings findings; fresh validation and final review required. Compiler-free roadmap experiment archived and original source/tests restored. No push of current application changes."
+    },
+    "pr70": {
+      "remote": "573d9f91f291c0569d2c351e7d89e165dbd659c6",
+      "state": "Not advanced; wait for earlier PR application work."
+    },
+    "evidenceRoot": "C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13",
+    "inbox": "PR67 merge confirmed and stale signoff archived; PR69 and skin event logs updated.",
+    "activeProcesses": []
+  },
+  "application_checkpoint_2026_09_14": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
+    "pr4_decision": "Pending user support-scope answer; successor proposal committed in PR4 worktree at62f281c0. No closure or merge authorized.",
+    "active_processes": [],
+    "source_head": "b6743bafe756ec8c5e996fd489f035db21d7a9d2",
+    "final_validation": "Incomplete; local focused passes do not close native timeout, matrix, complete installer Tier S coverage or final review.",
+    "current_report": "docs/reviews/pr69-application-2026-09-13.md",
+    "next_application_work": "On user resume, verify disk headroom and preserve the dirty preflight fix. Check helper/JSDoc placement, expand refusal coverage to uninstall and invalid dist artifacts before legacy cleanup, then appropriate focused validation/commit. Resume bounded architecture review with reliable exit/artifact validation; complete inventory/recovery and remaining PR69 application gates. No PR70 advancement or PR4 support-scope inference.",
+    "external_checkpoint": "C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13/application-checkpoint.json",
+    "recorded_at": "2026-09-14T13:28:56.402Z",
+    "recovery_probe_commit": "32ec332c5114bd75ec16a8811101bc6585a55243",
+    "tests": "Pinned Bun1.3.5:135 passed,0 failed,614 assertions across installer-safety,installer-cli-safety,installer-v3. Compose passes,9 overrides fresh,ESLint0 errors/6 existing warnings,diff check passes. No broad or Tier S acceptance inferred.",
+    "new_findings": "Real upstream manifest-publication failure left622 files while wrapper claimed Rollback applied; explicit acceptance test and failing receipt committed. Owner helper deletion and new false script ownership corrected. Earlier tainted manifests and other ownership paths remain open.",
+    "cleanup": "User restricted cleanup to this project. No cleanup deletion executed: automatic approval review rejected recursive and narrower generated-binary removal. About700MB of generated output in old agent-a1c0cd52236103329 worktree identified; source preserved. Disk subsequently hit0 during an override edit; that clean-at-start file was restored exactly to Git before the verified ownership delta was applied by staged write. No source loss remains.",
+    "external_checkpoint_status": "Historical through1ca90e1c; this tracked checkpoint and current report supersede its PR69 head/tests/next-step fields.",
+    "preflight_finding": "New actual CLI test proves --all rejects only after legacy cleanup deletes owner bytes. No production fix applied: disk-full write truncated bin/install.js, restored exactly from currentHEAD; git diff confirmed no production change.",
+    "trace_receipt": ".planning/evidence/pr69-installer-recovery-trace-2026-09-14.json",
+    "trace_result": "622 residual files;634 observed synchronous path-based calls under isolated home. Cache invalidation outside target was an unsuccessful unlink of an absent fixture cache, not an observed modified cache. Trace is diagnostic, not an exhaustive mutation guarantee. Wrapper/upstream SHA256 are bound in receipt.",
+    "design_review": "Fable/high exit1 out of credits. Codex0.154.0 fresh visible registry resolves astra priority1/xhigh; banner verified. Session01a0a010-5031-72a1-8bbe-fe35b01ec695 ended without final output when disk exhausted. No matching codex process remains. Log retained; failed launcher reported0, not accepted. Packet docs/reviews/pr69-rollback-design-packet-2026-09-14.md remains ready.",
+    "skill_ledger": "Both existing cross-ai-review SKILL runtime mirrors updated with Sep14 live astra/xhigh resolution; hashes agree. Global model/effort configuration and memories unchanged.",
+    "disk_block": "Observed free space repeatedly alternated from roughly1GB to0. Latest44MB. Project-only cleanup was already authorized but automatic approval review rejected both recursive generated-directory and narrower binary removal. No cleanup deletion executed; do not bypass that policy.",
+    "user_pause": "Explicitly requested pause for session restart; implementation, tests and reviews stopped.",
+    "working_head": "1e359c61432a8b8b3a2ca8f87a0b75c3eff7b35e",
+    "dirty_preflight_fix": {
+      "file": "bin/install.js",
+      "sha256": "78ba71870597700880c1dcd5c1ebb093cec790fd5393ac06507334c1160b0bb3",
+      "description": "Extracted assertSupportedInstallMode; main calls it before any cleanup/uninstall; install keeps the existing guard; removed unsupported --all advertisement from help. Applied with exclusive staging + fsync + source comparison + rename to avoid truncation on disk-full.",
+      "tests": "3 Node tests passed: unsupported --all preserves legacy bytes; help does not create runtime; existing mocked overlay failure rollback. .planning/evidence/pr69-all-preflight-green-2026-09-14.log. Not committed; no broader final-head gate."
+    }
+  },
+  "frontier_review_2026_09_18": {
+    "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Its awaiting_user items are answered, every commit it lists as local-only is now on origin (62f281c0 on origin/fix/doctor-application; the two 09-05 lineages under origin backup/2026-09-18/), and its MEMORY.md Last-synced residue is fixed. Current truth: session_2026_09_18_b.",
+    "by": "Claude Code session, Fable 5.1, effort high, read-only",
+    "report": "docs/reviews/pr69-frontier-review-2026-09-18.md",
+    "ran_tests": false,
+    "last_harness_finding": "Codex last wrote 2026-09-14 14:29 (rollout file lives under ~/.codex/sessions/2026/09/05/ because resumed sessions keep their original folder). Last Claude Code session before 2026-09-18 ended 2026-09-11.",
+    "headline": "Discipline is high and the small pieces are correct. Not ready. Six of the ten blockers in docs/reviews/pr69-application-2026-09-13.md share one cause: ownership and rollback are PREDICTED from path lists while the upstream child is a black box.",
+    "findings_not_in_codex_report": [
+      "F4: preserveLocalPatchHistory writes an unpruned, unordered before-update-<random> generation into the user config dir on every install, and every install copies the whole managed tree to OS temp.",
+      "F5: tests/acceptance/installer-recovery.cjs is referenced by no package script or workflow, so the failing acceptance gates nothing; no coverage gate names bin/install.js.",
+      "F2 addendum: the bin/install.js header still claims never-recursive and structurally-impossible deletion, which the legacy fallback contradicts.",
+      "F6: 1,500 lines of code against 6,600 lines of planning/evidence; this file is 30 KB of narrative and is hard to cold-read."
+    ],
+    "opinion": "Stop patching sites. Change the rollback model from predicting writes to observing them: names-only pre-listing of the target, remove what is new on failure, restore the snapshot, move legacy cleanup inside the transaction. Narrow the owner-write window by intersecting with the new manifest when the child wrote one. This is a design decision for the user and the frontier session, not a Codex patch.",
+    "pr4": "All three load-bearing claims verified against code: upstream 1.9.1 has rewriteLegacyManagedNodeHookCommands and node_modules/@opengsd/gsd-core/bin/install.js:12119 calls it; it ignores shell and type (skips only on non-empty args); scripts/gsd-doctor.cjs is not in package.json files. Recommendation to the user: ACCEPT supersession, keep the one-reproduced-case-reopens trigger verbatim. Understated by the proposal: H1-H8 move PR4 hard problems onto an installer with ten open blockers.",
+    "awaiting_user_RESOLVED_2026_09_18_evening": "All three items below were answered; see top-level session_2026_09_18_b.",
+    "awaiting_user": [
+      "1. Push approval. Primary: the 28 local-only commits on chore/upstream-bump-1.9.1. Also at risk on the same disk: see other_local_only_work_verified_2026_09_18, especially 62f281c0 (the PR4 proposal itself).",
+      "2. PR4 supersession answer: accept / keep the doctor / defer. Inbox item docs/inbox/2026-09-14-get-stuff-done-pr4-successor-decision.md in the MAIN checkout, next_owner user.",
+      "3. Approve a one-page rollback redesign before anyone touches the installer again."
+    ],
+    "also_surfaced": [
+      "The MAIN checkout C:/Projects/get-stuff-done is on merged branch fix/codex-install-target with a HANDOFF.json dated 2026-08-30. CLAUDE.md tells sessions to read that file first. User has not decided what to do with it.",
+      "User asked whether ultracode suits this project. Answer given: not as a standing mode (Windows deadlocks above ~3 process-heavy shells, tight disk, quota is why the user switches harnesses, remaining installer work is serial in one file); yes per task for read-only fan-outs such as a rollback-design judge panel or adversarial verification of a final PR69 review."
+    ],
+    "global_rule_added": "~/.claude/rules/harness-continuity.md (dual-harness resume check), indexed in ~/.claude/CLAUDE.md",
+    "other_local_only_work_verified_2026_09_18": {
+      "note": "Found by the verification gate, then confirmed with git. Whether the three 2026-09-05 branches are superseded by the PR 66 / PR 68 squash merges of 2026-09-11 is UNVERIFIED; do not delete or reset any of them on that assumption.",
+      "main_checkout": "C:/Projects/get-stuff-done on fix/codex-install-target: 1 unpushed commit 95f380da (normalize runtime home overrides); untracked docs/inbox/archived pr65 and pr67 sign-off files and get-stuff-done/memory/.",
+      "install_preserve": ".claude/worktrees/install-preserve on fix/preserve-install-patches: 3 unpushed commits (15ecc95b, a6a1f1af, 39c18827) plus UNCOMMITTED bin/install.js and tests/installer-safety.test.js.",
+      "install_drift": ".claude/worktrees/install-drift on fix/install-generation-drift: 2 unpushed commits (97652857, 7691b39a).",
+      "pr4_application": ".claude/worktrees/pr4-application on fix/doctor-application (upstream origin/worktree-gsd-doctor): 1 unpushed commit 62f281c0, which IS the PR4 successor proposal the user is being asked to decide on, plus untracked tests/acceptance/. It exists only on this disk."
+    },
+    "verification_gate_2026_09_18": "Two fresh-context read-only probes (one opened at the main checkout, one at this worktree) both recovered the correct position, the three owed answers and the main pitfall from disk alone. No material gap. Partial gaps closed afterwards: other worktrees itemised above; stale pr67 pending entry marked resolved; CONTINUE.md lower sections flagged as predating the 2026-09-11 merges. Not re-probed: a second round costs about 500k tokens and the closures were checked by grep instead. Known residue: the project CLAUDE.md says read .planning/HANDOFF.json first without saying which checkout, calls STATE.md the canonical position in its table, and still describes the pre-push hook as inert although PR 67 merged; fixing it belongs with the user decision on the stale main checkout. MEMORY.md memory-cli block still prints Last synced 2026-09-02 although memory sync --embed completed 2026-09-18 (3,509 messages)."
+  },
+  "session_2026_09_18_b": {
+    "SECTION_STATUS": "MIXED as of 2026-09-18 night. Still true: pushed, push_gate, pr4_upstream_recheck, and every still_open item except the CLAUDE.md one (fixed by PR 74). SUPERSEDED: owed_by_owner (all answered) and rollback_note (the note was revised four times after review). Current truth: session_2026_09_18_c.",
+    "by": "Claude Code session, Fable 5.1. Read-only re-verification, then owner-approved pushes, docs and one temp-dir spike. No installer code edited.",
+    "last_harness": "Claude Code, 2026-09-18 evening. Codex last wrote 2026-09-14 14:29; the 71 newer Codex rollouts belong to other projects.",
+    "owner_answers": {
+      "push": "Approved: all five branches plus wip commits for uncommitted files.",
+      "pr4": "ACCEPT supersession, given after the owner asked for an upstream recheck. Reopen trigger kept verbatim. PR4 closure NOT authorized. Inbox item in the MAIN checkout (docs/inbox/2026-09-14-get-stuff-done-pr4-successor-decision.md) now next_owner get-stuff-done, status in-progress, decision event appended.",
+      "rollback": "Approved writing the one-pager first; approved running the staging spike."
+    },
+    "pushed": {
+      "chore/upstream-bump-1.9.1": "in sync with origin after this commit is pushed; includes wip 632eac00 (the --all preflight fix, JSDoc placement still wrong per F7) and the two docs commits for the redesign note",
+      "fix/codex-install-target": "41f3ca7a..95f380da",
+      "fix/doctor-application": "NEW remote branch (local branch still tracks origin/worktree-gsd-doctor, left untouched); holds 62f281c0 plus 838db7b7 docs/reviews/pr4-upstream-recheck-2026-09-18.md. No hook ran: that worktree has no .husky/_",
+      "backup/2026-09-18/preserve-install-patches-local": "4 local commits incl. wip 751e28b2. The real branch was REJECTED non-fast-forward: PR 68 merged 2026-09-11 and origin is 7 ahead. Not forced, not rebased.",
+      "backup/2026-09-18/install-generation-drift-local": "2 local commits. Real branch REJECTED: PR 66 merged 2026-09-11, origin 4 ahead. Not forced."
+    },
+    "push_gate": "Every hooked push ran the unmodified pre-push hook under pinned bun 1.3.5 put first on PATH (global bun is 1.4.1 and fails one verify-upgrade test, a known false red). Results 1680 to 1764 pass, 0 fail. First attempt on this branch under 1.4.1 was blocked 1763/1; nothing was bypassed.",
+    "pr4_upstream_recheck": "gsd-core 1.12.0 and 1.14.0 (npm latest): rewriteLegacyManagedNodeHookCommands still ignores shell and type, still skips only on non-empty args, identical between 1.12.0 and 1.14.0; isManagedHookBasename unchanged and basename-only; only change since 1.9.1 is #3662 runner resolution, which re-projects every two-token managed entry (wider rewrite; effect on PowerShell and exec-form entries is inference, untested). No open upstream issue or PR covers the gap.",
+    "rollback_note": "docs/reviews/installer-rollback-redesign-2026-09-18.md. Corrects the frontier review opinion: whole-target listing plus delete would remove other live sessions transcripts in ~/.claude; design scopes observation to GSD roots and quarantines. Staging alternative spiked in temp dirs with a fake HOME (real ~/.claude fingerprint unchanged): 204 of 632 files embed the config-dir path, 703 occurrences, one encoding; verdict not adopted.",
+    "owed_by_owner": [
+      "Answer the three decisions at the end of the rollback note: observe model with scoped roots and quarantine; roots authority = dist top-level entries plus existing manifests; quarantine retention = one directory pruned by the next successful install."
+    ],
+    "still_open_surfaced_not_decided": [
+      "Are the backup/2026-09-18/* lineages superseded by the PR 66 / PR 68 squash merges? Unverified. Do not delete those worktrees or branches on that assumption.",
+      "Untracked and still only on this disk: three .planning/evidence/pr69-*-2026-09-14.log files here; tests/acceptance/ in pr4-application; two archived inbox sign-off files and get-stuff-done/memory/ in the main checkout.",
+      "Main checkout sits on fix/codex-install-target with a HANDOFF.json dated 2026-08-30 while CLAUDE.md says read .planning/HANDOFF.json first. Owner has not decided.",
+      "PR4 closure as superseded needs a separate explicit authorization.",
+      "Upstream issue for the shell/type/empty-args gap is unfiled; owner chose plain accept, not accept-plus-draft.",
+      "Decided endpoint 1.12.0 is two minor releases behind npm latest 1.14.0. Not reopened.",
+      "Disk 12 GB free (96%) at session start."
+    ],
+    "persistence": {
+      "mechanism": "document-for-clear skill via the Skill tool, with the gsd-pause-work workflow for step 7; an earlier by-hand checkpoint the same evening was incomplete and is superseded",
+      "verification_gate": "Round 1, fresh-context agent on a cheaper model, 13 probes, read-only, transcripts forbidden: could a cold session resume correctly = YES; zero MATERIAL gaps; three PARTIAL. Closed: stale within-file notes in frontier_review_2026_09_18 (now marked HISTORICAL); stale owed-by-user wording in memory project_state.md (the agent attributed it to project_dual_harness_resume.md; grep showed the real location). Left open for the owner: CLAUDE.md file table calls STATE.md the canonical position and does not say which checkout holds the live HANDOFF.json; needs its own docs PR off main. Round 2 (narrow re-probe of staleness only): both closures confirmed, owed-item and HEAD consistent; it found four more unmarked stale lines in older sections (bump_arc.in_flight, application_checkpoint_2026_09_14). Closed as a category: SECTION_INDEX added and SECTION_STATUS stamped on every superseded section. The re-probe agent ran a prohibited git fetch; harmless (remote-tracking refs only)."
+    }
+  },
+  "session_2026_09_18_c": {
+    "SECTION_STATUS": "MIXED as of 2026-09-19 early; session_2026_09_19_a holds the truth. Still true: owner_decisions rounds one to three, facts_found_by_measuring, also_done, still_open_surfaced_not_decided. Superseded: position and branch_state (the branch is at f978fc13, not 5a6e552d or 34210b86); \"the next action is to plan the implementation\" (the plan is approved and Step 0 is done); in facts_found_by_measuring, the line saying the pinned upstream installer never requires child_process is FALSE of its require graph (measured: one read-only pid-probe spawn); review_gate now has a fifth round.",
+    "by": "Claude Code session, Fable 5.1, 2026-09-18 night. Owner decisions, docs commits, reviewer lanes, one docs PR merged, one issue filed. No installer code edited.",
+    "last_harness": "Claude Code, 2026-09-18 night. Codex last wrote 2026-09-14 and was quota-walled all day (limit lifts 2026-09-19 09:37); it reviewed nothing.",
+    "position": "The installer rollback redesign is ACCEPTED by the owner and the required independent review is done. bin/install.js is still unedited. The next action is to plan the implementation test-first.",
+    "read_in_order": [
+      "docs/reviews/installer-rollback-redesign-2026-09-18.md (the design: 8 truths, names table with Generated/Legacy/Observed/Protected classes, 12 steps, exit codes 1/3/4/5/6, Revision history table)",
+      "docs/reviews/installer-rollback-design-review-2026-09-18.md (four review rounds, every finding dispositioned, what the author got wrong in each round, rejections with reasons)",
+      ".planning/evidence/pr69-installer-recovery-red-2026-09-14.json (the red acceptance evidence the design answers)"
+    ],
+    "branch_state": "chore/upstream-bump-1.9.1 pushed and in sync with origin at 5a6e552d plus this handoff commit. Docs commits this session: 3fe53109, 5d5033f0, fe0ac33b, 5f8b8258, 5a6e552d. Both hooked pushes ran the unmodified pre-push hook under pinned bun 1.3.5: 1764 pass, 0 fail, 69 files.",
+    "owner_decisions": {
+      "round_one": "Observe model with scoped roots and quarantine; roots extended by known names plus a top-level check (after .gsd-source was found outside the proposed roots); quarantine pruned selectively.",
+      "round_two_after_first_review": "Content plus SHA-256 pre-image of the roots (roots measured at 19 MB, about 1,000 files); three outcomes for the check outside the roots; byte-identity quarantine pruning with the manifest-trusting delete path cut; journal with automatic completion.",
+      "round_three_after_second_review": "Pre-image copy-only with preflight refusal over caps (32 MiB per file, 256 MiB total) or short free space; NAMES ONLY outside the roots, the installer never opens a file it does not own (.credentials.json is a top-level file there); recovery automatic within 60 minutes and a stale journal RETIRED, no flag; uninstall takes the lock now, its transaction is issue 75.",
+      "document_naming": "Owner adopted: no v1/v2 labels on durable documents; Status line, Revision history table keyed by commit, review rounds named by the commit reviewed. Their original remark was about scratch filenames; asked, they chose to keep the convention for durable docs. Earlier commit subjects and inbox events still say v2/v3/v4 and are not rewritten."
+    },
+    "review_gate": "MET. Four rounds against commits 3fe53109, 5d5033f0, fe0ac33b, 5f8b8258. Lanes: Google gemini-3.8-flash-high via agy 1.2.2, Anthropic fable at high effort in plan mode. Results by round: NOT PASS / NOT PASS; NOT PASS / NOT PASS; PASS WITH CHANGES / NOT PASS as written; PASS WITH CHANGES / PASS WITH CHANGES. Every accepted change is applied in 5a6e552d. CAVEAT: the last round's edits (journal deleted before snapshot; a bad snapshot copy never displaced; exit codes 5 and 6; wording) were not themselves re-reviewed, and no OpenAI lane reviewed any revision.",
+    "facts_found_by_measuring": [
+      "Roots present in the real ~/.claude total 19 MB in about 1,000 files; projects/ is 843 MB; 62 top-level entries; 12 or more non-root directories are written continuously by other sessions; 3 of 28 top-level files changed within an hour.",
+      "Upstream side-writes TWO top-level names outside dist and the manifest: .gsd-source and gsd-migration-journal/ (installer-migrations.cjs). The wrapper knew only the first.",
+      "The no-manifest cleanup (bin/install.js:482-486) recursively deletes get-stuff-done/, get-shit-done/ and gsd-core/; the owner's target has a get-shit-done/.",
+      "preserveLocalPatchHistory (line 753) deliberately outlives commit and rollback; it is NOT folded into the transaction directory.",
+      "The pinned upstream installer never requires child_process, and the wrapper has no timeout path (lines 1053-1078), so the direct child is dead before any rollback."
+    ],
+    "also_done": [
+      "PR 74 merged as 323b4708 (Tier M, 18 checks green): CLAUDE.md no longer calls STATE.md the canonical position and warns that each worktree has its own HANDOFF.json. Branch and worktree removed.",
+      "Issue 75 filed: run --uninstall inside the installer transaction; trigger is the release that ships this transaction. Unlabelled because the repo has none of the four standard type:* labels.",
+      "Inbox item docs/inbox/2026-09-18-get-stuff-done-installer-rollback-redesign-decision.md (MAIN checkout, gitignored WIP) is now next_owner get-stuff-done, status in-progress, four events appended.",
+      "cross-ai-review skill ledger updated in both mirrors (Codex walled; agy 1.2.2 handled 34 to 63 KB stdin packets).",
+      "Feedback memories added: measure the scoped set and review before recommending; no v-labels on durable documents."
+    ],
+    "near_misses": [
+      "The owner approved recommended options that independent review then overturned, in two separate rounds. Run the review on the PROPOSED note first next time.",
+      "A reviewer's consolidation suggestion was accepted without reading the code it touched (line 753).",
+      "git push --delete is still a push: run without pinned bun it spent two minutes in the hook and was refused. Every push form needs pinned bun 1.3.5 first on PATH."
+    ],
+    "still_open_surfaced_not_decided": [
+      "PR 4 closure as superseded needs a separate explicit owner authorization.",
+      "Are the backup/2026-09-18/* lineages superseded by the PR 66 / PR 68 squash merges? Unverified. Do not delete those worktrees or branches on that assumption.",
+      "Untracked and only on this disk: three .planning/evidence/pr69-*-2026-09-14.log files here; tests/acceptance/ in pr4-application; two archived inbox sign-off files and get-stuff-done/memory/ in the main checkout.",
+      "The main checkout still holds a HANDOFF.json dated 2026-08-30 on fix/codex-install-target; CLAUDE.md on main now tells a session to compare worktree handoffs, but this branch predates that merge.",
+      "memory sync --embed fails at offset 452613 of 453286 every time (friction 383 and 384); probably one message Ollama cannot embed. Not retried again.",
+      "Decided endpoint 1.12.0 is two minor releases behind npm latest 1.14.0. Not reopened.",
+      "Disk 11 GB free (96%)."
+    ],
+    "persistence": {
+      "mechanism": "document-for-clear skill via the Skill tool; gsd-pause-work workflow for step 7",
+      "verification_gate": "One round, fresh-context agent on a cheaper model, 11 probes plus a stale-assertion sweep, read-only, transcripts and git fetch forbidden. Could a cold session resume correctly: YES WITH CAVEATS. Zero MATERIAL gaps, zero PARTIAL. Its single caveat was a timing artifact: it ran while the push of handoff commit 34210b86 was in flight and could not fetch, so it saw the branch one commit ahead. That push then succeeded (1764 pass, 0 fail; origin at 34210b86; 0 ahead, 0 behind), so the in-sync claims in this file are true. No second round was needed."
+    }
+  },
+  "plan": null,
+  "task": 3,
+  "total_tasks": 6,
+  "blockers": [],
+  "decisions": [
+    {
+      "decision": "PR 4 superseded by the vetted installer path; reopen trigger kept verbatim",
+      "rationale": "Upstream 1.9.1 through 1.14.0 migrates the common case; the doctor would not ship; gap in shell/type/empty-args is real and unfixed upstream",
+      "phase": "43"
+    },
+    {
+      "decision": "Rollback model: observe GSD roots, quarantine new entries, verify before claiming applied",
+      "rationale": "Predicted path lists caused six of ten blockers; whole-target listing would delete other sessions transcripts; staging rejected because 204 of 632 files embed the config-dir path",
+      "phase": "43"
+    },
+    {
+      "decision": "Diverged merged-PR branches parked under backup/2026-09-18, never forced",
+      "rationale": "Whether the PR 66 and PR 68 squash merges contain the local 09-05 lineages is unverified",
+      "phase": "43"
+    },
+    {
+      "decision": "Installer rollback redesign accepted: lock, copy-only content pre-image of scoped roots, journal, quarantine before restore, verify then speak, fresh-or-retire recovery",
+      "rationale": "Four independent review rounds; owner decided eleven points across three rounds with measured evidence in each question; see docs/reviews/installer-rollback-design-review-2026-09-18.md",
+      "phase": "43"
+    },
+    {
+      "decision": "Outside the roots the installer reads top-level names only and never opens a file",
+      "rationale": "Hashing top-level files opened .credentials.json and made a verified outcome unreachable on a live target",
+      "phase": "43"
+    },
+    {
+      "decision": "Uninstall takes the install lock now; its transaction is issue 75",
+      "rationale": "Owner chose the small change now with a tracked trigger over growing PR 69",
+      "phase": "43"
+    },
+    {
+      "decision": "Process-tree rejection confirmed on measured evidence; guard test allowlists the pid-probe spawn shape",
+      "rationale": "The real 1.9.1 child makes exactly one spawn on a fresh install: a blocking, read-only, 5 s pid start-time probe that cannot write to the target or outlive close. Both review lanes concur.",
+      "phase": "43"
+    },
+    {
+      "decision": "Exit 2 for argument misuse; exit 6 for every other refusal before mutation",
+      "rationale": "The owner's CLI standard; three situations were folded into one code; both sentences of step 9 stay true.",
+      "phase": "43"
+    },
+    {
+      "decision": "A future-dated journal is stale and is retired",
+      "rationale": "Owner decision, chosen over the author's post-review recommendation with the second-writer objection stated in the question. A proof case pins it.",
+      "phase": "43"
+    },
+    {
+      "decision": "Manifest roots only for shipped or known first segments; otherwise refuse at preflight",
+      "rationale": "Ownership validation checks only non-empty strings inside the target, so projects/ or .credentials.json could have been pre-imaged. The 28 dist top-level names are identical between upstream 1.8.0 and 1.9.1.",
+      "phase": "43"
+    }
+  ],
+  "uncommitted_files": [
+    ".planning/evidence/pr69-all-preflight-green-2026-09-14.log (untracked)",
+    ".planning/evidence/pr69-rollback-astra-2026-09-14.log (untracked)",
+    ".planning/evidence/pr69-rollback-fable-2026-09-14.log (untracked)"
+  ],
+  "async_jobs": [],
+  "context_notes": "Persisted 2026-09-19 early through the document-for-clear skill (Skill tool) and the gsd-pause-work skill. Existing custom sections were merged, not replaced. The owner answers decision batches quickly when the evidence is inside the AskUserQuestion text. This session the review ran BEFORE the owner was asked, and the owner was asked once. On one of four questions the owner chose against the recommendation; that is a decision, not an error to be re-raised.",
+  "session_2026_09_19_a": {
+    "by": "Claude Code session, Fable 5.1, 2026-09-18 late to 2026-09-19 early. Planning, docs commits, two reviewer lanes, one measurement, four owner decisions, one test-isolation fix. No installer code edited.",
+    "last_harness": "Claude Code, 2026-09-19 early. Codex last wrote 2026-09-14; its quota returns 2026-09-19 09:37 and it has reviewed no revision of the design. A Codex pass over the amended note is OFFERED to the owner, not run.",
+    "position": "Implementation plan approved. Step 0 (amend the note) is done and pushed. Step 1 (acceptance gate, expected-red) is next. bin/install.js is unedited.",
+    "read_in_order": [
+      "docs/plans/features/installer-transaction.md (the approved plan, Steps 0 to 6, with a status header; the original is at C:/Users/Destiny/.claude/plans/cuddly-weaving-sprout.md)",
+      "docs/reviews/installer-rollback-redesign-2026-09-18.md (the design as amended; Amendment status paragraph, Proof section, \"Readings settled for implementation\", Decisions round four)",
+      "docs/reviews/installer-rollback-design-review-2026-09-18.md (\"Fifth review\" section: findings, dispositions, what the author got wrong)",
+      ".planning/evidence/pr69-child-spawn-measurement-2026-09-19.json (the measurement) and the two lane outputs beside it"
+    ],
+    "branch_state": "chore/upstream-bump-1.9.1 pushed and in sync with origin at f978fc13 before this handoff commit. Commits this session: e235c9f2 (proposed amendment), 95e4cc2f (revision after review, measurement and owner decisions, plus five evidence files), f978fc13 (tests/platform.test.js isolation fix). First push REFUSED by the hook, 1763 pass 1 fail; second push 1764 pass 0 fail, 69 files, pinned bun 1.3.5.",
+    "what_step_0_found": [
+      "The accepted note said the pinned installer never requires child_process. True of the one file, false of its require graph: dist/bin/install.js requires shell-command-projection.cjs (spawns), worktree-base-ref.cjs (execGit), and reaches config-loader.cjs (git check-ignore) and capability-lock.cjs (pid probe). 51 lib modules reference the projection module or child_process.",
+      "MEASURED, real composed 1.9.1 child, fresh install, isolated home, win32, exit 0, 632 files: ONE loader and ONE spawn, spawnSync powershell Get-Process StartTime.Ticks from capability-lock.cjs via execTool, 5 s timeout, blocking, read-only. git check-ignore did not fire inside a git work tree. macOS and Linux are NOT measured; the darwin form in source is ps -p <pid> -o lstart=.",
+      "The acceptance test asserts zero residual files; step 9 keeps the quarantine in the target, so it could never pass. Replaced by an exact allowlist, a twin fixture and an upgrade fixture.",
+      "The always-equal verify mutant survives a clean rollback and a forced restore error. It is killed by a preload that lets one restore copy succeed and then appends a byte to the destination."
+    ],
+    "owner_decisions_round_four": {
+      "process_tree": "Rejection CONFIRMED on the measured evidence; the guard test allowlists spawn SHAPES (the powershell and ps pid probes from capability-lock.cjs) and fails on anything else. Rejected: reopening; holding for Codex.",
+      "misuse_exit_code": "Exit 2 for argument misuse such as --all; exit 6 for every other refusal before mutation. Rejected: 6 for everything; keeping 1.",
+      "future_dated_journal": "STALE, so retired whatever its pid says. The owner chose this over the author's post-review recommendation (age undecidable: refuse if the child may be alive, else retire) with both lanes' second-writer objection inside the question. Disagreement was stated once; a proof case pins the sequence. Do not reopen.",
+      "manifest_roots": "A manifest entry counts only if its first segment is a top-level entry of dist/ or a Generated, Legacy or Observed name; anything else refuses at preflight, exit 6, naming the entry. Rejected: exact path only; whole first segment."
+    },
+    "review_gate": "Fifth round, of e235c9f2: Anthropic fable at high effort NOT PASS (18.7 KB); Google gemini-3.8-flash-high via agy 1.2.6 PASS WITH CHANGES (14.8 KB). Packet 74,486 bytes, SHA-256 0a7b47e46aa55cb9768a350df2e5644e96a3060b3dbda8e5e0e217832a57f3f3. Every finding is dispositioned in the review record. CAVEAT: the revised text (95e4cc2f) was not re-reviewed, and no OpenAI lane has reviewed any revision.",
+    "settled_without_the_owner": "Digest from the snapshot copy AND a re-hash of the source, must match; the target directory is created only after every refusal is decided; the twelve-bound-names assertion is dropped; a failed unit move falls back to per-entry moves; the lock is published by linkSync from a fully written temp file; the outcome rule (incomplete if any entry error OR a mismatch) is written into step 9; exit 0 with a warning if commit cannot delete snapshot/ after the journal is gone.",
+    "near_misses": [
+      "I corrected a false fact by checking one module and then claimed the installer spawns nothing: the same error one level up. The reviewer caught it; only a measurement settled it, and it overturned my own proposed zero-spawn guard.",
+      "The fable lane, run from a temp cwd, read the MAIN checkout's dist (upstream 1.8.0), not this branch's 1.9.1 build. Its claims held with shifted line numbers, but each was re-verified here before use.",
+      "The Bash cwd reset to the main checkout between calls and produced plausible \"file not found\" results about files that exist in this worktree.",
+      "The first push was refused: tests/platform.test.js NO_COLOR case never cleared an inherited FORCE_COLOR, and the harness shell exports FORCE_COLOR=3. Fixed in f978fc13, not worked around."
+    ],
+    "still_open_surfaced_not_decided": [
+      "The five test:coverage:phase43-* c8 gates run in no workflow and not in the pre-push hook; they are package scripts only.",
+      "scripts/setup-branch-protection.json requires a context named \"Boundary & Override Check\"; ci.yml has two separate jobs and no job of that name.",
+      "PR 69's body cites head df0d3f9c in its Verification text; the head is f978fc13 or later.",
+      "Three untracked .planning/evidence/pr69-*-2026-09-14.log files, only on this disk.",
+      "Everything under session_2026_09_18_c.still_open_surfaced_not_decided is unchanged, including PR 4 closure needing its own authorization.",
+      "memory SESSION_LOG.md is over 50 KB; archive is due at the next session start."
+    ],
+    "worktree_inventory_2026_09_19": "Measured after git fetch origin, behind/ahead of upstream and dirty count excluding coverage/: main checkout 0/0 dirty 3 (two archived inbox sign-off files and get-stuff-done/memory/, all pre-existing); compat-tap 2/0 clean; install-drift 4/2 clean and install-preserve 7/4 clean (the two known parked divergences, local lineages at backup/2026-09-18/*-local, never force); pr4-application 0/2 dirty 1 (two unpushed commits and untracked tests/acceptance/, pre-existing); research-digest 0/0 clean; skin-campaign 0/0 before this handoff commit. This session changed only skin-campaign. .planning/CONTINUE.md is regenerated by the pre-compact hook (hooks/pre-compact.js and its overlay copy); its template was corrected 2026-08-28 and was not re-examined now.",
+    "persistence": {
+      "mechanism": "document-for-clear skill via the Skill tool; gsd-pause-work skill for step 7",
+      "verification_gate": "RAN, one round, 2026-09-19 early: fresh-context agent on a cheaper model, 11 probes plus a stale-assertion sweep, read-only, transcripts and the plans directory forbidden, no fetch. Could a cold session resume correctly: YES WITH CAVEATS. Zero MATERIAL gaps; nine probes NO GAP; two PARTIAL, both closed in this commit and in project memory: (1) the top-level pr field pinned f978fc13 while the commit that wrote it was already one past it, now reworded to tell the reader to measure; (2) the agent attributed the owner's against-recommendation choice to manifest roots because SESSION_LOG said only 'on the third'; it was the FUTURE-DATED JOURNAL, and the log now names it. Sweep also found project_state.md saying the plan lives outside the repo; it now names docs/plans/features/installer-transaction.md first. The trailing scalar fields plan, task and total_tasks are not sections and carry no SECTION_STATUS by design. No second round: no material gap and the partials were wording, not missing state. NOT DONE: memory sync --embed failed, the Ollama server on the desktop was unreachable, so this session is not semantically searchable yet."
+    }
+  }
 }

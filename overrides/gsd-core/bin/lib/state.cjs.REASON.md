@@ -4,8 +4,8 @@
 Cross-project inbox reports showed `state update-progress` can report misleading completion when future work is declared in ROADMAP.md but not yet represented by PLAN files on disk.
 
 ## Upstream snapshot
-- Version: 1.8.0
-- SHA-256: 59d8b6679f2be5c8a192bc2dc54f16bbf47eb07be0f5db109ec919a623b359ed
+- Version: 1.9.1
+- SHA-256: acb2a1335677171b33e308937a48905de52182c41bbe4bfe2d70d7c4b95b3a31
 
 ## What's different
 - Reads current-milestone ROADMAP `**Plans**` declarations.
@@ -30,3 +30,7 @@ unchanged and still required (drop-experiment: state.test.cjs
 declared-future-plans test fails on pure 1.8.0): extractDeclaredPlanCount /
 readRoadmapDeclaredPlanCounts + per-phase max(declared, disk) totals merge in
 cmdStateUpdateProgress.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.

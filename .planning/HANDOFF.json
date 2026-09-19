@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-19T11:30:00.000Z",
+  "timestamp": "2026-09-19T11:50:00.000Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
   "pr": "UPDATED 2026-09-19 morning: draft PR 69. origin is at 897116f9 (Step 1). The branch is AHEAD of origin by the Step 2 commits 19f83943 and 7c955a59 plus the handoff commit that wrote this sentence, and that is deliberate: GitHub Actions is account-locked (every job steps=0 since 2026-09-19T02:05Z), so every push is held. Measure, do not trust this text: git fetch origin, then git rev-list --left-right --count origin/chore/upstream-bump-1.9.1...HEAD (expect 0 behind, 3 or more ahead). Before ANY push read the last run step counts (recipe in session_2026_09_19_b.ci_halt). Every hooked push needs pinned bun 1.3.5 first on PATH; never --no-verify.",
-  "status": "installer-steps-0-1-2-done-step-3-next-ci-account-locked-hold-pushes",
+  "status": "installer-lock-seam-done-codex-continues-review-to-disposition-ci-account-locked-hold-pushes",
   "READ_FIRST": "READ session_2026_09_19_c FIRST; it supersedes everything else in this file where they differ. Short form: the LOCK SEAM is DONE (4eb3201f, local). The owner decided 2026-09-19 that CODEX CONTINUES this work because Anthropic quota is ending for the week; the Codex brief is docs/plans/features/installer-transaction-codex-brief.md. First unit for the next session: disposition the read-only Codex review launched 2026-09-19T10:42Z (.planning/evidence/codex-lock-seam-review-2026-09-19.final.md). Then the preflight-and-snapshot seam, its shape approved by the owner first; renderOutcome lands LAST. origin is at 897116f9 and everything after it is LOCAL ON PURPOSE: GitHub Actions is account-locked (every job steps=0, re-verified 2026-09-19T08:46Z). HOLD EVERY PUSH and read the last run step counts before the first push of any session. bin/install.js has NOT been edited. This worktree holds the live handoff; the main checkout is another branch with stale .planning files. Never pass text containing a backslash through a heredoc or an inline interpreter argument.",
   "SECTION_INDEX": {
     "CURRENT": [
@@ -180,7 +180,7 @@
   "remaining_tasks": [
     {
       "id": "issue-53-step-3",
-      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Installer transaction: plan Steps 0, 1 and 2 done 2026-09-19 (Step 2 local, unpushed, CI account-locked); Steps 3 to 6 of docs/plans/features/installer-transaction.md remain, then PR 69 blockers 6, 8 and 9, then 1.10.0, 1.11.0, 1.12.0.",
+      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Installer transaction: plan Steps 0, 1 and 2 done 2026-09-19 (Step 2 local, unpushed, CI account-locked); Steps 3 to 6 of docs/plans/features/installer-transaction.md remain, then PR 69 blockers 6, 8 and 9, then 1.10.0, 1.11.0, 1.12.0. UPDATE 2026-09-19 midday: within Step 3 the names seam and the LOCK seam are done (4eb3201f, local); remaining seams: preflight and snapshot, journal, plan/apply/verify, recover and retire, commit and prune, render LAST. Codex continues; see session_2026_09_19_c.",
       "status": "in-progress"
     },
     {
@@ -470,16 +470,22 @@
       "decision": "Manifest roots only for shipped or known first segments; otherwise refuse at preflight",
       "rationale": "Ownership validation checks only non-empty strings inside the target, so projects/ or .credentials.json could have been pre-imaged. The 28 dist top-level names are identical between upstream 1.8.0 and 1.9.1.",
       "phase": "43"
+    },
+    {
+      "decision": "Codex continues the installer transaction from the lock seam onward (owner, 2026-09-19, AskUserQuestion)",
+      "rationale": "The weekly Anthropic Fable quota is ending and the Codex quota returned 2026-09-19 09:37. The owner asked that the work be continuable by Codex with minimal friction; the same answer chose a detached read-only Codex review now and the full document-for-clear skill with its verification gate.",
+      "phase": "43"
     }
   ],
   "uncommitted_files": [
     ".planning/evidence/pr69-all-preflight-green-2026-09-14.log (untracked)",
     ".planning/evidence/pr69-rollback-astra-2026-09-14.log (untracked)",
     ".planning/evidence/pr69-rollback-fable-2026-09-14.log (untracked)",
-    "UNPUSHED on purpose: commits 19f83943, 7c955a59 and the handoff commits after them."
+    ".planning/evidence/codex-lock-seam-review-2026-09-19.{heartbeat,log,final.md} (untracked; written by the detached Codex review lane; final.md appears only when it completes)",
+    "UNPUSHED on purpose: 19f83943, 7c955a59, 2096282e, a2e8f173, c434d3b9, 4eb3201f, a610ce2d and the handoff commit after them. origin is at 897116f9."
   ],
   "async_jobs": [],
-  "context_notes": "Persisted 2026-09-19 morning through the document-for-clear skill (Skill tool) and the gsd-pause-work skill, at the owner request mid-turn. Existing custom sections were merged, not replaced. No owner decision was needed this session. The owner answers decision batches quickly when the evidence is inside the AskUserQuestion text; on one of four round-four questions the owner chose against the recommendation, which is a decision, not an error to be re-raised.",
+  "context_notes": "Persisted 2026-09-19 morning through the document-for-clear skill (Skill tool) and the gsd-pause-work skill, at the owner request mid-turn. Existing custom sections were merged, not replaced. No owner decision was needed this session. The owner answers decision batches quickly when the evidence is inside the AskUserQuestion text; on one of four round-four questions the owner chose against the recommendation, which is a decision, not an error to be re-raised. UPDATE 2026-09-19 midday: persisted again through the document-for-clear skill (Skill tool) with the gsd-pause-work skill for step 7, by owner decision. The owner asked two questions mid-turn out of curiosity (should CONTINUE.md be updated for Codex; are the commits where Codex will look); both were worth measuring, and the second found that Codex sessions start in the MAIN checkout. Treat such questions as prompts to measure, not to reassure.",
   "session_2026_09_19_a": {
     "SECTION_STATUS": "MIXED as of 2026-09-19 morning; session_2026_09_19_b holds the truth. Still true: what_step_0_found, owner_decisions_round_four, review_gate (including its caveat), settled_without_the_owner, near_misses, worktree_inventory for every worktree except skin-campaign. Superseded: position (\"Step 1 is next\": Steps 1 and 2 are done), branch_state (the branch is at 7c955a59 plus a handoff commit and is AHEAD of origin, not in sync), last_harness detail (a Codex pass is still only offered), and \"pushed and in sync\" anywhere: those pushes went into an account-locked CI and no hosted job ran. In still_open_surfaced_not_decided the SESSION_LOG archive item is DONE.",
     "by": "Claude Code session, Fable 5.1, 2026-09-18 late to 2026-09-19 early. Planning, docs commits, two reviewer lanes, one measurement, four owner decisions, one test-isolation fix. No installer code edited.",

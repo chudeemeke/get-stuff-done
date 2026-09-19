@@ -1,0 +1,450 @@
+'use strict';
+
+/**
+ * scripts/gsd-doctor.cjs — Local-state repair for GSD hook installations.
+ *
+ * Purpose: Detect and repair stale/broken state in `~/.claude/settings.json`
+ * that the upstream `bin/install.js` cannot self-heal because its idempotency
+ * check verifies hook presence by NAME, not by command-shape VALIDITY.
+ *
+ * Known repair: the `& "PATH/bunx.exe" "PATH/hook.js"` PowerShell call-operator
+ * shape (legacy, origin unpinned — see docs/inbox/2026-05-13-authkey-hook-config-
+ * powershell-syntax-breaks-on-bash-windows.md for full investigation). bash
+ * (Claude Code's default hook-executor shell on Windows) parses `&` as a
+ * control operator and fails the entire command with "syntax error near
+ * unexpected token `&`", which BLOCKS PreToolUse:Edit/Write hooks and emits
+ * noise on PostToolUse:Bash/Read. Current upstream emits `node "PATH"` cleanly,
+ * but the broken shape self-preserves across re-installs.
+ *
+ * Usage:
+ *   node scripts/gsd-doctor.cjs check                    # diagnose (exit 0=clean, 1=broken)
+ *   node scripts/gsd-doctor.cjs repair                   # backup + atomic fix
+ *   node scripts/gsd-doctor.cjs repair --dry-run         # report what WOULD change
+ *   node scripts/gsd-doctor.cjs --help
+ *   node scripts/gsd-doctor.cjs --version
+ *
+ * Options:
+ *   --settings <path>   Override settings.json path (default: $HOME/.claude/settings.json)
+ *   --dry-run           Report changes without writing
+ *   --verbose           Print per-entry decisions
+ *
+ * Exit codes:
+ *   0 -- clean (check) OR repair succeeded
+ *   1 -- broken state detected (check) OR repair failed
+ *   2 -- usage error / invalid args
+ *
+ * Design notes (composes with project-root CLAUDE.md skin-discipline rules):
+ *   - Pure scripts/* fork-only file (filename verified disjoint from upstream).
+ *   - Idempotent: running `repair` twice produces identical state.
+ *   - Atomic: temp-file + rename. Never leaves half-written settings.json.
+ *   - Reversible: backup written BEFORE any modification, path printed.
+ *   - Validation gate: round-trip JSON.parse on modified content before write.
+ *   - Pattern-based, not name-based: detects the broken SHAPE regardless of
+ *     which hook script name follows. Future hooks added to settings.json
+ *     using the same broken shape would also be repaired.
+ */
+
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { assertRepairSafe } = require('./lib/doctor-security.cjs');
+
+const VERSION = '0.1.0';
+
+// ---------------------------------------------------------------------------
+// Core repair logic — pure functions, testable in isolation
+// ---------------------------------------------------------------------------
+
+/**
+ * Pattern that identifies a broken hook command.
+ *
+ * Anchors:
+ *   ^                                        — start of string (& must lead)
+ *   & "                                      — literal PowerShell call-op + quote
+ *   runner basename bunx or bunx.exe         — group 1: optional directory plus exact basename
+ *   "                                        — close runner-path quote
+ *   space
+ *   ("[^"]+\.(?:js|cjs|mjs)")                — group 2: FULL quoted script path (incl. both quotes)
+ *   $                                        — end of string
+ *
+ * The .js/.cjs/.mjs extension match is deliberate — we only repair hook
+ * invocations of node-runnable scripts. .sh / .ps1 / other shapes are out
+ * of scope (and never had this bug per investigation).
+ *
+ * Group 2 captures the full quoted path. Paths containing Bash expansion or
+ * escape characters are re-quoted as literal single-quoted arguments.
+ */
+const BROKEN_RE = /^& "((?:[^"\r\n]*[/\\])?bunx(?:\.exe)?)" ("[^"\r\n]+\.(?:js|cjs|mjs)")$/;
+
+/**
+ * Detect-and-repair a single command string.
+ * Returns { fixed, before, after } where fixed=true if repair applied.
+ */
+function repairCommand(cmd) {
+  if (typeof cmd !== 'string') return { fixed: false };
+  const m = cmd.match(BROKEN_RE);
+  if (!m) return { fixed: false };
+  const scriptPath = m[2].slice(1, -1);
+  const argument = /[$`\\]/.test(scriptPath)
+    ? "'" + scriptPath.replace(/'/g, "'\"'\"'") + "'"
+    : m[2];
+  return { fixed: true, before: cmd, after: `node ${argument}` };
+}
+
+function canonicalNumber(token) {
+  const parts = token.toLowerCase().match(/^(-?)(\d+)(?:\.(\d+))?(?:e([+-]?\d+))?$/);
+  const fraction = parts[3] || '';
+  const digits = (parts[2] + fraction).replace(/^0+/, '');
+  if (!digits) return parts[1] + '0';
+  const trailing = digits.match(/0*$/)[0].length;
+  const power = BigInt(parts[4] || '0') - BigInt(fraction.length) + BigInt(trailing);
+  return parts[1] + digits.slice(0, digits.length - trailing) + 'e' + power;
+}
+
+function assertLosslessNumbers(raw) {
+  // JSON was parsed successfully already. Skip complete string tokens so
+  // digits in keys, escaped strings and hook commands are never inspected.
+  const tokens = raw.matchAll(/"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g);
+  for (const [token] of tokens) {
+    if (token.startsWith('"')) continue;
+    const value = Number(token);
+    if (!Number.isFinite(value) || canonicalNumber(token) !== canonicalNumber(JSON.stringify(value))) {
+      throw new Error('An unrelated JSON number cannot be represented losslessly; settings are unchanged.');
+    }
+  }
+}
+
+function removeFailedStage(file, error) {
+  try { fs.unlinkSync(file); } catch (cleanupError) {
+    throw new AggregateError([error, cleanupError],
+      `${error.message}; temporary repair cleanup failed at ${file}: ${cleanupError.message}`);
+  }
+  throw error;
+}
+
+function writeDurableStage(file, contents, mode) {
+  // Opening outside the cleanup catch protects a pre-existing file on EEXIST.
+  const fd = fs.openSync(file, 'wx', mode);
+  try {
+    try {
+      fs.fchmodSync(fd, mode);
+      if ((fs.fstatSync(fd).mode & 0o777) !== mode) throw new Error('Repair file permission verification failed');
+      fs.writeFileSync(fd, contents);
+      fs.fsyncSync(fd);
+    } finally { fs.closeSync(fd); }
+  } catch (error) { removeFailedStage(file, error); }
+}
+
+function syncParent(file) {
+  // Node does not expose a supported directory flush on Windows.
+  if (process.platform === 'win32') return;
+  const fd = fs.openSync(path.dirname(file), 'r');
+  try { fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
+}
+
+/**
+ * Walk a settings object's hooks tree, applying `visitor(commandStr) => string`
+ * to every command. Mutates in place. Returns count of mutations.
+ */
+function walkHookCommands(settings, visitor) {
+  let count = 0;
+  if (!settings || typeof settings !== 'object') return 0;
+  const hooks = settings.hooks;
+  if (!hooks || typeof hooks !== 'object') return 0;
+  for (const eventName of Object.keys(hooks)) {
+    const eventEntries = hooks[eventName];
+    if (!Array.isArray(eventEntries)) continue;
+    for (const entry of eventEntries) {
+      if (!entry || !Array.isArray(entry.hooks)) continue;
+      for (const h of entry.hooks) {
+        if (!h || typeof h.command !== 'string') continue;
+        const next = visitor(h.command);
+        if (next !== h.command) {
+          h.command = next;
+          count++;
+        }
+      }
+    }
+  }
+  return count;
+}
+
+/**
+ * Diagnose: return list of broken entries WITHOUT mutating.
+ * Each entry: { event, matcher, before, after }.
+ */
+function diagnose(settings) {
+  const findings = [];
+  if (!settings || !settings.hooks) return findings;
+  for (const eventName of Object.keys(settings.hooks)) {
+    const eventEntries = settings.hooks[eventName];
+    if (!Array.isArray(eventEntries)) continue;
+    for (const entry of eventEntries) {
+      if (!entry || !Array.isArray(entry.hooks)) continue;
+      for (const h of entry.hooks) {
+        if (!h || typeof h.command !== 'string') continue;
+        const r = repairCommand(h.command);
+        if (r.fixed) {
+          findings.push({
+            event: eventName,
+            matcher: entry.matcher || '(none)',
+            before: r.before,
+            after: r.after,
+          });
+        }
+      }
+    }
+  }
+  return findings;
+}
+
+/**
+ * Repair: read settings.json → diagnose → if broken, backup + atomic-write fix.
+ * Returns { settingsPath, backupPath, changed, findings, dryRun }.
+ *
+ * Throws if:
+ *   - settings.json missing or unreadable
+ *   - settings.json not valid JSON
+ *   - post-repair content fails round-trip JSON.parse
+ *   - filesystem write fails
+ */
+function repair({ settingsPath, dryRun = false, inspectSecurity = assertRepairSafe } = {}) {
+  if (!settingsPath) {
+    settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+  }
+  if (!dryRun && fs.lstatSync(settingsPath).isSymbolicLink()) {
+    throw new Error('Refusing to replace a symbolic link. Link and target are unchanged. ' +
+      'Inspect its target and pass that regular file explicitly with --settings.');
+  }
+  const raw = fs.readFileSync(settingsPath, 'utf8');
+  const settings = JSON.parse(raw); // throws if not valid JSON
+  const findings = diagnose(settings);
+
+  if (findings.length === 0) {
+    return { settingsPath, backupPath: null, changed: 0, findings, dryRun };
+  }
+
+  if (dryRun) {
+    return { settingsPath, backupPath: null, changed: findings.length, findings, dryRun: true };
+  }
+
+  assertLosslessNumbers(raw);
+
+  // Apply repair (mutates settings in place)
+  const changed = walkHookCommands(settings, (cmd) => {
+    const r = repairCommand(cmd);
+    return r.fixed ? r.after : cmd;
+  });
+  // changed should equal findings.length — sanity check
+  if (changed !== findings.length) {
+    throw new Error(
+      `Internal error: diagnose found ${findings.length} but walk repaired ${changed}`
+    );
+  }
+
+  // Serialize + validation gate
+  const newRaw = JSON.stringify(settings, null, 2) + '\n';
+  JSON.parse(newRaw); // throws if invalid (defensive — should never trigger)
+
+  // No original bytes or backup bytes may be written before this proves that
+  // replacement can retain the supported security metadata. Inspection failure
+  // and custom metadata are refusals, never implicit permission resets.
+  inspectSecurity(settingsPath);
+
+  // Capture original file mode for permission preservation. On POSIX/WSL a
+  // 0600 settings.json must remain 0600 after repair; default Node fs.writeFile
+  // creates files at 0644 which would broaden access. No-op on Windows native
+  // (mode bits aren't meaningful) but harmless.
+  const origMode = fs.statSync(settingsPath).mode & 0o777;
+
+  // Backup
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupPath = settingsPath + '.bak.' + ts;
+  const backupStage = backupPath + '.incomplete';
+  writeDurableStage(backupStage, raw, origMode);
+  // Atomic, exclusive publication: an existing backup cannot be replaced.
+  try { fs.linkSync(backupStage, backupPath); } catch (error) { removeFailedStage(backupStage, error); }
+  fs.unlinkSync(backupStage);
+  syncParent(backupPath);
+
+  // Atomic write
+  const tmpPath = settingsPath + '.tmp.' + ts;
+  writeDurableStage(tmpPath, newRaw, origMode);
+  try { fs.renameSync(tmpPath, settingsPath); } catch (error) { removeFailedStage(tmpPath, error); }
+  syncParent(settingsPath);
+
+  return { settingsPath, backupPath, changed, findings, dryRun: false };
+}
+
+// ---------------------------------------------------------------------------
+// CLI surface
+// ---------------------------------------------------------------------------
+
+const HELP = `gsd-doctor v${VERSION} — diagnose and repair GSD hook installation state
+
+Usage:
+  node scripts/gsd-doctor.cjs <subcommand> [options]
+
+Subcommands:
+  check               Diagnose ~/.claude/settings.json hook commands.
+                      Exits 0 if clean, 1 if broken state detected.
+  repair              Repair broken hook commands. Creates timestamped
+                      backup before any modification. Refuses symbolic links;
+                      inspect the target and select it explicitly with --settings.
+                      Refuses custom or uninspectable security metadata. Windows
+                      requires audit-security read privilege; supported native
+                      Linux filesystems require Python 3, complete xattr/ioctl
+                      inspection and an existing CAP_SYS_ADMIN capability.
+                      The doctor never elevates or changes permissions to inspect.
+
+Options:
+  --settings <path>   Select the settings.json file to inspect or repair.
+  --dry-run           (repair only) Report changes without writing.
+  --verbose           Print per-entry decisions.
+  --help, -h          Show this help.
+  --version           Show version.
+
+Exit codes:
+  0  clean (check) OR repair succeeded
+  1  broken state detected (check) OR repair failed
+  2  usage error
+
+Examples:
+  node scripts/gsd-doctor.cjs check
+  node scripts/gsd-doctor.cjs repair
+  node scripts/gsd-doctor.cjs repair --dry-run --verbose
+`;
+
+function parseArgs(argv) {
+  const opts = {
+    subcommand: null,
+    settingsPath: null,
+    dryRun: false,
+    verbose: false,
+    help: false,
+    version: false,
+  };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--help' || a === '-h') opts.help = true;
+    else if (a === '--version') opts.version = true;
+    else if (a === '--dry-run') opts.dryRun = true;
+    else if (a === '--verbose') opts.verbose = true;
+    else if (a === '--settings') {
+      // Reject missing or flag-shaped values. Without this, `--settings`
+      // at end-of-argv silently sets opts.settingsPath = undefined, which
+      // falls back to ~/.claude/settings.json — would overwrite real live
+      // config when the user intended a fixture path.
+      const next = argv[++i];
+      if (!next || next.startsWith('-')) {
+        throw new Error(`--settings requires a value (got ${next === undefined ? 'nothing' : next})`);
+      }
+      opts.settingsPath = next;
+    }
+    else if (!opts.subcommand && (a === 'check' || a === 'repair')) opts.subcommand = a;
+    else throw new Error(`Unknown argument: ${a}`);
+  }
+  if (opts.subcommand === 'check' && opts.dryRun) throw new Error('--dry-run is only supported by repair');
+  return opts;
+}
+
+function formatFinding(f, verbose, action = 'would repair') {
+  if (!verbose) return `  ${f.event}/${f.matcher}: ${action}`;
+  return [
+    `  ${f.event}/${f.matcher}:`,
+    `    - ${f.before}`,
+    `    + ${f.after}`,
+  ].join('\n');
+}
+
+function runCheck(opts) {
+  const settingsPath =
+    opts.settingsPath || path.join(os.homedir(), '.claude', 'settings.json');
+  const raw = fs.readFileSync(settingsPath, 'utf8');
+  const settings = JSON.parse(raw);
+  const findings = diagnose(settings);
+  if (findings.length === 0) {
+    process.stdout.write(`gsd-doctor: clean (${settingsPath})\n`);
+    return 0;
+  }
+  process.stdout.write(
+    `gsd-doctor: ${findings.length} broken entr${findings.length === 1 ? 'y' : 'ies'} in ${settingsPath}\n`
+  );
+  for (const f of findings) {
+    process.stdout.write(formatFinding(f, opts.verbose) + '\n');
+  }
+  // Shell-specific literal quoting avoids expansion of $, apostrophes and spaces.
+  // Absolute paths keep the suggestion bound to the diagnosed file from any cwd.
+  const args = [__filename, 'repair', '--settings', path.resolve(settingsPath)];
+  const bashArgs = args.map(arg => "'" + arg.replace(/'/g, "'\"'\"'") + "'");
+  const powershellArgs = args.map(arg => "'" + arg.replace(/'/g, "''") + "'");
+  process.stdout.write(`Run (Bash): node ${bashArgs.join(' ')}\n`);
+  process.stdout.write(`Run (PowerShell): node ${powershellArgs.join(' ')}\n`);
+  return 1;
+}
+
+function runRepair(opts) {
+  const result = repair({ settingsPath: opts.settingsPath, dryRun: opts.dryRun });
+  if (result.changed === 0) {
+    process.stdout.write(`gsd-doctor: nothing to repair (${result.settingsPath})\n`);
+    return 0;
+  }
+  if (result.dryRun) {
+    process.stdout.write(
+      `gsd-doctor: would repair ${result.changed} entr${result.changed === 1 ? 'y' : 'ies'} (--dry-run, no write)\n`
+    );
+  } else {
+    process.stdout.write(
+      `gsd-doctor: repaired ${result.changed} entr${result.changed === 1 ? 'y' : 'ies'}\n`
+    );
+    process.stdout.write(`  backup: ${result.backupPath}\n`);
+  }
+  for (const f of result.findings) {
+    process.stdout.write(formatFinding(f, opts.verbose, result.dryRun ? 'would repair' : 'repaired') + '\n');
+  }
+  return 0;
+}
+
+function main(argv) {
+  let opts;
+  try {
+    opts = parseArgs(argv);
+  } catch (e) {
+    process.stderr.write(`gsd-doctor: ${e.message}\n\n${HELP}`);
+    return 2;
+  }
+  if (opts.help) {
+    process.stdout.write(HELP);
+    return 0;
+  }
+  if (opts.version) {
+    process.stdout.write(`gsd-doctor v${VERSION}\n`);
+    return 0;
+  }
+  if (!opts.subcommand) {
+    process.stderr.write(`gsd-doctor: missing subcommand\n\n${HELP}`);
+    return 2;
+  }
+  try {
+    // parseArgs admits only check/repair; the missing-command case returned above.
+    return opts.subcommand === 'check' ? runCheck(opts) : runRepair(opts);
+  } catch (e) {
+    process.stderr.write(`gsd-doctor: ${e.message}\n`);
+    return 1;
+  }
+}
+
+if (require.main === module) {
+  process.exitCode = main(process.argv.slice(2));
+}
+
+module.exports = {
+  VERSION,
+  BROKEN_RE,
+  repairCommand,
+  walkHookCommands,
+  diagnose,
+  repair,
+  parseArgs,
+  main,
+};

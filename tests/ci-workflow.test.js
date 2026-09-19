@@ -281,6 +281,20 @@ describe('CI workflow informational gates', () => {
     expect(composeIndex).toBeLessThan(names.indexOf(acceptance.name));
   });
 
+  test('installer transaction coverage gate runs on every test platform under a pinned Node', () => {
+    const job = yaml.load(readCiWorkflow()).jobs.test;
+    const gateIndex = job.steps.findIndex(step => step.name === 'Installer transaction coverage (Tier S, 100 per file)');
+    const nodeIndex = job.steps.findIndex(step => step.uses === `actions/setup-node@${ACTION_PINS.setupNode}`);
+
+    expect(job.steps[gateIndex]).toEqual({
+      name: 'Installer transaction coverage (Tier S, 100 per file)',
+      run: 'bun run test:coverage:install-transaction',
+    });
+    expect(job.steps[nodeIndex].with).toEqual({ 'node-version': '22', token: '' });
+    expect(nodeIndex).toBeGreaterThanOrEqual(0);
+    expect(nodeIndex).toBeLessThan(gateIndex);
+  });
+
   test('boundary debt reports without producing a failed-step annotation', () => {
     const workflow = readCiWorkflow();
     const boundaryJobStart = workflow.indexOf('boundary-check:');

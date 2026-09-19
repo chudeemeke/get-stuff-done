@@ -368,11 +368,20 @@ jobs:
             echo "Interim flake collector scope cap: more than 5 flaky files/week requires Tailscale collector planning."
           } >> "$GITHUB_STEP_SUMMARY"
           node scripts/flake-triage.js --validate-rel03-wrappers
+      # The two installer gates run last, under the same pinned Node on every platform.
+      # Last, so a failure here cannot trigger the failure()-conditioned flake steps
+      # above against a green JUnit file; pinned here, so the Bun suite keeps its Node.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          token: ""
       # Expected red until the installer transaction lands: passes only on the known
-      # failure, fails on an unexpected pass. Last in the job so its failure cannot
-      # trigger the failure()-conditioned flake steps above against a green JUnit file.
+      # failure, fails on an unexpected pass.
       - name: Installer recovery acceptance (expected red)
         run: node scripts/expect-red.cjs installer-recovery
+      # Tier S: 100 on all four metrics, per file.
+      - name: Installer transaction coverage (Tier S, 100 per file)
+        run: bun run test:coverage:install-transaction
 
   perf-budget:
     name: Perf Budget (${{ matrix.platform }})

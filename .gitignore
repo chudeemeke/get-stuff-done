@@ -26,6 +26,10 @@ hooks/dist/
 get-stuff-done/bin/dist/
 dist/
 
+# c8 report output of the test:coverage:* scripts. Anchored on purpose: an unanchored
+# `coverage/` would also swallow the tracked suites under tests/coverage/.
+/coverage/
+
 # Test symlink shim (created by sync.test.cjs, cleaned up on exit)
 overlay/get-shit-done
 

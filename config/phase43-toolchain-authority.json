@@ -139,7 +139,7 @@
       "docs-gates": "bun",
       "osv-scanner": "both",
       "lint": "bun",
-      "test": "bun",
+      "test": "both",
       "perf-budget": "both",
       "parity": "bun",
       "upstream-compat": "bun",

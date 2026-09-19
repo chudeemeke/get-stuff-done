@@ -189,7 +189,7 @@ describe('test-config hygiene (meta-test)', () => {
 
     // Exact repo-relative paths with --all: a module the suite never loads reports 0,
     // so missing file evidence cannot read as a pass.
-    expect(includes).toEqual(['bin/lib/install-names.js']);
+    expect(includes).toEqual(['bin/lib/install-names.js', 'bin/lib/install-transaction.js']);
     for (const name of includes) expect(fs.existsSync(path.join(PROJECT_ROOT, name))).toBe(true);
     expect(coverageScript).toContain('--all');
     expect(coverageScript).toContain('--per-file');

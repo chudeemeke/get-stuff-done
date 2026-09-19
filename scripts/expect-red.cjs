@@ -5,7 +5,7 @@
 // reason. An unexpected pass fails, and so does a red for any other reason (a missing
 // compose, a fixture that never reached its injection). Remove a gate's entry, and
 // call the gate directly, when its fix lands.
-// Plan: docs/plans/features/installer-transaction.md, Steps 1 and 5.
+// Plan: docs/plans/features/installer-transaction.md, Steps 1, 2 and 5.
 const path = require('path');
 const { spawnSync } = require('child_process');
 
@@ -31,6 +31,10 @@ const INSTALLER_RECOVERY_SIGNATURE = [
 
 function keyOf(check) {
   return `${check.scenario}:${check.id}`;
+}
+
+function linesOf(text) {
+  return String(text || '').split(/\r?\n/);
 }
 
 // The installer leaves the child's files in the target and prints an unverified
@@ -61,17 +65,50 @@ function judgeInstallerRecovery(run) {
   return [...new Set(problems)];
 }
 
+// The transaction module is a skeleton: the only acceptable failure is a case that
+// reaches an operation whose seam has not landed. A case failing any other way, a
+// coverage shortfall on what HAS landed, or a run with nothing failing is the wrong red.
+function judgeInstallTransactionCoverage(run) {
+  const lines = linesOf(run.stdout);
+  const count = label => Number(lines.find(line => line.startsWith(`# ${label} `))?.slice(label.length + 3));
+  const failed = count('fail');
+  if (!Number.isInteger(failed) || !Number.isInteger(count('pass'))) {
+    return [`no TAP summary on stdout: ${String(run.stderr || run.stdout).slice(0, 300)}`];
+  }
+  if (run.status === 0 || failed === 0) {
+    return ['UNEXPECTED PASS: no case fails. Remove this expect-red entry and run the gate as a plain gate (plan Step 5).'];
+  }
+  const problems = [];
+  if (run.status !== 1) problems.push(`exit status ${run.status}, expected 1`);
+  const starts = lines.flatMap((line, index) => (/^(not )?ok \d+ - /.test(line) ? [index] : []));
+  const failures = starts.filter(index => lines[index].startsWith('not ok '));
+  if (failures.length !== failed) problems.push(`summary reports ${failed} failures, ${failures.length} found`);
+  for (const index of failures) {
+    const end = starts.find(start => start > index) ?? lines.length;
+    const error = lines.slice(index, end).find(line => line.trimStart().startsWith('error:'));
+    if (!/^\s+error: 'not implemented: [A-Za-z]+'$/.test(error || '')) {
+      problems.push(`failed for another reason: ${lines[index].replace(/^not ok \d+ - /, '')}`);
+    }
+  }
+  for (const line of [...linesOf(run.stderr), ...lines]) {
+    if (line.includes('ERROR: Coverage')) problems.push(line.trim());
+  }
+  return problems;
+}
+
 const KNOWN_REDS = {
   'installer-recovery': { script: 'test:acceptance:installer-recovery', judge: judgeInstallerRecovery },
+  'install-transaction-coverage': { script: 'test:coverage:install-transaction', judge: judgeInstallTransactionCoverage },
 };
 
 // The command comes from package.json so this wrapper and the package script cannot drift.
+// Package scripts quote glob-like arguments for the shell; no shell runs here.
 function commandFor(gate, packageJson) {
   const command = packageJson.scripts?.[gate.script];
   if (typeof command !== 'string' || !command.startsWith('node ')) {
     throw new Error(`package script ${gate.script} must be a plain "node <file>" command, saw ${JSON.stringify(command)}`);
   }
-  return command.split(' ').slice(1);
+  return command.split(' ').slice(1).map(argument => argument.replace(/^'(.*)'$/, '$1'));
 }
 
 function main(args = process.argv.slice(2), dependencies = {}) {
@@ -106,4 +143,12 @@ if (require.main === module) {
   process.exitCode = main();
 }
 
-module.exports = { INSTALLER_RECOVERY_HARNESS, INSTALLER_RECOVERY_SIGNATURE, KNOWN_REDS, commandFor, judgeInstallerRecovery, main };
+module.exports = {
+  INSTALLER_RECOVERY_HARNESS,
+  INSTALLER_RECOVERY_SIGNATURE,
+  KNOWN_REDS,
+  commandFor,
+  judgeInstallTransactionCoverage,
+  judgeInstallerRecovery,
+  main,
+};

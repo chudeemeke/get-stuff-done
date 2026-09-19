@@ -4,10 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 const { writeJsonFileAtomic } = require('../scripts/lib/atomic-json-file');
-
-function fileError(code) {
-  return Object.assign(new Error(code), { code });
-}
+const { fileError } = require('./helpers/fault-fs.cjs');
 
 function createHarness(options = {}) {
   const calls = [];

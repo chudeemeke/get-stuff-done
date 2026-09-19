@@ -379,9 +379,11 @@ jobs:
       # failure, fails on an unexpected pass.
       - name: Installer recovery acceptance (expected red)
         run: node scripts/expect-red.cjs installer-recovery
-      # Tier S: 100 on all four metrics, per file.
-      - name: Installer transaction coverage (Tier S, 100 per file)
-        run: bun run test:coverage:install-transaction
+      # Tier S: 100 on all four metrics, per file. Expected red while the transaction
+      # module is a skeleton: only "not implemented" failures are accepted, and a
+      # coverage shortfall on anything that has landed is not.
+      - name: Installer transaction coverage (Tier S, expected red)
+        run: node scripts/expect-red.cjs install-transaction-coverage
 
   perf-budget:
     name: Perf Budget (${{ matrix.platform }})

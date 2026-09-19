@@ -8,7 +8,17 @@
 > owner decisions: exit 2 for argument misuse; manifest roots limited to shipped or known
 > names; digest from source and copy; target created only after every refusal is decided).
 > In Step 5, the verify mutant is killed by a byte appended after a successful restore, not
-> by a forced restore failure. **Next: Step 1.**
+> by a forced restore failure.
+>
+> **Status, 2026-09-19 morning: Steps 1 and 2 are DONE** (`897116f9` pushed; `19f83943` and
+> `7c955a59` local, held while GitHub Actions is account-locked). Deviations from the text
+> below, each forced by a measurement or a gate: the Step 1 CI step sits at the END of the
+> `test` job, not directly after the Bun step, so its failure cannot trigger the
+> `failure()`-conditioned flake steps; the known red is five signature checks plus seven
+> harness checks, not one failure string; adding `setup-node` to the `test` job required
+> declaring that job as `both` in `config/phase43-toolchain-authority.json`; Step 2 landed the
+> RED cases for the lock and `renderOutcome` only, and each remaining seam gets its RED cases
+> immediately before its GREEN commit. **Next: Step 3, the lock seam first.**
 
 # Plan: installer transaction implementation (PR 69), test-first
 

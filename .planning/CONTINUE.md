@@ -1,6 +1,22 @@
-# Position as of 2026-09-19 early: plan approved, Step 0 done, Step 1 (expected-red acceptance gate) is next
+# Position as of 2026-09-19 morning: plan Steps 0, 1 and 2 done; Step 3 (GREEN per seam, lock first) is next; CI is account-locked, hold every push
 
-Nothing is running. Claude Code ran last. The implementation plan for the installer
+Nothing is running. Claude Code ran last. Step 1 (`897116f9`, the acceptance gate in
+expected-red mode) is pushed. Step 2 (`19f83943` names table at 100 percent, `7c955a59`
+transaction skeleton plus 22 RED unit cases) is LOCAL and unpushed on purpose: GitHub Actions
+is account-locked, every job has `steps=0` since 2026-09-19T02:05Z. Read `.planning/HANDOFF.json`
+-> `session_2026_09_19_b` first. **`bin/install.js` has not been edited.** A Codex pass over
+the amended note is still only offered. Every `git push` needs pinned bun 1.3.5 first on PATH
+and a look at the last run's step counts before it; never `--no-verify`. Start every Bash
+command with an explicit `cd` into this worktree. Never send text containing a backslash
+through a heredoc. **This worktree holds the live handoff; the main checkout's copy is dated
+2026-08-30.**
+
+---
+
+> The block below is the 2026-09-19 early position. Its "Next: Step 1" is DONE, and its
+> "pushed" describes pushes into a locked CI; everything else in it still holds.
+
+Claude Code ran last. The implementation plan for the installer
 transaction is **owner-approved** and is in the repo: `docs/plans/features/installer-transaction.md`.
 **Step 0 is done and pushed**: the accepted rollback note was amended after a fifth independent
 review (fable NOT PASS, Gemini PASS WITH CHANGES), a measurement of the real composed child

@@ -1,16 +1,16 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-19T02:09:22.913Z",
+  "timestamp": "2026-09-19T08:13:55.237Z",
   "phase": "43",
   "phase_name": "upgrade-resilience-verify-matrix-dogfood",
   "phase_dir": ".planning/phases/43-upgrade-resilience-verify-matrix-dogfood",
   "branch": "chore/upstream-bump-1.9.1",
-  "pr": "UPDATED 2026-09-19 early: draft PR 69 branch pushed and in sync. The last WORK commit is f978fc13; the commits after it (33dc0b74 and the one that wrote this sentence) are handoff-only. A hash written inside a handoff is always one commit stale, so measure instead: git fetch origin, then git rev-list --left-right --count origin/chore/upstream-bump-1.9.1...HEAD must print 0 0. Every hooked push this session ran 1764 pass, 0 fail under pinned bun 1.3.5. bin/install.js unedited. PR 4 closure NOT authorized. See session_2026_09_19_a.",
-  "status": "installer-plan-approved-step-0-done-step-1-next",
-  "READ_FIRST": "READ session_2026_09_19_a FIRST; it supersedes everything else in this file where they differ. Short form: the implementation plan is owner-approved and is in the repo at docs/plans/features/installer-transaction.md. Step 0 is DONE: the accepted note was amended after a fifth review, a measurement of the real child and four owner decisions (round four). bin/install.js has NOT been edited. Next: Step 1, the acceptance gate in expected-red mode. Every git push, including --delete, needs pinned bun 1.3.5 first on PATH; never --no-verify. This worktree holds the live handoff. In Claude Code the Bash cwd silently resets to the MAIN checkout: start every command with an explicit cd into this worktree and a branch check.",
+  "pr": "UPDATED 2026-09-19 morning: draft PR 69. origin is at 897116f9 (Step 1). The branch is AHEAD of origin by the Step 2 commits 19f83943 and 7c955a59 plus the handoff commit that wrote this sentence, and that is deliberate: GitHub Actions is account-locked (every job steps=0 since 2026-09-19T02:05Z), so every push is held. Measure, do not trust this text: git fetch origin, then git rev-list --left-right --count origin/chore/upstream-bump-1.9.1...HEAD (expect 0 behind, 3 or more ahead). Before ANY push read the last run step counts (recipe in session_2026_09_19_b.ci_halt). Every hooked push needs pinned bun 1.3.5 first on PATH; never --no-verify.",
+  "status": "installer-steps-0-1-2-done-step-3-next-ci-account-locked-hold-pushes",
+  "READ_FIRST": "READ session_2026_09_19_b FIRST; it supersedes everything else in this file where they differ. Short form: installer transaction plan Steps 0, 1 and 2 are DONE. Step 1 (897116f9) is pushed; Step 2 (19f83943, 7c955a59) is LOCAL and unpushed ON PURPOSE because GitHub Actions is account-locked: every job has steps=0 since 2026-09-19T02:05Z. HOLD EVERY PUSH until the owner clears it, and read the last run step counts before the first push of any session. bin/install.js has NOT been edited. Next: Step 3, GREEN one seam per commit, lock first. This worktree holds the live handoff. In Claude Code the Bash cwd silently resets to the MAIN checkout: start every command with an explicit cd into this worktree and a branch check. Never pass text containing a backslash through a heredoc or an inline interpreter argument; use the Write or Edit tool.",
   "SECTION_INDEX": {
     "CURRENT": [
-      "session_2026_09_19_a",
+      "session_2026_09_19_b",
       "human_actions_pending",
       "blockers",
       "decisions",
@@ -20,6 +20,7 @@
       "context_notes"
     ],
     "MIXED": [
+      "session_2026_09_19_a",
       "bump_arc",
       "session_2026_09_18_b",
       "session_2026_09_18_c"
@@ -145,6 +146,11 @@
   },
   "human_actions_pending": [
     {
+      "id": "github-actions-account-lock",
+      "description": "Clear the GitHub account billing lock (check the Actions budget page first, then the payment method). Canonical item: C:/Projects/conversations/docs/inbox/2026-08-28-ai-dev-environment-github-actions-billing-halted-all-ci.md. Blocks every hosted check on every repository.",
+      "blocking": true
+    },
+    {
       "id": "issue-51-governance-branch",
       "issue": "https://github.com/chudeemeke/get-stuff-done/issues/51",
       "description": "DECIDE: land or discard docs/pr-issue-evidence-workflow. Landing creates the type:* labels git-workflow.md calls standard."
@@ -173,7 +179,7 @@
   "remaining_tasks": [
     {
       "id": "issue-53-step-3",
-      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Installer transaction: plan approved, Step 0 (note amended) done 2026-09-19; Steps 1 to 6 of docs/plans/features/installer-transaction.md remain, then PR 69 blockers 6, 8 and 9, then 1.10.0, 1.11.0, 1.12.0.",
+      "name": "Step 3 of 6 (1.8.0 to 1.9.1) = draft PR 69. Installer transaction: plan Steps 0, 1 and 2 done 2026-09-19 (Step 2 local, unpushed, CI account-locked); Steps 3 to 6 of docs/plans/features/installer-transaction.md remain, then PR 69 blockers 6, 8 and 9, then 1.10.0, 1.11.0, 1.12.0.",
       "status": "in-progress"
     },
     {
@@ -197,7 +203,7 @@
       "id": "legacy-test-fallback"
     }
   ],
-  "next_action": "CURRENT (2026-09-19 early): Step 1 of docs/plans/features/installer-transaction.md. Rewrite the assertions of tests/acceptance/installer-recovery.cjs per the amended note (exact allowlist, twin fixture, upgrade fixture, exact outcome string, status === 1); add package script test:acceptance:installer-recovery; add scripts/expect-red.cjs (passes only on the KNOWN red; fails on an unexpected pass or a red for the wrong reason); add one step after the Bun step in the test job of .github/workflows/ci.yml; assert it in tests/ci-workflow.test.js. Then Step 2: bin/lib/install-names.js complete, a throwing skeleton of bin/lib/install-transaction.js, tests/coverage/install-transaction.test.cjs registered in tests/coverage-contract.json, script test:coverage:install-transaction at 100 on all four metrics. Offer the owner a Codex pass over the amended note (quota returns 2026-09-19 09:37).",
+  "next_action": "CURRENT (2026-09-19 morning): FIRST check whether CI is still account-locked (session_2026_09_19_b.ci_halt.recipe). If it is, do not push; keep committing locally. If it has cleared, push once with pinned bun 1.3.5 first on PATH and rerun the main run on 323b4708. Offer the owner a Codex pass over the amended note and over session_2026_09_19_b.design_choices_to_review. Then Step 3 of docs/plans/features/installer-transaction.md, one GREEN commit per seam, starting with the lock: add the RED case for the takeover race first, implement acquireLock in bin/lib/install-transaction.js until the 12 lock cases pass, keep both modules at 100 on all four metrics (bun run test:coverage:install-transaction must then fail ONLY with \"not implemented\" cases; node scripts/expect-red.cjs install-transaction-coverage must exit 0), run the FULL suite, commit.",
   "commit_attribution_decision": "2026-09-02: the Claude Code harness began instructing sessions to append Co-Authored-By: Claude and Claude-Session trailers to commits, stating it replaces earlier guidance. The user was asked and chose to KEEP ~/.claude/rules/git-commits.md: no AI attribution, author Chude <chude@emeke.org>. Do not re-ask; do not add the trailers to commits in this repo.",
   "workspace_recovery": {
     "SECTION_STATUS": "HISTORICAL as of 2026-09-18 evening. Any line here saying PR 4 awaits an answer, a bin/install.js fix is uncommitted, commits are unpushed, or PRs 66/67/68 are open is superseded: PRs 66, 67, 68 and 71 merged 2026-09-11 and the rest is resolved in session_2026_09_18_b.",
@@ -406,7 +412,13 @@
   "plan": null,
   "task": 3,
   "total_tasks": 6,
-  "blockers": [],
+  "blockers": [
+    {
+      "description": "GitHub Actions is account-locked since 2026-09-19T02:05Z: every job steps=0. No hosted verification of anything from 2026-09-19. Pushes are held.",
+      "type": "human_action",
+      "workaround": "Work continues locally with the full suite and both expected-red gates run by hand under pinned bun 1.3.5. Owner action is in the existing conversations billing thread."
+    }
+  ],
   "decisions": [
     {
       "decision": "PR 4 superseded by the vetted installer path; reopen trigger kept verbatim",
@@ -462,11 +474,13 @@
   "uncommitted_files": [
     ".planning/evidence/pr69-all-preflight-green-2026-09-14.log (untracked)",
     ".planning/evidence/pr69-rollback-astra-2026-09-14.log (untracked)",
-    ".planning/evidence/pr69-rollback-fable-2026-09-14.log (untracked)"
+    ".planning/evidence/pr69-rollback-fable-2026-09-14.log (untracked)",
+    "UNPUSHED on purpose: commits 19f83943, 7c955a59 and the handoff commits after them."
   ],
   "async_jobs": [],
-  "context_notes": "Persisted 2026-09-19 early through the document-for-clear skill (Skill tool) and the gsd-pause-work skill. Existing custom sections were merged, not replaced. The owner answers decision batches quickly when the evidence is inside the AskUserQuestion text. This session the review ran BEFORE the owner was asked, and the owner was asked once. On one of four questions the owner chose against the recommendation; that is a decision, not an error to be re-raised.",
+  "context_notes": "Persisted 2026-09-19 morning through the document-for-clear skill (Skill tool) and the gsd-pause-work skill, at the owner request mid-turn. Existing custom sections were merged, not replaced. No owner decision was needed this session. The owner answers decision batches quickly when the evidence is inside the AskUserQuestion text; on one of four round-four questions the owner chose against the recommendation, which is a decision, not an error to be re-raised.",
   "session_2026_09_19_a": {
+    "SECTION_STATUS": "MIXED as of 2026-09-19 morning; session_2026_09_19_b holds the truth. Still true: what_step_0_found, owner_decisions_round_four, review_gate (including its caveat), settled_without_the_owner, near_misses, worktree_inventory for every worktree except skin-campaign. Superseded: position (\"Step 1 is next\": Steps 1 and 2 are done), branch_state (the branch is at 7c955a59 plus a handoff commit and is AHEAD of origin, not in sync), last_harness detail (a Codex pass is still only offered), and \"pushed and in sync\" anywhere: those pushes went into an account-locked CI and no hosted job ran. In still_open_surfaced_not_decided the SESSION_LOG archive item is DONE.",
     "by": "Claude Code session, Fable 5.1, 2026-09-18 late to 2026-09-19 early. Planning, docs commits, two reviewer lanes, one measurement, four owner decisions, one test-isolation fix. No installer code edited.",
     "last_harness": "Claude Code, 2026-09-19 early. Codex last wrote 2026-09-14; its quota returns 2026-09-19 09:37 and it has reviewed no revision of the design. A Codex pass over the amended note is OFFERED to the owner, not run.",
     "position": "Implementation plan approved. Step 0 (amend the note) is done and pushed. Step 1 (acceptance gate, expected-red) is next. bin/install.js is unedited.",
@@ -509,6 +523,66 @@
     "persistence": {
       "mechanism": "document-for-clear skill via the Skill tool; gsd-pause-work skill for step 7",
       "verification_gate": "RAN, one round, 2026-09-19 early: fresh-context agent on a cheaper model, 11 probes plus a stale-assertion sweep, read-only, transcripts and the plans directory forbidden, no fetch. Could a cold session resume correctly: YES WITH CAVEATS. Zero MATERIAL gaps; nine probes NO GAP; two PARTIAL, both closed in this commit and in project memory: (1) the top-level pr field pinned f978fc13 while the commit that wrote it was already one past it, now reworded to tell the reader to measure; (2) the agent attributed the owner's against-recommendation choice to manifest roots because SESSION_LOG said only 'on the third'; it was the FUTURE-DATED JOURNAL, and the log now names it. Sweep also found project_state.md saying the plan lives outside the repo; it now names docs/plans/features/installer-transaction.md first. The trailing scalar fields plan, task and total_tasks are not sections and carry no SECTION_STATUS by design. No second round: no material gap and the partials were wording, not missing state. NOT DONE: memory sync --embed failed, the Ollama server on the desktop was unreachable, so this session is not semantically searchable yet."
+    }
+  },
+  "session_2026_09_19_b": {
+    "by": "Claude Code session, Fable 5.1, 2026-09-19 morning. Three work commits, one measurement probe, no installer code edited, no owner decision asked or needed.",
+    "last_harness": "Claude Code, 2026-09-19 morning. Codex last wrote 2026-09-14 and has reviewed no revision of the design; its quota returned 2026-09-19 09:37. A Codex pass over the amended note is STILL ONLY OFFERED: the owner asked for /clear before the offer was made in-session, so make it at the start of the next session.",
+    "position": "Plan Steps 0, 1 and 2 done. Step 3 (GREEN, one commit per seam: names and comparison keys are already green; next is the lock, then preflight and snapshot, journal, plan/apply/verify, render, recover and retire, commit and prune) is next. bin/install.js is unedited and nothing requires the new modules yet.",
+    "read_in_order": [
+      "docs/plans/features/installer-transaction.md (Step 3 onward; where it and the note differ, the NOTE wins)",
+      "docs/reviews/installer-rollback-redesign-2026-09-18.md (steps 1, 8, 9, 10; Proof; Readings settled for implementation)",
+      "tests/coverage/install-transaction.test.cjs (the 22 RED cases ARE the lock and renderOutcome contract; design_choices_to_review below lists what they fix beyond the note)",
+      "tests/acceptance/installer-recovery.cjs and scripts/expect-red.cjs (the two expected-red gates and what counts as the known red)"
+    ],
+    "commits": {
+      "897116f9": "PUSHED. Step 1: acceptance test rewritten (check-collecting harness, twin fixture, fresh and upgrade scenarios), scripts/expect-red.cjs, package script test:acceptance:installer-recovery, ci.yml step at the END of the test job, tests. Pre-push hook: 1790 pass, 0 fail, 70 files, bun 1.3.5.",
+      "19f83943": "LOCAL. Step 2 part one: bin/lib/install-names.js complete at 100/100/100/100; test:coverage:install-transaction (c8 --all --per-file, exact includes); coverage-contract registration; hygiene pins; setup-node 22 in the test job WITH config/phase43-toolchain-authority.json changed from test: bun to test: both; anchored /coverage/ in .gitignore. Full suite 1792 pass, 0 fail.",
+      "7c955a59": "LOCAL. Step 2 part two: bin/lib/install-transaction.js skeleton (one factory, sixteen operations throwing \"not implemented: <name>\"); 22 RED unit cases (lock 12, renderOutcome 10); expect-red entry install-transaction-coverage and its ci.yml step; tests/helpers/fault-fs.cjs. Full suite 1796 pass, 0 fail; unit suite 32 tests, 10 pass, 22 fail, every failure \"not implemented\"."
+    },
+    "ci_halt": {
+      "fact": "Every job on this repository has steps=0 since the run on f978fc13 at 2026-09-19T02:05Z. Annotation: \"The job was not started because your account is locked due to a billing issue\". authkey showed startup_failure the same morning, so it is account-wide. Last run that executed: 8c78d21f, 2026-09-18T20:22Z. Four all-red runs on PR 69 (f978fc13, 33dc0b74, 76d726c7, 897116f9) mean nothing.",
+      "consequence": "The known red of both expected-red gates is proven on win32 ONLY. Linux and macOS are unknown until a hosted run executes. The signature in scripts/expect-red.cjs was chosen to be platform-independent (harness checks all ok, five acceptance checks failing, extra failures allowed), but that is a prediction.",
+      "recipe": "gh run list --branch chore/upstream-bump-1.9.1 --workflow CI --limit 1 --json databaseId --jq \".[0].databaseId\"  then  gh api repos/chudeemeke/get-stuff-done/actions/runs/<id>/jobs --jq \".jobs[] | [.name, .conclusion, (.steps|length)] | @tsv\"  ; steps 0 everywhere means still halted.",
+      "owner_action": "Lives in the EXISTING portfolio thread C:/Projects/conversations/docs/inbox/2026-08-28-ai-dev-environment-github-actions-billing-halted-all-ci.md (next_owner: user). A blocked event with this project evidence was appended 2026-09-19. Do not file a second item.",
+      "after_it_clears": "Push once (pinned bun first on PATH). Then rerun the main run on 323b4708: its Windows leg REALLY failed, 18 steps, two timeouts (SBOM dist pipeline at 90 s; fork roadmap DACL at 60 s) on a docs-only merge, so main is nominally red."
+    },
+    "measured_this_session": [
+      "Twin (failure-injected composed 1.9.1 child, no wrapper, isolated home, win32): 742 entries left (628 files, 114 directories); NO pre-existing file changed, so settings.json is untouched before manifest publication and displaced/ is empty in the fresh scenario.",
+      "The child places skills/** with ONE fs.cpSync of a directory. The write trace cannot attribute that to a file: 554 of 628 files are traced. Upgrade-fixture picks therefore come from twin.tracedFiles, and a harness check proves the child rewrote both picks.",
+      "The unfixed wrapper, on upgrade, restores an edited file and a deleted file (both are in its predicted list) but not gsd-install-state.json.",
+      "The acceptance run is four installs and takes about 10 s locally.",
+      "c8 without --all silently omits a module the suite never loads; with --all and exact repo-relative includes it reports 0. The gate was shown to fail (branches 88.88) when the darwin cases were neutralised."
+    ],
+    "design_choices_to_review": [
+      "These are implementation choices made INSIDE the fifteen owner decisions; none reopens one. A reviewer (Codex, or the owner) should look at them because the RED tests now pin them.",
+      "Lock content: JSON {pid, created} with created an ISO string. acquireLock(targetDir) returns {path, tookOver, release()}; release() never deletes a lock that names another pid and is safe to call twice.",
+      "Refusals are thrown errors named InstallRefusal carrying exitCode 6.",
+      "Unreadable lock message: \"An install lock exists but cannot be read (lock <path>). If no installer is running, delete that file and run again.\"",
+      "renderOutcome(outcome, notices) returns exactly {exitCode, lines}. Outcome kinds: applied, incomplete, recovered, refused, misuse, committed. recovered wraps a result; a recovery whose result is incomplete exits 4, not 5.",
+      "Exit-3 names render as \"ide (appeared), statsig (disappeared)\". Quarantine line: \"<n> new entries (<m> files) moved to <path>/new\". Displaced line: \"<path> -> <quarantine path>\". The incomplete block has exactly one line starting \"To recover:\".",
+      "Acceptance: exactly one output line may start with \"Rollback \"; the pre-image time must parse as a date inside the run window; the output must contain the absolute quarantine/<id> path; moved.txt must contain every moved file as a POSIX relative path.",
+      "Deferred to the lock seam because it needs thought: the takeover RACE (rename of the stale lock loses with ENOENT) and what the loser prints; and that a refused run must not create an absent target directory.",
+      "Not all \"about 40\" unit cases exist: that figure is the plan size estimate for the whole suite. Each remaining seam gets its RED cases immediately before its GREEN commit in Step 3."
+    ],
+    "governed_change": "config/phase43-toolchain-authority.json: ci.yml test job changed from \"bun\" to \"both\", because the plan adds setup-node to that job and scripts/verify-toolchain-authority.js otherwise reports node_setup_extraneous. Verifier ok, 192 bound tests pass. It is named in commit 19f83943 and must be named in the PR 69 body at Step 6.",
+    "near_misses": [
+      "Verified git sync at resume and never read the last CI run, so a fourth commit was pushed into a halt the previous session had pushed three into. Artifacts: memory ci_halt_check_before_first_push.md, a paragraph in ~/.claude/rules/git-workflow.md, the inbox event.",
+      "Upgrade-fixture picks were wrong twice: first an OVERLAY file the child never writes, then a file under skills/ (cpSync, invisible to the trace).",
+      "Focused suites green, FULL suite red (toolchain authority). Run the full suite before any commit that edits a workflow.",
+      "mistakes-log Workflow 12 recurred twice with the rule in context: a quoted heredoc appending a test file did not parse, and a heredoc patch script turned a doubled-backslash regex into a real CR and LF inside scripts/expect-red.cjs. node --check caught it. Five backslash-free heredoc scripts had just worked, which is why the sixth felt safe.",
+      "refusalOf() in the unit suite first swallowed the skeleton error, so eight RED cases failed as assertion mismatches; it now rethrows \"not implemented\"."
+    ],
+    "still_open_surfaced_not_decided": [
+      "Everything under session_2026_09_19_a.still_open_surfaced_not_decided is unchanged EXCEPT the SESSION_LOG archive, which is done (nine 2026-08 sections moved to memory archive/2026-08-session-log.md).",
+      "Main is nominally red on 323b4708 (two Windows timeouts) and cannot be rerun while the account is locked.",
+      "The harness shell PATH carries a stale fragment \"CLAUDE_DEFAULT_CWD=...iCloudDrive/Documents/AI Tools/...\" (seen in a which error). Environment debt outside this repository; not investigated.",
+      "Three untracked .planning/evidence/pr69-*-2026-09-14.log files are still only on this disk."
+    ],
+    "checkpoints": "Cross-project inbox checkpoint: no local item changed state; one cross-project write (the blocked event on the conversations billing thread). First-party infrastructure broadcast: N/A, no consumer-visible contract changed; nothing consumes the new modules and no release was cut.",
+    "persistence": {
+      "mechanism": "document-for-clear skill via the Skill tool, at the owner request mid-turn; gsd-pause-work skill for step 7.",
+      "verification_gate": "See the closing line appended to this section by the handoff commit that follows the gate."
     }
   }
 }

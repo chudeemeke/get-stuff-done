@@ -11,7 +11,7 @@
         "pathe": "^2.0.3",
       },
       "devDependencies": {
-        "@cyclonedx/cyclonedx-npm": "6.0.0",
+        "@cyclonedx/cyclonedx-npm": "6.0.1",
         "@opengsd/gsd-core": "1.8.0",
         "acorn": "8.17.0",
         "c8": "9.1.0",
@@ -94,7 +94,7 @@
 
     "@cyclonedx/cyclonedx-library": ["@cyclonedx/cyclonedx-library@10.2.0", "", { "peerDependencies": { "ajv": "^8.12.0", "ajv-formats": "^3.0.1", "ajv-formats-draft2019": "^1.6.1", "libxmljs2": "^0.35||^0.37", "packageurl-js": "*", "spdx-expression-parse": "*", "xmlbuilder2": "^3.0.2||^4.0.0" }, "optionalPeers": ["ajv", "ajv-formats", "ajv-formats-draft2019", "libxmljs2", "packageurl-js", "spdx-expression-parse", "xmlbuilder2"] }, "sha512-hGeo1XXM0zuIeTyzJihxPxnEOeNBmgZkuPRmTR28RktlAqF9xLneonHRCzahZHLgCq/LOmtCs5vyojJlnmJ87w=="],
 
-    "@cyclonedx/cyclonedx-npm": ["@cyclonedx/cyclonedx-npm@6.0.0", "", { "dependencies": { "@cyclonedx/cyclonedx-library": "^10.0.0", "commander": "^14.0.0", "normalize-package-data": "^7.0.0 || ^8.0.0", "packageurl-js": "^2.0.1", "spdx-expression-parse": "^3.0.1 || ^4.0.0", "xmlbuilder2": "^3.0.2 || ^4.0.3" }, "optionalDependencies": { "ajv": "^8.12.0", "ajv-formats": "^3.0.1", "ajv-formats-draft2019": "^1.6.1", "libxmljs2": "^0.35||^0.37" }, "bin": { "cyclonedx-npm": "bin/cyclonedx-npm-cli.js" } }, "sha512-kpWjjV0j5y0mMHUB5dSx1hxweH8K2blSqkgdQ6eHgU7aClB4CcXGhbHtGY6WVHSo3A01Rt7WOLas/wQ1E+tBDg=="],
+    "@cyclonedx/cyclonedx-npm": ["@cyclonedx/cyclonedx-npm@6.0.1", "", { "dependencies": { "@cyclonedx/cyclonedx-library": "^10.0.0", "commander": "^14.0.0", "normalize-package-data": "^7.0.0 || ^8.0.0", "packageurl-js": "^2.0.1", "spdx-expression-parse": "^3.0.1 || ^4.0.0", "xmlbuilder2": "^3.0.2 || ^4.0.3" }, "optionalDependencies": { "ajv": "^8.12.0", "ajv-formats": "^3.0.1", "ajv-formats-draft2019": "^1.6.1", "libxmljs2": "^0.35||^0.37" }, "bin": { "cyclonedx-npm": "bin/cyclonedx-npm-cli.js" } }, "sha512-/aU3bBC6qP6cV/qQ5SfUSygE/+2hQhwgg6sJML31/gZ96NyMvIUuwdk637H4z+LS/NryRT2kjR2wtD0qBEVVHQ=="],
 
     "@emnapi/runtime": ["@emnapi/runtime@1.11.3", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA=="],
 

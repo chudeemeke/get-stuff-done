@@ -64,12 +64,12 @@ describe('CycloneDX dependency authority', () => {
       fs.readFileSync(path.join(__dirname, '..', 'bun.lock'), 'utf-8')
     );
 
-    expect(packageJson.devDependencies['@cyclonedx/cyclonedx-npm']).toBe('6.0.0');
+    expect(packageJson.devDependencies['@cyclonedx/cyclonedx-npm']).toBe('6.0.1');
     expect(lock.workspaces[''].devDependencies['@cyclonedx/cyclonedx-npm']).toBe(
-      '6.0.0'
+      '6.0.1'
     );
     expect(lock.packages['@cyclonedx/cyclonedx-npm'][0]).toBe(
-      '@cyclonedx/cyclonedx-npm@6.0.0'
+      '@cyclonedx/cyclonedx-npm@6.0.1'
     );
     expect(fs.existsSync(path.join(__dirname, '..', 'package-lock.json'))).toBe(false);
   });

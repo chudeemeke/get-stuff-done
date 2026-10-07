@@ -4,10 +4,135 @@ Status: written 2026-09-19 by the Claude Code session that landed the lock seam
 (`4eb3201f`), at the owner's request: Anthropic quota is ending for the week and Codex
 continues this work. Read this file after `.planning/CONTINUE.md`.
 
-Authority, highest first: the owner's fifteen decisions (end of the design note); the
-design note `docs/reviews/installer-rollback-redesign-2026-09-18.md`; the plan
-`docs/plans/features/installer-transaction.md`; this brief. Where two differ, the higher
-one wins and you tell the owner.
+Authority, highest first: latest explicit owner decisions; the design note's current
+authority section (`docs/reviews/installer-rollback-redesign-2026-09-18.md`); the skin
+completion contract and `docs/plans/features/skin-completion-execution-2026-09-19.md`;
+the reconciled installer plan; this brief. The latest accepted holistic directions
+supersede conflicting earlier installer D3/D4 readings. Campaign D1-D11 remain
+unchanged. Where two differ, use the current authority and report the conflict.
+
+## Current assessment result,2026-09-22
+
+The approved section24 Claude/Codex source compatibility assessment is complete;
+see execution-plan section24's September22 map and source-bound receipt
+`.planning/evidence/p07-section24-compatibility-2026-09-22.json`.
+Recommendation is private preparation/final-path qualification with separately
+owned publication, not whole-runtime generation switching as the next build.
+Neither delivery model has implementation approval. F1/F2 Codex path findings,
+mutable agent/profile surfaces, distinct state roots and qualification gates are
+recorded there. NEXT prepare a concrete Q1/Q2 packet before execution approval.
+No new experiment or product seam follows from assessment completion. Section23
+remains withdrawn; campaign D1-D11 and accepted safety requirements remain binding.
+
+## Owner direction, 2026-09-19: completion and value
+
+Latest decision: the owner accepted the holistic review's suggestions,
+recommendations and preferred direction, including all eight repair directions and
+H1-H8. The design note now has an authoritative current-policy addendum. Child safety
+outranks age, one persisted automatic rollback attempt replaces automatic replay,
+and mutable quarantine is retained unless deletion safety is proved. Historical
+installer D3/D4 conflicts are superseded explicitly; campaign D1-D11 are unchanged.
+
+The owner requested an actionable, verifiable route to project completion. Read
+`docs/plans/features/skin-completion-execution-2026-09-19.md` for R1-R10 acceptance,
+P00-P30 work packages and upgrade subpackages. P03 validator contract and P07 combined
+lock protocol/API approval still precede RED tests. Do not re-ask the eight policy
+questions. No preflight/snapshot implementation in this session.
+
+UPDATE: the owner selected "Compare value first" and authorized the disposable
+comparison. It is complete; read `docs/reviews/opengsd-value-comparison-2026-09-19.md`
+before resuming implementation. The recommendation is to retain a reduced skin,
+not switch directly to stock upstream. The owner accepted that direction on
+2026-09-19: preserve measured protections, retire duplication only after parity
+proof, and resume the eight lock-review dispositions. No individual retirement is
+approved merely by accepting the direction.
+The initial assessment below is retained as chronology, not the final verdict.
+
+The owner reactivated the September 5 completion objective in the Codex goal tracker:
+finish the existing contract, preserve decisions and concurrent work, and deliver a
+polished, robust, useful tool with concrete requirements and explicit verification
+and validation outcomes. The owner also asked whether maintaining this project still
+adds value over using current Open-GSD. This is a request for a candid assessment,
+not authorization to abandon the project, change its fixed 1.12.0 destination, migrate
+an installation, or reopen the fifteen installer decisions.
+
+Verification must establish that the specified behavior works. Validation must
+establish that the resulting tool helps the owner enough to justify maintaining it.
+The existing `.planning/SKIN-COMPLETION.md` acceptance map remains the contract.
+The following makes its completion evidence explicit; it does not certify attainment:
+
+| Requirement | Completion evidence required |
+|---|---|
+| Safe installation and updates | Isolated fresh/upgrade/no-op/conflict/interruption/recovery scenarios; owner bytes preserved; exclusive lock ownership; messages and exit codes match observed outcomes. Cover supported runtime/platform combinations and record unavailable native evidence as open. |
+| Reliable continuity | Actual interrupted work resumes the correct checkout, task and decisions; state writers preserve required metadata; coherent publication acceptance includes its owning project's protocol receipt. |
+| Working daily workflow | An installed candidate completes representative discuss/plan/execute/verify/ship preparation flows in disposable projects, with traceable artifacts and no hidden manual repair. Merges remain owner-gated. |
+| Enforced quality | Per-file and per-package risk tiers from the shared quality contract; Tier A >=95% in each metric; Tier S 100% branches plus adversarial and mutation/equivalent decision checks; reviewed Tier B exceptions only. Missing/stale evidence and deliberately broken controls fail gates. |
+| Release readiness | Final-revision tests, build, lint, security and attributable review evidence; required hosted checks actually execute and pass on the final commit. Installed artifacts match the approved source and receipt. |
+| Demonstrated usefulness | Preserve ratified D11 targets and their provisional interpretation below. Record task correctness, missed defects, recovery, owner interventions, tokens/cache and elapsed time for matched tasks and model settings. Include held-out tasks. Any supplementary comparison rubric is agreed before measuring; do not invent a benefit threshold after seeing results. |
+| Maintainable scope and closure | Each retained difference has a named user need, a reproducer/acceptance case, an owner and a retirement trigger. Classify remaining issues and reconcile roadmap, inbox, artifact and installed state. No completion claim from a merged PR alone. |
+
+Initial assessment (source/document inspection only, no new behavioral measurements):
+
+- This worktree pins `@opengsd/gsd-core` 1.9.1. The fixed completion target is 1.12.0.
+- The official release page inspected on 2026-09-19 identifies 1.14.0 as latest:
+  <https://github.com/open-gsd/gsd-core/releases/tag/v1.14.0>. Its notes describe
+  workflow payload reduction, external reviewer lanes, state/progress fixes and path
+  containment work. These overlap areas of interest; release notes do not prove that
+  any specific fork acceptance case is satisfied.
+- `tests/acceptance/README.md` retains a September 5 pure-1.12.0 result of 9 passing
+  and 3 failing state cases. That is historical evidence, not a current-1.14.0 result.
+- The lock remains NOT PASS; the eight sixth-review findings remain undispositioned.
+- The contract's inbox source path is absent in this worktree. The checked-in
+  acceptance map is available, but full source-contract traceability needs recovery
+  within owner-authorized paths before claiming complete reconciliation.
+
+Recommendation, not an owner decision: perform one bounded comparison of exact
+current-upstream bytes, the existing skin, and upstream plus only necessary additive
+configuration/skills. Separate user benefits from work needed only to maintain a
+separate distribution. Prefer the smallest option meeting the owner's requirements;
+preserve the existing work and require an explicit owner decision before changing
+delivery direction. Trial files or edits outside the current allowlist need scope
+approval. No installer implementation resumed during this initial assessment.
+
+### Recovered decision and comparison map (read-only follow-up, 2026-09-19)
+
+Source-location correction,2026-09-21: both the September5 completion contract and
+September2 engine/prose ratification exist in MAIN docs/inbox. Owner clarification
+authorized reading the central inbox; source texts/hashes are retained in
+`.planning/evidence/p07-original-contract-recovery-2026-09-21.json`. The missing-path
+statements below describe the earlier worktree-only search, not absent authority.
+The existing acceptance map and D1-D11 remain unchanged. Section23 of the execution
+plan is a reviewed, unapproved containment-policy proposal; no product API or new
+experiment follows from its preparation. Main planning/source remain untouched.
+
+The original inbox contract was not found in this worktree's inbox, archives or Git
+history for its exact path. The ratification itself is retained in commit `38504333`
+and `.planning/HANDOFF.json` -> `bump_arc` -> `sequencing_decision_resolved` ->
+`decisions_recorded_2026_09_05`. It records:
+
+- D11: Conversations re-runs its Phase 24 `--reviews` replan on the lean profile
+  against the September 1 baseline. Provisional targets: orchestration read <8k
+  tokens, planner prompt <300 lines, total <300k tokens, and checker catches the
+  injected error without a hand brief. A numerical miss triggers review of target
+  and change together, not automatic failure.
+- D4 keeps the subagent planner and tries the per-plan research digest first.
+- D6 does not enable Prompt Golf as a mechanism. Reading current upstream's payload
+  changes does not authorize changing that decision.
+- D5 fixes the delivery endpoint at 1.12.0, then quarterly vetted updates. Evaluating
+  1.14.0 as an alternative does not silently advance the delivery endpoint.
+
+| Claimed benefit | Existing evidence or reusable case | What remains to decide |
+|---|---|---|
+| Correct phase, milestone and plan accounting | `tests/runtime-overrides.test.cjs`, `tests/init.test.cjs`, `tests/roadmap.test.cjs`, `tests/state.test.cjs`; individual override reasons | Run behavioral cases against the exact alternative. Fork-specific diagnostic fields are not by themselves user requirements. |
+| Metadata preservation and docs commits | `tests/acceptance/state-delivery.cjs`; retained Windows and Linux pure-1.12 TAP both show 9 pass, 3 fail | Current-upstream behavior is unmeasured. Distinguish changed CLI contracts from lost capabilities. |
+| Byte-preserving roadmap writes | `tests/fork-roadmap-persistence.test.js`; roadmap override reason | Establish which byte/ACL guarantees the owner needs and whether the alternative provides them; do not treat an adapter-only unit suite as an upstream comparison. |
+| Safe installer ownership and recovery | `tests/installer-cli-safety.test.js`, `tests/acceptance/installer-recovery.cjs`, six-round review record | The CLI suite targets this repo's wrapper directly; a green run cannot establish pure-upstream behavior. Isolated upstream scenarios need an explicit candidate entry point. |
+| Planner digest and reviewer effort | `skin-1.12-pure-agent-skills-probe.json` and `skin-1.12-pure-effort-write-probe.json` under `.planning/evidence/` record native routing/sync in disposable Claude and Codex installs | Historical seam proof only. Actual digest consumption, useful checker output and D11 performance remain open. Prefer native configuration/skills when they satisfy the same behavior. |
+| Branded distribution and update routing | Hook override reasons specify fork package identity and throttles | Separate owner-needed update policy from work required only to keep a separate package alive. |
+
+At this read-only follow-up, comparison execution was still awaiting the owner's
+answer. That wait is superseded by the authorized comparison report above. The
+historical results in this subsection are not fresh acceptance of either candidate.
 
 ## Your role
 
@@ -37,19 +162,21 @@ allowed, stop and report why instead of building it.
 - A read-only Codex review (`gpt-6-astra`, `xhigh`) of the amended note and the lock seam
   finished 2026-09-19: **NOT PASS, one BLOCKER, five HIGH, two MEDIUM.** Verbatim:
   `docs/reviews/installer-lock-seam-codex-review-2026-09-19.md`; packet beside it. The
-  author's preliminary assessment and a proposed disposition per finding are in
-  `docs/reviews/installer-rollback-design-review-2026-09-18.md`, "Sixth review". NOTHING is
-  dispositioned.
-  FIRST UNIT of your first session: take the owner through the eight rows and record the
-  owner's disposition of each in that section (fix now, defer with owner and trigger, or
-  reject with rationale). You are the same vendor as the reviewer: the owner decides every
-  row, you do not.
+  author's preliminary assessment and the current owner dispositions are in
+  `docs/reviews/installer-rollback-design-review-2026-09-18.md`, "Sixth review".
+  All eight fix directions and holistic recommendations are now accepted by the
+  owner. No implementation fix is accepted. See the latest direction at the top
+  of this brief and the execution plan's P03/P07 approval packets.
+  The eight-row disposition loop is complete through the owner's holistic acceptance.
+  Next: prepare concrete validator and combined-lock contract packets, then execute
+  the approved packages. The author's historical proposals are not approved algorithms.
   **The BLOCKER is in the lock seam itself** (a takeover can remove a live holder's lock).
   Do NOT start the preflight-and-snapshot seam until the owner has dispositioned finding 1
   and the lock is fixed accordingly, RED first, with its mutants. Findings 1, 3, 4 and 7
   change `acquireLock` and its cases, which are inside your allowlist once approved.
-  Findings 2, 6 and 8 amend the design note and finding 5 edits `scripts/expect-red.cjs`:
-  both are outside the allowlist below until the owner says otherwise.
+  Findings 2, 6 and 8 amend the design note and finding 5 edits `scripts/expect-red.cjs`.
+  The owner approved the bounded extensions below and the subsequent holistic policy
+  amendments to the design note. Exact implementation shapes still need approval.
 - GitHub Actions is ACCOUNT-LOCKED (billing) since 2026-09-19T02:05Z: every job reports
   zero steps. DO NOT PUSH while it is locked; commits stay local. Check before the first
   push of any session:
@@ -61,12 +188,78 @@ allowed, stop and report why instead of building it.
   (`9f008c4d`; PR 72 merged while locked and never ran).
 
 ## Scope allowlist (everything else is read-only)
+Owner-approved section21 experiment, 2026-09-21: only
+`.claude/p07-containment-spike-2026-09-20/` experimental sources/builds/fixtures and
+`.planning/evidence/p07-containment-spike-2026-09-20/` receipts, plus existing
+planning/continuity paths. One Windows NTFS candidate, three cases, nine claims,
+one initial run each, at most one defect correction. Section21 owns exact controls,
+report and stop rules. No production dependency/module/port/API approval follows;
+lock RED tests and preflight/snapshot remain outside this approval.
+
+Owner-approved section20 amendment, 2026-09-20: supersede section19's literal
+home equality with complete before/after home-state observations and the exact five
+Windows runtime-owned paths and type restrictions in execution-plan section20.
+Rename both identities to home-outside-target-preserved; retain27 checks and the
+14PASS/13FAIL target. Privately redirect app-data/cache variables before snapshots.
+This approval authorizes dependent RED/GREEN work in the existing three paths.
+
+Owner-approved section19 amendment, 2026-09-19: add fresh and upgrade
+home-outside-target preservation oracles in the same validator/test/harness paths.
+Both always PASS with empty tree-delta observations;27 reviewed checks, expected
+14PASS/13FAIL subject to fresh proof. Seed only disposable home data; exclude only
+the exact install target from each outside-target comparison. Judge arguments and
+context shape unchanged. Section20 now supersedes this observation and naming rule.
+
+Owner-approved bounded lint extension, 2026-09-19: `eslint.config.js` may add only
+`scripts/expect-red.cjs` and `tests/acceptance/installer-recovery.cjs` to existing
+rules, retaining existing test overrides for the harness. Negative RED/GREEN
+enforcement controls belong in the already-approved `tests/expect-red.test.js`.
+No rule severity or installer API change is authorized by this extension.
+
+Owner-approved evidence relocation, 2026-09-19: move only the extracted1,074-file
+upstream comparison snapshot from `.planning/evidence/value-comparison-2026-09-19/package`
+to `.claude/value-comparison-2026-09-19/upstream-package`, with before/after path,
+size and SHA256 verification and a retained receipt. Completed; historical reports
+and archive retained. No lint configuration change is authorized by this move.
+
+Owner-approved P03 amendment after Opus5/xhigh review: include
+`tests/acceptance/installer-recovery.cjs` solely for complete structured failure
+observations, harness source identity and an independent upgrade owner-preservation
+PASS row (25 checks). Exact amended validator arguments, host/runtime evidence and
+schemas are in completion-plan section16. Original validator paths remain approved.
+P04/P05 may proceed RED/GREEN; the lock API and snapshot boundary are unchanged.
+
+RED-loop correction: new bug-reproducing assertions run through the ordinary
+focused test command and MUST fail before the fix. Do not add their failures to an
+expected-red allowlist. The old instruction that every new RED must pass expect-red
+as `not implemented` applies only to a deliberately approved new unimplemented seam,
+not repairing existing code. Preserve genuine RED separately from harness refusal.
+
+Owner extension, 2026-09-19, Sixth-review finding 2: amend
+`docs/reviews/installer-rollback-redesign-2026-09-18.md` step 8(c) and its required
+proof for completed private staging and exclusive hard-link publication, keeping
+the snapshot separate. Implementation remains in the later restore seam, with its
+argument/return shape approved before tests. Subsequent owner acceptance also
+authorizes the holistic design-policy addendum for findings 6/8 and H1-H8. It does
+not authorize starting preflight/snapshot implementation in this session.
+
+Planning extension from the owner's completion request:
+`docs/plans/features/skin-completion-execution-2026-09-19.md` and continuity updates.
+This creates no blanket source/test/workflow scope extension for later packages.
+
+Owner extension, 2026-09-19, Sixth-review finding 5: fix the expected-red validators
+and add negative controls in `scripts/expect-red.cjs`, `tests/expect-red.test.js` and
+`tests/fixtures/expect-red/`. Require complete check inventories, an explicit permitted
+failure set and affirmative coverage evidence. Present the validator contract for
+owner approval before RED tests. This extension does not authorize changing workflows
+or lowering any quality requirement.
 
 `bin/lib/install-transaction.js`, `tests/coverage/install-transaction.test.cjs`,
 `tests/helpers/fault-fs.cjs`, `scripts/install-transaction-mutants.cjs`, this brief, the
 plan's status header, `.planning/HANDOFF.json`, `.planning/CONTINUE.md`, the review
-record named above. `bin/install.js`, the workflows, `scripts/expect-red.cjs` and the
-other suites belong to plan Steps 4 and 5: do not touch them during Step 3.
+record named above, plus the bounded owner extensions just listed. `bin/install.js`,
+the workflows and suites outside those extensions belong to plan Steps 4 and 5:
+do not touch them during Step 3.
 `bin/lib/install-names.js` is complete; changing the names table is an owner decision.
 
 Prohibitions: no new dependency; no new module; no new port beyond the plan's list

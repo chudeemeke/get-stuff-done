@@ -1,5 +1,76 @@
 # Installer rollback redesign: observe, do not predict
 
+## Current authority: owner acceptance after holistic review, 2026-09-19
+
+The owner accepted all eight repair directions and the integrated recommendations
+in the Sixth-review holistic assessment. This section supersedes conflicting
+historical text below, including the earlier fixed installer D3/D4 decisions; it
+does not change the separate campaign D1-D11 decisions. Historical wording is
+retained for traceability, not as an alternative executable contract. The detailed
+operation arguments/returns, filesystem support and durability mechanisms remain
+subject to approval before tests. Implementation has not been accepted.
+
+- Lock ownership: publish completed lock contents exclusively; distinguish every
+  acquisition and make release terminal. Automatic takeover is permitted only with
+  proof of the complete acquire/takeover/release protocol. Foreign or unknown
+  liveness domains refuse; platform/hostname alone are not a proof. Report retained
+  lock metadata and cleanup errors. The old rename/verify/link-back protocol below
+  is rejected. No OS-lock adapter or identity-marker candidate is approved merely
+  by accepting this policy.
+- Child safety: a live or unknown child blocks recovery/retirement that would
+  permit another writer, regardless of journal age or clock direction. First
+  establish quiescence; only then use freshness to select policy. A recorded valid
+  child-closed state is distinct from guessing that a PID has gone away.
+- Before rollback changes any installation entry, persist and validate permission
+  for one automatic attempt, tied to the transaction. Failure or uncertain record
+  persistence grants no permission. An existing/partial attempt record never grants
+  a later invocation permission to replay rollback. Invalid or incompatible evidence
+  refuses automatic mutation. Record the result separately after the pass.
+- An interrupted attempt, incomplete result or missing result after an attempt is
+  preserved and diagnosed; later invocations inspect and may safely retire it, but
+  do not automatically restore again into newer owner edits. This supersedes fresh
+  journal replay and automatic mid-rollback resumption below. An eligible fresh
+  journal with no prior attempt may still begin its first recovery attempt.
+- Rollback result, current verification and metadata cleanup are separate facts.
+  Failed retirement after an incomplete attempt retains exit 4, reports actual live
+  paths and errors, and preserves journal/snapshot/quarantine. Retiring moves retained
+  data; it does not establish successful restoration. No new installation starts
+  against an unresolved live transaction. Finish recovery/retirement invocation
+  before starting a new install. A later ordinary install uses the current roots
+  as its baseline and must report retained retired data.
+- A verified result may support completion of metadata cleanup without redoing
+  restoration. Persisted attempt/result records take precedence over the historical
+  rule to delete every snapshot lacking a journal: inconsistent or unexplained
+  evidence is retained, not blindly deleted. Define all cleanup-crash states in the
+  approved lifecycle and outcome contract before implementation.
+- Keep finding 2's completed private staging and exclusive publication; never link
+  snapshot bytes or write to the published restore. Preserve existing collision
+  bounds and per-entry errors. Preflight path checks alone do not establish safe
+  containment under concurrent topology changes; the supported mechanism must be
+  proved or the operation refused. Links must not be moved inside a bulk directory
+  move. Retain unsafe structures as incomplete rather than claim a scan closes races.
+- Mutable quarantine is retained unless safe deletion can be established. A hash
+  comparison alone does not make deletion safe against an active writer. Explicit
+  owner cleanup is preferred to an unproved automatic prune. This supersedes the
+  byte-equality-only quarantine deletion rule in step 11; unrelated patch-history
+  retention remains unchanged unless separately dispositioned.
+- Cleanup only files exclusively created by this run; preserve collision files.
+  Report partial-write residue and both primary/cleanup errors. Refusal language
+  must distinguish installation-content changes from transaction metadata and prior
+  attempts; the unqualified "nothing was touched" claim is not valid with residue.
+- Claims describe the captured pre-image and actual verification, not a globally
+  atomic snapshot of a live tree. Process-crash safety and power-loss durability
+  need separate evidence. Uninstall instructions reflect retained state and must
+  not promise that one retry clears a journal. Exact text/exits remain part of the
+  owner-approved outcome shape.
+
+See `docs/plans/features/skin-completion-execution-2026-09-19.md` for the dependency
+order, completion evidence and retained boundaries. The historical steps, proof
+cases and decision records below must be reconciled against this section in the
+protocol work package before tests; they must not be copied into tests unchanged.
+
+## Historical design and decision chronology
+
 Status: Accepted by the owner, 2026-09-18, after four independent review rounds. Not
 yet implemented. Findings, dispositions and what the author got wrong in each round
 are in `docs/reviews/installer-rollback-design-review-2026-09-18.md`. The owner made
@@ -139,11 +210,17 @@ The containment helper refuses any manifest path under a Protected name.
    entry in a root that is absent from the pre-image moves to `quarantine/.../new/`;
    nothing is deleted and the child's manifest is not consulted; (c) a pre-image entry
    whose current bytes or type differ has the current entry moved to `displaced/`, then
-   is restored with `COPYFILE_EXCL`; on `EEXIST` the newcomer is quarantined and the
-   restore retried, three times at most; if the move to quarantine fails, that entry
+   is restored by completing a separate private staging copy in the transaction
+   directory, then publishing that copy exclusively with `linkSync` to the destination.
+   Never link the snapshot itself, and never write to the staging copy after publication:
+   owner edits to the published file must not alter the snapshot or be overwritten by
+   an unfinished restore copy. On `EEXIST` the newcomer is quarantined and publication
+   retried, three attempts in total; after the third collision the newcomer stays
+   and the entry is incomplete. If the move to quarantine fails, that entry
    is not restored; an entry whose bytes match but whose stored name differs only by
    case is renamed back to the stored name; (d) missing pre-image files and
-   directories are restored. Errors (EBUSY, EPERM, EXDEV, ENOSPC) are collected per
+   directories are restored; missing files use the same staged publication protocol.
+   Errors (EBUSY, EPERM, EXDEV, ENOSPC) are collected per
    entry, never stop the remaining entries, and never trigger copy-then-delete.
 9. **Verify, then speak.** Match means: identical entry set by exact stored name and
    type, identical SHA-256 for every file, identical target string for every link.
@@ -256,6 +333,17 @@ verdict; cleanup still does), 5 (all publication through the containment helper)
 residue, 8 multi-destination modes, 9 fresh matrix and Tier S evidence.
 
 ## Proof
+
+Sixth-review finding 2 amendment, owner-approved 2026-09-19; implementation belongs
+to the later restore seam, whose argument/return shape still needs approval before
+tests. Required owner-write interleaving cases: an owner creates the destination
+while the private copy is being completed, and an owner edits it immediately after
+publication. Assert that the colliding entry is preserved through the bounded
+quarantine/retry protocol (or left in place on the third collision), that no restore
+write follows publication, and that an edit through the published hard link leaves
+the snapshot bytes unchanged. Assert per-entry failure reporting and continuation
+when staging, publication or quarantine fails. These are proof requirements, not
+completed verification.
 
 `tests/acceptance/installer-recovery.cjs` becomes a gate: a package script and a CI
 step run it (F5). Transaction functions are Tier S: 100% branches, and each case

@@ -1,5 +1,17 @@
 <!-- Copied 2026-09-19 from the owner-approved Claude Code plan so that any harness can read it. -->
 
+> **Current status, 2026-09-20 checkpoint:** the lock was committed but is
+> NOT ACCEPTED after the Sixth review. All eight repair directions and holistic
+> policies are owner-accepted. P03 and sections16/19/20 validator amendments are
+> approved; P04/P05 are locally verified on win32, including80 focused tests,
+> both files100% each metric,1847-test full-suite recheck and final Opus delta review.
+> See `skin-completion-execution-2026-09-19.md`, section20, for source-bound receipts
+> and the retained intermittent native DACL timeout. P02 support matrix remains
+> partial; P07 combined lock protocol/API approval is next. Wrapper and lock source
+> remain unchanged. The goal is ACTIVE; this is not installer/release acceptance.
+> Current-session implementation stops at the repaired-lock checkpoint, BEFORE
+> preflight/snapshot. Older DONE/next-step statements below are chronology only.
+
 > **Status, 2026-09-19:** approved by the owner. **Step 0 is DONE** (commits `e235c9f2`,
 > `95e4cc2f`). Where this plan and the design note differ, the NOTE wins
 > (`docs/reviews/installer-rollback-redesign-2026-09-18.md`). Superseded here: the Step 0

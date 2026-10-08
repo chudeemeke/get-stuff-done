@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { createHash } = require('crypto');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const EXCLUDED_PREFIXES = [
@@ -13,6 +14,33 @@ const EXCLUDED_PREFIXES = [
   'overlay/get-shit-done/',
 ];
 const MAX_BATCH_CHARS = 24000;
+// Captured records (review packets, transcripts) whose bytes a receipt binds. They are
+// exempt by identity: a registered path is skipped only while its SHA-256 matches.
+const CAPTURES_FILE = path.join(PROJECT_ROOT, 'config', 'markdown-captures.json');
+
+function parseCaptures(text) {
+  const registry = JSON.parse(text);
+  const captures = registry && !Array.isArray(registry) ? registry.captures : undefined;
+  const valid = captures && typeof captures === 'object' && !Array.isArray(captures) &&
+    Object.keys(registry).length === 1 &&
+    Object.values(captures).every(digest => typeof digest === 'string' && /^[a-f0-9]{64}$/.test(digest));
+  if (!valid) throw new Error('markdown capture registry must be {"captures": {"<path>": "<sha256>"}}');
+  return captures;
+}
+
+function partitionCaptures(files, captures, digestOf) {
+  const tracked = new Set(files);
+  const problems = [];
+  for (const [name, digest] of Object.entries(captures)) {
+    if (!tracked.has(name)) problems.push(`registered capture is not a tracked markdown file: ${name}`);
+    else if (digestOf(name) !== digest) problems.push(`registered capture changed: ${name}`);
+  }
+  return { targets: files.filter(name => !Object.hasOwn(captures, name)), problems };
+}
+
+function digestOfFile(name) {
+  return createHash('sha256').update(fs.readFileSync(path.join(PROJECT_ROOT, name))).digest('hex');
+}
 
 function normalizeGitPath(filePath) {
   return filePath.replace(/\\/g, '/');
@@ -104,8 +132,11 @@ function runMarkdownlint(files) {
 
 function main() {
   try {
-    const files = runGitLsFiles();
-    return runMarkdownlint(files);
+    const captures = parseCaptures(fs.readFileSync(CAPTURES_FILE, 'utf8'));
+    const { targets, problems } = partitionCaptures(runGitLsFiles(), captures, digestOfFile);
+    for (const problem of problems) process.stderr.write(`Error [EDOCSLINT]: ${problem}\n`);
+    const status = runMarkdownlint(targets);
+    return problems.length ? 1 : status;
   } catch (error) {
     process.stderr.write(`Error [EDOCSLINT]: ${error.message}\n`);
     return 1;
@@ -117,7 +148,10 @@ if (require.main === module) {
 }
 
 module.exports = {
+  CAPTURES_FILE,
   createBatches,
   isExcluded,
+  parseCaptures,
+  partitionCaptures,
   runGitLsFiles,
 };

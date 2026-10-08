@@ -747,6 +747,10 @@ describe('detectTerminal', () => {
     test('NO_COLOR env var disables color', () => {
       clearTerminalCache();
       restoreEnv = mockEnv({ NO_COLOR: '1' });
+      // FORCE_COLOR outranks NO_COLOR by design, so an inherited one (agent
+      // harness shells export FORCE_COLOR=3) would decide this test. The
+      // restore function puts it back.
+      delete process.env.FORCE_COLOR;
       const terminal = detectTerminal();
       expect(terminal.colorLevel).toBe(0);
       expect(terminal.supportsColor).toBe(false);

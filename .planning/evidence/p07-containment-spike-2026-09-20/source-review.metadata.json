@@ -1,0 +1,13 @@
+{
+  "startedAt": "2026-09-21T20:29:43.7281944Z",
+  "model": "opus",
+  "effort": "xhigh",
+  "cli": "2.1.278",
+  "packetSha256": "7780bdad34b5f04f23fbbb7835cd85c7994a66963d5453a414c8014571ee5ce0",
+  "status": "NOT PASS; pre-execution correction in progress; cases unrun",
+  "casesRun": 0,
+  "resolvedModel": "claude-opus-5",
+  "reviewerSession": "d8032a88-f01b-4565-bc61-b39a7d2dd81d",
+  "toolCount": 0,
+  "effortEvidence": "Requested xhigh; init does not echo effort"
+}

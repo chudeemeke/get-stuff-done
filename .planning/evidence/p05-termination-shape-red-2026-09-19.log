@@ -1,0 +1,39 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "supplied malformed termination"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+ 99 | }
+100 | 
+101 | describe('expect-red: installer recovery', () => {
+102 |   test('supplied malformed termination markers are never treated as absent', () => {
+103 |     for (const error of [false, 0, '', null]) {
+104 |       expect(judgeInstallerRecovery({ ...runOf(KNOWN_RED), error }).length).toBeGreaterThan(0);
+                                                                                  ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:104:77)
+(fail) expect-red: installer recovery > supplied malformed termination markers are never treated as absent [31.00ms]
+282 |   const tapRun = (stdout, status = 1, stderr = '') => ({ status, stdout, stderr });
+283 |   const FIRST_REASON = "error: 'not implemented: renderOutcome'";
+284 | 
+285 |   test('supplied malformed termination markers are never treated as absent', () => {
+286 |     for (const error of [false, 0, '', null]) {
+287 |       expect(judgeInstallTransactionCoverage({ ...tapRun(KNOWN_TAP), error }).length).toBeGreaterThan(0);
+                                                                                            ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:287:87)
+(fail) expect-red: install transaction coverage > supplied malformed termination markers are never treated as absent [16.00ms]
+
+ 0 pass
+ 59 filtered out
+ 2 fail
+ 2 expect() calls
+Ran 2 tests across 1 file. [517.00ms]
+error: script "test" exited with code 1

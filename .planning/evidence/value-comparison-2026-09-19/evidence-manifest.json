@@ -1,0 +1,412 @@
+{
+  "timestamp": "2026-09-19T12:21:08.629Z",
+  "upstreamIntegrityVerified": true,
+  "upstreamIntegrity": "sha512-e05sV2c8KlcQ2hoJ4U3U1OBjqswQOon4C29Cs75fEAr+tq7qJ/XyFYrN/nwblREWUkPUUoxmVzLVj4Im2KjQxQ==",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 17,
+      "sha256": "e897343d4779fd7110620077f40366519dcbdb4a1436024e04916d8c835a7853"
+    },
+    {
+      "path": "adoption.cjs",
+      "bytes": 4769,
+      "sha256": "962c215ddbd4819cb0d070b8d917632aa3d60416cfcc2c7dcd1d0d5d85c361f0"
+    },
+    {
+      "path": "behavior.test.cjs",
+      "bytes": 7434,
+      "sha256": "50dbdf945d5b3db19dcaf3ee924466c24707f7db1897442a2f62cbde761abe2c"
+    },
+    {
+      "path": "checkpoint.cjs",
+      "bytes": 3924,
+      "sha256": "bb3d862e9a0bd7d597b8fa572d7487e3cbdd64e6e6152af1ad5f28f7fbd99525"
+    },
+    {
+      "path": "compare.cjs",
+      "bytes": 5476,
+      "sha256": "6836c08a188b4776e483e0cb5f62665d9ff8b09c853b7e92a6c87968fa9bc0ff"
+    },
+    {
+      "path": "comparison-docs-lint.log",
+      "bytes": 305,
+      "sha256": "1b0227bceddf32592792afca8862f4d7b02a16f3884a810287fe66a0a353e91e"
+    },
+    {
+      "path": "docs-lint.log",
+      "bytes": 54565,
+      "sha256": "d25dcfb321f0acae6ee56a8148409d284dfbe317d0a8b27c1100aee488f895c2"
+    },
+    {
+      "path": "guard.cjs",
+      "bytes": 1902,
+      "sha256": "9d7f5b9d885c1773e4b3783d5d5fec9d15770e3dd5d3d958302861e307b29d2c"
+    },
+    {
+      "path": "install-compare.cjs",
+      "bytes": 8378,
+      "sha256": "ed662457ef6f103415b6b2f13c6d0fd19a9f7cd0dfb0d8b3ed50e1c40ac48b4d"
+    },
+    {
+      "path": "provenance.json",
+      "bytes": 2218,
+      "sha256": "19a3a1ddbb28d7d6dd24da9ca27e9d96196e1e6eb59c0b8df4df55205ddb74df"
+    },
+    {
+      "path": "skin-behavior.json",
+      "bytes": 556,
+      "sha256": "d1015669dad161565e14b684af114060865f07ae4817c0f959e93e38656e8126"
+    },
+    {
+      "path": "skin-behavior.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "skin-behavior.tap",
+      "bytes": 1881,
+      "sha256": "03ecbccf21addb7a686da96acc534bbc99e04c1ed4f29a7e9f5866be125270ff"
+    },
+    {
+      "path": "skin-claude-failure-isolated-manifest-fault.log",
+      "bytes": 3159,
+      "sha256": "9f8bb760b0acd2eea7619d6d1e49f3309310798dc9f9778467341c8ad228aa31"
+    },
+    {
+      "path": "skin-claude-failure-isolated.json",
+      "bytes": 1884,
+      "sha256": "d5e79dc149cf8951837419925bb59082c69eeaa066448ba4134347a28db76fee"
+    },
+    {
+      "path": "skin-claude-failure-manifest-fault.log",
+      "bytes": 3159,
+      "sha256": "9f8bb760b0acd2eea7619d6d1e49f3309310798dc9f9778467341c8ad228aa31"
+    },
+    {
+      "path": "skin-claude-failure.json",
+      "bytes": 1875,
+      "sha256": "7f68a2feba7f4caaad0f72fdf16895f387e0ba420d11b9a42a6ef7cb4e0f4a25"
+    },
+    {
+      "path": "skin-claude-lifecycle-install.log",
+      "bytes": 3235,
+      "sha256": "d79dd59207e0a44025a31996727355e4fa38713c80623b99ea3a06145a8c29be"
+    },
+    {
+      "path": "skin-claude-lifecycle-isolated-install.log",
+      "bytes": 3235,
+      "sha256": "d79dd59207e0a44025a31996727355e4fa38713c80623b99ea3a06145a8c29be"
+    },
+    {
+      "path": "skin-claude-lifecycle-isolated-reinstall.log",
+      "bytes": 2835,
+      "sha256": "757fb0662979d3eadf4c4b4f0fa91af9d81271978da117c337c20fd944567372"
+    },
+    {
+      "path": "skin-claude-lifecycle-isolated-uninstall.log",
+      "bytes": 359,
+      "sha256": "b602c084582d30eafd441781d18cab506ddfbba62cb9705d6b4fb5d1f71ccccd"
+    },
+    {
+      "path": "skin-claude-lifecycle-isolated.json",
+      "bytes": 2231,
+      "sha256": "617cb64fe5d1050bc61637b4cc4231d0546cc092fe2e9e44134f316637bbf32c"
+    },
+    {
+      "path": "skin-claude-lifecycle-reinstall.log",
+      "bytes": 2835,
+      "sha256": "757fb0662979d3eadf4c4b4f0fa91af9d81271978da117c337c20fd944567372"
+    },
+    {
+      "path": "skin-claude-lifecycle-uninstall.log",
+      "bytes": 350,
+      "sha256": "2162a8a510df977f3191b4e17af21a45c62ce535c8565359f225c494c970ac00"
+    },
+    {
+      "path": "skin-claude-lifecycle.json",
+      "bytes": 2222,
+      "sha256": "bf90f000445c1c08f8ae559ceb3f7dc2c4707f5400848d67cddd41220d616e72"
+    },
+    {
+      "path": "skin-codex-lifecycle-install.log",
+      "bytes": 2891,
+      "sha256": "e558751cfc43a7b3bc2522bdd90533ecae6f80d154134a70f2cf0de053efd03b"
+    },
+    {
+      "path": "skin-codex-lifecycle-isolated-install.log",
+      "bytes": 2891,
+      "sha256": "e558751cfc43a7b3bc2522bdd90533ecae6f80d154134a70f2cf0de053efd03b"
+    },
+    {
+      "path": "skin-codex-lifecycle-isolated-reinstall.log",
+      "bytes": 2810,
+      "sha256": "8a0200b68dc0d05c1d863d60d9ccfff1117aa5b75c2e06adc74285b88c8454ee"
+    },
+    {
+      "path": "skin-codex-lifecycle-isolated-uninstall.log",
+      "bytes": 357,
+      "sha256": "a9b651c9adf6211a2ffcd59e9649882e7b87ee032dab95698cfec98f08ea150a"
+    },
+    {
+      "path": "skin-codex-lifecycle-isolated.json",
+      "bytes": 2223,
+      "sha256": "3cf298ffdfb9fe83f5d7e5b722d92a04c045ea5ef5d65efbe2dcc62f97bb226e"
+    },
+    {
+      "path": "skin-codex-lifecycle-reinstall.log",
+      "bytes": 2810,
+      "sha256": "8a0200b68dc0d05c1d863d60d9ccfff1117aa5b75c2e06adc74285b88c8454ee"
+    },
+    {
+      "path": "skin-codex-lifecycle-uninstall.log",
+      "bytes": 348,
+      "sha256": "018e81b9be8a10a70b944f469bb94ed65bf841c1ec0da2ad2bfd3724154520ef"
+    },
+    {
+      "path": "skin-codex-lifecycle.json",
+      "bytes": 2214,
+      "sha256": "76c0cbbeab9367c9039466ea69cbc4982c395a8e370878a9fb228d40e051172b"
+    },
+    {
+      "path": "skin-state.json",
+      "bytes": 554,
+      "sha256": "0e3df017d7fb4f99f72afa420ee9b61dd227ed1e3a01805141c6ab40ae4616de"
+    },
+    {
+      "path": "skin-state.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "skin-state.tap",
+      "bytes": 8989,
+      "sha256": "f007c260ff224084f26941f464349e1f0926eab897104a66e5668e4ab456e937"
+    },
+    {
+      "path": "upstream-adoption.json",
+      "bytes": 10346,
+      "sha256": "7d2366d654eba830c4d9a5e5db2d1203a754bf0691fd61ab9a6b1ea691b0b9e2"
+    },
+    {
+      "path": "upstream-behavior.json",
+      "bytes": 567,
+      "sha256": "cc96e6ebcc6d9cbd7a881e5b529bfed965b5a4771c3ba1391264d421497708f6"
+    },
+    {
+      "path": "upstream-behavior.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "upstream-behavior.tap",
+      "bytes": 20012,
+      "sha256": "dbb35c0a8e14debee1138c18e98879ad067fa6c75dbbe005b73ebd9506330e24"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated-agent-skills.log",
+      "bytes": 257,
+      "sha256": "cf1a5397dda6287aa058224a352872665cb527e9011857a045768e227cb78b48"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated-effort-sync-noop.log",
+      "bytes": 53,
+      "sha256": "e3e5bf6a5937e19541e496f79e3cbc2e517bba5a2d545cf0f8bf6cd890741561"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated-effort-sync.log",
+      "bytes": 53,
+      "sha256": "e3e5bf6a5937e19541e496f79e3cbc2e517bba5a2d545cf0f8bf6cd890741561"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated-install.log",
+      "bytes": 3327,
+      "sha256": "bc1dfa47686e515d195ad3e2c1d981422b681ebc0639466a68dceb240546de32"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated-v2-agent-skills.log",
+      "bytes": 260,
+      "sha256": "355901129e8722ab3d3865808912e92b5a101f67dbc2dc4579931e8736eed834"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated-v2-effort-sync-noop.log",
+      "bytes": 266,
+      "sha256": "bb051c1209811a8c482885b3180f226e606f2c33659563d6dac8a778039019ea"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated-v2-effort-sync.log",
+      "bytes": 356,
+      "sha256": "e4742ada77a513e8d274d7d53d98f55d969dc7d70adcfe892ada4afce7a27507"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated-v2-install.log",
+      "bytes": 3327,
+      "sha256": "bc1dfa47686e515d195ad3e2c1d981422b681ebc0639466a68dceb240546de32"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated-v2.json",
+      "bytes": 1231,
+      "sha256": "0f4be1c67b7a5c90506eca1571eb4f3cf38d071a4acc9f96dfb24f42a78f8482"
+    },
+    {
+      "path": "upstream-claude-configuration-isolated.json",
+      "bytes": 1264,
+      "sha256": "ba01a4d7d7aa526eda1662eea2f6972723099deb9ecad2ac55d5ea3e2b5231e7"
+    },
+    {
+      "path": "upstream-claude-failure-isolated-manifest-fault.log",
+      "bytes": 3118,
+      "sha256": "91436698b479d8925a1795515180b122cf940b9f6700798989fed69345c8e119"
+    },
+    {
+      "path": "upstream-claude-failure-isolated.json",
+      "bytes": 1947,
+      "sha256": "58587b8ed995baec9145b3d75f22da0be60f9ca02b1d82e169b96fc48103b0ea"
+    },
+    {
+      "path": "upstream-claude-failure-manifest-fault.log",
+      "bytes": 3118,
+      "sha256": "91436698b479d8925a1795515180b122cf940b9f6700798989fed69345c8e119"
+    },
+    {
+      "path": "upstream-claude-failure.json",
+      "bytes": 1938,
+      "sha256": "ba0a2c3960a7d0c0d38fd6b22fa15bff64b873aa1da42381adb2b37ec9337df4"
+    },
+    {
+      "path": "upstream-claude-lifecycle-install.log",
+      "bytes": 3327,
+      "sha256": "bc1dfa47686e515d195ad3e2c1d981422b681ebc0639466a68dceb240546de32"
+    },
+    {
+      "path": "upstream-claude-lifecycle-isolated-install.log",
+      "bytes": 3327,
+      "sha256": "bc1dfa47686e515d195ad3e2c1d981422b681ebc0639466a68dceb240546de32"
+    },
+    {
+      "path": "upstream-claude-lifecycle-isolated-reinstall.log",
+      "bytes": 1959,
+      "sha256": "f2683717a841771b19db3234e36aae843c7dacc22c9efb4fd2cdc995d7c89ca8"
+    },
+    {
+      "path": "upstream-claude-lifecycle-isolated-uninstall.log",
+      "bytes": 1372,
+      "sha256": "adec4d95c93236a9949d1431db8202754a4d1e84e27cc02d3da7c80e8fc328cc"
+    },
+    {
+      "path": "upstream-claude-lifecycle-isolated.json",
+      "bytes": 2245,
+      "sha256": "73417f1aae15c72be469ac33bebb50d07914e7d6124aca4f31a4d30bace1157e"
+    },
+    {
+      "path": "upstream-claude-lifecycle-reinstall.log",
+      "bytes": 1959,
+      "sha256": "f2683717a841771b19db3234e36aae843c7dacc22c9efb4fd2cdc995d7c89ca8"
+    },
+    {
+      "path": "upstream-claude-lifecycle-uninstall.log",
+      "bytes": 1372,
+      "sha256": "adec4d95c93236a9949d1431db8202754a4d1e84e27cc02d3da7c80e8fc328cc"
+    },
+    {
+      "path": "upstream-claude-lifecycle.json",
+      "bytes": 2236,
+      "sha256": "c6b20027c18784e5c9c81716899e0cb41917057758d0f924a215491150aedfe8"
+    },
+    {
+      "path": "upstream-codex-configuration-isolated-v2-agent-skills.log",
+      "bytes": 259,
+      "sha256": "4846c778a83207d9a7d3d57e984d1236240951d379c54a3b80b4a0bd3b8c98f2"
+    },
+    {
+      "path": "upstream-codex-configuration-isolated-v2-effort-sync-noop.log",
+      "bytes": 328,
+      "sha256": "dfd03d1cb9470de5c46e3fae2d7dbd5949b4658763a4345df9f76e1e6703d093"
+    },
+    {
+      "path": "upstream-codex-configuration-isolated-v2-effort-sync.log",
+      "bytes": 570,
+      "sha256": "bdc50ca3c8e968a315256f465161dd8b175132a20dcf8ab11396f83835e421b8"
+    },
+    {
+      "path": "upstream-codex-configuration-isolated-v2-install.log",
+      "bytes": 2996,
+      "sha256": "d716c8abeb2bb430996ea203beb22a72b38f8d58ea3c5748c346a9b832e71ef1"
+    },
+    {
+      "path": "upstream-codex-configuration-isolated-v2.json",
+      "bytes": 1229,
+      "sha256": "d61e8f1bb84f22a97e5dabec47ba1e7d317ed09489fa4e726dc7f15d96193157"
+    },
+    {
+      "path": "upstream-codex-lifecycle-install.log",
+      "bytes": 2996,
+      "sha256": "d716c8abeb2bb430996ea203beb22a72b38f8d58ea3c5748c346a9b832e71ef1"
+    },
+    {
+      "path": "upstream-codex-lifecycle-isolated-install.log",
+      "bytes": 2996,
+      "sha256": "d716c8abeb2bb430996ea203beb22a72b38f8d58ea3c5748c346a9b832e71ef1"
+    },
+    {
+      "path": "upstream-codex-lifecycle-isolated-reinstall.log",
+      "bytes": 2913,
+      "sha256": "157da8c70e2c5f5d9d5f94b9daec76c3f79754e2f7fcbf639ee05b33d3227987"
+    },
+    {
+      "path": "upstream-codex-lifecycle-isolated-uninstall.log",
+      "bytes": 1331,
+      "sha256": "cca8811b5ba44d6a5078b89b1ca80c60d30b1601349f42da2f7d2e1bc59642be"
+    },
+    {
+      "path": "upstream-codex-lifecycle-isolated.json",
+      "bytes": 2237,
+      "sha256": "8fc246211da8948a417b397d3f81e835d76c9f15cd45cd20e29eb6b606bbd667"
+    },
+    {
+      "path": "upstream-codex-lifecycle-reinstall.log",
+      "bytes": 2913,
+      "sha256": "157da8c70e2c5f5d9d5f94b9daec76c3f79754e2f7fcbf639ee05b33d3227987"
+    },
+    {
+      "path": "upstream-codex-lifecycle-uninstall.log",
+      "bytes": 1331,
+      "sha256": "cca8811b5ba44d6a5078b89b1ca80c60d30b1601349f42da2f7d2e1bc59642be"
+    },
+    {
+      "path": "upstream-codex-lifecycle.json",
+      "bytes": 2228,
+      "sha256": "c4f317e00d2bdd4cc1850d309d3058cf1673091512c3894dcfba9239058b33b2"
+    },
+    {
+      "path": "upstream-metadata.json",
+      "bytes": 1071,
+      "sha256": "2bedb3b65fa34006f326a64ea24b237e7809c47b0707cd375e06da79d8fa27b3"
+    },
+    {
+      "path": "upstream-state.json",
+      "bytes": 565,
+      "sha256": "e9b68a98fa448a02f3008344794e8ab04f61408c1fc1f9ff21fa819c216891ce"
+    },
+    {
+      "path": "upstream-state.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "upstream-state.tap",
+      "bytes": 9994,
+      "sha256": "bcccf33c58ea450975a8d69238f27b29d1db6ade1c37525c15d5f69990d89656"
+    },
+    {
+      "path": "verified-summary.json",
+      "bytes": 1301,
+      "sha256": "434820783a7fa7b3e11bd8f2c5c59a7f3fdd8acb9f5677df1dfaed3c9d3893e0"
+    },
+    {
+      "path": "verify-evidence.cjs",
+      "bytes": 3472,
+      "sha256": "9e1f423c1ab36d715e4169241244608e6eb2f6d77e4dd8e3bcb98a31bf83d662"
+    }
+  ]
+}

@@ -182,6 +182,23 @@ describe('test-config hygiene (meta-test)', () => {
     expect(coverageScript).toContain('--lines 95');
   });
 
+  test('installer transaction modules are gated per file at 100 on all four metrics (Tier S)', () => {
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
+    const coverageScript = pkg.scripts['test:coverage:install-transaction'];
+    const includes = [...coverageScript.matchAll(/--include=([^']+)'/g)].map(match => match[1]);
+
+    // Exact repo-relative paths with --all: a module the suite never loads reports 0,
+    // so missing file evidence cannot read as a pass.
+    expect(includes).toEqual(['bin/lib/install-names.js', 'bin/lib/install-transaction.js']);
+    for (const name of includes) expect(fs.existsSync(path.join(PROJECT_ROOT, name))).toBe(true);
+    expect(coverageScript).toContain('--all');
+    expect(coverageScript).toContain('--per-file');
+    expect(coverageScript).toContain('--check-coverage');
+    for (const metric of ['statements', 'branches', 'functions', 'lines']) {
+      expect(coverageScript).toContain(`--${metric} 100`);
+    }
+  });
+
   test('hosted CI verdict uses canonical tracked immutable envelope authority', () => {
     const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
     const contract = JSON.parse(fs.readFileSync(HOSTED_CI_CONTRACT_PATH, 'utf8'));

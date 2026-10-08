@@ -1,0 +1,18 @@
+{
+  "captures": {
+    ".planning/evidence/p03-validator-opus-xhigh-review-2026-09-19.md": "d928890995aa43ea6e0142d25237974c1c4372ca91ed938bd9d0fe85659b7044",
+    ".planning/evidence/p05-final-delta-opus-2026-09-20.packet.md": "80989c32cc5fd83e792bb902759fe4d4c2968683a7b5bde18c29c02b0a3767b5",
+    ".planning/evidence/p05-section20-opus-review-2026-09-20.packet.md": "b2d516702339ade5987eef2e939fbaa0b4aef716f2c7e75987e9e19a5b51802f",
+    ".planning/evidence/p05-validator-implementation-review-packet-2026-09-19.md": "a8d46028281d12db98beb2843c1f1e7bf6c40ec7d772bd7200dd540daaadd68f",
+    ".planning/evidence/p05-validator-opus-xhigh-retry-2026-09-19-packet.md": "36436e523edef4ea99d2650f20f5a228d708357b3031d1430802ed8dd6d938ef",
+    ".planning/evidence/p05-validator-opus-xhigh-retry-2026-09-19.md": "845446dc7274fd546ef5a6a976286d9a90fe9ad40b7c70b02d385e908bac1ca3",
+    ".planning/evidence/p05-validator-opus-xhigh-review-2026-09-19.md": "b6713315a7fda8fb005c60a34f7fc2b0ed5ff015aa3013ada2436216c6fec42d",
+    ".planning/evidence/p07-containment-opus-2026-09-20.md": "ff60e8dec02f044f1d1a45001738797f47e2fe550373f0d966ba3ec6a1d43bac",
+    ".planning/evidence/p07-containment-opus-2026-09-20.packet.md": "c4f55b532097903e708765174c6abef5ca36d9fd6d8948fca5e50377a4ffc5c9",
+    ".planning/evidence/p07-containment-spike-2026-09-20/runtime-review.packet.md": "e06d92fb3b0f42c137aa5bb0d6f82ed2ac0c9bf28630efe1377c6ac828180aac",
+    ".planning/evidence/p07-containment-spike-2026-09-20/source-correction.packet.md": "66e8c4062c050bbe6aa43b8c8cf5f755c8c164b7dc60e8d4709884fb768fbb2b",
+    ".planning/evidence/p07-containment-spike-2026-09-20/source-review.md": "d6ccca2ba9a746419a054fe2aa688a29bde9f42e9e156fe6f9920a8e45698d20",
+    ".planning/evidence/p07-containment-spike-2026-09-20/source-review.packet.md": "7780bdad34b5f04f23fbbb7835cd85c7994a66963d5453a414c8014571ee5ce0",
+    ".planning/evidence/p07-mechanism-opus-2026-09-20.md": "0b2236ebc1e8d99a4a97e5965d079a2578c0d66313c3d35fa54fc513f13e2352"
+  }
+}

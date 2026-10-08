@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "c8 executes the same"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+705 |       packageJson, log: () => {},
+706 |       runtime: { execPath: selectedNode, platform: process.platform, nodeVersion: process.version, isBun: false },
+707 |       spawnSync: (exe, args) => { observed = { exe, args }; return { status: 1, stdout: '', stderr: '' }; },
+708 |     });
+709 |     expect(observed.exe).toBe(selectedNode);
+710 |     expect(observed.args[observed.args.indexOf('--test') - 1]).toBe(selectedNode);
+                                                                     ^
+error: expect(received).toBe(expected)
+
+Expected: "C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.claude\selected-node-runtime"
+Received: "node"
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:710:64)
+(fail) expect-red: command line > c8 executes the same explicit Node runtime that captured the evidence [500.00ms]
+
+ 0 pass
+ 57 filtered out
+ 1 fail
+ 2 expect() calls
+Ran 1 test across 1 file. [1.98s]
+error: script "test" exited with code 1

@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-09-21T20:13:24.1772443Z",
+  "goalStatus": "blocked-audit-satisfied",
+  "resumedBlockedAuditOccurrence": 3,
+  "previousTurnClassification": "no progress; unchanged pending approval",
+  "currentClassification": "no progress; third consecutive resumed occurrence of unchanged required scope approval; independent authorized work exhausted",
+  "head": "e50bda5b9dc6c538bd33f1736fe59fcc957f78a7",
+  "branch": "chore/upstream-bump-1.9.1",
+  "condition": "Section21 remains PROPOSED NOT APPROVED; no explicit owner disposition received",
+  "inboxNotification": "Two ez-deploy reports announced by session feed",
+  "inboxVerification": "Neither named report nor matching content exists in authorized worktree docs/inbox; only README.md is present at its top level",
+  "inboxLimit": "Do not claim reports triaged from notification alone or mutate another checkout",
+  "experimentCreated": false,
+  "next": "Await existing section21 owner decision; preserve separate P07 product API approval requirement",
+  "noProductMutation": true,
+  "noTestsRerun": true,
+  "noPush": true
+}

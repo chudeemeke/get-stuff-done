@@ -1,0 +1,31 @@
+{
+  "requestedEffort": "xhigh",
+  "sourceIdentities": [
+    {
+      "sha256": "45e576291952e82dbac3a8bdc458b6cce5a9ae4946f8b2ce7a274222e8c214bb",
+      "path": "scripts/expect-red.cjs"
+    },
+    {
+      "sha256": "444a786ec8312b43560ca889c671c3867390d018e47e68e4f657d07cfcf95d58",
+      "path": "tests/acceptance/installer-recovery.cjs"
+    },
+    {
+      "sha256": "be7afbe2366fa6534e2a08486a0bebb4ca50180fa0699b8faa7ab4aa9fa1ef53",
+      "path": "tests/expect-red.test.js"
+    }
+  ],
+  "startedAt": "2026-09-20T00:23:38.3506802Z",
+  "packetSha256": "80989c32cc5fd83e792bb902759fe4d4c2968683a7b5bde18c29c02b0a3767b5",
+  "status": "completed-awaiting-disposition",
+  "requestedModel": "opus",
+  "cliVersion": "2.1.278",
+  "scope": "delta-only review with full current validator and test context",
+  "resolvedModel": "claude-opus-5",
+  "reviewerSession": "b66f4377-094e-4343-a919-3c71f5463074",
+  "execSession": 5437,
+  "effortEvidence": "CLI requested --effort xhigh; init does not echo effort.",
+  "exitCode": 0,
+  "resultSubtype": "success",
+  "completedAt": "2026-09-20T00:26:30.0005506Z",
+  "sourceStable": true
+}

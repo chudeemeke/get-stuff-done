@@ -1,0 +1,12 @@
+  [2mStrategy: manifest (3 items removed)[0m
+▶ removeGsdFiles
+  ✔ uninstall removes listed script helpers and preserves co-located owner scripts (99.4482ms)
+✔ removeGsdFiles (104.9189ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1050.9056

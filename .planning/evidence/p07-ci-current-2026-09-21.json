@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-09-21T21:09:02.5881851Z",
+  "runId": 35430281225,
+  "createdAt": "2026-09-19T07:47:32Z",
+  "headSha": "897116f96adf8cd8cf47f6e69b7663f16590457f",
+  "status": "completed",
+  "conclusion": "failure",
+  "totalJobs": 1,
+  "returnedJobs": 1,
+  "executedSteps": 0,
+  "limitation": "Latest branch workflow across all workflow names; fresh read of historical result, not a new execution or billing account probe",
+  "pushAuthorized": false,
+  "workflowName": "Compat Matrix"
+}

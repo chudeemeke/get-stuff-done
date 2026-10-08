@@ -1,0 +1,28 @@
+{
+  "after": [
+    {
+      "Algorithm": "SHA256",
+      "Hash": "A951904A007D52079BE1AE7CA47C2E2CFA6ED76950C97BB091646F911ED55B81",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\scripts\\expect-red.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "EF6A215990C5A610AF6139A6E6E3D077AD72D076895AEB51AAF39309187D1897",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\expect-red.test.js"
+    }
+  ],
+  "exit": 0,
+  "before": [
+    {
+      "Algorithm": "SHA256",
+      "Hash": "A951904A007D52079BE1AE7CA47C2E2CFA6ED76950C97BB091646F911ED55B81",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\scripts\\expect-red.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "EF6A215990C5A610AF6139A6E6E3D077AD72D076895AEB51AAF39309187D1897",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\expect-red.test.js"
+    }
+  ],
+  "sourceStable": true
+}

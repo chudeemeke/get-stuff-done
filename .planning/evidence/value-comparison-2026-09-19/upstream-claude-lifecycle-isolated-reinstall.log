@@ -1,0 +1,39 @@
+
+[36m   ██████╗ ███████╗██████╗
+  ██╔════╝ ██╔════╝██╔══██╗
+  ██║  ███╗███████╗██║  ██║
+  ██║   ██║╚════██║██║  ██║
+  ╚██████╔╝███████║██████╔╝
+   ╚═════╝ ╚══════╝╚═════╝[0m
+
+  GSD Core [2mv1.14.0[0m
+  Git. Ship. Done.
+  A meta-prompting, context engineering and spec-driven
+  development workflows for Claude Code, OpenCode, Kimi CLI, Kilo, Codex, Copilot, Antigravity, Cursor, Windsurf, Augment, Trae, Qwen Code, Hermes Agent, Cline, CodeBuddy, ZCode and pi.
+
+  Installing for [36mClaude Code[0m to [36m~\.claude[0m
+
+  [32m✓[0m Installed workflow assets
+  [32m✓[0m Installed 72 skills to skills/
+  [32m✓[0m Installed gsd-core/bin/shared/model-catalog.json
+  [32m✓[0m Installed gsd-core/bin/shared/config-defaults.manifest.json
+  [32m✓[0m Installed gsd-core/bin/shared/config-schema.manifest.json
+  [32m✓[0m Installed gsd-core/bin/shared/runtime-aliases.manifest.json
+  [2m↳[0m Agents installed via descriptor-driven layout (claude)
+  [32m✓[0m Wrote VERSION (1.14.0)
+  [32m✓[0m Wrote runtime marker (.gsd-runtime: claude)
+  [32m✓[0m Installed hooks (bundled)
+  [32m✓[0m Installed hooks/lib/ helpers (git-cmd, graphify-rebuild, ...)
+  [32m✓[0m Installed scripts/changeset/ (changelog preview CLI)
+[legacy-cleanup] Removed 0 legacy artifact(s).
+  [32m✓[0m Wrote file manifest (gsd-file-manifest.json)
+  [33m⚠[0m Skipping statusline (already configured)
+    Use [36m--force-statusline[0m to replace
+
+
+  [32mDone![0m Restart Claude Code, then in any directory either type [36m/gsd-new-project[0m or ask Claude to run the [36mgsd-new-project[0m skill.
+
+  [36mJoin the community:[0m https://discord.gg/mYgfVNfA2r
+
+
+STDERR

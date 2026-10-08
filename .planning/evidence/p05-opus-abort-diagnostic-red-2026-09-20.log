@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern abort-shaped
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+313 |       value.context = {};
+314 |       value.failure = keyOfCheck(check);
+315 |     });
+316 |     const problems = judgeInstallerRecovery(runOf(report));
+317 |     expect(problems).toContain('invalid independent recovery context');
+318 |     expect(problems).toContain('harness check did not pass: twin:child-failed-at-injection');
+                           ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "harness check did not pass: twin:child-failed-at-injection"
+Received: [ "invalid independent recovery context" ]
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:318:22)
+(fail) expect-red: installer recovery > a real abort-shaped report keeps its failed harness diagnostic without context [15.00ms]
+
+ 0 pass
+ 67 filtered out
+ 1 fail
+ 2 expect() calls
+Ran 1 test across 1 file. [230.00ms]
+error: script "test" exited with code 1

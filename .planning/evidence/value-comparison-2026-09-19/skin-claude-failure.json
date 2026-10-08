@@ -1,0 +1,72 @@
+{
+  "candidate": "skin",
+  "runtime": "claude",
+  "mode": "failure",
+  "installer": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\wrapper-package\\bin\\install.js",
+  "installerSha256": "78ba71870597700880c1dcd5c1ebb093cec790fd5393ac06507334c1160b0bb3",
+  "platform": "win32",
+  "node": "v24.20.0",
+  "scratch": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\skin-claude-failure",
+  "checks": [
+    {
+      "id": "injection-reached",
+      "ok": true
+    },
+    {
+      "id": "failure-exits-nonzero",
+      "ok": true
+    },
+    {
+      "id": "failure:preserve:owner.txt",
+      "ok": true
+    },
+    {
+      "id": "failure:preserve:scripts/lib/owner-helper.cjs",
+      "ok": true
+    },
+    {
+      "id": "failure:preserve:scripts/changeset/owner-check.cjs",
+      "ok": true
+    },
+    {
+      "id": "failure:preserve:settings.json",
+      "ok": true
+    },
+    {
+      "id": "no-unquarantined-residue",
+      "ok": false,
+      "detail": {
+        "count": 622,
+        "sample": [
+          ".gsd-source",
+          "agents/gsd-advisor-researcher.md",
+          "agents/gsd-ai-researcher.md",
+          "agents/gsd-assumptions-analyzer.md",
+          "agents/gsd-code-fixer.md",
+          "agents/gsd-code-reviewer.md",
+          "agents/gsd-codebase-mapper.md",
+          "agents/gsd-debug-session-manager.md",
+          "agents/gsd-debugger.md",
+          "agents/gsd-doc-classifier.md",
+          "agents/gsd-doc-synthesizer.md",
+          "agents/gsd-doc-verifier.md"
+        ]
+      }
+    },
+    {
+      "id": "no-false-rollback-claim",
+      "ok": false
+    },
+    {
+      "id": "write-guard-loaded",
+      "ok": true
+    },
+    {
+      "id": "no-blocked-external-write",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "passed": 8,
+  "failed": 2
+}

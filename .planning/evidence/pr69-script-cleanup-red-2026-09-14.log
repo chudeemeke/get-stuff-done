@@ -1,0 +1,30 @@
+  [2mStrategy: manifest (5 items removed)[0m
+▶ removeGsdFiles
+  ✖ uninstall removes listed script helpers and preserves co-located owner scripts (230.7851ms)
+✖ removeGsdFiles (235.2079ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1078.7646
+
+✖ failing tests:
+
+test at tests\installer-safety.test.js:905:3
+✖ uninstall removes listed script helpers and preserves co-located owner scripts (230.7851ms)
+  Error: ENOENT: no such file or directory, open 'C:\Users\Destiny\AppData\Local\Temp\gsd-test-6iXCsg\scripts\lib\owner helper.cjs'
+      at Object.readFileSync (node:fs:484:20)
+      at TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\installer-safety.test.js:919:41)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at async Promise.all (index 7)
+      at async Suite.run (node:internal/test_runner/test:1889:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-test-6iXCsg\\scripts\\lib\\owner helper.cjs'
+  }

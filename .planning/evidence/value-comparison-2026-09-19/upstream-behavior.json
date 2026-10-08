@@ -1,0 +1,19 @@
+{
+  "candidate": "upstream",
+  "suite": "behavior",
+  "packageRoot": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\package",
+  "node": "v24.20.0",
+  "platform": "win32",
+  "toolSha256": "ec066117822d0270bafa6ed3f863b4aebee8bfda243efcd828bf8a1d85732a92",
+  "suiteSha256": "50dbdf945d5b3db19dcaf3ee924466c24707f7db1897442a2f62cbde761abe2c",
+  "status": 1,
+  "error": null,
+  "counts": {
+    "tests": 8,
+    "pass": 0,
+    "fail": 8,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "validSummary": true
+}

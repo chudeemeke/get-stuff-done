@@ -1,0 +1,67 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "expect-red: (installer recovery|command line|install transaction coverage)"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: installer recovery > recovery evidence must match the explicitly supplied source bytes and host [157.00ms]
+(pass) expect-red: installer recovery > independent context must contain unambiguous relative paths and real residue [31.00ms]
+(pass) expect-red: installer recovery > malformed, interrupted and cleanup-failed reports return diagnostics instead of acceptance or exceptions [62.00ms]
+(pass) expect-red: installer recovery > known failure labels cannot conceal missing, contradictory or additional observations [563.00ms]
+(pass) expect-red: installer recovery > only the complete reviewed inventory is accepted, without duplicates or extra failures [531.00ms]
+(pass) expect-red: installer recovery > the captured red from the unfixed installer is the known red [16.00ms]
+(pass) expect-red: installer recovery > an additional owner-byte loss cannot hide behind the expected recovery failures
+(pass) expect-red: installer recovery > an unexpected pass fails and says how to retire the wrapper
+(pass) expect-red: installer recovery > a red with harness check twin:child-failed-at-injection failing is the wrong red [15.00ms]
+(pass) expect-red: installer recovery > a red with harness check twin:residue-non-empty failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check fresh:wrapper-child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:first-install-succeeded failing is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red with harness check upgrade:picked-files-installed failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:wrapper-child-failed-at-injection failing is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red with harness check upgrade:child-rewrote-picked-files failing is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check twin:child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check twin:residue-non-empty is the wrong red [15.00ms]
+(pass) expect-red: installer recovery > a red that never ran harness check fresh:wrapper-child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:first-install-succeeded is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:picked-files-installed is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:wrapper-child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:child-rewrote-picked-files is the wrong red [15.00ms]
+(pass) expect-red: installer recovery > a red in which fresh:outcome-exact passes is not the known red
+(pass) expect-red: installer recovery > a red in which fresh:top-level-exact-allowlist passes is not the known red
+(pass) expect-red: installer recovery > a red in which fresh:transaction-directory-shape passes is not the known red [16.00ms]
+(pass) expect-red: installer recovery > a red in which upgrade:outcome-exact passes is not the known red
+(pass) expect-red: installer recovery > a red in which upgrade:transaction-directory-shape passes is not the known red
+(pass) expect-red: installer recovery > a missing compose is the wrong red
+(pass) expect-red: installer recovery > a crash with no report and an unexpected exit status are both refused [16.00ms]
+264 | 
+265 |   test('affirmative coverage requires both exact files, every metric and consistent aggregate counts', () => {
+266 |     for (const evidence of [undefined, null, {}, { ...COVERAGE_EVIDENCE, coverageSummary: {} },
+267 |       { ...COVERAGE_EVIDENCE, host: { platform: 'unknown' } },
+268 |       { ...COVERAGE_EVIDENCE, projectRoot: '/foreign-project' }]) {
+269 |       expect(judgeCoverage(tapRun(KNOWN_TAP), evidence).length).toBeGreaterThan(0);
+                                                                      ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:269:65)
+(fail) expect-red: install transaction coverage > affirmative coverage requires both exact files, every metric and consistent aggregate counts
+(pass) expect-red: install transaction coverage > the reviewed 51-case render-only red is the known red
+(pass) expect-red: install transaction coverage > old skeleton evidence and any incomplete or changed case inventory are refused [140.00ms]
+(pass) expect-red: install transaction coverage > TAP framing, terminal counts and bounded render failure diagnostics are mandatory [16.00ms]
+(pass) expect-red: install transaction coverage > a case failing for any reason other than an unbuilt operation is the wrong red
+(pass) expect-red: install transaction coverage > a coverage shortfall on landed code is the wrong red, on either stream
+(pass) expect-red: install transaction coverage > nothing failing, a crash with no summary, and a miscounted summary are all refused
+(pass) expect-red: command line > source or validator changes during capture invalidate the report [62.00ms]
+(pass) expect-red: command line > the production gate refuses Bun before spawning a child
+(pass) expect-red: command line > the gate command is read from package.json, not copied
+(pass) expect-red: command line > exits 0 on the known red, 1 on anything else, 2 on misuse [32.00ms]
+
+1 tests failed:
+(fail) expect-red: install transaction coverage > affirmative coverage requires both exact files, every metric and consistent aggregate counts
+
+ 39 pass
+ 2 filtered out
+ 1 fail
+ 507 expect() calls
+Ran 40 tests across 1 file. [1.88s]
+error: script "test" exited with code 1

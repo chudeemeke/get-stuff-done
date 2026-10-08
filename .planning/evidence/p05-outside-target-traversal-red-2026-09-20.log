@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "emits observation-error"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+266 | 
+267 |   test('the real harness emits observation-error before and after partial observation', () => {
+268 |     for (const mode of ['before-observe', 'after-observe', 'without-code']) {
+269 |       const { run, report } = captureHarnessOracle(mode);
+270 |       expect(run.status).toBe(1);
+271 |       expect(report.checks.find(row => row.scenario === 'fresh' && row.id === 'home-outside-target-unchanged')?.ok).toBe(true);
+                                                                                                                          ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:271:117)
+(fail) expect-red: recovery observation contract > the real harness emits observation-error before and after partial observation [328.00ms]
+
+ 0 pass
+ 69 filtered out
+ 1 fail
+ 10 expect() calls
+Ran 1 test across 1 file. [447.00ms]
+error: script "test" exited with code 1

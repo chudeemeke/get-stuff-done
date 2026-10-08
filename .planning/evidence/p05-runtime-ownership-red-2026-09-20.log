@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "exact Windows runtime"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+244 | }
+245 | 
+246 | describe('expect-red: recovery observation contract', () => {
+247 |   test('exact Windows runtime creation and regular-file updates preserve owner data', () => {
+248 |     const { run, report } = captureHarnessOracle('runtime-allowed');
+249 |     expect(run.status).toBe(process.platform === 'win32' ? 0 : 1);
+                             ^
+error: expect(received).toBe(expected)
+
+Expected: 0
+Received: 1
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:249:24)
+(fail) expect-red: recovery observation contract > exact Windows runtime creation and regular-file updates preserve owner data [297.00ms]
+
+ 0 pass
+ 71 filtered out
+ 1 fail
+ 9 expect() calls
+Ran 1 test across 1 file. [402.00ms]
+error: script "test" exited with code 1

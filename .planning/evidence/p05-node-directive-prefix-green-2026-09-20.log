@@ -1,0 +1,11 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "coverage ignore directives"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: command line > coverage ignore directives in either watched module refuse before execution [31.00ms]
+
+ 1 pass
+ 79 filtered out
+ 0 fail
+ 54 expect() calls
+Ran 1 test across 1 file. [171.00ms]

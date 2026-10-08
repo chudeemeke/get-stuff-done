@@ -1,0 +1,301 @@
+{
+  "generatedAt": "2026-09-05T04:38:06.543Z",
+  "forkCommit": "2b692738dd44eb9fa1f3283d2e889441bcb35686",
+  "upstreamVersion": "1.8.0",
+  "experiment": "all overrides absent; current adoption-corrected tests and existing overlay; no live-tree rename",
+  "result": {
+    "ok": false,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "excluded": [
+      "core.test.cjs",
+      "phase-verification.test.cjs",
+      "sync.test.cjs"
+    ],
+    "classifiedExclusions": [
+      {
+        "path": "core.test.cjs",
+        "classification": "retired"
+      },
+      {
+        "path": "phase-verification.test.cjs",
+        "classification": "repository"
+      },
+      {
+        "path": "sync.test.cjs",
+        "classification": "repository"
+      }
+    ],
+    "suites": [
+      {
+        "path": "commands.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "black-box",
+        "status": "passed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 20238,
+        "exitCode": 0,
+        "errors": []
+      },
+      {
+        "path": "config.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "upstream-internal-observed",
+        "status": "passed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 13181,
+        "exitCode": 0,
+        "errors": []
+      },
+      {
+        "path": "frontmatter.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "upstream-internal-observed",
+        "status": "passed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 15389,
+        "exitCode": 0,
+        "errors": []
+      },
+      {
+        "path": "init.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "black-box",
+        "status": "failed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 21595,
+        "exitCode": 1,
+        "errors": [
+          "AssertionError [ERR_ASSERTION]: STATE current phase is surfaced",
+          "code: 'ERR_ASSERTION',",
+          "actual: undefined,",
+          "expected: '41',",
+          "Failed to parse test output. Raw output may contain errors."
+        ]
+      },
+      {
+        "path": "milestone.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "black-box",
+        "status": "passed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 5811,
+        "exitCode": 0,
+        "errors": []
+      },
+      {
+        "path": "phase.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "upstream-internal-observed",
+        "status": "passed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 51902,
+        "exitCode": 0,
+        "errors": []
+      },
+      {
+        "path": "roadmap.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "upstream-internal-observed",
+        "status": "failed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 12534,
+        "exitCode": 1,
+        "errors": [
+          "✔ missing ROADMAP.md returns error (673.3747ms)",
+          "✖ propagates publication failure without mutating the roadmap (14.6413ms)",
+          "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:",
+          "code: 'ERR_ASSERTION',",
+          "actual: true,"
+        ]
+      },
+      {
+        "path": "runtime-overrides.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "fork-runtime",
+        "status": "failed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 3880,
+        "exitCode": 1,
+        "errors": [
+          "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:",
+          "code: 'ERR_ASSERTION',",
+          "actual: undefined,",
+          "expected: '41',",
+          "expected: '42',"
+        ]
+      },
+      {
+        "path": "state.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "black-box",
+        "status": "failed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 11670,
+        "exitCode": 1,
+        "errors": [
+          "✔ missing STATE.md returns error (874.6499ms)",
+          "✔ returns error for invalid --cwd path (253.4522ms)",
+          "AssertionError [ERR_ASSERTION]: progress should include future plans declared only in ROADMAP.md",
+          "code: 'ERR_ASSERTION',",
+          "actual: 100,"
+        ]
+      },
+      {
+        "path": "template.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "upstream-internal-observed",
+        "status": "passed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 4822,
+        "exitCode": 0,
+        "errors": []
+      },
+      {
+        "path": "verify.test.cjs",
+        "classification": "candidate",
+        "authorityBoundary": "black-box",
+        "status": "passed",
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 3372,
+        "exitCode": 0,
+        "errors": []
+      }
+    ],
+    "errors": [
+      "init.test.cjs: AssertionError [ERR_ASSERTION]: STATE current phase is surfaced",
+      "init.test.cjs: code: 'ERR_ASSERTION',",
+      "init.test.cjs: actual: undefined,",
+      "init.test.cjs: expected: '41',",
+      "init.test.cjs: Failed to parse test output. Raw output may contain errors.",
+      "roadmap.test.cjs: ✔ missing ROADMAP.md returns error (673.3747ms)",
+      "roadmap.test.cjs: ✖ propagates publication failure without mutating the roadmap (14.6413ms)",
+      "roadmap.test.cjs: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:",
+      "roadmap.test.cjs: code: 'ERR_ASSERTION',",
+      "roadmap.test.cjs: actual: true,",
+      "runtime-overrides.test.cjs: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:",
+      "runtime-overrides.test.cjs: code: 'ERR_ASSERTION',",
+      "runtime-overrides.test.cjs: actual: undefined,",
+      "runtime-overrides.test.cjs: expected: '41',",
+      "runtime-overrides.test.cjs: expected: '42',",
+      "state.test.cjs: ✔ missing STATE.md returns error (874.6499ms)",
+      "state.test.cjs: ✔ returns error for invalid --cwd path (253.4522ms)",
+      "state.test.cjs: AssertionError [ERR_ASSERTION]: progress should include future plans declared only in ROADMAP.md",
+      "state.test.cjs: code: 'ERR_ASSERTION',",
+      "state.test.cjs: actual: 100,"
+    ]
+  },
+  "logs": [
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-1.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\commands.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-2.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\config.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-3.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\frontmatter.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-4.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\init.test.cjs"
+      ],
+      "exitCode": 1
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-5.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\milestone.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-6.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\phase.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-7.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\roadmap.test.cjs"
+      ],
+      "exitCode": 1
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-8.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\runtime-overrides.test.cjs"
+      ],
+      "exitCode": 1
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-9.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\state.test.cjs"
+      ],
+      "exitCode": 1
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-10.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\template.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "file": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\drop-180-SaYfBS\\suite-11.tap",
+      "args": [
+        "--test",
+        "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-compat-WKBlw4\\tests\\verify.test.cjs"
+      ],
+      "exitCode": 0
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+
+[36m   ██████╗ ███████╗██████╗
+  ██╔════╝ ██╔════╝██╔══██╗
+  ██║  ███╗███████╗██║  ██║
+  ██║   ██║╚════██║██║  ██║
+  ╚██████╔╝███████║██████╔╝
+   ╚═════╝ ╚══════╝╚═════╝[0m
+
+  GSD Core [2mv1.9.1[0m
+  Git. Ship. Done.
+  A meta-prompting, context engineering and spec-driven
+  development workflows for Claude Code, OpenCode, Kimi CLI, Kilo, Codex, Copilot, Antigravity, Cursor, Windsurf, Augment, Trae, Qwen Code, Hermes Agent, Cline, CodeBuddy, ZCode and pi.
+
+  Installing for [36mCodex[0m to [36m~\.codex[0m
+
+  [32m✓[0m Installer migrations
+     rewrote or removed [2mhooks.json[0m — legacy Codex hooks.json GSD registration retired by installer migration
+  [32m✓[0m Installed 72 skills to skills/
+  [32m✓[0m Installed workflow assets
+  [32m✓[0m Installed gsd-core/bin/shared/model-catalog.json
+  [32m✓[0m Installed gsd-core/bin/shared/config-defaults.manifest.json
+  [32m✓[0m Installed gsd-core/bin/shared/config-schema.manifest.json
+  [32m✓[0m Installed gsd-core/bin/shared/runtime-aliases.manifest.json
+  [32m✓[0m Installed agents
+  [32m✓[0m Wrote VERSION (1.9.1)
+  [32m✓[0m Wrote runtime marker (.gsd-runtime: codex)
+  [32m✓[0m Installed scripts/changeset/ (changelog preview CLI)
+[legacy-cleanup] Removed 0 legacy artifact(s).
+  [32m✓[0m Wrote file manifest (gsd-file-manifest.json)
+  [32m✓[0m Generated config.toml with 38 agent roles
+  [32m✓[0m Generated 38 agent .toml config files
+  [32m✓[0m Installed hooks (Codex)
+  [32m✓[0m Wrote hooks/package.json (CommonJS mode)
+  [32m✓[0m Configured Codex hooks (SessionStart via hooks.json)
+  [32m✓[0m Configured Codex hooks (SubagentStart via hooks.json)
+  [32m✓[0m Configured Codex hooks (Stop via hooks.json)
+  [32m✓[0m Configured Codex hooks (PostToolUse via hooks.json)
+  [32m✓[0m Configured Codex hooks (PreToolUse via hooks.json)
+  [32m✓[0m Configured Codex hooks (PermissionRequest via hooks.json)
+  [32m✓[0m Configured Codex hooks (PreCompact via hooks.json)
+  [32m✓[0m Configured Codex hooks (PostCompact via hooks.json)
+  [32m✓[0m Configured Codex hooks (SubagentStop via hooks.json)
+  [32m✓[0m Configured Codex hooks (UserPromptSubmit via hooks.json)
+
+  [32mDone![0m Open a blank directory in Codex and run [36m$gsd-new-project[0m.
+
+  [36mJoin the community:[0m https://discord.gg/mYgfVNfA2r
+
+
+  [32mOverlay files copied:[0m 33
+  [32m.install-meta.json written[0m
+  [32m.overlay-manifest.json written[0m
+  [32mStatusLine setting updated[0m
+
+STDERR

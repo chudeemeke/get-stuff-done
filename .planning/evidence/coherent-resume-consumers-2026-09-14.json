@@ -1,0 +1,315 @@
+{
+  "recordedAt": "2026-09-14T03:54:25.818Z",
+  "cwd": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign",
+  "forkHead": "3aea309becee1db93d2ee60f630ac5c28e6e76f7",
+  "upstreamAuthority": {
+    "packageName": "@opengsd/gsd-core",
+    "version": "1.9.1",
+    "repository": "https://github.com/open-gsd/gsd-core",
+    "npmUrl": "https://www.npmjs.com/package/@opengsd/gsd-core",
+    "sourceRoot": ".",
+    "bin": {
+      "gsd-core": "bin/install.js",
+      "gsd-tools": "gsd-core/bin/gsd-tools.cjs",
+      "gsd_run": "gsd-core/bin/gsd_run"
+    },
+    "paths": {
+      "agents": "agents",
+      "commands": "commands/gsd",
+      "hooksRuntime": "hooks/dist",
+      "hooksSource": "hooks",
+      "installer": "bin/install.js",
+      "scripts": "scripts",
+      "gsdTools": "gsd-core/bin/gsd-tools.cjs",
+      "workflows": "gsd-core/workflows"
+    }
+  },
+  "buildMetadata": {
+    "upstream_version": "1.9.1",
+    "overlay_version": "3.0.2",
+    "composed_at": "2026-09-13T22:58:22.656Z",
+    "features_disabled": [],
+    "overrides_applied": [
+      "bin/install.js",
+      "gsd-core/bin/lib/init.cjs",
+      "gsd-core/bin/lib/plan-scan.cjs",
+      "gsd-core/bin/lib/roadmap-parser.cjs",
+      "gsd-core/bin/lib/roadmap.cjs",
+      "gsd-core/bin/lib/state.cjs",
+      "hooks/gsd-check-update-worker.js",
+      "hooks/gsd-check-update.js",
+      "hooks/gsd-statusline.js"
+    ],
+    "branding_rules_applied": 135
+  },
+  "source": [
+    {
+      "role": "state setter",
+      "producer": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/overrides/gsd-core/bin/lib/state.cjs",
+        "exists": true,
+        "bytes": 172264,
+        "sha256": "2a12ab417df7e60a3467be729f18e1ab7b932b23e7244d25d169be7a4d6c6980"
+      },
+      "artifact": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/dist/gsd-core/bin/lib/state.cjs",
+        "exists": true,
+        "bytes": 172264,
+        "sha256": "2a12ab417df7e60a3467be729f18e1ab7b932b23e7244d25d169be7a4d6c6980"
+      },
+      "byteIdentical": true
+    },
+    {
+      "role": "resume workflow",
+      "producer": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/node_modules/@opengsd/gsd-core/gsd-core/workflows/resume-project.md",
+        "exists": true,
+        "bytes": 17270,
+        "sha256": "ebd3c1646e7d0a65e5f5e14cbb7f343455e177a8f5f2b457070745b544fb1a8c"
+      },
+      "artifact": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/dist/gsd-core/workflows/resume-project.md",
+        "exists": true,
+        "bytes": 17274,
+        "sha256": "97a71a55f072f03a35c8ae1b52fc1c6b47733a32194b72ccb1a9dcc16e2c0c24"
+      },
+      "byteIdentical": false
+    },
+    {
+      "role": "pause workflow",
+      "producer": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/node_modules/@opengsd/gsd-core/gsd-core/workflows/pause-work.md",
+        "exists": true,
+        "bytes": 14441,
+        "sha256": "abf559f11b106985486fff2549612603cc0538e214af62ecdf7104b37bc15c81"
+      },
+      "artifact": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/dist/gsd-core/workflows/pause-work.md",
+        "exists": true,
+        "bytes": 14445,
+        "sha256": "f2aa7ce0e3d97eb49a1ee17bfe84ef6e2e7fa605e548ee40c8b423dd7da7377d"
+      },
+      "byteIdentical": false
+    },
+    {
+      "role": "pre-compact",
+      "producer": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/overlay/hooks/pre-compact.js",
+        "exists": true,
+        "bytes": 5358,
+        "sha256": "d66c5347275fbc829e05944979b273ef0e3875a41245e40805a7fee7d5539029"
+      },
+      "artifact": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/dist/hooks/pre-compact.js",
+        "exists": true,
+        "bytes": 5358,
+        "sha256": "d66c5347275fbc829e05944979b273ef0e3875a41245e40805a7fee7d5539029"
+      },
+      "byteIdentical": true
+    },
+    {
+      "role": "bundled pre-compact",
+      "producer": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/hooks/dist/pre-compact.js",
+        "exists": true,
+        "bytes": 23997,
+        "sha256": "2be5722eb7ba479e579b6ab4a1a6333f19a47aaf5058b9588020872fadea946b"
+      },
+      "artifact": {
+        "path": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/dist/hooks/pre-compact.js",
+        "exists": true,
+        "bytes": 5358,
+        "sha256": "d66c5347275fbc829e05944979b273ef0e3875a41245e40805a7fee7d5539029"
+      },
+      "byteIdentical": false
+    }
+  ],
+  "installed": [
+    {
+      "label": "claude-global",
+      "root": "C:/Users/Destiny/.claude/gsd-core",
+      "versionLabel": "1.6.1",
+      "files": [
+        {
+          "path": "C:/Users/Destiny/.claude/gsd-core/VERSION",
+          "exists": true,
+          "bytes": 5,
+          "sha256": "fdfe13d50cc583494b0bcd54861b89449ecc2337b3f763041f8334ccbd57d167"
+        },
+        {
+          "path": "C:/Users/Destiny/.claude/gsd-core/workflows/resume-project.md",
+          "exists": true,
+          "bytes": 17234,
+          "sha256": "6f8eba6337ae76e1c164f7edd52e90cc3aeb4a8142febe968c66448a3a010666"
+        },
+        {
+          "path": "C:/Users/Destiny/.claude/gsd-core/workflows/pause-work.md",
+          "exists": true,
+          "bytes": 14401,
+          "sha256": "117784c67290cf3f41e580a7d84d722ea6715360972c24887a04a5434c781944"
+        },
+        {
+          "path": "C:/Users/Destiny/.claude/gsd-core/bin/lib/state.cjs",
+          "exists": true,
+          "bytes": 134114,
+          "sha256": "a726c7544541264d076f9c644b094642229cccd95610991deb93c73b51f1029f"
+        },
+        {
+          "path": "C:/Users/Destiny/.claude/gsd-core/bin/gsd-tools.cjs",
+          "exists": true,
+          "bytes": 141961,
+          "sha256": "fd3df2a7e81bc9d2fba1c5e3d41e81c16954132ad969b03ac468842bf53a9460"
+        }
+      ],
+      "executionVerified": false
+    },
+    {
+      "label": "codex-legacy",
+      "root": "C:/Users/Destiny/.codex/get-shit-done",
+      "versionLabel": "1.32.0",
+      "files": [
+        {
+          "path": "C:/Users/Destiny/.codex/get-shit-done/VERSION",
+          "exists": true,
+          "bytes": 6,
+          "sha256": "f3cb303df0dafd4f419bf4df3c1745fac67bdbe35634965e123cf66d8096cacf"
+        },
+        {
+          "path": "C:/Users/Destiny/.codex/get-shit-done/workflows/resume-project.md",
+          "exists": true,
+          "bytes": 10166,
+          "sha256": "b052e37d76dc721983dc99129d9040cfae7c9efeef3d30e701be5fac04436a0d"
+        },
+        {
+          "path": "C:/Users/Destiny/.codex/get-shit-done/workflows/pause-work.md",
+          "exists": true,
+          "bytes": 8951,
+          "sha256": "b8574431cbd1b36165d049217936738054e11a841b37c916006eb6deeec71a5c"
+        },
+        {
+          "path": "C:/Users/Destiny/.codex/get-shit-done/bin/lib/state.cjs",
+          "exists": true,
+          "bytes": 52685,
+          "sha256": "faff07fb9fb350ee425521103e711170ba86e3dd306ea2e70b5605c1d1898365"
+        },
+        {
+          "path": "C:/Users/Destiny/.codex/get-shit-done/bin/gsd-tools.cjs",
+          "exists": true,
+          "bytes": 38086,
+          "sha256": "88612001bb33938e7e81e63478f742107aa6a314108b400f6fd2cae674c0d900"
+        }
+      ],
+      "executionVerified": false
+    },
+    {
+      "label": "claude-project-legacy",
+      "root": "C:/Projects/get-stuff-done/.claude/get-shit-done",
+      "versionLabel": "1.30.0",
+      "files": [
+        {
+          "path": "C:/Projects/get-stuff-done/.claude/get-shit-done/VERSION",
+          "exists": true,
+          "bytes": 6,
+          "sha256": "539402d2694f8bdccbced843d22a2efdea47865e66833e92d06d2bfedee9ce02"
+        },
+        {
+          "path": "C:/Projects/get-stuff-done/.claude/get-shit-done/workflows/resume-project.md",
+          "exists": true,
+          "bytes": 10410,
+          "sha256": "85ba4ab0bb83319e5bd2b0668a423221b64270bd0754cb990533b8104247e028"
+        },
+        {
+          "path": "C:/Projects/get-stuff-done/.claude/get-shit-done/workflows/pause-work.md",
+          "exists": true,
+          "bytes": 5332,
+          "sha256": "ad67bdee036a8b894d01881f1f1a734410bbf146fc23470dbfb347a5d9c9b257"
+        },
+        {
+          "path": "C:/Projects/get-stuff-done/.claude/get-shit-done/bin/lib/state.cjs",
+          "exists": true,
+          "bytes": 39676,
+          "sha256": "edf7c8b685df2145b03b780568abfd6491e0c566d8cf563ccd09373868c0d99d"
+        },
+        {
+          "path": "C:/Projects/get-stuff-done/.claude/get-shit-done/bin/gsd-tools.cjs",
+          "exists": true,
+          "bytes": 36483,
+          "sha256": "af10545eae9b4339a12dee0b30048830f52788e62aefb3cba489d67c3236ab74"
+        }
+      ],
+      "executionVerified": false
+    }
+  ],
+  "routes": [
+    {
+      "runtime": ".agents",
+      "action": "resume",
+      "path": "C:/Users/Destiny/.agents/skills/gsd-resume-work/SKILL.md",
+      "exists": false,
+      "references": []
+    },
+    {
+      "runtime": ".agents",
+      "action": "pause",
+      "path": "C:/Users/Destiny/.agents/skills/gsd-pause-work/SKILL.md",
+      "exists": false,
+      "references": []
+    },
+    {
+      "runtime": ".claude",
+      "action": "resume",
+      "path": "C:/Users/Destiny/.claude/skills/gsd-resume-work/SKILL.md",
+      "exists": true,
+      "bytes": 697,
+      "sha256": "2f6918aac6e53fe0b051afe115d17bd5be7b60afaa29769f18bf539247c10b9d",
+      "references": [
+        "@$HOME/.claude/gsd-core/workflows/resume-project.md"
+      ]
+    },
+    {
+      "runtime": ".claude",
+      "action": "pause",
+      "path": "C:/Users/Destiny/.claude/skills/gsd-pause-work/SKILL.md",
+      "exists": true,
+      "bytes": 1125,
+      "sha256": "0a1dd3b665026ee18b8cc1e988ea90c123ae22e46f671d69638d1870b030b621",
+      "references": [
+        "@$HOME/.claude/gsd-core/workflows/pause-work.md"
+      ]
+    },
+    {
+      "runtime": ".codex",
+      "action": "resume",
+      "path": "C:/Users/Destiny/.codex/skills/gsd-resume-work/SKILL.md",
+      "exists": false,
+      "references": []
+    },
+    {
+      "runtime": ".codex",
+      "action": "pause",
+      "path": "C:/Users/Destiny/.codex/skills/gsd-pause-work/SKILL.md",
+      "exists": false,
+      "references": []
+    }
+  ],
+  "hooks": [
+    {
+      "path": "C:/Users/Destiny/.claude/hooks/pre-compact.js",
+      "exists": true,
+      "bytes": 4884,
+      "sha256": "ec75849c81891ea4c8eb1b1fc9f2732c30f51d03b2920971a6e660e089b38f3e"
+    },
+    {
+      "path": "C:/Users/Destiny/.codex/hooks/pre-compact.js",
+      "exists": true,
+      "bytes": 4884,
+      "sha256": "ec75849c81891ea4c8eb1b1fc9f2732c30f51d03b2920971a6e660e089b38f3e"
+    }
+  ],
+  "limits": [
+    "Read-only installed file and route inventory; no installed reader/writer executed.",
+    "Artifact hashes bind this existing dist snapshot; they do not qualify a new release.",
+    "Legacy version labels identify distinct lineages and do not prove artifact provenance.",
+    "Conversations protocol has not been frozen, implemented here, or adopted."
+  ]
+}

@@ -1,0 +1,31 @@
+
+[36m   ██████╗ ███████╗██████╗
+  ██╔════╝ ██╔════╝██╔══██╗
+  ██║  ███╗███████╗██║  ██║
+  ██║   ██║╚════██║██║  ██║
+  ╚██████╔╝███████║██████╔╝
+   ╚═════╝ ╚══════╝╚═════╝[0m
+
+  GSD Core [2mv1.14.0[0m
+  Git. Ship. Done.
+  A meta-prompting, context engineering and spec-driven
+  development workflows for Claude Code, OpenCode, Kimi CLI, Kilo, Codex, Copilot, Antigravity, Cursor, Windsurf, Augment, Trae, Qwen Code, Hermes Agent, Cline, CodeBuddy, ZCode and pi.
+
+  Mode: Uninstall
+
+  Uninstalling GSD from [36mCodex[0m at [36m~\.codex[0m
+
+  [32m✓[0m Cleaned GSD sections from config.toml
+  [32m✓[0m Removed managed Codex SessionStart hook from hooks.json
+  [32m✓[0m Removed gsd-core/
+  [32m✓[0m Removed 4 GSD hooks
+  [32m✓[0m Removed GSD hooks/package.json (CommonJS marker)
+  [32m✓[0m Removed scripts/changeset/ GSD files
+  [32m✓[0m Removed scripts/lib/ GSD files
+  [32m✓[0m Removed gsd-file-manifest.json
+
+  [32mDone![0m GSD has been uninstalled from Codex.
+  Your other files and settings have been preserved.
+
+
+STDERR

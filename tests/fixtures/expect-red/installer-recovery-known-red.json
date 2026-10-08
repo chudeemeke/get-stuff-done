@@ -1,0 +1,192 @@
+{
+  "platform": "win32",
+  "node": "v24.20.0",
+  "accepted": false,
+  "checks": [
+    {
+      "scenario": "twin",
+      "kind": "harness",
+      "id": "child-failed-at-injection",
+      "ok": true
+    },
+    {
+      "scenario": "twin",
+      "kind": "harness",
+      "id": "residue-non-empty",
+      "ok": true
+    },
+    {
+      "scenario": "fresh",
+      "kind": "harness",
+      "id": "wrapper-child-failed-at-injection",
+      "ok": true
+    },
+    {
+      "scenario": "fresh",
+      "kind": "acceptance",
+      "id": "status-is-1",
+      "ok": true
+    },
+    {
+      "scenario": "fresh",
+      "kind": "acceptance",
+      "id": "outcome-exact",
+      "ok": false,
+      "detail": "outcome line is not the verified form: \"Rollback applied\""
+    },
+    {
+      "scenario": "fresh",
+      "kind": "acceptance",
+      "id": "top-level-exact-allowlist",
+      "ok": false,
+      "detail": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n+   '.gsd-source',\n+   'agents',\n+   'gsd-core',\n+   'gsd-migration-journal',\n+   'hooks',\n-   'gsd-install-transaction',\n    'owner.txt',\n+   'package.json',\n+   'scripts',\n    'settings.json',\n+   'skills'\n  ]\n"
+    },
+    {
+      "scenario": "fresh",
+      "kind": "acceptance",
+      "id": "owner-bytes-preserved",
+      "ok": true
+    },
+    {
+      "scenario": "fresh",
+      "kind": "acceptance",
+      "id": "transaction-directory-shape",
+      "ok": false,
+      "detail": "ENOENT: no such file or directory, scandir 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\installer-recovery-1qMcAr\\fresh home\\runtime with spaces\\gsd-install-transaction'"
+    },
+    {
+      "scenario": "fresh",
+      "kind": "acceptance",
+      "id": "quarantine-path-printed",
+      "ok": false,
+      "detail": "no quarantine to name"
+    },
+    {
+      "scenario": "fresh",
+      "kind": "acceptance",
+      "id": "new-equals-twin-residue",
+      "ok": false,
+      "detail": "new/ against twin: missing 742 (.gsd-source, agents, agents/general-purpose.md, agents/gsd-advisor-researcher.md, agents/gsd-ai-researcher.md, agents/gsd-assumptions-analyzer.md); unexpected 0; changed 0"
+    },
+    {
+      "scenario": "fresh",
+      "kind": "acceptance",
+      "id": "displaced-equals-twin-changes",
+      "ok": true
+    },
+    {
+      "scenario": "fresh",
+      "kind": "acceptance",
+      "id": "moved-txt-lists-every-file",
+      "ok": false,
+      "detail": "628 of 628 absent, e.g. .gsd-source, package.json, skills/gsd-workstreams/SKILL.md, skills/gsd-workspace/SKILL.md\n\n628 !== 0\n"
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "harness",
+      "id": "first-install-succeeded",
+      "ok": true
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "harness",
+      "id": "picked-files-installed",
+      "ok": true
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "harness",
+      "id": "wrapper-child-failed-at-injection",
+      "ok": true
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "harness",
+      "id": "child-rewrote-picked-files",
+      "ok": true
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "acceptance",
+      "id": "status-is-1",
+      "ok": true
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "acceptance",
+      "id": "outcome-exact",
+      "ok": false,
+      "detail": "outcome line is not the verified form: \"Rollback applied\""
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "acceptance",
+      "id": "tree-deep-equal-outside-allowlist",
+      "ok": false,
+      "detail": "after against before: missing 0; unexpected 0; changed 1 (gsd-install-state.json)"
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "acceptance",
+      "id": "transaction-directory-shape",
+      "ok": false,
+      "detail": "ENOENT: no such file or directory, scandir 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\installer-recovery-1qMcAr\\upgrade home\\runtime with spaces\\gsd-install-transaction'"
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "acceptance",
+      "id": "quarantine-path-printed",
+      "ok": false,
+      "detail": "no quarantine to name"
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "acceptance",
+      "id": "removed-file-quarantined-as-new",
+      "ok": false,
+      "detail": "Expected values to be strictly equal:\n+ actual - expected\n\n+ undefined\n- 'file'\n"
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "acceptance",
+      "id": "edited-file-displaced",
+      "ok": false,
+      "detail": "[]"
+    },
+    {
+      "scenario": "upgrade",
+      "kind": "acceptance",
+      "id": "moved-txt-lists-every-file",
+      "ok": false,
+      "detail": "1 of 1 absent, e.g. scripts/lib/cli-exit.cjs\n\n1 !== 0\n"
+    }
+  ],
+  "sourceHashes": {
+    "bin/install.js": "78ba71870597700880c1dcd5c1ebb093cec790fd5393ac06507334c1160b0bb3",
+    "dist/bin/install.js": "e6f691da2bdb777c7cd8b7a75b56b5626acbd77e1949d9ece0373d69b990164d"
+  },
+  "twin": {
+    "residueEntries": 742,
+    "changed": [],
+    "tracedFiles": 554
+  },
+  "fresh": {
+    "status": 1,
+    "traceCount": 634,
+    "outcomeLines": [
+      "Rollback applied"
+    ],
+    "topLevelCount": 10
+  },
+  "upgrade": {
+    "edited": "agents/general-purpose.md",
+    "removed": "scripts/lib/cli-exit.cjs",
+    "status": 1,
+    "traceCount": 744,
+    "outcomeLines": [
+      "Rollback applied"
+    ]
+  },
+  "failure": "fresh:outcome-exact, fresh:top-level-exact-allowlist, fresh:transaction-directory-shape, fresh:quarantine-path-printed, fresh:new-equals-twin-residue, fresh:moved-txt-lists-every-file, upgrade:outcome-exact, upgrade:tree-deep-equal-outside-allowlist, upgrade:transaction-directory-shape, upgrade:quarantine-path-printed, upgrade:removed-file-quarantined-as-new, upgrade:edited-file-displaced, upgrade:moved-txt-lists-every-file",
+  "fixtureRemoved": true
+}

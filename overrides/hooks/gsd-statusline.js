@@ -122,70 +122,89 @@ function readGsdState(dir) {
   return null;
 }
 
+/**
+ * Parse STATE.md frontmatter + Phase line from body.
+ *
+ * Returns:
+ *   { status, milestone, milestoneName, phaseNum, phaseTotal, phaseName,
+ *     activePhase, nextAction, nextPhases, completedPhases, totalPhases, percent }
+ *
+ * Phase-lifecycle fields (issue #2833):
+ *   - activePhase  : phase number ("4.5") when an orchestrator is mid-flight, null otherwise
+ *   - nextAction   : recommended next command ("execute-phase") when idle, null otherwise
+ *   - nextPhases   : array of phase numbers (["4.5"]) for nextAction, null otherwise
+ *   - completedPhases / totalPhases / percent : milestone progress dimension
+ *
+ * All new fields default to undefined when absent — formatGsdState() degrades
+ * gracefully so existing STATE.md files (without these fields) keep working.
+ */
 function parseStateMd(content) {
+  content = String(content || '');
   const state = {};
-  const normalized = String(content || '').replace(/\r\n/g, '\n');
-  const frontmatterMatch = normalized.match(/^---\n([\s\S]*?)\n---/);
 
-  if (frontmatterMatch) {
-    const frontmatter = frontmatterMatch[1];
-    for (const line of frontmatter.split('\n')) {
-      const match = line.match(/^(\w+):\s*(.+)/);
-      if (!match) continue;
-      const key = match[1];
-      const value = match[2].trim().replace(/^["']|["']$/g, '');
-
-      if (key === 'status') state.status = value === 'null' ? null : value;
-      if (key === 'milestone') state.milestone = value === 'null' ? null : value;
-      if (key === 'milestone_name') state.milestoneName = value === 'null' ? null : value;
-      if (key === 'active_phase') {
-        state.activePhase = (value === 'null' || value === '') ? null : value;
-      }
-      if (key === 'next_action') {
-        state.nextAction = (value === 'null' || value === '') ? null : value;
-      }
+  // YAML frontmatter between --- markers (anchored at file start).
+  // #2754: \r?\n (not literal \n) so a CRLF STATE.md (Windows-authored) parses
+  // identically to LF — pre-fix the literal-\n fence dropped the ENTIRE block.
+  // Mirrors the CRLF-safe extractFrontmatter in src/frontmatter.cts.
+  const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (fmMatch) {
+    const fm = fmMatch[1];
+    // Top-level scalar key: value
+    for (const line of fm.split(/\r?\n/)) {
+      const m = line.match(/^(\w+):\s*(.+)/);
+      if (!m) continue;
+      const [, key, val] = m;
+      const v = val.trim().replace(/^["']|["']$/g, '');
+      // status / milestone-level fields (existing — preserved exactly)
+      if (key === 'status') state.status = v === 'null' ? null : v;
+      if (key === 'milestone') state.milestone = v === 'null' ? null : v;
+      if (key === 'milestone_name') state.milestoneName = v === 'null' ? null : v;
+      // Phase-lifecycle fields (new in issue #2833)
+      // active_phase: phase number when an orchestrator is in-flight, null when idle
+      if (key === 'active_phase') state.activePhase = (v === 'null' || v === '') ? null : v;
+      // next_action: recommended command when idle (discuss-phase / plan-phase / execute-phase / verify-phase)
+      if (key === 'next_action') state.nextAction = (v === 'null' || v === '') ? null : v;
     }
-
-    const nextPhasesFlow = frontmatter.match(/^next_phases:\s*\[([^\]]*)\]/m);
-    if (nextPhasesFlow) {
-      const items = nextPhasesFlow[1]
-        .split(',')
-        .map(item => item.trim().replace(/^["']|["']$/g, ''))
-        .filter(Boolean);
+    // next_phases supports both flow array and block-list YAML forms.
+    const npFlowMatch = fm.match(/^next_phases:\s*\[([^\]]*)\]/m);
+    if (npFlowMatch) {
+      const items = npFlowMatch[1].split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
       state.nextPhases = items.length > 0 ? items : null;
     } else {
-      const nextPhasesBlock = frontmatter.match(/^next_phases:\s*\n((?:[ \t]*-[ \t]*[^\n]+\n?)*)/m);
-      if (nextPhasesBlock) {
-        const items = nextPhasesBlock[1]
-          .split('\n')
+      const npBlockMatch = fm.match(/^next_phases:\s*\r?\n((?:[ \t]*-[ \t]*[^\r\n]+\r?\n?)*)/m);
+      if (npBlockMatch) {
+        const items = npBlockMatch[1]
+          .split(/\r?\n/)
           .map(line => line.match(/^[ \t]*-[ \t]*(.+)$/))
           .filter(Boolean)
-          .map(match => match[1].trim().replace(/^["']|["']$/g, ''))
+          .map(m => m[1].trim().replace(/^["']|["']$/g, ''))
           .filter(Boolean);
         state.nextPhases = items.length > 0 ? items : null;
       }
     }
-
-    const progressMatch = frontmatter.match(/^progress:\s*\n((?:[ \t]+\w+:.+\n?)+)/m);
-    if (progressMatch) {
-      const completed = progressMatch[1].match(/^[ \t]+completed_phases:\s*(\d+)/m);
-      const total = progressMatch[1].match(/^[ \t]+total_phases:\s*(\d+)/m);
-      const percent = progressMatch[1].match(/^[ \t]+percent:\s*(\d+)/m);
-      if (completed) state.completedPhases = completed[1];
-      if (total) state.totalPhases = total[1];
-      if (percent) state.percent = percent[1];
+    // progress nested block: completed_phases / total_phases / percent (2-space indent)
+    const progMatch = fm.match(/^progress:\s*\r?\n((?:[ \t]+\w+:.+\r?\n?)+)/m);
+    if (progMatch) {
+      const cp = progMatch[1].match(/^[ \t]+completed_phases:\s*(\d+)/m);
+      const tp = progMatch[1].match(/^[ \t]+total_phases:\s*(\d+)/m);
+      const pc = progMatch[1].match(/^[ \t]+percent:\s*(\d+)/m);
+      if (cp) state.completedPhases = cp[1];
+      if (tp) state.totalPhases = tp[1];
+      if (pc) state.percent = pc[1];
     }
   }
 
-  const phaseMatch = normalized.match(/^Phase:\s*(\d+)\s+of\s+(\d+)(?:\s+\(([^)]+)\))?/m);
+  // Phase: N of M (name)  or  Phase: none active (...)
+  const phaseMatch = content.match(/^Phase:\s*(\d+)\s+of\s+(\d+)(?:\s+\(([^)]+)\))?/m);
   if (phaseMatch) {
     state.phaseNum = phaseMatch[1];
     state.phaseTotal = phaseMatch[2];
     state.phaseName = phaseMatch[3] || null;
   }
 
+  // Fallback: parse Status: from body when frontmatter is absent
   if (!state.status) {
-    const bodyStatus = normalized.match(/^Status:\s*(.+)/m);
+    const bodyStatus = content.match(/^Status:\s*(.+)/m);
     if (bodyStatus) {
       const raw = bodyStatus[1].trim().toLowerCase();
       if (raw.includes('ready to plan') || raw.includes('planning')) state.status = 'planning';

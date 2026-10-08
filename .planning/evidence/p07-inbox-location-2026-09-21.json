@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-09-21T20:30:55.2250529Z",
+  "ownerClarification": "Inbox items should be in the main project folder, no?",
+  "finding": "Both reports exist in main project docs/inbox; absent from skin-campaign checkout, not lost",
+  "reports": [
+    {
+      "path": "C:/Projects/get-stuff-done/docs/inbox/2026-09-20-ez-deploy-model-overrides-dropped-by-loader.md",
+      "sha256": "5b11250b21aa2d12164eebaa8520722d9b42f17e06db812244f947fc69865339"
+    },
+    {
+      "path": "C:/Projects/get-stuff-done/docs/inbox/2026-09-20-ez-deploy-plan-index-schema-mismatch.md",
+      "sha256": "54ad4454b94149b866e981922a9fb92797f1a50071fecdd6bcc2e715d29a729e"
+    }
+  ],
+  "reportedRuntime": "Main source get-stuff-done/bin/gsd-tools.cjs, not automatically this worktree dist",
+  "implementationScope": "skin-campaign remains authoritative; no main planning/source writes",
+  "triage": "Read and located; branch-specific behavioral validation and disposition still pending"
+}

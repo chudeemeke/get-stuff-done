@@ -1,0 +1,32 @@
+{
+  "name": "@opengsd/gsd-core",
+  "version": "1.14.0",
+  "dist": {
+    "shasum": "13eb80e964b86bc3d1a34fed3a5ff2459377fc82",
+    "tarball": "https://registry.npmjs.org/@opengsd/gsd-core/-/gsd-core-1.14.0.tgz",
+    "fileCount": 1074,
+    "integrity": "sha512-e05sV2c8KlcQ2hoJ4U3U1OBjqswQOon4C29Cs75fEAr+tq7qJ/XyFYrN/nwblREWUkPUUoxmVzLVj4Im2KjQxQ==",
+    "signatures": [
+      {
+        "sig": "MEUCIQCZlfLQd6kJ7Tj/6CUNjlHH38kNIayZUcEWYqPuTKIz1AIgMEGWzdiNq04EfjOxOMBuGKSwdJzMZbBP8ySiZOA/9hA=",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      }
+    ],
+    "attestations": {
+      "url": "https://registry.npmjs.org/-/npm/v1/attestations/@opengsd%2fgsd-core@1.14.0",
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1"
+      }
+    },
+    "unpackedSize": 16650699
+  },
+  "engines": {
+    "npm": ">=10.0.0",
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "ws": "^8.21.0",
+    "@anthropic-ai/claude-agent-sdk": "^0.2.84"
+  },
+  "gitHead": "f8542fef67c1f978ffa70912cb6f2aaab76464c6"
+}

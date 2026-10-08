@@ -2,6 +2,7 @@ const { describe, expect, test } = require('bun:test');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const COMMON_VERSIONS = require('./upstream-compat-contract.json').commonVersions;
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const SCRIPT_PATH = path.join(PROJECT_ROOT, 'scripts', 'run-upstream-compat-ci.js');
@@ -23,21 +24,21 @@ function writeManifest(dir, overrides = {}) {
     },
     versions: [
       {
-        version: '1.6.1',
+        version: COMMON_VERSIONS[0],
         role: 'historical-candidate',
         blocking: false,
         vettedAt: null,
         evidence: {},
       },
       {
-        version: '1.7.0',
+        version: COMMON_VERSIONS[1],
         role: 'historical-candidate',
         blocking: false,
         vettedAt: null,
         evidence: {},
       },
       {
-        version: '1.8.0',
+        version: COMMON_VERSIONS[2],
         role: 'current',
         blocking: true,
         vettedAt: null,
@@ -145,7 +146,7 @@ describe('run-compat-matrix', () => {
       contractScope: 'maintainer-build-time',
       active: {
         packageName: '@opengsd/gsd-core',
-        version: '1.8.0',
+        version: COMMON_VERSIONS[2],
         sourceRoot: '.',
         bin: {},
         paths: { gsdTools: 'gsd-core/bin/gsd-tools.cjs' },
@@ -154,7 +155,7 @@ describe('run-compat-matrix', () => {
 
     try {
       const { runCandidate } = require('../scripts/run-compat-matrix');
-      expect(() => runCandidate({ version: '1.8.0' }, {
+      expect(() => runCandidate({ version: COMMON_VERSIONS[2] }, {
         tempRoot,
         authority,
         packageName: '@opengsd/gsd-core',
@@ -181,23 +182,23 @@ describe('run-compat-matrix', () => {
         runCandidateImpl: ({ entry }) => {
           calls.push(entry.version);
           return {
-            ok: entry.version !== '1.7.0',
+            ok: entry.version !== COMMON_VERSIONS[1],
             passed: 12,
-            failed: entry.version === '1.7.0' ? 1 : 0,
+            failed: entry.version === COMMON_VERSIONS[1] ? 1 : 0,
             skipped: 0,
             excluded: [],
-            errors: entry.version === '1.7.0' ? ['expected historical drift'] : [],
+            errors: entry.version === COMMON_VERSIONS[1] ? ['expected historical drift'] : [],
             suites: [{
               path: 'roadmap.test.cjs',
               classification: 'candidate',
               authorityBoundary: 'black-box',
-              status: entry.version === '1.7.0' ? 'failed' : 'passed',
+              status: entry.version === COMMON_VERSIONS[1] ? 'failed' : 'passed',
               passed: 12,
-              failed: entry.version === '1.7.0' ? 1 : 0,
+              failed: entry.version === COMMON_VERSIONS[1] ? 1 : 0,
               skipped: 0,
               durationMs: 7,
-              exitCode: entry.version === '1.7.0' ? 1 : 0,
-              errors: entry.version === '1.7.0' ? ['expected historical drift'] : [],
+              exitCode: entry.version === COMMON_VERSIONS[1] ? 1 : 0,
+              errors: entry.version === COMMON_VERSIONS[1] ? ['expected historical drift'] : [],
             }],
           };
         },
@@ -205,10 +206,10 @@ describe('run-compat-matrix', () => {
       });
 
       expect(exitCode).toBe(0);
-      expect(calls).toEqual(['1.6.1', '1.7.0', '1.8.0']);
+      expect(calls).toEqual([...COMMON_VERSIONS]);
       expect(report.results).toHaveLength(3);
       expect(report.results[0]).toMatchObject({
-        version: '1.6.1',
+        version: COMMON_VERSIONS[0],
         blocking: false,
         ok: true,
         exitCode: 0,
@@ -216,7 +217,7 @@ describe('run-compat-matrix', () => {
         status: 'passed',
       });
       expect(report.results[2]).toMatchObject({
-        version: '1.8.0',
+        version: COMMON_VERSIONS[2],
         blocking: true,
         ok: true,
         exitCode: 0,
@@ -224,7 +225,7 @@ describe('run-compat-matrix', () => {
         status: 'passed',
       });
       expect(report.results[1]).toMatchObject({
-        version: '1.7.0',
+        version: COMMON_VERSIONS[1],
         blocking: false,
         ok: false,
         exitCode: 1,
@@ -238,7 +239,7 @@ describe('run-compat-matrix', () => {
         status: 'failed',
       });
       const { formatTextReport } = require('../scripts/run-compat-matrix');
-      expect(formatTextReport(report)).toContain('1.7.0 | roadmap.test.cjs | black-box | failed');
+      expect(formatTextReport(report)).toContain(`${COMMON_VERSIONS[1]} | roadmap.test.cjs | black-box | failed`);
       expect(typeof report.results[1].durationMs).toBe('number');
       expect(fs.existsSync(path.join(dir, 'compat-matrix-report.json'))).toBe(true);
     } finally {
@@ -286,17 +287,17 @@ describe('run-compat-matrix', () => {
       const { exitCode, report } = runCompatMatrix({
         manifestPath,
         runCandidateImpl: ({ entry }) => ({
-          ok: entry.version !== '1.8.0',
+          ok: entry.version !== COMMON_VERSIONS[2],
           passed: 0,
-          failed: entry.version === '1.8.0' ? 1 : 0,
+          failed: entry.version === COMMON_VERSIONS[2] ? 1 : 0,
           skipped: 0,
           excluded: [],
-          errors: entry.version === '1.8.0' ? ['blocking pin failed'] : [],
+          errors: entry.version === COMMON_VERSIONS[2] ? ['blocking pin failed'] : [],
         }),
       });
 
       expect(exitCode).toBe(1);
-      expect(report.results.find(result => result.version === '1.8.0')).toMatchObject({
+      expect(report.results.find(result => result.version === COMMON_VERSIONS[2])).toMatchObject({
         blocking: true,
         classification: 'blocking',
         ok: false,
@@ -327,12 +328,12 @@ describe('run-compat-matrix', () => {
         stderr: { write: () => {} },
       }, {
         runCandidateImpl: ({ entry }) => ({
-          ok: entry.version !== '1.6.1',
-          passed: entry.version === '1.6.1' ? 0 : 1,
-          failed: entry.version === '1.6.1' ? 1 : 0,
+          ok: entry.version !== COMMON_VERSIONS[0],
+          passed: entry.version === COMMON_VERSIONS[0] ? 0 : 1,
+          failed: entry.version === COMMON_VERSIONS[0] ? 1 : 0,
           skipped: 0,
           excluded: [],
-          errors: entry.version === '1.6.1' ? ['historical drift'] : [],
+          errors: entry.version === COMMON_VERSIONS[0] ? ['historical drift'] : [],
           suites: [],
         }),
       });
@@ -342,9 +343,9 @@ describe('run-compat-matrix', () => {
       expect(report).toMatchObject({
         ok: false,
         policy: 'require-all',
-        failedVersions: ['1.6.1'],
+        failedVersions: [COMMON_VERSIONS[0]],
       });
-      expect(report.results.find(result => result.version === '1.8.0')).toMatchObject({
+      expect(report.results.find(result => result.version === COMMON_VERSIONS[2])).toMatchObject({
         blocking: true,
         ok: true,
       });
@@ -384,10 +385,10 @@ describe('run-compat-matrix', () => {
         }),
       });
 
-      const current = report.results.find(result => result.version === '1.8.0');
+      const current = report.results.find(result => result.version === COMMON_VERSIONS[2]);
       expect(exitCode).toBe(1);
       expect(current).toMatchObject({ ok: false, status: 'failed', exitCode: 1 });
-      expect(report.blockingFailures).toEqual(['1.8.0']);
+      expect(report.blockingFailures).toEqual([COMMON_VERSIONS[2]]);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
@@ -404,7 +405,7 @@ describe('run-compat-matrix', () => {
         manifestPath,
         runCandidateImpl: ({ entry }) => {
           calls.push(entry.version);
-          if (entry.version === '1.7.0') {
+          if (entry.version === COMMON_VERSIONS[1]) {
             throw new Error('install failed for historical pin');
           }
 
@@ -420,8 +421,8 @@ describe('run-compat-matrix', () => {
       });
 
       expect(exitCode).toBe(0);
-      expect(calls).toEqual(['1.6.1', '1.7.0', '1.8.0']);
-      expect(report.results.find(result => result.version === '1.7.0')).toMatchObject({
+      expect(calls).toEqual([...COMMON_VERSIONS]);
+      expect(report.results.find(result => result.version === COMMON_VERSIONS[1])).toMatchObject({
         classification: 'informational',
         ok: false,
         exitCode: 1,

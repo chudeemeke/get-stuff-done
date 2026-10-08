@@ -1,0 +1,4 @@
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+Use bun run test; bare bun test crosses the Bun/Node test-authority boundary.

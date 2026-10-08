@@ -1,0 +1,4475 @@
+{
+  "platform": "win32",
+  "node": "v24.20.0",
+  "accepted": false,
+  "sourceHashes": {
+    "bin/install.js": "35b315d0b472e810d9c971640a75ca500ab07d335c22eafeb7c916ac53270d2f",
+    "dist/bin/install.js": "e6f691da2bdb777c7cd8b7a75b56b5626acbd77e1949d9ece0373d69b990164d"
+  },
+  "status": 1,
+  "injectedFailureReached": true,
+  "claimedRollbackApplied": true,
+  "settingsPreserved": true,
+  "ownerPreserved": true,
+  "upstreamWriteTrace": [
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-install-migration.lock"
+      ],
+      "completed": true
+    },
+    {
+      "method": "unlinkSync",
+      "paths": [
+        "runtime with spaces/gsd-install-migration.lock"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-install-migration.lock"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal/2026-09-14T13-15-26-928Z-1ba9e6bda251ecec.json.tmp.6604"
+      ],
+      "completed": true
+    },
+    {
+      "method": "renameSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal/2026-09-14T13-15-26-928Z-1ba9e6bda251ecec.json.tmp.6604",
+        "runtime with spaces/gsd-migration-journal/2026-09-14T13-15-26-928Z-1ba9e6bda251ecec.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal/2026-09-14T13-15-26-928Z-1ba9e6bda251ecec.json.tmp.6604"
+      ],
+      "completed": true
+    },
+    {
+      "method": "renameSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal/2026-09-14T13-15-26-928Z-1ba9e6bda251ecec.json.tmp.6604",
+        "runtime with spaces/gsd-migration-journal/2026-09-14T13-15-26-928Z-1ba9e6bda251ecec.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-install-state.json.tmp-6604-1789391726946"
+      ],
+      "completed": true
+    },
+    {
+      "method": "renameSync",
+      "paths": [
+        "runtime with spaces/gsd-install-state.json.tmp-6604-1789391726946",
+        "runtime with spaces/gsd-install-state.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "unlinkSync",
+      "paths": [
+        "runtime with spaces/gsd-install-migration.lock"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/.gsd-source"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/skills"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/skills"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/check-latest-version.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/ensure-runtime-build.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/gsd-tools.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/gsd_run"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/active-workstream-store.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/adapter-declarative.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/adapter-imperative.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/adr-parser.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/agent-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/agent-install-check.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/api-coverage.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/artifacts.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/assumption-delta.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/audit-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/audit.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/broken-windows.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-activation.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-consent.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-ledger.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-lifecycle.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-loader.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-lock.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-registry.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-source.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-state.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-trust.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-validator.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/capability-writer.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/check-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/cjs-command-router-adapter.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/claude-orchestration-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/claude-orchestration.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/cli-exit.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/cli-skew-check.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/clock.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/clusters.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/code-review-flags.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/command-aliases.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/command-arg-projection.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/command-roster.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/command-routing-hub.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/commands.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/config-loader.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/config-schema.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/config-types.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/config.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/configuration.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/context-utilization.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/core-utils.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/coverage.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/decisions.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/docs.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/drift.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/edge-probe.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/embedding-adapter.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/estimate-cli.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/eval-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/eval.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/external-descriptor-trust.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/external-job.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/fallow-runner.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/federated-config.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/fork-roadmap-persistence.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/frontmatter.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/gap-checker.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/gate-predicate-evaluator.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/git-base-branch.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/graphify-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/graphify.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/gsd2-import.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/handshake-serialized.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/hook-bus.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/host-integration-adapters"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/host-integration-adapters/cline-sdk-binding.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/host-integration-adapters/imperative-hook-bus.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/host-integration-sdk.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/host-integration.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/init-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/init.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/install-effort-resolver.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/install-engine.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/install-profiles.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migration-authoring.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migration-report.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migrations"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migrations/000-first-time-baseline.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migrations/001-legacy-orphan-files.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migrations/002-codex-legacy-hooks-json.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migrations/003-rename-get-shit-done-to-gsd-core.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migrations/004-prune-stale-pristine-snapshots.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migrations/005-opencode-baseline-commands-dir.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migrations/006-pi-extension-cjs-to-js.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/installer-migrations.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/intel-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/intel.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/io.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/learnings.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/legacy-cleanup.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/loop-host-contract.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/loop-resolver.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/markdown-sectionizer.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/markdown-table.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/mcp-server.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/milestone.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/model-adapter.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/model-catalog.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/model-profiles.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/model-resolver.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/normalize-test-command.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/observability"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/observability/event.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/observability/logger.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/observability/redaction.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/onboard-projection.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/package-identity.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/package-legitimacy.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/phase-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/phase-estimation.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/phase-id.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/phase-lifecycle.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/phase-locator.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/phase.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/phases-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/plan-drift-guard.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/plan-scan.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/planning-workspace.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/probe-core.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/profile-output.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/profile-pipeline-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/profile-pipeline.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/prohibition-enforcement.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/project-root.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/prompt-budget.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/research-provider.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/research-store.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/resolution.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/review-lane-descriptor.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/review-lane-invocation.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/review-lane-runner.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/review-reviewer-selection.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/roadmap-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/roadmap-parser.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/roadmap-upgrade.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/roadmap.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/runtime-artifact-conversion.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/runtime-artifact-install-plan.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/runtime-artifact-layout.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/runtime-config-adapter-registry.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/runtime-homes.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/runtime-hooks-surface.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/runtime-name-policy.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/runtime-slash.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/schema-detect.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/secrets.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/security.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/semver-compare.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/shell-command-projection.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/smart-entry.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/spec-section.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/stale-bake-guard.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/state-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/state-document.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/state-io.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/state-transition.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/state.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/surface.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/task-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/teams-status.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/template.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/uat-predicate.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/uat.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/ui-consideration-probe.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/ui-safety-gate.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/unusable-input.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/update-context.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/validate-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/validate.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/verification-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/verification.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/verify-command-router.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/verify.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/workstream-inventory-builder.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/workstream-inventory.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/workstream-name-policy.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/workstream.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/worktree-base-ref.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/worktree-safety.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/lib/write-set.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared/config-defaults.manifest.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared/config-schema.manifest.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared/model-catalog.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared/runtime-aliases.manifest.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/verify-reapply-patches.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/contexts"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/contexts/dev.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/contexts/research.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/contexts/review.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/agent-contracts.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/agent-skills-bootstrap.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/ai-evals.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/ai-frameworks.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/api-coverage.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/artifact-types.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/autonomous-smart-discuss.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/checkpoints.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/common-bug-patterns.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/context-budget.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/continuation-format.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/debugger-bug-taxonomy.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/debugger-fix-acceptance.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/debugger-philosophy.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/debugger-prevention.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/debugger-rca-branching.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/debugger-repro-hardening.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/debugger-sbfl.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/debugger-semantic-recall.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/decimal-phase-calculation.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/doc-conflict-engine.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/domain-probes.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/01-round-half-even"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/01-round-half-even/expected-coverage.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/01-round-half-even/requirements.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/02-merge-intervals"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/02-merge-intervals/expected-coverage.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/02-merge-intervals/requirements.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/03-truncate-graphemes"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/03-truncate-graphemes/expected-coverage.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/03-truncate-graphemes/requirements.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/04-money-rounding"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/04-money-rounding/expected-coverage.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/04-money-rounding/requirements.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/05-list-dedupe"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/05-list-dedupe/expected-coverage.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/05-list-dedupe/requirements.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/06-resolved-mixed"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/06-resolved-mixed/expected-coverage.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/06-resolved-mixed/requirements.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe-fixtures/06-resolved-mixed/resolutions.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/edge-probe.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/execute-mvp-tdd.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/execute-phase-between-wave-reset.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/execute-phase-context-guard.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/execute-phase-quota-recovery.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/execute-phase-requirement-revert.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/execute-phase-response-language.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/execute-phase-wave-guard.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/executor-examples.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/few-shot-examples"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/few-shot-examples/plan-checker.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/few-shot-examples/verifier.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/gate-prompts.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/gates.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/git-integration.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/git-planning-commit.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/gsd-run-resolver.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/honest-verifier.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/ios-scaffold.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/loop-hook-dispatch.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/mandatory-initial-read.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/model-profile-resolution.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/model-profiles.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/mvp-concepts.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/offer-next.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/phase-argument-parsing.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-antipatterns.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-chunked.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-gap-closure.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-graphify-auto-update.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-guidance.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-human-verify-mode.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-interface-context.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-load-graph-context.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-mvp-mode.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-preconditions.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-reversibility.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-reviews.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-revision.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planner-source-audit.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/planning-config.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/prohibition-probe-fixtures"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/prohibition-probe-fixtures/01-streak-reminder"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/prohibition-probe-fixtures/01-streak-reminder/expected.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/prohibition-probe-fixtures/02-clean-utility"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/prohibition-probe-fixtures/02-clean-utility/expected.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/prohibition-probe-fixtures/03-multi-prohibition"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/prohibition-probe-fixtures/03-multi-prohibition/expected.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/prohibition-probe.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/project-skills-discovery.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/questioning.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/research-documentation-lookup.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/research-philosophy.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/research-verification-protocol.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/reviewer-instances.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/revision-loop.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/runtime-aware-dispatch.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/scout-codebase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/security-asvs-levels.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/skeleton-template.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/sketch-interactivity.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/sketch-theme-system.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/sketch-tooling.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/sketch-variant-patterns.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/specless-probe-fallback.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/spidr-splitting.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/tdd.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/thinking-models-debug.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/thinking-models-execution.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/thinking-models-planning.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/thinking-models-research.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/thinking-models-verification.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/thinking-partner.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/ui-brand.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/ui-consideration-probe.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/universal-anti-patterns.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/untrusted-input-boundary.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/user-profiling.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/user-story-template.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/verification-overrides.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/verification-patterns.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/verify-mvp-mode.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/workstream-flag.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/worktree-branch-check.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/references/worktree-path-safety.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/AI-SPEC.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/claude-md.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/codebase"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/codebase/architecture.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/codebase/concerns.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/codebase/conventions.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/codebase/integrations.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/codebase/stack.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/codebase/structure.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/codebase/testing.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/config.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/context.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/continue-here.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/copilot-instructions.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/debug-subagent-prompt.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/DEBUG.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/dev-preferences.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/discovery.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/discussion-log.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/milestone-archive.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/milestone.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/phase-prompt.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/planner-subagent-prompt.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/project.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/README.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/requirements.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/research-project"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/research-project/ARCHITECTURE.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/research-project/FEATURES.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/research-project/PITFALLS.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/research-project/STACK.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/research-project/SUMMARY.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/research.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/retrospective.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/roadmap.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/SECURITY.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/spec.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/state.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/summary-complex.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/summary-minimal.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/summary-standard.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/summary.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/UAT.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/UI-SPEC.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/user-profile.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/user-setup.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/VALIDATION.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/templates/verification-report.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/add-backlog.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/add-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/add-tests.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/add-todo.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/ai-integration-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/analyze-dependencies.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/audit-fix.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/audit-milestone.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/audit-uat.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/autonomous.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/check-todos.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/cleanup.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/code-review-fix.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/code-review.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/complete-milestone.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/debug.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/diagnose-issues.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discovery-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes/advisor.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes/all.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes/analyze.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes/auto.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes/batch.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes/chain.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes/default.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes/power.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/modes/text.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/templates"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/templates/checkpoint.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/templates/context.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase/templates/discussion-log.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase-assumptions.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase-power.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/discuss-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/do.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/docs-update.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/edit-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/eval-review.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-phase"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-phase/steps"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-phase/steps/codebase-drift-gate.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-phase/steps/executor-isolation-dispatch.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-phase/steps/per-plan-worktree-gate.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-phase/steps/post-merge-gate.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-phase/steps/regression-gate.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-phase/steps/worktree-recovery-policy.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/execute-plan.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/explore.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/extract-learnings.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/fast.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/forensics.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/graduation.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/health.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/help"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/help/modes"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/help/modes/brief.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/help/modes/default.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/help/modes/full.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/help/modes/topic.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/help.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/import.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/inbox.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/ingest-docs.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/insert-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/list-phase-assumptions.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/list-seeds.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/list-workspaces.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/manager.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/map-codebase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/milestone-summary.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/mvp-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/new-milestone.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/new-project.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/new-workspace.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/next.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/node-repair.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/note.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/onboard.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/pause-work.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/plan-milestone-gaps.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/plan-phase"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/plan-phase/steps"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/plan-phase/steps/closed-phase-gate.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/plan-phase/steps/prd-express-path.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/plan-phase/steps/windows-troubleshooting.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/plan-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/plan-review-convergence.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/plant-seed.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/pr-branch.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/profile-user.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/progress.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/quick.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/reapply-patches.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/remove-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/remove-workspace.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/resume-project.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/review.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/scan.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/secure-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/session-report.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/settings-advanced.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/settings-integrations.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/settings.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/ship.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/sketch-wrap-up.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/sketch.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/smart-entry.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/spec-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/spike-wrap-up.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/spike.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/stats.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/sync-skills.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/thread.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/transition.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/ui-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/ui-review.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/ultraplan-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/undo.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/update.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/validate-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/verify-phase.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/verify-work.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/workflows/_runtime-launcher.snippet.sh"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared/model-catalog.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared/config-defaults.manifest.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared/config-schema.manifest.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/bin/shared/runtime-aliases.manifest.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/agents"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/general-purpose.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-advisor-researcher.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-ai-researcher.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-assumptions-analyzer.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-code-fixer.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-code-reviewer.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-codebase-mapper.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-debug-session-manager.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-debugger.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-doc-classifier.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-doc-synthesizer.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-doc-verifier.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-doc-writer.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-domain-researcher.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-eval-auditor.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-eval-planner.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-executor.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-framework-selector.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-integration-checker.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-intel-updater.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-mempalace-curator.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-nyquist-auditor.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-oversight-execution.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-oversight-planning.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-oversight-sync.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-oversight-verification.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-pattern-mapper.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-phase-researcher.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-plan-checker.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-planner.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-project-researcher.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-research-synthesizer.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-roadmapper.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-security-auditor.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-ui-auditor.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-ui-checker.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-ui-researcher.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-user-profiler.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/agents/gsd-verifier.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/VERSION"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-core/.gsd-runtime"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/package.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/hooks"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-check-update-worker.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-check-update.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-config-reload.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-context-monitor.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-cursor-post-tool.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-cursor-pre-tool.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-cursor-session-start.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-cursor-stop.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-cursor-subagent-start.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-cursor-subagent-stop.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-ensure-canonical-path.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-graphify-update.sh"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-phase-boundary.sh"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-prompt-guard.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-read-guard.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-read-injection-scanner.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-session-state.sh"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-statusline.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-update-banner.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-validate-commit.sh"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-windsurf-pre-command.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-windsurf-pre-write.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-workflow-guard.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/gsd-worktree-path-guard.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/hooks/lib"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/hooks/lib/cursor-workspace.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/hooks/lib/git-cmd.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/lib/gsd-graphify-rebuild.sh"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/managed-hooks-registry.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/hooks/lib"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/hooks/lib/cursor-workspace.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/hooks/lib/git-cmd.js"
+      ],
+      "completed": true
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/hooks/lib/gsd-graphify-rebuild.sh"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/scripts/changeset"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/scripts/lib"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/changeset/cli.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/changeset/github-release-notes.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/changeset/lint.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/changeset/new.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/changeset/parse.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/changeset/README.md"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/changeset/render.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/changeset/serialize.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/lib/allowlist-ratchet.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/lib/cli-exit.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/scripts"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/fix-slash-commands.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "mkdirSync",
+      "paths": [
+        "runtime with spaces/scripts"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/gen-capability-registry.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "copyFileSync",
+      "paths": [
+        "runtime with spaces/scripts/gen-loop-host-contract.cjs"
+      ],
+      "completed": true
+    },
+    {
+      "method": "unlinkSync",
+      "paths": [
+        ".cache/gsd/gsd-update-check-opengsd-gsd-core.json"
+      ],
+      "completed": false
+    },
+    {
+      "method": "writeFileSync",
+      "paths": [
+        "runtime with spaces/gsd-file-manifest.json"
+      ],
+      "completed": false
+    },
+    {
+      "method": "rmSync",
+      "paths": [
+        "runtime with spaces/gsd-install-state.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "rmSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal/2026-09-14T13-15-26-928Z-1ba9e6bda251ecec.json"
+      ],
+      "completed": true
+    },
+    {
+      "method": "rmSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal/2026-09-14T13-15-26-928Z-1ba9e6bda251ecec-rollback"
+      ],
+      "completed": true
+    },
+    {
+      "method": "rmSync",
+      "paths": [
+        "runtime with spaces/gsd-migration-journal/2026-09-14T13-15-26-928Z-1ba9e6bda251ecec-backups"
+      ],
+      "completed": true
+    }
+  ],
+  "traceLimit": "Observed synchronous path-based calls under the isolated home; not proof of every filesystem mutation route.",
+  "residualFileCount": 622,
+  "residualExamples": [
+    ".gsd-source",
+    "agents/gsd-advisor-researcher.md",
+    "agents/gsd-ai-researcher.md",
+    "agents/gsd-assumptions-analyzer.md",
+    "agents/gsd-code-fixer.md",
+    "agents/gsd-code-reviewer.md",
+    "agents/gsd-codebase-mapper.md",
+    "agents/gsd-debug-session-manager.md",
+    "agents/gsd-debugger.md",
+    "agents/gsd-doc-classifier.md",
+    "agents/gsd-doc-synthesizer.md",
+    "agents/gsd-doc-verifier.md"
+  ],
+  "failure": "failed installation must not leave unowned candidate files\n\n622 !== 0\n",
+  "fixtureRemoved": true
+}

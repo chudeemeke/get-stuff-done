@@ -1,0 +1,1291 @@
+{
+  "schema": 1,
+  "runId": "5bb7f563-fa48-4ad7-8265-b320dee1f70e",
+  "caseId": "leaf-swap",
+  "candidate": "windows-relative-handles-v1",
+  "scope": {
+    "platform": "win32",
+    "filesystem": "NTFS",
+    "aliases": [
+      "case",
+      "fixture-junction"
+    ]
+  },
+  "nonClaims": [
+    "portable-lock-safety",
+    "automatic-takeover",
+    "child-quiescence",
+    "power-loss",
+    "owner-impact-acceptance",
+    "production-readiness",
+    "symbolic-link-traversal",
+    "release-latency-bound"
+  ],
+  "provenance": {
+    "sources": [
+      {
+        "path": "probe.rs",
+        "sha256": "0fb2a08b1025198f350b3707753ba44fff402010e8c7234d84499a6c64194e5d"
+      },
+      {
+        "path": "supervisor.cjs",
+        "sha256": "dd2b5d8d2673a5541a179ccb878772593bb4c554669a48ab8b14df5b1ded74af"
+      },
+      {
+        "path": "README.md",
+        "sha256": "236ac767199719a6992a8fd9e3051f212dd4bb39168b178d2a999276201fd0d0"
+      }
+    ],
+    "compilerExecutable": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc/bin/rustc.exe",
+    "compilerVersion": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: x86_64-pc-windows-msvc\nrelease: 1.98.0\nLLVM version: 22.1.8",
+    "sysroot": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+    "buildCommand": [
+      "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc/bin/rustc.exe",
+      "--edition=2021",
+      "--crate-name",
+      "containment_probe",
+      "--sysroot",
+      "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+      "-D",
+      "warnings",
+      "-C",
+      "incremental=C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\incremental",
+      "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\probe.rs",
+      "-o",
+      "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\probe.exe"
+    ],
+    "binaryPath": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\probe.exe",
+    "binarySha256": "d1e256ebfea372a391ca515ef1046e5fe2e532c1f05cdeb4b778e192aa770568",
+    "sourceStable": true,
+    "binaryStable": true
+  },
+  "environment": {
+    "osRelease": "10.0.26200",
+    "arch": "x64",
+    "node": "v24.20.0",
+    "bun": "1.3.5",
+    "filesystemEvidence": {
+      "label": "volume",
+      "method": "GetVolumeInformationByHandleW",
+      "filesystem": "NTFS",
+      "serial": 540572784,
+      "flags": 65482495,
+      "maxComponent": 255
+    },
+    "hostLoadBefore": {
+      "cpus": [
+        {
+          "user": 3923031,
+          "nice": 0,
+          "sys": 4581265,
+          "idle": 20141390,
+          "irq": 378812
+        },
+        {
+          "user": 2187015,
+          "nice": 0,
+          "sys": 2490343,
+          "idle": 23968250,
+          "irq": 155687
+        },
+        {
+          "user": 4594937,
+          "nice": 0,
+          "sys": 4298546,
+          "idle": 19752125,
+          "irq": 159703
+        },
+        {
+          "user": 2402921,
+          "nice": 0,
+          "sys": 2371609,
+          "idle": 23871062,
+          "irq": 85203
+        },
+        {
+          "user": 5228156,
+          "nice": 0,
+          "sys": 3633906,
+          "idle": 19783546,
+          "irq": 216078
+        },
+        {
+          "user": 3737781,
+          "nice": 0,
+          "sys": 3096937,
+          "idle": 21810890,
+          "irq": 169140
+        },
+        {
+          "user": 3673968,
+          "nice": 0,
+          "sys": 3044125,
+          "idle": 21927515,
+          "irq": 160390
+        },
+        {
+          "user": 3757765,
+          "nice": 0,
+          "sys": 3070187,
+          "idle": 21817656,
+          "irq": 150921
+        },
+        {
+          "user": 5789593,
+          "nice": 0,
+          "sys": 3678140,
+          "idle": 19177875,
+          "irq": 179046
+        },
+        {
+          "user": 4259093,
+          "nice": 0,
+          "sys": 3096031,
+          "idle": 21290484,
+          "irq": 133750
+        },
+        {
+          "user": 4280671,
+          "nice": 0,
+          "sys": 3090234,
+          "idle": 21274703,
+          "irq": 137187
+        },
+        {
+          "user": 4365390,
+          "nice": 0,
+          "sys": 3062312,
+          "idle": 21217906,
+          "irq": 114562
+        }
+      ],
+      "freeMemory": 3868467200,
+      "totalMemory": 16512606208,
+      "loadAverage": [
+        0,
+        0,
+        0
+      ]
+    },
+    "hostLoadAfter": {
+      "cpus": [
+        {
+          "user": 3928609,
+          "nice": 0,
+          "sys": 4587796,
+          "idle": 20146343,
+          "irq": 379125
+        },
+        {
+          "user": 2190171,
+          "nice": 0,
+          "sys": 2493875,
+          "idle": 23978640,
+          "irq": 155859
+        },
+        {
+          "user": 4599156,
+          "nice": 0,
+          "sys": 4302656,
+          "idle": 19760875,
+          "irq": 159921
+        },
+        {
+          "user": 2408437,
+          "nice": 0,
+          "sys": 2377109,
+          "idle": 23877140,
+          "irq": 85468
+        },
+        {
+          "user": 5231265,
+          "nice": 0,
+          "sys": 3638640,
+          "idle": 19792781,
+          "irq": 216484
+        },
+        {
+          "user": 3740265,
+          "nice": 0,
+          "sys": 3102437,
+          "idle": 21819984,
+          "irq": 169765
+        },
+        {
+          "user": 3676453,
+          "nice": 0,
+          "sys": 3048937,
+          "idle": 21937296,
+          "irq": 160718
+        },
+        {
+          "user": 3761218,
+          "nice": 0,
+          "sys": 3075984,
+          "idle": 21825484,
+          "irq": 151312
+        },
+        {
+          "user": 5793703,
+          "nice": 0,
+          "sys": 3683437,
+          "idle": 19185531,
+          "irq": 179359
+        },
+        {
+          "user": 4262843,
+          "nice": 0,
+          "sys": 3101421,
+          "idle": 21298406,
+          "irq": 134250
+        },
+        {
+          "user": 4284796,
+          "nice": 0,
+          "sys": 3095968,
+          "idle": 21281921,
+          "irq": 137609
+        },
+        {
+          "user": 4369562,
+          "nice": 0,
+          "sys": 3067703,
+          "idle": 21225421,
+          "irq": 114703
+        }
+      ],
+      "freeMemory": 4474695680,
+      "totalMemory": 16512606208,
+      "loadAverage": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "timing": {
+    "startedAt": "2026-09-21T20:53:09.222Z",
+    "endedAt": "2026-09-21T20:53:26.237Z",
+    "deadlineMs": 180000
+  },
+  "verdict": "mechanism-observed-in-fixture",
+  "claims": [
+    {
+      "id": "leaf-replacement-preserved",
+      "status": "mechanism-observed-in-fixture",
+      "reason": "All replacement entry maps remain unchanged and exclusive create refuses collision",
+      "events": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "positiveControl": {
+        "id": "positive:leaf-replacement-preserved",
+        "outcome": "api-success-observed",
+        "events": [
+          11,
+          13
+        ]
+      },
+      "unsafeControl": {
+        "id": "unsafe:leaf-replacement-preserved",
+        "outcome": "violation-observed",
+        "events": [
+          2
+        ]
+      }
+    },
+    {
+      "id": "leaf-type-enforced",
+      "status": "mechanism-observed-in-fixture",
+      "reason": "Regular replacement may be inspected; directory/junction inspection refuses without descent",
+      "events": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "positiveControl": {
+        "id": "positive:leaf-type-enforced",
+        "outcome": "api-success-observed",
+        "events": [
+          15
+        ]
+      },
+      "unsafeControl": {
+        "id": "unsafe:leaf-type-enforced",
+        "outcome": "violation-observed",
+        "events": [
+          3
+        ]
+      }
+    },
+    {
+      "id": "owner-rename-effect-recorded",
+      "status": "mechanism-observed-in-fixture",
+      "reason": "Observed owner rename refusal; numeric code is libuv, not a Win32 sharing diagnosis",
+      "events": [
+        45
+      ],
+      "positiveControl": {
+        "id": "positive:owner-rename-effect-recorded",
+        "outcome": "api-success-observed",
+        "events": [
+          7,
+          19
+        ]
+      },
+      "unsafeControl": {
+        "id": "unsafe:owner-rename-effect-recorded",
+        "outcome": "violation-observed",
+        "events": [
+          4
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "sequence": 1,
+      "actor": "supervisor",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 1205,
+      "detail": {
+        "phase": "unsafe",
+        "guardAbsent": true
+      }
+    },
+    {
+      "sequence": 2,
+      "actor": "owner",
+      "action": "write",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 1207,
+      "detail": {
+        "phase": "unsafe",
+        "replacementDamageDetected": true
+      }
+    },
+    {
+      "sequence": 3,
+      "actor": "owner",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 1209,
+      "detail": {
+        "phase": "unsafe",
+        "forbiddenDescentDetected": true
+      }
+    },
+    {
+      "sequence": 4,
+      "actor": "owner",
+      "action": "rename",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 1211,
+      "detail": {
+        "phase": "unsafe",
+        "codeDomain": "libuv"
+      }
+    },
+    {
+      "sequence": 5,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18003,
+      "detail": {
+        "label": "parent",
+        "method": "CreateFileW",
+        "access": 1048737,
+        "share": 3,
+        "disposition": 3,
+        "flags": 35651584,
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 6,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18003,
+      "detail": {
+        "label": "parent-identity",
+        "volume": 540572784,
+        "indexHigh": 3604480,
+        "indexLow": 280837,
+        "attributes": 2064,
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 7,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18004,
+      "detail": {
+        "label": "guards",
+        "method": "NtCreateFile",
+        "access": 1048737,
+        "share": 3,
+        "disposition": 1,
+        "options": 2097185,
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 8,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18004,
+      "detail": {
+        "label": "volume",
+        "method": "GetVolumeInformationByHandleW",
+        "filesystem": "NTFS",
+        "serial": 540572784,
+        "flags": 65482495,
+        "maxComponent": 255,
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 9,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18004,
+      "detail": {
+        "label": "target",
+        "volume": 540572784,
+        "indexHigh": 9895936,
+        "indexLow": 281104,
+        "attributes": 2064,
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 10,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18004,
+      "detail": {
+        "label": "ready",
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 11,
+      "actor": "candidate",
+      "action": "create",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18007,
+      "detail": {
+        "access": 1114370,
+        "share": 3,
+        "disposition": 2,
+        "options": 2097248,
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 12,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18007,
+      "detail": {
+        "label": "done",
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 13,
+      "actor": "candidate",
+      "action": "remove",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18008,
+      "detail": {
+        "method": "SetFileInformationByHandle",
+        "class": 4,
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 14,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18008,
+      "detail": {
+        "label": "done",
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 15,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18010,
+      "detail": {
+        "label": "inspect",
+        "attributes": 2080,
+        "access": 1048705,
+        "share": 3,
+        "disposition": 1,
+        "options": 2097248,
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 16,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18010,
+      "detail": {
+        "label": "done",
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 17,
+      "actor": "owner",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18012,
+      "detail": {
+        "phase": "positive",
+        "aliasIds": {
+          "target": "540572784:42502721483590160",
+          "case": "540572784:42502721483590160",
+          "junction": "540572784:42502721483590160"
+        }
+      }
+    },
+    {
+      "sequence": 18,
+      "actor": "owner",
+      "action": "write",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18014,
+      "detail": {
+        "phase": "positive",
+        "ownerWritePreserved": true
+      }
+    },
+    {
+      "sequence": 19,
+      "actor": "candidate",
+      "action": "close",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18017,
+      "detail": {
+        "label": "guards",
+        "phase": "positive",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 20,
+      "actor": "candidate",
+      "action": "process-exit",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18032,
+      "detail": {
+        "phase": "positive",
+        "signal": null,
+        "stderr": ""
+      }
+    },
+    {
+      "sequence": 21,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18109,
+      "detail": {
+        "label": "parent",
+        "method": "CreateFileW",
+        "access": 1048737,
+        "share": 3,
+        "disposition": 3,
+        "flags": 35651584,
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 22,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18109,
+      "detail": {
+        "label": "parent-identity",
+        "volume": 540572784,
+        "indexHigh": 4653056,
+        "indexLow": 284986,
+        "attributes": 2064,
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 23,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18110,
+      "detail": {
+        "label": "guards",
+        "method": "NtCreateFile",
+        "access": 1048737,
+        "share": 3,
+        "disposition": 1,
+        "options": 2097185,
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 24,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18110,
+      "detail": {
+        "label": "volume",
+        "method": "GetVolumeInformationByHandleW",
+        "filesystem": "NTFS",
+        "serial": 540572784,
+        "flags": 65482495,
+        "maxComponent": 255,
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 25,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18110,
+      "detail": {
+        "label": "target",
+        "volume": 540572784,
+        "indexHigh": 1900544,
+        "indexLow": 286232,
+        "attributes": 2064,
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 26,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18110,
+      "detail": {
+        "label": "ready",
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 27,
+      "actor": "supervisor",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18113,
+      "detail": {
+        "phase": "guarded",
+        "point": "after-leaf-observation",
+        "observed": "a5c79e40d5460ad31a5d598ab34cf9f190c02e871f94dd71382abe3ff197d954",
+        "kind": "file"
+      }
+    },
+    {
+      "sequence": 28,
+      "actor": "candidate",
+      "action": "create",
+      "outcome": "refused",
+      "osCode": -1073741771,
+      "elapsedMs": 18118,
+      "detail": {
+        "access": 1114370,
+        "share": 3,
+        "disposition": 2,
+        "options": 2097248,
+        "phase": "guarded",
+        "codeDomain": "NTSTATUS",
+        "statusHex": "0xc0000035"
+      }
+    },
+    {
+      "sequence": 29,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18118,
+      "detail": {
+        "label": "done",
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 30,
+      "actor": "supervisor",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18120,
+      "detail": {
+        "phase": "guarded",
+        "kind": "file",
+        "replacementMapBefore": {
+          "owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "probe.txt": "file:ca38017f97a85bbf7172efcfe0e8e1d74ebba8c11341f2bcd33775e755b74006"
+        },
+        "replacementMapAfter": {
+          "owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "probe.txt": "file:ca38017f97a85bbf7172efcfe0e8e1d74ebba8c11341f2bcd33775e755b74006"
+        }
+      }
+    },
+    {
+      "sequence": 31,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18121,
+      "detail": {
+        "label": "inspect",
+        "attributes": 2080,
+        "access": 1048705,
+        "share": 3,
+        "disposition": 1,
+        "options": 2097248,
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 32,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18121,
+      "detail": {
+        "label": "done",
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 33,
+      "actor": "supervisor",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18124,
+      "detail": {
+        "phase": "guarded",
+        "point": "after-leaf-observation",
+        "observed": "a5c79e40d5460ad31a5d598ab34cf9f190c02e871f94dd71382abe3ff197d954",
+        "kind": "directory"
+      }
+    },
+    {
+      "sequence": 34,
+      "actor": "candidate",
+      "action": "create",
+      "outcome": "refused",
+      "osCode": -1073741638,
+      "elapsedMs": 18127,
+      "detail": {
+        "access": 1114370,
+        "share": 3,
+        "disposition": 2,
+        "options": 2097248,
+        "phase": "guarded",
+        "codeDomain": "NTSTATUS",
+        "statusHex": "0xc00000ba"
+      }
+    },
+    {
+      "sequence": 35,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18128,
+      "detail": {
+        "label": "done",
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 36,
+      "actor": "supervisor",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18129,
+      "detail": {
+        "phase": "guarded",
+        "kind": "directory",
+        "replacementMapBefore": {
+          "owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "probe.txt": "dir"
+        },
+        "replacementMapAfter": {
+          "owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "probe.txt": "dir"
+        }
+      }
+    },
+    {
+      "sequence": 37,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "refused",
+      "osCode": -1073741638,
+      "elapsedMs": 18130,
+      "detail": {
+        "label": "inspect",
+        "access": 1048705,
+        "share": 3,
+        "disposition": 1,
+        "options": 2097248,
+        "phase": "guarded",
+        "codeDomain": "NTSTATUS",
+        "statusHex": "0xc00000ba"
+      }
+    },
+    {
+      "sequence": 38,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18130,
+      "detail": {
+        "label": "done",
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 39,
+      "actor": "supervisor",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18132,
+      "detail": {
+        "phase": "guarded",
+        "point": "after-leaf-observation",
+        "observed": "a5c79e40d5460ad31a5d598ab34cf9f190c02e871f94dd71382abe3ff197d954",
+        "kind": "junction"
+      }
+    },
+    {
+      "sequence": 40,
+      "actor": "candidate",
+      "action": "create",
+      "outcome": "refused",
+      "osCode": -1073741638,
+      "elapsedMs": 18136,
+      "detail": {
+        "access": 1114370,
+        "share": 3,
+        "disposition": 2,
+        "options": 2097248,
+        "phase": "guarded",
+        "codeDomain": "NTSTATUS",
+        "statusHex": "0xc00000ba"
+      }
+    },
+    {
+      "sequence": 41,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18136,
+      "detail": {
+        "label": "done",
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 42,
+      "actor": "supervisor",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18140,
+      "detail": {
+        "phase": "guarded",
+        "kind": "junction",
+        "replacementMapBefore": {
+          "owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "probe.txt": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\guarded\\outside"
+        },
+        "replacementMapAfter": {
+          "owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "probe.txt": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\guarded\\outside"
+        }
+      }
+    },
+    {
+      "sequence": 43,
+      "actor": "candidate",
+      "action": "open",
+      "outcome": "refused",
+      "osCode": -1073741638,
+      "elapsedMs": 18141,
+      "detail": {
+        "label": "inspect",
+        "access": 1048705,
+        "share": 3,
+        "disposition": 1,
+        "options": 2097248,
+        "phase": "guarded",
+        "codeDomain": "NTSTATUS",
+        "statusHex": "0xc00000ba"
+      }
+    },
+    {
+      "sequence": 44,
+      "actor": "candidate",
+      "action": "barrier",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18141,
+      "detail": {
+        "label": "done",
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 45,
+      "actor": "owner",
+      "action": "rename",
+      "outcome": "refused",
+      "osCode": -4082,
+      "elapsedMs": 18143,
+      "detail": {
+        "phase": "guarded",
+        "kind": "target",
+        "codeDomain": "libuv",
+        "symbol": "EBUSY",
+        "error": "EBUSY: resource busy or locked, rename 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\guarded\\ancestor\\target' -> 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\guarded\\target-moved'"
+      }
+    },
+    {
+      "sequence": 46,
+      "actor": "owner",
+      "action": "write",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18145,
+      "detail": {
+        "phase": "guarded",
+        "ownerWritePreserved": true
+      }
+    },
+    {
+      "sequence": 47,
+      "actor": "candidate",
+      "action": "close",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18145,
+      "detail": {
+        "label": "guards",
+        "phase": "guarded",
+        "codeDomain": "Win32",
+        "statusHex": "0x00000000"
+      }
+    },
+    {
+      "sequence": 48,
+      "actor": "candidate",
+      "action": "process-exit",
+      "outcome": "success",
+      "osCode": 0,
+      "elapsedMs": 18161,
+      "detail": {
+        "phase": "guarded",
+        "signal": null,
+        "stderr": ""
+      }
+    }
+  ],
+  "ownerState": {
+    "before": {
+      "guarded": "dir",
+      "guarded/alias": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\guarded\\ancestor\\target",
+      "guarded/ancestor": "dir",
+      "guarded/ancestor/target": "dir",
+      "guarded/ancestor/target/owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+      "guarded/outside": "dir",
+      "guarded/outside/probe.txt": "file:f9bf0212b68528206e400f811829dea79e2ccac31d8275aec5f5ce41435dad84",
+      "guarded/outside/sentinel.txt": "file:d3db305ed1795fd00c5b671406cb702c797ebb59feef55af3569fd4fa608b490",
+      "home": "dir",
+      "home/.cache": "dir",
+      "home/.claude": "dir",
+      "home/.codex": "dir",
+      "home/.config": "dir",
+      "home/.gsd": "dir",
+      "home/.local": "dir",
+      "home/.local/share": "dir",
+      "home/AppData": "dir",
+      "home/AppData/Local": "dir",
+      "home/AppData/Roaming": "dir",
+      "home/cargo": "dir",
+      "home/rustup": "dir",
+      "home/temp": "dir",
+      "positive": "dir",
+      "positive/alias": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\positive\\ancestor\\target",
+      "positive/ancestor": "dir",
+      "positive/ancestor/target": "dir",
+      "positive/ancestor/target/owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+      "positive/outside": "dir",
+      "positive/outside/probe.txt": "file:f9bf0212b68528206e400f811829dea79e2ccac31d8275aec5f5ce41435dad84",
+      "positive/outside/sentinel.txt": "file:d3db305ed1795fd00c5b671406cb702c797ebb59feef55af3569fd4fa608b490",
+      "unsafe": "dir",
+      "unsafe/alias": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\unsafe\\ancestor\\target",
+      "unsafe/ancestor": "dir",
+      "unsafe/ancestor/target": "dir",
+      "unsafe/ancestor/target/owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+      "unsafe/outside": "dir",
+      "unsafe/outside/probe.txt": "file:f9bf0212b68528206e400f811829dea79e2ccac31d8275aec5f5ce41435dad84",
+      "unsafe/outside/sentinel.txt": "file:d3db305ed1795fd00c5b671406cb702c797ebb59feef55af3569fd4fa608b490"
+    },
+    "after": {
+      "guarded": "dir",
+      "guarded/alias": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\guarded\\ancestor\\target",
+      "guarded/ancestor": "dir",
+      "guarded/ancestor/target": "dir",
+      "guarded/ancestor/target/owner.txt": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e",
+      "guarded/outside": "dir",
+      "guarded/outside/probe.txt": "file:f9bf0212b68528206e400f811829dea79e2ccac31d8275aec5f5ce41435dad84",
+      "guarded/outside/sentinel.txt": "file:d3db305ed1795fd00c5b671406cb702c797ebb59feef55af3569fd4fa608b490",
+      "home": "dir",
+      "home/.cache": "dir",
+      "home/.claude": "dir",
+      "home/.codex": "dir",
+      "home/.config": "dir",
+      "home/.gsd": "dir",
+      "home/.local": "dir",
+      "home/.local/share": "dir",
+      "home/AppData": "dir",
+      "home/AppData/Local": "dir",
+      "home/AppData/Roaming": "dir",
+      "home/cargo": "dir",
+      "home/rustup": "dir",
+      "home/temp": "dir",
+      "positive": "dir",
+      "positive/alias": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\positive\\ancestor\\target",
+      "positive/ancestor": "dir",
+      "positive/ancestor/target": "dir",
+      "positive/ancestor/target/owner.txt": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e",
+      "positive/outside": "dir",
+      "positive/outside/probe.txt": "file:f9bf0212b68528206e400f811829dea79e2ccac31d8275aec5f5ce41435dad84",
+      "positive/outside/sentinel.txt": "file:d3db305ed1795fd00c5b671406cb702c797ebb59feef55af3569fd4fa608b490",
+      "unsafe": "dir",
+      "unsafe/alias": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\unsafe\\ancestor\\target",
+      "unsafe/ancestor": "dir",
+      "unsafe/moved": "dir",
+      "unsafe/moved/owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+      "unsafe/moved/probe.txt": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\unsafe\\outside",
+      "unsafe/outside": "dir",
+      "unsafe/outside/probe.txt": "file:f9bf0212b68528206e400f811829dea79e2ccac31d8275aec5f5ce41435dad84",
+      "unsafe/outside/sentinel.txt": "file:d3db305ed1795fd00c5b671406cb702c797ebb59feef55af3569fd4fa608b490"
+    },
+    "expectedOwnerWrites": [
+      {
+        "phase": "unsafe",
+        "rule": "preregistered deliberate violations only",
+        "caseId": "leaf-swap"
+      },
+      {
+        "phase": "positive",
+        "path": "ancestor/target/owner.txt",
+        "after": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e"
+      },
+      {
+        "phase": "guarded",
+        "path": "ancestor/target/owner.txt",
+        "after": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e",
+        "conditional": "path remains in place"
+      },
+      {
+        "phase": "guarded",
+        "operation": "rename target to after-exit",
+        "conditional": "moved-directory only, after child close"
+      }
+    ]
+  },
+  "targetState": {
+    "before": {
+      "unsafe": {
+        "owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db"
+      },
+      "positive": {
+        "owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db"
+      },
+      "guarded": {
+        "owner.txt": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db"
+      }
+    },
+    "after": {
+      "unsafe": {
+        "state": "missing"
+      },
+      "positive": {
+        "state": "directory",
+        "map": {
+          "owner.txt": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e"
+        }
+      },
+      "guarded": {
+        "state": "directory",
+        "map": {
+          "owner.txt": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e"
+        }
+      }
+    }
+  },
+  "children": [
+    {
+      "actor": "candidate",
+      "pid": 14928,
+      "exitCode": 0,
+      "signal": null,
+      "closeObserved": true
+    },
+    {
+      "actor": "candidate",
+      "pid": 22088,
+      "exitCode": 0,
+      "signal": null,
+      "closeObserved": true
+    }
+  ],
+  "cleanup": {
+    "complete": true,
+    "retainedPaths": [],
+    "errors": []
+  }
+}

@@ -5,6 +5,11 @@
       "path": "coverage/paired-perf.test.cjs",
       "script": "test:coverage:phase43-paired-perf",
       "authority": "focused-four-metric-coverage"
+    },
+    {
+      "path": "coverage/install-transaction.test.cjs",
+      "script": "test:coverage:install-transaction",
+      "authority": "focused-four-metric-coverage"
     }
   ]
 }

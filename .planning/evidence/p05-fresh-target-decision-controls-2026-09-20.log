@@ -1,0 +1,12 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "fresh owner and displaced|outside-target damage controls"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > fresh owner and displaced comparisons each detect a removed assertion [2109.00ms]
+(pass) expect-red: recovery observation contract > outside-target damage controls detect a removed home comparison [953.00ms]
+
+ 2 pass
+ 78 filtered out
+ 0 fail
+ 31 expect() calls
+Ran 2 tests across 1 file. [3.29s]

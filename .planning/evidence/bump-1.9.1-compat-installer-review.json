@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 2,
+  "packageName": "@opengsd/gsd-core",
+  "generatedAt": "2026-09-05T09:12:06.219Z",
+  "matrixReport": ".planning/evidence/bump-1.9.1-compat-installer-review.json",
+  "policy": "current-pin",
+  "ok": false,
+  "blockingFailures": [
+    "1.9.1"
+  ],
+  "failedVersions": [
+    "1.9.1"
+  ],
+  "results": [
+    {
+      "version": "1.9.1",
+      "role": "current",
+      "blocking": true,
+      "ok": false,
+      "exitCode": 1,
+      "durationMs": 352433,
+      "classification": "blocking",
+      "status": "failed",
+      "passed": 315,
+      "failed": 1,
+      "skipped": 0,
+      "excluded": [
+        "core.test.cjs",
+        "phase-verification.test.cjs",
+        "sync.test.cjs"
+      ],
+      "classifiedExclusions": [
+        {
+          "path": "core.test.cjs",
+          "classification": "retired"
+        },
+        {
+          "path": "phase-verification.test.cjs",
+          "classification": "repository"
+        },
+        {
+          "path": "sync.test.cjs",
+          "classification": "repository"
+        }
+      ],
+      "suites": [
+        {
+          "path": "commands.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 38289,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "config.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 47,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 24806,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "frontmatter.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 103,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 13192,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "init.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 14,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 24003,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "milestone.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 4694,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "phase.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 54,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 61040,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "roadmap.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "failed",
+          "passed": 19,
+          "failed": 1,
+          "skipped": 0,
+          "durationMs": 47125,
+          "exitCode": 1,
+          "errors": [
+            "not ok 3 - preserves LF roadmap bytes outside the requested progress edits",
+            "error: 'Command failed: Error: spawnSync C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe ETIMEDOUT'",
+            "code: 'ERR_ASSERTION'",
+            "name: 'AssertionError'",
+            "expected: true"
+          ]
+        },
+        {
+          "path": "runtime-overrides.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "fork-runtime",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 11153,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "state.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 13,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 29438,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "template.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "upstream-internal-observed",
+          "status": "passed",
+          "passed": 34,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 9795,
+          "exitCode": 0,
+          "errors": []
+        },
+        {
+          "path": "verify.test.cjs",
+          "classification": "candidate",
+          "authorityBoundary": "black-box",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 8802,
+          "exitCode": 0,
+          "errors": []
+        }
+      ],
+      "errors": [
+        "roadmap.test.cjs: not ok 3 - preserves LF roadmap bytes outside the requested progress edits",
+        "roadmap.test.cjs: error: 'Command failed: Error: spawnSync C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe ETIMEDOUT'",
+        "roadmap.test.cjs: code: 'ERR_ASSERTION'",
+        "roadmap.test.cjs: name: 'AssertionError'",
+        "roadmap.test.cjs: expected: true"
+      ]
+    }
+  ]
+}

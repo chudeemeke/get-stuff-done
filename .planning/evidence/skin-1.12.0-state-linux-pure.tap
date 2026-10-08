@@ -1,0 +1,216 @@
+TAP version 13
+# Subtest: state.update-progress preserves curated position, activity and unknown metadata
+ok 1 - state.update-progress preserves curated position, activity and unknown metadata
+  ---
+  duration_ms: 10837.662247
+  type: 'test'
+  ...
+# Subtest: state.record-metric preserves curated position, activity and unknown metadata
+ok 2 - state.record-metric preserves curated position, activity and unknown metadata
+  ---
+  duration_ms: 8786.564659
+  type: 'test'
+  ...
+# Subtest: state.record-session preserves curated position, activity and unknown metadata
+ok 3 - state.record-session preserves curated position, activity and unknown metadata
+  ---
+  duration_ms: 8084.528948
+  type: 'test'
+  ...
+# Subtest: milestone.complete retains phase 23 and unknown metadata
+ok 4 - milestone.complete retains phase 23 and unknown metadata
+  ---
+  duration_ms: 10154.90756
+  type: 'test'
+  ...
+# Subtest: planned-phase updates a replanned semantic state and its plan count
+not ok 5 - planned-phase updates a replanned semantic state and its plan count
+  ---
+  duration_ms: 8375.439084
+  type: 'test'
+  location: '/mnt/c/Projects/gsd-skin-campaign/tests/acceptance/state-delivery.cjs:102:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /(?:Total Plans in Phase:\*\*\s*3|Plan:\s*0 of 3)/. Input:
+    
+    '---\n' +
+      'gsd_state_version: 1.0\n' +
+      'milestone: v1.3\n' +
+      'milestone_name: Continuity\n' +
+      'current_phase: 23\n' +
+      'current_phase_name: Recovery\n' +
+      'status: executing\n' +
+      'stopped_at: Previous plan\n' +
+      'last_updated: "2026-09-05T05:23:06.333Z"\n' +
+      'progress:\n' +
+      '  total_phases: 1\n' +
+      '  completed_phases: 0\n' +
+      '  total_plans: 2\n' +
+      '  completed_plans: 1\n' +
+      '  percent: 0\n' +
+      'last_activity: 2026-08-18\n' +
+      'owner_extension:\n' +
+      '  decision: "D4: retain subagent planner"\n' +
+      '  accepted: true\n' +
+      'last_activity_desc: Preserve this separate description\n' +
+      '---\n' +
+      '\n' +
+      '# Project State\n' +
+      '\n' +
+      '## Current Position\n' +
+      '\n' +
+      'Phase: 23 (Recovery) — READY TO EXECUTE\n' +
+      'Plan: 1 of 2\n' +
+      'Status: Ready to execute\n' +
+      'Progress: [-----] 50%\n' +
+      '\n' +
+      '## Performance Metrics\n' +
+      '\n' +
+      '| Phase | Plan | Duration | Tasks | Files |\n' +
+      '| --- | --- | --- | --- | --- |\n' +
+      '\n' +
+      '## Session Continuity\n' +
+      '\n' +
+      'Last session: 2026-08-18\n' +
+      'Stopped at: Previous plan\n' +
+      'Resume file: .planning/CONTINUE.md\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    ---
+    gsd_state_version: 1.0
+    milestone: v1.3
+    milestone_name: Continuity
+    current_phase: 23
+    current_phase_name: Recovery
+    status: executing
+    stopped_at: Previous plan
+    last_updated: "2026-09-05T05:23:06.333Z"
+    progress:
+      total_phases: 1
+      completed_phases: 0
+      total_plans: 2
+      completed_plans: 1
+      percent: 0
+    last_activity: 2026-08-18
+    owner_extension:
+      decision: "D4: retain subagent planner"
+      accepted: true
+    last_activity_desc: Preserve this separate description
+    ---
+    
+    # Project State
+    
+    ## Current Position
+    
+    Phase: 23 (Recovery) — READY TO EXECUTE
+    Plan: 1 of 2
+    Status: Ready to execute
+    Progress: [-----] 50%
+    
+    ## Performance Metrics
+    
+    | Phase | Plan | Duration | Tasks | Files |
+    | --- | --- | --- | --- | --- |
+    
+    ## Session Continuity
+    
+    Last session: 2026-08-18
+    Stopped at: Previous plan
+    Resume file: .planning/CONTINUE.md
+    
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/mnt/c/Projects/gsd-skin-campaign/tests/acceptance/state-delivery.cjs:106:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: roadmap.analyze includes a bullet-only phase
+not ok 6 - roadmap.analyze includes a bullet-only phase
+  ---
+  duration_ms: 8766.687995
+  type: 'test'
+  location: '/mnt/c/Projects/gsd-skin-campaign/tests/acceptance/state-delivery.cjs:110:1'
+  failureType: 'testCodeFailure'
+  error: '{"milestones":[{"heading":"Roadmap v1.3 Continuity","version":"v1.3"}],"phases":[{"number":"23","name":"Recovery","goal":null,"mode":null,"depends_on":null,"plan_count":2,"summary_count":1,"has_context":false,"has_research":false,"disk_status":"partial","roadmap_complete":false,"context_read_error":null}],"phase_count":1,"completed_phases":0,"total_plans":2,"total_summaries":1,"progress_percent":50,"progress_scope":"complete","current_phase":"23","next_phase":null,"missing_phase_details":null,"scope":"complete"}'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/mnt/c/Projects/gsd-skin-campaign/tests/acceptance/state-delivery.cjs:113:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: init.manager includes or explicitly diagnoses a bullet-only phase
+not ok 7 - init.manager includes or explicitly diagnoses a bullet-only phase
+  ---
+  duration_ms: 8514.771451
+  type: 'test'
+  location: '/mnt/c/Projects/gsd-skin-campaign/tests/acceptance/state-delivery.cjs:116:1'
+  failureType: 'testCodeFailure'
+  error: '{"milestone_version":"v1.3","milestone_name":"Continuity","phases":[{"number":"23","name":"Recovery","goal":null,"depends_on":null,"disk_status":"partial","has_context":false,"has_research":false,"plan_count":2,"summary_count":1,"roadmap_complete":false,"implementation_complete":false,"verification_status":"missing","verification_passed":false,"phase_complete":false,"completion_status":"incomplete","verification_next_action":"No verification report found — the verify step never completed. Running execute-phase is safe here: it resumes at the verification gates and does not re-run plans that already have a SUMMARY.md (see #2868).","verification_next_command":"/gsd-execute-phase 23","verification_stale_check_indeterminate":false,"last_activity":"2026-09-05T05:23:15.222Z","is_active":true,"display_name":"Recovery","deps_satisfied":true,"deps_display":"—","is_next_to_discuss":false}],"phase_count":1,"completed_count":0,"in_progress_count":1,"recommended_actions":[],"waiting_signal":null,"all_complete":false,"project_exists":true,"roadmap_exists":true,"state_exists":true,"manager_flags":{"discuss":"","plan":"","execute":""},"project_root":"/tmp/gsd-skin-state-pybq8l","agents_installed":true,"missing_agents":[],"agents_dir":"/mnt/c/Users/Destiny/.codex/reports/gsd-skin-2026-09-05/upstream/1.12.0/package/agents","agent_runtime":"claude","project_title":"Continuity"}'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/mnt/c/Projects/gsd-skin-campaign/tests/acceptance/state-delivery.cjs:119:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: commit and staged guard agree for config undefined
+ok 8 - commit and staged guard agree for config undefined
+  ---
+  duration_ms: 22026.305232
+  type: 'test'
+  ...
+# Subtest: commit and staged guard agree for config {}
+ok 9 - commit and staged guard agree for config {}
+  ---
+  duration_ms: 22341.517171
+  type: 'test'
+  ...
+# Subtest: commit and staged guard agree for config {"workflow":{"_auto_chain_active":false}}
+ok 10 - commit and staged guard agree for config {"workflow":{"_auto_chain_active":false}}
+  ---
+  duration_ms: 22978.690684
+  type: 'test'
+  ...
+# Subtest: commit and staged guard agree for config {"commit_docs":true}
+ok 11 - commit and staged guard agree for config {"commit_docs":true}
+  ---
+  duration_ms: 25203.728444
+  type: 'test'
+  ...
+# Subtest: commit and staged guard agree for config {"commit_docs":false}
+ok 12 - commit and staged guard agree for config {"commit_docs":false}
+  ---
+  duration_ms: 23738.450301
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 9
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 180113.789422

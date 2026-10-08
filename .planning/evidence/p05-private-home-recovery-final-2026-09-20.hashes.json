@@ -1,0 +1,12 @@
+{
+  "before": {
+    "bin/install.js": "78ba71870597700880c1dcd5c1ebb093cec790fd5393ac06507334c1160b0bb3",
+    "dist/bin/install.js": "e6f691da2bdb777c7cd8b7a75b56b5626acbd77e1949d9ece0373d69b990164d",
+    "tests/acceptance/installer-recovery.cjs": "444a786ec8312b43560ca889c671c3867390d018e47e68e4f657d07cfcf95d58"
+  },
+  "after": {
+    "bin/install.js": "78ba71870597700880c1dcd5c1ebb093cec790fd5393ac06507334c1160b0bb3",
+    "dist/bin/install.js": "e6f691da2bdb777c7cd8b7a75b56b5626acbd77e1949d9ece0373d69b990164d",
+    "tests/acceptance/installer-recovery.cjs": "444a786ec8312b43560ca889c671c3867390d018e47e68e4f657d07cfcf95d58"
+  }
+}

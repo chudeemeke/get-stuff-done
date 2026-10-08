@@ -6,7 +6,7 @@ resilience split, but the fork needs `@chude/get-stuff-done` package identity,
 maintainer routing from `gsd.role`, and the fork's 7-day network throttle.
 
 ## Upstream snapshot
-- Version: 1.8.0
+- Version: 1.9.1
 - SHA-256: 16f4ebb94930af55555534c21c7586327d4756b9cd10cc05350bd4de2a552fd9
 - Semantic SHA-256: cdcc2be65ed93b5039fce9f7f593612c133fe0a604816a0c40a8a740f3b2ddb6
 
@@ -34,3 +34,7 @@ Reviewed 2026-08-30 for 1.6.1 -> 1.7.0: upstream file is byte-identical between 
 
 Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream file is byte-identical
 between the two versions (hash unchanged); override unchanged.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.

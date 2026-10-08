@@ -1,0 +1,125 @@
+{
+  "checkedAt": "2026-09-20T01:26:34.3055971Z",
+  "run": {
+    "conclusion": "failure",
+    "createdAt": "2026-09-19T07:47:32Z",
+    "databaseId": 35430281217,
+    "headSha": "897116f96adf8cd8cf47f6e69b7663f16590457f",
+    "status": "completed",
+    "updatedAt": "2026-09-19T07:47:42Z",
+    "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217"
+  },
+  "totalCount": 18,
+  "returnedCount": 18,
+  "jobs": [
+    {
+      "id": 105863490637,
+      "name": "Docs Gates",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490639,
+      "name": "Secret Scan",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490643,
+      "name": "Workflow Lint",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490644,
+      "name": "Audit CI (blocking HIGH/CRITICAL)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490653,
+      "name": "Test (ubuntu-latest)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490664,
+      "name": "OSV Scanner",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490669,
+      "name": "Override Staleness Check (blocking)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490686,
+      "name": "Perf Budget (linux)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490689,
+      "name": "Test (windows-latest)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490691,
+      "name": "Test (macos-15)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490704,
+      "name": "Boundary Check (informational)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490709,
+      "name": "Upstream Compat (ubuntu-latest)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490712,
+      "name": "Perf Budget (macos)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490735,
+      "name": "Upstream Compat (windows-latest)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490736,
+      "name": "Upstream Compat (macos-15)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490737,
+      "name": "Perf Budget (windows)",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490760,
+      "name": "Lint",
+      "conclusion": "failure",
+      "steps": 0
+    },
+    {
+      "id": 105863490788,
+      "name": "Source Parity Check",
+      "conclusion": "failure",
+      "steps": 0
+    }
+  ],
+  "pushPermittedByExecutedStepRule": false
+}

@@ -1,0 +1,43 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "Node capture preserves"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+740 | describe('expect-red: command line', () => {
+741 |   const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+742 | 
+743 |   test('Node capture preserves a complete structured report larger than one MiB', () => {
+744 |     const run = captureNode(['-e', 'process.stdout.write(JSON.stringify({text:"x".repeat(2*1024*1024)}))'], { timeout: 10000 });
+745 |     expect(run.error).toBeUndefined();
+                            ^
+error: expect(received).toBeUndefined()
+
+Received: 61 |   }
+62 |   return resolvedNode;
+63 | }
+64 | 
+65 | function captureNode(args, options) {
+66 |   return spawnSync(nodeRuntime().execPath, args, { encoding: 'utf8', ...options });
+              ^
+error: spawnSync C:\Program Files\nodejs\node.exe ENOBUFS (stdout or stderr buffer reached maxBuffer size limit)
+      path: "C:\\Program Files\\nodejs\\node.exe",
+   syscall: "spawnSync C:\\Program Files\\nodejs\\node.exe",
+     errno: -4060,
+ spawnargs: [
+  "-e", "process.stdout.write(JSON.stringify({text:\"x\".repeat(2*1024*1024)}))"
+],
+      code: "ENOBUFS"
+
+      at spawnSync (node:child_process:256:20)
+      at captureNode (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:66:10)
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:744:17)
+
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:745:23)
+(fail) expect-red: command line > Node capture preserves a complete structured report larger than one MiB [141.00ms]
+
+ 0 pass
+ 69 filtered out
+ 1 fail
+ 6 expect() calls
+Ran 1 test across 1 file. [244.00ms]
+error: script "test" exited with code 1

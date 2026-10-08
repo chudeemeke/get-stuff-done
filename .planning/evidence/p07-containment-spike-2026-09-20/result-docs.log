@@ -1,0 +1,4 @@
+markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)
+Finding: .planning/evidence/p07-containment-spike-2026-09-20/findings.md .planning/CONTINUE.md docs/plans/features/skin-completion-execution-2026-09-19.md !node_modules/** !dist/** !.upstream/** !overlay/get-shit-done/**
+Linting: 3 files
+Summary: 0 issues in 0 files

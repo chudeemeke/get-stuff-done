@@ -1,0 +1,57 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+52 | 
+53 | describe('expect-red: recovery observation contract', () => {
+54 |   test('the disposable upgrade independently checks owner preservation', () => {
+55 |     const report = captureRecovery();
+56 |     const owner = report.checks.find(check => keyOfCheck(check) === 'upgrade:owner-bytes-preserved');
+57 |     expect(owner?.ok).toBe(true);
+                           ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: undefined
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:57:23)
+(fail) expect-red: recovery observation contract > the disposable upgrade independently checks owner preservation [79344.00ms]
+(pass) expect-red: installer recovery > the captured red from the unfixed installer is the known red
+(pass) expect-red: installer recovery > an additional owner-byte loss cannot hide behind the expected recovery failures [15.00ms]
+(pass) expect-red: installer recovery > an unexpected pass fails and says how to retire the wrapper
+(pass) expect-red: installer recovery > a red with harness check twin:child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check twin:residue-non-empty failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check fresh:wrapper-child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:first-install-succeeded failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:picked-files-installed failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:wrapper-child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:child-rewrote-picked-files failing is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check twin:child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check twin:residue-non-empty is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check fresh:wrapper-child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:first-install-succeeded is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:picked-files-installed is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:wrapper-child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:child-rewrote-picked-files is the wrong red
+(pass) expect-red: installer recovery > a red in which fresh:outcome-exact passes is not the known red
+(pass) expect-red: installer recovery > a red in which fresh:top-level-exact-allowlist passes is not the known red
+(pass) expect-red: installer recovery > a red in which fresh:transaction-directory-shape passes is not the known red
+(pass) expect-red: installer recovery > a red in which upgrade:outcome-exact passes is not the known red
+(pass) expect-red: installer recovery > a red in which upgrade:transaction-directory-shape passes is not the known red
+(pass) expect-red: installer recovery > a missing compose is the wrong red
+(pass) expect-red: installer recovery > a crash with no report and an unexpected exit status are both refused
+(pass) expect-red: install transaction coverage > the captured red from the skeleton is the known red
+(pass) expect-red: install transaction coverage > a case failing for any reason other than an unbuilt operation is the wrong red [16.00ms]
+(pass) expect-red: install transaction coverage > a coverage shortfall on landed code is the wrong red, on either stream
+(pass) expect-red: install transaction coverage > nothing failing, a crash with no summary, and a miscounted summary are all refused
+(pass) expect-red: command line > the gate command is read from package.json, not copied
+(pass) expect-red: command line > exits 0 on the known red, 1 on anything else, 2 on misuse [15.00ms]
+
+1 tests failed:
+(fail) expect-red: recovery observation contract > the disposable upgrade independently checks owner preservation [79344.00ms]
+
+ 30 pass
+ 1 fail
+ 51 expect() calls
+Ran 31 tests across 1 file. [79.74s]
+error: script "test" exited with code 1

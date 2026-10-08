@@ -18,8 +18,8 @@ retains a broader local semantic delta after the original issue closure.
 
 ## Upstream snapshot
 
-- Version: 1.8.0
-- SHA-256: b5885c315a3de5ea72b504b87faa51ed7baca5330b966cf6bfdec9079a8a1f1c
+- Version: 1.9.1
+- SHA-256: 6feddd42d73c69b06d1903029d14c45da806602dca2fd02ea2443a9655dd9b9c
 
 ## What's different
 
@@ -56,3 +56,7 @@ a hardened bounded read) — adopted intact via the pure-1.8.0 base. The fork
 delta is unchanged and still required (drop-experiment: roadmap.test.cjs
 plan-reference exclusions fail on pure 1.8.0): PLAN_REVIEW_RE superset +
 LOOSE_PLAN_TOKEN_RE embedded-reference exclusion.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.

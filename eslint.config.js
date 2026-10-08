@@ -16,7 +16,7 @@ module.exports = [
     ]
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', 'scripts/expect-red.cjs', 'tests/acceptance/installer-recovery.cjs'],
     plugins: {
       security
     },
@@ -54,7 +54,7 @@ module.exports = [
     }
   },
   {
-    files: ['tests/**/*.js'],
+    files: ['tests/**/*.js', 'tests/acceptance/installer-recovery.cjs'],
     languageOptions: {
       globals: {
         describe: 'readonly',

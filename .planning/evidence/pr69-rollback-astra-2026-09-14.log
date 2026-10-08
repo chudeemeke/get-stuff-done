@@ -1,0 +1,3566 @@
+Reading additional input from stdin...
+OpenAI Codex v0.154.0
+--------
+workdir: C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0a010-5031-72a1-8bbe-fe35b01ec695
+--------
+user
+Review the supplied installer recovery design packet. Read only relevant local sources. Do not edit files, run installation or tests, or spawn agents. Return the bounded recommendation requested in the packet.
+
+<stdin>
+# Bounded installer recovery design review
+
+Review only; do not edit, run installation, change Git state, or spawn agents.
+Give an implementation-ready recommendation in at most 1600 words. You may read
+the listed source files. Do not restart the strategic audit or expand into CI.
+
+## End state and constraints
+
+This repository is a thin skin over pinned Open GSD. The user ratified the
+September 5 contract: walk 1.9.1 through fixed 1.12.0; preserve customizations;
+working ordinary Windows Claude/Codex and supported Linux installation; staged
+updates, interruption/recovery, rollback and local-conflict preservation.
+CI is separately owned. No approval, merge or readiness changes are authorized.
+Do not silently reduce support or substitute refusal of all ordinary installs.
+
+The user explicitly asked us to reconsider PR4's strict security assumptions
+and even whether its standalone arbitrary-settings repair is the right product.
+The proposed successor is managed-hook recovery through vetted install/update,
+but that scope decision remains pending. Do not assume it accepted. Do not
+assume every security goal requires universal ACL/SACL observability; distinguish
+preserving a property from measuring it. No TxF or privilege requirement adopted.
+
+## Verified current implementation
+
+Candidate at 46e5f9057165583f83bba30dcd5de77bb1e37e39; application fix b6743baf.
+`bin/install.js` is the fork-owned wrapper. It snapshots old manifest files,
+old/new overlay files, settings, three metadata files and local patch/pristine
+trees, then invokes `dist/bin/install.js` in the live target. It restores these
+paths on failure and deletes the snapshot. `main()` performs legacy cleanup
+before this transaction. Some supported runtime artifacts are in shared homes
+outside the selected target. Codex has additional upstream-specific rollback.
+
+Actual CLI acceptance at `tests/acceptance/installer-recovery.cjs` injects an
+error at the first upstream manifest publication. The real wrapper exits1 and
+prints `Rollback applied`, but 622 new files remain, including `.gsd-source`,
+agents, core files and helpers. Original fixture settings and owner.txt survive.
+Receipt: `.planning/evidence/pr69-installer-recovery-red-2026-09-14.json`.
+The test fixture is small and project-local and is cleaned after each run.
+
+The latest application fix removes recursive cleanup of shared script helper
+directories, and changes upstream manifest creation to enumerate regular package
+source files instead of claiming every destination .cjs file. 135 installer
+tests pass. Previously contaminated manifests remain an ownership problem.
+
+## Existing seams and known gaps
+
+Read `node_modules/@opengsd/gsd-core/gsd-core/bin/lib/` as needed:
+
+- runtime-artifact-layout.cjs: resolveRuntimeArtifactLayout(runtime, configDir,
+  scope, capabilityRegistry) returns kinds with staging functions and home/dest.
+- runtime-artifact-install-plan.cjs: stages command/skill/agent copy inputs;
+  its contract explicitly excludes pruning, migrations, copying and final cleanup.
+- install-engine.cjs: materialization and USER_OWNED_ARTIFACTS preservation.
+- installer-migrations.cjs: rollback for its own migrations, not the whole install.
+- `--dry-run` in the upstream CLI previews legacy cleanup, not the full write set.
+
+Upstream is read-only. Existing fork override is `overrides/bin/install.js` with
+`install.js.REASON.md`. Read its install body and dispatch as needed, especially
+saveLocalPatches, shared hooks and root package.json, shared defaults, runtime
+layouts, source/profile markers, settings writers and pre-install legacy cleanup.
+`docs/reviews/pr69-application-2026-09-13.md` records the remaining review findings.
+
+Do not solve this by copying/restoring the entire configuration directory:
+it contains unrelated instructions, projects, credentials and concurrent owner
+changes. Likewise a manifest emitted only after success cannot recover a partial
+failure, and filenames alone do not establish ownership. Directory rollback in
+the current wrapper can overwrite newer owner changes. Full source presence or
+a single passing fixture is not proof of complete inventory or crash recovery.
+
+## Review questions
+
+Derive what must be true before any destructive write, then choose the smallest
+design that can meet the end state with this upstream. Do we need a source-derived
+preflight plan, an operation journal integrated at upstream mutation seams,
+staged generation publication, or another proven structure? Avoid being anchored
+by this list. Compare the chosen design against existing upstream seams and
+explain precisely what must change in fork-owned files.
+
+Identify which properties can be proven now and which require an explicit
+support/architecture decision. Specify a bounded implementation sequence and
+discriminating acceptance tests, including partial failure, complete new-file
+accounting, owner edits during rollback, symlink/ownership handling and restart.
+Reject a design that passes only the 622-file fixture or claims portability
+without evidence. Also avoid a generic filesystem framework or a duplicated
+upstream installer unless you can justify why the narrower solution cannot work.
+
+</stdin>
+2026-09-14T13:17:03.645672Z ERROR codex_models_manager::manager: failed to refresh available models: timeout waiting for child process to exit
+2026-09-14T13:17:05.007404Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when AuthRequired(AuthRequiredError { www_authenticate_header: "Bearer resource_metadata=\"https://mcp.context7.com/.well-known/oauth-protected-resource\"" })
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Failed
+hook: SessionStart Completed
+hook: SessionStart Completed
+codex
+I’ll read the listed installer sources and recovery evidence, then recommend the smallest design that covers partial failure, ownership and restart. I’ll stay within the packet’s scope and won’t edit files, run tests or installation, change Git state, or spawn agents.
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -Command "rg -n \"skin-campaign|installer transaction|SKIN-COMPLETION|AggregateError|PR4\" C:\\Users\\Destiny\\.codex\\memories\\MEMORY.md" in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+hook: PostToolUse
+ succeeded in 1912ms:
+343:# Task Group: get-stuff-done Open-GSD skin campaign and installer transaction safety
+355:- Open-GSD, SKIN-COMPLETION, HANDOFF.json, .continue-here.md, gsd:resume-work, 1.12.0, inbox-lint, repository.bundle, D1-D11
+361:- rollout_summaries/2026-09-05T04-29-01-ksph-recover_opengsd_skin_contract_installer_safety.md (cwd=\\?\C:\Projects\get-stuff-done, rollout_path=C:\Users\Destiny\.codex\sessions\2026\09\05\rollout-2026-09-05T05-29-02-01a06fd3-ba93-7181-914c-9be7e385660f.jsonl, updated_at=2026-09-05T10:17:12+00:00, thread_id=01a06fd3-ba93-7181-914c-9be7e385660f, installer transaction protection and constrained evidence)
+365:- bin/install.js, AggregateError, snapshot cleanup, symlink junction, installer-safety.test.js, installer-cli-safety.test.js, 88 passing, 96.53%, 92.95%
+396:- `bin/install.js` must clean failed snapshot directories, preserve original and cleanup exceptions using `AggregateError`, settle child `error`/`exit` only once, reject unsafe managed paths before upstream spawn, and reject traversal through symlink/junction components. A linked `scripts` directory showed lexical containment alone can delete data outside the install target. [Task 2]
+
+hook: PostToolUse Completed
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -Command "Get-Content C:\\Users\\Destiny\\.claude\\rules\\quality-standards.md" in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+ succeeded in 4095ms:
+# Quality Standards
+
+**MANDATORY** - These standards apply to ALL projects, ALL languages, ALL contexts.
+
+**Related Rules:** [testing-pyramid.md](testing-pyramid.md), [tdd-workflow.md](tdd-workflow.md), [security.md](security.md), [git-workflow.md](git-workflow.md)
+
+## Coverage Thresholds (MINIMUM AT EACH METRIC)
+
+Each metric must INDIVIDUALLY meet 95%. This is NOT an overall average.
+
+| Metric | Minimum |
+|--------|---------|
+| **Statements** | 95%+ |
+| **Branches** | 95%+ |
+| **Functions** | 95%+ |
+| **Lines** | 95%+ |
+
+100% statements with 85% branches = "96% overall" but **FAILS**. Each metric is independent.
+
+**Pass Rate**: 100% ALWAYS. No exceptions. All tests pass or the build fails.
+
+## Risk Tiers (the 95% floor is where the bar STARTS)
+
+A flat percentage is a signal, not a proof. Industry practice tiers the bar by
+what the code can break; the floor above is Tier A. Classify every module into
+one tier and record the classification where the coverage gate is configured.
+
+| Tier | What lives here | Bar |
+|---|---|---|
+| **S** (security / destructive / data integrity) | Auth and credential handling, crypto, input validation and path guards, anything that deletes, migrates, overwrites, or publishes user or system state, consent and lock logic | 100% branch coverage; adversarial, property, or fuzz tests for every trust boundary; mutation testing (or an equivalent "does the suite fail when this line is wrong" check) for the module's decision points |
+| **A** (domain / application / infrastructure logic) | Everything not in S or B | 95%+ at each metric (the table above) |
+| **B** (thin shells and generated code) | Presentation glue with no branching logic, DI wiring, generated registries and types, platform shims | 95%+ lines and statements; branch and function gaps allowed ONLY via a listed exclusion with a one-line reason, reviewed at the PR gate |
+
+Rules that follow from the tiers:
+
+- Measure each executable file and each package independently, never as an
+  average across files or packages. A critical file below its tier fails even
+  when the package total passes. Missing file evidence is not a pass.
+- Exclusions are a listed allowlist in the coverage config, never a blanket
+  glob. An unlisted gap is a failure.
+- Coverage of the changed lines in a PR must itself meet the tier bar; a green
+  whole-repo number does not excuse an untested change.
+- A Tier S module with 95% branches is a FAILURE even though it passes Tier A.
+
+## Quality Gate Checklist
+
+```
+Tests:     100% pass rate (0 failures)
+Coverage:  95%+ on EACH metric individually, per file AND per package
+Tier S:    100% branches + adversarial tests + mutation/assertion-quality check
+Exclusions: listed allowlist only, each with a reason
+Security:  dependency audit (0 vulnerabilities), secret scan clean
+Types:     tsc --noEmit (0 errors)
+Lint:      eslint (0 errors)
+Docs:      docTruth --check (synced)
+```
+
+**If ANY check fails**: STOP. Fix it. Do not proceed.
+
+## Executable Enforcement And Functional Proof
+
+These are global standards for every project and every agent session. Prefer
+validators, constrained APIs, runtime guards and required CI checks over prose
+wherever a requirement can be checked reliably. Prove a gate rejects a known
+violation; missing, malformed, stale or incomplete evidence must not pass.
+Do not weaken thresholds or add exclusions to make a failing gate green.
+
+For judgment-dependent requirements, retain attributable review evidence for
+the final revision and expose missing review as incomplete. Do not substitute
+brittle style lints for judgment. Existing reviewed exceptions remain explicit
+debt with an owner and a concrete retirement trigger, never claimed attainment.
+
+Verify behavior through implementation, wiring, actual invocation, useful
+outcome and failure/recovery. Coverage is additional evidence; passing unit
+tests or finding source files does not prove an operational feature works.
+
+When starting work in a project, identify which executable checks enforce
+these standards. Record and address gaps within the authorized scope; never
+assume a global instruction automatically configured that repository's CI.
+
+## Merge Boundary
+
+The quality gate applies at the PR merge boundary.
+
+- CI green before merge is mandatory.
+- On public/Pro repositories with branch protection, configure the quality gate
+  as a required status check.
+- On private free-tier repositories where branch protection is unavailable, the
+  agent/human must explicitly watch CI and merge only after it reports green.
+- `gh pr merge --auto` is safe as a CI gate only when branch protection has
+  required checks configured. Without required checks, it can merge while CI is
+  pending.
+- Never merge red, never merge pending, and never bypass with `--no-verify` or
+  admin override without explicit user approval.
+
+## Detailed Guidance
+
+For coverage configuration (Jest, pytest, kcov), enforcement layers, handling gaps, and aidev release integration, invoke the `quality-standards` skill.
+
+hook: PostToolUse
+hook: PostToolUse Completed
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -Command "Get-Content C:\\Users\\Destiny\\.codex\\rules\\first-principles-before-options.md" in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+ exited 1 in 8036ms:
+Get-Content : Cannot find path 'C:\Users\Destiny\.codex\rules\first-principles-before-options.md' because it does not 
+exist.
+At line:2 char:1
++ Get-Content C:\Users\Destiny\.codex\rules\first-principles-before-opt ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\Destin...fore-options.md:String) [Get-Content], ItemNotFoundEx 
+   ception
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+ 
+
+hook: PostToolUse
+hook: PostToolUse Completed
+codex
+I’m treating the 622-file residue as the reported baseline failure. The key design question is whether the existing seams can account for every live mutation before it occurs, including shared homes and legacy cleanup.
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command 'Get-Content bin/install.js' in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command 'Get-Content node_modules/@opengsd/gsd-core/gsd-core/bin/lib/runtime-artifact-layout.cjs
+Get-Content node_modules/@opengsd/gsd-core/gsd-core/bin/lib/runtime-artifact-install-plan.cjs' in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command 'Get-Content docs/reviews/pr69-application-2026-09-13.md
+Get-Content .planning/evidence/pr69-installer-recovery-red-2026-09-14.json' in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+hook: PostToolUse
+ succeeded in 2647ms:
+'use strict';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+/**
+ * Runtime artifact layout module â€” resolves the artifact directory shapes
+ * (commands, agents, skills) for each supported runtime.
+ *
+ * grok is intentionally absent: it is in runtime-homes.cjs but has no runtime
+ * capability descriptor. The TypeError on unknown runtime is the loud-fail
+ * signal that a runtime was added without an artifact layout descriptor.
+ *
+ * ADR-457 build-at-publish: the hand-written bin/lib/runtime-artifact-layout.cjs
+ * collapsed to a TypeScript source of truth. Behaviour is preserved byte-for-behaviour
+ * from the prior hand-written .cjs; only types are added.
+ */
+const node_path_1 = __importDefault(require("node:path"));
+const node_fs_1 = __importDefault(require("node:fs"));
+const node_os_1 = __importDefault(require("node:os"));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const installProfiles = require("./install-profiles.cjs");
+const { stageSkillsForProfile, stageAgentsForProfile, stageAgentsForRuntimeWithConverter, stageSkillsForRuntimeAsSkills, stageCommandsForRuntimeFlat, } = installProfiles;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const runtimeArtifactConversion = require("./runtime-artifact-conversion.cjs");
+const conversionExports = runtimeArtifactConversion;
+const shell_command_projection_cjs_1 = require("./shell-command-projection.cjs");
+// In .cts (CommonJS output) files, `require` is available as a global.
+const _require = require;
+// ---------------------------------------------------------------------------
+// Source root finders
+// ---------------------------------------------------------------------------
+/**
+ * Locate the GSD commands/gsd source directory.
+ *
+ * Resolution order:
+ * 1. If runtimeConfigDir provided, check <runtimeConfigDir>/.gsd-source marker.
+ * 2. Walk up from __dirname using path.dirname (no literal .. segments).
+ * 3. Throw a descriptive error if neither succeeds.
+ */
+function findInstallSourceRoot(runtimeConfigDir) {
+    // Step 1: marker check
+    if (runtimeConfigDir) {
+        const markerPath = node_path_1.default.join(runtimeConfigDir, '.gsd-source');
+        if (node_fs_1.default.existsSync(markerPath)) {
+            try {
+                const src = node_fs_1.default.readFileSync(markerPath, 'utf8').trim();
+                if (src && node_fs_1.default.existsSync(src))
+                    return src;
+            }
+            catch { /* fall through */ }
+        }
+    }
+    // Step 2: walk up from __dirname
+    let dir = __dirname;
+    for (let i = 0; i < 6; i++) {
+        const candidate = node_path_1.default.join(dir, 'commands', 'gsd');
+        if (node_fs_1.default.existsSync(candidate))
+            return candidate;
+        const parent = node_path_1.default.dirname(dir);
+        if (parent === dir)
+            break;
+        dir = parent;
+    }
+    throw new Error(`findInstallSourceRoot: could not locate commands/gsd from ${__dirname}`);
+}
+/**
+ * Locate the GSD agents source directory.
+ *
+ * Resolution order:
+ * 1. If runtimeConfigDir provided, check <runtimeConfigDir>/.gsd-source marker.
+ * 2. Walk up from __dirname using path.dirname (no literal .. segments).
+ * 3. Throw a descriptive error if neither succeeds.
+ */
+function findAgentsSourceRoot(runtimeConfigDir) {
+    // Step 1: marker check
+    if (runtimeConfigDir) {
+        const markerPath = node_path_1.default.join(runtimeConfigDir, '.gsd-source');
+        if (node_fs_1.default.existsSync(markerPath)) {
+            try {
+                const src = node_fs_1.default.readFileSync(markerPath, 'utf8').trim();
+                if (src && node_fs_1.default.existsSync(src)) {
+                    // Marker points to commands/gsd; agents/ is a sibling of commands/
+                    const agentsCandidate = node_path_1.default.resolve(node_path_1.default.dirname(src), '..', 'agents');
+                    if (node_fs_1.default.existsSync(agentsCandidate))
+                        return agentsCandidate;
+                }
+            }
+            catch { /* fall through */ }
+        }
+    }
+    // Step 2: walk up from __dirname
+    let dir = __dirname;
+    for (let i = 0; i < 6; i++) {
+        const candidate = node_path_1.default.join(dir, 'agents');
+        if (node_fs_1.default.existsSync(candidate))
+            return candidate;
+        const parent = node_path_1.default.dirname(dir);
+        if (parent === dir)
+            break;
+        dir = parent;
+    }
+    throw new Error(`findAgentsSourceRoot: could not locate agents/ from ${__dirname}`);
+}
+// ---------------------------------------------------------------------------
+// Layout table builders
+// ---------------------------------------------------------------------------
+function commandsKind(destSubpath, prefix, configDir) {
+    return {
+        kind: 'commands',
+        destSubpath,
+        prefix,
+        stage: (resolved) => stageSkillsForProfile(findInstallSourceRoot(configDir), resolved),
+    };
+}
+function agentsKind(destSubpath, prefix, configDir) {
+    return {
+        kind: 'agents',
+        destSubpath,
+        prefix,
+        stage: (resolved) => stageAgentsForProfile(findAgentsSourceRoot(configDir), resolved),
+    };
+}
+/**
+ * Build a converted-agents kind descriptor for runtimes whose agent `.md` files
+ * need runtime-specific frontmatter/body conversion (e.g. Copilot, Cursor, Codex).
+ *
+ * Unlike `agentsKind` (which raw-copies source files), this kind applies
+ * `converterName` from Runtime Artifact Conversion exports to each agent file
+ * during staging, writing flat `${name}.md` files to the staged directory.
+ *
+ * Agent filenames are preserved verbatim (the prefix is already embedded in the
+ * agent stem â€” e.g. `gsd-planner.md`).
+ *
+ * #1173 SCOPE â€” plumbing only (real install still elsewhere): this provides
+ * the converter dispatch + `isGlobal` scope threading for the descriptor's
+ * `agents` kind. As of #2092, 8 non-Claude runtimes DO declare a converted
+ * `agents` kind in their `capability.json` â€” qwen (`convertClaudeAgentToQwenAgent`)
+ * plus the 7 that already declared one before it (antigravity, augment,
+ * codebuddy, copilot, cursor, trae, windsurf) â€” so the descriptor-level
+ * declaration is no longer deferred. What IS still deferred is wiring
+ * `resolveRuntimeArtifactLayout`'s `agents` kind into the REAL install:
+ * `bin/install.js`'s agent-staging loop does not consume this module's
+ * `convertedAgentsKind` resolution at all â€” it dispatches the very same
+ * converter functions directly via `_hostBehaviors(runtime)` checks
+ * (`frontmatterDialect`, `brandingRewrites`, `isCopilot`/`isAntigravity`/â€¦),
+ * duplicating the mapping declared here. That duplication is deliberate until
+ * the second `layout.kinds` consumer â€” `applySurface` / `/gsd:surface` /
+ * `--materialize` (`src/surface.cts`) â€” mirrors the legacy agent pipeline
+ * (Copilot's `.agent.md` filename rename, the cross-cutting path-prefix
+ * rewrite + attribution, stale-file cleanup, config-reading steps); declaring
+ * `bin/install.js` itself against this resolver before then would risk
+ * regressing the surface path. Until that follow-up lands, `bin/install.js`
+ * remains authoritative for the real install, and this `convertedAgentsKind`
+ * is exercised only by `/gsd:surface` and synthetic-descriptor seam tests.
+ *
+ * Mirrors the `convertedCommandsKind` pattern (#785).
+ *
+ * @param destSubpath   destination subpath within configDir (e.g. 'agents')
+ * @param prefix        filename prefix (informational; not applied here)
+ * @param converterName name of converter function in Runtime Artifact Conversion exports
+ * @param configDir     runtime config dir (for .gsd-source marker resolution)
+ */
+function convertedAgentsKind(destSubpath, prefix, converterName, configDir, scope = 'global') {
+    return {
+        kind: 'agents',
+        destSubpath,
+        prefix,
+        stage: (resolved, agentCtx) => {
+            // isGlobal is threaded so scope-aware agent converters (copilot, antigravity)
+            // choose global-home vs workspace-relative paths; converters that only take
+            // (content) ignore the extra positional arg. Mirrors skillsKind's scope
+            // threading (#1173).
+            const converter = conversionExports[converterName];
+            // ADR-1235 Â§1: when agentCtx is provided (by createRuntimeArtifactInstallPlan
+            // for descriptor-driven runtimes), thread it through so stageAgentsForRuntimeWithConverter
+            // can apply the full pre-converter + post-converter sequence in the correct order.
+            return stageAgentsForRuntimeWithConverter(findAgentsSourceRoot(configDir), resolved, converter, scope === 'global', agentCtx);
+        },
+    };
+}
+function kimiAgentsKind(destSubpath, prefix, configDir) {
+    return {
+        kind: 'kimi-agents',
+        destSubpath,
+        prefix,
+        stage: (resolved) => {
+            const buildKimiAgentArtifacts = conversionExports['buildKimiAgentArtifacts'];
+            const stagedAgents = stageAgentsForProfile(findAgentsSourceRoot(configDir), resolved);
+            const subagents = [];
+            if (node_fs_1.default.existsSync(stagedAgents)) {
+                for (const entry of node_fs_1.default.readdirSync(stagedAgents, { withFileTypes: true })) {
+                    if (!entry.isFile() || !entry.name.endsWith('.md'))
+                        continue;
+                    const agentPath = node_path_1.default.join(stagedAgents, entry.name);
+                    subagents.push({
+                        path: (0, shell_command_projection_cjs_1.posixNormalize)(node_path_1.default.join('agents', entry.name)),
+                        content: node_fs_1.default.readFileSync(agentPath, 'utf8'),
+                    });
+                }
+            }
+            const rootAgent = `---\nname: gsd\ndescription: Run GSD workflows in Kimi CLI.\ntools: Agent\n---\n\n# GSD for Kimi CLI\n\nCoordinate installed /skill:gsd-* workflows and route work to generated GSD subagents when a workflow requires an agent handoff.\n`;
+            const artifacts = buildKimiAgentArtifacts({ rootAgent, subagents });
+            const stageDir = node_fs_1.default.mkdtempSync(node_path_1.default.join(node_os_1.default.tmpdir(), 'gsd-kimi-agents-'));
+            installProfiles.STAGED_DIRS.add(stageDir);
+            node_fs_1.default.writeFileSync(node_path_1.default.join(stageDir, 'gsd.yaml'), artifacts.root.yaml);
+            node_fs_1.default.writeFileSync(node_path_1.default.join(stageDir, 'gsd.md'), artifacts.root.prompt);
+            const subagentsDir = node_path_1.default.join(stageDir, 'subagents');
+            node_fs_1.default.mkdirSync(subagentsDir, { recursive: true });
+            for (const artifact of artifacts.subagents) {
+                node_fs_1.default.writeFileSync(node_path_1.default.join(subagentsDir, `${artifact.name}.yaml`), artifact.yaml);
+                node_fs_1.default.writeFileSync(node_path_1.default.join(subagentsDir, `${artifact.name}.md`), artifact.prompt);
+            }
+            return stageDir;
+        },
+    };
+}
+/**
+ * Build a skills kind descriptor.
+ *
+ * @param destSubpath
+ * @param prefix
+ * @param converterName  name of converter function in Runtime Artifact Conversion exports
+ * @param runtime        canonical runtime ID (gates Hermes/Qwen branding in converter)
+ * @param configDir      runtime config dir (for .gsd-source marker resolution)
+ * @param nested         if true, nest concrete skills under their ns-* routers (#69)
+ * @param scope          install scope; converted to isGlobal and passed as 5th positional
+ *                       arg so scope-aware converters (antigravity, copilot) can choose
+ *                       between global home paths and workspace-relative paths without
+ *                       colliding with the `runtime` string at position 3.
+ * @param capabilityRegistry #2322: optional capability registry â€” captured in the
+ *                       stage() closure so third-party capability skills are bound to
+ *                       their declaring capId at staging time. Absent -> stage() stages
+ *                       nothing third-party (fail closed).
+ */
+function skillsKind(destSubpath, prefix, converterName, runtime, configDir, nested = false, scope = 'global', capabilityRegistry) {
+    return {
+        kind: 'skills',
+        destSubpath,
+        prefix,
+        converter: converterName,
+        stage: (resolved) => {
+            const realConverter = conversionExports[converterName];
+            // Compute cmdNames once per stage call for performance (#3583).
+            // Extra trailing args are ignored by converters that don't need them. The
+            // isGlobal flag is the 5th positional (NOT the 3rd): the 3rd positional is
+            // `runtime` for the claude/kimi/cline converters, so the scope-aware
+            // converters (antigravity, copilot) read isGlobal from position 5 to avoid
+            // colliding with `runtime` and always taking the global branch.
+            const cmdNames = conversionExports.readGsdCommandNames
+                ? conversionExports.readGsdCommandNames()
+                : [];
+            const isGlobal = scope === 'global';
+            const wrappedConverter = (content, skillName) => realConverter(content, skillName, runtime, cmdNames, isGlobal);
+            return stageSkillsForRuntimeAsSkills(findInstallSourceRoot(configDir), resolved, wrappedConverter, prefix, nested, capabilityRegistry);
+        },
+    };
+}
+/**
+ * Build a converted-commands kind descriptor for runtimes that use a flat
+ * commands directory with per-file conversion (e.g. Cursor 1.6 slash commands).
+ *
+ * Unlike `commandsKind` (which passes raw source files through), this kind
+ * applies `converterName` from Runtime Artifact Conversion exports to each file during
+ * staging, writing flat `${prefix}${stem}.md` files to the staged directory.
+ *
+ * The staged files are then written by `_copyStaged` (commands branch) which
+ * handles prefix logic via the existing layout machinery.
+ *
+ * @param destSubpath   destination subpath within configDir (e.g. 'commands')
+ * @param prefix        filename prefix, e.g. 'gsd-'
+ * @param converterName name of converter function in Runtime Artifact Conversion exports
+ * @param configDir     runtime config dir (for .gsd-source marker resolution)
+ */
+function convertedCommandsKind(destSubpath, prefix, converterName, configDir) {
+    return {
+        kind: 'commands',
+        destSubpath,
+        prefix,
+        stage: (resolved) => {
+            const converter = conversionExports[converterName];
+            return stageCommandsForRuntimeFlat(findInstallSourceRoot(configDir), resolved, converter, prefix);
+        },
+    };
+}
+function getRegistry() {
+    return _require('./capability-registry.cjs');
+}
+/**
+ * Map a single ArtifactKindDescriptor entry to an ArtifactKind using the
+ * matching builder function. Mirrors the hand-built calls in the old switch.
+ */
+function dispatchKindEntry(entry, runtime, configDir, scope, capabilityRegistry) {
+    const { kind, destSubpath, prefix, nesting, converter } = entry;
+    const nested = nesting === 'nested';
+    let result;
+    switch (kind) {
+        case 'commands':
+            result = converter == null
+                ? commandsKind(destSubpath, prefix, configDir)
+                : convertedCommandsKind(destSubpath, prefix, converter, configDir);
+            break;
+        case 'agents':
+            result = converter == null
+                ? agentsKind(destSubpath, prefix, configDir)
+                : convertedAgentsKind(destSubpath, prefix, converter, configDir, scope);
+            break;
+        case 'skills':
+            if (converter == null) {
+                throw new TypeError(`resolveRuntimeArtifactLayout: skills entry for '${runtime}' has converter=null (converter is required for skills)`);
+            }
+            result = skillsKind(destSubpath, prefix, converter, runtime, configDir, nested, scope, capabilityRegistry);
+            break;
+        case 'kimi-agents':
+            result = kimiAgentsKind(destSubpath, prefix, configDir);
+            break;
+        default:
+            throw new TypeError(`resolveRuntimeArtifactLayout: unknown kind '${kind}' in descriptor for runtime '${runtime}'`);
+    }
+    if (scope === 'global' && typeof entry.home === 'string' && entry.home !== '') {
+        result.home = node_path_1.default.join(node_os_1.default.homedir(), entry.home);
+    }
+    return result;
+}
+/**
+ * Resolve the artifact layout for a given runtime and config directory.
+ *
+ * ADR-857 phase 5d: driven by the capability-registry artifactLayout descriptor
+ * instead of a hardcoded switch statement.
+ *
+ * @param capabilityRegistry #2322: optional â€” when the caller has a composed
+ *   capability registry in scope (e.g. capability-writer.cts's `capability set`
+ *   path, or a fresh install's registry-aware profile resolution), pass it here
+ *   so the skills kind's stage() closure can materialize installed third-party
+ *   capability skills bound to their declaring capId. Both call paths (surface
+ *   apply AND the installer) must pass their registry here â€” resolveProfile's
+ *   own `'*'` (full profile) short-circuit never carries a registry, so if it
+ *   is not threaded in at layout-build time a `full`-profile install stages no
+ *   third-party capability skills regardless of registration (#2322 blocker 2).
+ */
+function resolveRuntimeArtifactLayout(runtime, configDir, scope = 'global', capabilityRegistry) {
+    return resolveRuntimeArtifactLayoutFromRegistry(getRegistry(), runtime, configDir, scope, capabilityRegistry);
+}
+function resolveRuntimeArtifactLayoutFromRegistry(registry, runtime, configDir, scope = 'global', capabilityRegistry) {
+    if (typeof configDir !== 'string' || configDir === '') {
+        throw new TypeError('configDir must be a non-empty string');
+    }
+    if (scope !== 'local' && scope !== 'global') {
+        throw new TypeError('scope must be "local" or "global"');
+    }
+    const desc = registry.runtimes[runtime]?.runtime?.artifactLayout;
+    if (!desc) {
+        throw new TypeError(`Unknown runtime: '${runtime}' â€” add to runtime-artifact-layout.cjs table`);
+    }
+    const entries = desc[scope] ?? [];
+    const kinds = entries.map((entry) => dispatchKindEntry(entry, runtime, configDir, scope, capabilityRegistry));
+    return { runtime, configDir, scope, kinds };
+}
+module.exports = { resolveRuntimeArtifactLayout, resolveRuntimeArtifactLayoutFromRegistry, findInstallSourceRoot };
+'use strict';
+/**
+ * Runtime Artifact Install Plan Module.
+ *
+ * Turns a pre-resolved runtime artifact layout into staged copy inputs. The
+ * installer adapter still owns pruning, copying, migrations, output, and final
+ * cleanup execution.
+ */
+// In .cts (CommonJS output) files, `require` is available as a global.
+const _require = require;
+const path = _require('node:path');
+/**
+ * Asserts that `destSubpath` resolves to a path inside `configDir`.
+ *
+ * Rejects any path that escapes the configDir root (e.g. "../../etc") and any
+ * path containing a NUL byte. This is a security gate for Phase B of
+ * ADR-1239: third-party descriptors must never be able to write outside the
+ * designated config home directory.
+ *
+ * @param configDir - The root config directory (e.g. ~/.claude).
+ * @param destSubpath - The relative path declared by the runtime descriptor.
+ * @returns The resolved absolute path under configDir.
+ * @throws {Error} if destSubpath escapes configDir or contains a NUL byte.
+ */
+function assertDestWithinConfigHome(configDir, destSubpath) {
+    if (destSubpath.includes('\0')) {
+        throw new Error(`destSubpath "${destSubpath}" contains a NUL byte and is not valid`);
+    }
+    const root = path.resolve(configDir);
+    const resolved = path.resolve(configDir, destSubpath);
+    if (resolved === root || !resolved.startsWith(root + path.sep)) {
+        throw new Error(`destSubpath "${destSubpath}" must be a strict subpath of configHome "${configDir}" â€” not configHome itself or outside it (escapes configHome)`);
+    }
+    return resolved;
+}
+function errorMessage(err) {
+    if (err instanceof Error)
+        return err.message;
+    return String(err);
+}
+function addCleanupDir(cleanupDirs, stagedDir, rewrittenDir) {
+    const sourceDir = rewrittenDir ?? stagedDir;
+    if (sourceDir !== stagedDir)
+        cleanupDirs.push(sourceDir);
+    return sourceDir;
+}
+function createRuntimeArtifactInstallPlan(args) {
+    const { layout, resolvedProfile, homedir, platform, resolveAttribution, deps = {}, } = args;
+    const conversionExports = _require('./runtime-artifact-conversion.cjs');
+    const rewriteStagedSkillBodies = deps.rewriteStagedSkillBodies ?? conversionExports.rewriteStagedSkillBodies;
+    const rewriteStagedCommandBodies = deps.rewriteStagedCommandBodies ?? conversionExports.rewriteStagedCommandBodies;
+    const cleanupDirs = [];
+    const items = [];
+    const scope = layout.scope ?? 'global';
+    const rewriteOpts = {
+        runtime: layout.runtime,
+        configDir: layout.configDir,
+        scope,
+        homedir,
+        platform,
+        resolveAttribution,
+    };
+    // ADR-1235 Â§1: build agentCtx once per plan so agents kind entries can apply
+    // the CORRECT pre-converter cross-cutting (path rewrites â†’ attribution â†’ converter
+    // â†’ normalize). This mirrors the exact per-file order in the inline agent loop
+    // in bin/install.js (lines 9330-9415). agentCtx is passed as the second arg
+    // to kind.stage() for agents kind entries with a converter (convertedAgentsKind).
+    // NO _stampNonClaudeRuntimeDefaults â€” agents are NOT stamped in the inline loop.
+    const os = _require('node:os');
+    const { posixNormalize } = _require('./shell-command-projection.cjs');
+    const homedirFn = homedir ?? (() => os.homedir());
+    const resolvedTarget = posixNormalize(path.resolve(layout.configDir));
+    const homeDir = posixNormalize(homedirFn());
+    const isGlobal = scope === 'global';
+    const isOpencode = layout.runtime === 'opencode';
+    const isWindowsHost = (platform ?? process.platform) === 'win32';
+    const pathPrefix = conversionExports._computePathPrefix({ isGlobal, isOpencode, isWindowsHost, resolvedTarget, homeDir });
+    const attribution = resolveAttribution ? resolveAttribution(layout.runtime) : undefined;
+    const agentCtx = { runtime: layout.runtime, pathPrefix, attribution };
+    for (const kind of layout.kinds) {
+        let stagedDir;
+        try {
+            if (kind.kind === 'agents') {
+                // ADR-1235 Â§1: pass agentCtx so stageAgentsForRuntimeWithConverter applies
+                // the full inline-loop order: pathRewrites â†’ attribution â†’ converter â†’ normalize.
+                // The cross-cutting is now PRE-converter (inside staging), not POST.
+                stagedDir = kind.stage(resolvedProfile, agentCtx);
+            }
+            else {
+                stagedDir = kind.stage(resolvedProfile);
+            }
+        }
+        catch (err) {
+            return { ok: false, kind: 'stage_failed', message: errorMessage(err), cleanupDirs, failedKind: kind.kind };
+        }
+        let sourceDir = stagedDir;
+        try {
+            if (kind.kind === 'commands') {
+                const rewrittenDir = rewriteStagedCommandBodies(stagedDir, rewriteOpts);
+                sourceDir = addCleanupDir(cleanupDirs, stagedDir, rewrittenDir);
+            }
+            else if (kind.kind === 'skills' || kind.kind === 'kimi-agents') {
+                const rewrittenDir = rewriteStagedSkillBodies(stagedDir, rewriteOpts);
+                sourceDir = addCleanupDir(cleanupDirs, stagedDir, rewrittenDir);
+            }
+            // agents kind: cross-cutting already applied INSIDE kind.stage() via agentCtx.
+            // No POST-step needed. sourceDir stays as stagedDir.
+        }
+        catch (err) {
+            return { ok: false, kind: 'rewrite_failed', message: errorMessage(err), cleanupDirs, failedKind: kind.kind };
+        }
+        items.push({
+            kind: kind.kind,
+            sourceDir,
+            destDir: assertDestWithinConfigHome(kind.home ?? layout.configDir, kind.destSubpath),
+        });
+    }
+    return { ok: true, plan: { items, cleanupDirs } };
+}
+function createRuntimeArtifactUninstallPlan(layout) {
+    return {
+        items: layout.kinds.map((kind) => ({
+            kind: kind.kind,
+            destDir: assertDestWithinConfigHome(kind.home ?? layout.configDir, kind.destSubpath),
+        })),
+    };
+}
+module.exports = { assertDestWithinConfigHome, createRuntimeArtifactInstallPlan, createRuntimeArtifactUninstallPlan };
+
+ succeeded in 2302ms:
+# PR 69 application recovery
+
+Keep PR 69 draft. No approval, merge, or readiness change is authorized.
+
+Recovered remote: df0d3f9c13134321a050a2d8de79b0622aa161d3. Current main
+3d1ae34f29084d0c538fd9d8db37aa6f09c13ed1 was integrated as
+7d9ca862c4deff88210af4908c7177081f9f4e74, preserving four prior local fixes.
+Other worktrees and intentional dirty files remain intact.
+
+## Changes and upstream assessment
+
+Retain the approved 1.8.0 to 1.9.1 step. Nine override reasons and hashes remain
+fresh; composition produced 849 files, and parity passed 17 checks at pickup.
+The existing bump-1.9.1-port.md ledger records upstream changes, adopted behavior
+and retirement triggers. The live upstream comparison includes back-merge
+history; its 161 commit count is not a net feature count.
+
+Recovered installer corrections preserve Codex shared defaults on agent-write
+failure and fix Kimi Code help. Wrapper changes refuse managed paths below the
+selected root that traverse links, retain snapshot/cleanup diagnostics, ignore
+late child events, and snapshot local patches together with pristine baselines.
+They replace the incorrect metadata-object merge with complete pre-update
+snapshots; existing .gsd-patch-archive content is preserved.
+
+Five subsequent regression cases verify refusal of --all, missing overlay
+sources, and destinations redirected by upstream; rollback continues after an
+individual failure, retains recovery evidence, and safely restores a substituted
+leaf. These changes do not close all findings from the complete wrapper review.
+
+## Validation and limits
+
+Evidence root: C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13/.
+
+- Initial integration: 104 focused tests, 470 assertions, zero failures.
+- Review red run: six failures, including the older test that accepted an absent
+  overlay source. Updated safety suite: 96 passed, 410 assertions, zero failures.
+  See pr69-review-red-corrected.log and pr69-review-green-corrected.log.
+- Focused ESLint: zero errors, six existing object-injection warnings.
+- Current matrix: 313 passed, 3 failed, zero skips, exit 1. Roadmap publication
+  hit the existing 10-second native PowerShell timeout. The failed envelope is
+  .planning/evidence/pr69-application-2026-09-13-compat.json. It was not applied
+  as vetted evidence; timeouts and checks were not relaxed.
+- Actual isolated 1.8.0 to 1.9.1 upgrade and same-version reinstall preserved
+  custom settings, owner hooks/statusline/instructions, a modified workflow
+  namespace skill, its pristine bytes/hash, and prior patch snapshots. See
+  pr69-upgrade-smoke.json. This predates the five later regression fixes and
+  needs refreshing. Its first fixture assumed an obsolete command layout;
+  the actual global entry is skills/gsd-ns-workflow/SKILL.md. Failed evidence
+  was retained. OS temporary homes were cleaned; user runtimes were not changed.
+- Installed state acceptance: 9 passed, 3 failed, zero skipped, exit 1. Bullet
+  phase analysis, manager handling and semantic replanned plan counts remain
+  red. Unknown-key preservation and five commit-docs configurations passed.
+  See pr69-installed-state-acceptance.tap. This does not close final 1.12 scope.
+- The complete Bun suite returned 1745 passed, 1 failed, 6046 assertions across
+  69 files: pr69-full-suite.log. The protected Windows DACL publication test
+  hit the native PowerShell deadline. No whole-repository/Tier S installer
+  coverage acceptance is claimed. Subsequent native-publication changes need
+  a fresh complete suite and matrix.
+
+Independent source review used live-resolved gpt-5.6-sol at xhigh under Codex
+0.154.0, session 01a09ced-6966-7400-ae89-70b598898ee9. Packet and verdict:
+pr69-application-review-packet.md and pr69-application-review.md. The reviewer
+ran no tools or tests. Its ten findings predate the latest fixes; no clean
+final-revision review is claimed.
+
+## Remaining application blockers
+
+September 14 progress: installed and overlay ownership reads now distinguish
+absent, valid-empty and invalid inventories. Corrupt JSON, malformed maps/arrays,
+non-file and linked manifest paths refuse before cleanup. A valid empty manifest
+no longer triggers recursive legacy fallback. Actual isolated CLI install and
+uninstall regressions preserve the original owner/legacy bytes on refusal.
+
+The initial CLI regression failed (exit 0 instead of 1); the expanded ownership
+run reproduced 11 failures out of 14 cases before correction. Pinned Bun 1.3.5
+now passes 114 tests / 0 failures / 489 assertions across installer-safety,
+installer-cli-safety and installer-codex-defaults. ESLint has zero errors and the
+same six existing argument-parser warnings. An initial Node invocation included
+the Bun-only defaults suite and failed to load `bun:test`; its 111 other tests
+passed, but that combined run is not a successful gate. The proper Bun run above
+is the verification result. Logs: `pr69-invalid-ownership-red.log`,
+`pr69-manifest-shapes-red.log`, `pr69-ownership-node.log`, `pr69-ownership-bun.log`.
+
+This corrects malformed/empty-manifest handling, not all ownership cleanup.
+Absent-manifest legacy inference and name-only deletion of side artifacts remain
+open below. Whole-file Tier S coverage, final revision review and full-suite
+acceptance are still outstanding. No PR69 application changes are pushed yet.
+
+Owner: get-stuff-done application development. Retirement trigger: implemented
+and tested before recommending PR 69 adoption; no new strategic audit needed.
+
+1. Complete rollback inventory for new upstream-only files and side metadata,
+   including partial upstream failure. Old-manifest plus overlay inventory can
+   leave a mixed installation.
+   Now reproduced through the real composed CLI: injecting failure at its first
+   manifest publication leaves 622 candidate files while the wrapper prints
+   `Rollback applied`. Original settings and the independent owner file survive.
+   The explicit acceptance command `node tests/acceptance/installer-recovery.cjs`
+   fails on those residual files; its project-local fixture is removed afterward.
+   Receipt: `.planning/evidence/pr69-installer-recovery-red-2026-09-14.json`.
+   This is a failing acceptance gate, not a passing unit-test substitute. The
+   reproduction precedes this session's script-ownership correction.
+2. Invalid and valid-empty ownership metadata now refuse/avoid legacy fallback
+   as appropriate. Complete the remaining absent-manifest behavior using positive
+   ownership evidence and safe handling of uncertain legacy content.
+3. Begin reversible legacy migration before its first cleanup; current main
+   invokes cleanup before the transaction snapshot.
+4. Preserve uncertain owner files in name-based cleanup of legacy roots,
+   scripts/lib, scripts/changeset and hooks/dist.
+   The hooks/dist case is now corrected: only an empty, contained directory is
+   pruned using rmdir. Nonempty content is preserved and linked ancestors are
+   not traversed. Two RED fixtures demonstrated deletion of unclassified bytes
+   and traversal into an outside directory; both now pass. Pinned Bun 1.3.5:
+   115 passed, 0 failed, 487 assertions over installer-safety and CLI safety.
+   Evidence: pr69-orphan-preserve-red.log and pr69-orphan-bun.log. Unclassified
+   remnants remain owner-reconciliation items; no filename-based ownership claim
+   is made. Script-directory cleanup is now empty-only too: manifest-owned
+   helper files are removed individually, while co-located owner scripts remain.
+   The actual install/uninstall test exposed a second cause in upstream 1.9.1:
+   manifest creation claimed every destination `.cjs` file, including owner
+   scripts. The existing installer override now enumerates regular package
+   source files, matching what it copies and including helper documentation.
+   The real CLI regression passes with a target and owner filenames containing
+   spaces; it verifies ownership and preservation as well as managed removal.
+   RED/GREEN receipts: `.planning/evidence/pr69-script-ownership-*-2026-09-14.log`
+   and `pr69-script-cleanup-*-2026-09-14.log`. This prevents new false ownership
+   entries in these directories; previously contaminated manifests still need
+   the provenance reconciliation in item 2. Legacy roots and side metadata
+   remain open. No owner-file recovery from a hash alone is claimed.
+   Final pinned Bun 1.3.5 validation: 135 passed, 0 failed, 614 assertions over
+   installer-safety, installer-cli-safety and installer-v3. The first expanded
+   run's 134/1 result caught a lost skipped-path count for linked directories;
+   that diagnostic is restored and the original assertion passes unchanged.
+   Both runs are retained in `pr69-script-installer-suites*-2026-09-14.log`.
+   Compose succeeds; all nine override hashes remain fresh; ESLint has zero
+   errors and the same six existing argument-parser warnings. These focused
+   results do not satisfy the outstanding whole-file Tier S or full PR gate.
+5. Finish containment checks for every metadata/settings publication path.
+   Overlay and rollback-leaf tests cover only part of this boundary.
+6. Reconcile active patch-tree residue with upstream reapply consumption.
+   A complete pre-run snapshot can include old files outside the current
+   metadata inventory; do not assign them fabricated generation provenance
+   or delete unclassified owner bytes.
+7. Make settings backup/staging exclusive and recoverable; uninstall must
+   remove only a matching GSD statusline. Fixed backup/tmp names and a dangling
+   uninstall command remain review findings.
+8. Review other multi-destination runtime modes against the single-target
+   transaction, beyond the implemented --all refusal.
+9. Resolve the current roadmap timeout evidence; obtain a fresh complete matrix,
+   full-suite and Tier S evidence and a final independent review.
+10. Corrected: uninstall now applies the existing unsafe-target guard before
+    reading/removing inventory. The guard resolves existing selected-root aliases
+    and Windows path casing before comparing against the home/root boundary.
+    RED fixtures demonstrated deletion in an isolated fake home and through its
+    alias; both now refuse with bytes intact. Actual CLI fake-home refusal and
+    normal runtime selection pass. Pinned Bun 1.3.5: 117 passed, 0 failed,
+    501 assertions across installer-safety, installer-cli-safety and
+    installer-target; `pr69-target-guard-bun.log`. ESLint has no errors and the
+    same six pre-existing argument-parser warnings. This is not protection
+    against every concurrent target substitution or a full release gate.
+
+The three installed state failures remain on the existing skin acceptance map.
+No broader STATE authority or final contract closure is implied.
+
+Next inventory investigation must reuse existing upstream seams where possible.
+The 1.9.1 `runtime-artifact-install-plan.cjs` plans staged command/skill/agent
+copy destinations, but explicitly leaves pruning, migrations and final cleanup
+to the installer. `--dry-run` previews legacy cleanup only. Neither is currently
+proof of a complete candidate write inventory for settings, side metadata and
+all failure paths. Codex has its own runtime-specific rollback; the wrapper
+must not claim that applies to every runtime. Source presence is not a reason
+to replace the open inventory requirement with another incomplete path list.
+
+## CI handoff
+
+Use the newly published branch head once changes are committed and pushed;
+historical green checks on df0d3f9c are stale. Existing upgrade-verifier arguments
+advance from 1.8.0/1.9.1 to 1.9.1/1.10.0. Workflow/action changes were inherited;
+this session did not redesign CI. Application failures do not authorize weaker
+checks. Keep PR 69 draft. PR 4 separately remains blocked on ordinary
+non-elevated repair, and PR 70 has not been advanced.
+
+## Native Windows publication experiment: not adopted
+
+A compiler-free File.Replace experiment passed 47 focused tests once, including
+protected-DACL preservation and native failure recovery. It timed out again
+under Node/C8 and failed the per-file Tier S branch gate (95.56 percent branches;
+98.73 percent statements/lines, 100 percent functions). These are experiment
+results, not coverage evidence for the restored current source.
+
+Bare PowerShell startup measured 649-853 ms in three probes; startup alone did
+not explain the native-operation deadline failures. The root cause remains
+unverified. No production timeout or existing test gate was changed.
+
+The experiment and its three new tests were archived under the evidence root:
+pr69-roadmap-compiler-experiment.patch, the two pr69-experiment-* source copies,
+and pr69-roadmap-experiment-disposition.json with before/restored hashes. The
+publisher and its test file were restored exactly to HEAD; neither had prior
+dirty work before this experiment. Existing installer changes were preserved.
+
+The current complete-suite result is again 1745 passed / 1 failed, from
+pr69-full-suite.log. Publication remains held on application validation and the
+open review findings above. No PR69 application changes have been pushed yet.
+{
+  "platform": "win32",
+  "node": "v24.20.0",
+  "accepted": false,
+  "status": 1,
+  "injectedFailureReached": true,
+  "claimedRollbackApplied": true,
+  "settingsPreserved": true,
+  "ownerPreserved": true,
+  "residualFileCount": 622,
+  "residualExamples": [
+    ".gsd-source",
+    "agents/gsd-advisor-researcher.md",
+    "agents/gsd-ai-researcher.md",
+    "agents/gsd-assumptions-analyzer.md",
+    "agents/gsd-code-fixer.md",
+    "agents/gsd-code-reviewer.md",
+    "agents/gsd-codebase-mapper.md",
+    "agents/gsd-debug-session-manager.md",
+    "agents/gsd-debugger.md",
+    "agents/gsd-doc-classifier.md",
+    "agents/gsd-doc-synthesizer.md",
+    "agents/gsd-doc-verifier.md"
+  ],
+  "failure": "failed installation must not leave unowned candidate files\n\n622 !== 0\n",
+  "fixtureRemoved": true
+}
+
+hook: PostToolUse
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command '$m = Get-Content C:'"\\Users\\Destiny\\.codex\\memories\\MEMORY.md; "'$m[342..397]
+Get-Content C:'"\\Users\\Destiny\\.claude\\rules\\first-principles-before-options.md" in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+ succeeded in 5448ms:
+#!/usr/bin/env node
+/* eslint-disable security/detect-non-literal-fs-filename -- install script with computed paths */
+
+/**
+ * v3.0 Delegation Installer
+ *
+ * Thin wrapper that delegates to upstream's install.js via subprocess,
+ * then copies overlay-only files from dist/ to the installed target.
+ *
+ * Safety invariant: this installer NEVER performs a recursive wipe of the
+ * target directory. All cleanup is manifest-driven -- only files that GSD
+ * previously installed (tracked in gsd-file-manifest.json) are removed.
+ * User content (CLAUDE.md, rules/, projects/, settings.json, skills/, etc.)
+ * is structurally impossible to delete through this installer.
+ *
+ * Flow:
+ *   1. Resolve dist directory (composed output from bun run compose)
+ *   2. Parse CLI args, resolve target directory
+ *   3. If --uninstall: remove manifest-tracked files, exit 0
+ *   4. If v2.x detected: remove only GSD-owned files, proceed
+ *   5. Snapshot target metadata/settings/GSD-owned files for rollback
+ *   6. Spawn upstream install.js with all user flags + stdio: inherit
+ *   7. On upstream exit 0: copy overlay files, write .install-meta.json
+ *   8. On upstream/overlay/meta/statusline failure: rollback then exit non-zero
+ */
+
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const { spawn } = require('child_process');
+let getActivePackageName = () => '@opengsd/gsd-core';
+let getActivePackageVersion = () => '1.5.0';
+
+try {
+  ({
+    getActivePackageName,
+    getActivePackageVersion,
+  } = require('../scripts/lib/upstream-source'));
+} catch {
+  // Package fixtures and partial installs may not include helper scripts.
+  // The published package ships scripts/lib/upstream-source.js; this fallback
+  // keeps the installer usable in minimal test/install layouts.
+}
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const DIST_DIR = path.join(__dirname, '..', 'dist');
+const PKG_PATH = path.join(__dirname, '..', 'package.json');
+
+/** Filename of the installed-files manifest written by upstream into targetDir. */
+const INSTALLED_MANIFEST_NAME = 'gsd-file-manifest.json';
+
+// Colors
+const cyan = '\x1b[36m';
+const green = '\x1b[32m';
+const yellow = '\x1b[33m';
+const red = '\x1b[31m';
+const dim = '\x1b[2m';
+const reset = '\x1b[0m';
+
+// ---------------------------------------------------------------------------
+// Argument parsing
+// ---------------------------------------------------------------------------
+
+/**
+ * Parse --config-dir value from argv.
+ * Supports: --config-dir <path>, --config-dir=<path>, -c <path>, -c=<path>
+ * @param {string[]} argv
+ * @returns {string|null}
+ */
+function parseConfigDir(argv) {
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--config-dir' || argv[i] === '-c') {
+      const val = argv[i + 1];
+      if (val && !val.startsWith('-')) return val.replace(/^["']|["']$/g, '');
+      return null;
+    }
+    if (argv[i].startsWith('--config-dir=')) {
+      return argv[i].slice('--config-dir='.length).replace(/^["']|["']$/g, '');
+    }
+    if (argv[i].startsWith('-c=')) {
+      return argv[i].slice('-c='.length).replace(/^["']|["']$/g, '');
+    }
+  }
+  return null;
+}
+
+/**
+ * Determine the target installation directory.
+ * Replicates upstream's getGlobalDir() resolution priority.
+ *
+ * @param {string[]} argv - CLI arguments
+ * @returns {string} Resolved target directory path
+ */
+function expandRuntimeHome(value, home = os.homedir()) {
+  return value === '~' || value.startsWith('~/') ? path.join(home, value.slice(1)) : value;
+}
+
+function resolveTargetDir(argv) {
+  return expandRuntimeHome(resolveTargetDirRaw(argv));
+}
+
+function resolveTargetDirRaw(argv) {
+  const configDir = parseConfigDir(argv);
+
+  const hasLocal = argv.includes('--local');
+  const hasOpencode = argv.includes('--opencode');
+  const hasGemini = argv.includes('--gemini');
+  const hasCodex = argv.includes('--codex');
+
+  if (hasLocal) {
+    if (hasOpencode) return path.join(process.cwd(), '.opencode');
+    if (hasGemini) return path.join(process.cwd(), '.gemini');
+    if (hasCodex) return path.join(process.cwd(), '.codex');
+    return path.join(process.cwd(), '.claude');
+  }
+
+  // --config-dir takes first priority for global installs
+  if (configDir) return configDir;
+
+  // Environment variable overrides
+  if (hasOpencode) {
+    if (process.env.OPENCODE_CONFIG_DIR) return process.env.OPENCODE_CONFIG_DIR;
+    if (process.env.OPENCODE_CONFIG) return path.dirname(process.env.OPENCODE_CONFIG);
+    if (process.env.XDG_CONFIG_HOME) return path.join(process.env.XDG_CONFIG_HOME, 'opencode');
+    return path.join(os.homedir(), '.config', 'opencode');
+  }
+
+  if (hasGemini) {
+    if (process.env.GEMINI_CONFIG_DIR) return process.env.GEMINI_CONFIG_DIR;
+    return path.join(os.homedir(), '.gemini');
+  }
+
+  if (hasCodex) {
+    if (process.env.CODEX_HOME) return process.env.CODEX_HOME;
+    return path.join(os.homedir(), '.codex');
+  }
+
+  // Default: Claude
+  if (process.env.CLAUDE_CONFIG_DIR) return process.env.CLAUDE_CONFIG_DIR;
+  return path.join(os.homedir(), '.claude');
+}
+
+// ---------------------------------------------------------------------------
+// Manifest-driven file removal
+// ---------------------------------------------------------------------------
+
+/**
+ * Read the installed-files manifest from a previous GSD installation.
+ * Returns the list of relative paths that GSD owns in the target directory.
+ *
+ * @param {string} targetDir
+ * @returns {string[]} Relative paths of GSD-installed files, empty if no manifest
+ */
+function readInstalledManifest(targetDir) {
+  return readOwnershipManifest(targetDir, INSTALLED_MANIFEST_NAME).files;
+}
+
+/**
+ * Read the overlay provenance manifest from a previous GSD installation.
+ *
+ * @param {string} targetDir
+ * @returns {string[]} Relative paths of overlay-installed files, empty if no manifest
+ */
+function readOverlayManifest(targetDir) {
+  return readOwnershipManifest(targetDir, '.overlay-manifest.json').files;
+}
+
+// Absence permits legacy detection; a valid empty inventory owns no files.
+// Invalid or unreadable ownership must never activate broader cleanup.
+function readOwnershipManifest(targetDir, name) {
+  const manifestPath = path.join(targetDir, name);
+  try {
+    const safePath = targetRelativePath(targetDir, name);
+    if (!safePath) throw new Error('manifest path is linked or outside the selected target');
+    const stat = fs.lstatSync(safePath, { throwIfNoEntry: false });
+    if (!stat) return { present: false, files: [] };
+    if (!stat.isFile()) throw new Error('manifest must be a regular file');
+    const manifest = JSON.parse(fs.readFileSync(safePath, 'utf8'));
+    let files;
+    if (name === INSTALLED_MANIFEST_NAME) {
+      if (!manifest || Array.isArray(manifest) || !manifest.files ||
+          typeof manifest.files !== 'object' || Array.isArray(manifest.files) ||
+          Object.values(manifest.files).some(hash => typeof hash !== 'string' || hash.length === 0)) {
+        throw new Error('expected an object with a files map of content hashes');
+      }
+      files = Object.keys(manifest.files);
+    } else {
+      if (!Array.isArray(manifest)) throw new Error('expected an array of installed paths');
+      files = manifest;
+    }
+    if (files.some(file => typeof file !== 'string' || file.length === 0)) {
+      throw new Error('installed paths must be nonempty strings');
+    }
+    return { present: true, files: [...new Set(files)] };
+  } catch (err) {
+    throw new Error(`Cannot establish installed ownership from ${manifestPath}: ${err.message}. Restore a valid manifest before retrying; no cleanup was started.`, { cause: err });
+  }
+}
+
+function readJsonFile(filePath, description) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch (err) {
+    throw new Error(`Failed to read ${description} at ${filePath}: ${err.message}`);
+  }
+}
+
+function readDistOverlayManifest(distDir) {
+  const manifestPath = path.join(distDir, '.overlay-manifest.json');
+  if (!fs.existsSync(manifestPath)) {
+    throw new Error(`Required dist artifact missing: .overlay-manifest.json at ${manifestPath}`);
+  }
+
+  const manifest = readJsonFile(manifestPath, 'dist overlay manifest');
+  if (!Array.isArray(manifest)) {
+    throw new Error(`Invalid .overlay-manifest.json at ${manifestPath}: expected an array`);
+  }
+
+  for (const entry of manifest) {
+    if (typeof entry !== 'string' || entry.length === 0) throw new Error('Invalid dist overlay source entry');
+    const source = targetRelativePath(distDir, entry);
+    if (!source || !fs.lstatSync(source, { throwIfNoEntry: false })?.isFile()) {
+      throw new Error('Invalid or missing dist overlay source: ' + entry);
+    }
+  }
+  return [...new Set(manifest)];
+}
+
+function targetRelativePath(targetDir, relPath) {
+  const resolvedTarget = path.resolve(targetDir);
+  const fullPath = path.resolve(targetDir, relPath);
+  if (!fullPath.startsWith(resolvedTarget + path.sep)) {
+    return null;
+  }
+  // A lexical prefix does not contain filesystem traversal through a junction
+  // or symlink. The explicitly selected target may itself be an alias, but
+  // entries below it must not redirect installer operations elsewhere.
+  for (let entry = fullPath; entry !== resolvedTarget; entry = path.dirname(entry)) {
+    const stat = fs.lstatSync(entry, { throwIfNoEntry: false });
+    if (stat && stat.isSymbolicLink()) return null;
+  }
+  return fullPath;
+}
+
+function copySnapshotPath(sourcePath, snapshotPath) {
+  fs.mkdirSync(path.dirname(snapshotPath), { recursive: true });
+  const stat = fs.lstatSync(sourcePath);
+
+  if (stat.isDirectory()) {
+    fs.cpSync(sourcePath, snapshotPath, { recursive: true });
+    return 'directory';
+  }
+
+  fs.copyFileSync(sourcePath, snapshotPath);
+  return 'file';
+}
+
+function restoreSnapshotPath(snapshot, targetDir) {
+  // Upstream may change a leaf's type. Revalidate ancestors before restoring,
+  // and remove a substituted leaf itself without following it.
+  const parent = path.dirname(snapshot.targetPath);
+  if (parent !== path.resolve(targetDir) && !targetRelativePath(targetDir, path.relative(targetDir, parent))) {
+    throw new Error('Unsafe rollback ancestor for ' + snapshot.relPath);
+  }
+  const current = fs.lstatSync(snapshot.targetPath, { throwIfNoEntry: false });
+  if (!snapshot.existed) {
+    if (current) fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
+    return false;
+  }
+  fs.mkdirSync(parent, { recursive: true });
+  if (snapshot.kind === 'directory') {
+    if (current) fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
+    fs.cpSync(snapshot.snapshotPath, snapshot.targetPath, { recursive: true });
+  } else {
+    if (current && !current.isFile()) fs.rmSync(snapshot.targetPath, { recursive: true, force: true });
+    fs.copyFileSync(snapshot.snapshotPath, snapshot.targetPath);
+  }
+  return true;
+}
+
+function pruneEmptyParents(targetDir, relPath) {
+  let dir = path.dirname(relPath);
+  while (dir && dir !== '.') {
+    const fullDir = targetRelativePath(targetDir, dir);
+    if (!fullDir) return;
+
+    try {
+      if (fs.existsSync(fullDir) && fs.readdirSync(fullDir).length === 0) {
+        fs.rmdirSync(fullDir);
+      } else {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    dir = path.dirname(dir);
+  }
+}
+
+function preflightInstallTarget(targetDir, distDir) {
+  const safety = isSafeToClean(targetDir);
+  if (!safety.safe) {
+    throw new Error(`Refusing to install into unsafe target: ${safety.reason}`);
+  }
+
+  const upstreamScript = path.join(distDir, 'bin', 'install.js');
+  if (!fs.existsSync(upstreamScript)) {
+    throw new Error(`Upstream install.js not found at ${upstreamScript}`);
+  }
+
+  readDistOverlayManifest(distDir);
+
+  const distMetaPath = path.join(distDir, '.install-meta.json');
+  if (!fs.existsSync(distMetaPath)) {
+    throw new Error(`Required dist artifact missing: .install-meta.json at ${distMetaPath}`);
+  }
+  readJsonFile(distMetaPath, 'dist install metadata');
+
+  return { targetDir, distDir, upstreamScript };
+}
+
+function createInstallTransaction(targetDir, distDir) {
+  preflightInstallTarget(targetDir, distDir);
+  for (const name of ['gsd-local-patches', 'gsd-pristine']) {
+    assertRegularBackupTree(path.join(targetDir, name));
+  }
+  const distOverlayFiles = readDistOverlayManifest(distDir);
+  const relPaths = new Set([
+    ...readInstalledManifest(targetDir),
+    ...readOverlayManifest(targetDir),
+    ...distOverlayFiles,
+    INSTALLED_MANIFEST_NAME,
+    '.overlay-manifest.json',
+    '.install-meta.json',
+    'settings.json',
+    'gsd-local-patches',
+    'gsd-pristine',
+  ]);
+  const snapshots = [];
+  const snapshotDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-install-transaction-'));
+
+  try {
+    for (const relPath of relPaths) {
+      const targetPath = targetRelativePath(targetDir, relPath);
+      if (!targetPath) throw new Error(`Unsafe managed install path: ${relPath}`);
+
+      const snapshotPath = path.join(snapshotDir, relPath);
+      const existed = fs.existsSync(targetPath);
+      const snapshot = {
+        relPath,
+        targetPath,
+        snapshotPath,
+        existed,
+        kind: 'missing',
+      };
+
+      if (existed) {
+        snapshot.kind = copySnapshotPath(targetPath, snapshotPath);
+      }
+
+      snapshots.push(snapshot);
+    }
+  } catch (err) {
+    try {
+      fs.rmSync(snapshotDir, { recursive: true, force: true });
+    } catch (cleanupErr) {
+      throw new AggregateError([err, cleanupErr],
+        `Snapshot failed: ${err.message}; cleanup failed at ${snapshotDir}: ${cleanupErr.message}`,
+        { cause: err });
+    }
+    throw err;
+  }
+
+  return {
+    targetDir,
+    distDir,
+    snapshotDir,
+    distOverlayFiles,
+    snapshots,
+  };
+}
+
+function rollbackInstallTransaction(transaction) {
+  let removed = 0;
+  let restored = 0;
+  const errors = [];
+  for (const snapshot of transaction.snapshots) {
+    try {
+      if (restoreSnapshotPath(snapshot, transaction.targetDir)) restored++;
+      else if (!snapshot.existed) {
+        removed++;
+        pruneEmptyParents(transaction.targetDir, snapshot.relPath);
+      }
+    } catch (error) { errors.push(new Error(snapshot.relPath + ': ' + error.message, { cause: error })); }
+  }
+  if (errors.length) {
+    throw new AggregateError(errors, 'Rollback incomplete; recovery retained at ' + transaction.snapshotDir + ': ' + errors.map(error => error.message).join('; '));
+  }
+  fs.rmSync(transaction.snapshotDir, { recursive: true, force: true });
+  return { rollback: 'applied', restored, removed };
+}
+
+function commitInstallTransaction(transaction) {
+  fs.rmSync(transaction.snapshotDir, { recursive: true, force: true });
+  return { committed: true };
+}
+
+/**
+ * Remove only GSD-owned files from the target directory.
+ *
+ * Strategy (in priority order):
+ *   1. If gsd-file-manifest.json exists, remove exactly those files (manifest-driven)
+ *   2. Otherwise, remove known v2.x directory structures (legacy fallback)
+ *
+ * In both cases, the manifest file itself and GSD metadata files are also removed.
+ * Empty parent directories left behind after file removal are pruned.
+ *
+ * @param {string} targetDir
+ * @param {boolean} quiet
+ * @returns {{ removed: number, strategy: string }}
+ */
+function removeGsdFiles(targetDir, quiet) {
+  const installed = readOwnershipManifest(targetDir, INSTALLED_MANIFEST_NAME);
+  const overlay = readOwnershipManifest(targetDir, '.overlay-manifest.json');
+  const manifestFiles = [...new Set([
+    ...installed.files,
+    ...overlay.files,
+  ])];
+  let removed = 0;
+  let skipped = 0;
+  let strategy;
+
+  if (installed.present || overlay.present) {
+    // Strategy 1: Manifest-driven -- remove exactly what the previous install put down
+    strategy = 'manifest';
+    for (const relPath of manifestFiles) {
+      const fullPath = targetRelativePath(targetDir, relPath);
+      if (!fullPath) {
+        skipped++;
+        continue;
+      }
+      if (fs.existsSync(fullPath)) {
+        fs.rmSync(fullPath, { force: true });
+        removed++;
+      }
+    }
+
+    // Prune empty directories left behind (deepest-first)
+    const dirs = new Set();
+    for (const relPath of manifestFiles) {
+      let dir = path.dirname(relPath);
+      while (dir && dir !== '.') {
+        dirs.add(dir);
+        dir = path.dirname(dir);
+      }
+    }
+    const sortedDirs = [...dirs].sort((a, b) => b.split('/').length - a.split('/').length);
+    for (const dir of sortedDirs) {
+      const fullDir = targetRelativePath(targetDir, dir);
+      if (!fullDir) {
+        continue;
+      }
+      try {
+        const entries = fs.readdirSync(fullDir);
+        if (entries.length === 0) {
+          fs.rmdirSync(fullDir);
+        }
+      } catch {
+        // Directory already gone or not empty -- fine
+      }
+    }
+  } else {
+    // Strategy 2: Legacy fallback -- remove known v2.x structures
+    // Only used when no manifest exists (pre-manifest installs)
+    strategy = 'legacy-fallback';
+    const v2Paths = [
+      'get-stuff-done',   // v2.x directory name
+      'get-shit-done',    // v3.0 upstream directory
+      'gsd-core',         // Open GSD upstream directory
+    ];
+
+    for (const relPath of v2Paths) {
+      const fullPath = path.join(targetDir, relPath);
+      if (fs.existsSync(fullPath)) {
+        fs.rmSync(fullPath, { recursive: true, force: true });
+        removed++;
+      }
+    }
+  }
+
+  // Always clean GSD metadata files
+  for (const meta of [
+    INSTALLED_MANIFEST_NAME,
+    '.install-meta.json',
+    '.overlay-manifest.json',
+  }
+
+  // Check target-root/.install-meta.json (v3.0 composition format)
+  const rootMetaPath = path.join(targetDir, '.install-meta.json');
+  if (fs.existsSync(rootMetaPath)) {
+    try {
+      const meta = JSON.parse(fs.readFileSync(rootMetaPath, 'utf-8'));
+      if (meta.overlay_version) {
+        return { isV2: false };
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Signal 2: get-stuff-done/ exists without gsd-core/ (v2.x dir name)
+  if (
+    fs.existsSync(path.join(targetDir, 'get-stuff-done')) &&
+    !fs.existsSync(path.join(targetDir, 'gsd-core'))
+  ) {
+    return { isV2: true, signal: 'directory-name' };
+  }
+
+  return { isV2: false };
+}
+
+// ---------------------------------------------------------------------------
+// v2.x cleanup
+// ---------------------------------------------------------------------------
+
+/**
+ * Check if a target directory is safe to operate on.
+ * Refuses home directories, filesystem roots, and suspiciously short paths.
+ * @param {string} targetDir
+ * @returns {{ safe: boolean, reason?: string }}
+ */
+function isSafeToClean(targetDir) {
+  // Selected runtime-root aliases are supported, but may not disguise a home
+  // directory or filesystem root. Existing paths must be checked by identity.
+  const canonical = value => {
+    const absolute = path.resolve(value);
+    const resolvedPath = fs.existsSync(absolute) ? fs.realpathSync(absolute) : absolute;
+    return process.platform === 'win32' ? resolvedPath.toLowerCase() : resolvedPath;
+  };
+  const resolved = canonical(targetDir);
+  const home = canonical(os.homedir());
+
+  if (resolved === home) {
+    return { safe: false, reason: 'target is home directory' };
+  }
+
+  const parsed = path.parse(resolved);
+  if (resolved === parsed.root) {
+    return { safe: false, reason: 'target is filesystem root' };
+  }
+
+  const segments = resolved.replace(parsed.root, '').split(path.sep).filter(Boolean);
+  if (segments.length < 2) {
+    return { safe: false, reason: 'target path too shallow (less than 2 segments below root)' };
+  }
+
+  return { safe: true };
+}
+
+/**
+ * Clean up a previous GSD installation using manifest-driven removal.
+ * Only GSD-owned files are removed. User content is structurally preserved.
+ *
+ * @param {string} targetDir
+ * @param {{ isV2: boolean, signal?: string, version?: string }} detection
+ * @param {boolean} quiet
+ * @returns {Promise<boolean>} true if cleaned, false if safety guard refused
+ */
+async function cleanupV2(targetDir, detection, quiet) {
+  const safety = isSafeToClean(targetDir);
+  if (!safety.safe) {
+    console.error(`\n${red}Error:${reset} Refusing to clean target directory.`);
+    console.error(`  Reason: ${safety.reason}`);
+    console.error(`  Path: ${targetDir}`);
+    console.error(`  This is a safety guard. Use --config-dir to specify a valid target.\n`);
+    return false;
+  }
+
+  if (!quiet) {
+    console.log(`\n${yellow}Upgrading from v2.x to v3.0 -- cleaning GSD files...${reset}`);
+    console.log(`  Signal: ${detection.signal}`);
+    if (detection.version && detection.version !== 'unknown') {
+      console.log(`  Previous version: ${detection.version}`);
+    }
+    console.log(`  Location: ${targetDir}`);
+    console.log(`  User content (CLAUDE.md, rules/, projects/, settings.json) is preserved.`);
+  }
+
+  const { removed, strategy } = removeGsdFiles(targetDir, quiet);
+
+  if (!quiet) {
+    console.log(`  ${green}GSD files removed (${strategy}: ${removed} items). Proceeding with v3.0 install.${reset}\n`);
+  }
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// Overlay file copy
+// ---------------------------------------------------------------------------
+
+/**
+ * Copy overlay-only files from dist/ to the target directory.
+ * Reads the manifest generated by compose.js.
+ *
+ * @param {string} distDir - Source dist directory
+ * @param {string} targetDir - Installation target
+ * @returns {number} Number of files copied
+ */
+function copyOverlayFiles(distDir, targetDir) {
+  const manifest = readDistOverlayManifest(distDir);
+  let copied = 0;
+
+  for (const relPath of manifest) {
+    const srcPath = path.join(distDir, relPath);
+    const destPath = targetRelativePath(targetDir, relPath);
+    if (!destPath) throw new Error('Unsafe overlay destination: ' + relPath);
+
+
+ * @param {string} distDir - Source dist directory
+ * @param {string} targetDir - Installation target
+ * @returns {boolean} Whether the manifest was copied
+ */
+function copyOverlayManifest(distDir, targetDir) {
+  const srcManifest = path.join(distDir, '.overlay-manifest.json');
+
+  if (!fs.existsSync(srcManifest)) return false;
+
+  fs.copyFileSync(srcManifest, path.join(targetDir, '.overlay-manifest.json'));
+  return true;
+}
+
+
+// Refuse linked/special backup content rather than following it outside the target.
+function assertRegularBackupTree(entry) {
+  const stat = fs.lstatSync(entry, { throwIfNoEntry: false });
+  if (!stat) return;
+  if (stat.isDirectory()) {
+    for (const name of fs.readdirSync(entry)) assertRegularBackupTree(path.join(entry, name));
+  } else if (!stat.isFile()) {
+    throw new Error(`Cannot preserve non-regular local patch content: ${entry}`);
+  }
+}
+
+function preserveLocalPatchHistory(transaction) {
+  const patches = transaction.snapshots.find(item => item.relPath === 'gsd-local-patches');
+  if (!patches.existed) return null;
+  const history = path.join(transaction.targetDir, 'gsd-local-patch-history');
+  const stat = fs.lstatSync(history, { throwIfNoEntry: false });
+  if (stat && !stat.isDirectory()) throw new Error(`Unsafe local patch history directory: ${history}`);
+  fs.mkdirSync(history, { recursive: true });
+  const staging = fs.mkdtempSync(path.join(history, 'incomplete-'));
+  const generation = path.join(history, path.basename(staging).replace(/^incomplete-/, 'before-update-'));
+  try {
+    for (const name of ['gsd-local-patches', 'gsd-pristine']) {
+      const snapshot = transaction.snapshots.find(item => item.relPath === name);
+      if (snapshot.existed) copySnapshotPath(snapshot.snapshotPath, path.join(staging, name));
+    }
+    fs.renameSync(staging, generation);
+  } catch (err) {
+    fs.rmSync(staging, { recursive: true, force: true });
+    throw err;
+  }
+  // This retained generation intentionally outlives both commit and rollback.
+  // Keep complete metadata/baselines together; merging inventories from different
+  // upstream generations would misrepresent the provenance used by reapply.
+  return generation;
+}
+
+// ---------------------------------------------------------------------------
+// Orphan cleanup
+// ---------------------------------------------------------------------------
+
+/**
+ * Prune empty directories left by previous install layouts.
+ *
+ * Known orphans:
+ * - hooks/dist/: Upstream reads from hooks/dist/ in source but writes to
+ *   hooks/ in target (flattening). Previous layouts left this behind, but
+ *   its name does not prove ownership of any remaining files.
+ * Keep gsd-local-patches/: upstream backs up locally modified files there.
+ * Those bytes can include intentional owner edits as well as skin differences;
+ * the directory name cannot establish that every backup is disposable.
+ *
+ * @param {string} targetDir - Installation target
+ * @returns {number} Number of orphaned paths removed
+ */
+function cleanOrphanedPaths(targetDir) {
+  const orphanPath = targetRelativePath(targetDir, 'hooks/dist');
+  if (!orphanPath) return 0;
+  try {
+    // rmdir refuses nonempty directories, including a file added after preflight.
+    // Unknown content stays in place for owner reconciliation.
+    fs.rmdirSync(orphanPath);
+    return 1;
+  } catch (_) {
+    // Optional empty-directory pruning is best-effort; never delete its contents.
+    return 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Install metadata
+// ---------------------------------------------------------------------------
+
+/**
+ * Write .install-meta.json to the target directory.
+ *
+ * @param {string} targetDir - Installation target
+ */
+function writeInstallMeta(targetDir, distDir = DIST_DIR, packagePath = PKG_PATH) {
+  const distMeta = readJsonFile(path.join(distDir, '.install-meta.json'), 'dist install metadata');
+  const pkg = readJsonFile(packagePath, 'package.json');
+  const upstreamPackage = distMeta.upstreamPackage ||
+    distMeta.upstream_package ||
+    getActivePackageName();
+  const upstreamVersion = distMeta.upstreamVersion ||
+    distMeta.upstream_version ||
+    getActivePackageVersion();
+
+  const meta = {
+    forkPackage: pkg.name,
+    forkVersion: pkg.version,
+    upstreamPackage,
+    upstreamVersion,
+    upstream_version: upstreamVersion,
+    overlay_version: pkg.version,
+    installed_at: new Date().toISOString(),
+    features_disabled: distMeta.features_disabled || [],
+    overrides_applied: distMeta.overrides_applied || [],
+  };
+
+  fs.writeFileSync(
+    path.join(targetDir, '.install-meta.json'),
+    JSON.stringify(meta, null, 2),
+    'utf-8'
+  );
+}
+
+// ---------------------------------------------------------------------------
+// StatusLine setting
+// ---------------------------------------------------------------------------
+
+/**
+ * Ensure statusLine setting exists in global settings.json.
+ * Read-modify-write: preserves all existing settings.
+ * Per D-06: if user has a custom (non-GSD) statusLine, preserve it.
+ *
+ * @param {string} targetDir - The config directory (e.g., ~/.claude)
+ * @returns {{ action: string, command?: string }} What was done
+ */
+function patchStatusLine(targetDir) {
+  const settingsPath = path.join(targetDir, 'settings.json');
+  let settings = {};
+
+  if (fs.existsSync(settingsPath)) {
+    const raw = fs.readFileSync(settingsPath, 'utf8');
+    try {
+      settings = JSON.parse(raw);
+    } catch (e) {
+      // Corrupt JSON: backup and warn, don't silently destroy
+      const backupPath = settingsPath + '.backup';
+      fs.copyFileSync(settingsPath, backupPath);
+      console.warn(`  Warning: ${settingsPath} is corrupt JSON. Backed up to ${backupPath}`);
+      settings = {};
+    }
+  }
+
+  // Per D-06: preserve custom (non-GSD) statusLine
+  if (settings.statusLine &&
+      typeof settings.statusLine === 'object' &&
+      settings.statusLine.command &&
+      !settings.statusLine.command.includes('gsd-statusline')) {
+    return { action: 'preserved_custom' };
+  }
+
+  // Determine action BEFORE mutation (fixes Codex logic bug)
+  const hadGsdStatusLine = settings.statusLine &&
+      typeof settings.statusLine === 'object' &&
+      settings.statusLine.command &&
+      settings.statusLine.command.includes('gsd-statusline');
+  const action = hadGsdStatusLine ? 'updated' : 'added';
+
+  // Build the command using forward slashes (cross-platform, per upstream pattern)
+  // dist/hooks/ contains bundled versions (finalize-dist.js replaces raw source after compose+build)
+  const hooksPath = targetDir.replace(/\\/g, '/') + '/hooks/gsd-statusline.js';
+  const command = `node "${hooksPath}"`;
+
+  // Per D-05: set the statusLine entry
+  settings.statusLine = {
+    type: 'command',
+    command: command,
+  };
+
+  fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+  const content = JSON.stringify(settings, null, 2) + '\n';
+  const tmpPath = settingsPath + '.tmp';
+  fs.writeFileSync(tmpPath, content);
+  fs.renameSync(tmpPath, settingsPath);
+
+  return { action, command };
+}
+
+// ---------------------------------------------------------------------------
+// Uninstall
+// ---------------------------------------------------------------------------
+
+/**
+ * Remove only GSD-installed files from the target directory using the manifest.
+ * User content is structurally preserved. Idempotent: missing target exits 0.
+ *
+ * @param {string} targetDir
+ * @param {{ exit?: boolean }} [options] - When exit is false, returns result instead of calling process.exit()
+ * @returns {{ removed: number, skipped: number, strategy: string, missing?: boolean } | void}
+ */
+function uninstall(targetDir, { exit: shouldExit = true } = {}) {
+  const safety = isSafeToClean(targetDir);
+  if (!safety.safe) throw new Error(`Refusing to uninstall from unsafe target: ${safety.reason}`);
+  if (!fs.existsSync(targetDir)) {
+    if (!shouldExit) return { removed: 0, skipped: 0, strategy: 'none', missing: true };
+    console.log(`${dim}Nothing to uninstall at ${targetDir}${reset}`);
+    process.exit(0);
+  }
+
+  const { removed, skipped, strategy } = removeGsdFiles(targetDir, false);
+
+  if (!shouldExit) return { removed, skipped, strategy };
+
+  console.log(`${green}Uninstalled GSD from ${targetDir}${reset}`);
+  const skippedMsg = skipped > 0 ? `, ${skipped} skipped (path containment)` : '';
+  console.log(`${dim}Strategy: ${strategy} (${removed} items removed${skippedMsg})${reset}`);
+  console.log(`${dim}User content preserved (CLAUDE.md, rules/, projects/, settings.json, skills/)${reset}`);
+  process.exit(0);
+}
+
+// ---------------------------------------------------------------------------
+// Install (main delegation)
+// ---------------------------------------------------------------------------
+
+/**
+ * Run the full v3.0 install under a transaction:
+ *   1. Preflight dist artifacts and snapshot existing target state.
+ *   2. Spawn upstream install.js with user flags.
+ *   3. On exit 0: copy overlay files, write meta, copy manifest, patch statusline.
+ *   4. On any upstream/overlay/meta/statusline failure: rollback and report it.
+ *
+ * @param {string} distDir
+ * @param {string} targetDir
+ * @param {string[]} userArgs - Original CLI args to pass through
+ * @param {object} options - Injectable process and step dependencies for tests
+ * @returns {Promise<object>}
+ */
+function install(distDir, targetDir, userArgs, options = {}) {
+  const spawnImpl = options.spawnImpl || spawn;
+  const copyOverlayFilesImpl = options.copyOverlayFilesImpl || copyOverlayFiles;
+  const writeInstallMetaImpl = options.writeInstallMetaImpl || writeInstallMeta;
+  const copyOverlayManifestImpl = options.copyOverlayManifestImpl || copyOverlayManifest;
+  const patchStatusLineImpl = options.patchStatusLineImpl || patchStatusLine;
+  const cleanOrphanedPathsImpl = options.cleanOrphanedPathsImpl || cleanOrphanedPaths;
+  const exitImpl = options.exitImpl || (code => process.exit(code));
+  const logImpl = options.logImpl || (message => console.log(message));
+  const errorImpl = options.errorImpl || (message => console.error(message));
+  let transaction;
+
+  try {
+    if (userArgs.includes('--all')) throw new Error('--all is not supported transactionally; install one runtime at a time with an explicit runtime selector.');
+    transaction = createInstallTransaction(targetDir, distDir);
+    const patchHistory = preserveLocalPatchHistory(transaction);
+    if (patchHistory) logImpl(`  Local patch generation preserved: ${patchHistory}`);
+  } catch (err) {
+    if (transaction) {
+      try { commitInstallTransaction(transaction); } catch (cleanupErr) {
+        err = new AggregateError([err, cleanupErr], `${err.message}; cleanup failed at ${transaction.snapshotDir}: ${cleanupErr.message}`, { cause: err });
+      }
+    }
+    errorImpl(`${red}Error:${reset} ${err.message}`);
+    exitImpl(1);
+    return Promise.resolve({
+      status: 1,
+      failureStep: 'preflight',
+      rollback: 'not_started',
+      error: err,
+    });
+  }
+
+  const upstreamScript = path.join(distDir, 'bin', 'install.js');
+
+  return new Promise((resolve) => {
+    let finished = false;
+
+    const finish = (result) => {
+      if (finished) return;
+      finished = true;
+      resolve(result);
+    };
+
+    const failWithRollback = (failureStep, code, err) => {
+      if (err) {
+        errorImpl(`${red}Error:${reset} ${err.message}`);
+      }
+
+      let rollback = 'not_started';
+      try {
+        const rollbackResult = rollbackInstallTransaction(transaction);
+        rollback = rollbackResult.rollback;
+        errorImpl(`  ${yellow}Rollback applied${reset}`);
+      } catch (rollbackErr) {
+        rollback = 'failed';
+        errorImpl(`  ${red}Rollback failed:${reset} ${rollbackErr.message}`);
+      }
+
+      const status = Number.isInteger(code) && code !== 0 ? code : 1;
+      exitImpl(status);
+      finish({ status, failureStep, rollback, error: err });
+    };
+
+    const runInstallStep = (failureStep, fn) => {
+      try {
+        return fn();
+      } catch (err) {
+        err.failureStep = failureStep;
+        throw err;
+      }
+    };
+
+    const finishOverlayInstall = () => {
+      try {
+        const orphansRemoved = runInstallStep('orphan-cleanup', () => cleanOrphanedPathsImpl(targetDir));
+        if (orphansRemoved > 0) {
+          logImpl(`\n  ${green}Cleaned ${orphansRemoved} orphaned path(s)${reset}`);
+        }
+
+        const copied = runInstallStep('overlay', () => copyOverlayFilesImpl(distDir, targetDir));
+        logImpl(`\n  ${green}Overlay files copied:${reset} ${copied}`);
+
+        runInstallStep('metadata', () => writeInstallMetaImpl(targetDir, distDir));
+        logImpl(`  ${green}.install-meta.json written${reset}`);
+
+        if (runInstallStep('overlay-manifest', () => copyOverlayManifestImpl(distDir, targetDir))) {
+          logImpl(`  ${green}.overlay-manifest.json written${reset}`);
+        }
+
+        const slResult = runInstallStep('statusline', () => patchStatusLineImpl(targetDir));
+        if (slResult.action === 'preserved_custom') {
+          logImpl(`  ${yellow}StatusLine:${reset} preserved existing custom setting`);
+        } else {
+          logImpl(`  ${green}StatusLine setting ${slResult.action}${reset}`);
+        }
+
+        commitInstallTransaction(transaction);
+        exitImpl(0);
+        finish({ status: 0, rollback: 'not_needed' });
+      } catch (err) {
+        failWithRollback(err.failureStep || 'post-upstream', 1, err);
+      }
+    };
+
+    let child;
+    try {
+      child = spawnImpl(process.execPath, [upstreamScript, ...userArgs], {
+        stdio: 'inherit',
+        env: { ...process.env },
+      });
+    } catch (err) {
+      failWithRollback('spawn', 1, err);
+      return;
+    }
+
+    child.on('error', (err) => {
+      if (finished) return;
+      failWithRollback('spawn', 1, new Error(`Failed to spawn upstream installer: ${err.message}`));
+    });
+
+    child.on('exit', (code) => {
+      if (finished) return;
+      if (code !== 0) {
+        errorImpl(`\n${yellow}Upstream installer exited with code ${code}.${reset}`);
+        failWithRollback('upstream', code || 1);
+        return;
+      }
+
+      finishOverlayInstall();
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+async function main() {
+  if (!fs.existsSync(DIST_DIR)) {
+    console.error(`${red}Error:${reset} dist/ directory not found.`);
+    console.error(`  Run ${cyan}bun run compose${reset} to generate the composed output first.`);
+    process.exit(1);
+  }
+
+  const args = process.argv.slice(2);
+
+  if (args.includes('--help') || args.includes('-h')) {
+    const pkg = JSON.parse(fs.readFileSync(PKG_PATH, 'utf-8'));
+    console.log(`\n  ${cyan}@chude/get-stuff-done${reset} v${pkg.version}`);
+    console.log(`  Delegation installer -- delegates to upstream, layers overlay additions.\n`);
+    console.log(`  ${yellow}Usage:${reset} bunx @chude/get-stuff-done [options]\n`);
+    console.log(`  ${yellow}Options:${reset}`);
+    console.log(`    ${cyan}--claude${reset}                  Install for Claude Code`);
+    console.log(`    ${cyan}--opencode${reset}                Install for OpenCode`);
+    console.log(`    ${cyan}--gemini${reset}                  Install for Gemini`);
+    console.log(`    ${cyan}--codex${reset}                   Install for Codex`);
+    console.log(`    ${cyan}--all${reset}                     Install for all runtimes`);
+    console.log(`    ${cyan}-g, --global${reset}              Install globally`);
+    console.log(`    ${cyan}-l, --local${reset}               Install locally`);
+    console.log(`    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory`);
+    console.log(`    ${cyan}-u, --uninstall${reset}           Remove all installed files`);
+    console.log(`    ${cyan}--force${reset}                   Quiet mode (suppress migration banner)`);
+    console.log(`    ${cyan}-h, --help${reset}                Show this help message\n`);
+    process.exit(0);
+  }
+
+  const hasUninstall = args.includes('--uninstall') || args.includes('-u');
+  const targetDir = resolveTargetDir(args);
+  const hasForce = args.includes('--force');
+
+  if (hasUninstall) {
+    uninstall(targetDir);
+    return;
+  }
+
+  // Check for v2.x installation
+  if (fs.existsSync(targetDir)) {
+    const v2 = detectV2(targetDir);
+    if (v2.isV2) {
+      const cleaned = await cleanupV2(targetDir, v2, hasForce);
+      if (!cleaned) {
+        process.exit(1);
+      }
+    }
+  }
+
+  await install(DIST_DIR, targetDir, args);
+}
+
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(`${red}Error:${reset} ${err.message}`);
+    process.exit(1);
+  });
+}
+
+// Exports for unit testing -- available when required as a module
+module.exports = {
+  INSTALLED_MANIFEST_NAME,
+  readInstalledManifest,
+  removeGsdFiles,
+  detectV2,
+  isSafeToClean,
+  parseConfigDir,
+  resolveTargetDir,
+  expandRuntimeHome,
+  preflightInstallTarget,
+  createInstallTransaction,
+  rollbackInstallTransaction,
+  commitInstallTransaction,
+  patchStatusLine,
+  copyOverlayFiles,
+  copyOverlayManifest,
+  cleanOrphanedPaths,
+  writeInstallMeta,
+  install,
+  uninstall,
+};
+
+hook: PostToolUse
+hook: PostToolUse Completed
+hook: PostToolUse Completed
+ succeeded in 2652ms:
+# Task Group: get-stuff-done Open-GSD skin campaign and installer transaction safety
+scope: Use to recover the September 5 Open-GSD skin completion contract, advance the fixed upstream bump campaign, harden the manifest-driven installer, or triage installed commit-hook timeouts.
+applies_to: cwd=C:\Projects\get-stuff-done; reuse_rule=Campaign state and test evidence are checkout/HEAD-specific. Read the live handoff and preserve existing work before mutation; the campaign is explicitly incomplete.
+
+## Task 1: Recover skin contract and triage cross-project inbox, partial
+
+### rollout_summary_files
+
+- rollout_summaries/2026-09-05T04-29-01-ksph-recover_opengsd_skin_contract_installer_safety.md (cwd=\\?\C:\Projects\get-stuff-done, rollout_path=C:\Users\Destiny\.codex\sessions\2026\09\05\rollout-2026-09-05T05-29-02-01a06fd3-ba93-7181-914c-9be7e385660f.jsonl, updated_at=2026-09-05T10:17:12+00:00, thread_id=01a06fd3-ba93-7181-914c-9be7e385660f, contract recovery and inbox triage)
+
+### keywords
+
+- Open-GSD, SKIN-COMPLETION, HANDOFF.json, .continue-here.md, gsd:resume-work, 1.12.0, inbox-lint, repository.bundle, D1-D11
+
+## Task 2: Harden installer rollback and managed-path safety, partial
+
+### rollout_summary_files
+
+- rollout_summaries/2026-09-05T04-29-01-ksph-recover_opengsd_skin_contract_installer_safety.md (cwd=\\?\C:\Projects\get-stuff-done, rollout_path=C:\Users\Destiny\.codex\sessions\2026\09\05\rollout-2026-09-05T05-29-02-01a06fd3-ba93-7181-914c-9be7e385660f.jsonl, updated_at=2026-09-05T10:17:12+00:00, thread_id=01a06fd3-ba93-7181-914c-9be7e385660f, installer transaction protection and constrained evidence)
+
+### keywords
+
+- bin/install.js, AggregateError, snapshot cleanup, symlink junction, installer-safety.test.js, installer-cli-safety.test.js, 88 passing, 96.53%, 92.95%
+
+## Task 3: Advance 1.9.1 evidence and performance-test isolation, partial
+
+### rollout_summary_files
+
+- rollout_summaries/2026-09-05T04-29-01-ksph-recover_opengsd_skin_contract_installer_safety.md (cwd=\\?\C:\Projects\get-stuff-done, rollout_path=C:\Users\Destiny\.codex\sessions\2026\09\05\rollout-2026-09-05T05-29-02-01a06fd3-ba93-7181-914c-9be7e385660f.jsonl, updated_at=2026-09-05T10:17:12+00:00, thread_id=01a06fd3-ba93-7181-914c-9be7e385660f, compatibility evidence and final-head gate gap)
+
+### keywords
+
+- 1.9.1, 316/316, check-perf, f77b38d8, PR64, PR63, PR65, Bun 1.3.5, 1681 pass / 3 fail, Tier S
+
+## Task 4: Triage installed Codex commit-hook timeout, partial
+
+### rollout_summary_files
+
+- rollout_summaries/2026-09-05T04-29-01-ksph-recover_opengsd_skin_contract_installer_safety.md (cwd=\\?\C:\Projects\get-stuff-done, rollout_path=C:\Users\Destiny\.codex\sessions\2026\09\05\rollout-2026-09-05T05-29-02-01a06fd3-ba93-7181-914c-9be7e385660f.jsonl, updated_at=2026-09-05T10:17:12+00:00, thread_id=01a06fd3-ba93-7181-914c-9be7e385660f, runtime-enforcement gap)
+
+### keywords
+
+- gsd-validate-commit.sh, hooks.community, five-second timeout, hook-native-live-runtime.json, source generation, installed runtime enforcement
+
+## User preferences
+
+- The user said: "Recover existing work and finish its acceptance criteria; donâ€™t restart the strategic audit." -> follow the existing contract, ratified decisions, and handoff; do not reopen broad architectural review or repeat D1-D11 questions. [Task 1]
+- Existing work, untracked `coverage/` and `get-stuff-done/memory/`, dirty desktop files, and local inbox content must be preserved and backed up before mutation. [Task 1]
+
+## Reusable knowledge
+
+- Read `.planning/HANDOFF.json` first, then active `.continue-here.md`; `.planning/STATE.md` counters can be historical. `/gsd:resume-work` is broken because 55/58 local command files reference deleted iCloud paths, so direct handoff reading is the workaround. [Task 1]
+- The campaign walks `@opengsd/gsd-core` incrementally from 1.8.0 to fixed 1.12.0 with one vetted PR per bump; do not follow `next` dynamically. Validate inboxes with `node C:/Projects/conversations/scripts/inbox-lint.cjs docs/inbox/*.md`. [Task 1]
+- `bin/install.js` must clean failed snapshot directories, preserve original and cleanup exceptions using `AggregateError`, settle child `error`/`exit` only once, reject unsafe managed paths before upstream spawn, and reject traversal through symlink/junction components. A linked `scripts` directory showed lexical containment alone can delete data outside the install target. [Task 2]
+- Focused installer safety reached 88 passing tests and CLI migration/uninstall safety passed 4/4; independent bounded review returned "No findings." These do not satisfy strict coverage or installed-runtime acceptance. [Task 2]
+- Candidate-bound 1.9.1 retry passed `316/316`, zero failures/skips. Independent `check-perf` subprocess cases let all 25 focused tests pass. PR64, PR63, and PR65 (`f77b38d8`) merged, but remaining work includes final-head hosted checks, later bumps through 1.12.0, installer Tier S coverage, runtime installation proof, state/recovery fixtures, D11 planner consumption, and closure notifications. Use Bun 1.3.5 for local gates on this host. [Task 3]
+# First Principles Before Options
+
+**MANDATORY** â€” Identity-and-specification hybrid rule. When proposing architecture, presenting an option set, responding to pushback that questions the option set, or facing a non-trivial implementation choice: derive irreducible truths from the problem first. Reason up from those truths. Compare the derived structure against existing infrastructure ONLY THEN.
+
+**Related Rules:** [restate-before-act.md](restate-before-act.md), [planning-first.md](planning-first.md), [design-philosophy.md](design-philosophy.md), [actions-not-promises.md](actions-not-promises.md)
+
+## How you think when this fires
+
+You strip away every assumption about HOW (which framework, which existing primitive, which hook, which cron, which integration). You ask: *what MUST be true for this to work?* Those are the irreducible truths. Once enumerated, you derive the minimum structure that satisfies them. Only after that do you compare against existing infrastructure to decide between extension and new build.
+
+This is not ritual. It is the prevention against a specific failure mode: anchoring on what already exists, then framing options as variations within that anchor. When the anchor is wrong, every option is wrong. First principles surfaces options the anchor was hiding.
+
+The user's framing of this discipline: *"What would you build if you didn't have a need or background of trying to run a solution? Then compare against what's already on ground."*
+
+## When the rule fires
+
+Apply ALL of the following triggers:
+
+- **Architectural decision.** "Where does X live? Which primitive? Which integration?" Anything that determines the shape of a system rather than the contents of one component.
+- **Option-set presentation.** You're about to present 3+ options to the user. The act of selecting which 3 IS a framing decision. First-principles BEFORE option enumeration prevents pre-anchored option sets.
+- **User pushback questioning the framing.** "Did you consider X?", "Are we approaching this right?", "What about first principles?" â€” these signal the option set itself is in question, not the options within it.
+- **Non-trivial implementation choice.** Choosing between data structures, algorithms, libraries, or patterns where the wrong choice cascades into the rest of the system.
+
+Does NOT fire on:
+- Trivial execution of an already-decided architecture
+- Following clear instructions
+- Reading, searching, listing, formatting
+- Bug fixes within established patterns
+- Single-file edits where the file's purpose is settled
+
+## How to apply
+
+1. **Identify irreducible truths.** What MUST be true for this to work, regardless of implementation? List them concretely. Examples: "must read local files", "must survive /clear", "must be reversible by user", "must not consume cycles when nothing changed".
+
+2. **Derive minimum structure.** Given only those truths, what's the smallest design that satisfies them? Don't reach for existing primitives yet.
+
+3. **Compare against existing infrastructure.** NOW look at what's built. Does an existing primitive already match the derived structure? If yes, extend it. If no, build new with eyes open.
+
+4. **Make the comparison explicit in your response.** Show the truths. Show the derived structure. Show which existing primitive (if any) it maps to. The user should be able to challenge any of the three layers independently.
+
+5. **Acknowledge bias.** If you find yourself reaching for an existing solution before doing steps 1-3, name that as bias and restart. Recency bias (just used X), effort-aversion (X is less work), and solution-anchoring (already-framed options) are the common forms.
+
+## Anti-pattern: performative first principles
+
+Don't add ritual "irreducible truths" lists to every task. The discipline pays where:
+- The option space is non-obvious AND
+- Existing infrastructure could bias the framing
+
+Trivial-trivial cases (where the answer is obviously one option, derived from clear constraints) waste tokens and dilute the signal. The check: *"if I skipped the truths-list and just picked, would I notice the difference?"* If no, skip.
+
+## Anti-pattern: stopping after derivation
+
+First-principles is the opening move, not the whole move. The full discipline is: derive truths â†’ derive structure â†’ compare against existing â†’ decide. Stopping after derivation produces "pure" solutions that ignore real-world infrastructure. Stopping before derivation produces anchored solutions that miss better options. Both halves matter.
+
+## Calibration: the audit-coherence near-miss (2026-05-05)
+
+Asked to schedule a recurring rule/skill audit. Anchored on `/schedule` (Claude Code's cloud cron) because the schedule skill was the most recent recurring-execution primitive seen. Started building the routine.
+
+User pushback: *"should we not approach this from first principles? What would you build if you didn't have a need or background of trying to run a solution?"*
+
+Re-derivation produced 7 irreducible truths. Truth #1: the audit reads LOCAL files (`~/.claude/rules/`, `~/.claude/skills/`, `~/.claude/friction.jsonl`). `/schedule` runs in cloud and CANNOT access local files. The anchor was wrong; every option built on it was wrong.
+
+After re-derivation: the right primitive was the existing `deferred-reminders.json` system with a new `condition` check (`coherence_audit_due`). Reused infrastructure. Composed with existing escalation, surfacing, response protocol. The wrong path would have consumed cloud credits producing zero-value output.
+
+The lesson: the question *"does this work need filesystem access?"* is irreducible. Asking it after picking the primitive is too late.
+
+## Composition with other rules
+
+- **`restate-before-act.md`** â€” first-principles establishes WHAT to restate. The restate happens after derivation, not before. Without this rule, the restate could enumerate steps within a wrong framing.
+- **`planning-first.md`** â€” first-principles establishes whether the plan space is well-framed. A plan within a wrong framing is a wrong plan executed efficiently.
+- **`design-philosophy.md`** â€” already gestures at this: *"Before You Build, You Look"* and *"How You Validate Design Decisions."* This rule makes the discipline explicit and required, not just instinctual.
+- **`actions-not-promises.md`** â€” when a wrong-anchor prediction is caught (by user pushback or self-inspection), name the wrong prediction explicitly. The mid-session-surprise broadening covers this â€” first-principles re-derivation IS a predicted-vs-actual gap surfacing.
+- **`subagent-trust-calibration.md`** â€” when delegating to a subagent, the BRIEF should include the first-principles truths. A subagent without those truths reasons within whatever framing the brief implies, which may be the wrong framing.
+
+## Origin
+
+2026-05-05 in conversations after the audit-coherence near-miss above. User explicitly requested: *"I need this to be the most primary and fundamental step you take in resolving anything â€” problem/issue/task etc that I give to you."*
+
+Per `actions-not-promises.md`, agreement without infrastructure is a future-tense promise that evaporates after /clear. This rule is the forcing function that survives session boundaries. The trigger scope is deliberately narrow (architecture / option-sets / pushback / non-trivial implementation) to prevent ritual application â€” performative first principles is its own failure mode.
+
+The discipline composes with existing rules (it doesn't replace them) and adds a new layer at the framing level. Where `restate-before-act` ensures intent landed correctly within a chosen frame, this rule ensures the frame itself is right.
+
+hook: PostToolUse
+hook: PostToolUse Completed
+hook: PostToolUse Completed
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command 'rg -n "''^(async )?function |fs'"\\.(writeFileSync|copyFileSync|cpSync|renameSync|unlinkSync|rmSync|rmdirSync|mkdirSync|chmodSync)|saveLocalPatches|legacyCleanup|createRuntimeArtifactInstallPlan|resolveRuntimeArtifactLayout\" overrides/bin/install.js" in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+ succeeded in 2921ms:
+73:function shouldNormalizeHyphenNamespaceInAgentBody(runtime) {
+84:function normalizeAgentBodyForRuntime(content, runtime, cmdNames) {
+150:function isCodexHooksFeatureKey(key) {
+213:function mergeClaudePermissions(settings) {
+481:function _resolveHostBehaviors(runtime, registry) {
+496:function _hostBehaviors(runtime) {
+513:function _hostIntegrationDispatch(runtime) {
+526:function _resolveSkillsRootDir(runtime, targetDir, scope) {
+528:    const layout = resolveRuntimeArtifactLayout(runtime, targetDir, scope);
+543:function _runtimeAdapter(runtime) {
+561:  resolveRuntimeArtifactLayout,
+565:  createRuntimeArtifactInstallPlan,
+634:function selectRuntimesFromArgs(runtimeArgs) {
+673:function disambiguateKimiVariant(runtimes) {
+797:function getConfigDirFromHome(runtime, isGlobal) {
+834:function getGlobalDir(runtime, explicitDir = null) {
+856:function parseConfigDirFromArgs(argsArray) {
+876:function parseConfigDirArg() {
+956:function rewriteLegacyManagedNodeHookCommands(settings, absoluteRunner, opts) {
+982:function buildCodexHookBlock(targetDir, opts) {
+999:function rewriteLegacyCodexHookBlock(content, absoluteRunner, opts) {
+1022:function reconcileCodexHooksJsonEvent(targetDir, eventName, opts = {}) {
+1034:function reconcileCodexHooksJsonSessionStart(targetDir, opts = {}) {
+1067:function buildCodexHookWindowsShimIR(scriptAbsPath, absoluteRunnerToken) {
+1098:function ensureCodexHooksJsonSessionStart(targetDir, opts = {}) {
+1125:function ensureCodexHooksJsonEvent(targetDir, eventName, opts = {}) {
+1135:function removeCodexHooksJsonEvent(targetDir, eventName) {
+1139:function removeCodexHooksJsonSessionStart(targetDir) {
+1156:function buildHookCommand(configDir, hookName, opts) {
+1163:function resolveOpencodeConfigPath(configDir) {
+1174:function resolveKiloConfigPath(configDir) {
+1189:function stripJsonComments(text) {
+1243:function readSettings(settingsPath) {
+1264:function writeSettings(settingsPath, settings) {
+1265:  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
+1275:function readGsdGlobalModelOverrides(options = {}) {
+1315:function readGsdEffectiveModelOverrides(targetDir = null, options = {}) {
+1366:function injectEffortFrontmatter(content, effortValue) {
+1412:function injectDisallowedToolsFrontmatter(content, disallowedValue) {
+1473:function readGsdRuntimeProfileResolver(targetDir = null) {
+1546:function getCommitAttribution(runtime) {
+1664:function convertToolName(claudeTool) {
+1684:function convertGeminiToolName(claudeTool) {
+1714:function createKimiToolDiagnostic(reason, tool, source = null) {
+1732:function convertKimiToolName(claudeTool) {
+1739:function mapClaudeToolsToKimiTools(claudeTools, options = {}) {
+1803:function convertClaudeToKiloPermissionTool(claudeTool) {
+1807:function buildKiloAgentPermissionBlock(claudeTools) {
+1825:function escapeRegExp(value) {
+1829:function replaceRelativePathReference(content, fromPath, toPath) {
+1843:function convertCopilotToolName(claudeTool) {
+1867:function convertClaudeToCopilotContent(content, isGlobal = false) {
+1897:function convertClaudeCommandToCopilotSkill(content, skillName, _runtime = null, _cmdNames = null, isGlobal = false) {
+1943:function skillFrontmatterName(skillDirName) {
+1949:function normalizeClaudeSkillEffort(effort) {
+1994:function convertClaudeCommandToClaudeSkill(content, skillName, runtime = null, cmdNames = null) {
+2058:function normalizeKimiSkillName(skillName) {
+2068:function convertGsdCommandReferencesToKimiSkillInvocations(content, cmdNames) {
+2088:function convertClaudeCommandToKimiSkill(content, skillName, _runtime = null, cmdNames = null) {
+2105:function parseKimiAgentSource(source) {
+2121:function parseFrontmatterTools(frontmatter) {
+2160:function addKimiAgentDiagnostic(diagnostics, code, message, value, source = null) {
+2170:function mapKimiAgentContractTools(toolNames, diagnostics, sourceName) {
+2176:function neutralizeKimiAgentPrompt(content) {
+2185:function pushKimiToolsYaml(lines, indent, tools) {
+2197:function buildKimiRootAgentYaml({ description, tools, subagents }) {
+2220:function buildKimiSubagentYaml({ name, description, tools }) {
+2242:function buildKimiAgentArtifacts({
+2358:function convertClaudeAgentToCopilotAgent(content, isGlobal = false) {
+2395:function convertClaudeToAntigravityContent(content, isGlobal = false) {
+2425:function convertClaudeCommandToAntigravitySkill(content, skillName, _runtime = null, _cmdNames = null, isGlobal = false) {
+2443:function convertClaudeAgentToAntigravityAgent(content, isGlobal = false) {
+2465:function toSingleLine(value) {
+2469:function yamlQuote(value) {
+2473:function yamlIdentifier(value) {
+2481:function extractFrontmatterAndBody(content) {
+2497:function extractFrontmatterField(frontmatter, fieldName) {
+2542:function applyClaudeCodeBrandSwap(content, brandName) {
+2566:function convertSlashCommandsToCursorSkillMentions(content) {
+2572:function convertClaudeToCursorMarkdown(content) {
+2596:function getCursorSkillAdapterHeader(skillName) {
+2622:function convertClaudeCommandToCursorSkill(content, skillName) {
+2662:function convertClaudeCommandToCursorCommand(content, _commandName) {
+2673:function convertClaudeAgentToCursorAgent(content) {
+2699:function convertSlashCommandsToWindsurfSkillMentions(content) {
+2704:function convertClaudeToWindsurfMarkdown(content) {
+2736:function getWindsurfSkillAdapterHeader(skillName) {
+2762:function convertClaudeCommandToWindsurfSkill(content, skillName) {
+2779:function convertClaudeCommandToWindsurfWorkflow(content, commandName) {
+2811:function convertClaudeAgentToWindsurfAgent(content) {
+2838:function convertSlashCommandsToTraeSkillMentions(content) {
+2844:function convertClaudeToTraeMarkdown(content) {
+2879:function convertClaudeCommandToTraeSkill(content, skillName) {
+2905:function convertClaudeAgentToTraeAgent(content) {
+2919:function convertSlashCommandsToCodebuddySkillMentions(content) {
+2925:function convertClaudeToCodebuddyMarkdown(content) {
+2944:function convertClaudeCommandToCodebuddySkill(content, skillName) {
+2980:function convertClaudeCommandToCodebuddyCommand(content, commandName) {
+3001:function convertClaudeAgentToCodebuddyAgent(content) {
+3017:function convertClaudeToCliineMarkdown(content) {
+3040:function convertClaudeAgentToClineAgent(content) {
+3060:function convertClaudeCommandToClineSkill(content, skillName, runtime = null, cmdNames = null) {
+3135:function _resolveAvailableGsdRoles() {
+3162:function _assertRoleResolvable(role, availableRoles, runtime, sourceDescription) {
+3189:function _segmentCodeAndStrings(text) {
+3243:function maskStringLiterals(text) {
+3289:function findDispatchCallSpans(text, headWord) {
+3347:function _stripCallArgument(spanText, matchStart, matchEnd, { consumeLeadingComments = false } = {}) {
+3387:function _projectRoleArgument(spanText, matchStart, matchEnd, roleValueExpr, toolConfig, canOrchestrate) {
+3434:function _callArgValueRe(key) {
+3453:function _literalRoleValue(roleValueExpr) {
+3473:function _maskStringsAndComments(text) {
+3486:function _normalizeDispatchCallSpan(spanText, hasBraceWrapper, dispatch, toolConfig) {
+3581:function _blankStringLiteralInteriors(spanText) {
+3635:function _maskQuotedRegionsWithinCallSpans(content, headWords) {
+3688:function _assertProjectionComplete(content, toolConfig, namedDispatch = false) {
+3735:function projectNamedDispatchToStructuralDelegate(content, dispatch, toolConfig) {
+3888:function convertClaudeToHermesMarkdown(content, ctx) {
+3908:function convertSlashCommandsToCodexSkillMentions(content) {
+3932:function rewriteBareGsdToolsCommandsForCodex(content) {
+3940:function convertClaudeToCodexMarkdown(content) {
+3974:function getCodexSkillAdapterHeader(skillName) {
+4070:function convertClaudeCommandToCodexSkill(content, skillName) {
+4092:function convertClaudeAgentToCodexAgent(content) {
+4123:function _isAnthropicFlavoredModel(model) {
+4131:function _warnCodexModelOverrideDropped(agentName, value) {
+4154:function generateCodexAgentToml(agentName, agentContent, modelOverrides = null, runtimeResolver = null, effortCfg = null, sandboxTier = 'codex-agent-sandbox') {
+4277:function cleanupCodexSkillMetadataSidecars(skillsDir) {
+4295:        fs.rmSync(sidecarPath);
+4299:        fs.rmdirSync(agentsSubdir);
+4323:function cleanupWindsurfLegacyDevinSkills(workspaceDir) {
+4342:      fs.rmSync(dirToRemove, { recursive: true, force: true });
+4354:      fs.rmdirSync(legacySkillsDir);
+4357:        fs.rmdirSync(devinDir);
+4378:function cleanupMovedSkillsOldLocation(oldSkillsDir, prefix) {
+4396:      fs.rmSync(dirToRemove, { recursive: true, force: true });
+4407:      fs.rmdirSync(oldSkillsDir);
+4423:function _resolveMovedSkillsOldDir(runtime, targetDir, scope) {
+4425:    const layout = resolveRuntimeArtifactLayout(runtime, targetDir, scope);
+4459:function generateCodexConfigBlock(_agents, _targetDir) {
+4488:function extractCodexUserAgentsScalars(content) {
+4518:function spliceCodexAgentsScalars(block, scalarLines) {
+4536:function stripCodexGsdAgentSections(content) {
+4576:function stripGsdFromCodexConfig(content) {
+4631:function detectLineEnding(content) {
+4639:function splitTomlLines(content) {
+4669:function findTomlCommentStart(line) {
+4739:function isEscapedInBasicString(line, index) {
+4751:function findMultilineBasicStringClose(line, startIndex) {
+4768:function advanceTomlMultilineStringState(line, multilineState) {
+4840:function parseTomlBracketHeader(line, array) {
+4907:function parseTomlTableHeader(line) {
+4911:function findTomlAssignmentEquals(line) {
+4959:function parseTomlKeyPath(keyText) {
+5030:function parseTomlKey(line) {
+5050:function getTomlLineRecords(content) {
+5085:function getTomlTableSections(content) {
+5102:function collapseTomlBlankLines(content) {
+5107:function removeContentRanges(content, ranges) {
+5142:function stripCodexHooksFeatureAssignments(content, ownership = null) {
+5220:function getManagedCodexHooksOwnership(content) {
+5231:function setManagedCodexHooksOwnership(content, ownership) {
+5256:function isLegacyGsdAgentsSection(body) {
+5285:function stripLeakedGsdCodexSections(content) {
+5353:function stripStaleGsdHookBlocks(configContent) {
+5470:function migrateCodexHooksMapFormat(content) {
+5703:function hasUserNamespacedAotHooks(content, event) {
+5726:function parseTomlValue(text, i) {
+5895:function parseTomlToObject(content) {
+6105:function codexBareAgentsHasOnlyKnownScalars(body) {
+6125:function validateCodexConfigSchema(content) {
+6274:function normalizeCodexHooksLine(line, key) {
+6281:function findTomlAssignmentBlockEnd(content, record) {
+6385:function rewriteTomlKeyLines(content, matches, key) {
+6434:function mergeCodexConfig(configPath, gsdBlock) {
+6483:function repairTrappedFeaturesKeys(content) {
+6555:function ensureCodexHooksFeature(configContent) {
+6659:function hasEnabledCodexHooksFeature(configContent) {
+6696:function mergeCopilotInstructions(filePath, gsdContent) {
+6703:    fs.writeFileSync(filePath, gsdBlock + '\n');
+6720:    fs.writeFileSync(filePath, newContent);
+6726:  fs.writeFileSync(filePath, content);
+6735:function stripGsdFromCopilotInstructions(content) {
+6768:function buildClineRulesBody() {
+6773:function buildClineAgentsMdBody() {
+6789:function buildClinePreToolUseHook() {
+6797:function mergeGsdAgentsMd(filePath, gsdContent) {
+6806:function stripGsdFromAgentsMd(content) {
+6827:function writeClineArtifacts(targetDir, isGlobalInstall) {
+6857:function buildCursorHookEntry(scriptPath) {
+6868:function isManagedCursorHookEntry(entry) {
+6889:function reconcileCursorHooksJson(hooksJsonPath, managedEntries) {
+6905:function writeCursorHooksJson(targetDir, src, opts) {
+6916:function removeCursorHooksJson(targetDir) {
+6935:function writeWindsurfHooksJson(targetDir, src, opts) {
+6947:function removeWindsurfHooksJson(targetDir) {
+6965:function buildCopilotHookConfig() {
+6982:function writeCopilotHookConfig(targetDir) {
+7001:function writeNonClaudeDefaults(runtime) {
+7006:    fs.mkdirSync(gsdDir, { recursive: true });
+7017:      fs.writeFileSync(defaultsPath, JSON.stringify(defaults, null, 2) + '\n');
+7023:      fs.writeFileSync(defaultsPath, JSON.stringify(defaults, null, 2) + '\n');
+7031:function installCodexConfig(targetDir, agentsSrc, sandboxTier = 'codex-agent-sandbox') {
+7049:  fs.mkdirSync(agentsTomlDir, { recursive: true });
+7102:    fs.writeFileSync(agentTomlPath, tomlContent);
+7127:function neutralizeAgentReferences(content, instructionFile) {
+7141:function convertClaudeToOpencodeFrontmatter(content, { isAgent = false, modelOverride = null } = {}) {
+7303:function convertClaudeToKiloFrontmatter(content, { isAgent = false, modelOverride = null } = {}) {
+7498:function listCodexSkillNames(skillsDir, prefix = 'gsd-') {
+7562:function writeHermesCategoryDescription(categoryDir) {
+7563:  fs.mkdirSync(categoryDir, { recursive: true });
+7579:  fs.writeFileSync(path.join(categoryDir, 'DESCRIPTION.md'), body);
+7749:function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand = false, isGlobal = false, confinementRoot) {
+7774:    fs.rmSync(destDir, { recursive: true });
+7776:  fs.mkdirSync(destDir, { recursive: true });
+7836:      fs.writeFileSync(finalPath, content);
+7843:        fs.writeFileSync(destPath, content);
+7845:        fs.copyFileSync(srcPath, destPath);
+7848:      fs.copyFileSync(srcPath, destPath);
+7856:function cleanupOrphanedHooks(settings) {
+7927:function validateHookFields(settings) {
+8015:function uninstall(isGlobal, runtime = DEFAULT_RUNTIME) {
+8069:        fs.unlinkSync(agentsMdPath);
+8072:        fs.writeFileSync(agentsMdPath, cleaned);
+8089:    fs.unlinkSync(path.join(targetDir, '.gsd-profile'));
+8097:    fs.unlinkSync(path.join(targetDir, '.gsd-source'));
+8137:          fs.unlinkSync(path.join(codexAgentsDir, file));
+8153:        fs.unlinkSync(codexConfigPath);
+8157:        fs.writeFileSync(codexConfigPath, cleaned);
+8209:          fs.unlinkSync(hookPath);
+8223:            fs.unlinkSync(path.join(kimiHooksLibDir, file));
+8227:        try { fs.rmdirSync(kimiHooksLibDir); } catch (_) { /* not empty or other error — leave it */ }
+8235:        if (fs.readdirSync(kimiHooksDir).length === 0) fs.rmdirSync(kimiHooksDir);
+8244:          fs.unlinkSync(kimiPkgJsonPath);
+8264:        fs.unlinkSync(instructionsPath);
+8268:        fs.writeFileSync(instructionsPath, cleaned);
+8278:      fs.unlinkSync(hookPath);
+8284:          fs.rmdirSync(hooksDir);
+8303:          fs.unlinkSync(p);
+8311:        fs.unlinkSync(clinerulesDir);
+8319:          fs.rmdirSync(dir);
+8330:            fs.unlinkSync(agentsPath);
+8334:            fs.writeFileSync(agentsPath, cleaned);
+8360:          fs.unlinkSync(p);
+8368:        fs.rmdirSync(hooksDir);
+8392:          fs.unlinkSync(p);
+8400:        fs.rmdirSync(windsurfHooksDir);
+8414:          fs.rmSync(path.join(commandsDir, f), { force: true });
+8429:      fs.rmSync(legacyGsdCommandsDir, { recursive: true });
+8434:          fs.mkdirSync(legacyGsdCommandsDir, { recursive: true });
+8435:          fs.writeFileSync(legacyDevPrefsPath, savedDevPrefs);
+8457:      fs.rmSync(legacyDir, { recursive: true });
+8463:        const _layout = resolveRuntimeArtifactLayout(runtime, targetDir, _uninstallScope);
+8482:    fs.rmSync(gsdDir, { recursive: true });
+8489:        fs.mkdirSync(gsdDir, { recursive: true });
+8490:        fs.writeFileSync(userProfilePath, preservedProfile);
+8505:        fs.unlinkSync(path.join(agentsDir, file));
+8522:        fs.unlinkSync(hookPath);
+8540:          fs.unlinkSync(filePath);
+8548:        fs.rmdirSync(hooksLibDir);
+8581:        fs.unlinkSync(pluginPath);
+8585:      try { fs.rmdirSync(pluginsDir); } catch (_) { /* not empty — user plugins present */ }
+8606:      try { fs.unlinkSync(fp); removedChangeset++; } catch (_) { /* best-effort */ }
+8609:    try { fs.rmdirSync(changesetUninstallDir); } catch (_) { /* Not empty — user content present */ }
+8620:      try { fs.unlinkSync(fp); removedScriptsLib++; } catch (_) { /* best-effort */ }
+8623:    try { fs.rmdirSync(scriptsLibUninstallDir); } catch (_) { /* Not empty — user content present */ }
+8631:  try { fs.unlinkSync(fixSlashUninstallPath); } catch (_) { /* best-effort */ }
+8635:    try { fs.unlinkSync(path.join(targetDir, 'scripts', gen)); } catch (_) { /* best-effort */ }
+8641:    try { fs.rmdirSync(scriptsUninstallDir); } catch (_) { /* Not empty — leave it */ }
+8651:        fs.unlinkSync(pkgJsonPath);
+8831:          fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+8874:          fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+8897:          fs.writeFileSync(mcpConfigPath, JSON.stringify(mcpConfig, null, 2) + '\n');
+8911:    fs.rmSync(manifestPath, { force: true });
+8931:function parseJsonc(content) {
+8993:function configureOpencodePermissions(isGlobal = true, configDir = null) {
+9000:  fs.mkdirSync(opencodeConfigDir, { recursive: true });
+9082:  fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+9092:function configureKiloPermissions(isGlobal = true, configDir = null) {
+9099:  fs.mkdirSync(kiloConfigDir, { recursive: true });
+9156:  fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+9167:function toTildePosixPath(absPath) {
+9182:function buildAntigravityAllowRules(configDir) {
+9212:function configureAntigravityPermissions(isGlobal = true, configDir = null) {
+9219:  fs.mkdirSync(antigravityConfigDir, { recursive: true });
+9287:function configureAntigravityMcpConfig(isGlobal = true, configDir = null) {
+9291:  fs.mkdirSync(antigravityConfigDir, { recursive: true });
+9322:  fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+9335:function mergeGsdMcpServerIntoSettings(settings) {
+9350:function verifyInstalled(dirPath, description) {
+9371:function verifyFileInstalled(filePath, description) {
+9395:function fileHash(filePath) {
+9403:function generateManifest(dir, baseDir) {
+9420:function normalizeInstallRelativePath(relPath) {
+9435:function resolveInstallRelativePath(baseDir, relPath) {
+9455:function writeManifest(configDir, runtime = DEFAULT_RUNTIME, options = {}) {
+9496:    // the manifest — otherwise saveLocalPatches() would flag every refresh
+9504:  // Manifest must reflect everything on disk so saveLocalPatches() can detect
+9576:  // Track hook files so saveLocalPatches() can detect user modifications
+9604:      // Track hooks/lib/ helpers so saveLocalPatches() can back up user edits
+9657:  fs.writeFileSync(path.join(configDir, MANIFEST_NAME), JSON.stringify(manifest, null, 2));
+9683:function populatePristineDir({ packageSrc, pristineDir, modified, runtime, pathPrefix, isGlobal }) {
+9717:          fs.mkdirSync(path.dirname(stagedFile), { recursive: true });
+9718:          fs.copyFileSync(srcRef.fullPath, stagedFile);
+9735:      fs.mkdirSync(path.dirname(outRef.fullPath), { recursive: true });
+9736:      fs.copyFileSync(stagedRef.fullPath, outRef.fullPath);
+9740:    try { fs.rmSync(stageRoot, { recursive: true, force: true }); } catch { /* best-effort cleanup */ }
+9757:function saveLocalPatches(configDir, pristineCtx) {
+9788:      fs.mkdirSync(path.dirname(backupPath), { recursive: true });
+9789:      fs.copyFileSync(fullPath, backupPath);
+9813:    fs.writeFileSync(path.join(patchesDir, 'backup-meta.json'), JSON.stringify(meta, null, 2));
+9830:    // Correct approach: `gsd-pristine/` is populated lazily by saveLocalPatches'
+9868:          try { fs.rmSync(pristinePath, { force: true, recursive: true }); } catch { /* best-effort */ }
+9900:              fs.mkdirSync(path.dirname(outRef.fullPath), { recursive: true });
+9901:              fs.copyFileSync(tempRef.fullPath, outRef.fullPath);
+9910:            try { fs.rmSync(tempPristineDir, { recursive: true, force: true }); } catch { /* best-effort */ }
+9937:function reportLocalPatches(configDir, runtime = DEFAULT_RUNTIME) {
+9961:function reportInstallerMigrationResult(result) {
+9972:function install(isGlobal, runtime = DEFAULT_RUNTIME, options = {}) {
+10041:        fs.mkdirSync(d, { recursive: true });
+10046:        fs.writeFileSync(d, content);
+10047:        try { fs.chmodSync(d, 0o755); } catch (_) { /* Windows */ }
+10049:        fs.copyFileSync(s, d);
+10051:          try { fs.chmodSync(d, 0o755); } catch (_) { /* Windows */ }
+10124:  // fill-in, resolveRuntimeArtifactLayout's `capabilityRegistry` param below) —
+10180:  // The pristine context lets saveLocalPatches populate gsd-pristine/ via
+10183:  saveLocalPatches(targetDir, {
+10285:        fs.rmSync(skillDirPath, { recursive: true, force: true });
+10286:        fs.mkdirSync(skillDirPath, { recursive: true });
+10291:              fs.mkdirSync(path.dirname(destFile), { recursive: true });
+10292:              fs.writeFileSync(destFile, buf);
+10303:            try { fs.rmSync(path.join(_earlySkillsDir, entry.name), { recursive: true, force: true }); }
+10315:          fs.mkdirSync(_earlyAgentsDir, { recursive: true });
+10316:          fs.writeFileSync(path.join(_earlyAgentsDir, file), buf);
+10325:            try { fs.unlinkSync(path.join(_earlyAgentsDir, file)); } catch (_) { /* best-effort */ }
+10333:      try { fs.writeFileSync(_earlyVersionPath, codexPreInstallVersionBytes); } catch (_) { /* best-effort */ }
+10335:      try { fs.unlinkSync(_earlyVersionPath); } catch (_) { /* best-effort */ }
+10348:          try { fs.unlinkSync(full); } catch (_) { /* best-effort */ }
+10486:          fs.writeFileSync(_markerPath, gsdSourceCommands + '\n', 'utf8');
+10709:    fs.mkdirSync(commandsDir, { recursive: true });
+10717:          fs.unlinkSync(path.join(commandsDir, f));
+10731:        fs.writeFileSync(path.join(commandsDir, `gsd-${stem}.md`), content);
+10749:      fs.rmSync(legacyGsdDir, { recursive: true });
+10753:        fs.writeFileSync(path.join(commandsDir, 'gsd-dev-preferences.md'), preservedDevPrefs);
+10764:        fs.rmSync(path.join(staleSkillsDir, e.name), { recursive: true });
+10840:      fs.mkdirSync(path.dirname(sharedDest), { recursive: true });
+10841:      fs.copyFileSync(sharedSrc, sharedDest);
+10865:  // createRuntimeArtifactInstallPlan. Their agents are already written ABOVE
+10894:        fs.unlinkSync(path.join(agentsDest, file));
+10919:          fs.unlinkSync(codexConfigPath);
+10921:          fs.writeFileSync(codexConfigPath, cleaned);
+10927:    fs.mkdirSync(agentsDest, { recursive: true });
+11050:        fs.writeFileSync(path.join(agentsDest, destName), content);
+11064:    fs.copyFileSync(changelogSrc, changelogDest);
+11074:  fs.writeFileSync(versionDest, pkg.version);
+11090:  fs.writeFileSync(runtimeMarkerDest, `${runtime}\n`);
+11116:    fs.mkdirSync(destRootDir, { recursive: true });
+11122:    fs.writeFileSync(pkgJsonDest, '{"type":"commonjs"}\n');
+11132:      fs.mkdirSync(hooksDest, { recursive: true });
+11159:            fs.writeFileSync(destFile, content);
+11160:            try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+11166:              fs.writeFileSync(destFile, content);
+11167:              try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows doesn't support chmod */ }
+11169:              fs.copyFileSync(srcFile, destFile);
+11178:          fs.mkdirSync(subDest, { recursive: true });
+11187:              fs.writeFileSync(subDestFile, content);
+11188:              try { fs.chmodSync(subDestFile, 0o755); } catch (e) { /* Windows */ }
+11190:              fs.copyFileSync(subSrcFile, subDestFile);
+11226:      fs.mkdirSync(hooksLibDest, { recursive: true });
+11295:    fs.mkdirSync(changesetDest, { recursive: true });
+11296:    fs.mkdirSync(scriptsLibDest, { recursive: true });
+11301:        fs.copyFileSync(srcFile, path.join(changesetDest, entry));
+11312:          fs.copyFileSync(srcFile, path.join(scriptsLibDest, entry));
+11335:    fs.mkdirSync(path.join(targetDir, 'scripts'), { recursive: true });
+11339:      fs.copyFileSync(fixSlashSrc, fixSlashDest);
+11356:    fs.mkdirSync(capGenDestDir, { recursive: true });
+11363:        fs.copyFileSync(genSrc, genDest);
+11519:        try { fs.writeFileSync(codexDefaultsPathPreInstall, codexDefaultsPreInstallSnapshot); }
+11522:        try { fs.rmSync(codexDefaultsPathPreInstall); }
+11527:        try { fs.writeFileSync(codexConfigPathPreInstall, codexConfigPreInstallSnapshot); }
+11530:        try { fs.rmSync(codexConfigPathPreInstall); } catch (_) { /* best-effort */ }
+11539:          try { fs.writeFileSync(codexHooksJsonPathPreInstall, codexHooksJsonPreInstallSnapshot); }
+11542:          try { fs.rmSync(codexHooksJsonPathPreInstall); } catch (_) { /* best-effort */ }
+11559:          fs.rmSync(skillDirPath, { recursive: true, force: true });
+11560:          fs.mkdirSync(skillDirPath, { recursive: true });
+11565:                fs.mkdirSync(path.dirname(destFile), { recursive: true });
+11566:                fs.writeFileSync(destFile, buf);
+11579:              try { fs.rmSync(path.join(_rollbackSkillsDir, entry.name), { recursive: true, force: true }); }
+11598:            fs.mkdirSync(_rollbackAgentsDir, { recursive: true });
+11599:            fs.writeFileSync(path.join(_rollbackAgentsDir, file), buf);
+11610:              try { fs.unlinkSync(path.join(_rollbackAgentsDir, file)); } catch (_) { /* best-effort */ }
+11619:        try { fs.writeFileSync(_rollbackVersionPath, codexPreInstallVersionBytes); }
+11622:        try { fs.unlinkSync(_rollbackVersionPath); } catch (_) { /* best-effort */ }
+11643:            try { fs.unlinkSync(full); } catch (_) { /* best-effort */ }
+11690:      fs.mkdirSync(codexHooksDest, { recursive: true });
+11703:          fs.writeFileSync(destFile, content);
+11704:          try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+11714:          fs.writeFileSync(destFile, content);
+11715:          try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+11722:          fs.copyFileSync(srcFile, destFile);
+11723:          try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+12100:        fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+12323:function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallStatusline, runtime = DEFAULT_RUNTIME, isGlobal = true, configDir = null, bannerOpts = {}) {
+12476:function handleStatusline(settings, isInteractive, callback) {
+12559:function buildRuntimePromptText() {
+12592:function parseRuntimeInput(answer) {
+12613:function promptRuntime(callback) {
+12645:function buildUpdateBannerPromptText() {
+12666:function parseUpdateBannerInput(answer) {
+12681:function buildUpdateBannerHookEntry(bannerCommand) {
+12701:function handleUpdateBanner(isInteractive, callback) {
+12725:function promptLocation(runtimes) {
+12786:function homePathCoveredByRc(globalBin, homeDir, rcFileNames) {
+12875:function decodeFishUniversalValue(s) {
+12928:function homePathCoveredByFishConfig(globalBin, homeDir, fishConfigDir) {
+13063:function maybeSuggestPathExport(globalBin, homeDir) {
+13151:function cleanupLegacyGsdCc({ homeDir = os.homedir(), dryRun = false, logger = console } = {}) {
+13179:    try { fs.unlinkSync(perPkgCacheFile); } catch (_e) { /* cache may not exist yet */ }
+13195:function installAllRuntimes(runtimes, isGlobal, isInteractive) {
+13459:    saveLocalPatches,
+
+hook: PostToolUse
+hook: PostToolUse Completed
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command 'Get-Content docs/reviews/pr69-application-2026-09-13.md
+Get-Content .planning/evidence/pr69-installer-recovery-red-2026-09-14.json' in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command 'rg -n "''^(async )?function |createInstallTransaction|runUpstream|cleanupLegacy|legacy|rollbackInstall" bin/install.js
+Get-Content overrides/bin/install.js.REASON.md' in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+ succeeded in 5251ms:
+# PR 69 application recovery
+
+Keep PR 69 draft. No approval, merge, or readiness change is authorized.
+
+Recovered remote: df0d3f9c13134321a050a2d8de79b0622aa161d3. Current main
+3d1ae34f29084d0c538fd9d8db37aa6f09c13ed1 was integrated as
+7d9ca862c4deff88210af4908c7177081f9f4e74, preserving four prior local fixes.
+Other worktrees and intentional dirty files remain intact.
+
+## Changes and upstream assessment
+
+Retain the approved 1.8.0 to 1.9.1 step. Nine override reasons and hashes remain
+fresh; composition produced 849 files, and parity passed 17 checks at pickup.
+The existing bump-1.9.1-port.md ledger records upstream changes, adopted behavior
+and retirement triggers. The live upstream comparison includes back-merge
+history; its 161 commit count is not a net feature count.
+
+Recovered installer corrections preserve Codex shared defaults on agent-write
+failure and fix Kimi Code help. Wrapper changes refuse managed paths below the
+selected root that traverse links, retain snapshot/cleanup diagnostics, ignore
+late child events, and snapshot local patches together with pristine baselines.
+They replace the incorrect metadata-object merge with complete pre-update
+snapshots; existing .gsd-patch-archive content is preserved.
+
+Five subsequent regression cases verify refusal of --all, missing overlay
+sources, and destinations redirected by upstream; rollback continues after an
+individual failure, retains recovery evidence, and safely restores a substituted
+leaf. These changes do not close all findings from the complete wrapper review.
+
+## Validation and limits
+
+Evidence root: C:/Users/Destiny/.codex/reports/gsd-application-2026-09-13/.
+
+- Initial integration: 104 focused tests, 470 assertions, zero failures.
+- Review red run: six failures, including the older test that accepted an absent
+  overlay source. Updated safety suite: 96 passed, 410 assertions, zero failures.
+  See pr69-review-red-corrected.log and pr69-review-green-corrected.log.
+- Focused ESLint: zero errors, six existing object-injection warnings.
+- Current matrix: 313 passed, 3 failed, zero skips, exit 1. Roadmap publication
+  hit the existing 10-second native PowerShell timeout. The failed envelope is
+  .planning/evidence/pr69-application-2026-09-13-compat.json. It was not applied
+  as vetted evidence; timeouts and checks were not relaxed.
+- Actual isolated 1.8.0 to 1.9.1 upgrade and same-version reinstall preserved
+  custom settings, owner hooks/statusline/instructions, a modified workflow
+  namespace skill, its pristine bytes/hash, and prior patch snapshots. See
+  pr69-upgrade-smoke.json. This predates the five later regression fixes and
+  needs refreshing. Its first fixture assumed an obsolete command layout;
+  the actual global entry is skills/gsd-ns-workflow/SKILL.md. Failed evidence
+  was retained. OS temporary homes were cleaned; user runtimes were not changed.
+- Installed state acceptance: 9 passed, 3 failed, zero skipped, exit 1. Bullet
+  phase analysis, manager handling and semantic replanned plan counts remain
+  red. Unknown-key preservation and five commit-docs configurations passed.
+  See pr69-installed-state-acceptance.tap. This does not close final 1.12 scope.
+- The complete Bun suite returned 1745 passed, 1 failed, 6046 assertions across
+  69 files: pr69-full-suite.log. The protected Windows DACL publication test
+  hit the native PowerShell deadline. No whole-repository/Tier S installer
+  coverage acceptance is claimed. Subsequent native-publication changes need
+  a fresh complete suite and matrix.
+
+Independent source review used live-resolved gpt-5.6-sol at xhigh under Codex
+0.154.0, session 01a09ced-6966-7400-ae89-70b598898ee9. Packet and verdict:
+pr69-application-review-packet.md and pr69-application-review.md. The reviewer
+ran no tools or tests. Its ten findings predate the latest fixes; no clean
+final-revision review is claimed.
+
+## Remaining application blockers
+
+September 14 progress: installed and overlay ownership reads now distinguish
+absent, valid-empty and invalid inventories. Corrupt JSON, malformed maps/arrays,
+non-file and linked manifest paths refuse before cleanup. A valid empty manifest
+no longer triggers recursive legacy fallback. Actual isolated CLI install and
+uninstall regressions preserve the original owner/legacy bytes on refusal.
+
+The initial CLI regression failed (exit 0 instead of 1); the expanded ownership
+run reproduced 11 failures out of 14 cases before correction. Pinned Bun 1.3.5
+now passes 114 tests / 0 failures / 489 assertions across installer-safety,
+installer-cli-safety and installer-codex-defaults. ESLint has zero errors and the
+same six existing argument-parser warnings. An initial Node invocation included
+the Bun-only defaults suite and failed to load `bun:test`; its 111 other tests
+passed, but that combined run is not a successful gate. The proper Bun run above
+is the verification result. Logs: `pr69-invalid-ownership-red.log`,
+`pr69-manifest-shapes-red.log`, `pr69-ownership-node.log`, `pr69-ownership-bun.log`.
+
+This corrects malformed/empty-manifest handling, not all ownership cleanup.
+Absent-manifest legacy inference and name-only deletion of side artifacts remain
+open below. Whole-file Tier S coverage, final revision review and full-suite
+acceptance are still outstanding. No PR69 application changes are pushed yet.
+
+Owner: get-stuff-done application development. Retirement trigger: implemented
+and tested before recommending PR 69 adoption; no new strategic audit needed.
+
+1. Complete rollback inventory for new upstream-only files and side metadata,
+   including partial upstream failure. Old-manifest plus overlay inventory can
+   leave a mixed installation.
+   Now reproduced through the real composed CLI: injecting failure at its first
+   manifest publication leaves 622 candidate files while the wrapper prints
+   `Rollback applied`. Original settings and the independent owner file survive.
+   The explicit acceptance command `node tests/acceptance/installer-recovery.cjs`
+   fails on those residual files; its project-local fixture is removed afterward.
+   Receipt: `.planning/evidence/pr69-installer-recovery-red-2026-09-14.json`.
+   This is a failing acceptance gate, not a passing unit-test substitute. The
+   reproduction precedes this session's script-ownership correction.
+2. Invalid and valid-empty ownership metadata now refuse/avoid legacy fallback
+   as appropriate. Complete the remaining absent-manifest behavior using positive
+   ownership evidence and safe handling of uncertain legacy content.
+3. Begin reversible legacy migration before its first cleanup; current main
+   invokes cleanup before the transaction snapshot.
+4. Preserve uncertain owner files in name-based cleanup of legacy roots,
+   scripts/lib, scripts/changeset and hooks/dist.
+   The hooks/dist case is now corrected: only an empty, contained directory is
+   pruned using rmdir. Nonempty content is preserved and linked ancestors are
+   not traversed. Two RED fixtures demonstrated deletion of unclassified bytes
+   and traversal into an outside directory; both now pass. Pinned Bun 1.3.5:
+   115 passed, 0 failed, 487 assertions over installer-safety and CLI safety.
+   Evidence: pr69-orphan-preserve-red.log and pr69-orphan-bun.log. Unclassified
+   remnants remain owner-reconciliation items; no filename-based ownership claim
+   is made. Script-directory cleanup is now empty-only too: manifest-owned
+   helper files are removed individually, while co-located owner scripts remain.
+   The actual install/uninstall test exposed a second cause in upstream 1.9.1:
+   manifest creation claimed every destination `.cjs` file, including owner
+   scripts. The existing installer override now enumerates regular package
+   source files, matching what it copies and including helper documentation.
+   The real CLI regression passes with a target and owner filenames containing
+   spaces; it verifies ownership and preservation as well as managed removal.
+   RED/GREEN receipts: `.planning/evidence/pr69-script-ownership-*-2026-09-14.log`
+   and `pr69-script-cleanup-*-2026-09-14.log`. This prevents new false ownership
+   entries in these directories; previously contaminated manifests still need
+   the provenance reconciliation in item 2. Legacy roots and side metadata
+   remain open. No owner-file recovery from a hash alone is claimed.
+   Final pinned Bun 1.3.5 validation: 135 passed, 0 failed, 614 assertions over
+   installer-safety, installer-cli-safety and installer-v3. The first expanded
+   run's 134/1 result caught a lost skipped-path count for linked directories;
+   that diagnostic is restored and the original assertion passes unchanged.
+   Both runs are retained in `pr69-script-installer-suites*-2026-09-14.log`.
+   Compose succeeds; all nine override hashes remain fresh; ESLint has zero
+   errors and the same six existing argument-parser warnings. These focused
+   results do not satisfy the outstanding whole-file Tier S or full PR gate.
+5. Finish containment checks for every metadata/settings publication path.
+   Overlay and rollback-leaf tests cover only part of this boundary.
+6. Reconcile active patch-tree residue with upstream reapply consumption.
+   A complete pre-run snapshot can include old files outside the current
+   metadata inventory; do not assign them fabricated generation provenance
+   or delete unclassified owner bytes.
+7. Make settings backup/staging exclusive and recoverable; uninstall must
+   remove only a matching GSD statusline. Fixed backup/tmp names and a dangling
+   uninstall command remain review findings.
+8. Review other multi-destination runtime modes against the single-target
+   transaction, beyond the implemented --all refusal.
+9. Resolve the current roadmap timeout evidence; obtain a fresh complete matrix,
+   full-suite and Tier S evidence and a final independent review.
+10. Corrected: uninstall now applies the existing unsafe-target guard before
+    reading/removing inventory. The guard resolves existing selected-root aliases
+    and Windows path casing before comparing against the home/root boundary.
+    RED fixtures demonstrated deletion in an isolated fake home and through its
+    alias; both now refuse with bytes intact. Actual CLI fake-home refusal and
+    normal runtime selection pass. Pinned Bun 1.3.5: 117 passed, 0 failed,
+    501 assertions across installer-safety, installer-cli-safety and
+    installer-target; `pr69-target-guard-bun.log`. ESLint has no errors and the
+    same six pre-existing argument-parser warnings. This is not protection
+    against every concurrent target substitution or a full release gate.
+
+The three installed state failures remain on the existing skin acceptance map.
+No broader STATE authority or final contract closure is implied.
+
+Next inventory investigation must reuse existing upstream seams where possible.
+The 1.9.1 `runtime-artifact-install-plan.cjs` plans staged command/skill/agent
+copy destinations, but explicitly leaves pruning, migrations and final cleanup
+to the installer. `--dry-run` previews legacy cleanup only. Neither is currently
+proof of a complete candidate write inventory for settings, side metadata and
+all failure paths. Codex has its own runtime-specific rollback; the wrapper
+must not claim that applies to every runtime. Source presence is not a reason
+to replace the open inventory requirement with another incomplete path list.
+
+## CI handoff
+
+Use the newly published branch head once changes are committed and pushed;
+historical green checks on df0d3f9c are stale. Existing upgrade-verifier arguments
+advance from 1.8.0/1.9.1 to 1.9.1/1.10.0. Workflow/action changes were inherited;
+this session did not redesign CI. Application failures do not authorize weaker
+checks. Keep PR 69 draft. PR 4 separately remains blocked on ordinary
+non-elevated repair, and PR 70 has not been advanced.
+
+## Native Windows publication experiment: not adopted
+
+A compiler-free File.Replace experiment passed 47 focused tests once, including
+protected-DACL preservation and native failure recovery. It timed out again
+under Node/C8 and failed the per-file Tier S branch gate (95.56 percent branches;
+98.73 percent statements/lines, 100 percent functions). These are experiment
+results, not coverage evidence for the restored current source.
+
+Bare PowerShell startup measured 649-853 ms in three probes; startup alone did
+not explain the native-operation deadline failures. The root cause remains
+unverified. No production timeout or existing test gate was changed.
+
+The experiment and its three new tests were archived under the evidence root:
+pr69-roadmap-compiler-experiment.patch, the two pr69-experiment-* source copies,
+and pr69-roadmap-experiment-disposition.json with before/restored hashes. The
+publisher and its test file were restored exactly to HEAD; neither had prior
+dirty work before this experiment. Existing installer changes were preserved.
+
+The current complete-suite result is again 1745 passed / 1 failed, from
+pr69-full-suite.log. Publication remains held on application validation and the
+open review findings above. No PR69 application changes have been pushed yet.
+{
+  "platform": "win32",
+  "node": "v24.20.0",
+  "accepted": false,
+  "status": 1,
+  "injectedFailureReached": true,
+  "claimedRollbackApplied": true,
+  "settingsPreserved": true,
+  "ownerPreserved": true,
+  "residualFileCount": 622,
+  "residualExamples": [
+    ".gsd-source",
+    "agents/gsd-advisor-researcher.md",
+    "agents/gsd-ai-researcher.md",
+    "agents/gsd-assumptions-analyzer.md",
+    "agents/gsd-code-fixer.md",
+    "agents/gsd-code-reviewer.md",
+    "agents/gsd-codebase-mapper.md",
+    "agents/gsd-debug-session-manager.md",
+    "agents/gsd-debugger.md",
+    "agents/gsd-doc-classifier.md",
+    "agents/gsd-doc-synthesizer.md",
+    "agents/gsd-doc-verifier.md"
+  ],
+  "failure": "failed installation must not leave unowned candidate files\n\n622 !== 0\n",
+  "fixtureRemoved": true
+}
+
+hook: PostToolUse
+ succeeded in 4601ms:
+75:function parseConfigDir(argv) {
+99:function expandRuntimeHome(value, home = os.homedir()) {
+103:function resolveTargetDir(argv) {
+107:function resolveTargetDirRaw(argv) {
+159:function readInstalledManifest(targetDir) {
+169:function readOverlayManifest(targetDir) {
+173:// Absence permits legacy detection; a valid empty inventory owns no files.
+175:function readOwnershipManifest(targetDir, name) {
+205:function readJsonFile(filePath, description) {
+213:function readDistOverlayManifest(distDir) {
+234:function targetRelativePath(targetDir, relPath) {
+250:function copySnapshotPath(sourcePath, snapshotPath) {
+263:function restoreSnapshotPath(snapshot, targetDir) {
+286:function pruneEmptyParents(targetDir, relPath) {
+306:function preflightInstallTarget(targetDir, distDir) {
+328:function createInstallTransaction(targetDir, distDir) {
+389:function rollbackInstallTransaction(transaction) {
+409:function commitInstallTransaction(transaction) {
+419: *   2. Otherwise, remove known v2.x directory structures (legacy fallback)
+428:function removeGsdFiles(targetDir, quiet) {
+481:    strategy = 'legacy-fallback';
+555:function detectV2(targetDir) {
+603:function isSafeToClean(targetDir) {
+640:async function cleanupV2(targetDir, detection, quiet) {
+680:function copyOverlayFiles(distDir, targetDir) {
+713:function copyOverlayManifest(distDir, targetDir) {
+724:function assertRegularBackupTree(entry) {
+734:function preserveLocalPatchHistory(transaction) {
+777:function cleanOrphanedPaths(targetDir) {
+800:function writeInstallMeta(targetDir, distDir = DIST_DIR, packagePath = PKG_PATH) {
+841:function patchStatusLine(targetDir) {
+905:function uninstall(targetDir, { exit: shouldExit = true } = {}) {
+942:function install(distDir, targetDir, userArgs, options = {}) {
+956:    transaction = createInstallTransaction(targetDir, distDir);
+993:        const rollbackResult = rollbackInstallTransaction(transaction);
+1080:async function main() {
+1150:  createInstallTransaction,
+1151:  rollbackInstallTransaction,
+# Override: bin/install.js
+
+## Why
+Memory-nexus recovery exposed a Codex global install crash after upstream copied files and wrote VERSION. `installCodexConfig` can pass `null` frontmatter into `extractFrontmatterField`, which then calls `.match` and aborts the installer after mutation.
+
+## Upstream snapshot
+- Version: 1.9.1
+- SHA-256: aa776a525a21eebf30ce0ee176b360ccb30ae9522e1c0c37f982c88509877bde
+- Semantic SHA-256: 4bbcd0f95c08f948b86e024ddc3a1db0a65b0da0fead6a6f1079eec2b6523603
+
+## What's different
+- Treats missing or malformed YAML frontmatter as an absent field in `extractFrontmatterField`.
+- Preserves filename fallback behavior for Codex agent metadata instead of crashing during TOML generation.
+- Restores the shared `.gsd/defaults.json` bytes (or prior absence) when Codex
+  agent/config generation fails after setting runtime defaults. Composed
+  installer fault injection covers both prior states.
+- Documents `--kimi-code` as the distinct Kimi Code selector and removes the
+  obsolete example that directed the Python Kimi runtime into its directory.
+- Records script-helper ownership from regular package source files, matching
+  the copy operation, instead of claiming every destination `.cjs` file.
+  Includes copied documentation so uninstall can remove managed files without
+  recursively deleting shared helper directories.
+
+## Review trigger
+When upstream `bin/install.js` changes, check whether Open GSD natively handles absent agent frontmatter in Codex config generation and remove this override once upstream behavior covers the case.
+
+Also retire the defaults rollback and Kimi help deltas individually when the
+same composed-installer regression cases pass against the pure candidate.
+
+Retire the script ownership delta when pure upstream passes the real install /
+uninstall owner-script regression in `tests/installer-cli-safety.test.js`,
+including complete inventory of the regular helper files it copies. The
+September 14 RED receipt proves destination enumeration claims owner scripts.
+
+## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
+
+Reviewed 2026-08-30 for the 1.6.1 -> 1.7.0 bump: upstream extractFrontmatterField STILL calls .match() on unguarded input, so the override remains required. Rebased as pure 1.7.0 base + the null guard (the previous file carried a pre-1.6.1 vintage base). Companion fix: upstream 1.7.0 writes a .gsd-source marker (#1477) outside the manifest and never removes it on uninstall; the fork wrapper (bin/install.js metadata cleanup list) now removes it. Upstream-contribution candidates: the null guard and the uninstall marker removal.
+
+## Bump review 2026-08-30 (1.7.0 -> 1.8.0)
+
+Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream shipped a large installer
+revision (#2284 the bulk, plus #2305/#2310/#2322/#2278/#2393 and ADR-2310) â€”
+all adopted intact via the pure-1.8.0 base. Verified against the 1.8.0 file:
+extractFrontmatterField (line 2434) STILL calls .match() unguarded, and
+uninstall STILL never removes the .gsd-source marker it writes (line 10630) â€”
+both fork deltas remain required. Rebuilt as pure 1.8.0 base + the null guard
++ the uninstall marker removal. Both remain upstream-contribution candidates.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.
+
+hook: PostToolUse
+hook: PostToolUse Completed
+hook: PostToolUse Completed
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse Completed
+hook: PreToolUse Completed
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command 'rg -n "''^function install|''^function |fs'"\\.(writeFileSync|copyFileSync|cpSync|renameSync|unlinkSync|rmSync|rmdirSync|mkdirSync|chmodSync)|legacyCleanup|dryRun|cleanupLegacy\" overrides/bin/install.js | Select-Object -Last 190" in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+ succeeded in 5093ms:
+8227:        try { fs.rmdirSync(kimiHooksLibDir); } catch (_) { /* not empty or other error — leave it */ }
+8235:        if (fs.readdirSync(kimiHooksDir).length === 0) fs.rmdirSync(kimiHooksDir);
+8244:          fs.unlinkSync(kimiPkgJsonPath);
+8264:        fs.unlinkSync(instructionsPath);
+8268:        fs.writeFileSync(instructionsPath, cleaned);
+8278:      fs.unlinkSync(hookPath);
+8284:          fs.rmdirSync(hooksDir);
+8303:          fs.unlinkSync(p);
+8311:        fs.unlinkSync(clinerulesDir);
+8319:          fs.rmdirSync(dir);
+8330:            fs.unlinkSync(agentsPath);
+8334:            fs.writeFileSync(agentsPath, cleaned);
+8360:          fs.unlinkSync(p);
+8368:        fs.rmdirSync(hooksDir);
+8392:          fs.unlinkSync(p);
+8400:        fs.rmdirSync(windsurfHooksDir);
+8414:          fs.rmSync(path.join(commandsDir, f), { force: true });
+8429:      fs.rmSync(legacyGsdCommandsDir, { recursive: true });
+8434:          fs.mkdirSync(legacyGsdCommandsDir, { recursive: true });
+8435:          fs.writeFileSync(legacyDevPrefsPath, savedDevPrefs);
+8457:      fs.rmSync(legacyDir, { recursive: true });
+8482:    fs.rmSync(gsdDir, { recursive: true });
+8489:        fs.mkdirSync(gsdDir, { recursive: true });
+8490:        fs.writeFileSync(userProfilePath, preservedProfile);
+8505:        fs.unlinkSync(path.join(agentsDir, file));
+8522:        fs.unlinkSync(hookPath);
+8540:          fs.unlinkSync(filePath);
+8548:        fs.rmdirSync(hooksLibDir);
+8581:        fs.unlinkSync(pluginPath);
+8585:      try { fs.rmdirSync(pluginsDir); } catch (_) { /* not empty — user plugins present */ }
+8606:      try { fs.unlinkSync(fp); removedChangeset++; } catch (_) { /* best-effort */ }
+8609:    try { fs.rmdirSync(changesetUninstallDir); } catch (_) { /* Not empty — user content present */ }
+8620:      try { fs.unlinkSync(fp); removedScriptsLib++; } catch (_) { /* best-effort */ }
+8623:    try { fs.rmdirSync(scriptsLibUninstallDir); } catch (_) { /* Not empty — user content present */ }
+8631:  try { fs.unlinkSync(fixSlashUninstallPath); } catch (_) { /* best-effort */ }
+8635:    try { fs.unlinkSync(path.join(targetDir, 'scripts', gen)); } catch (_) { /* best-effort */ }
+8641:    try { fs.rmdirSync(scriptsUninstallDir); } catch (_) { /* Not empty — leave it */ }
+8651:        fs.unlinkSync(pkgJsonPath);
+8831:          fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+8874:          fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+8897:          fs.writeFileSync(mcpConfigPath, JSON.stringify(mcpConfig, null, 2) + '\n');
+8911:    fs.rmSync(manifestPath, { force: true });
+8931:function parseJsonc(content) {
+8993:function configureOpencodePermissions(isGlobal = true, configDir = null) {
+9000:  fs.mkdirSync(opencodeConfigDir, { recursive: true });
+9082:  fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+9092:function configureKiloPermissions(isGlobal = true, configDir = null) {
+9099:  fs.mkdirSync(kiloConfigDir, { recursive: true });
+9156:  fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+9167:function toTildePosixPath(absPath) {
+9182:function buildAntigravityAllowRules(configDir) {
+9212:function configureAntigravityPermissions(isGlobal = true, configDir = null) {
+9219:  fs.mkdirSync(antigravityConfigDir, { recursive: true });
+9287:function configureAntigravityMcpConfig(isGlobal = true, configDir = null) {
+9291:  fs.mkdirSync(antigravityConfigDir, { recursive: true });
+9322:  fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+9335:function mergeGsdMcpServerIntoSettings(settings) {
+9350:function verifyInstalled(dirPath, description) {
+9371:function verifyFileInstalled(filePath, description) {
+9395:function fileHash(filePath) {
+9403:function generateManifest(dir, baseDir) {
+9420:function normalizeInstallRelativePath(relPath) {
+9435:function resolveInstallRelativePath(baseDir, relPath) {
+9455:function writeManifest(configDir, runtime = DEFAULT_RUNTIME, options = {}) {
+9657:  fs.writeFileSync(path.join(configDir, MANIFEST_NAME), JSON.stringify(manifest, null, 2));
+9683:function populatePristineDir({ packageSrc, pristineDir, modified, runtime, pathPrefix, isGlobal }) {
+9717:          fs.mkdirSync(path.dirname(stagedFile), { recursive: true });
+9718:          fs.copyFileSync(srcRef.fullPath, stagedFile);
+9735:      fs.mkdirSync(path.dirname(outRef.fullPath), { recursive: true });
+9736:      fs.copyFileSync(stagedRef.fullPath, outRef.fullPath);
+9740:    try { fs.rmSync(stageRoot, { recursive: true, force: true }); } catch { /* best-effort cleanup */ }
+9757:function saveLocalPatches(configDir, pristineCtx) {
+9788:      fs.mkdirSync(path.dirname(backupPath), { recursive: true });
+9789:      fs.copyFileSync(fullPath, backupPath);
+9813:    fs.writeFileSync(path.join(patchesDir, 'backup-meta.json'), JSON.stringify(meta, null, 2));
+9868:          try { fs.rmSync(pristinePath, { force: true, recursive: true }); } catch { /* best-effort */ }
+9900:              fs.mkdirSync(path.dirname(outRef.fullPath), { recursive: true });
+9901:              fs.copyFileSync(tempRef.fullPath, outRef.fullPath);
+9910:            try { fs.rmSync(tempPristineDir, { recursive: true, force: true }); } catch { /* best-effort */ }
+9937:function reportLocalPatches(configDir, runtime = DEFAULT_RUNTIME) {
+9961:function reportInstallerMigrationResult(result) {
+9972:function install(isGlobal, runtime = DEFAULT_RUNTIME, options = {}) {
+10041:        fs.mkdirSync(d, { recursive: true });
+10046:        fs.writeFileSync(d, content);
+10047:        try { fs.chmodSync(d, 0o755); } catch (_) { /* Windows */ }
+10049:        fs.copyFileSync(s, d);
+10051:          try { fs.chmodSync(d, 0o755); } catch (_) { /* Windows */ }
+10285:        fs.rmSync(skillDirPath, { recursive: true, force: true });
+10286:        fs.mkdirSync(skillDirPath, { recursive: true });
+10291:              fs.mkdirSync(path.dirname(destFile), { recursive: true });
+10292:              fs.writeFileSync(destFile, buf);
+10303:            try { fs.rmSync(path.join(_earlySkillsDir, entry.name), { recursive: true, force: true }); }
+10315:          fs.mkdirSync(_earlyAgentsDir, { recursive: true });
+10316:          fs.writeFileSync(path.join(_earlyAgentsDir, file), buf);
+10325:            try { fs.unlinkSync(path.join(_earlyAgentsDir, file)); } catch (_) { /* best-effort */ }
+10333:      try { fs.writeFileSync(_earlyVersionPath, codexPreInstallVersionBytes); } catch (_) { /* best-effort */ }
+10335:      try { fs.unlinkSync(_earlyVersionPath); } catch (_) { /* best-effort */ }
+10348:          try { fs.unlinkSync(full); } catch (_) { /* best-effort */ }
+10486:          fs.writeFileSync(_markerPath, gsdSourceCommands + '\n', 'utf8');
+10709:    fs.mkdirSync(commandsDir, { recursive: true });
+10717:          fs.unlinkSync(path.join(commandsDir, f));
+10731:        fs.writeFileSync(path.join(commandsDir, `gsd-${stem}.md`), content);
+10749:      fs.rmSync(legacyGsdDir, { recursive: true });
+10753:        fs.writeFileSync(path.join(commandsDir, 'gsd-dev-preferences.md'), preservedDevPrefs);
+10764:        fs.rmSync(path.join(staleSkillsDir, e.name), { recursive: true });
+10840:      fs.mkdirSync(path.dirname(sharedDest), { recursive: true });
+10841:      fs.copyFileSync(sharedSrc, sharedDest);
+10894:        fs.unlinkSync(path.join(agentsDest, file));
+10919:          fs.unlinkSync(codexConfigPath);
+10921:          fs.writeFileSync(codexConfigPath, cleaned);
+10927:    fs.mkdirSync(agentsDest, { recursive: true });
+11050:        fs.writeFileSync(path.join(agentsDest, destName), content);
+11064:    fs.copyFileSync(changelogSrc, changelogDest);
+11074:  fs.writeFileSync(versionDest, pkg.version);
+11090:  fs.writeFileSync(runtimeMarkerDest, `${runtime}\n`);
+11116:    fs.mkdirSync(destRootDir, { recursive: true });
+11122:    fs.writeFileSync(pkgJsonDest, '{"type":"commonjs"}\n');
+11132:      fs.mkdirSync(hooksDest, { recursive: true });
+11159:            fs.writeFileSync(destFile, content);
+11160:            try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+11166:              fs.writeFileSync(destFile, content);
+11167:              try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows doesn't support chmod */ }
+11169:              fs.copyFileSync(srcFile, destFile);
+11178:          fs.mkdirSync(subDest, { recursive: true });
+11187:              fs.writeFileSync(subDestFile, content);
+11188:              try { fs.chmodSync(subDestFile, 0o755); } catch (e) { /* Windows */ }
+11190:              fs.copyFileSync(subSrcFile, subDestFile);
+11226:      fs.mkdirSync(hooksLibDest, { recursive: true });
+11295:    fs.mkdirSync(changesetDest, { recursive: true });
+11296:    fs.mkdirSync(scriptsLibDest, { recursive: true });
+11301:        fs.copyFileSync(srcFile, path.join(changesetDest, entry));
+11312:          fs.copyFileSync(srcFile, path.join(scriptsLibDest, entry));
+11335:    fs.mkdirSync(path.join(targetDir, 'scripts'), { recursive: true });
+11339:      fs.copyFileSync(fixSlashSrc, fixSlashDest);
+11356:    fs.mkdirSync(capGenDestDir, { recursive: true });
+11363:        fs.copyFileSync(genSrc, genDest);
+11372:  // cleanupLegacyGsdCc handles both the legacy shared cache and the per-package
+11378:    cleanupLegacyGsdCc({ dryRun: false });
+11519:        try { fs.writeFileSync(codexDefaultsPathPreInstall, codexDefaultsPreInstallSnapshot); }
+11522:        try { fs.rmSync(codexDefaultsPathPreInstall); }
+11527:        try { fs.writeFileSync(codexConfigPathPreInstall, codexConfigPreInstallSnapshot); }
+11530:        try { fs.rmSync(codexConfigPathPreInstall); } catch (_) { /* best-effort */ }
+11539:          try { fs.writeFileSync(codexHooksJsonPathPreInstall, codexHooksJsonPreInstallSnapshot); }
+11542:          try { fs.rmSync(codexHooksJsonPathPreInstall); } catch (_) { /* best-effort */ }
+11559:          fs.rmSync(skillDirPath, { recursive: true, force: true });
+11560:          fs.mkdirSync(skillDirPath, { recursive: true });
+11565:                fs.mkdirSync(path.dirname(destFile), { recursive: true });
+11566:                fs.writeFileSync(destFile, buf);
+11579:              try { fs.rmSync(path.join(_rollbackSkillsDir, entry.name), { recursive: true, force: true }); }
+11598:            fs.mkdirSync(_rollbackAgentsDir, { recursive: true });
+11599:            fs.writeFileSync(path.join(_rollbackAgentsDir, file), buf);
+11610:              try { fs.unlinkSync(path.join(_rollbackAgentsDir, file)); } catch (_) { /* best-effort */ }
+11619:        try { fs.writeFileSync(_rollbackVersionPath, codexPreInstallVersionBytes); }
+11622:        try { fs.unlinkSync(_rollbackVersionPath); } catch (_) { /* best-effort */ }
+11643:            try { fs.unlinkSync(full); } catch (_) { /* best-effort */ }
+11690:      fs.mkdirSync(codexHooksDest, { recursive: true });
+11703:          fs.writeFileSync(destFile, content);
+11704:          try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+11714:          fs.writeFileSync(destFile, content);
+11715:          try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+11722:          fs.copyFileSync(srcFile, destFile);
+11723:          try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+12100:        fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+12323:function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallStatusline, runtime = DEFAULT_RUNTIME, isGlobal = true, configDir = null, bannerOpts = {}) {
+12476:function handleStatusline(settings, isInteractive, callback) {
+12559:function buildRuntimePromptText() {
+12592:function parseRuntimeInput(answer) {
+12613:function promptRuntime(callback) {
+12645:function buildUpdateBannerPromptText() {
+12666:function parseUpdateBannerInput(answer) {
+12681:function buildUpdateBannerHookEntry(bannerCommand) {
+12701:function handleUpdateBanner(isInteractive, callback) {
+12725:function promptLocation(runtimes) {
+12786:function homePathCoveredByRc(globalBin, homeDir, rcFileNames) {
+12875:function decodeFishUniversalValue(s) {
+12928:function homePathCoveredByFishConfig(globalBin, homeDir, fishConfigDir) {
+13063:function maybeSuggestPathExport(globalBin, homeDir) {
+13147: * @param {boolean} [opts.dryRun=false]          - preview only; no mutations
+13151:function cleanupLegacyGsdCc({ homeDir = os.homedir(), dryRun = false, logger = console } = {}) {
+13170:  // Apply the plan (dryRun honors the flag).
+13171:  const result = applyLegacyCleanup(plan, { dryRun, logger });
+13176:  if (dryRun) {
+13179:    try { fs.unlinkSync(perPkgCacheFile); } catch (_e) { /* cache may not exist yet */ }
+13183:  if (plan.length > 0 || !dryRun) {
+13184:    const verb = dryRun ? 'Would remove' : 'Removed';
+13185:    const count = dryRun ? plan.length : result.removed.length;
+13195:function installAllRuntimes(runtimes, isGlobal, isInteractive) {
+13499:    cleanupLegacyGsdCc,
+13520:    // cleanupLegacyGsdCc with dryRun:true is the single source of truth for
+13523:    const { plan } = cleanupLegacyGsdCc({ dryRun: true });
+
+hook: PostToolUse
+hook: PostToolUse Completed
+codex
+The sources confirm two gaps: rollback starts after legacy cleanup, and the artifact plan covers only staged commands, skills and agents. Hooks, settings, defaults, markers and patch history need explicit transaction coverage too. I’m checking those mutation paths to see where a narrow fork-owned adapter can reuse upstream behavior.
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse
+hook: PreToolUse Completed
+hook: PreToolUse Failed
+hook: PreToolUse Completed
+hook: PreToolUse Failed
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command '$s=Get-Content overrides/bin/install.js; $s[9971..10110]; $s[10370..10510]; $s[10605..10710]' in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+exec
+"C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe\\pwsh.exe" -NoProfile -Command "rg -n \"function |exports|USER_OWNED|fs\\.|deps|io:|materializ\" node_modules/@opengsd/gsd-core/gsd-core/bin/lib/install-engine.cjs
+rg -n \"function |exports|fs\\.|rollback|apply|plan|deps\" node_modules/@opengsd/gsd-core/gsd-core/bin/lib/installer-migrations.cjs
+rg -n \"home:|destSubpath:|runtime ===|case |codex|claude|scope\" node_modules/@opengsd/gsd-core/gsd-core/bin/lib/runtime-artifact-layout.cjs" in C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign
+ succeeded in 3015ms:
+10:var __importDefault = (this && this.__importDefault) || function (mod) {
+35:// test stubs that monkeypatch the module's exports are seen at call time.
+38:// USER_OWNED_ARTIFACTS
+56:const USER_OWNED_ARTIFACTS = ['USER-PROFILE.md'];
+67:function _hostBehaviors(runtime) {
+84:function applyOpencodeFamilyPathPrefix(content, runtime, pathPrefix) {
+98:function convertClaudeCommandToOpencodeSkill(content, skillName) {
+105:function convertClaudeCommandToKiloSkill(content, skillName) {
+130:function preserveUserArtifacts(destDir, fileNames) {
+149:function restoreUserArtifacts(destDir, saved) {
+181: * Cross-platform note: on Windows, `fs.lstatSync().isSymbolicLink()` returns
+188:function isSymlinkedDestOptIn() {
+203:function hasExistingSymlinkBetween(root, fullPath, options = {}) {
+314:function migrateLegacyDevPreferencesToSkill(targetDir, saved, runtime, scope = 'global') {
+364:function _copyStaged(stagedDir, destDir, kind, configDir, runtime) {
+454:function _removeGsdEntries(destDir, kind) {
+494:function _snapshotDir(dir) {
+514:function _restoreDir(dir, snapshot) {
+531:function _removeHermesBareStemDirs(nestedGsdDir) {
+560:function _runLegacyInstallMigrations(runtime, configDir, scope = 'global') {
+606:function _runLegacyUninstallCleanup(runtime, configDir, scope = 'global') {
+610:    // block (1c) handles removal of flat files; this function handles the legacy
+673: *   the skills kind can materialize installed third-party capability skills
+677:function installRuntimeArtifacts(runtime, configDir, scope, resolvedProfile, resolveAttribution = () => undefined, capabilityRegistry) {
+686:        // legacy-directory cleanup needs its own pre-materialization hook here.
+744:                    const USER_OWNED_SKILL_DIRS = ['gsd-dev-preferences'];
+745:                    for (const dirName of USER_OWNED_SKILL_DIRS) {
+834:function installOpencodeFamilySkills(runtime, targetDir, rawCommandsDir, pathPrefix, resolveAttribution = () => undefined, resolvedProfile, capabilityRegistry) {
+865:    const USER_OWNED_SKILL_DIRS = ['gsd-dev-preferences'];
+867:    for (const dirName of USER_OWNED_SKILL_DIRS) {
+893:    // #2362: materialize installed THIRD-PARTY capability skills, bound to their
+963:function installOpencodeFamilyCommands(runtime, destDir, srcDir, pathPrefix, resolveAttribution = () => undefined, prefix = 'gsd') {
+1024:function _installNativePluginIfDeclared(runtime, configDir, behaviors, src) {
+1053: * Runs BEFORE materialization writes the fresh command set to the new
+1060: * `command/<file>` key are removed here — the materialization call
+1067: * Implemented as inline pre-materialization cleanup rather than a
+1078:function _migrateLegacyOpencodeCommandDir(runtime, configDir, behaviors) {
+1138: *   materializes for this combined-family (OpenCode/Kilo) install path too.
+1141:function installOpencodeFamilyArtifacts(runtime, configDir, scope, resolvedProfile, resolveAttribution = () => undefined, behaviors = {}, capabilityRegistry) {
+1182:function uninstallRuntimeArtifacts(runtime, configDir, scope) {
+1221:module.exports = {
+1238:    USER_OWNED_ARTIFACTS,
+3: * Installer migrations engine — plan, apply, and track filesystem-mutation
+10:var __importDefault = (this && this.__importDefault) || function (mod) {
+25:function sha256File(filePath) {
+42:function sha256Text(value) {
+46: * Copy a managed path for the rollback snapshot or the user-facing backup,
+49: * `fs.copyFileSync` follows symlinks, so a managed path that has been replaced
+55: * rollback fidelity (restore re-creates the same link) while never reading the
+56: * referent. Deletion was already safe — `fs.rmSync` unlinks the link, never the
+59: * Windows note: `fs.symlinkSync` can throw EPERM for unprivileged users. That
+60: * surfaces as an apply failure and triggers the normal rollback path, which is
+64:function copyPreservingSymlink(srcPath, destPath) {
+76:function readJsonIfPresent(filePath, fallback) {
+89:function readInstallManifest(configDir) {
+102:function readInstallState(configDir) {
+116:function atomicWriteInstallState(configDir, content) {
+132:function writeInstallState(configDir, state) {
+136:function readJson(configDir, relPath) {
+148:function normalizeRelPath(relPath) {
+162:function classifyArtifact(configDir, relPath, manifest) {
+178:function appliedMigrationIds(state) {
+183:function appliedMigrationEntries(state) {
+192:function migrationChecksum(migration) {
+205:        plan: typeof migration.plan === 'function' ? migration.plan.toString() : null,
+212:function reconcileDriftedChecksums(appliedEntries, checksumDrift) {
+229:function collectAppliedChecksumDrift(applied, migrations) {
+250:function migrationMatchesContext(migration, { runtime, scope }) {
+261:function discoverInstallerMigrations({ migrationsDir }) {
+277:function journalTimestamp(now) {
+280:function migrationRunId(appliedAt) {
+283:function sleepSync(ms) {
+294:function isPidAlive(pid) {
+309:function readLockFile(lockPath) {
+322:function acquireInstallMigrationLock(configDir, { timeoutMs = DEFAULT_LOCK_TIMEOUT_MS } = {}, clock = clock_cjs_1.realClock) {
+421:function ensureInsideConfig(configDir, relPath) {
+430:function isStructurallyEmpty(value) {
+437:function journalAction(action, status, extras = {}) {
+441:function planInstallerMigrations({ configDir, runtime = null, scope = null, migrations, baselineScan = false, now = () => new Date().toISOString(), }) {
+464:        const planFn = migration.plan;
+465:        const plannedActions = planFn({
+476:        (0, installer_migration_authoring_cjs_1.validateInstallerMigrationActions)(plannedActions, migration);
+478:        for (const rawAction of plannedActions) {
+541:function uniqueActionMigrationIds(actions) {
+544:function rollbackAppliedMigrationResult({ configDir, journal, journalPath, rollbackRoot, backupRoot, previousInstallStateBytes }) {
+547:        if (!action.rollbackRelPath)
+549:        const rollbackPath = node_path_1.default.join(configDir, action.rollbackRelPath);
+555:            if (node_fs_1.default.lstatSync(rollbackPath, { throwIfNoEntry: false })) {
+557:                copyPreservingSymlink(rollbackPath, dest);
+585:        node_fs_1.default.rmSync(rollbackRoot, { recursive: true, force: true });
+589:        // journal cleanup is best-effort; the rollback above is the safety-critical part
+592:        const error = new Error('migration rollback incomplete');
+593:        error.rollbackFailures = failures;
+597:function cleanupMigrationRunArtifacts(journalPath, rollbackRoot, backupRoot) {
+603:        node_fs_1.default.rmSync(rollbackRoot, { recursive: true, force: true });
+611:function applyInstallerMigrationPlan({ configDir, plan, now = () => new Date().toISOString(), }) {
+614:    if (!plan || !Array.isArray(plan.actions))
+615:        throw new Error('plan with actions is required');
+616:    if (Array.isArray(plan.blocked) && plan.blocked.length > 0) {
+617:        throw new Error(`migration plan has ${plan.blocked.length} blocked action(s)`);
+623:    const rollbackRootRelPath = node_path_1.default.posix.join('gsd-migration-journal', `${runId}-rollback`);
+624:    const rollbackRoot = node_path_1.default.join(configDir, rollbackRootRelPath);
+630:        appliedMigrationIds: uniqueActionMigrationIds(plan.actions),
+633:    const rollback = [];
+641:        for (const action of plan.actions) {
+658:            const rollbackPath = node_path_1.default.join(rollbackRoot, normalized);
+659:            node_fs_1.default.mkdirSync(node_path_1.default.dirname(rollbackPath), { recursive: true });
+660:            copyPreservingSymlink(fullPath, rollbackPath);
+661:            rollback.push({ relPath: normalized, rollbackPath });
+666:                        rollbackRelPath: node_path_1.default.posix.join(rollbackRootRelPath, normalized),
+672:                        rollbackRelPath: node_path_1.default.posix.join(rollbackRootRelPath, normalized),
+684:                    rollbackRelPath: node_path_1.default.posix.join(rollbackRootRelPath, normalized),
+689:                    rollbackRelPath: node_path_1.default.posix.join(rollbackRootRelPath, normalized),
+698:        reconcileDriftedChecksums(nextApplied, plan.checksumDrift);
+700:        for (const action of plan.actions) {
+723:            rollback: () => rollbackAppliedMigrationResult({ configDir, journal, journalPath, rollbackRoot, backupRoot, previousInstallStateBytes }),
+727:        const rollbackFailures = [];
+728:        for (const entry of rollback.reverse()) {
+732:                // Symlink-preserving, same as the forward path: `entry.rollbackPath` is
+737:                copyPreservingSymlink(entry.rollbackPath, dest);
+739:            catch (rollbackError) {
+740:                rollbackFailures.push({
+742:                    rollbackPath: entry.rollbackPath,
+743:                    error: rollbackError.message,
+747:        if (rollbackFailures.length > 0) {
+748:            const rollbackError = new Error(`migration apply failed and rollback incomplete: ${error.message}`);
+749:            rollbackError.cause = error;
+750:            rollbackError.rollbackFailures = rollbackFailures;
+751:            throw rollbackError;
+753:        cleanupMigrationRunArtifacts(journalPath, rollbackRoot, backupRoot);
+757:function markPendingMigrationsApplied({ configDir, plan, now = () => new Date().toISOString(), }) {
+758:    if (!plan)
+760:    const hasPending = Array.isArray(plan.pendingMigrationIds) && plan.pendingMigrationIds.length > 0;
+761:    const hasDrift = Array.isArray(plan.checksumDrift) && plan.checksumDrift.length > 0;
+768:    const reconciledCount = reconcileDriftedChecksums(nextApplied, plan.checksumDrift);
+772:        for (const migration of plan.pendingMigrations || []) {
+775:        for (const id of plan.pendingMigrationIds) {
+795:function runInstallerMigrations({ configDir, runtime = null, scope = null, migrationsDir = DEFAULT_MIGRATIONS_DIR, migrations = discoverInstallerMigrations({ migrationsDir }), baselineScan = false, now = () => new Date().toISOString(), lockTimeoutMs = DEFAULT_LOCK_TIMEOUT_MS, } = { configDir: '' }) {
+800:        const plan = planInstallerMigrations({ configDir, runtime, scope, migrations, baselineScan, now });
+801:        if (plan.actions.length === 0) {
+802:            const newlyApplied = markPendingMigrationsApplied({ configDir, plan, now });
+807:                plan,
+810:        if (plan.blocked.length > 0) {
+815:                plan,
+816:                blocked: plan.blocked,
+819:        const result = applyInstallerMigrationPlan({ configDir, plan, now });
+821:        return { ...result, plan };
+847:module.exports = {
+853:    applyInstallerMigrationPlan,
+857:    planInstallerMigrations,
+135: * the converter dispatch + `isGlobal` scope threading for the descriptor's
+163:function convertedAgentsKind(destSubpath, prefix, converterName, configDir, scope = 'global') {
+169:            // isGlobal is threaded so scope-aware agent converters (copilot, antigravity)
+171:            // (content) ignore the extra positional arg. Mirrors skillsKind's scope
+177:            return stageAgentsForRuntimeWithConverter(findAgentsSourceRoot(configDir), resolved, converter, scope === 'global', agentCtx);
+226: * @param scope          install scope; converted to isGlobal and passed as 5th positional
+227: *                       arg so scope-aware converters (antigravity, copilot) can choose
+235:function skillsKind(destSubpath, prefix, converterName, runtime, configDir, nested = false, scope = 'global', capabilityRegistry) {
+246:            // `runtime` for the claude/kimi/cline converters, so the scope-aware
+252:            const isGlobal = scope === 'global';
+292:function dispatchKindEntry(entry, runtime, configDir, scope, capabilityRegistry) {
+297:        case 'commands':
+302:        case 'agents':
+305:                : convertedAgentsKind(destSubpath, prefix, converter, configDir, scope);
+307:        case 'skills':
+311:            result = skillsKind(destSubpath, prefix, converter, runtime, configDir, nested, scope, capabilityRegistry);
+313:        case 'kimi-agents':
+319:    if (scope === 'global' && typeof entry.home === 'string' && entry.home !== '') {
+331: *   capability registry in scope (e.g. capability-writer.cts's `capability set`
+340:function resolveRuntimeArtifactLayout(runtime, configDir, scope = 'global', capabilityRegistry) {
+341:    return resolveRuntimeArtifactLayoutFromRegistry(getRegistry(), runtime, configDir, scope, capabilityRegistry);
+343:function resolveRuntimeArtifactLayoutFromRegistry(registry, runtime, configDir, scope = 'global', capabilityRegistry) {
+347:    if (scope !== 'local' && scope !== 'global') {
+348:        throw new TypeError('scope must be "local" or "global"');
+354:    const entries = desc[scope] ?? [];
+355:    const kinds = entries.map((entry) => dispatchKindEntry(entry, runtime, configDir, scope, capabilityRegistry));
+356:    return { runtime, configDir, scope, kinds };
+
+hook: PostToolUse
+ succeeded in 4857ms:
+function install(isGlobal, runtime = DEFAULT_RUNTIME, options = {}) {
+  // #2093: isKilo dropped â€” Kilo's agent/model-override handling below reads
+  // _hostBehaviors(runtime).frontmatterDialect === 'kilo' instead of this flag.
+  // #2095: isKimi dropped â€” kimi is now a hooks/ consumer like every other
+  // settings-json-adjacent runtime; the two `&& !isKimi` hooks-copy guards
+  // below were removed, leaving isKimi unused in this function (the kimi
+  // local-install-deferred branch above already reads
+  // _hostBehaviors(runtime).localInstallDeferred instead of this flag).
+  // #2096: isAntigravity dropped â€” antigravity is in
+  // _DESCRIPTOR_AGENTS_RUNTIMES below, so its two legacy-agent-loop branches
+  // (the path-rewrite skip and the converter dispatch) were unreachable dead
+  // code; both were removed rather than re-gated on hostBehaviors.
+  // #2098: isCodebuddy dropped â€” codebuddy is also in
+  // _DESCRIPTOR_AGENTS_RUNTIMES below, so its legacy converter-dispatch branch
+  // (the `isCodebuddy` arm calling convertClaudeAgentToCodebuddyAgent) was
+  // unreachable dead code and was removed rather than re-gated.
+  // #2099: isCopilot dropped â€” copilot is also in _DESCRIPTOR_AGENTS_RUNTIMES
+  // below, so its three legacy-agent-loop branches (the path-rewrite skip,
+  // the converter dispatch, and the .agent.md destName ternary) were
+  // unreachable dead code and were removed rather than re-gated; the
+  // .agent.md suffix now lives on hostBehaviors.agentFileExtension in
+  // src/install-engine.cts, and the skipSharedHooksInstall check above no
+  // longer needs `&& !isCopilot`.
+  // #2100: isWindsurf dropped â€” its four former isWindsurf-gated branches
+  // (legacy .devin/skills/gsd-* cleanup, the #1629 command-bodies copy, the
+  // workflow-verification report, and the shared-hooks-install exclusion) are
+  // now descriptor-driven via hostBehaviors.legacyDevinSkillsCleanup,
+  // hostBehaviors.installsCommandBodiesForWorkflowDelegation,
+  // hostBehaviors.verificationStyle === 'windsurf-workflows', and
+  // hostBehaviors.skipSharedHooksInstall respectively; its legacy-agent-loop
+  // converter arm was likewise unreachable dead code (windsurf is in
+  // _DESCRIPTOR_AGENTS_RUNTIMES) and was removed above.
+  // #2101: isZcode dropped â€” folded onto hostBehaviors.skipSharedHooksInstall.
+  const { isOpencode, isCodex, isCursor, isAugment, isTrae, isQwen, isHermes, isCline } = runtimeFlags(runtime);
+  const plan = resolveInstallPlan(runtime);
+  const dirName = getDirName(runtime);
+  const src = path.join(__dirname, '..');
+
+  if (_hostBehaviors(runtime).localInstallDeferred && !isGlobal) {
+    console.log(`  ${yellow}âš ${reset} Kimi local install is deferred for Phase 2.`);
+    console.log(`      No .kimi-code/skills or .agents/skills project artifacts were written.`);
+    console.log(`      Project-level Kimi install semantics remain deferred.`);
+    return {
+      runtime,
+      skipped: true,
+      reason: 'kimi_local_deferred',
+      configDir: null,
+      settingsPath: null,
+      settings: null,
+      statuslineCommand: null,
+      updateBannerCommand: null,
+      rollbackInstallerMigrations: () => {},
+    };
+  }
+
+  // Reusable helper to copy hooks/lib/ (git-cmd.js + gsd-graphify-rebuild.sh).
+  // Defined early so it is visible to both the main and Codex code paths.
+  // `allowlist` (when non-empty) restricts copying to the named top-level entries,
+  // keeping install scope aligned with GSD_HOOK_LIB_FILES (which uninstall/manifest manage).
+  const copyLibDir = (sDir, dDir, allowlist = []) => {
+    const allowed = allowlist.length > 0 ? new Set(allowlist) : null;
+    for (const entry of fs.readdirSync(sDir)) {
+      if (allowed && !allowed.has(entry)) continue;
+      const s = path.join(sDir, entry);
+      const d = path.join(dDir, entry);
+      let st;
+      try { st = fs.lstatSync(s); } catch (_) { continue; }
+      if (st.isSymbolicLink()) continue; // defense-in-depth
+      if (st.isDirectory()) {
+        fs.mkdirSync(d, { recursive: true });
+        copyLibDir(s, d);
+      } else if (entry.endsWith('.sh')) {
+        let content = fs.readFileSync(s, 'utf8');
+        content = content.replace(/\{\{GSD_VERSION\}\}/g, pkg.version);
+        fs.writeFileSync(d, content);
+        try { fs.chmodSync(d, 0o755); } catch (_) { /* Windows */ }
+      } else {
+        fs.copyFileSync(s, d);
+        if (entry.endsWith('.js')) {
+          try { fs.chmodSync(d, 0o755); } catch (_) { /* Windows */ }
+        }
+      }
+    }
+  };
+
+  // Get the target directory based on runtime and install type.
+  // Descriptor-driven (ADR-1239 / #2090): cline local installs write to the
+  // project root (like Claude Code) â€” .clinerules lives at the root, not inside
+  // a .cline/ subdirectory. Folded from `isCline` into
+  // hostBehaviors.localTargetIsProjectRoot.
+  // #791: antigravity local installs write to .agents/ (canonical). The legacy .agent/
+  // directory is recognized by RUNTIME_DIRS (update-context) and _LEGACY_SCAN_SUBDIR_NAMES
+  // but NOT auto-removed here; legacy .agent/ gsd artifacts are recognized but not
+  // auto-removed on reinstall (dual-read fallback per issue #791 spec).
+  const targetDir = isGlobal
+    ? getGlobalConfigDir(runtime, explicitConfigDir)
+    : _hostBehaviors(runtime).localTargetIsProjectRoot
+      ? process.cwd()
+      : path.join(process.cwd(), dirName);
+
+  const locationLabel = isGlobal
+    ? targetDir.replace(os.homedir(), '~')
+    : targetDir.replace(process.cwd(), '.');
+
+  // Path prefix for file references in markdown content (e.g. gsd-tools.cjs).
+  // Replaces $HOME/.claude/ or ~/.claude/ so the result is <pathPrefix>gsd-core/bin/...
+  // For global installs: use $HOME/ so paths expand correctly inside double-quoted
+  // shell commands (~ does NOT expand inside double quotes, causing MODULE_NOT_FOUND).
+  // For local installs: use resolved absolute path (may be outside $HOME).
+  // Exception: OpenCode does not expand $HOME in @file references on any platform â€”
+  // `@$HOME/...` is treated as a literal path relative to the config dir, producing
+  // `command/$HOME/...` (file not found). Use the absolute path for OpenCode so
+  // @-references resolve correctly (#2376 Windows, #2831 macOS/Linux).
+  // gsd update marker re-application (ADR-0010 Deviation 2):
+  // Resolve which profile to use for this runtime's install:
+  //   1. --minimal / --core-only â†’ back-compat alias for the core profile
+  //   2. Explicit --profile=<name> â†’ use it (overrides any marker)
+  //   3. Marker exists in targetDir â†’ honor it (prevents silent expansion on update)
+  //   4. Else â†’ 'full' (back-compat for fresh non-interactive installs)
+  //
+  // Multi-runtime disagreement: if installing across runtimes and their markers
+  // differ, the caller may use mostRestrictiveProfile() across the per-runtime
+  // results â€” here we resolve each runtime independently.
+  //
+  // ADR-857 phase 4c: ALL profiles (including core/minimal) use stageSkillsForProfile
+  // with the registry-aware _resolvedProfile so future tier:core capabilities are
+  // staged on core installs.  The 'minimal' back-compat distinction is now ONLY the
+  // empty manifest (core profile has no transitive deps); the registry IS consulted.
+  // MINIMAL is intentionally the same skill set as the 'core' profile
+  // (MINIMAL_ALLOWLIST_SET === Set(PROFILES.core)) â€” it is NOT a separately curated
+  // subset.  Any future tier:core capability therefore DOES belong in a minimal/core
+  // install.  Using stageSkillsForProfile(_resolvedProfile) honors the registry while
+  // keeping the effective skill set identical to the prior stageSkillsForMode path
+  // until a tier:core capability is registered.
+  const _activeProfileName = hasMinimal
+    ? 'core'  // --minimal is a back-compat alias for the core profile; marker records 'core'
+    : resolveEffectiveProfile({
+        requestedProfileName: _requestedProfileName,
+        targetDir,
+      });
+  // scope (outside the try block below) so it is accessible in the settings section later.
+  // Absent VERSION = fresh install; present VERSION = upgrade/re-install.
+  const priorInstallExisted = fs.existsSync(path.join(targetDir, 'gsd-core', 'VERSION'));
+  try {
+  installerMigrationResult = runInstallerMigrations({
+    configDir: targetDir,
+    runtime,
+    scope: isGlobal ? 'global' : 'local',
+    migrations: options.installerMigrations,
+    baselineScan: true,
+  });
+  // #3541: non-interactive runs (typical /gsd-update via Claude Code) have
+  // no stdin TTY and therefore no way to answer prompt-user migration
+  // actions. Resolve safe categories by classification (stale SDK build
+  // artifacts â†’ remove; user-facing skills â†’ keep; bundled GSD hooks â†’
+  // remove [#3610]) and log every resolution; anything that cannot be
+  // safely defaulted falls through to assertInstallerMigrationsUnblocked,
+  // which now emits a grouped error with the documented resolution path.
+  //
+  // #3610: the classifier-based resolution must run regardless of TTY.
+  // For unambiguous categories (e.g. `hooks/gsd-*` bundled hooks left
+  // behind by a previous version), there is no actual "user choice" to
+  // make â€” the file is a known GSD-managed artifact and the installer is
+  // about to write the fresh bundled version. Gating the resolver on
+  // `!isTTY` made `npx @opengsd/gsd-core@latest --codex` hard-abort with
+  // 12 blocked bundled hooks. The env-override branch (operator-supplied
+  // GSD_INSTALLER_MIGRATION_RESOLVE) still applies only in non-TTY mode.

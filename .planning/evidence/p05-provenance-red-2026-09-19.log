@@ -1,0 +1,24 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "runner prints source identities"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+653 |       packageJson, log: message => messages.push(message),
+654 |       runtime: { execPath: 'node', platform: capturedRecovery.platform, nodeVersion: capturedRecovery.node, isBun: false },
+655 |       spawnSync: () => runOf(KNOWN_RED),
+656 |     })).toBe(0);
+657 |     const line = messages.find(message => typeof message === 'string' && message.startsWith('expect-red evidence: '));
+658 |     expect(line).toBeDefined();
+                       ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:658:18)
+(fail) expect-red: command line > the runner prints source identities and runtime provenance with its verdict [578.00ms]
+
+ 0 pass
+ 55 filtered out
+ 1 fail
+ 2 expect() calls
+Ran 1 test across 1 file. [2.00s]
+error: script "test" exited with code 1

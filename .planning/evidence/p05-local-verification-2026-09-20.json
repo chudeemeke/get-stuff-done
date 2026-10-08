@@ -1,0 +1,62 @@
+{
+  "status": "LOCAL-VERIFIED win32 only; not release or installer acceptance",
+  "coverage": {
+    "tests": 80,
+    "pass": 80,
+    "fail": 0,
+    "eachFileEachMetric": 100,
+    "source": "p05-final-qualification-2026-09-20"
+  },
+  "fullSuite": {
+    "tests": 1847,
+    "files": 70,
+    "pass": 1847,
+    "fail": 0,
+    "source": "p05-final-suite-recheck-2026-09-20"
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 835,
+    "newWarnings": 0
+  },
+  "recovery": {
+    "checks": 27,
+    "pass": 14,
+    "knownFail": 13,
+    "fixtureRemoved": true
+  },
+  "reviewChain": [
+    "p05-section20-opus-review-2026-09-20",
+    "p05-final-delta-opus-2026-09-20",
+    "p05-directive-prefix-opus-2026-09-20"
+  ],
+  "sourceStable": true,
+  "sourceIdentities": [
+    {
+      "sha256": "d825d8788a6219ad2f0ebc4e3781b4abaa90ac187355949c5ff9a6c399f1fa19",
+      "path": "scripts/expect-red.cjs"
+    },
+    {
+      "sha256": "444a786ec8312b43560ca889c671c3867390d018e47e68e4f657d07cfcf95d58",
+      "path": "tests/acceptance/installer-recovery.cjs"
+    },
+    {
+      "sha256": "0eb938c3908b5fb14327b19a4af713715a71ff4442ed012cae93cd4984f74a05",
+      "path": "tests/expect-red.test.js"
+    }
+  ],
+  "retainedLimits": [
+    "Earlier final full-suite attempt1846/1 failed on native DACL PowerShell timeout; isolated and one full unchanged-source recheck pass; cause unresolved.",
+    "Moved-list substring and incomplete upgrade-list oracle owned for restore/moved-list seam before green acceptance.",
+    "No Node22/Linux/macOS/hosted qualification; CI no-push constraint remains.",
+    "16 validator decision mutants and3 harness comparison mutants; status-is-1 harness rows lack dedicated assertion mutants, though required-PASS rejection controls cover their outcomes.",
+    "No wrapper/lock repair, no preflight/snapshot, no commit or push."
+  ],
+  "documentation": {
+    "inputs": 6,
+    "issues": 0,
+    "exit": 0,
+    "receipt": "p05-final-docs-cli-2026-09-20.log",
+    "initialInvocation": "p05-final-docs-2026-09-20 ran the package library entry, emitted no summary and is NOT gate evidence; corrected binary entry was used."
+  }
+}

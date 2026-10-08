@@ -283,6 +283,42 @@ describe('CI workflow informational gates', () => {
     expect(findBareBunTestCommands(workflows)).toEqual([]);
   });
 
+  test('installer recovery acceptance runs on every test platform in expected-red mode', () => {
+    const job = yaml.load(readCiWorkflow()).jobs.test;
+    const packageJson = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf8'));
+    const names = job.steps.map(step => step.name);
+    const acceptance = job.steps.find(step => step.name === 'Installer recovery acceptance (expected red)');
+
+    expect(packageJson.scripts['test:acceptance:installer-recovery']).toBe(
+      'node tests/acceptance/installer-recovery.cjs'
+    );
+    expect(job.strategy.matrix.os).toEqual(['ubuntu-latest', 'macos-15', 'windows-latest']);
+    expect(acceptance).toEqual({
+      name: 'Installer recovery acceptance (expected red)',
+      run: 'node scripts/expect-red.cjs installer-recovery',
+    });
+    // After compose and the Bun suite, and unconditional: no `if`, no continue-on-error.
+    expect(names.indexOf(acceptance.name)).toBeGreaterThan(names.indexOf('Run tests with coverage and JUnit output'));
+    const composeIndex = job.steps.findIndex(step => step.run === 'bun run compose');
+    expect(composeIndex).toBeGreaterThanOrEqual(0);
+    expect(composeIndex).toBeLessThan(names.indexOf(acceptance.name));
+  });
+
+  test('installer transaction coverage gate runs on every test platform under a pinned Node', () => {
+    const job = yaml.load(readCiWorkflow()).jobs.test;
+    const gateIndex = job.steps.findIndex(step => step.name === 'Installer transaction coverage (Tier S, expected red)');
+    const nodeIndex = job.steps.findIndex(step => step.uses === `actions/setup-node@${ACTION_PINS.setupNode}`);
+
+    // Expected red while the transaction module is a skeleton (plan Step 2 to Step 5).
+    expect(job.steps[gateIndex]).toEqual({
+      name: 'Installer transaction coverage (Tier S, expected red)',
+      run: 'node scripts/expect-red.cjs install-transaction-coverage',
+    });
+    expect(job.steps[nodeIndex].with).toEqual({ 'node-version': '22', token: '' });
+    expect(nodeIndex).toBeGreaterThanOrEqual(0);
+    expect(nodeIndex).toBeLessThan(gateIndex);
+  });
+
   test('boundary debt reports without producing a failed-step annotation', () => {
     const workflow = readCiWorkflow();
     const boundaryJobStart = workflow.indexOf('boundary-check:');

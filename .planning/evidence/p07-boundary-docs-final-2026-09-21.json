@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-09-21T21:21:38.526Z",
+  "files": [
+    "docs/plans/features/skin-completion-execution-2026-09-19.md",
+    "docs/plans/features/installer-transaction-codex-brief.md",
+    ".planning/CONTINUE.md",
+    ".planning/evidence/p07-containment-spike-2026-09-20/findings.md"
+  ],
+  "checkedCount": 4,
+  "issueCount": 0,
+  "result": {
+    ".planning/CONTINUE.md": [],
+    ".planning/evidence/p07-containment-spike-2026-09-20/findings.md": [],
+    "docs/plans/features/installer-transaction-codex-brief.md": [],
+    "docs/plans/features/skin-completion-execution-2026-09-19.md": []
+  },
+  "scope": "Direct Markdown API only; not repository lint or product acceptance"
+}

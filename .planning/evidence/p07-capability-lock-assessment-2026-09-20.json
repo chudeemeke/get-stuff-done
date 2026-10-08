@@ -1,0 +1,68 @@
+{
+  "checkedAt": "2026-09-20T01:31:51.1840474Z",
+  "scope": "Read-only source-derived exposure and schedules in this assembled worktree; no runtime reproduction or real-home inspection",
+  "head": "e50bda5b9dc6c538bd33f1736fe59fcc957f78a7",
+  "upstreamVersion": "1.9.1",
+  "sources": [
+    {
+      "path": "dist/gsd-core/bin/gsd-tools.cjs",
+      "sha256": "fededa225aecabd6cafb5e89c2f4b13d4c53a39a195656d21b94f30b93aab42a"
+    },
+    {
+      "path": "dist/gsd-core/bin/lib/capability-command-router.cjs",
+      "sha256": "adbe8129f7f8f82d19b4a464fe58d852790b4ada7a49a2f2086ca9cb7152a3f1"
+    },
+    {
+      "path": "dist/gsd-core/bin/lib/capability-lock.cjs",
+      "sha256": "3ae720ff1b9e7e3572f4fd36f708db5190dbef64fa96443112c3721894ab4c35"
+    },
+    {
+      "path": "dist/gsd-core/bin/lib/capability-consent.cjs",
+      "sha256": "003425a0b2b1d9404a59a6eb7a8dc048f37baeaba3fc4b5a001046b8bb9b1d1a"
+    },
+    {
+      "path": "dist/gsd-core/bin/lib/capability-lifecycle.cjs",
+      "sha256": "57f4c9a3aee7d8b55f22059187eff6532a68854090659d85636441fe47062e0d"
+    },
+    {
+      "path": "dist/gsd-core/bin/lib/shell-command-projection.cjs",
+      "sha256": "455ee5c2feb0565784f49ea9e6ad4ea41e7c625389ec2a303a9890b176cc1cce"
+    },
+    {
+      "path": "node_modules/@opengsd/gsd-core/gsd-core/bin/lib/capability-lock.cjs",
+      "sha256": "3ae720ff1b9e7e3572f4fd36f708db5190dbef64fa96443112c3721894ab4c35"
+    }
+  ],
+  "lockMatchesPinnedUpstream": true,
+  "findings": [
+    {
+      "id": "CL1",
+      "severity": "HIGH",
+      "claim": "Identity-check then rename allows a paused reclaimer to detach a newer live holder",
+      "evidence": "source-derived interleaving",
+      "runtimeReproduced": false
+    },
+    {
+      "id": "CL2",
+      "severity": "HIGH",
+      "claim": "Unavailable process-start evidence permits stale takeover despite a live holder",
+      "evidence": "source branches",
+      "runtimeReproduced": false
+    },
+    {
+      "id": "CL3",
+      "severity": "HIGH",
+      "claim": "Release token/inode checks do not make subsequent path removal conditional",
+      "evidence": "source-derived interleaving requiring replacement",
+      "runtimeReproduced": false
+    }
+  ],
+  "detail": "docs/plans/features/skin-completion-execution-2026-09-19.md section22",
+  "owner": "implementing agent",
+  "trigger": "Before next installed-use qualification/P21",
+  "next": "Prepare bounded reproduction/repair contract; explicit source/test scope approval before changes",
+  "productMutation": false,
+  "experimentApproved": false,
+  "realHomeAccess": false,
+  "currentPublishedReleaseAssessed": false
+}

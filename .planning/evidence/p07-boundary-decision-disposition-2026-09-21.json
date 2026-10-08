@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-09-21T21:20:23.993Z",
+  "status": "decision-request-withdrawn-after-owner-premise-review",
+  "model": "claude-opus-5",
+  "requestedEffort": "xhigh",
+  "sessionId": "55915f43-068f-4411-aa52-78c43fca987f",
+  "terminal": "success",
+  "verdict": "PASS WITH CHANGES; not unconditional PASS",
+  "packetSha256": "7dd0eb9d7d212aa273cc0e68b1327f851eb9721dc42822ec3cb0d89a9c290033",
+  "section23Sha256": "9764bbaecb5ff488cac1305f86169924b93cc62e9501bbda4b456c6138ac43c7",
+  "reviewerNoFurtherLoop": true,
+  "findings": [
+    {
+      "id": 1,
+      "status": "applied",
+      "resolution": "Standing no-silent-expansion and race-free-claims prohibition retained, all other accepted directions preserved, all mutating operations covered, finding2 operative sentence proposed amendment explicit"
+    },
+    {
+      "id": 2,
+      "status": "applied",
+      "resolution": "Object and pathname distinct possible guarantees; A retains H4 verbatim with authority question open"
+    },
+    {
+      "id": 3,
+      "status": "applied",
+      "resolution": "Unrelated HOME siblings permitted; directory changes classified; target root regular files classified; launching runtime may continue only with bounded permitted actions"
+    },
+    {
+      "id": 4,
+      "status": "applied",
+      "resolution": "New static symlink/reparse target or ancestor and multiply linked mutable managed-file refusals explicit; hard-link restore requirement traced to accepted finding2"
+    },
+    {
+      "id": 5,
+      "status": "applied",
+      "resolution": "Node-first does not guarantee avoiding native child containment; may still refuse; recommendation conditional on child solution and usable window"
+    }
+  ],
+  "ownerDecision": null,
+  "implementationAuthorized": false,
+  "extraExperiment": false,
+  "withdrawal": {
+    "at": "2026-09-21T21:49:48.736Z",
+    "reason": "Owner requested explanation and first-principles/system alternatives; no option accepted",
+    "authority": "execution-plan section24",
+    "originalReviewBinding": "Existing packet/hash evidence remains historical; section23 status changed, no claim fresh review acceptance"
+  }
+}

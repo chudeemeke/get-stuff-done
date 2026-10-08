@@ -1,0 +1,85 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > runtime exceptions never permit deletion, extra descendants, type or link substitution [2079.00ms]
+(pass) expect-red: recovery observation contract > exact Windows runtime creation and regular-file updates preserve owner data [265.00ms]
+(pass) expect-red: recovery observation contract > private runtime environment is initialized before complete home observations [203.00ms]
+(pass) expect-red: recovery observation contract > outside-target deletion, byte damage and extra entries fail in both scenarios [1188.00ms]
+(pass) expect-red: recovery observation contract > outside-target damage controls detect a removed home comparison [375.00ms]
+(pass) expect-red: recovery observation contract > the real harness recognizes complete private quarantine and restored owner data [172.00ms]
+(pass) expect-red: recovery observation contract > the real harness emits observation-error before and after partial observation [640.00ms]
+(pass) expect-red: recovery observation contract > cleanup failure still emits a rejected report and names its retained fixture [110.00ms]
+(pass) expect-red: recovery observation contract > the disposable upgrade independently checks owner preservation [19906.00ms]
+(pass) expect-red: recovery observation contract > known failures retain complete typed observations independently of diagnostic truncation
+(pass) expect-red: installer recovery > home maps reject incomplete, malformed, aliased and falsely preserved evidence [234.00ms]
+(pass) expect-red: installer recovery > runtime changes are Windows-only; preserved arbitrary owner files and links remain valid [16.00ms]
+(pass) expect-red: installer recovery > the captured 27-check private-home report satisfies the approved inventory
+(pass) expect-red: installer recovery > a real abort-shaped report keeps its failed harness diagnostic without context
+(pass) expect-red: installer recovery > supplied malformed termination markers are never treated as absent
+(pass) expect-red: installer recovery > host-specific identity rules and contradictory pass details are checked [16.00ms]
+(pass) expect-red: installer recovery > recovery evidence must match the explicitly supplied source bytes and host [93.00ms]
+(pass) expect-red: installer recovery > independent context must contain unambiguous relative paths and real residue [32.00ms]
+(pass) expect-red: installer recovery > a self-consistent smaller twin cannot silently drop a reviewed root
+(pass) expect-red: installer recovery > malformed, interrupted and cleanup-failed reports return diagnostics instead of acceptance or exceptions [46.00ms]
+(pass) expect-red: installer recovery > known failure labels cannot conceal missing, contradictory or additional observations [610.00ms]
+(pass) expect-red: installer recovery > only the complete reviewed inventory is accepted, without duplicates or extra failures [469.00ms]
+(pass) expect-red: installer recovery > the captured red from the unfixed installer is the known red
+(pass) expect-red: installer recovery > an additional owner-byte loss cannot hide behind the expected recovery failures
+(pass) expect-red: installer recovery > an unexpected pass fails and says how to retire the wrapper
+(pass) expect-red: installer recovery > a red with harness check twin:child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check twin:residue-non-empty failing is the wrong red [15.00ms]
+(pass) expect-red: installer recovery > a red with harness check fresh:wrapper-child-failed-at-injection failing is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red with harness check upgrade:first-install-succeeded failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:picked-files-installed failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:wrapper-child-failed-at-injection failing is the wrong red [15.00ms]
+(pass) expect-red: installer recovery > a red with harness check upgrade:child-rewrote-picked-files failing is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check twin:child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check twin:residue-non-empty is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check fresh:wrapper-child-failed-at-injection is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:first-install-succeeded is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:picked-files-installed is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:wrapper-child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:child-rewrote-picked-files is the wrong red
+(pass) expect-red: installer recovery > a red in which fresh:outcome-exact passes is not the known red [15.00ms]
+(pass) expect-red: installer recovery > a red in which fresh:top-level-exact-allowlist passes is not the known red
+(pass) expect-red: installer recovery > a red in which fresh:transaction-directory-shape passes is not the known red [16.00ms]
+(pass) expect-red: installer recovery > a red in which upgrade:outcome-exact passes is not the known red
+(pass) expect-red: installer recovery > a red in which upgrade:transaction-directory-shape passes is not the known red
+(pass) expect-red: installer recovery > a missing compose is the wrong red
+(pass) expect-red: installer recovery > a crash with no report and an unexpected exit status are both refused
+(pass) expect-red: install transaction coverage > supplied malformed termination markers are never treated as absent
+(pass) expect-red: install transaction coverage > affirmative coverage requires both exact files, every metric and consistent aggregate counts [62.00ms]
+(pass) expect-red: install transaction coverage > coverage refuses malformed or interrupted runs and TAP tokens disguised as table rows [16.00ms]
+(pass) expect-red: install transaction coverage > coverage aliases, malformed tables and truncated TAP are rejected
+(pass) expect-red: install transaction coverage > a normalized alias cannot replace the exact covered source identity
+(pass) expect-red: install transaction coverage > decision controls detect independently weakened recovery and coverage guards [219.00ms]
+(pass) expect-red: install transaction coverage > the reviewed 51-case render-only red is the known red
+(pass) expect-red: install transaction coverage > old skeleton evidence and any incomplete or changed case inventory are refused [78.00ms]
+(pass) expect-red: install transaction coverage > TAP framing, terminal counts and bounded render failure diagnostics are mandatory
+(pass) expect-red: install transaction coverage > only the actual error field can establish the permitted render failure
+(pass) expect-red: install transaction coverage > a case failing for any reason other than an unbuilt operation is the wrong red
+(pass) expect-red: install transaction coverage > a coverage shortfall on landed code is the wrong red, on either stream
+(pass) expect-red: install transaction coverage > nothing failing, a crash with no summary, and a miscounted summary are all refused
+(pass) expect-red: command line > Node capture preserves a complete structured report larger than one MiB [109.00ms]
+(pass) expect-red: command line > repository ESLint rejects unsafe code under both repaired CJS paths [578.00ms]
+(pass) expect-red: command line > the actual Node CLI validates the live coverage gate through private c8 capture [19188.00ms]
+(pass) expect-red: command line > coverage ignore directives in either watched module refuse before execution [16.00ms]
+(pass) expect-red: command line > capture bounds execution and isolates inherited test and coverage configuration [15.00ms]
+(pass) expect-red: command line > inherited Node options refuse before child execution for both gates
+(pass) expect-red: command line > capture faults cannot pass or silently discard uncertain evidence [110.00ms]
+(pass) expect-red: command line > cleanup never removes a scratch path outside its exact ownership convention
+(pass) expect-red: command line > coverage capture uses a new private report and V8 directory on every invocation [31.00ms]
+(pass) expect-red: command line > source or validator changes during capture invalidate the report [47.00ms]
+(pass) expect-red: command line > the package command is parsed from the same bytes as its evidence digest
+(pass) expect-red: command line > the runner prints source identities and runtime provenance with its verdict [31.00ms]
+(pass) expect-red: command line > c8 executes the same explicit Node runtime that captured the evidence [16.00ms]
+(pass) expect-red: command line > the production gate refuses Bun before spawning a child
+(pass) expect-red: command line > the gate command is read from package.json, not copied
+(pass) expect-red: command line > package commands cannot weaken coverage or redirect the reviewed gate
+(pass) expect-red: command line > exits 0 on the known red, 1 on anything else, 2 on misuse [15.00ms]
+
+ 76 pass
+ 0 fail
+ 1191 expect() calls
+Ran 76 tests across 1 file. [47.23s]

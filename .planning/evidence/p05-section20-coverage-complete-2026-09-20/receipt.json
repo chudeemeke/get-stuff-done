@@ -1,0 +1,37 @@
+{
+  "exit": 0,
+  "after": [
+    {
+      "Algorithm": "SHA256",
+      "Hash": "7458A1EDB9D30D4A9AEADCAAA0E559A0EAC6B68F4C78FCF4DD35BE538F390C66",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\scripts\\expect-red.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "444A786EC8312B43560CA889C671C3867390D018E47E68E4F657D07CFCF95D58",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\acceptance\\installer-recovery.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "2BBEED820ABDC72F106AB95E79FD98B15298DFC4E3AAA91D37866DADB472951A",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\expect-red.test.js"
+    }
+  ],
+  "before": [
+    {
+      "Algorithm": "SHA256",
+      "Hash": "7458A1EDB9D30D4A9AEADCAAA0E559A0EAC6B68F4C78FCF4DD35BE538F390C66",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\scripts\\expect-red.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "444A786EC8312B43560CA889C671C3867390D018E47E68E4F657D07CFCF95D58",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\acceptance\\installer-recovery.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "2BBEED820ABDC72F106AB95E79FD98B15298DFC4E3AAA91D37866DADB472951A",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\expect-red.test.js"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "coverage ignore directives"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+993 |             return path.basename(name) === module ? Buffer.concat([Buffer.from(bytes), Buffer.from(`\n/* ${directive} */`)]) : bytes;
+994 |           } },
+995 |           spawnSync: () => { spawned = true; return { status: 1, stdout: '', stderr: '' }; },
+996 |         });
+997 |         expect(result).toBe(1);
+998 |         expect(spawned).toBe(false);
+                              ^
+error: expect(received).toBe(expected)
+
+Expected: false
+Received: true
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:998:25)
+(fail) expect-red: command line > coverage ignore directives in either watched module refuse before execution [78.00ms]
+
+ 0 pass
+ 78 filtered out
+ 1 fail
+ 11 expect() calls
+Ran 1 test across 1 file. [934.00ms]
+error: script "test" exited with code 1

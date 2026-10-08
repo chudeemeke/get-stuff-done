@@ -1,0 +1,11 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "private runtime environment"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > private runtime environment is initialized before complete home observations [453.00ms]
+
+ 1 pass
+ 70 filtered out
+ 0 fail
+ 27 expect() calls
+Ran 1 test across 1 file. [614.00ms]

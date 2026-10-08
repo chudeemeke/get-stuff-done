@@ -46,3 +46,7 @@ package-lock.json text eol=lf
 
 # Issue #41 byte-identity preservation: desktop cutover artifacts must never be normalized
 .planning/phases/40.5-upstream-bump-reverify-phase-41-decisions/preserved-desktop-2026-08-23/** -text
+
+# Evidence is captured output. Review receipts bind the SHA-256 of the captured bytes,
+# so a line-ending rewrite on commit makes a fresh checkout fail its own receipts.
+.planning/evidence/** -text

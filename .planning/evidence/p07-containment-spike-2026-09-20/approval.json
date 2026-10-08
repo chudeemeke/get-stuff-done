@@ -1,0 +1,14 @@
+{
+  "approvedAt": "2026-09-21T20:21:03.7783074Z",
+  "ownerText": "I approve this minimal scope of work.",
+  "scope": "Execution-plan section21 only",
+  "productionLockApproved": false,
+  "correctionCount": 1,
+  "cases": [
+    "parent-swap",
+    "leaf-swap",
+    "moved-directory"
+  ],
+  "status": "complete: three initial runs, nine fixture claims; independent Opus5 PASS; production lock not accepted",
+  "goalTrackerAtStart": "blocked; approval unblocks task execution, tools cannot set active"
+}

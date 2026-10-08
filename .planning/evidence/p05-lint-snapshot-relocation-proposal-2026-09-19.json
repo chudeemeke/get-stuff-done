@@ -1,0 +1,5382 @@
+{
+  "status": "proposal-only-no-move-performed",
+  "reason": "All 684 full-lint errors belong to the retained third-party snapshot",
+  "source": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\package",
+  "destination": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\upstream-package",
+  "fileCount": 1074,
+  "totalBytes": 16650699.0,
+  "archive": ".planning/evidence/value-comparison-2026-09-19/gsd-core-1.14.0.tgz",
+  "entries": [
+    {
+      "path": ".claude-plugin/marketplace.json",
+      "bytes": 589,
+      "sha256": "0e267babae90bfef8862f268e5a815db01c4160b25fbff336524f38d76864693"
+    },
+    {
+      "path": ".claude-plugin/plugin.json",
+      "bytes": 617,
+      "sha256": "d16b877043ca295d696667099c2f0c3f8f1796e76173f41bc61fba81f52e5904"
+    },
+    {
+      "path": ".opencode/plugins/gsd-core.js",
+      "bytes": 32877,
+      "sha256": "f73b406011caf68b5af178706ac350c215f9d416c51b9de4c01d0580d14a2d97"
+    },
+    {
+      "path": "agents/gsd-advisor-researcher.compact.md",
+      "bytes": 3595,
+      "sha256": "4a39981c745d3e837c6490d76080bc348009e0018b3c5763fc50bd53885f29ad"
+    },
+    {
+      "path": "agents/gsd-advisor-researcher.md",
+      "bytes": 4727,
+      "sha256": "21727fd6664fa4af64de8b1c2371dfa895bc55f6699d31558541518e2c6cff16"
+    },
+    {
+      "path": "agents/gsd-ai-researcher.compact.md",
+      "bytes": 5447,
+      "sha256": "54f46ba5bc0c9184e6b56a0231ddf57172f7bf432f0167e50c1f462bc9af6125"
+    },
+    {
+      "path": "agents/gsd-ai-researcher.md",
+      "bytes": 5943,
+      "sha256": "9ad498a7322740b5b0407a34dee4d23dc84f46b564737e67740ac474573121da"
+    },
+    {
+      "path": "agents/gsd-assumptions-analyzer.compact.md",
+      "bytes": 3457,
+      "sha256": "d851f4ba77fb370398fa690d928add276426863d1aa02abbf5928a58debd36c2"
+    },
+    {
+      "path": "agents/gsd-assumptions-analyzer.md",
+      "bytes": 4646,
+      "sha256": "d5647dc9dcaac6ece0c06ba202e8b0ff6e9b4bfaae5d62391c83b7671e01cd65"
+    },
+    {
+      "path": "agents/gsd-code-fixer.compact.md",
+      "bytes": 25710,
+      "sha256": "8d4891a6845dbf1b48cf7e8d7c66cfc22a950fbaf89b67c2f0681035cbeaeb18"
+    },
+    {
+      "path": "agents/gsd-code-fixer.md",
+      "bytes": 42653,
+      "sha256": "b486e73fcd3a013b9332d8e02fc25848ac918f27d23ea7b1c4cb9bfc73fa018a"
+    },
+    {
+      "path": "agents/gsd-code-reviewer.compact.md",
+      "bytes": 15135,
+      "sha256": "37b0275e2940b34a6c37c85be53786b312c82769ddf549d05c27c45c3e2ab8b8"
+    },
+    {
+      "path": "agents/gsd-code-reviewer.md",
+      "bytes": 18748,
+      "sha256": "81f5ae3f23114147a7b2188fbdafebc6e29774e6379031dbd49bd0f690d37010"
+    },
+    {
+      "path": "agents/gsd-codebase-mapper.compact.md",
+      "bytes": 19141,
+      "sha256": "5dfe86a5f3b6c627d029018cdd7b8b8eb2a93e140192dc051e64a3169733e6b4"
+    },
+    {
+      "path": "agents/gsd-codebase-mapper.md",
+      "bytes": 21614,
+      "sha256": "b79ab4ad778d3d7fe73f390de9af1e63efe641918bf1e706b1190d4510fd4ab5"
+    },
+    {
+      "path": "agents/gsd-debug-session-manager.compact.md",
+      "bytes": 17530,
+      "sha256": "be850a61404df2dd8a2fb7eb19d09d693745fff052c3ea137fc3e80d2e27f60b"
+    },
+    {
+      "path": "agents/gsd-debug-session-manager.md",
+      "bytes": 18686,
+      "sha256": "9caffedaecb5a7456682c2589bcd4c693b8b560b621db6816e3183223d664819"
+    },
+    {
+      "path": "agents/gsd-debugger.md",
+      "bytes": 46964,
+      "sha256": "982658dfee831483273edebf29772ab814a778dcf80462579fb25056d1f255d8"
+    },
+    {
+      "path": "agents/gsd-doc-classifier.compact.md",
+      "bytes": 9347,
+      "sha256": "7b38df7600303458ecaaeae36021ab905480c7bb55ae8b196ace0171238cf839"
+    },
+    {
+      "path": "agents/gsd-doc-classifier.md",
+      "bytes": 11717,
+      "sha256": "96b6722fb4baaa2e1cb10141491107f7931f6ada6f05639aa33f44ea6d8af3e8"
+    },
+    {
+      "path": "agents/gsd-doc-synthesizer.compact.md",
+      "bytes": 11115,
+      "sha256": "55e8d9053028688b70b3ef0c8a4bfbd99758dbe8fa7550a138a2849a5f39bd17"
+    },
+    {
+      "path": "agents/gsd-doc-synthesizer.md",
+      "bytes": 13149,
+      "sha256": "92a4749696e337c97dc986872e562ab71137dbf5950057d248f16242990d780d"
+    },
+    {
+      "path": "agents/gsd-doc-verifier.compact.md",
+      "bytes": 10783,
+      "sha256": "8ca0ccf58a99edd2d4b57b0a0abffd8e0f1ba6463a388789bbe05c7ce3db2939"
+    },
+    {
+      "path": "agents/gsd-doc-verifier.md",
+      "bytes": 12403,
+      "sha256": "7ed4d9611f678a951e819cde0ead4ea05c55aee66c6244f1c0da3ab0ddbfb938"
+    },
+    {
+      "path": "agents/gsd-doc-writer.compact.md",
+      "bytes": 23174,
+      "sha256": "4557c85f932b36cc05e690aba236726fe3dc84ac0a11827e3905cb12820a5b23"
+    },
+    {
+      "path": "agents/gsd-doc-writer.md",
+      "bytes": 38924,
+      "sha256": "0b74a86dbff1d1d9d57e307268825a063571ff9fabd29ee1f5cd00164c41bd2e"
+    },
+    {
+      "path": "agents/gsd-dom-verifier.compact.md",
+      "bytes": 5899,
+      "sha256": "e06762939e23fe314e2c7d838f391162c444478bdc27ea0b3a236e14f2d27b96"
+    },
+    {
+      "path": "agents/gsd-dom-verifier.md",
+      "bytes": 7175,
+      "sha256": "b3c7d550825327abb97e2e71ebc9415f3777e0f2198a428f357c9b439b237997"
+    },
+    {
+      "path": "agents/gsd-domain-researcher.compact.md",
+      "bytes": 5843,
+      "sha256": "d77b73f12673814e72847dcbf081bf5975ba9017aa9fce85303e9db4fe8a6290"
+    },
+    {
+      "path": "agents/gsd-domain-researcher.md",
+      "bytes": 7032,
+      "sha256": "cd497b22e73c9d6b20d81c7c2d181b995cae7bf7b15e1aa7490e975a1c24a703"
+    },
+    {
+      "path": "agents/gsd-eval-auditor.compact.md",
+      "bytes": 10024,
+      "sha256": "0d2dabfe521362019c8a3afc4a537aa6b9c28220cd4888f8360bb75eed0165b2"
+    },
+    {
+      "path": "agents/gsd-eval-auditor.md",
+      "bytes": 10609,
+      "sha256": "a05f0e42cc3e4bd262c31dc315674d7ba7d41b6957f87367a8769ed58b1deba4"
+    },
+    {
+      "path": "agents/gsd-eval-planner.compact.md",
+      "bytes": 6538,
+      "sha256": "91ae9adf045f96e449e1872b7c997829fbf7d5f3e68a91503d9d1d394dd5ef05"
+    },
+    {
+      "path": "agents/gsd-eval-planner.md",
+      "bytes": 7008,
+      "sha256": "20cbc6b0ebeb8f1e738737422e084f07b5c38be8a512e954f2056bc86dd6fd36"
+    },
+    {
+      "path": "agents/gsd-executor.md",
+      "bytes": 49056,
+      "sha256": "40431b7e765a9bf6b656788196bf947a94f8697323285f0f5e552353148deafb"
+    },
+    {
+      "path": "agents/gsd-framework-selector.compact.md",
+      "bytes": 4741,
+      "sha256": "8441b80298008fcbbaaf0c2112fffc62d630a24ac58f1bfcd601f920d0f9645f"
+    },
+    {
+      "path": "agents/gsd-framework-selector.md",
+      "bytes": 6461,
+      "sha256": "ab16fc97eb92212f849da56b4709962961c9ae91aa842ac617483fda52661678"
+    },
+    {
+      "path": "agents/gsd-integration-checker.compact.md",
+      "bytes": 10066,
+      "sha256": "5f7a3d77559def48c3e4cf7e3bf3e9765d4516f9d2441eea47027e8789f5e045"
+    },
+    {
+      "path": "agents/gsd-integration-checker.md",
+      "bytes": 15409,
+      "sha256": "ef5f851743fe5995adfc0fac96a1816350bc0da13e87b1ca9822fb7e66f3d4fe"
+    },
+    {
+      "path": "agents/gsd-intel-updater.compact.md",
+      "bytes": 15139,
+      "sha256": "f64310968b44ebfd168155a15d44179192d58eb8cb09c9d44a5ad5c7e1f0f959"
+    },
+    {
+      "path": "agents/gsd-intel-updater.md",
+      "bytes": 16273,
+      "sha256": "1bedaf5f53c35f1ecf9597c4cbae4e0e3c5d4c7fdc03e270d48c11c69a32216d"
+    },
+    {
+      "path": "agents/gsd-mempalace-curator.compact.md",
+      "bytes": 3826,
+      "sha256": "1c7a46e57c27bdb0ce1f2f566ddc4d1bef31c961cfdd9a81182752a0ebe3861a"
+    },
+    {
+      "path": "agents/gsd-mempalace-curator.md",
+      "bytes": 4654,
+      "sha256": "38bcde1a50076da98f9b518a750053c2d4d4425fab99579b4593f935b61d462d"
+    },
+    {
+      "path": "agents/gsd-nyquist-auditor.compact.md",
+      "bytes": 6799,
+      "sha256": "bf162ec39534dc83d96e8b06ef734dc465de3f6e612f04cb43c050cf043af2ef"
+    },
+    {
+      "path": "agents/gsd-nyquist-auditor.md",
+      "bytes": 7345,
+      "sha256": "d958cd39df805c1e907f9a38cd515697b52b066e6d944a1d10a1549836ec8760"
+    },
+    {
+      "path": "agents/gsd-pattern-mapper.compact.md",
+      "bytes": 11169,
+      "sha256": "33ccf05d1f6e9548aa85f6a072a3089e9bf237651e29aa844953dd8bc82b8c7a"
+    },
+    {
+      "path": "agents/gsd-pattern-mapper.md",
+      "bytes": 13249,
+      "sha256": "da19bafbe5c8ea2efe34abeff57b3b8b4f9045134c5546207da1c6509ba1e7bc"
+    },
+    {
+      "path": "agents/gsd-phase-researcher.md",
+      "bytes": 44715,
+      "sha256": "bab5c586927bf1fee16a1499a44194f22a1247039f102ca600f46f77b5e67db7"
+    },
+    {
+      "path": "agents/gsd-plan-checker.md",
+      "bytes": 49143,
+      "sha256": "423b004a0afcedb8f61546130e245c2458219a32509274d2c3966f5e6008a4bf"
+    },
+    {
+      "path": "agents/gsd-planner.md",
+      "bytes": 48838,
+      "sha256": "de9beca2d07a2fb3de01f207030529e84d14cc2a1e53ae8c615e243a59ca7681"
+    },
+    {
+      "path": "agents/gsd-project-researcher.compact.md",
+      "bytes": 19021,
+      "sha256": "a781630ad991bbb6c135f51c01509ca95f00ca82e35314808d998b29e38d2afd"
+    },
+    {
+      "path": "agents/gsd-project-researcher.md",
+      "bytes": 20349,
+      "sha256": "1f96518aa0f3902a5b7d97133523d2ee8a93991080e1c59d98a182a140267f56"
+    },
+    {
+      "path": "agents/gsd-research-synthesizer.compact.md",
+      "bytes": 11166,
+      "sha256": "c476b1c1732b06ec4e9a157faaad32533fa19733cff38d55334774de9da8d375"
+    },
+    {
+      "path": "agents/gsd-research-synthesizer.md",
+      "bytes": 11963,
+      "sha256": "b3df8d149729814481c3bf627494d7e5c9749a7209c081d952a880166053624d"
+    },
+    {
+      "path": "agents/gsd-roadmapper.compact.md",
+      "bytes": 19770,
+      "sha256": "a48da45fc474aac48e61b72cc16bc41099e0e57967b3cf3fa9b30277155f2344"
+    },
+    {
+      "path": "agents/gsd-roadmapper.md",
+      "bytes": 24477,
+      "sha256": "c4ad7cc8dcebed09cb48d46d012a952a66e831f04dce83b4ce23427c7bed99c0"
+    },
+    {
+      "path": "agents/gsd-security-auditor.compact.md",
+      "bytes": 8177,
+      "sha256": "5b5f5ee5f6054e67ede9ac1e72d9ae76e6da0a6e2568733ddd0aa767af46e70b"
+    },
+    {
+      "path": "agents/gsd-security-auditor.md",
+      "bytes": 9431,
+      "sha256": "4637702d0d0171bda47bf3d35f33c490f4de94780a82cf49ef2a30a79873a9a6"
+    },
+    {
+      "path": "agents/gsd-ui-auditor.compact.md",
+      "bytes": 14583,
+      "sha256": "85433aabd1cef4afab2f483c21ada900b8a75d4f374cae0165fc41f690a91846"
+    },
+    {
+      "path": "agents/gsd-ui-auditor.md",
+      "bytes": 15606,
+      "sha256": "9baffc67abb4abfc15d2baa2f2feb4d8b08595315ad3da5ddfb9b1173860089e"
+    },
+    {
+      "path": "agents/gsd-ui-checker.compact.md",
+      "bytes": 12897,
+      "sha256": "7cf61862ac8801fdc1a4a3685ecd088c2e292d6c8daa4394533d6cfc0003e6c9"
+    },
+    {
+      "path": "agents/gsd-ui-checker.md",
+      "bytes": 19403,
+      "sha256": "004c221097ae574bd3ae616fe6ae8bc77c1dbfc284f5b878391c0edbb4d553ce"
+    },
+    {
+      "path": "agents/gsd-ui-researcher.compact.md",
+      "bytes": 18313,
+      "sha256": "b9c0881d7f7253c9ed960fee06e403e56299e466e1febfbba57727c533c1c728"
+    },
+    {
+      "path": "agents/gsd-ui-researcher.md",
+      "bytes": 20992,
+      "sha256": "299f583f146d123151e45ffb06e7adba7793c9d80a41b6d231e7f59f02f88471"
+    },
+    {
+      "path": "agents/gsd-user-profiler.compact.md",
+      "bytes": 6730,
+      "sha256": "e2d5b4209610b60f50cc5afa02b878a396eea689ee958c5b91b7bdebbf65c87a"
+    },
+    {
+      "path": "agents/gsd-user-profiler.md",
+      "bytes": 8735,
+      "sha256": "9450c526a7724f871dcd07e77b50aa8d85a4328ab7762bda0dc264c6c8c78129"
+    },
+    {
+      "path": "agents/gsd-verifier.md",
+      "bytes": 49131,
+      "sha256": "31f229e29100d01c9593960554b0fa96cdc38b125c76cb6529a3c231d7650225"
+    },
+    {
+      "path": "assets/gsd-logo-2000-transparent.png",
+      "bytes": 16032,
+      "sha256": "784b194c173814209116147eaf00d64a499b63849ea1199d9a76f111c807fbbf"
+    },
+    {
+      "path": "assets/gsd-logo-2000-transparent.svg",
+      "bytes": 1347,
+      "sha256": "1b48609a142df43040f9d37926970fd5b1260732bf0f929dccd95d874ac5a0df"
+    },
+    {
+      "path": "assets/gsd-logo-2000.png",
+      "bytes": 84502,
+      "sha256": "954c2b02032ab6bf8be265e189cc0bdd112f48866ebcd2b13b83b7c5e7ed1a0b"
+    },
+    {
+      "path": "assets/gsd-logo-2000.svg",
+      "bytes": 1447,
+      "sha256": "4f8403b4631dd044bf20b876bd027a87197c57241c95db0feef9bf78b73dad7e"
+    },
+    {
+      "path": "assets/terminal.svg",
+      "bytes": 3569,
+      "sha256": "0ee6fc41b046012707d9c930dcec85c75ea549734d55ac94906df688260ea974"
+    },
+    {
+      "path": "bin/gsd-mcp-server.js",
+      "bytes": 1369,
+      "sha256": "18becfa6e8bccd13894eb447b3ac6f934847f5d01edd0fa2ed58d104c741f1f1"
+    },
+    {
+      "path": "bin/install.js",
+      "bytes": 680472,
+      "sha256": "0acbd01933783537f934b33b6cc9132ff8e11ae37f0fa88ff63bc402aa0ae861"
+    },
+    {
+      "path": "commands/gsd/add-tests.md",
+      "bytes": 1303,
+      "sha256": "51542808862d4aa7b1d0ae6e58bd03bdfb73a4ad4a7e52bd0dc4ff7c42407300"
+    },
+    {
+      "path": "commands/gsd/ai-integration-phase.md",
+      "bytes": 1167,
+      "sha256": "a693c0ade172bc3d0e420608fadc25a6a42fb52a1dbc0bf306230b13be390454"
+    },
+    {
+      "path": "commands/gsd/audit-fix.md",
+      "bytes": 933,
+      "sha256": "24d7e5478c271584910f4fb3416e415e92a23fdd469de7448ecd7d010990ff8a"
+    },
+    {
+      "path": "commands/gsd/audit-milestone.md",
+      "bytes": 1151,
+      "sha256": "192c2d4979ef6a5e71931c7d0a4fc53edeaf986f58d44959f4ce18697c92768d"
+    },
+    {
+      "path": "commands/gsd/audit-uat.md",
+      "bytes": 605,
+      "sha256": "a7ce7c63bf2db68eb2f87bd76d3d135c1189318e2ed43d395dcee5d95f8661b8"
+    },
+    {
+      "path": "commands/gsd/autonomous.md",
+      "bytes": 2367,
+      "sha256": "35ccce06299833cf6471b63e7407e1de05d1db6d7e9bd3ca222680a17fdb2eec"
+    },
+    {
+      "path": "commands/gsd/capture.md",
+      "bytes": 2602,
+      "sha256": "b8494f0d0b1aff6a02ffcb56febe8725bd88423c511bd4a9c3db347e3254585e"
+    },
+    {
+      "path": "commands/gsd/cleanup.md",
+      "bytes": 603,
+      "sha256": "c058ba2ff9cff7c194c61503af7b38843d94341c479f70c46be13ac5a2555e2c"
+    },
+    {
+      "path": "commands/gsd/code-review.md",
+      "bytes": 3387,
+      "sha256": "c2ef35fe1eec2bc6da73e387910b30812243aa6f921ae9613b4e897056204195"
+    },
+    {
+      "path": "commands/gsd/complete-milestone.md",
+      "bytes": 5012,
+      "sha256": "19f964e76ffb4072857debb6c35f7a72be769a1689dd5dcafa21e83bf13118d9"
+    },
+    {
+      "path": "commands/gsd/config.md",
+      "bytes": 2481,
+      "sha256": "c9076888d1abe5ef84f14b3b676f3994825312e5f381abfd94f593fff3485a9b"
+    },
+    {
+      "path": "commands/gsd/debug.md",
+      "bytes": 1720,
+      "sha256": "6f57daebbbb2b7b6259f7bcd49fd518ababf245ca87f56b6b3894ed0b6832c29"
+    },
+    {
+      "path": "commands/gsd/discuss-phase.md",
+      "bytes": 4085,
+      "sha256": "c339d5cf8e1323c8293d51da57972ffa5020be192ab03272e6cc457f6996167e"
+    },
+    {
+      "path": "commands/gsd/docs-update.md",
+      "bytes": 2186,
+      "sha256": "4992630ef84a9bfea6fa8c69a84d689ebfdff113f21358650f3c34f4be49f764"
+    },
+    {
+      "path": "commands/gsd/eval-review.md",
+      "bytes": 813,
+      "sha256": "56a5842110d51254a7d8764aef2ead9aea95b8d6a5b97c9f8db0719943b30b46"
+    },
+    {
+      "path": "commands/gsd/execute-phase.md",
+      "bytes": 2975,
+      "sha256": "68c48db3d56a20914e97266187a5d465bbb9ceef07b722a95031ea2e7a8f4e35"
+    },
+    {
+      "path": "commands/gsd/explore.md",
+      "bytes": 703,
+      "sha256": "99d92deebce81126640d9ff5554bf945f923f050904320cc11f5a7b7f97b25fa"
+    },
+    {
+      "path": "commands/gsd/extract-learnings.md",
+      "bytes": 722,
+      "sha256": "b74c866e71283e49e4e51c0b289a1c838634b2e605948996342a9abbeaa85b82"
+    },
+    {
+      "path": "commands/gsd/fast.md",
+      "bytes": 851,
+      "sha256": "5ac666f183c840aefd3db1e79f2fcbf1825c91832b5988b39f49d76bcd022e6e"
+    },
+    {
+      "path": "commands/gsd/forensics.md",
+      "bytes": 2278,
+      "sha256": "fd672efe51d65a1a73d3780a37a7a58cff76a0c679378759697664ef4983400a"
+    },
+    {
+      "path": "commands/gsd/graphify.md",
+      "bytes": 28682,
+      "sha256": "908bd7416d72774e1aaa753e34876c132f239388213b4f44e75baf99b24c5049"
+    },
+    {
+      "path": "commands/gsd/health.md",
+      "bytes": 1261,
+      "sha256": "073e844cc1285ab2c304afbf489ae2e9e39a4b9a55f8e04a42b37ffc723cf1b1"
+    },
+    {
+      "path": "commands/gsd/help.md",
+      "bytes": 830,
+      "sha256": "9101ee73c245037e9a8ed8b94cbed55c33b12aecd36dcba91ffd8a8c8b322d79"
+    },
+    {
+      "path": "commands/gsd/import.md",
+      "bytes": 5399,
+      "sha256": "d236175fb673dfc15921256f81ea6ba76afeeda14e002fb10610093e704ae249"
+    },
+    {
+      "path": "commands/gsd/inbox.md",
+      "bytes": 1389,
+      "sha256": "da55c1408a6ee6cca0ceae82e81e3f5e5467bdad3156f084a61efa95cc4e7ed5"
+    },
+    {
+      "path": "commands/gsd/ingest-docs.md",
+      "bytes": 2085,
+      "sha256": "7a3c21ae5d5d133a37ff9126231c39d2dff2144eb661cb2112f2a3d21cd2efff"
+    },
+    {
+      "path": "commands/gsd/manager.md",
+      "bytes": 1647,
+      "sha256": "9f54653a7c589b009576151198d42d2d4f508371ffdf5fbba6a5dd3b045919ef"
+    },
+    {
+      "path": "commands/gsd/map-codebase.md",
+      "bytes": 3712,
+      "sha256": "7270ceb90fa44b0895bbd362310cdd6e83727134e64e975aecb25e9321d1e0d0"
+    },
+    {
+      "path": "commands/gsd/mempalace-capture.md",
+      "bytes": 5910,
+      "sha256": "4b5b6d3d056ea7e6fbb31309fff77bb174c4e819bfdf942017ce94fbb120d2c9"
+    },
+    {
+      "path": "commands/gsd/mempalace-recall.md",
+      "bytes": 5657,
+      "sha256": "004af1af0ddd74befbb8fa27cc3d60fdd40000bb4107ceea16e430b2507e9c25"
+    },
+    {
+      "path": "commands/gsd/milestone-summary.md",
+      "bytes": 1824,
+      "sha256": "f8fa9c357c08b74b6e0aa397db53ff3d8c87ad26d7ba800850ba5d58f824e81d"
+    },
+    {
+      "path": "commands/gsd/mvp-phase.md",
+      "bytes": 1855,
+      "sha256": "cba67bcb55250e5f408e354d39236a93dc980f828cd8e63233fed8a22824b6bb"
+    },
+    {
+      "path": "commands/gsd/new-milestone.md",
+      "bytes": 1695,
+      "sha256": "e6641ac51d84f240f0f5cdf08b3374620169e11c4153216060f38613e460108e"
+    },
+    {
+      "path": "commands/gsd/new-project.md",
+      "bytes": 1596,
+      "sha256": "f83c12be5619d6a8ea9e12f44877f3f30647c49f8b9e56d40f30cd9a6158fe4f"
+    },
+    {
+      "path": "commands/gsd/next.md",
+      "bytes": 944,
+      "sha256": "7be751510caa165d1169f96c4078811c4deee3035d82c514e61a8923a10aa284"
+    },
+    {
+      "path": "commands/gsd/ns-context.md",
+      "bytes": 995,
+      "sha256": "011c44e7aa46e64a6a7cdda6defabcf528d54620e63f4a05894cc279a14959dc"
+    },
+    {
+      "path": "commands/gsd/ns-ideate.md",
+      "bytes": 850,
+      "sha256": "edc5e543512dd48abe79b85db54294ec86b692a3e911e76334fe43e4086d60c0"
+    },
+    {
+      "path": "commands/gsd/ns-manage.md",
+      "bytes": 1517,
+      "sha256": "0409d810e499357fb55353561672a92c2308c1215c0d71f63c32f0c807d26e2b"
+    },
+    {
+      "path": "commands/gsd/ns-project.md",
+      "bytes": 1109,
+      "sha256": "ff67e85bc6f7fc5a07bff4ef71ce53bfaf7b3cfc0e875685221b231ec2a52b70"
+    },
+    {
+      "path": "commands/gsd/ns-review.md",
+      "bytes": 1166,
+      "sha256": "3766ed10827882a08e6a6866de1788cdeda5cd1d4db0edbe5ece3cf97b74e318"
+    },
+    {
+      "path": "commands/gsd/ns-workflow.md",
+      "bytes": 1809,
+      "sha256": "604a6976928b3c3bbfab80a86b2025920897888d275aababc22c1185080499d8"
+    },
+    {
+      "path": "commands/gsd/onboard.md",
+      "bytes": 1884,
+      "sha256": "a35340ce39334fc7c90d68532e914a6046c9ac248a34b100727db612560e0476"
+    },
+    {
+      "path": "commands/gsd/pause-work.md",
+      "bytes": 1151,
+      "sha256": "8a3f87b4f3ddfa3380ae7603075a8e78ef6fdb185104f5a0184479f92688faf5"
+    },
+    {
+      "path": "commands/gsd/phase.md",
+      "bytes": 2152,
+      "sha256": "94b75307cbc1126a46448ddfc23e66f005d74c48464a1792bf83d5580c85c986"
+    },
+    {
+      "path": "commands/gsd/plan-phase.md",
+      "bytes": 4919,
+      "sha256": "7c36c9f5bdf0fcf609ef12acb134a6319fd630ee99a729b837d58636a2b50c09"
+    },
+    {
+      "path": "commands/gsd/plan-review-convergence.md",
+      "bytes": 3974,
+      "sha256": "0ad9046cd4bebbfabe2e326bb2f8cf798036d1a153d644c62fda4db20f761098"
+    },
+    {
+      "path": "commands/gsd/pr-branch.md",
+      "bytes": 713,
+      "sha256": "12db391bb5921c1837869eca7dfaa7e08c9214941bf03609bbb5ea54cd73d6c3"
+    },
+    {
+      "path": "commands/gsd/profile-user.md",
+      "bytes": 1616,
+      "sha256": "37c9ef202669bfd3569f2382014d0d916da2f1419e9bdd530d2cb5a3ec540ed5"
+    },
+    {
+      "path": "commands/gsd/progress.md",
+      "bytes": 3029,
+      "sha256": "13d7e5ba8acc26059eb599cf43921fe88840b5d0b15482e6a8198c447b50d113"
+    },
+    {
+      "path": "commands/gsd/quick-batch.md",
+      "bytes": 4932,
+      "sha256": "008dbb7f2fb5ac2e255f437744a3db0b36f5fd2e41be84cad565df9c4d972ce1"
+    },
+    {
+      "path": "commands/gsd/quick.md",
+      "bytes": 6787,
+      "sha256": "f2058190c10d18f7c7de2a7ead5822d479f58dc7b7c89915e278cbfe0633f165"
+    },
+    {
+      "path": "commands/gsd/resume-work.md",
+      "bytes": 699,
+      "sha256": "b7d2324a5c96462a725fcc8ce67ef87b1d28a8ac623e2cd801adb8681b725538"
+    },
+    {
+      "path": "commands/gsd/review-backlog.md",
+      "bytes": 1973,
+      "sha256": "ec0cdae53b5edf72d6f8ed55de2ad0291707a7d9b2bf7ae4ba61ea1079b1df34"
+    },
+    {
+      "path": "commands/gsd/review.md",
+      "bytes": 1745,
+      "sha256": "3e8908603a3c2b2825be0fb1d3b678c48bd3e95ef6a99f577c4c3afcdc5cdbbe"
+    },
+    {
+      "path": "commands/gsd/secure-phase.md",
+      "bytes": 805,
+      "sha256": "34f8fb0720708cd11ca3d628e53f73f2eff031bd69af38291953f453165b0d2d"
+    },
+    {
+      "path": "commands/gsd/settings.md",
+      "bytes": 865,
+      "sha256": "ad4cd4b4a5a3bab5f5fe2df1db1932d7629a0445fe42e1fbf571c135f79597f1"
+    },
+    {
+      "path": "commands/gsd/ship.md",
+      "bytes": 710,
+      "sha256": "141c6909573309610762b3266a3bcfeb775551c3b6023723b42750cc6f97ae52"
+    },
+    {
+      "path": "commands/gsd/sketch.md",
+      "bytes": 2312,
+      "sha256": "770df13e2f848d0e0fe79e6915399be752c3bb62b0da21491e174ae75b9a4c56"
+    },
+    {
+      "path": "commands/gsd/spec-phase.md",
+      "bytes": 2497,
+      "sha256": "c0e592ef19cc6721e74dc38bdb13139ba0694e2d98d6c03ce7a6e6a9c8aec188"
+    },
+    {
+      "path": "commands/gsd/spike.md",
+      "bytes": 2117,
+      "sha256": "5c85bade6e6b804f672a58f1a641152e99470ca7950debadb0e6c7452fcab2f0"
+    },
+    {
+      "path": "commands/gsd/stats.md",
+      "bytes": 510,
+      "sha256": "367a3ecba3c5a907fa0774b22fc96e2c10c3c859af12305ced7f38508c6f9304"
+    },
+    {
+      "path": "commands/gsd/surface.md",
+      "bytes": 6076,
+      "sha256": "aec05669a4299d1778e1e00bb91ac88d4dfb11bc4d41dd890bbbc8fe7c438139"
+    },
+    {
+      "path": "commands/gsd/thread.md",
+      "bytes": 607,
+      "sha256": "81ae789a95206a89d953b8d8d1de0544884c1cf8c154a537155adcd7158cfac2"
+    },
+    {
+      "path": "commands/gsd/ui-phase.md",
+      "bytes": 772,
+      "sha256": "b48b780198ec7a2e5211ea65c02438a4ead255d7c393669b1e81ed2d5bd232c5"
+    },
+    {
+      "path": "commands/gsd/ui-review.md",
+      "bytes": 713,
+      "sha256": "2ed61b5729f6e4928ad432107faa727f1f9cd0dfa5411be1acfbf6962bd569d3"
+    },
+    {
+      "path": "commands/gsd/ultraplan-phase.md",
+      "bytes": 946,
+      "sha256": "08e75b083f5fe3f2432bb0642aadf5ff4ce90eaf25f4aeb48268b5e2ee8e36bb"
+    },
+    {
+      "path": "commands/gsd/undo.md",
+      "bytes": 915,
+      "sha256": "479c579d2bb7c141b1be3dac89e60a271a6289dcea3bcd271463b8c7cf363da3"
+    },
+    {
+      "path": "commands/gsd/update.md",
+      "bytes": 2177,
+      "sha256": "6f59562ac2d6bee5305b54a4fcf562e2a44c4db8c7658769ca8824ba4e9d08dd"
+    },
+    {
+      "path": "commands/gsd/validate-phase.md",
+      "bytes": 843,
+      "sha256": "22ad3181017f1b0e4b1b55dcf29e8721146f31d6f5f49cd8d30069d6b52b4cf0"
+    },
+    {
+      "path": "commands/gsd/verify-work.md",
+      "bytes": 1273,
+      "sha256": "7f27cf9f6b7816d0510a9500fb130e88b8b9b0a7209643b6b142143f629633d8"
+    },
+    {
+      "path": "commands/gsd/workspace.md",
+      "bytes": 1906,
+      "sha256": "1524eaefca7191a5fd7165750f9ac3221ae823cd2fdb67e23da0013d4231fb78"
+    },
+    {
+      "path": "commands/gsd/workstreams.md",
+      "bytes": 2276,
+      "sha256": "d5f3b699b8ebc1e61e3b68641a57cfdfeb51a6817c7f575050372b0a7aa19452"
+    },
+    {
+      "path": "GEMINI.md",
+      "bytes": 2537,
+      "sha256": "264c71c5c9d591e174a31dbd8af01d8b0e6389c7f43a013817b65cd6f9fbf82b"
+    },
+    {
+      "path": "gsd-core/bin/check-latest-version.cjs",
+      "bytes": 5987,
+      "sha256": "f2dba6e52e7ea7f7086ce1b716c38d54935be0faacd0a29aca132580fcea7609"
+    },
+    {
+      "path": "gsd-core/bin/ensure-runtime-build.cjs",
+      "bytes": 9536,
+      "sha256": "51bc64467ab30f62a6b276734a376b338597fa65812aa48544d6bf66a8f479bb"
+    },
+    {
+      "path": "gsd-core/bin/gsd_run",
+      "bytes": 849,
+      "sha256": "62d9b647ede212e604494dd67913f915f95909f0e04411bbbe1c94692968b401"
+    },
+    {
+      "path": "gsd-core/bin/gsd-tools.cjs",
+      "bytes": 269076,
+      "sha256": "ec066117822d0270bafa6ed3f863b4aebee8bfda243efcd828bf8a1d85732a92"
+    },
+    {
+      "path": "gsd-core/bin/lib/active-workstream-store.cjs",
+      "bytes": 17978,
+      "sha256": "c57e25c731b48f3fa995dd01507d909af7f75c9d5076301707a9ca8a191117c1"
+    },
+    {
+      "path": "gsd-core/bin/lib/adapter-declarative.cjs",
+      "bytes": 1695,
+      "sha256": "523ab5fc799558addd20c562416e9bd336c1468c77089bc2b264ee5ccb704130"
+    },
+    {
+      "path": "gsd-core/bin/lib/adapter-imperative.cjs",
+      "bytes": 3180,
+      "sha256": "a8fa1c6377d5343c86db7ff1057d2843479e69d7cdf25536deed74e7fa793480"
+    },
+    {
+      "path": "gsd-core/bin/lib/adr-parser.cjs",
+      "bytes": 13649,
+      "sha256": "d117fdecffdcedd7d5d8ceba7abcf55b3dbd7dfb5a009480f19a1caf5fad3755"
+    },
+    {
+      "path": "gsd-core/bin/lib/agent-command-router.cjs",
+      "bytes": 3544,
+      "sha256": "b65887812dc82b000d982f16cdc15418d85c2cc6b923e72a8aa7588cd3988d55"
+    },
+    {
+      "path": "gsd-core/bin/lib/agent-install-check.cjs",
+      "bytes": 26728,
+      "sha256": "bca49711b11e2e06880bffe365ccc7f81a23cf19e2f5ee046de36c052cf31f36"
+    },
+    {
+      "path": "gsd-core/bin/lib/api-coverage.cjs",
+      "bytes": 48717,
+      "sha256": "ce98c0265ed0cb9e1daccf1bba5972c1e84076a2e1277c49be21080bf337fa79"
+    },
+    {
+      "path": "gsd-core/bin/lib/artifacts.cjs",
+      "bytes": 2625,
+      "sha256": "80926d134ecd466fd40bb7db0343906c0b4ae2224d918a27721834b2a27cb435"
+    },
+    {
+      "path": "gsd-core/bin/lib/assumption-delta.cjs",
+      "bytes": 11465,
+      "sha256": "627279f433aae7c54318149946e2466509c04b5617b18ccb35c7b6a370c91fdb"
+    },
+    {
+      "path": "gsd-core/bin/lib/audit-command-router.cjs",
+      "bytes": 5475,
+      "sha256": "8af24d89e19900b13b5c18eb633b7e1f0a10555b4c0a8ae5e7be4d279628b594"
+    },
+    {
+      "path": "gsd-core/bin/lib/audit.cjs",
+      "bytes": 85599,
+      "sha256": "7cc8f952d54a7694ffd81bcc383a09affce61880a199d3147fc5600175d654d1"
+    },
+    {
+      "path": "gsd-core/bin/lib/broken-windows.cjs",
+      "bytes": 54520,
+      "sha256": "9c99260cfbc64d5e23d534083afe049867d450b5b81842e58f3f51225a3a86b5"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-activation.cjs",
+      "bytes": 5998,
+      "sha256": "0ce4e0d321feca44fa2d2234888eb6e2c8920195de9f98933416b7856f9815e2"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-command-router.cjs",
+      "bytes": 40200,
+      "sha256": "adbe8129f7f8f82d19b4a464fe58d852790b4ada7a49a2f2086ca9cb7152a3f1"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-consent.cjs",
+      "bytes": 51792,
+      "sha256": "1b01e9cec76764f28c2e20b66adf5fada28d154a76a50c200976c6721d080cff"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-ledger.cjs",
+      "bytes": 43852,
+      "sha256": "1abaf0d194703c92d1855a0306eb49b01e6dc92e5802b492b6481f375e50d3cd"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-lifecycle.cjs",
+      "bytes": 92897,
+      "sha256": "a1f83e659a6ef4bf152c93355a6b811b768d73022e56c7a0c6b3f2b34c9cc00b"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-loader.cjs",
+      "bytes": 57798,
+      "sha256": "2f49ca88ba8dfe5344406a9c32f0724e669eded75adbda45a9b927d998fb05d9"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-lock.cjs",
+      "bytes": 28772,
+      "sha256": "e2f004e52aea2695578e7259fc00bb3d67c65a5bb9ad4fb8e9e09f57201be629"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-registry.cjs",
+      "bytes": 353686,
+      "sha256": "5f8e6057ab710a6c804da633bf1dfd04e4a666077a1e9fffcf6c1733e5a0f6b2"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-source.cjs",
+      "bytes": 76200,
+      "sha256": "dc0fb7663925f8751ad6db68eca2103010dd869e485f442aa1af5bb990dd6bd5"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-state.cjs",
+      "bytes": 33169,
+      "sha256": "7017c63a61de8b0aeb2e0749b4d52fe050534448d64a9e1868b360dce3889894"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-trust.cjs",
+      "bytes": 79648,
+      "sha256": "973722ab305be62ff1d8fabfe64d703058798e64bb945291d9d6174dde507f8c"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-validator.cjs",
+      "bytes": 186543,
+      "sha256": "dcd3fccf59811a4c3d1d26935a835c019ffeba0ecaa7cb53139fbc2cbadead7f"
+    },
+    {
+      "path": "gsd-core/bin/lib/capability-writer.cjs",
+      "bytes": 22437,
+      "sha256": "b635600e4c069b91c96110823c06f940431c9cab65e8c46354f3345e05691345"
+    },
+    {
+      "path": "gsd-core/bin/lib/check-command-router.cjs",
+      "bytes": 83624,
+      "sha256": "be112509810160873dcd8a59d599149e5f26efc0857b37fa961cd8d1b7fbc40f"
+    },
+    {
+      "path": "gsd-core/bin/lib/cjs-command-router-adapter.cjs",
+      "bytes": 6355,
+      "sha256": "1e1263050290faf5588b52ab756122ab1331057eecbf3100499cb18f05c35950"
+    },
+    {
+      "path": "gsd-core/bin/lib/claude-orchestration-command-router.cjs",
+      "bytes": 14887,
+      "sha256": "2d385a8c831c2322c8f2cf4c32d8110caf8fe5ae5fd07db7699da3f189571528"
+    },
+    {
+      "path": "gsd-core/bin/lib/claude-orchestration.cjs",
+      "bytes": 32591,
+      "sha256": "334d03e02ae08cf07d50819656acd77d01338c1ca1a8774c467cc368d1eff622"
+    },
+    {
+      "path": "gsd-core/bin/lib/cli-exit.cjs",
+      "bytes": 30799,
+      "sha256": "b7420051e98482febfdff64ff9e1f657552eaf9a35571da78f43d8078702d1d2"
+    },
+    {
+      "path": "gsd-core/bin/lib/cli-skew-check.cjs",
+      "bytes": 2122,
+      "sha256": "e8294982b0d32f1e855fefa3ae130bc682a54a26722960aac206e83ec257ad15"
+    },
+    {
+      "path": "gsd-core/bin/lib/clock.cjs",
+      "bytes": 4615,
+      "sha256": "1ca65028845212f90379e8a733ba8baa360914d5b599d43380a7e2647bd5ffbc"
+    },
+    {
+      "path": "gsd-core/bin/lib/clusters.cjs",
+      "bytes": 3372,
+      "sha256": "9777d81947961034abf18123fa32aa4df493a693923322b6998535f461a93231"
+    },
+    {
+      "path": "gsd-core/bin/lib/code-review-depth.cjs",
+      "bytes": 11796,
+      "sha256": "4211431e690a893f9f698485abc2430a61d0e847579ddad02dea4e6439fc1f13"
+    },
+    {
+      "path": "gsd-core/bin/lib/code-review-flags.cjs",
+      "bytes": 2076,
+      "sha256": "a347151887fc8486e5695044d40ca7985ac0f05a22758e45c6cba2b94bd22f0c"
+    },
+    {
+      "path": "gsd-core/bin/lib/codex-agent-toml.cjs",
+      "bytes": 41800,
+      "sha256": "772a0443789a67b0bcd3adcf1441f2b93a45836e7431c62cc384053e07a4e90e"
+    },
+    {
+      "path": "gsd-core/bin/lib/command-aliases.cjs",
+      "bytes": 22526,
+      "sha256": "fa5e354eb1f8de1b79d156f9c302e87bd334c35cfcdc74b06d3f95949e35b6bf"
+    },
+    {
+      "path": "gsd-core/bin/lib/command-arg-projection.cjs",
+      "bytes": 8624,
+      "sha256": "04dc3b53446c5665ceefef3298332b3591ed8befaee443fdf55224dbba9e33aa"
+    },
+    {
+      "path": "gsd-core/bin/lib/command-roster.cjs",
+      "bytes": 3305,
+      "sha256": "402086e4699061b3d77daa4485bb2c0f7c1fe875459af7ba08eb5a51006f4e95"
+    },
+    {
+      "path": "gsd-core/bin/lib/command-routing-hub.cjs",
+      "bytes": 15167,
+      "sha256": "0053a47537924f1bda48304de72e171231016793d2339eef15433f46ff2e0c19"
+    },
+    {
+      "path": "gsd-core/bin/lib/commands.cjs",
+      "bytes": 214667,
+      "sha256": "4fc92c2763202ac1af52bf4772fe28338523c575c683d3698197ece119178be4"
+    },
+    {
+      "path": "gsd-core/bin/lib/commonjs-marker.cjs",
+      "bytes": 6396,
+      "sha256": "c5549e0ea18013afe60826cfe22217ff77d3ba036b6f789917a065f40b09b58f"
+    },
+    {
+      "path": "gsd-core/bin/lib/complexity-trigger.cjs",
+      "bytes": 44760,
+      "sha256": "ab6c344fc3f84bad38b8bb3f4ecc20b45f61cb6609ed73607a22091dbbda107f"
+    },
+    {
+      "path": "gsd-core/bin/lib/config-loader.cjs",
+      "bytes": 61840,
+      "sha256": "6cfc11ce2604d4bdb3609df21946a4bbc5d69fd5f2034ffa26601696f09d56ba"
+    },
+    {
+      "path": "gsd-core/bin/lib/config-schema.cjs",
+      "bytes": 3511,
+      "sha256": "28eb2a5db1b407a76c23fe109d25d64ffbd506b77252e9482c25f39cdeb8db04"
+    },
+    {
+      "path": "gsd-core/bin/lib/config-types.cjs",
+      "bytes": 836,
+      "sha256": "96d613c58f03e1b4a9f2f9c4e3dcc3e8525a6c5a0c1760d0368f8881f25621e9"
+    },
+    {
+      "path": "gsd-core/bin/lib/config.cjs",
+      "bytes": 66740,
+      "sha256": "f4085ed1ee707c7e60e0a8ebe80052e55fee6c8b67bdb3497dda742e5fb19ab6"
+    },
+    {
+      "path": "gsd-core/bin/lib/configuration.cjs",
+      "bytes": 14828,
+      "sha256": "c537eb2457407a5c39f3ce89ad1e107ec391738249b9e522a8e5650653c1a0db"
+    },
+    {
+      "path": "gsd-core/bin/lib/context-composer.cjs",
+      "bytes": 12638,
+      "sha256": "10260e7ed8c157106556c81d22459dc7f31cf3778615b2930421938d52ac94e8"
+    },
+    {
+      "path": "gsd-core/bin/lib/context-predicates.cjs",
+      "bytes": 23733,
+      "sha256": "aa12b30cce60e02cf308e1e011ae4c9106e2e062bda2fcb6d708aea2381a151c"
+    },
+    {
+      "path": "gsd-core/bin/lib/context-utilization.cjs",
+      "bytes": 2071,
+      "sha256": "e584bd8192164750029d704c3cfb3e8d775fee7be22761e7ffdc238776a470f2"
+    },
+    {
+      "path": "gsd-core/bin/lib/core-utils.cjs",
+      "bytes": 27581,
+      "sha256": "ab827cd4cecb50d6742ea97d7541a0422b6f21b7ecdf74e407118c19d579036d"
+    },
+    {
+      "path": "gsd-core/bin/lib/coverage.cjs",
+      "bytes": 19809,
+      "sha256": "0321f554a773a45c8c8d38b2015def72beed627fefc754e0fa46cf3e4cac52ab"
+    },
+    {
+      "path": "gsd-core/bin/lib/decisions.cjs",
+      "bytes": 34300,
+      "sha256": "03d809706ea0aff34dcb19ab225d2c6e0529c9dc71b27af55dc8c4dc2ed37cc0"
+    },
+    {
+      "path": "gsd-core/bin/lib/docs.cjs",
+      "bytes": 11438,
+      "sha256": "18cd37b341ab77e40daf161f837b824b3866fc7350fbe11c5b49d2be2808e64d"
+    },
+    {
+      "path": "gsd-core/bin/lib/drift.cjs",
+      "bytes": 14503,
+      "sha256": "4965b87670fbe198c62c4f3bb122a5337615b147fcdb0f7197bf75927057fdbb"
+    },
+    {
+      "path": "gsd-core/bin/lib/edge-probe.cjs",
+      "bytes": 12744,
+      "sha256": "9f1a29bfd4c4cbce03eb124faf6f1ee851923e35e94027f7f8aadcb90173dea3"
+    },
+    {
+      "path": "gsd-core/bin/lib/embedding-adapter.cjs",
+      "bytes": 1539,
+      "sha256": "d61e404603feae5e5ee3859e7eef975528455c37867b87def47f7a36c3246569"
+    },
+    {
+      "path": "gsd-core/bin/lib/estimate-cli.cjs",
+      "bytes": 17646,
+      "sha256": "1f89c0cd66b6045c758d6c43fe5abd034993c58eafcad2e32af8981a6936e4a8"
+    },
+    {
+      "path": "gsd-core/bin/lib/eval-command-router.cjs",
+      "bytes": 793,
+      "sha256": "c27b6b78bbdeaaf45fbdd7ced4886cd285310729c428d8625d70dfa4148841ed"
+    },
+    {
+      "path": "gsd-core/bin/lib/eval.cjs",
+      "bytes": 3125,
+      "sha256": "1fe6f60777fc3e68e5f9bdc8cde601a5ba04ccd49ede3ec53ca3775169673a03"
+    },
+    {
+      "path": "gsd-core/bin/lib/exit-code-registry.cjs",
+      "bytes": 3460,
+      "sha256": "666a4b702f80aa05b4d7351ae90cb14313f9eb855041cca34c6a8a3cb98398f9"
+    },
+    {
+      "path": "gsd-core/bin/lib/external-descriptor-trust.cjs",
+      "bytes": 5321,
+      "sha256": "63d4821a433fb79ae5bd683ded9013c22d13d533ceeeed8a125554fb13250953"
+    },
+    {
+      "path": "gsd-core/bin/lib/external-job.cjs",
+      "bytes": 11787,
+      "sha256": "bef42843c3f9cd03b492ce001ccf62dd8d761e1796cf1bcc82a90bca5b5a09d3"
+    },
+    {
+      "path": "gsd-core/bin/lib/fallow-runner.cjs",
+      "bytes": 5696,
+      "sha256": "a484685efa8a2a3a739be73457c4b12314ba5f494fe642d08decbcd6aa6054fe"
+    },
+    {
+      "path": "gsd-core/bin/lib/federated-config.cjs",
+      "bytes": 8762,
+      "sha256": "070bec8afc3e523a330a75da17adfb40fef26349e4e7f3e387b1c0bc717a84f3"
+    },
+    {
+      "path": "gsd-core/bin/lib/file-overlap-partitioner.cjs",
+      "bytes": 3349,
+      "sha256": "f11cd2e3eb2d6d4b19c7623f5e9439c7e98472e257e5944f6d69d99183768f9a"
+    },
+    {
+      "path": "gsd-core/bin/lib/frontmatter.cjs",
+      "bytes": 93372,
+      "sha256": "96ca5e443299863e8ca5d0ba5ad08b0d6233f0e28fe1ac94ce4da81c03be31f9"
+    },
+    {
+      "path": "gsd-core/bin/lib/gap-checker.cjs",
+      "bytes": 24377,
+      "sha256": "26bd53916b5fface73c0320b8d7603e7199ab91f4e28932e8852e374624af61c"
+    },
+    {
+      "path": "gsd-core/bin/lib/gate-predicate-evaluator.cjs",
+      "bytes": 10477,
+      "sha256": "a7b2470994eef16f4e054e067f1e7e1c7f6c74659dbe12222038263c8ccebc55"
+    },
+    {
+      "path": "gsd-core/bin/lib/git-base-branch.cjs",
+      "bytes": 24368,
+      "sha256": "349c541fb464bead42f8f77497f1000b1d392905e001daa8cf5e27393df60b92"
+    },
+    {
+      "path": "gsd-core/bin/lib/graphify-command-router.cjs",
+      "bytes": 4505,
+      "sha256": "6672e02eca402d2bb777f2d4b659b44fe51255d55eee09d59e9b16409ea5fa27"
+    },
+    {
+      "path": "gsd-core/bin/lib/graphify.cjs",
+      "bytes": 29384,
+      "sha256": "d9cb2f3fa8198aef0e30766e6780e1e71d23077199a1db9c9edc71aa5c758e78"
+    },
+    {
+      "path": "gsd-core/bin/lib/gsd2-import.cjs",
+      "bytes": 20612,
+      "sha256": "cd6d2d73e57b8fc26a0d3ecae933fe49a67beb342fb37d132292a7919cb73da1"
+    },
+    {
+      "path": "gsd-core/bin/lib/handshake-serialized.cjs",
+      "bytes": 3646,
+      "sha256": "b3f5dac433f2255c70649bfeef41bd4c74c07ec8128d5cf02ee7bf81989cde34"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/agent-install.cjs",
+      "bytes": 5060,
+      "sha256": "e97b199cd8595f126bf8ceb2808da5f7bb9a00ed2c286d30020a55191ca656b8"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/config-validation.cjs",
+      "bytes": 15806,
+      "sha256": "8d5683eb8206e819a9a71399b1f5d948ebf6be88ba403f8394a366c2d6154c0d"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/consistency.cjs",
+      "bytes": 7162,
+      "sha256": "26f716aed648735285324bf25ab3fb0984165881c6c7cd302e02c77ee33f683d"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/install-surface-shadowing.cjs",
+      "bytes": 4694,
+      "sha256": "a46717d99a7145996fb70455cbb0f4b49e541e06b5a1b9c20b73ed75aab7a3d5"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/milestone-archive-hygiene.cjs",
+      "bytes": 4669,
+      "sha256": "c28dbf76f1b8042d7062c8811c922aadef51c60d943e16243b4d3495e02c2dcd"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/phase-structure.cjs",
+      "bytes": 10821,
+      "sha256": "9c19aefb09a86ec97514fcd9d586247f157aba85de85d6b619ff08f97f389e31"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/roadmap-disk-consistency.cjs",
+      "bytes": 17795,
+      "sha256": "bc92ee91c5eae2b1948e7943771c1e4ac1a0281e158546d8e0cd447288bf5dee"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/root-existence.cjs",
+      "bytes": 8265,
+      "sha256": "de4b03d90cda765506d2817ee72b3ef945e3c2877372707d63cff9289508385c"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/state-consistency.cjs",
+      "bytes": 20607,
+      "sha256": "5b6fc20675cd4c6c55909ab1734d20cf34c656ad751a9c9a6653014f53fe43cc"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-rules/worktree-health.cjs",
+      "bytes": 10199,
+      "sha256": "e7dc9544f618812a9c82a7f4f1c4919fd9e8747bf9f1d2b6fd91eb5779665b85"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic-types.cjs",
+      "bytes": 3542,
+      "sha256": "92b65b032a6833df85e29efd4404969a4328a4db291ae9fd0c9b32fcb2d3a77a"
+    },
+    {
+      "path": "gsd-core/bin/lib/health-diagnostic.cjs",
+      "bytes": 24099,
+      "sha256": "c8ac46479ee3e4a5b91d3c0eaa4fa9cd541ac801c3a1b63be21b419e4073f25d"
+    },
+    {
+      "path": "gsd-core/bin/lib/hook-bus.cjs",
+      "bytes": 3364,
+      "sha256": "b159fdf03e92b2fe2ed94f62449f926667683de999d9a0aa3524227cd2c784c9"
+    },
+    {
+      "path": "gsd-core/bin/lib/host-integration-adapters/cline-sdk-binding.cjs",
+      "bytes": 10653,
+      "sha256": "9feb2ec45d743dbd5104f03dfedadaf746f76222a1d21c402fcba090f95490dc"
+    },
+    {
+      "path": "gsd-core/bin/lib/host-integration-adapters/imperative-hook-bus.cjs",
+      "bytes": 5771,
+      "sha256": "845b5d27034bd760f27cf15af7fa2cf44bba38ace1b75df532aea59725aa107a"
+    },
+    {
+      "path": "gsd-core/bin/lib/host-integration-sdk.cjs",
+      "bytes": 3293,
+      "sha256": "65ce3884fd494f6892dd17c87ccb6dad7ddc8ed613f3a361c0be0623acbe3d0c"
+    },
+    {
+      "path": "gsd-core/bin/lib/host-integration.cjs",
+      "bytes": 42699,
+      "sha256": "ba0037c7681c8a8b07549fde1e52a703163e9ce0c928f986b791ffe1407552c4"
+    },
+    {
+      "path": "gsd-core/bin/lib/host-runtime-detection.cjs",
+      "bytes": 6772,
+      "sha256": "d27bc81bda80619da72a2a2278d99b2bd15236196e46168e4e1595eb9616d440"
+    },
+    {
+      "path": "gsd-core/bin/lib/init-command-router.cjs",
+      "bytes": 15125,
+      "sha256": "fdfbb603b9c0fcc99dd723df122eaa1b8b494b60525d20d5318795e92661f0b8"
+    },
+    {
+      "path": "gsd-core/bin/lib/init.cjs",
+      "bytes": 214766,
+      "sha256": "0a022c40439f79b17d4459a74b506301b0db1ec0390594ea80af1f7c67a17029"
+    },
+    {
+      "path": "gsd-core/bin/lib/install-effort-resolver.cjs",
+      "bytes": 12990,
+      "sha256": "02d05333e81d00e20bae11d9977ff04446550262f631e2ef5427d3aeaf9c63c1"
+    },
+    {
+      "path": "gsd-core/bin/lib/install-engine.cjs",
+      "bytes": 122943,
+      "sha256": "0c2918ee068e142fde4a213e7e835744ea5f88726a7a926abd5f507bc2e85c5f"
+    },
+    {
+      "path": "gsd-core/bin/lib/install-fs-adapter.cjs",
+      "bytes": 16222,
+      "sha256": "4fe2492c54892b69541da6454ad9cd75066d897baf54341b613ffca86aa12f3b"
+    },
+    {
+      "path": "gsd-core/bin/lib/install-model-override-resolver.cjs",
+      "bytes": 13983,
+      "sha256": "8351069a29780993f28662924783156a742c8149f31a0abc47b578b73e30acb2"
+    },
+    {
+      "path": "gsd-core/bin/lib/install-profiles.cjs",
+      "bytes": 61173,
+      "sha256": "cfe9cc6be2de77171ae7a5c70ac9ff898b20f9fded306eceb8f602194318e398"
+    },
+    {
+      "path": "gsd-core/bin/lib/install-scope.cjs",
+      "bytes": 14119,
+      "sha256": "6f42ea9c01ae4f88770dcac2ec5d024f25f2bd700e042f9a0d41fa0b18632929"
+    },
+    {
+      "path": "gsd-core/bin/lib/install-shadow-report.cjs",
+      "bytes": 21549,
+      "sha256": "4ff975de3d8b44352b7bc06d6fceaeadb5d7f56290b7e9e92be872ecbf86ee69"
+    },
+    {
+      "path": "gsd-core/bin/lib/installed-surface-resolver.cjs",
+      "bytes": 19615,
+      "sha256": "5d91523076b86b88da558927e89c06ab6aa9c68f8b55f0c4fd151e381698e59c"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migration-authoring.cjs",
+      "bytes": 6050,
+      "sha256": "bc2a83bc1f765970e364413fcc7b7fd533dd3af7cc063d948efeb7bbdc7164d9"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migration-report.cjs",
+      "bytes": 15922,
+      "sha256": "b18fef175d8f9e32a8fabc00bdddc396bc8786e7ac8af859fb783d6b99589886"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations.cjs",
+      "bytes": 49890,
+      "sha256": "5163dea23a7738ba92718b501bd4aa4634e488dba0d6e512ab3316d3639ee31d"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/000-first-time-baseline.cjs",
+      "bytes": 9165,
+      "sha256": "27ae3ff0770c4c7bbfd64f2cbf129f6d6a31f1f01748d7cc5ddde2d9976f554d"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/001-legacy-orphan-files.cjs",
+      "bytes": 2032,
+      "sha256": "e279bc0b87f040caeb354570328d656a0bdcceabd330c3b3b513bbb42d6991e8"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/002-codex-legacy-hooks-json.cjs",
+      "bytes": 3538,
+      "sha256": "8292c3e6af11c48140f5c076bb5db18f049cc73b1e87d68bb42c90fd8c2dc89c"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/003-rename-get-shit-done-to-gsd-core.cjs",
+      "bytes": 5861,
+      "sha256": "2cfb01e1e4d234611cb0b060f0e994899ea388e5c8e573be39b6e63d0d20982b"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/004-prune-stale-pristine-snapshots.cjs",
+      "bytes": 6699,
+      "sha256": "c1409ecc6b92b7e94486bdfcd599c42ae3533f700870e8fa89f70fcba66765d1"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/005-opencode-baseline-commands-dir.cjs",
+      "bytes": 7009,
+      "sha256": "ea01ddb9b021c0e27601a53d318d8e51e03683ee58bceca7c7ea0edf40300237"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/006-pi-extension-cjs-to-js.cjs",
+      "bytes": 4284,
+      "sha256": "c9b401ee531c8b60489ca8db767dc556f05065fb442d200d4ba91d6a70ce858b"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/007-retire-config-root-commonjs-marker.cjs",
+      "bytes": 8223,
+      "sha256": "beb57bf5b91af201102b4b991c1a5dcb06ae9a7bef1f7692f35f4dd2997d1909"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/008-cursor-retire-commands-surface.cjs",
+      "bytes": 2693,
+      "sha256": "c0351390470bf60c204cb9e1b95456e33d16bdd81ddef76bdae9e298eac2c4d5"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/009-pi-retire-reserved-hooks-dir.cjs",
+      "bytes": 10776,
+      "sha256": "e7adf6fdda74321ee04e74d7b3fc2f9d41d5ef5a72bd831cb79ac530aff4f2d8"
+    },
+    {
+      "path": "gsd-core/bin/lib/installer-migrations/010-antigravity-retire-confighome-artifacts.cjs",
+      "bytes": 9164,
+      "sha256": "aa000c3d177d1a7130207c5086dfe4206d2d4b65f60e16b2d9d7246ef9e69cf1"
+    },
+    {
+      "path": "gsd-core/bin/lib/intel-command-router.cjs",
+      "bytes": 7051,
+      "sha256": "3611eabadbaedbabc0e0bfce632124b30f6b8393d2dd2f189788f6d7656cd1d2"
+    },
+    {
+      "path": "gsd-core/bin/lib/intel.cjs",
+      "bytes": 26922,
+      "sha256": "488905ab412b8600b9fe7b30c3ae271696d1d572dc4451df185d9d9723607ae2"
+    },
+    {
+      "path": "gsd-core/bin/lib/io.cjs",
+      "bytes": 22164,
+      "sha256": "92684bb0af9efcc47635abdbab7944d41fab9b09cd56745f360d23ea66a6fa11"
+    },
+    {
+      "path": "gsd-core/bin/lib/learnings.cjs",
+      "bytes": 14238,
+      "sha256": "cec05cc0132dd11eb072b26bca80095b0b38fda8928a0f74b816b89234e1f2df"
+    },
+    {
+      "path": "gsd-core/bin/lib/legacy-cleanup.cjs",
+      "bytes": 13500,
+      "sha256": "7d188d0c8e238707f4eb1347f40fcc25a890406d4f3c3d57b9acbbda810d0bf7"
+    },
+    {
+      "path": "gsd-core/bin/lib/loop-host-contract.cjs",
+      "bytes": 1855,
+      "sha256": "da7f76ddb082620d270f27e912231262011869c746df8db40fa5a155b81ca85c"
+    },
+    {
+      "path": "gsd-core/bin/lib/loop-resolver.cjs",
+      "bytes": 28693,
+      "sha256": "6dd492310b9e54c43e5ef8576a0badb0814c819351c956cf6ec06c13f633d6af"
+    },
+    {
+      "path": "gsd-core/bin/lib/markdown-sectionizer.cjs",
+      "bytes": 45767,
+      "sha256": "c9a1322ff3547fd4b997dc0cad0a7ab5d05f94333ead776a256664ef983dd80c"
+    },
+    {
+      "path": "gsd-core/bin/lib/markdown-table.cjs",
+      "bytes": 48327,
+      "sha256": "fdc726275281bef35c4d836a6f4eec3676d24614fd0fb9c843d579ca1ae54a32"
+    },
+    {
+      "path": "gsd-core/bin/lib/mcp-catalog.cjs",
+      "bytes": 25184,
+      "sha256": "7cefc21b8b8edc0bd38548f13d094a811dadbd91e40eebf2b9d0f5297e1827f6"
+    },
+    {
+      "path": "gsd-core/bin/lib/mcp-server.cjs",
+      "bytes": 15526,
+      "sha256": "97ce8efa6e9b60bcb3dac5cd83e8c88c115c72855bb938b554847ac1c1c91a11"
+    },
+    {
+      "path": "gsd-core/bin/lib/milestone-lock.cjs",
+      "bytes": 11699,
+      "sha256": "d52946be0f92596a9eacc7e8d0d891e801400a59d577ac542daacb41d569fc76"
+    },
+    {
+      "path": "gsd-core/bin/lib/milestone.cjs",
+      "bytes": 105748,
+      "sha256": "deefbbfafbfaeb3f40cccfb66740acd8ea53e7531e7726a42ef620116606ddcd"
+    },
+    {
+      "path": "gsd-core/bin/lib/model-adapter.cjs",
+      "bytes": 2313,
+      "sha256": "d813467cfbcba870370010e622e23711f61eb109f4f439ac416fa56a7306643c"
+    },
+    {
+      "path": "gsd-core/bin/lib/model-catalog.cjs",
+      "bytes": 24156,
+      "sha256": "e5acd371ca08b5a0fefcb1ffb52a0998106f26a00da5b8f62582c649549a9afa"
+    },
+    {
+      "path": "gsd-core/bin/lib/model-profiles.cjs",
+      "bytes": 1246,
+      "sha256": "83249502f09ccd781c0c36f8badb75e4dfe1ad069e4e1bc3e58f76edbc154b14"
+    },
+    {
+      "path": "gsd-core/bin/lib/model-resolver.cjs",
+      "bytes": 46326,
+      "sha256": "f30583008afb95d34a829ba5e794ad96850efd48be997cd14ba0a0e18489e894"
+    },
+    {
+      "path": "gsd-core/bin/lib/normalize-test-command.cjs",
+      "bytes": 8194,
+      "sha256": "f7504f76fa4457fef13f5382c9cb27c2630903a6aa9aabe18c60d4a56b70c4d4"
+    },
+    {
+      "path": "gsd-core/bin/lib/observability/event.cjs",
+      "bytes": 2089,
+      "sha256": "c3595929b827ab0e5f25d3d739ca034892735f261704497e1f50247209219820"
+    },
+    {
+      "path": "gsd-core/bin/lib/observability/logger.cjs",
+      "bytes": 6513,
+      "sha256": "7ecf160682ecb52d1749338314d09950fb25b444b1447e51917bce105174bd9c"
+    },
+    {
+      "path": "gsd-core/bin/lib/observability/redaction.cjs",
+      "bytes": 2000,
+      "sha256": "1565fe81a6c50837d6f4420075d1488efacd46d36a7fce5e45fa7bba8d69c08a"
+    },
+    {
+      "path": "gsd-core/bin/lib/onboard-projection.cjs",
+      "bytes": 14537,
+      "sha256": "5be286a82d93e66ff463b2b4054d4881bec67444f6ce7e2ce4cd299987481c58"
+    },
+    {
+      "path": "gsd-core/bin/lib/package-identity.cjs",
+      "bytes": 1326,
+      "sha256": "34051a3e4874fae454a7ff861d0a2e020743b6ac0248ae790d3ca5e33bdc635b"
+    },
+    {
+      "path": "gsd-core/bin/lib/package-legitimacy.cjs",
+      "bytes": 15163,
+      "sha256": "d9677032f76cbdb211242964701b418229e58b533157aa98ce77a8bf080494a6"
+    },
+    {
+      "path": "gsd-core/bin/lib/pattern.cjs",
+      "bytes": 6907,
+      "sha256": "e5a642a3daeec2fafd7fe1df64c86275ef22da0adf250f4f5d4ce55c6401dfba"
+    },
+    {
+      "path": "gsd-core/bin/lib/phase-command-router.cjs",
+      "bytes": 14785,
+      "sha256": "f5b117a8ccef03859e98efe9492498a44a32382398727c8d2c7662cebc6a8b8d"
+    },
+    {
+      "path": "gsd-core/bin/lib/phase-estimation.cjs",
+      "bytes": 18903,
+      "sha256": "a3c5971200144363257d0f3d426435e25a346f5b3315951f04d7d63a244bf154"
+    },
+    {
+      "path": "gsd-core/bin/lib/phase-id.cjs",
+      "bytes": 92143,
+      "sha256": "0e5616d731f41ae9143ef64ccd668d565554f58144f4b388d82986d8530a6b24"
+    },
+    {
+      "path": "gsd-core/bin/lib/phase-lifecycle.cjs",
+      "bytes": 10507,
+      "sha256": "f2906af7b48042916dcc8e8410330dd1ae59fd0f2440463616c030c384e51cec"
+    },
+    {
+      "path": "gsd-core/bin/lib/phase-locator.cjs",
+      "bytes": 24824,
+      "sha256": "ecc3ef960a5f8a4b9fb1813d5833836823fc93fa7a5b2293fe33c9db5b8bfaa5"
+    },
+    {
+      "path": "gsd-core/bin/lib/phase.cjs",
+      "bytes": 250514,
+      "sha256": "8917bfbfb75c103c40479ddde983bbbedbae0560402f0d4c69815fdef9169f35"
+    },
+    {
+      "path": "gsd-core/bin/lib/phases-command-router.cjs",
+      "bytes": 2200,
+      "sha256": "f4f233408be66acb9851ed3b36996a6918f8c09036b553504bb259711a416774"
+    },
+    {
+      "path": "gsd-core/bin/lib/plan-dependency-graph.cjs",
+      "bytes": 14841,
+      "sha256": "d0b053bdbe4fad0010b4adb95e2f55af786cb7c1bf3da036ed6302db5f7e5cbc"
+    },
+    {
+      "path": "gsd-core/bin/lib/plan-document.cjs",
+      "bytes": 12547,
+      "sha256": "4552d6dcc63b948ae200ad6bd99f2d57c2fff22f7a3915587ad998ffbe4af84b"
+    },
+    {
+      "path": "gsd-core/bin/lib/plan-drift-guard.cjs",
+      "bytes": 10303,
+      "sha256": "003c2830c335b3ba46d132e0556f9779ccf031bc0cbb4c65796b6fc42e3a785b"
+    },
+    {
+      "path": "gsd-core/bin/lib/plan-scan.cjs",
+      "bytes": 13996,
+      "sha256": "11731a44cf7b1f3d8a7e0fa469425b3b4317598cf9118a97f976243a96f61d8e"
+    },
+    {
+      "path": "gsd-core/bin/lib/planning-command-router.cjs",
+      "bytes": 3067,
+      "sha256": "24e33e152fedc513abe211714ab1ef7b6d408c5d348f757e90714c3f59071171"
+    },
+    {
+      "path": "gsd-core/bin/lib/planning-inspect.cjs",
+      "bytes": 58697,
+      "sha256": "c668871dcd47e0b68347d5aabbdb3d94c875fdca2cd000eaadc51532094b1219"
+    },
+    {
+      "path": "gsd-core/bin/lib/planning-scope.cjs",
+      "bytes": 1353,
+      "sha256": "8677d48f7fa438c835b5472d9b189fe63ba64f81951d34e4cb109eb867f58ccd"
+    },
+    {
+      "path": "gsd-core/bin/lib/planning-snapshot.cjs",
+      "bytes": 59524,
+      "sha256": "1a549c1df4f7373423dbb6aaeb1925f8f63894dad032dd68c7ee2d2d624baeb2"
+    },
+    {
+      "path": "gsd-core/bin/lib/planning-workspace.cjs",
+      "bytes": 32212,
+      "sha256": "dd08b1ad2fa4e59ab51423ef8e1b72f334c59032d1d782ad7fe1c299c73f255c"
+    },
+    {
+      "path": "gsd-core/bin/lib/pristine-baseline.cjs",
+      "bytes": 8148,
+      "sha256": "e731d1717d65645f06efeaddcfdf02c7f9bd36af7846e668d2c968c6c58847aa"
+    },
+    {
+      "path": "gsd-core/bin/lib/probe-core.cjs",
+      "bytes": 29306,
+      "sha256": "f11744d34e65338b60171ffedd3b43937a2898a9a7e10f54d93b9f35906a0e03"
+    },
+    {
+      "path": "gsd-core/bin/lib/profile-output.cjs",
+      "bytes": 62971,
+      "sha256": "14c3f27bfec81bf135013a56d160a2a0dc8694ff9fdc12cc5463014193d2d433"
+    },
+    {
+      "path": "gsd-core/bin/lib/profile-pipeline-command-router.cjs",
+      "bytes": 8847,
+      "sha256": "e2c43cbacc1a77e0a3f09d0e5c0d229c43caf0ae1aa38569f21f50d52f7e8651"
+    },
+    {
+      "path": "gsd-core/bin/lib/profile-pipeline.cjs",
+      "bytes": 21495,
+      "sha256": "1f1b9c9374f7b21d7b805edff279c4cd70a6fffb124b011531c97c528252c65b"
+    },
+    {
+      "path": "gsd-core/bin/lib/prohibition-enforcement.cjs",
+      "bytes": 44679,
+      "sha256": "6f24d5969a8f3022a174f7f3bdcf0363aeb6d31c2e52f860a07e3361a0ba8aa4"
+    },
+    {
+      "path": "gsd-core/bin/lib/project-root.cjs",
+      "bytes": 12178,
+      "sha256": "4dbf12042587c9cd804ed160e473d060ec2834395524ee5a711cec61a3b91f0a"
+    },
+    {
+      "path": "gsd-core/bin/lib/prompt-budget.cjs",
+      "bytes": 11552,
+      "sha256": "f7060300603dab77f4b85badd563e42b0fb4e6efc0d9d90a7609f9f40f7acd1a"
+    },
+    {
+      "path": "gsd-core/bin/lib/quick-batch-command-router.cjs",
+      "bytes": 16873,
+      "sha256": "4a471cb4c59ce3889ffa0895a76c9d081f32b7e174a4098e8632bf04f80c9241"
+    },
+    {
+      "path": "gsd-core/bin/lib/quick-batch-dispatch.cjs",
+      "bytes": 10729,
+      "sha256": "bbf7fb8f9982906a1669cb49682bd7f1f2092ec64205413ff5d61cd8f152ad09"
+    },
+    {
+      "path": "gsd-core/bin/lib/quick-batch.cjs",
+      "bytes": 40561,
+      "sha256": "327fa0a69491682ad7a9b36e1e56fed5a304ba20817f63d3ac82d01336a2239e"
+    },
+    {
+      "path": "gsd-core/bin/lib/real-home-guard.cjs",
+      "bytes": 23889,
+      "sha256": "941d02821d3f07bc84ea29a4edc163683ccaa770fe1ebce3a919f99b273c5a95"
+    },
+    {
+      "path": "gsd-core/bin/lib/refactor-trigger-command-router.cjs",
+      "bytes": 40767,
+      "sha256": "27cb1d8553f8c5f8bfd9e6a37fbd2a85a90f43555b2dd7128fec90c8be156cd9"
+    },
+    {
+      "path": "gsd-core/bin/lib/research-provider.cjs",
+      "bytes": 5413,
+      "sha256": "23b53a582199eff687221fe6f571e2a050a7c9a24befa5543b472118c2464fa5"
+    },
+    {
+      "path": "gsd-core/bin/lib/research-store.cjs",
+      "bytes": 7809,
+      "sha256": "0f9fbfd3c73738fd47a9750e7ceeb932ccaab756412a3571030b814a46468a6f"
+    },
+    {
+      "path": "gsd-core/bin/lib/resolution.cjs",
+      "bytes": 1144,
+      "sha256": "fd11df257a4eb398f241c26d4653472c5d8c49d276f651ed41a9b8b922c051f9"
+    },
+    {
+      "path": "gsd-core/bin/lib/retired-artifact-cleanup.cjs",
+      "bytes": 4058,
+      "sha256": "10f62cfb24887c2396f9b01feb4afdbb0019b7f9aff7b55ce8f18ca7ed85964e"
+    },
+    {
+      "path": "gsd-core/bin/lib/review-lane-descriptor.cjs",
+      "bytes": 53399,
+      "sha256": "1b6fb9b1cd8428d9b7311ac8489c83731e72999da797d43730131c59b4015bee"
+    },
+    {
+      "path": "gsd-core/bin/lib/review-lane-invocation.cjs",
+      "bytes": 24320,
+      "sha256": "f64f501396109d3cb8180aebb19ec7591271d20ed2c1a8ab6bd94c7f4560700c"
+    },
+    {
+      "path": "gsd-core/bin/lib/review-lane-runner.cjs",
+      "bytes": 57819,
+      "sha256": "98a4b558a329bbb1cb1c6c62f3b47e237431cebc4f302f92d79845dae220fdc5"
+    },
+    {
+      "path": "gsd-core/bin/lib/review-reviewer-selection.cjs",
+      "bytes": 15544,
+      "sha256": "d33bfcf9686691e6d42eb9be95fd8759fcaa361d2efffcae4dfa68e4b594d1e1"
+    },
+    {
+      "path": "gsd-core/bin/lib/reviewer-step-dispatch.cjs",
+      "bytes": 19214,
+      "sha256": "9616cecaf4cdad38a3dedaa56da82ad460889b5f3fc20fbd0b294755ebf7803d"
+    },
+    {
+      "path": "gsd-core/bin/lib/roadmap-command-router.cjs",
+      "bytes": 15563,
+      "sha256": "c2d82e89d60cdcd7ccca489b3dbbe826db73af7913f28499ff26576d4e6dc659"
+    },
+    {
+      "path": "gsd-core/bin/lib/roadmap-parser.cjs",
+      "bytes": 123265,
+      "sha256": "fbaa2e46c849d4b04d0dbc1451b56270cdb9b8bac7542b7157c7e2c906e66323"
+    },
+    {
+      "path": "gsd-core/bin/lib/roadmap-upgrade.cjs",
+      "bytes": 26954,
+      "sha256": "f74ed8b87344b880ce31e655eb12c76f742999eea31e9417dbeb5785f2590a43"
+    },
+    {
+      "path": "gsd-core/bin/lib/roadmap.cjs",
+      "bytes": 88299,
+      "sha256": "bfa9aef7ed1ae7e95149fd6adadbe93f5b943462fabf0e8248a4d5618867f1e8"
+    },
+    {
+      "path": "gsd-core/bin/lib/runtime-artifact-conversion.cjs",
+      "bytes": 196724,
+      "sha256": "80024b9440212fd061de02f41d82f2b1132d4f733b6adbc41db3e42bc4417a8b"
+    },
+    {
+      "path": "gsd-core/bin/lib/runtime-artifact-install-plan.cjs",
+      "bytes": 7329,
+      "sha256": "4f518b2f742fc98bcb7a76c730e2224a7b3af8cd9cb816d31f57a242e5b8a6d2"
+    },
+    {
+      "path": "gsd-core/bin/lib/runtime-artifact-layout.cjs",
+      "bytes": 53124,
+      "sha256": "012633c1ece57a4c4c5f25d8ed1fd059e698d5db92d8737a1923cebaff0d877c"
+    },
+    {
+      "path": "gsd-core/bin/lib/runtime-config-adapter-registry.cjs",
+      "bytes": 5753,
+      "sha256": "e11a4c5aff32c60e2e6cb7529331cb496b13d84da2e7a03d36cb64c6adac1dee"
+    },
+    {
+      "path": "gsd-core/bin/lib/runtime-homes.cjs",
+      "bytes": 28326,
+      "sha256": "c54d8a6ab7c47d5b778f532c96ef7e4ba8b80ecc2029793feacc89c4a8d30188"
+    },
+    {
+      "path": "gsd-core/bin/lib/runtime-hooks-surface.cjs",
+      "bytes": 152707,
+      "sha256": "c5e1f1d0bc52af873cea75742824e9cb7cd23fd5310958f57a7cca49627962ba"
+    },
+    {
+      "path": "gsd-core/bin/lib/runtime-identity.cjs",
+      "bytes": 12209,
+      "sha256": "72ca5034b3c6815480277cf8e3586409fbbaf01541a189c02fd83de34adb2a55"
+    },
+    {
+      "path": "gsd-core/bin/lib/runtime-name-policy.cjs",
+      "bytes": 18590,
+      "sha256": "29e44bbf0fba2effcbbf57f9877e155dea20e76e6c5af09808b68df4e5fe1ea2"
+    },
+    {
+      "path": "gsd-core/bin/lib/runtime-slash.cjs",
+      "bytes": 10984,
+      "sha256": "baabcef37e9e0d74a5ac5b7da49b623757c7850b171ee487d51b129fbe4bbc00"
+    },
+    {
+      "path": "gsd-core/bin/lib/schema-detect.cjs",
+      "bytes": 6043,
+      "sha256": "a1eac0a7989b8892dcaca4e0107ca1976a267ca4aefa813bf94ea4ec1417f968"
+    },
+    {
+      "path": "gsd-core/bin/lib/secrets.cjs",
+      "bytes": 1124,
+      "sha256": "02b42408bba154f20bd0d64fa737071f54baa5f0cc89319f114d439e779a0806"
+    },
+    {
+      "path": "gsd-core/bin/lib/section-manifest.cjs",
+      "bytes": 11508,
+      "sha256": "1b966f95096bafe38f8df2c01b2b348d1913c8a37837380c136abb2d7dcce3ad"
+    },
+    {
+      "path": "gsd-core/bin/lib/security.cjs",
+      "bytes": 31221,
+      "sha256": "a92dbf4d1551645b13e0b665370eaf2e22e0f74fc8dc7890448a700ff051cc82"
+    },
+    {
+      "path": "gsd-core/bin/lib/semver-compare.cjs",
+      "bytes": 6233,
+      "sha256": "4f661153bc421cfce65d3d3ab412c02bbcda53da6ceb767e9292b74f733cf1e6"
+    },
+    {
+      "path": "gsd-core/bin/lib/shell-command-projection.cjs",
+      "bytes": 58868,
+      "sha256": "21f67573ef51559c58e458b898a084f241fe8059c9f047895e40907240d88b99"
+    },
+    {
+      "path": "gsd-core/bin/lib/smart-entry.cjs",
+      "bytes": 36177,
+      "sha256": "1bfc3a27b3e62a44d43e4583e0390ead5c3ea09e9a363a7e62c6a3fedfc6d6ce"
+    },
+    {
+      "path": "gsd-core/bin/lib/spec-section.cjs",
+      "bytes": 5379,
+      "sha256": "2effcd919abf4d7d53a8a41145c8e6899641c32da70ff4a385114eb2302d53d1"
+    },
+    {
+      "path": "gsd-core/bin/lib/stale-bake-guard.cjs",
+      "bytes": 10747,
+      "sha256": "71847f79923c86fcb161ef4929c999f11f206c031273cf8b54af004ecf9c9c9a"
+    },
+    {
+      "path": "gsd-core/bin/lib/state-command-router.cjs",
+      "bytes": 12906,
+      "sha256": "f4360527c49d75d49b7a02b5aaeee17d8c9b6f1ff6e0878f4f2fe9b069467c65"
+    },
+    {
+      "path": "gsd-core/bin/lib/state-contract.cjs",
+      "bytes": 17615,
+      "sha256": "81060efc06c4bbb1525d5b11b876008f0fd6ad4d0db659472d19934a888945b7"
+    },
+    {
+      "path": "gsd-core/bin/lib/state-document.cjs",
+      "bytes": 47906,
+      "sha256": "efe7d2c34ddbd81cc316b62449c0703a809e1d7bccb2b344ea79909c9248cbab"
+    },
+    {
+      "path": "gsd-core/bin/lib/state-io.cjs",
+      "bytes": 2711,
+      "sha256": "0a5744826b82da0644557b434a0b165e17555168b1593ae47cddf6bac46d64dd"
+    },
+    {
+      "path": "gsd-core/bin/lib/state-md-schema.cjs",
+      "bytes": 14227,
+      "sha256": "8e7ead515f8d26c54cfd155871f89d4aa3399fc2659036317573d85cce3fc700"
+    },
+    {
+      "path": "gsd-core/bin/lib/state-transition.cjs",
+      "bytes": 150397,
+      "sha256": "596e025bb9bcde929e914d2a8839504e245ff4f1299881a22ca937ec244cdfae"
+    },
+    {
+      "path": "gsd-core/bin/lib/state.cjs",
+      "bytes": 374767,
+      "sha256": "f4206f2428f0eebeedf015c673bd87a0dd9bb33176540a6e6b0e8c6c310933d8"
+    },
+    {
+      "path": "gsd-core/bin/lib/surface.cjs",
+      "bytes": 40055,
+      "sha256": "287ce666a9910356e243b56665f68fe09da26361f9b9fa4c745ce5362c0ec5c4"
+    },
+    {
+      "path": "gsd-core/bin/lib/task-command-router.cjs",
+      "bytes": 9138,
+      "sha256": "660925473604d9cf4217bbd65ffdb3ce7e7c217aef338c0f450fd4bd97389391"
+    },
+    {
+      "path": "gsd-core/bin/lib/task-content-resolution.cjs",
+      "bytes": 17192,
+      "sha256": "183df1c98f72baff010440bdc00801068b4a0f0566bacb1bcf861898db017221"
+    },
+    {
+      "path": "gsd-core/bin/lib/tdd-red-evidence.cjs",
+      "bytes": 6591,
+      "sha256": "3889f9dccfbcc7d119254e0c01010ff71547ed95bbd03b4584bad56530a61797"
+    },
+    {
+      "path": "gsd-core/bin/lib/teams-status.cjs",
+      "bytes": 3825,
+      "sha256": "72fe698303e371bb07094f1cb7bb4a226d1908809915e65c2294d8305b59425a"
+    },
+    {
+      "path": "gsd-core/bin/lib/template.cjs",
+      "bytes": 10781,
+      "sha256": "b6585df75b456fb67fe64b0b50a32602f8791f135dbbc95904a3c83ea3f10d7d"
+    },
+    {
+      "path": "gsd-core/bin/lib/text-lines.cjs",
+      "bytes": 3820,
+      "sha256": "0c49c43b89ea3a58281147ad06d25fcf0b8c8e183055c839394c805e19070582"
+    },
+    {
+      "path": "gsd-core/bin/lib/token-scanner.cjs",
+      "bytes": 2931,
+      "sha256": "61277a8ef4f968ec49b7074a416f61b7e9b2e171c759b9216e53efee27746c25"
+    },
+    {
+      "path": "gsd-core/bin/lib/uat-predicate.cjs",
+      "bytes": 17815,
+      "sha256": "d8a9109596b9bf364a1000eb420dd229a07b1d65e33365f814908b6e26fbf3f6"
+    },
+    {
+      "path": "gsd-core/bin/lib/uat.cjs",
+      "bytes": 203617,
+      "sha256": "9ce5f9edce24d6e0c6287edb4d4d70c7323ffce4978d0bf3cf90254023b04bd5"
+    },
+    {
+      "path": "gsd-core/bin/lib/ui-consideration-probe.cjs",
+      "bytes": 15477,
+      "sha256": "16b706ebe2dd05d27360570cebb492bfb4c814aae6be64461ab09c05b8c9ff0d"
+    },
+    {
+      "path": "gsd-core/bin/lib/ui-frontend-evidence.cjs",
+      "bytes": 5768,
+      "sha256": "4b322fa1a9ee58099ce18921bd6616dbda0432717695d835974990679dfdd9aa"
+    },
+    {
+      "path": "gsd-core/bin/lib/ui-safety-gate.cjs",
+      "bytes": 7923,
+      "sha256": "1c812ce0c1e7ce3388292a9a7bfb739ae753423ac61369b6eb7e19a20058fd53"
+    },
+    {
+      "path": "gsd-core/bin/lib/unusable-input.cjs",
+      "bytes": 15342,
+      "sha256": "287b8a10e9d103afb6e5b0bfcbbde51bcb9d5309c5a1faa78ac3c4a78d926d42"
+    },
+    {
+      "path": "gsd-core/bin/lib/update-context.cjs",
+      "bytes": 11066,
+      "sha256": "542dab0ddbf7951d3f6f7f7e1611e50da5abd64c3de3d7fbaebc731bc8ad001e"
+    },
+    {
+      "path": "gsd-core/bin/lib/user-artifact-staging.cjs",
+      "bytes": 41687,
+      "sha256": "7b4ead7b5eda068c933b0b7617adf0bfb2772a70fb40168decee81f8c82d1123"
+    },
+    {
+      "path": "gsd-core/bin/lib/validate-command-router.cjs",
+      "bytes": 5030,
+      "sha256": "4a21ea695de65b21990a2e4c4006005153693f9f5adf3239c9b37c4d88568b00"
+    },
+    {
+      "path": "gsd-core/bin/lib/validate.cjs",
+      "bytes": 23873,
+      "sha256": "19f3b75a8ff1c4a27beeaa0ff4235ae8d56cd7016cdb2572684a1b8f699cd2e8"
+    },
+    {
+      "path": "gsd-core/bin/lib/vendor/js-yaml.cjs",
+      "bytes": 131632,
+      "sha256": "d4370eaa1b657d25595f0b426de5372de8f001661415ceac8ba043c1c06de7d2"
+    },
+    {
+      "path": "gsd-core/bin/lib/vendor/re2js.cjs",
+      "bytes": 252184,
+      "sha256": "44ee1e05d24808a410f919893693b9639b717890cd92df6cbbf089007df61026"
+    },
+    {
+      "path": "gsd-core/bin/lib/vendor/re2js.d.cts",
+      "bytes": 34635,
+      "sha256": "5b368310d54b9e544f23b6e27f9bffda0593468f0a1781bf76464e5e80136b1d"
+    },
+    {
+      "path": "gsd-core/bin/lib/vendor/README.md",
+      "bytes": 3886,
+      "sha256": "dd694564b5f3b5e005f597738a7fa1ede7aa38127c6e06d93148745615e40f62"
+    },
+    {
+      "path": "gsd-core/bin/lib/verification-command-router.cjs",
+      "bytes": 1657,
+      "sha256": "0a7f34bda5b0defdefd579e2c8ecbc2b0875be3341c1372abd7b194d905e26ec"
+    },
+    {
+      "path": "gsd-core/bin/lib/verification.cjs",
+      "bytes": 51438,
+      "sha256": "2ae61916f23f2954387e0bcc7d57830fbeb5feb0ae3c0f20fe65b7dd9bb402dc"
+    },
+    {
+      "path": "gsd-core/bin/lib/verify-command-grounding.cjs",
+      "bytes": 34818,
+      "sha256": "a01407c95a52d5110f7555ef08be16cfebd1141d9469f7c4297250b5744da052"
+    },
+    {
+      "path": "gsd-core/bin/lib/verify-command-router.cjs",
+      "bytes": 2440,
+      "sha256": "6915476a543f8b8333ee0c9c7b1820cee078ec7a03a255bead5965bde6bf0f3a"
+    },
+    {
+      "path": "gsd-core/bin/lib/verify.cjs",
+      "bytes": 119598,
+      "sha256": "c9872d86598a02338ea107047e89cf131281160ce41a3f021c911ffc312165ba"
+    },
+    {
+      "path": "gsd-core/bin/lib/workflow-fragments.cjs",
+      "bytes": 27642,
+      "sha256": "7e30a6d990a23a562dc6bb4a8eca6834232d446f72b5dc12d792337d45bbbba4"
+    },
+    {
+      "path": "gsd-core/bin/lib/workstream-inventory-builder.cjs",
+      "bytes": 16465,
+      "sha256": "4b7c76079c3c6ba7965b7cabf5fb2c44ea0aa9062f8e9e6bed2ac39da2efc6d6"
+    },
+    {
+      "path": "gsd-core/bin/lib/workstream-inventory.cjs",
+      "bytes": 39258,
+      "sha256": "3832238120eb01844230c8604c5c789b2da4ae4cf6c20224b8af655c98e25e68"
+    },
+    {
+      "path": "gsd-core/bin/lib/workstream-name-policy.cjs",
+      "bytes": 5023,
+      "sha256": "b09e1abe795e40887f07c804cc6bee92f0e31017df9c4aa913b5f5f11e69189a"
+    },
+    {
+      "path": "gsd-core/bin/lib/workstream.cjs",
+      "bytes": 17322,
+      "sha256": "a29b7d9a6b72a260d68f98313bc0395c83ea7e524cbbf10f88d0d59349d81a0d"
+    },
+    {
+      "path": "gsd-core/bin/lib/worktree-base-ref.cjs",
+      "bytes": 22438,
+      "sha256": "95ff91de6575ffa1228d67cf890f0eed95bb34fca8245b5d7f28b4d0394c7ccf"
+    },
+    {
+      "path": "gsd-core/bin/lib/worktree-safety.cjs",
+      "bytes": 97906,
+      "sha256": "f5f9e56cb204a74e818ac43f38e1c93441abc06cd99320cfa340a76735232045"
+    },
+    {
+      "path": "gsd-core/bin/lib/write-set.cjs",
+      "bytes": 1969,
+      "sha256": "a8b90be971a40d590d00de4bc6871bf93b1c905151e28072bf5265d552fbc062"
+    },
+    {
+      "path": "gsd-core/bin/shared/config-defaults.manifest.json",
+      "bytes": 3543,
+      "sha256": "c7db94fad8a04cdffdd7707347bb634780e7d5c4a3b066b26d842359b8176240"
+    },
+    {
+      "path": "gsd-core/bin/shared/config-schema.manifest.json",
+      "bytes": 7585,
+      "sha256": "747f7ee56968b0092ce64b23b853f45d1fa91b66760c87e440808514f8cf3beb"
+    },
+    {
+      "path": "gsd-core/bin/shared/exit-codes.json",
+      "bytes": 1067,
+      "sha256": "759a3d1d85d092634474fe83636c81f993ba6f16391f55bfb6cec1c7af179dab"
+    },
+    {
+      "path": "gsd-core/bin/shared/exit-codes.sh",
+      "bytes": 766,
+      "sha256": "7e107eeb7cd85564b3710561361031dcf537726d290b83886da4bfb2f3bc6038"
+    },
+    {
+      "path": "gsd-core/bin/shared/model-catalog.json",
+      "bytes": 11099,
+      "sha256": "8d232c9fb8cab5b2c41d4424b01df75b5ada917138448f873cbc22caef6b51df"
+    },
+    {
+      "path": "gsd-core/bin/shared/runtime-aliases.manifest.json",
+      "bytes": 1083,
+      "sha256": "e14346bdbd0ebd64157a0339bbf1725d9f8213fda3933dc51832601aa8320d70"
+    },
+    {
+      "path": "gsd-core/bin/verify-reapply-patches.cjs",
+      "bytes": 38169,
+      "sha256": "00116207c1f2e936c438cde09c1f72620805f8232e749e1c82be8180c4c4f2dc"
+    },
+    {
+      "path": "gsd-core/contexts/dev.md",
+      "bytes": 759,
+      "sha256": "dcb0de9dce33cf41cf4cf356a382ec5832d6be99054367925614d4b50349ca61"
+    },
+    {
+      "path": "gsd-core/contexts/research.md",
+      "bytes": 859,
+      "sha256": "b3285d8e7209cc3be7115b2e0000614c96e0ac3ff25d5933abc799d70e43fc52"
+    },
+    {
+      "path": "gsd-core/contexts/review.md",
+      "bytes": 1310,
+      "sha256": "dc578fdd74bbea1131a0b7b07a1471d3e3e96d706122b27c3038da80c5f5475c"
+    },
+    {
+      "path": "gsd-core/references/agent-contracts.md",
+      "bytes": 13281,
+      "sha256": "237b7d28aad97275c1d6de27f5dc0ac8aaacecaad52d77ce54bda0e6c0480142"
+    },
+    {
+      "path": "gsd-core/references/agent-skills-bootstrap.md",
+      "bytes": 3230,
+      "sha256": "5ab875054b1adda957fe5678ea91e5fb7f17d74ec336a9c545efbd6f7face39f"
+    },
+    {
+      "path": "gsd-core/references/ai-evals.md",
+      "bytes": 8683,
+      "sha256": "b5afa786b938671e4535e67c8e7fa118e4f3067749aa5e2f82f65f803889fc9a"
+    },
+    {
+      "path": "gsd-core/references/ai-frameworks.md",
+      "bytes": 11522,
+      "sha256": "f827de93dde124ebf874fc09680e6f4ef80f144117e907e2e7bbbfb6d3c1b4d3"
+    },
+    {
+      "path": "gsd-core/references/api-coverage.md",
+      "bytes": 7448,
+      "sha256": "42c9aec0a12fd6e0e9c1bf843eed90c70d195d96c1bfb826be759fa8ed8e6eb0"
+    },
+    {
+      "path": "gsd-core/references/artifact-types.md",
+      "bytes": 7747,
+      "sha256": "70e3397938d967debafa9db3a60c8d2ee49fd9d836963a1ac003f5fcc3413e50"
+    },
+    {
+      "path": "gsd-core/references/autonomous-smart-discuss.md",
+      "bytes": 9525,
+      "sha256": "f96bbdd0f9e14c9ce01ea1cb61bd1c78ef7a64261d76f4dd78035e9228171f58"
+    },
+    {
+      "path": "gsd-core/references/autonomous-ui-design-contract.md",
+      "bytes": 2333,
+      "sha256": "4d9ac8edbd75a07717143be0cb37bd2c712b43d6f14bd5a107fbeffcb5d14de3"
+    },
+    {
+      "path": "gsd-core/references/checkpoints.md",
+      "bytes": 35100,
+      "sha256": "721a6f9fc5c14b8f1854d6c565c0ae86e7d1d8a8cc05cf1f34565fd3992d85df"
+    },
+    {
+      "path": "gsd-core/references/common-bug-patterns.md",
+      "bytes": 6476,
+      "sha256": "a4cfea8954dede294ac5de0d5fa192558385eaa7a99683de041fb55f42bed374"
+    },
+    {
+      "path": "gsd-core/references/compact-content-gate.md",
+      "bytes": 4985,
+      "sha256": "30b27c97f5aa9d650a3302c484a3c800934a8b32aa9c57a087199d4f5c4a26e0"
+    },
+    {
+      "path": "gsd-core/references/context-budget.md",
+      "bytes": 9042,
+      "sha256": "0376465732822d601aaedf7073c5b8cae1cab110a256c7ef995405b6874d90c4"
+    },
+    {
+      "path": "gsd-core/references/continuation-format.md",
+      "bytes": 4782,
+      "sha256": "ce73e57d053ab8a7949ebeadbf5d0d56563603375e23c9d59a7787746fa0e3f4"
+    },
+    {
+      "path": "gsd-core/references/debugger-bug-taxonomy.md",
+      "bytes": 6404,
+      "sha256": "78fb8c1711acc97118686983b99ccf2e91102212396228d13689fa9a9e14aea7"
+    },
+    {
+      "path": "gsd-core/references/debugger-fix-acceptance.md",
+      "bytes": 7759,
+      "sha256": "5616622f33e004366f207e2f4f3acee68009928a80a3d7a69ae00a428034b5f2"
+    },
+    {
+      "path": "gsd-core/references/debugger-philosophy.md",
+      "bytes": 3604,
+      "sha256": "16f0cb55eb457f33efe3aa4f6976ce12def55766e832c6d904d1be3c168a63f9"
+    },
+    {
+      "path": "gsd-core/references/debugger-prevention.md",
+      "bytes": 5179,
+      "sha256": "74b6c5556a428efd85d4dcecb476d250c515e85451939783895e93b3ee508157"
+    },
+    {
+      "path": "gsd-core/references/debugger-rca-branching.md",
+      "bytes": 5486,
+      "sha256": "7dcf3ddbe3591250630c6054dfddf9c8ff671f8282192359c1fcce9cb8558828"
+    },
+    {
+      "path": "gsd-core/references/debugger-repro-hardening.md",
+      "bytes": 7196,
+      "sha256": "fdf55a6cee9b179227c4ae7f97231385539cabea04fc73a76a5491cbdff4ff5c"
+    },
+    {
+      "path": "gsd-core/references/debugger-sbfl.md",
+      "bytes": 5547,
+      "sha256": "a7d0cd5940d6d2cd02f9cc54c0c6b46fdb47f1854c2197558af6d1977928aad8"
+    },
+    {
+      "path": "gsd-core/references/debugger-semantic-recall.md",
+      "bytes": 4218,
+      "sha256": "4add324d495cb25cf1b9644feac8c629a7946206d497e54b765a72f6dc49c9b2"
+    },
+    {
+      "path": "gsd-core/references/debugger-techniques.md",
+      "bytes": 9550,
+      "sha256": "83f027d457dcd9e7322a43beb3e37015f40feb310dda068e4c246f41ca7cdd40"
+    },
+    {
+      "path": "gsd-core/references/decimal-phase-calculation.md",
+      "bytes": 1204,
+      "sha256": "5ccba205c3c990d4243b0550fe3407c28356ba9ca63b090781b42cca531f678c"
+    },
+    {
+      "path": "gsd-core/references/dispatch-isolation-gate.md",
+      "bytes": 7910,
+      "sha256": "8c1ca903dd235dc309ce9b477c4ab957721d0c90fa89d9432f3a23529075d85f"
+    },
+    {
+      "path": "gsd-core/references/doc-conflict-engine.md",
+      "bytes": 3353,
+      "sha256": "aab20aa678c51b617d9f3be6b909c26105d95460400c5c8942191e89e7c1f919"
+    },
+    {
+      "path": "gsd-core/references/domain-probes.md",
+      "bytes": 6381,
+      "sha256": "62d23ed1992c48a93b96585c407c8ba3b0b0b76f5f8b7122a0402df17a154392"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/01-round-half-even/expected-coverage.json",
+      "bytes": 672,
+      "sha256": "72d1e29cedc854ec097128467da2db9179bd2b94507d590c2b76e87933614d42"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/01-round-half-even/requirements.json",
+      "bytes": 89,
+      "sha256": "fbc1b355d8625eeb06e6376e511334aca98b90a4e9aee2bd797198c8a6269125"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/02-merge-intervals/expected-coverage.json",
+      "bytes": 801,
+      "sha256": "fad67dcc8294f6da5bb6615700b9f547070c08a02c95be8a943cde42002b5074"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/02-merge-intervals/requirements.json",
+      "bytes": 87,
+      "sha256": "30a78ee9ce3473ea2745689fb151f9af027ca7a7e30b64e6e79fbe2e8e3847b0"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/03-truncate-graphemes/expected-coverage.json",
+      "bytes": 604,
+      "sha256": "66dd60957fee45f0630e7951a242803b167a6c678ddaa1741de706f30310a1c4"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/03-truncate-graphemes/requirements.json",
+      "bytes": 80,
+      "sha256": "47fca61f076835fa638a5c47bb234dd97896e8b6fb14099c2396349c4c813f3b"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/04-money-rounding/expected-coverage.json",
+      "bytes": 672,
+      "sha256": "72d1e29cedc854ec097128467da2db9179bd2b94507d590c2b76e87933614d42"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/04-money-rounding/requirements.json",
+      "bytes": 89,
+      "sha256": "80f04f5c04fb24cfef9f9c944a6c1be90e1585c38eab20f6b867595bac64d6fa"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/05-list-dedupe/expected-coverage.json",
+      "bytes": 801,
+      "sha256": "fad67dcc8294f6da5bb6615700b9f547070c08a02c95be8a943cde42002b5074"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/05-list-dedupe/requirements.json",
+      "bytes": 81,
+      "sha256": "d38147adb0e5b342bf35dc5d1e81fd463a2f97045ce0ab3365f298eae9878805"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/06-resolved-mixed/expected-coverage.json",
+      "bytes": 875,
+      "sha256": "bc552c01939bf4f849a8ae70e14ec10328585d52c376e8214f5e5df8a65041e4"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/06-resolved-mixed/requirements.json",
+      "bytes": 87,
+      "sha256": "30a78ee9ce3473ea2745689fb151f9af027ca7a7e30b64e6e79fbe2e8e3847b0"
+    },
+    {
+      "path": "gsd-core/references/edge-probe-fixtures/06-resolved-mixed/resolutions.json",
+      "bytes": 328,
+      "sha256": "688ec62c13e08afe4237a940a5094e3df00d27631ddcd23af960b3ed46527966"
+    },
+    {
+      "path": "gsd-core/references/edge-probe.md",
+      "bytes": 18685,
+      "sha256": "c50b5dd470f2df6e0f0690eb7c4cfde10f2711d75407b0d6ff80888b9f329d39"
+    },
+    {
+      "path": "gsd-core/references/execute-mvp-tdd.md",
+      "bytes": 5433,
+      "sha256": "21db326f3cbe49dc9338948851dfc962a6db512348a34a20243c2d90193c47d5"
+    },
+    {
+      "path": "gsd-core/references/execute-phase-between-wave-reset.md",
+      "bytes": 2773,
+      "sha256": "f8f4945ac075b85a30a8db93572bb813083b656c9c4c0b0710589b0408e4a582"
+    },
+    {
+      "path": "gsd-core/references/execute-phase-context-guard.md",
+      "bytes": 1152,
+      "sha256": "447dbe3d1363579a6640e623d46fddf6a2e394f2d674a8254b20892aa35faba5"
+    },
+    {
+      "path": "gsd-core/references/execute-phase-quota-recovery.md",
+      "bytes": 2357,
+      "sha256": "c4ca0ee3875b6e0270501460f72fa9901c6e6d7ccbc59bf0404a438b6520fc54"
+    },
+    {
+      "path": "gsd-core/references/execute-phase-requirement-revert.md",
+      "bytes": 763,
+      "sha256": "48ade76866c57ce21ffbce88b38a7ef7bfef7a10d6f9fc21577d3fdbc717cfbe"
+    },
+    {
+      "path": "gsd-core/references/execute-phase-response-language.md",
+      "bytes": 1994,
+      "sha256": "13e5438fdd1dda3db89506a9f01d52fe641ffd3e1eb21116cdd8b4e1bd0d97a3"
+    },
+    {
+      "path": "gsd-core/references/execute-phase-wave-guard.md",
+      "bytes": 2558,
+      "sha256": "edf5b9af8b30a2637e6e2be3a358d5d2758d53f7424c03aac499ffe1ee2ac4a8"
+    },
+    {
+      "path": "gsd-core/references/executor-examples.md",
+      "bytes": 6379,
+      "sha256": "2de8e6a99861e9b12e17d9dd6ffc37b7340274784dbc3b020e3fbc0bf900be45"
+    },
+    {
+      "path": "gsd-core/references/failing-direction.md",
+      "bytes": 4321,
+      "sha256": "6f91f97e2508f76a44d4633a783f651c9c700ece7cea0e8202b13fdfb39a8cce"
+    },
+    {
+      "path": "gsd-core/references/few-shot-examples/plan-checker.md",
+      "bytes": 4033,
+      "sha256": "aac7d938bb4ed6d4087dd15897f13f38bd588731db4c8358f8991a1557e1a221"
+    },
+    {
+      "path": "gsd-core/references/few-shot-examples/verifier.md",
+      "bytes": 7078,
+      "sha256": "5badee4560b14ae8c88bff81749a7d16b506b73de2b3e4092191cd08d1f14a32"
+    },
+    {
+      "path": "gsd-core/references/gate-prompts.md",
+      "bytes": 4077,
+      "sha256": "c49339fde70d7330f1407466a90e50bb9edeb39a540b4564e3e283f2e47aedd9"
+    },
+    {
+      "path": "gsd-core/references/gates.md",
+      "bytes": 3907,
+      "sha256": "bd79c7f90c8cb8d702b4893fb312f82679050824a1fab0fb1f2f4dc22b58ec97"
+    },
+    {
+      "path": "gsd-core/references/git-integration.md",
+      "bytes": 9053,
+      "sha256": "77819d672e67c81b90951f0bc57ce4e0943609e6846d199c901a7a9727c6a2ab"
+    },
+    {
+      "path": "gsd-core/references/git-planning-commit.md",
+      "bytes": 1746,
+      "sha256": "a6b1b24f6506461b305251e1ab6eb39bb8b4b7a9bb06385bb7d29a3babc74cc1"
+    },
+    {
+      "path": "gsd-core/references/gsd-run-resolver.md",
+      "bytes": 2873,
+      "sha256": "2395aabf61aa621f1cdacf33b80f85c8865c7b6de41cb9245a9bbe09dac16dab"
+    },
+    {
+      "path": "gsd-core/references/honest-verifier.md",
+      "bytes": 7333,
+      "sha256": "601aab061a9d5a3260b44e62ee6a5fb8918ddc8a665a4b24b0b83c8e578c878b"
+    },
+    {
+      "path": "gsd-core/references/ios-scaffold.md",
+      "bytes": 3564,
+      "sha256": "5ef0cb7e0fac891f092e5faef305b4abdc8197ef1a522579eca5edfaefee6ec0"
+    },
+    {
+      "path": "gsd-core/references/loop-hook-dispatch.md",
+      "bytes": 7986,
+      "sha256": "7f4e972517114d55f45d06b1e4fbaaf5c6abcb95678706dd6879f4d555106f7d"
+    },
+    {
+      "path": "gsd-core/references/mandatory-initial-read.md",
+      "bytes": 218,
+      "sha256": "fe59abce693717cf4e55c2050d28c9976c5d9e0499ac5a4f73c7979599c3b443"
+    },
+    {
+      "path": "gsd-core/references/model-profile-resolution.md",
+      "bytes": 3404,
+      "sha256": "d503cd3575b8a5becc6799ea7f351af732ff4b196bdacfab2a11a105b7355521"
+    },
+    {
+      "path": "gsd-core/references/model-profiles.md",
+      "bytes": 15244,
+      "sha256": "82a8bfb8c6aed419fd553d19795ce53ba44e109b957c5f50d65a5041dabbefd0"
+    },
+    {
+      "path": "gsd-core/references/mvp-concepts.md",
+      "bytes": 4956,
+      "sha256": "1d6ce95b160353231114f5cc3aecf99262df34973c7e2e923ffb3c26e80ae56e"
+    },
+    {
+      "path": "gsd-core/references/nyquist-compliance.md",
+      "bytes": 2894,
+      "sha256": "513417f4095b4e75d1c0b903e6fab20704faa103ca095b32c3f3d4d7b81612c4"
+    },
+    {
+      "path": "gsd-core/references/offer-next.md",
+      "bytes": 3123,
+      "sha256": "0ac1308f951e79f872be1de21289aa9708638c08daab985a97691c4892948c96"
+    },
+    {
+      "path": "gsd-core/references/phase-argument-parsing.md",
+      "bytes": 1463,
+      "sha256": "cb5e85cca0d0cbd1f5fa831128760ddfe9c1d9415e5e77368bf3efd82b085de5"
+    },
+    {
+      "path": "gsd-core/references/plan-checker-examples.md",
+      "bytes": 1197,
+      "sha256": "6e20d4d2c7fe88a85825769a597176b2b8ab156361657a0da5acf368e5045fc7"
+    },
+    {
+      "path": "gsd-core/references/planner-antipatterns.md",
+      "bytes": 11970,
+      "sha256": "23495282315d14a99d849ddbe87744e4a8b1be8d5fe68515b626c2312635fbef"
+    },
+    {
+      "path": "gsd-core/references/planner-chunked.md",
+      "bytes": 1903,
+      "sha256": "5c0a6371048cede46a475ee444f7a47117cd8b7f9209ffdc43a17e702130681f"
+    },
+    {
+      "path": "gsd-core/references/planner-coupling.md",
+      "bytes": 2153,
+      "sha256": "27a8e4553981282a0c60397c5ec94c0d0663c1f11347f5093fe3ef7091135480"
+    },
+    {
+      "path": "gsd-core/references/planner-failing-direction.md",
+      "bytes": 3222,
+      "sha256": "1d1c5075bd7bf9bfd376b5e6ab99bed66b4d9a69467964c5bedc1fdfb7e8b2c9"
+    },
+    {
+      "path": "gsd-core/references/planner-gap-closure.md",
+      "bytes": 2262,
+      "sha256": "76bee257911413e7a6eb64d1a262d731442cad28725e5fa1fc2da9eaf2eb5634"
+    },
+    {
+      "path": "gsd-core/references/planner-graphify-auto-update.md",
+      "bytes": 4199,
+      "sha256": "6aeffd9097e25e229fb794b04359d16ec907ae0ac3a0dfb564bf4fd4b3529adb"
+    },
+    {
+      "path": "gsd-core/references/planner-guidance.md",
+      "bytes": 8653,
+      "sha256": "4d307cecacab29af4ace14708680472a47514fa283e465bff6dabfc67f8290cf"
+    },
+    {
+      "path": "gsd-core/references/planner-human-verify-mode.md",
+      "bytes": 6684,
+      "sha256": "0c34e6491890db86c666c5df2ca0721e8f98a28ce8dc6ac093a55b0b01612ecd"
+    },
+    {
+      "path": "gsd-core/references/planner-interface-context.md",
+      "bytes": 2280,
+      "sha256": "b28fa3da6ae739a81de4287e3fe893133e46ec406a8ee73355ec46145a9d9b15"
+    },
+    {
+      "path": "gsd-core/references/planner-load-graph-context.md",
+      "bytes": 2081,
+      "sha256": "d6aaa5899a18d10fff59b3e66f91f3513dd0f71ad7b82801a87f00da2657ef75"
+    },
+    {
+      "path": "gsd-core/references/planner-mvp-mode.md",
+      "bytes": 4073,
+      "sha256": "969e533bdf7942ea04573340139d00bdd8e03f4ee1fc09e53d348c452688c5a3"
+    },
+    {
+      "path": "gsd-core/references/planner-preconditions.md",
+      "bytes": 7569,
+      "sha256": "54f15f89c7046c9ef96931083343ad62bc00e02be0b85a572bb7dec939104d89"
+    },
+    {
+      "path": "gsd-core/references/planner-quick-batch.md",
+      "bytes": 3395,
+      "sha256": "517d562bdc4aa2fbabd831ae363c67a6e58097d302acf2cbb02b198a591a577c"
+    },
+    {
+      "path": "gsd-core/references/planner-reversibility.md",
+      "bytes": 7372,
+      "sha256": "d75786c2d3e6ff5ced81d5c48627edc5e39c01e6d91b52e0f94b3f012b454b8e"
+    },
+    {
+      "path": "gsd-core/references/planner-reviews.md",
+      "bytes": 4650,
+      "sha256": "7747edaca4ff22c7872f8dc47be3319c4b052a17128229f3b2c59e56243ec9bb"
+    },
+    {
+      "path": "gsd-core/references/planner-revision.md",
+      "bytes": 6434,
+      "sha256": "2cfbbba57951578dc4f7427faadf816a36e6272b9bfa607c3688e5a25e44c9df"
+    },
+    {
+      "path": "gsd-core/references/planner-source-audit.md",
+      "bytes": 3328,
+      "sha256": "7de5bdb07232ce0b1a9f9217164e1635de30c09cc129f3fc1d10f44a9de7a704"
+    },
+    {
+      "path": "gsd-core/references/planner-verify-command-grounding.md",
+      "bytes": 1132,
+      "sha256": "1fa633e5fa8fc9da0716a339f9a4e67e57434920e53ea16dfb6434edaea374c9"
+    },
+    {
+      "path": "gsd-core/references/planning-config.md",
+      "bytes": 38503,
+      "sha256": "f27745e851ea41c7d22aff9a4919eb1a7046ea3872bbeac4c55f6cc5561c00f6"
+    },
+    {
+      "path": "gsd-core/references/prohibition-probe-fixtures/01-streak-reminder/expected.json",
+      "bytes": 489,
+      "sha256": "f10df472f2846cc62779f4cb686d7abfc76e5b66571e4d13d84f80aced83408a"
+    },
+    {
+      "path": "gsd-core/references/prohibition-probe-fixtures/02-clean-utility/expected.json",
+      "bytes": 133,
+      "sha256": "31e8a781eeffe02099947f62a0de445af72b07a2cf444bcfa882a8d234f10018"
+    },
+    {
+      "path": "gsd-core/references/prohibition-probe-fixtures/03-multi-prohibition/expected.json",
+      "bytes": 1132,
+      "sha256": "70a532a7cc1b6ae8b71ac16c959bcaba49261b2df550b7bc92dca669c2759459"
+    },
+    {
+      "path": "gsd-core/references/prohibition-probe.md",
+      "bytes": 20620,
+      "sha256": "97ba2a0372adb127aae901100e37412ab8c3be91427ae494ea4adbf33021dffc"
+    },
+    {
+      "path": "gsd-core/references/project-skills-discovery.md",
+      "bytes": 1084,
+      "sha256": "c155e03dce8dc3c2606e93bac6497f6a877209e17f8a4b2a1f0e868a8e992d50"
+    },
+    {
+      "path": "gsd-core/references/questioning.md",
+      "bytes": 6284,
+      "sha256": "a8c988cab05f4651f9b88b7e6217fc8569ba4748a795a47711ee8cf64b2c70b0"
+    },
+    {
+      "path": "gsd-core/references/research-documentation-lookup.md",
+      "bytes": 1367,
+      "sha256": "da9b532d11aeaeb3e8ab4079a50ef92165dd0e98e83e425aa22ddcf29df71e81"
+    },
+    {
+      "path": "gsd-core/references/research-philosophy.md",
+      "bytes": 1339,
+      "sha256": "62930e66cc979c1a0f9870f1f7725365467f0393ce50780aa5d789ece0ad1b07"
+    },
+    {
+      "path": "gsd-core/references/research-verification-protocol.md",
+      "bytes": 1381,
+      "sha256": "9c38c9d9a687e67914c85c9e7e47c8a23366abbee90607065b5398255c2ae572"
+    },
+    {
+      "path": "gsd-core/references/response-language-directive.md",
+      "bytes": 1629,
+      "sha256": "0beb50ccb19fa3489d3398c5280c745e1af96a9f7a8c60f370f70539cc949d5d"
+    },
+    {
+      "path": "gsd-core/references/reviewer-instances.md",
+      "bytes": 7167,
+      "sha256": "c2cac14d435400215398feeace69fdc95d6c4a81bd792f67887bd444219c0f35"
+    },
+    {
+      "path": "gsd-core/references/revision-loop.md",
+      "bytes": 11214,
+      "sha256": "09cf2d9ac1821cd2f8b8a708aa52af53f1c09cded910cedde84fe8624bbb5967"
+    },
+    {
+      "path": "gsd-core/references/runtime-aware-dispatch.md",
+      "bytes": 2412,
+      "sha256": "125ff8314dc243a59bcae1d95c13939874bd7057d09a956e9aad54944473362c"
+    },
+    {
+      "path": "gsd-core/references/scout-codebase.md",
+      "bytes": 2306,
+      "sha256": "ba266ecc18fbf1720ba7f0caa410c9517c720686b01164149fc64104eeddf62c"
+    },
+    {
+      "path": "gsd-core/references/security-asvs-levels.md",
+      "bytes": 1869,
+      "sha256": "4774fac3b94b6ca85dace3995fc6942cd81fd9a4918cfb487c6f3d78b5870434"
+    },
+    {
+      "path": "gsd-core/references/skeleton-template.md",
+      "bytes": 1809,
+      "sha256": "f11e9cd2948bd33c26b709751ba0fe18ac0892b4f3e1fe209920c5ab1e22e42a"
+    },
+    {
+      "path": "gsd-core/references/sketch-interactivity.md",
+      "bytes": 1700,
+      "sha256": "7d982fe877e1e1cc32e392966091dfc642612ba89e7ca304dda69a1225e212e9"
+    },
+    {
+      "path": "gsd-core/references/sketch-theme-system.md",
+      "bytes": 2446,
+      "sha256": "33e2e96e450456f836d499e6c3c487d0715129cd25f5d4decc07f69ced6b9bab"
+    },
+    {
+      "path": "gsd-core/references/sketch-tooling.md",
+      "bytes": 1604,
+      "sha256": "df6c4f24c1c27611a04c276a6b9707372ad558ebf2588445a7f422ff44006a9f"
+    },
+    {
+      "path": "gsd-core/references/sketch-variant-patterns.md",
+      "bytes": 2698,
+      "sha256": "66c197aa4fb52810ca4aa3c0cdcc99a2f183cd22dde26cb5107371e1117c717b"
+    },
+    {
+      "path": "gsd-core/references/specless-probe-fallback.md",
+      "bytes": 12819,
+      "sha256": "7aefa777b068907f579f16edf08ffb3907be3249bd40b36d057f93e50aed32cc"
+    },
+    {
+      "path": "gsd-core/references/spidr-splitting.md",
+      "bytes": 3776,
+      "sha256": "074ac154c0e4f9060032ebe8039da672508f9acf7176cd61020a55fb5390bf4c"
+    },
+    {
+      "path": "gsd-core/references/tdd.md",
+      "bytes": 11837,
+      "sha256": "e40bd834227d4fe8be59efc08fe89b553b6dce1aaa6408c9dcf558244f845d42"
+    },
+    {
+      "path": "gsd-core/references/thinking-models-debug.md",
+      "bytes": 4247,
+      "sha256": "2da61022b16c4e7c7f329fa7d571aca8bfea493abf75a4fcdd42c717739f6c03"
+    },
+    {
+      "path": "gsd-core/references/thinking-models-execution.md",
+      "bytes": 4635,
+      "sha256": "dcc650a8b5f3e0495085a2935d2a6420d8c70a6ad8586e1539058316540e2978"
+    },
+    {
+      "path": "gsd-core/references/thinking-models-planning.md",
+      "bytes": 6431,
+      "sha256": "7cc8aeaa693497d751fe52a20a045382edcd07a23efd296887c378754a42925b"
+    },
+    {
+      "path": "gsd-core/references/thinking-models-research.md",
+      "bytes": 4677,
+      "sha256": "5f6bf3f3b889c6e485c88b25cf91494172b9f1f66222372663db2a2c06a505cd"
+    },
+    {
+      "path": "gsd-core/references/thinking-models-verification.md",
+      "bytes": 4345,
+      "sha256": "a71a933d51ca3d8dd2534e27ae93d6148a5ea8b66e37a5e61b879cff25da31ac"
+    },
+    {
+      "path": "gsd-core/references/thinking-partner.md",
+      "bytes": 3068,
+      "sha256": "41069529ef776e391270c384ec392d61e911d0e793c9e7c923b154e6dd38bd5e"
+    },
+    {
+      "path": "gsd-core/references/ui-brand.md",
+      "bytes": 5652,
+      "sha256": "189bb64babb007a09d1610f0ee8013cdfd4c04b82428a334b68f3dddbc015c83"
+    },
+    {
+      "path": "gsd-core/references/ui-consideration-probe.md",
+      "bytes": 5405,
+      "sha256": "55ebd764ce63d4170dfb3c6d3e1dfcd29e622ac5d28a14d01f369b1f479a40a3"
+    },
+    {
+      "path": "gsd-core/references/universal-anti-patterns.md",
+      "bytes": 6482,
+      "sha256": "bacdc27e0718d0e26a6a1fffec10013dffbccd3f34501d456f6b5b1f2a04b8e0"
+    },
+    {
+      "path": "gsd-core/references/untrusted-input-boundary.md",
+      "bytes": 1854,
+      "sha256": "d33b80d4d348599a3e34074c295c091886509f6afa594926feeaad415cdfa606"
+    },
+    {
+      "path": "gsd-core/references/user-profiling.md",
+      "bytes": 37775,
+      "sha256": "b50416fe57c1b3212782c8f6b0ba66ec0d150aa34ec7ce38de7c42b79cb48ce5"
+    },
+    {
+      "path": "gsd-core/references/user-story-template.md",
+      "bytes": 2111,
+      "sha256": "0cc50e06a144ff8ac09b4fca7252cf2c42b53fe277058f230328aa020d5f71ce"
+    },
+    {
+      "path": "gsd-core/references/verification-overrides.md",
+      "bytes": 8762,
+      "sha256": "8213de9bd62283b60065db2e7b715f537d8304e7053dd4a7701f4abfa00f4f55"
+    },
+    {
+      "path": "gsd-core/references/verification-patterns.md",
+      "bytes": 17395,
+      "sha256": "085d3a07d7382a8e94d66ff112276e3adb30d8ee17bb568dc1d9f0a27a56efa7"
+    },
+    {
+      "path": "gsd-core/references/verifier-evidence-gate.md",
+      "bytes": 8267,
+      "sha256": "dcfb6700cdbd667631c1d5c4a480442a0655120cfb5260c5360950136354f27b"
+    },
+    {
+      "path": "gsd-core/references/verifier-phase-gates.md",
+      "bytes": 11510,
+      "sha256": "3f89e48d2ccbd303b04c77a629e9562c70f112de14783a2ec0ddd7fd2a084f69"
+    },
+    {
+      "path": "gsd-core/references/verifier-wiring-patterns.md",
+      "bytes": 3995,
+      "sha256": "9f0d2405f4cf6dca66fcd2e28c711bfd7fb3e565a181d9ebbf8bf923e25917de"
+    },
+    {
+      "path": "gsd-core/references/verify-command-path-resolvability.md",
+      "bytes": 2526,
+      "sha256": "69ee99a140d4cc8ef80063f27534ae6778dcada9a5adf0db7520ce1923c4b492"
+    },
+    {
+      "path": "gsd-core/references/verify-mvp-mode.md",
+      "bytes": 5572,
+      "sha256": "618bd9af02e7a024f700b64fb2cce81406c1c988fb77ab7595fd59fb674127c9"
+    },
+    {
+      "path": "gsd-core/references/workstream-flag.md",
+      "bytes": 5735,
+      "sha256": "6b8cc17945df984f52be42fc7d51cd8027dbc33467a0a319ada566fd400041e2"
+    },
+    {
+      "path": "gsd-core/references/worktree-branch-check.md",
+      "bytes": 2866,
+      "sha256": "4ee765889967c7a144d7871201f9de6e1dd745ebe98876e082699e13880a39d7"
+    },
+    {
+      "path": "gsd-core/references/worktree-path-safety.md",
+      "bytes": 8866,
+      "sha256": "2b670ac759e70a83f790385fa0d1d7cab72eb57d30c71b21046613ec3b420942"
+    },
+    {
+      "path": "gsd-core/templates/AI-SPEC.md",
+      "bytes": 6900,
+      "sha256": "efa1f8354bd3a24bd62dc1ec7e3d3b65ed7f21cfdb7c025a68733108cc012867"
+    },
+    {
+      "path": "gsd-core/templates/codebase/architecture.md",
+      "bytes": 7268,
+      "sha256": "6be88214162fdd89bf37d81f4a225be233fa7b8b43c76a96dbc222e4db5d56aa"
+    },
+    {
+      "path": "gsd-core/templates/codebase/stack.md",
+      "bytes": 4466,
+      "sha256": "116e7e67dd87ddecddc3068cb59de482390cea12e27d8b3672a7444d235b0827"
+    },
+    {
+      "path": "gsd-core/templates/config.json",
+      "bytes": 1475,
+      "sha256": "a4b783ef759a0f3704371a30ddb1979d54a4c9df8b95b552b36430701c2d3060"
+    },
+    {
+      "path": "gsd-core/templates/context.md",
+      "bytes": 9832,
+      "sha256": "69b01e7909ea3f661d5b0fcec5470314f74176aa5bd998939d80d74c03fd07d9"
+    },
+    {
+      "path": "gsd-core/templates/continue-here.md",
+      "bytes": 1821,
+      "sha256": "f522a51b6895fba838c7a9c60408c5a09472466bdf2837f8974330937e682932"
+    },
+    {
+      "path": "gsd-core/templates/copilot-instructions.md",
+      "bytes": 639,
+      "sha256": "aea34bc52ff548eaf7b3ed26cdafbc89d45e44e957886f6f99ef1b117dbf4646"
+    },
+    {
+      "path": "gsd-core/templates/DEBUG.md",
+      "bytes": 6051,
+      "sha256": "c8768312f4c1e4380fa57c5a0d105f54f4d0b875fac3dc1788d99e9a0b0080a8"
+    },
+    {
+      "path": "gsd-core/templates/dev-preferences.md",
+      "bytes": 543,
+      "sha256": "88d0a65ec0993a3a2d278ef36d756190a28eda3f35095ce667af674d50d8dab2"
+    },
+    {
+      "path": "gsd-core/templates/discussion-log.md",
+      "bytes": 1821,
+      "sha256": "c5160807e91514fca2e66e7096b671a1468a32d53d7a16f8d968c436575ae02a"
+    },
+    {
+      "path": "gsd-core/templates/milestone-archive.md",
+      "bytes": 2803,
+      "sha256": "591b6decdc0c0e51fba1359ed015ed140b33d50a9dcf9c0dbe149d605e3e5f54"
+    },
+    {
+      "path": "gsd-core/templates/milestone.md",
+      "bytes": 3057,
+      "sha256": "74d2f750ae9f4a9c18feec3708d8f414c5b15148b22eb7da554dc2da87587711"
+    },
+    {
+      "path": "gsd-core/templates/phase-prompt.md",
+      "bytes": 19404,
+      "sha256": "e6843d52d90f3bdb09a678b2b3a60fadbd58618bde48a5e0fc3eb4530b38b75a"
+    },
+    {
+      "path": "gsd-core/templates/planner-subagent-prompt.md",
+      "bytes": 2682,
+      "sha256": "ebf29dbb27042370b7d4ae7dbf5177e7b93c81739936c65e519c82dbb7380b0b"
+    },
+    {
+      "path": "gsd-core/templates/project.md",
+      "bytes": 6048,
+      "sha256": "4f311fb1b05b823bd00c655f737b546b98bb1123e0b20ca673ff5a0a3b6e5cc1"
+    },
+    {
+      "path": "gsd-core/templates/README.md",
+      "bytes": 5352,
+      "sha256": "26940a1749e55ed32fe9fa7538f6024da4bd730569b95eaf6dbede5a786003cb"
+    },
+    {
+      "path": "gsd-core/templates/requirements.md",
+      "bytes": 6071,
+      "sha256": "a44de4c2f146e473265777500951b12642553606b613168001ed2577d9e968d4"
+    },
+    {
+      "path": "gsd-core/templates/research-project/ARCHITECTURE.md",
+      "bytes": 6931,
+      "sha256": "746b9ef791d758b0222ca03e03d6da314f54c0d560966b5a3d34766b1553b1ea"
+    },
+    {
+      "path": "gsd-core/templates/research-project/FEATURES.md",
+      "bytes": 4320,
+      "sha256": "f2b800de5df91b0f567dbe85754be2bf40fe56cb62da5cf6748f7a3cfe24fd8f"
+    },
+    {
+      "path": "gsd-core/templates/research-project/PITFALLS.md",
+      "bytes": 5511,
+      "sha256": "3ef75fa768422eeca68f4411d1e058c1f447a23a23a43aaed449905940c0cf52"
+    },
+    {
+      "path": "gsd-core/templates/research-project/STACK.md",
+      "bytes": 3092,
+      "sha256": "82c85799ac4dd344441370e791f09563119f62843034b3a094876a476c2bd4e5"
+    },
+    {
+      "path": "gsd-core/templates/research-project/SUMMARY.md",
+      "bytes": 4402,
+      "sha256": "dceb2f346388839d9fce7c8de9ffff2354b8539880e5dadfd10fccfce0062997"
+    },
+    {
+      "path": "gsd-core/templates/research.md",
+      "bytes": 18252,
+      "sha256": "88ce0920417091d0b9d87e5d314aacdd3c1a01078034d9133897aeb43e6f5608"
+    },
+    {
+      "path": "gsd-core/templates/retrospective.md",
+      "bytes": 1255,
+      "sha256": "03981e30dd760103c1ea91d31ad24810feb082a388b4231d3a03a2c8ca386c5d"
+    },
+    {
+      "path": "gsd-core/templates/roadmap.md",
+      "bytes": 5666,
+      "sha256": "e4e35a9eb5dd4d4f2b4aed28ca6896c5bf4d652ad565f698325a56a7e840694f"
+    },
+    {
+      "path": "gsd-core/templates/SECURITY.md",
+      "bytes": 1842,
+      "sha256": "4a60dd6efdc4667584afca619d360de22ee7cb7986abe3d6e268cd09b19eeb45"
+    },
+    {
+      "path": "gsd-core/templates/spec.md",
+      "bytes": 15789,
+      "sha256": "26d55bce940f0288cf1b9796b7b99374bc88f53491d445bfe8f8c88d8551900b"
+    },
+    {
+      "path": "gsd-core/templates/state.md",
+      "bytes": 5730,
+      "sha256": "03d21c7d9e571d2684beaf00198d4f371832a4770255d52dab578973cbb4a0a9"
+    },
+    {
+      "path": "gsd-core/templates/summary-complex.md",
+      "bytes": 2034,
+      "sha256": "4c855f4a353040a1e9470131201779f057b6651d9cbf570119ff97da3091c8f4"
+    },
+    {
+      "path": "gsd-core/templates/summary-minimal.md",
+      "bytes": 1617,
+      "sha256": "376fb5c4ee0ef4382e775b2ed7f12dd78aa6f453b37dfe5374c7144fc9222d6a"
+    },
+    {
+      "path": "gsd-core/templates/summary-standard.md",
+      "bytes": 1890,
+      "sha256": "a12328784308bdcd9d8d71bb975ff57feb310c20967ef0c7c9ee8fa5df061c18"
+    },
+    {
+      "path": "gsd-core/templates/summary.compact.md",
+      "bytes": 9640,
+      "sha256": "374ef089a44624d0dd868d0dc3307d7cd29f26124c2ba1b346b4929a575c993b"
+    },
+    {
+      "path": "gsd-core/templates/summary.md",
+      "bytes": 12305,
+      "sha256": "e7b240727bb2d9b5547a3de7a862d30c4a374690098d820295e3354698fc6f04"
+    },
+    {
+      "path": "gsd-core/templates/UAT.md",
+      "bytes": 6860,
+      "sha256": "9e296471b97ebcec9ca944cb7acaf0905c207ac0eaf2f20c56b83a0d59ad5f40"
+    },
+    {
+      "path": "gsd-core/templates/UI-SPEC.md",
+      "bytes": 4813,
+      "sha256": "961dba7655619a6e70540be7507c76bbc77633dcf6f8def1f409337cc2692b5c"
+    },
+    {
+      "path": "gsd-core/templates/user-profile.md",
+      "bytes": 3054,
+      "sha256": "20749f23e4c413fc2bdb3b125b83e4a05e34d84714146343732a6ff19e856313"
+    },
+    {
+      "path": "gsd-core/templates/user-setup.compact.md",
+      "bytes": 6037,
+      "sha256": "b60869ee028f4c96651fe27baf6fc85167b4f4dafabcad8cd568e52b89099c79"
+    },
+    {
+      "path": "gsd-core/templates/user-setup.md",
+      "bytes": 8913,
+      "sha256": "07c227403d62a9e0cae43a7ee0f9db7d667383e42fefb799067da6b39db145c0"
+    },
+    {
+      "path": "gsd-core/templates/VALIDATION.md",
+      "bytes": 2393,
+      "sha256": "e2281534271f86b7d3c62e833b3c3533b1251bb062596f859c1c4cb3050e550e"
+    },
+    {
+      "path": "gsd-core/templates/verification-report.md",
+      "bytes": 13563,
+      "sha256": "1e5236c2bb5ed308abe89ff478f9419b6eb3b4fd4fddcdaa8a7b61c6dd133b8d"
+    },
+    {
+      "path": "gsd-core/workflows/_runtime-launcher.snippet.sh",
+      "bytes": 2627,
+      "sha256": "e1a20b52df7082e57d248787cfa7c23782bd9c7828fdef3f6ca4ebbb487f3f5a"
+    },
+    {
+      "path": "gsd-core/workflows/add-backlog.md",
+      "bytes": 5352,
+      "sha256": "6cd23679ab5bea2846d5282792b4c3b8272c435cc788f909294a011e77e7ea8b"
+    },
+    {
+      "path": "gsd-core/workflows/add-phase.md",
+      "bytes": 5742,
+      "sha256": "a5c74944b0eb6bbd684eae05ba0292d983b2b019a33eac65d894c72cfd107388"
+    },
+    {
+      "path": "gsd-core/workflows/add-tests.md",
+      "bytes": 14812,
+      "sha256": "b000f985ec5208c898d966565ad651dc9334e6bddfc402c2925c37cebd84fb45"
+    },
+    {
+      "path": "gsd-core/workflows/add-todo.md",
+      "bytes": 10007,
+      "sha256": "ea2eb383963fc6a910a21138971deefeff0b50842530094a08309c4c9d3bdfd8"
+    },
+    {
+      "path": "gsd-core/workflows/ai-integration-phase.md",
+      "bytes": 12928,
+      "sha256": "1cf9e4dcd3786fe62eae0c82ad76c755507fd826e68ae801044ee5b8746ed788"
+    },
+    {
+      "path": "gsd-core/workflows/analyze-dependencies.md",
+      "bytes": 3950,
+      "sha256": "26af3b5ebdd423206db01491ef09fee429ce24fb96ad7b209a8062d3ab6ae2f9"
+    },
+    {
+      "path": "gsd-core/workflows/audit-fix.md",
+      "bytes": 10997,
+      "sha256": "4e117fa5a97e157190bb7e81fbb91812f781582e76d188e76f9288e54835263f"
+    },
+    {
+      "path": "gsd-core/workflows/audit-milestone.md",
+      "bytes": 16459,
+      "sha256": "774538c2d60c1877446d847a2a9a6ee3103e574abba75dd35fd4f2f1cd8f6a09"
+    },
+    {
+      "path": "gsd-core/workflows/audit-uat.md",
+      "bytes": 7187,
+      "sha256": "e3fae0c879399a583b0d2faabe159da8b33c7d91fdc8f277f7fe2a26d6ef1747"
+    },
+    {
+      "path": "gsd-core/workflows/autonomous.md",
+      "bytes": 39115,
+      "sha256": "a32c4cfea199ffc35a741cebd7bb5dd1ecbdd8058d81641fffcd315ece7f6ad5"
+    },
+    {
+      "path": "gsd-core/workflows/autonomous/steps/converge-banner.md",
+      "bytes": 87,
+      "sha256": "623a3dc7f4ee79b03550dd6c7e5ee6e2e2d53322465e030dff31fd3304cf119d"
+    },
+    {
+      "path": "gsd-core/workflows/autonomous/steps/converge-dispatch-bg.md",
+      "bytes": 489,
+      "sha256": "a9e80df7f1629639890d87b6227ddeacf2dd7973adb10cce471e2e009ed68691"
+    },
+    {
+      "path": "gsd-core/workflows/autonomous/steps/converge-dispatch-inline.md",
+      "bytes": 153,
+      "sha256": "9c28a7ff77bdd61ba17fcbf951c69d376a6679018e02e01345ab9502c7dabc4e"
+    },
+    {
+      "path": "gsd-core/workflows/autonomous/steps/converge-fail-fast.md",
+      "bytes": 3301,
+      "sha256": "339c64a738e84aea4304fb8db8d9420ee058b7ce8118b1eb895b0e1799106e3b"
+    },
+    {
+      "path": "gsd-core/workflows/autonomous/steps/converge-loop.md",
+      "bytes": 166,
+      "sha256": "2e7236809b8323b00432aed14c6efc2eb4be0f418cd81f309e0fcef9d8d42cfc"
+    },
+    {
+      "path": "gsd-core/workflows/check-todos.md",
+      "bytes": 8787,
+      "sha256": "f5e02c01b549a7f64aa0db0334a5bfa39443b932d25d18e2442fc19948377023"
+    },
+    {
+      "path": "gsd-core/workflows/cleanup.md",
+      "bytes": 13571,
+      "sha256": "c31837a234731d9e7249d236418d42255e52db116bfa81a634fdcb972dc36822"
+    },
+    {
+      "path": "gsd-core/workflows/code-review-fix.md",
+      "bytes": 25695,
+      "sha256": "e7e633c1641e2be7354b7db8bc3e36456fafc9a7f539c9a0fafefd4fcb6ebb33"
+    },
+    {
+      "path": "gsd-core/workflows/code-review.md",
+      "bytes": 49029,
+      "sha256": "4773bdbbf10f6498340eb28639d037ce3c7993eedbe8f8d205ddd986c0738f7e"
+    },
+    {
+      "path": "gsd-core/workflows/code-review/steps/dispatch-fix.md",
+      "bytes": 1857,
+      "sha256": "a735a773fff9085198addc9a59fdc85a6c6b7cc74449203dbf8bf004cfb84e86"
+    },
+    {
+      "path": "gsd-core/workflows/code-review/steps/structural-pre-pass.md",
+      "bytes": 8262,
+      "sha256": "2148087e722e06550b4ff7ed6e63125394f76cd286ae6e8fb08d310d0109031e"
+    },
+    {
+      "path": "gsd-core/workflows/complete-milestone.md",
+      "bytes": 32569,
+      "sha256": "035b09e87c4ac2f92036026acddaba3fbb53fa4656abf9d7fd168db58d6d4b82"
+    },
+    {
+      "path": "gsd-core/workflows/complete-milestone/detail/elaboration.md",
+      "bytes": 17103,
+      "sha256": "fcd5136201c1df1a26e3039d5e7976137117e916be01683f12a8360d4fa67043"
+    },
+    {
+      "path": "gsd-core/workflows/complete-milestone/steps/git-tag.md",
+      "bytes": 510,
+      "sha256": "651ed29ec56dff1a7e0746b06cd9e61120c9d1a00c6feda188e10a12fb96ea8a"
+    },
+    {
+      "path": "gsd-core/workflows/debug.md",
+      "bytes": 20216,
+      "sha256": "07f67a665b79c731e1d06b6da5d2ca0d2dad00e2b272ec4a7b6ae41a9db74c05"
+    },
+    {
+      "path": "gsd-core/workflows/diagnose-issues.md",
+      "bytes": 15256,
+      "sha256": "b4abd0fd7447fa21c597cf35799c291b57d1c6fa816ed887e37ab075bf1260d9"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase-assumptions.md",
+      "bytes": 26843,
+      "sha256": "2533c910e388ac8f43a2cb67bb87ebcc408bbc5d319da853d4e34f6df007422b"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase-assumptions/steps/auto-advance-dispatch.md",
+      "bytes": 382,
+      "sha256": "b29510c8bb53cbb7ce057f2b2fc44a04b332026610d385a1a4104d4246da01f8"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase-power.md",
+      "bytes": 11336,
+      "sha256": "f26697a5c55c39033f27738f7f500e2789a7d3023e7360ceddc22e9fbf35ed5c"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase.md",
+      "bytes": 30175,
+      "sha256": "f4a7761412ed19fe0d52cb6ed0a098c1b458bd8c423f88e91e753e234ca47ea0"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/modes/advisor.md",
+      "bytes": 10643,
+      "sha256": "47b0fe0dc94197e019e7fd8dea7060aa492aad5e020e27e858cfa69f4f5faa2b"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/modes/all.md",
+      "bytes": 1455,
+      "sha256": "c20f95c2c2e9f99f8a37fa292c91f745aa5b18444fe3a44bf6652ab6e323fd64"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/modes/analyze.md",
+      "bytes": 1895,
+      "sha256": "440ef488ba9190d1f3e85729ad1a703614a024effb057e681e76265df04c71eb"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/modes/auto.md",
+      "bytes": 2719,
+      "sha256": "eb1ce55f87047412006bdd40de3a22ea9c48374417d62dea11fdc37a4d5627a1"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/modes/batch.md",
+      "bytes": 2222,
+      "sha256": "9a73b49bc7f435cc4e027e5e7bc9d83fe3ccf1b1ba17dd4b770e20e5282fa8d0"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/modes/chain.md",
+      "bytes": 6293,
+      "sha256": "cd4d62fbae2e96ad269c44287e46bc9ec8cbd6cb899e909149f62b7d281933f6"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/modes/default.md",
+      "bytes": 7522,
+      "sha256": "d096bdc99b042ed336a7a937650d18cc498e74f19ddc3dd265c38b216a107ad4"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/modes/power.md",
+      "bytes": 1818,
+      "sha256": "004ae5256e47a85f30606b4d512bd8346653b0363e4d9712cc000bf68463e32c"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/modes/text.md",
+      "bytes": 1802,
+      "sha256": "9644af8abce4766d51abda6654251aa91557a78023f90c0ee60875e928dc8909"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/templates/checkpoint.json",
+      "bytes": 526,
+      "sha256": "e3bc3dca49db59eb02d2461bb98a53c9ecac041aab377c19a6091d1a517ba186"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/templates/context.md",
+      "bytes": 5470,
+      "sha256": "323884311c94fbc280d0ebbfec7b906bc792e0d50926c4021a24c156eef0378d"
+    },
+    {
+      "path": "gsd-core/workflows/discuss-phase/templates/discussion-log.md",
+      "bytes": 1535,
+      "sha256": "e829d02ec03db8bbc4157845e52283074ef57b9491c04f73833f2cb0876456df"
+    },
+    {
+      "path": "gsd-core/workflows/do.md",
+      "bytes": 11680,
+      "sha256": "8a389266849a9b9d185b852616df1b29ca7c9740ff8eb97e67d00931abc23a24"
+    },
+    {
+      "path": "gsd-core/workflows/docs-update.md",
+      "bytes": 48179,
+      "sha256": "59c24be1178f932ce611998fa449e4db648b4440331485bc3dd91621f95bd4ba"
+    },
+    {
+      "path": "gsd-core/workflows/docs-update/detail/elaboration.md",
+      "bytes": 9929,
+      "sha256": "f76ece993a4dac3d63706834f732a7697cd308456c3c89e791bf60124ca3f11b"
+    },
+    {
+      "path": "gsd-core/workflows/docs-update/steps/dispatch-monorepo-packages.md",
+      "bytes": 2209,
+      "sha256": "140ac0049d4094be841e11c37ef15077069fe90ebca67aa7f982bc668386bfa2"
+    },
+    {
+      "path": "gsd-core/workflows/edit-phase.md",
+      "bytes": 12478,
+      "sha256": "cff66bdc3814af2972a193d5d8c6eccfed67e1e8e9c11e7bed0d8f3105427524"
+    },
+    {
+      "path": "gsd-core/workflows/eval-review.md",
+      "bytes": 7870,
+      "sha256": "70d194a55abaff2be57ce07c0917d4099e96db9845be6fafe89c9603c3182d69"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase.md",
+      "bytes": 92371,
+      "sha256": "ba69804f311a5efb7ebd87b824917a82fbacbb3389cf56de06346d64d31beb4a"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/detail/elaboration.md",
+      "bytes": 8130,
+      "sha256": "87d432426a637d4bba00c0cbec46f87c93c8744d3bb3c7a4f8ec54274eb28698"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/codebase-drift-gate.md",
+      "bytes": 8267,
+      "sha256": "05f40aac58c8d0ab42e1866504779189d192352cb7949cf173827d870d013bd9"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/completion-reconciliation.md",
+      "bytes": 3288,
+      "sha256": "f6bd0216d3609a0d32ad13a606598263db2432f8318d64454f9d3b8b44b7b6e0"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/executor-isolation-dispatch.md",
+      "bytes": 26903,
+      "sha256": "7c791b8311ed047abcb747c2e8e7a2362c199b66daa3d9fb89bf0feb1d58ab32"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/executor-progress-policy.md",
+      "bytes": 2375,
+      "sha256": "cbddeca12096b81f6a0be38022564ef4cd2b6676bc38b48ed21c1e9de3320abf"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/gap-closure-artifacts.md",
+      "bytes": 4310,
+      "sha256": "c91629cc19391b292576b1551ed90f58999b21bd256fcf31d0e2458c6beab9d2"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/partial-wave.md",
+      "bytes": 3738,
+      "sha256": "638c0b0c089800ba62c4bd1a15227ebb62be3913b8e86b9abdc3f68353aa55da"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/per-plan-executor-routing.md",
+      "bytes": 6608,
+      "sha256": "217e0b7e5f8546a87dcc1fb9de44d4444c41f831e29e2dfbc9863425f9483f42"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/per-plan-worktree-gate.md",
+      "bytes": 11250,
+      "sha256": "f0fa5dc3b8e0a82acd0fd8a37b9637dacb1f249474ac02ecc37642275d15bf12"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/post-merge-gate.md",
+      "bytes": 8755,
+      "sha256": "67f0eb85a7489fb63a631c176c9252aa0eea3abd9dd975e2db93e7137ffca511"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/protected-branch.md",
+      "bytes": 3661,
+      "sha256": "01d16f636eee1fd7f9709badaea0efb1a86dfbe0a4adce6d1e0aeac13285dee3"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/regression-gate-run.md",
+      "bytes": 5006,
+      "sha256": "51295f1e2d0b3156711d21bf15e7413a7fe292894e57e26a21a98603c3b2228e"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/regression-gate.md",
+      "bytes": 2116,
+      "sha256": "5de5633de77b01be98d8d6a4f6075c0c5f0a11d05dcd61308322fc959a0b0007"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/sequential-root-pin.md",
+      "bytes": 2280,
+      "sha256": "7e8eab41db616d0386a18eb96f1e8934d95b58f58a5952d55f1d003021c5bc2b"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/tdd-applicability-resolution.md",
+      "bytes": 3648,
+      "sha256": "75a010d2f1b477137417c219c8a350e741744392aa5407f66eba919ffb30510b"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/wave-post-gate-hooks.md",
+      "bytes": 5101,
+      "sha256": "f7ad3842fef0d73185a10bed94794d03d5307f040bac57b78df14a147bb4ef2c"
+    },
+    {
+      "path": "gsd-core/workflows/execute-phase/steps/worktree-recovery-policy.md",
+      "bytes": 1839,
+      "sha256": "0a909cd705c221d892a42e1c21ac89ec6e6247ea14ea0706e4db73c3b5aee179"
+    },
+    {
+      "path": "gsd-core/workflows/execute-plan.md",
+      "bytes": 40885,
+      "sha256": "f76c31e1591bfbac00774003b2884686ac3f0c1b3129a212977cfb13f572943b"
+    },
+    {
+      "path": "gsd-core/workflows/explore.md",
+      "bytes": 19473,
+      "sha256": "58e5429b9dd4ee73746b232a03dab11ea7c7a28e280a3ede42dc64e28d20511e"
+    },
+    {
+      "path": "gsd-core/workflows/extract-learnings.md",
+      "bytes": 11938,
+      "sha256": "abb8291a77a270d4b0ed4cbf86d0ba0fd8bd93bd5a12714eeea57e7f9bf46fa8"
+    },
+    {
+      "path": "gsd-core/workflows/fast.md",
+      "bytes": 6471,
+      "sha256": "e4a19c7d777361555e26c70290ec60c88406310f74b875c2b290304d619e1c72"
+    },
+    {
+      "path": "gsd-core/workflows/forensics.md",
+      "bytes": 10707,
+      "sha256": "a86fe0bc639ccee4be1826fdd747def51e995428479aa9ade37ec81d6c3befa6"
+    },
+    {
+      "path": "gsd-core/workflows/graduation.md",
+      "bytes": 10211,
+      "sha256": "2eaf1040824ac32c263da23e8c4575d90f2bdc87409d3dd1e7826e59ffbcbc74"
+    },
+    {
+      "path": "gsd-core/workflows/health.md",
+      "bytes": 18679,
+      "sha256": "f0dc10ff56485dee0097080ef14230762226a6ca4ae50d1f26fdf15663445af4"
+    },
+    {
+      "path": "gsd-core/workflows/help.md",
+      "bytes": 1935,
+      "sha256": "af49becccc374298758cb37e417533d4687f256ac55b54fc7d61f5c12bcda788"
+    },
+    {
+      "path": "gsd-core/workflows/help/modes/brief.md",
+      "bytes": 1114,
+      "sha256": "afcfc2cd0ca10d0c048b171d9b3091a44306e4db7554386224054753971af7ec"
+    },
+    {
+      "path": "gsd-core/workflows/help/modes/default.md",
+      "bytes": 2262,
+      "sha256": "dafc98ae53d112238ef820fdd78c4322cec777f807d3523e4c6869f9c82f93ab"
+    },
+    {
+      "path": "gsd-core/workflows/help/modes/full.compact.md",
+      "bytes": 24095,
+      "sha256": "1613177b866559e7f37fefa2584acefd8e81aef24861179ef3d21fe56898a677"
+    },
+    {
+      "path": "gsd-core/workflows/help/modes/full.md",
+      "bytes": 38881,
+      "sha256": "c2d891b5eca4d038c83f8471a71432fefbdf6c0152a13ded0d681dac5eb1e124"
+    },
+    {
+      "path": "gsd-core/workflows/help/modes/topic.md",
+      "bytes": 5385,
+      "sha256": "04f320e7798cb6eeddfa7e8f1cf3b5d3baf5c9c1aad639416015e060bdb0a0ca"
+    },
+    {
+      "path": "gsd-core/workflows/import.md",
+      "bytes": 13708,
+      "sha256": "e280a4a305daefb5403ce02b4c31c4a9faa9edf37c23adac95bf94fa24db7ac7"
+    },
+    {
+      "path": "gsd-core/workflows/inbox.md",
+      "bytes": 17132,
+      "sha256": "31534f86e80f6c17189041be0672f593054795dcf0d58dc87e7cbb2ff7dbb3bb"
+    },
+    {
+      "path": "gsd-core/workflows/ingest-docs.md",
+      "bytes": 20222,
+      "sha256": "1afebfd246b2277f9fec63635881d140a70172295225f9d5690da3d527d099dc"
+    },
+    {
+      "path": "gsd-core/workflows/insert-phase.md",
+      "bytes": 7139,
+      "sha256": "40f1fbe857373ac4e56de03e988fd79f02fb1b337ef52c9231b048b859e8c232"
+    },
+    {
+      "path": "gsd-core/workflows/list-phase-assumptions.md",
+      "bytes": 4368,
+      "sha256": "db6946da4d25256a4bfb016b1465101f553aa0a8f7918f9078d76492e6ee20ee"
+    },
+    {
+      "path": "gsd-core/workflows/list-seeds.md",
+      "bytes": 4757,
+      "sha256": "21fca10d40608e47787cc04a9fb747d97dde0cf7e0bef93d17dc7745cfc5e22e"
+    },
+    {
+      "path": "gsd-core/workflows/list-workspaces.md",
+      "bytes": 3875,
+      "sha256": "7035da8ba984999847504d786beb403ea4491034e70dcde862f3bbf97be505d3"
+    },
+    {
+      "path": "gsd-core/workflows/manager.md",
+      "bytes": 23862,
+      "sha256": "1a4d1433104cefec7f1807197df31ee7f6a2316d30f6bd4ef7e999d6bde42cbb"
+    },
+    {
+      "path": "gsd-core/workflows/map-codebase.md",
+      "bytes": 22683,
+      "sha256": "2df037554031bee0db0a755578d923e9aed17571869de47d57c739e4870aa8f3"
+    },
+    {
+      "path": "gsd-core/workflows/milestone-summary.md",
+      "bytes": 10018,
+      "sha256": "23640981b4dab5210aec35c95ac17f64d79063a684eb9efb870d0f54808bb5fa"
+    },
+    {
+      "path": "gsd-core/workflows/mvp-phase.md",
+      "bytes": 12430,
+      "sha256": "62822775dacd1b20e77dbf014135e659e5ee8a731b2cf31f9323add7cf637ad7"
+    },
+    {
+      "path": "gsd-core/workflows/new-milestone.md",
+      "bytes": 39082,
+      "sha256": "46c20a823d676623361e0ff65309d7605b4cd14749b77dc4707f31db66ea553a"
+    },
+    {
+      "path": "gsd-core/workflows/new-milestone/steps/project-md-milestone-write.md",
+      "bytes": 794,
+      "sha256": "7fbacae20957818a907edffb07f7552de2a9a023add2463f237a9173e3db4414"
+    },
+    {
+      "path": "gsd-core/workflows/new-milestone/steps/reset-phase-safety.md",
+      "bytes": 922,
+      "sha256": "0a8e18540587a14cb9981d35f62a9f4df6c726538bd2d3786a1f5cd3f2ef2f28"
+    },
+    {
+      "path": "gsd-core/workflows/new-project.md",
+      "bytes": 49712,
+      "sha256": "957b062d3870af37969f360248662c09c27a9639da7bcafdd4cf8ec3b9166cc5"
+    },
+    {
+      "path": "gsd-core/workflows/new-project/detail/elaboration.md",
+      "bytes": 8230,
+      "sha256": "31d2072b17423737395afcba4794d79f2077b52f2b8917470ee57b5cd53bd25f"
+    },
+    {
+      "path": "gsd-core/workflows/new-project/steps/auto-mode-config.md",
+      "bytes": 11247,
+      "sha256": "3eeaca5ae39d36696c6f7d70bcb011ac02f17a3a05260cd3278ab4da25096cf3"
+    },
+    {
+      "path": "gsd-core/workflows/new-project/steps/auto-mode-detection.md",
+      "bytes": 968,
+      "sha256": "55a6deec1f4e30433e27d976db5dca04c7d5e771c6a960a73148f1f86db1b862"
+    },
+    {
+      "path": "gsd-core/workflows/new-project/steps/codebase-map-offer.md",
+      "bytes": 959,
+      "sha256": "8553120b01935d4b4a70823dbbeffe7f171204b0bc2a66cab0dbddb109c15db9"
+    },
+    {
+      "path": "gsd-core/workflows/new-workspace.md",
+      "bytes": 9784,
+      "sha256": "877f56776c5d180a12d8d63a8e469ec5eb86691cd075b671efd0f34706d1ff79"
+    },
+    {
+      "path": "gsd-core/workflows/next.md",
+      "bytes": 19532,
+      "sha256": "fc89f251f765357d41bbe42f10a4dd1ae3e1cdbfc091c4a23ce4d6631f2ac9ba"
+    },
+    {
+      "path": "gsd-core/workflows/node-repair.md",
+      "bytes": 4236,
+      "sha256": "c26de5bd187767a7a52f690c656cab77aebb48ada7a3c861f771a1c37d86a543"
+    },
+    {
+      "path": "gsd-core/workflows/note.md",
+      "bytes": 6626,
+      "sha256": "3eaaa3772c3f12dc7dab430a8b12f7dcc6f6824f09d0491f106291a554a1c6a0"
+    },
+    {
+      "path": "gsd-core/workflows/onboard.md",
+      "bytes": 8964,
+      "sha256": "b3295dc6b1c47c4e1ed98e6f65d7413f00c966160453448d31d2979fe1df2144"
+    },
+    {
+      "path": "gsd-core/workflows/pause-work.md",
+      "bytes": 13189,
+      "sha256": "413a2e5777627b039c96f792c4f2c48e1624dd60a06aadece9b9695dc4927ee5"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase.md",
+      "bytes": 93507,
+      "sha256": "d7ea30593573bb37f98006b8390825ed0a0fbcd08f359bc8991e34cc385029a7"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/detail/elaboration.md",
+      "bytes": 12154,
+      "sha256": "e1682ab34d99dc9cd437dfa68e175abf5bd438f48e016cdfa5bd8a7bd6725654"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/adr-ingest-express-path.md",
+      "bytes": 1267,
+      "sha256": "b188047653fdb7ceccbbd110a1cb4406c2f899b29d12f0effc2e61b062be0493"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/chunked-planning-mode.md",
+      "bytes": 12620,
+      "sha256": "43e0b1a2130c0e8de8e272317afb2c819e538aa6f80e8e1ff0983dc65f7950d3"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/closed-phase-gate.md",
+      "bytes": 2102,
+      "sha256": "b36f77ac7344a0723b2470a2849b202ff2c8e47c31c9be8fd034a9dedc308f62"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/prd-express-gate.md",
+      "bytes": 566,
+      "sha256": "110a18f8d4f5a9041e9732dee674a6f6c961e96f5151d74d23e8f0dcefb7d23f"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/prd-express-path.md",
+      "bytes": 5491,
+      "sha256": "bc193f02529f63cb98cc3e75b4014c6da3f8e5dc6d976391e4b8fa0816317ec0"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/research-only-early-exit.md",
+      "bytes": 741,
+      "sha256": "0a8e2fef954af151f6a49492d5e0bae9cd619bb41e9593c93eaa4383fa346873"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/research-only-modifiers.md",
+      "bytes": 1186,
+      "sha256": "eff31aab435712600f536cedbe74bd565b5c590909bb9bd97697d27ce9a46817"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/reviews-prerequisite.md",
+      "bytes": 422,
+      "sha256": "d0d084ad6a1fea566643a476c3dc6e46d85c49075b4a10cf991553c9ee539f02"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/stall-detection-helpers.md",
+      "bytes": 11913,
+      "sha256": "0013efe4e5741a3bd9e94c445362df18fd847481f4bdb07b7ce2d4150b026ac4"
+    },
+    {
+      "path": "gsd-core/workflows/plan-phase/steps/windows-troubleshooting.md",
+      "bytes": 1045,
+      "sha256": "49f58c3f75be3eb5e607b572fd28b1969faa0b47e837c3d9255df36ffbafe80b"
+    },
+    {
+      "path": "gsd-core/workflows/plan-review-convergence.md",
+      "bytes": 36410,
+      "sha256": "93f38ae657e46463366e21ad7b825a284b97c4bca037accba09fdacdee011609"
+    },
+    {
+      "path": "gsd-core/workflows/plant-seed.md",
+      "bytes": 10356,
+      "sha256": "17c2b765f707dd85a9ede1c88773d010f8b06e6c9faafd550796cba38fb01c9f"
+    },
+    {
+      "path": "gsd-core/workflows/pr-branch.md",
+      "bytes": 23203,
+      "sha256": "ff9bce639b2cd5683e7fd843b179e44d2df828cfd18b3f456d59c2a7cbbf0682"
+    },
+    {
+      "path": "gsd-core/workflows/profile-user.md",
+      "bytes": 19670,
+      "sha256": "612d8067e754388a0a8fa9ec72c48cdef6c0c98dbd66397c6d282f57aa84de55"
+    },
+    {
+      "path": "gsd-core/workflows/progress.md",
+      "bytes": 28441,
+      "sha256": "ffdc71090644019274ad54e109cfba3697a13da1997d909a045a3fea12080cfa"
+    },
+    {
+      "path": "gsd-core/workflows/progress/steps/forensic-audit.md",
+      "bytes": 6519,
+      "sha256": "18a8259b34cf9ac88d11915af7163bff3a5ee3ac7eb50bde7bc5ea13668dcfb1"
+    },
+    {
+      "path": "gsd-core/workflows/progress/steps/mvp-display.md",
+      "bytes": 1851,
+      "sha256": "5a8cfbca688a9021e05a8c011a4427c59f50ca151332063b7bb43d62f1a25f7c"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch.md",
+      "bytes": 12861,
+      "sha256": "b2b5ff4258df7bbfede0907a5c6e12b47d7eaee2d321e9113c699fa1664a3157"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch/steps/batch-init.md",
+      "bytes": 4979,
+      "sha256": "c0176a6d72963335885e559bcb2f13852778369693e252d3d984ec1731d89bbc"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch/steps/completion.md",
+      "bytes": 5269,
+      "sha256": "f1f70facd9960214485f872c35066bada5a623d088d728ebfced9189c94ce92e"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch/steps/merge-wave.md",
+      "bytes": 7932,
+      "sha256": "86d12330f61cb5698ed372c82cf1a194608cf1d2eb3888b7d49369e7a093586f"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch/steps/plan-checker-loop.md",
+      "bytes": 6229,
+      "sha256": "3447c34b1cd2c9a55d4aa0d39863d06ef3045ae1c03bef435c210a4d02b69d53"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch/steps/planner-wave.md",
+      "bytes": 10019,
+      "sha256": "8ec0f856e10fdea4f18784f145ffebbcd18afeccc2e7b8ac0723a402f250f0b7"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch/steps/research-phase.md",
+      "bytes": 6268,
+      "sha256": "0b1729b2cf9aea0b4ff378e0e4365631a959585a82a77ce5805fda11631cb29d"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch/steps/resume-mode.md",
+      "bytes": 4935,
+      "sha256": "32ce15db69a15007cf6da9df50d6361fb1594f29060089908ed9f72d33e3c759"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch/steps/verification-wave.md",
+      "bytes": 5655,
+      "sha256": "075b177035e03e1bd6d2d23a7058f8d3e6a24ffab55542340b199ea5cf5e4ae8"
+    },
+    {
+      "path": "gsd-core/workflows/quick-batch/steps/worktree-dispatch.md",
+      "bytes": 11598,
+      "sha256": "368119a87fdfa6ec9916d0eefc3837d5ea8814c74be5973939ec646c6db8f7df"
+    },
+    {
+      "path": "gsd-core/workflows/quick.md",
+      "bytes": 40608,
+      "sha256": "82bc2867988b83f208b614791184afc4e534327576d5b7fa454f357bb398cb0c"
+    },
+    {
+      "path": "gsd-core/workflows/quick/steps/discussion-phase.md",
+      "bytes": 3668,
+      "sha256": "ff7a0c851f0b4a3c5ceb26d0aa125897e9a572522c9761a0962279ef46744d7f"
+    },
+    {
+      "path": "gsd-core/workflows/quick/steps/plan-checker-loop.md",
+      "bytes": 6427,
+      "sha256": "d01c8b044a8a23db34c56a1ff46323376f1eef574bf693d3749c1a92541f7f38"
+    },
+    {
+      "path": "gsd-core/workflows/quick/steps/quick-verification.md",
+      "bytes": 6504,
+      "sha256": "4fbe77ed7a70013ea3a9d62e3d7a5ebdd4a4f81e22f159053b6af425e2600cde"
+    },
+    {
+      "path": "gsd-core/workflows/quick/steps/research-phase.md",
+      "bytes": 3558,
+      "sha256": "9dbacbf97906704f30b3cedba24a2bd655d189e05274e870ba1c60ab4459dc80"
+    },
+    {
+      "path": "gsd-core/workflows/quick/steps/worktree-pre-dispatch-commit.md",
+      "bytes": 4697,
+      "sha256": "8d8b2bde2f3c18f3bd316ca9b6ffee1da2075e59413ebb918a796ba3b27bda3f"
+    },
+    {
+      "path": "gsd-core/workflows/reapply-patches.md",
+      "bytes": 25813,
+      "sha256": "de33143f63c33e1ae8ed3d46236e4d78db98d22e577c5e97b37c365d82385df4"
+    },
+    {
+      "path": "gsd-core/workflows/remove-phase.md",
+      "bytes": 6671,
+      "sha256": "db41c3d035e589983e52235f7bb896f66ca834901e13cae0517fe6d24c99d464"
+    },
+    {
+      "path": "gsd-core/workflows/remove-workspace.md",
+      "bytes": 6122,
+      "sha256": "2a0381ff04c6b94221260d045c8a062da20118f131ffc5d27f5a75df6eecec40"
+    },
+    {
+      "path": "gsd-core/workflows/resume-project.md",
+      "bytes": 15267,
+      "sha256": "0609725e6949ac483556ee46dc0acd099907379f3c73e80194df2c9b8f6ad66f"
+    },
+    {
+      "path": "gsd-core/workflows/review.md",
+      "bytes": 50706,
+      "sha256": "c89aa79c964d90b2da40b6fecd195a29167f9fb1516394a41afb30bbe63d7432"
+    },
+    {
+      "path": "gsd-core/workflows/review/steps/reviewer-instances-note-1.md",
+      "bytes": 328,
+      "sha256": "8e99eab70c786614de4cee08bea6ab3522361dcacb11a54cf3561caee52b524f"
+    },
+    {
+      "path": "gsd-core/workflows/review/steps/reviewer-instances-note-2.md",
+      "bytes": 277,
+      "sha256": "25672f5511d739d9a7396f85313b899b9e9de53c43797bfae4d3f017424f1cbc"
+    },
+    {
+      "path": "gsd-core/workflows/scan.md",
+      "bytes": 7056,
+      "sha256": "15a2b45901578add0e1200f2db182455cefc736d82d2bc60280d386ef5de553d"
+    },
+    {
+      "path": "gsd-core/workflows/section-manifest.json",
+      "bytes": 7096,
+      "sha256": "d9cf1b1e10416c86c42fa950a8f7cff4ca890a1cb6fe93abb1f1233ffde6aa17"
+    },
+    {
+      "path": "gsd-core/workflows/secure-phase.md",
+      "bytes": 13218,
+      "sha256": "5206a7b224d88ce1a76c7a1682a7884973a831e7c00067bc58aa0ce380aa7c0e"
+    },
+    {
+      "path": "gsd-core/workflows/session-report.md",
+      "bytes": 4165,
+      "sha256": "0a8ed74c950a4d5b34b4d1847f059f5a7d95a5bf9584f86289a3c3995f39067e"
+    },
+    {
+      "path": "gsd-core/workflows/settings-advanced.md",
+      "bytes": 37969,
+      "sha256": "2851acadba596012f0efe407e46774d584b18fddca0c05ef2fcaf8bb9b47a494"
+    },
+    {
+      "path": "gsd-core/workflows/settings-integrations.md",
+      "bytes": 16226,
+      "sha256": "3a63080c5408269f920417bb0e26b99875928230bde47be3197c48c9a5c38ac2"
+    },
+    {
+      "path": "gsd-core/workflows/settings.md",
+      "bytes": 39040,
+      "sha256": "cb7b758f7e6d4421640816b01925eed2cd8baafba05007bd4aed9b2e329641c1"
+    },
+    {
+      "path": "gsd-core/workflows/ship.md",
+      "bytes": 35061,
+      "sha256": "e2a23f049e4b96a4f2d350ad677be086db6f3e2aa84e562064e72ec22287d73c"
+    },
+    {
+      "path": "gsd-core/workflows/sketch-wrap-up.md",
+      "bytes": 10471,
+      "sha256": "12df76f42565f69c00b0f37695828b71a4022cb71042464cc89d2c1f84466815"
+    },
+    {
+      "path": "gsd-core/workflows/sketch.md",
+      "bytes": 16780,
+      "sha256": "c43abfaa2e55d5b31ba916ed34f9fd0d76bf1b3ac2ceec7da5bc2820feb33d3b"
+    },
+    {
+      "path": "gsd-core/workflows/smart-entry.md",
+      "bytes": 9376,
+      "sha256": "eb8a7dc41693db0dc4261d8f6927990ff9ffeadb63d014a3f9e483cbe3c5a506"
+    },
+    {
+      "path": "gsd-core/workflows/spec-phase.md",
+      "bytes": 34411,
+      "sha256": "73b9739d8ed163f4d360406b1fcae13d9a4ea22f611bca695571a540abe70e25"
+    },
+    {
+      "path": "gsd-core/workflows/spike-wrap-up.md",
+      "bytes": 13276,
+      "sha256": "712e35cfb774df948403018a6b6e75f5b2fede02f423f9fd3d46cc88818ae0a2"
+    },
+    {
+      "path": "gsd-core/workflows/spike.md",
+      "bytes": 21772,
+      "sha256": "ff0e893a12c26e2910a185f688ade40044ecff0be2375777057c81cdede4ce5a"
+    },
+    {
+      "path": "gsd-core/workflows/stats.md",
+      "bytes": 4932,
+      "sha256": "be6d0901a04c6177947aae8b5de306ecdefd22e171e62777841ccc0960a43674"
+    },
+    {
+      "path": "gsd-core/workflows/sync-skills.md",
+      "bytes": 16273,
+      "sha256": "6b523949e4a1f6097ca77a80f0b0ac2dfcd596e82272a58fdfce31d22a5122af"
+    },
+    {
+      "path": "gsd-core/workflows/thread.md",
+      "bytes": 10118,
+      "sha256": "e4cec52ae0e7d10544b8fca750bb2327f8faa6711e9d2ce9d442be8f27fddd86"
+    },
+    {
+      "path": "gsd-core/workflows/transition.md",
+      "bytes": 22104,
+      "sha256": "3b9883703237cb1527db97d7c78e6820a81b708f150180120f068e5586a2dead"
+    },
+    {
+      "path": "gsd-core/workflows/transition/steps/workstream-collision-check.md",
+      "bytes": 948,
+      "sha256": "ddf53acd9512bd2b6caab2c45bff4da585f8a2976bba3d4fe7e6092265e7824c"
+    },
+    {
+      "path": "gsd-core/workflows/ui-phase.md",
+      "bytes": 26306,
+      "sha256": "eb626da312e3a367a8b7cc7e2256455d513a6d8754f6dded6de2ec81023c266e"
+    },
+    {
+      "path": "gsd-core/workflows/ui-review.md",
+      "bytes": 9754,
+      "sha256": "459f5a2455239d449d2805247263e4c8032d336e0dc5abac4436ea6b958120f8"
+    },
+    {
+      "path": "gsd-core/workflows/ultraplan-phase.md",
+      "bytes": 7301,
+      "sha256": "09a44313d66e3f881eedabfdaf9727968083000724921d3cec3b4e089f00bb59"
+    },
+    {
+      "path": "gsd-core/workflows/undo.md",
+      "bytes": 11881,
+      "sha256": "0b208f0427d9f445205b61ff347bdc368f3754a2388e448d17796a4f03b024a6"
+    },
+    {
+      "path": "gsd-core/workflows/update.md",
+      "bytes": 26566,
+      "sha256": "19f4ab097c932c7e078a3e09f299cb0afeb1dd3b2f9795132857fc6d9a689e58"
+    },
+    {
+      "path": "gsd-core/workflows/update/steps/channel-banner.md",
+      "bytes": 716,
+      "sha256": "37dbc6493aeff2a6c220a8aa562a1c84b5fff52d46d954ebdf8ec91f585e3260"
+    },
+    {
+      "path": "gsd-core/workflows/validate-phase.md",
+      "bytes": 10447,
+      "sha256": "a0b4b73a1fad655f9acf2e1c4f289b5276ad283a5a8a78df34c2316f753d6f9b"
+    },
+    {
+      "path": "gsd-core/workflows/verify-work.md",
+      "bytes": 39623,
+      "sha256": "f3507c3876cbe11f09fd9fd4f41970f1eb69df8c92d538b28d4fe0190cd6ac9c"
+    },
+    {
+      "path": "gsd-core/workflows/verify-work/detail/elaboration.md",
+      "bytes": 7870,
+      "sha256": "18229ad2cb7fc2c61b3c948eb3e98ec8d93c0edba57bf51812c1dff625f798b5"
+    },
+    {
+      "path": "gsd-core/workflows/verify-work/steps/automated-ui-verification.md",
+      "bytes": 5306,
+      "sha256": "63b1c83ca1bf0955ec19068f26109389a48b074c82df8380a973636d091b06c3"
+    },
+    {
+      "path": "gsd-core/workflows/verify-work/steps/mvp-uat-framing.md",
+      "bytes": 4360,
+      "sha256": "cbe90137895695d4cfeb7854977bdff577a3f8a953fb862c3fca95cf84f9fe4c"
+    },
+    {
+      "path": "hooks/dist/gsd-agent-isolation-guard.js",
+      "bytes": 31287,
+      "sha256": "da7a9f7ab1e27eabbbf3958081c8bf6da6df7889140b5376358484f8b0023205"
+    },
+    {
+      "path": "hooks/dist/gsd-check-update-worker.js",
+      "bytes": 9144,
+      "sha256": "15526d188326616b39b32b18fa6bd874c617a9042511c4cdc6e3027caa0e93e3"
+    },
+    {
+      "path": "hooks/dist/gsd-check-update.js",
+      "bytes": 3589,
+      "sha256": "ca2836cb7e10a8433cdaf1717d9f152ed7513455abbfa4b355466b4e1a5c6994"
+    },
+    {
+      "path": "hooks/dist/gsd-config-reload.js",
+      "bytes": 5317,
+      "sha256": "6a2c579e2709c76bd753e1de94ccc0d7bb16cefa47b0ef482f847add24315b6f"
+    },
+    {
+      "path": "hooks/dist/gsd-context-monitor.js",
+      "bytes": 32063,
+      "sha256": "ffc5ce5f899b29b72a6879ec0546a25a0445333c26aeb75deeac486d9b6590ff"
+    },
+    {
+      "path": "hooks/dist/gsd-cursor-post-tool.js",
+      "bytes": 2724,
+      "sha256": "258ef3a6988a8ae3c0ff29ff732de19255cce52c7307eab5c22f15e7d3f6cedb"
+    },
+    {
+      "path": "hooks/dist/gsd-cursor-pre-tool.js",
+      "bytes": 2634,
+      "sha256": "53b9212a1fb4e0b3c3b76948cef42a4f6369abce6bf176008fddf45713d7e239"
+    },
+    {
+      "path": "hooks/dist/gsd-cursor-session-start.js",
+      "bytes": 2170,
+      "sha256": "8969aed984fae402fe313cdd99ff3796dc69f9a3bad9d0d6d75c1da093d1a64f"
+    },
+    {
+      "path": "hooks/dist/gsd-cursor-stop.js",
+      "bytes": 1715,
+      "sha256": "8069191e4e4e1b07645f453c47bf42024576dd98dfb510ab6a1d25e8b339ddd1"
+    },
+    {
+      "path": "hooks/dist/gsd-cursor-subagent-start.js",
+      "bytes": 34032,
+      "sha256": "dacea218ac846f06eb5c83dd2528ef7a2aa4827d0be9f9d338dbd9b4440ded68"
+    },
+    {
+      "path": "hooks/dist/gsd-cursor-subagent-stop.js",
+      "bytes": 1393,
+      "sha256": "32b540f5670bf858a8ee4558ec204cd78ed0910485c8448cc08ce0c118628954"
+    },
+    {
+      "path": "hooks/dist/gsd-ensure-canonical-path.js",
+      "bytes": 12289,
+      "sha256": "707d7670ba4d3c8716121cf6f9c5f3314690703dd73ba13161b4d68e311c43c9"
+    },
+    {
+      "path": "hooks/dist/gsd-graphify-update.sh",
+      "bytes": 7118,
+      "sha256": "2885ffbceda7c91d30cfa5ec84d1846b5bddda3863f712a845e91b59fcf1e519"
+    },
+    {
+      "path": "hooks/dist/gsd-node-runner.sh",
+      "bytes": 2763,
+      "sha256": "39c45d16b3e86a7facc21f334e08b28f61cbc0077045d37d99022a9f796472de"
+    },
+    {
+      "path": "hooks/dist/gsd-phase-boundary.sh",
+      "bytes": 2880,
+      "sha256": "ff5a1f242b31f689dc8c856d508b5a9bc4a9c4713c096745f429aa7bab22237d"
+    },
+    {
+      "path": "hooks/dist/gsd-prompt-guard.js",
+      "bytes": 12493,
+      "sha256": "f7a5da2130d76cec3d08eb30156f17721ac954e90d18685b620abbf2ab701cab"
+    },
+    {
+      "path": "hooks/dist/gsd-read-guard.js",
+      "bytes": 10952,
+      "sha256": "87dcd4118921ed7de1a9db420f558fa86e713178fc242e83f5898c1ab0564d14"
+    },
+    {
+      "path": "hooks/dist/gsd-read-injection-scanner.js",
+      "bytes": 18160,
+      "sha256": "89d8b1a2aa73f80c85385398c40ce4a56fb6bb20cb5c17ec3090e8e31b3d987a"
+    },
+    {
+      "path": "hooks/dist/gsd-secret-read-guard.js",
+      "bytes": 45267,
+      "sha256": "21ee4229c866260fd108a527feb3ad99ded922d02b7566ded7875eec08b9d3dc"
+    },
+    {
+      "path": "hooks/dist/gsd-session-state.sh",
+      "bytes": 2448,
+      "sha256": "e7c8f2a8a973e95463804234c87c563bb86678209f5275494fcbe3095f4033cb"
+    },
+    {
+      "path": "hooks/dist/gsd-statusline.js",
+      "bytes": 48793,
+      "sha256": "193b3b98dff0563d4261219b5dd0ee1fe800b3b259dbe8bb0f3e856d92dea2f0"
+    },
+    {
+      "path": "hooks/dist/gsd-update-banner.js",
+      "bytes": 6002,
+      "sha256": "0e3a0568692f86070b0c30434ded2e9008909d7bef3a39aebaff13102d12b633"
+    },
+    {
+      "path": "hooks/dist/gsd-validate-commit.sh",
+      "bytes": 36364,
+      "sha256": "98aaa1b7998249ec6f98e8b2673a8ba997920e1f8cb5f127076c3f728483614e"
+    },
+    {
+      "path": "hooks/dist/gsd-windsurf-pre-command.js",
+      "bytes": 11640,
+      "sha256": "757d4d36edeb6b72507ef7dac8a6e96b69c215849dccc34e472a9c3c131c3d3e"
+    },
+    {
+      "path": "hooks/dist/gsd-windsurf-pre-write.js",
+      "bytes": 6547,
+      "sha256": "acf55e578597cd4adb1f832cd74ae28cff3a76dbf2d74f76019fc95fcfa03c56"
+    },
+    {
+      "path": "hooks/dist/gsd-workflow-guard.js",
+      "bytes": 18765,
+      "sha256": "465394fe8e9b0348ab26074647386f4111d1875c523f47b2f76fee9365cfd419"
+    },
+    {
+      "path": "hooks/dist/gsd-worktree-path-guard.js",
+      "bytes": 18258,
+      "sha256": "685455c07de451af80defd324f080fb309ecb83761f545165e021796e621b18d"
+    },
+    {
+      "path": "hooks/dist/gsd-write-guard.js",
+      "bytes": 21656,
+      "sha256": "1ec4bb014724ee3e7c636658decb96ec2e271867e1356e38e4a6b87fc8cddbae"
+    },
+    {
+      "path": "hooks/dist/lib/cli-exit.js",
+      "bytes": 31561,
+      "sha256": "de296ad2f4f3d8387d6def48b17891298358941e0887ee947b882ff5d0887bb8"
+    },
+    {
+      "path": "hooks/dist/lib/cursor-workspace.js",
+      "bytes": 3446,
+      "sha256": "45061acd75d55a28ff24711c699d4e8769bf412632685c6664122285c6c5d0f7"
+    },
+    {
+      "path": "hooks/dist/lib/dispatch-identity.js",
+      "bytes": 8449,
+      "sha256": "882c2d536b7893ff79ee786645ef3853f21e2b9c52c32e44d738d8d4346776b1"
+    },
+    {
+      "path": "hooks/dist/lib/exit-code-registry.js",
+      "bytes": 3460,
+      "sha256": "666a4b702f80aa05b4d7351ae90cb14313f9eb855041cca34c6a8a3cb98398f9"
+    },
+    {
+      "path": "hooks/dist/lib/filename-classification.js",
+      "bytes": 2697,
+      "sha256": "7888ff56ec697c4e4988f14d34eb54cd2616546ab9f13484fec6339df22c3527"
+    },
+    {
+      "path": "hooks/dist/lib/git-cmd.js",
+      "bytes": 19604,
+      "sha256": "c46c0aa506b033d9aa7f3160897cf0b2eeef8501b567307c206e094a9d31af4a"
+    },
+    {
+      "path": "hooks/dist/lib/git-probe.js",
+      "bytes": 3798,
+      "sha256": "a27a16347851826f7dec4732199c9421c3eb76bfbe1ddb9acf6f09690a3f4e9b"
+    },
+    {
+      "path": "hooks/dist/lib/gsd-graphify-rebuild.sh",
+      "bytes": 2484,
+      "sha256": "66af89601074d2a970c59ece6467f86c0513cc0b85af7faa4520afe1d88b97de"
+    },
+    {
+      "path": "hooks/dist/lib/hook-exit.js",
+      "bytes": 3667,
+      "sha256": "261d81e5fedb60af7ffdefe707e3c81eb1292eff85a38ddfadd52bd4c5e03e14"
+    },
+    {
+      "path": "hooks/dist/lib/injection-patterns.js",
+      "bytes": 4466,
+      "sha256": "f99dc1db23291adf7e3f46f9fb20ad475d7747e8293b2322d1e2d0c94ef1dd70"
+    },
+    {
+      "path": "hooks/dist/lib/isolation-deny-reason.js",
+      "bytes": 4781,
+      "sha256": "4cbff1576f05e4aae4978b2acd5bdff875f462fe73587a15dda96713d0e657f4"
+    },
+    {
+      "path": "hooks/dist/lib/isolation-sentinel.js",
+      "bytes": 15722,
+      "sha256": "b6f8296b6ce01c1ec24555fdd40c386aafd56fc999d5bf779f558455dfc606bf"
+    },
+    {
+      "path": "hooks/dist/managed-hooks-registry.cjs",
+      "bytes": 1772,
+      "sha256": "b54793e0229a0a2b95c28d9223b196c309280b9a40a709c01d20cf1224fb83bc"
+    },
+    {
+      "path": "hooks/gsd-agent-isolation-guard.js",
+      "bytes": 31287,
+      "sha256": "da7a9f7ab1e27eabbbf3958081c8bf6da6df7889140b5376358484f8b0023205"
+    },
+    {
+      "path": "hooks/gsd-check-update-worker.js",
+      "bytes": 9144,
+      "sha256": "15526d188326616b39b32b18fa6bd874c617a9042511c4cdc6e3027caa0e93e3"
+    },
+    {
+      "path": "hooks/gsd-check-update.js",
+      "bytes": 3589,
+      "sha256": "ca2836cb7e10a8433cdaf1717d9f152ed7513455abbfa4b355466b4e1a5c6994"
+    },
+    {
+      "path": "hooks/gsd-config-reload.js",
+      "bytes": 5317,
+      "sha256": "6a2c579e2709c76bd753e1de94ccc0d7bb16cefa47b0ef482f847add24315b6f"
+    },
+    {
+      "path": "hooks/gsd-context-monitor.js",
+      "bytes": 32063,
+      "sha256": "ffc5ce5f899b29b72a6879ec0546a25a0445333c26aeb75deeac486d9b6590ff"
+    },
+    {
+      "path": "hooks/gsd-cursor-post-tool.js",
+      "bytes": 2724,
+      "sha256": "258ef3a6988a8ae3c0ff29ff732de19255cce52c7307eab5c22f15e7d3f6cedb"
+    },
+    {
+      "path": "hooks/gsd-cursor-pre-tool.js",
+      "bytes": 2634,
+      "sha256": "53b9212a1fb4e0b3c3b76948cef42a4f6369abce6bf176008fddf45713d7e239"
+    },
+    {
+      "path": "hooks/gsd-cursor-session-start.js",
+      "bytes": 2170,
+      "sha256": "8969aed984fae402fe313cdd99ff3796dc69f9a3bad9d0d6d75c1da093d1a64f"
+    },
+    {
+      "path": "hooks/gsd-cursor-stop.js",
+      "bytes": 1715,
+      "sha256": "8069191e4e4e1b07645f453c47bf42024576dd98dfb510ab6a1d25e8b339ddd1"
+    },
+    {
+      "path": "hooks/gsd-cursor-subagent-start.js",
+      "bytes": 34032,
+      "sha256": "dacea218ac846f06eb5c83dd2528ef7a2aa4827d0be9f9d338dbd9b4440ded68"
+    },
+    {
+      "path": "hooks/gsd-cursor-subagent-stop.js",
+      "bytes": 1393,
+      "sha256": "32b540f5670bf858a8ee4558ec204cd78ed0910485c8448cc08ce0c118628954"
+    },
+    {
+      "path": "hooks/gsd-ensure-canonical-path.js",
+      "bytes": 12289,
+      "sha256": "707d7670ba4d3c8716121cf6f9c5f3314690703dd73ba13161b4d68e311c43c9"
+    },
+    {
+      "path": "hooks/gsd-graphify-update.sh",
+      "bytes": 7118,
+      "sha256": "2885ffbceda7c91d30cfa5ec84d1846b5bddda3863f712a845e91b59fcf1e519"
+    },
+    {
+      "path": "hooks/gsd-node-runner.sh",
+      "bytes": 2763,
+      "sha256": "39c45d16b3e86a7facc21f334e08b28f61cbc0077045d37d99022a9f796472de"
+    },
+    {
+      "path": "hooks/gsd-phase-boundary.sh",
+      "bytes": 2880,
+      "sha256": "ff5a1f242b31f689dc8c856d508b5a9bc4a9c4713c096745f429aa7bab22237d"
+    },
+    {
+      "path": "hooks/gsd-prompt-guard.js",
+      "bytes": 12493,
+      "sha256": "f7a5da2130d76cec3d08eb30156f17721ac954e90d18685b620abbf2ab701cab"
+    },
+    {
+      "path": "hooks/gsd-read-guard.js",
+      "bytes": 10952,
+      "sha256": "87dcd4118921ed7de1a9db420f558fa86e713178fc242e83f5898c1ab0564d14"
+    },
+    {
+      "path": "hooks/gsd-read-injection-scanner.js",
+      "bytes": 18160,
+      "sha256": "89d8b1a2aa73f80c85385398c40ce4a56fb6bb20cb5c17ec3090e8e31b3d987a"
+    },
+    {
+      "path": "hooks/gsd-secret-read-guard.js",
+      "bytes": 45267,
+      "sha256": "21ee4229c866260fd108a527feb3ad99ded922d02b7566ded7875eec08b9d3dc"
+    },
+    {
+      "path": "hooks/gsd-session-state.sh",
+      "bytes": 2448,
+      "sha256": "e7c8f2a8a973e95463804234c87c563bb86678209f5275494fcbe3095f4033cb"
+    },
+    {
+      "path": "hooks/gsd-statusline.js",
+      "bytes": 48793,
+      "sha256": "193b3b98dff0563d4261219b5dd0ee1fe800b3b259dbe8bb0f3e856d92dea2f0"
+    },
+    {
+      "path": "hooks/gsd-update-banner.js",
+      "bytes": 6002,
+      "sha256": "0e3a0568692f86070b0c30434ded2e9008909d7bef3a39aebaff13102d12b633"
+    },
+    {
+      "path": "hooks/gsd-validate-commit.sh",
+      "bytes": 36364,
+      "sha256": "98aaa1b7998249ec6f98e8b2673a8ba997920e1f8cb5f127076c3f728483614e"
+    },
+    {
+      "path": "hooks/gsd-windsurf-pre-command.js",
+      "bytes": 11640,
+      "sha256": "757d4d36edeb6b72507ef7dac8a6e96b69c215849dccc34e472a9c3c131c3d3e"
+    },
+    {
+      "path": "hooks/gsd-windsurf-pre-write.js",
+      "bytes": 6547,
+      "sha256": "acf55e578597cd4adb1f832cd74ae28cff3a76dbf2d74f76019fc95fcfa03c56"
+    },
+    {
+      "path": "hooks/gsd-workflow-guard.js",
+      "bytes": 18765,
+      "sha256": "465394fe8e9b0348ab26074647386f4111d1875c523f47b2f76fee9365cfd419"
+    },
+    {
+      "path": "hooks/gsd-worktree-path-guard.js",
+      "bytes": 18258,
+      "sha256": "685455c07de451af80defd324f080fb309ecb83761f545165e021796e621b18d"
+    },
+    {
+      "path": "hooks/gsd-write-guard.js",
+      "bytes": 21656,
+      "sha256": "1ec4bb014724ee3e7c636658decb96ec2e271867e1356e38e4a6b87fc8cddbae"
+    },
+    {
+      "path": "hooks/hooks.json",
+      "bytes": 2747,
+      "sha256": "cc2db7211660a5581c69a9f8d1e933412259071957f41cceeaf08a9479cd881f"
+    },
+    {
+      "path": "hooks/lib/cli-exit.js",
+      "bytes": 31561,
+      "sha256": "de296ad2f4f3d8387d6def48b17891298358941e0887ee947b882ff5d0887bb8"
+    },
+    {
+      "path": "hooks/lib/cursor-workspace.js",
+      "bytes": 3446,
+      "sha256": "45061acd75d55a28ff24711c699d4e8769bf412632685c6664122285c6c5d0f7"
+    },
+    {
+      "path": "hooks/lib/dispatch-identity.js",
+      "bytes": 8449,
+      "sha256": "882c2d536b7893ff79ee786645ef3853f21e2b9c52c32e44d738d8d4346776b1"
+    },
+    {
+      "path": "hooks/lib/exit-code-registry.js",
+      "bytes": 3460,
+      "sha256": "666a4b702f80aa05b4d7351ae90cb14313f9eb855041cca34c6a8a3cb98398f9"
+    },
+    {
+      "path": "hooks/lib/filename-classification.js",
+      "bytes": 2697,
+      "sha256": "7888ff56ec697c4e4988f14d34eb54cd2616546ab9f13484fec6339df22c3527"
+    },
+    {
+      "path": "hooks/lib/git-cmd.js",
+      "bytes": 19604,
+      "sha256": "c46c0aa506b033d9aa7f3160897cf0b2eeef8501b567307c206e094a9d31af4a"
+    },
+    {
+      "path": "hooks/lib/git-probe.js",
+      "bytes": 3798,
+      "sha256": "a27a16347851826f7dec4732199c9421c3eb76bfbe1ddb9acf6f09690a3f4e9b"
+    },
+    {
+      "path": "hooks/lib/gsd-graphify-rebuild.sh",
+      "bytes": 2484,
+      "sha256": "66af89601074d2a970c59ece6467f86c0513cc0b85af7faa4520afe1d88b97de"
+    },
+    {
+      "path": "hooks/lib/hook-exit.js",
+      "bytes": 3667,
+      "sha256": "261d81e5fedb60af7ffdefe707e3c81eb1292eff85a38ddfadd52bd4c5e03e14"
+    },
+    {
+      "path": "hooks/lib/injection-patterns.js",
+      "bytes": 4466,
+      "sha256": "f99dc1db23291adf7e3f46f9fb20ad475d7747e8293b2322d1e2d0c94ef1dd70"
+    },
+    {
+      "path": "hooks/lib/isolation-deny-reason.js",
+      "bytes": 4781,
+      "sha256": "4cbff1576f05e4aae4978b2acd5bdff875f462fe73587a15dda96713d0e657f4"
+    },
+    {
+      "path": "hooks/lib/isolation-sentinel.js",
+      "bytes": 15722,
+      "sha256": "b6f8296b6ce01c1ec24555fdd40c386aafd56fc999d5bf779f558455dfc606bf"
+    },
+    {
+      "path": "hooks/managed-hooks-registry.cjs",
+      "bytes": 1772,
+      "sha256": "b54793e0229a0a2b95c28d9223b196c309280b9a40a709c01d20cf1224fb83bc"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1065,
+      "sha256": "3a160aec61eeb28e75e8017346ee190db07986a09c4bd72555cc706f1d99e27e"
+    },
+    {
+      "path": "package.json",
+      "bytes": 11348,
+      "sha256": "4182d45ea9d7fcc0b3c68052949f3bf1a7b79f7055cd0781f027a0d6d3e6924f"
+    },
+    {
+      "path": "pi/gsd.cjs",
+      "bytes": 21969,
+      "sha256": "fbb3c3d34903f355f37ba1ffa455cb7280914d2e55cf470328fc7f091451cfea"
+    },
+    {
+      "path": "README.ja-JP.md",
+      "bytes": 7477,
+      "sha256": "928708595feb65d871f19dce8af6f3cce29c169fb7ae4c737ab6a64a926936f7"
+    },
+    {
+      "path": "README.ko-KR.md",
+      "bytes": 6495,
+      "sha256": "831f23d2081d9de2012e0c550ffd2477a999195b8b307b2e7eaf910a0dc5242f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5922,
+      "sha256": "66fe062ee3705af835b09ffa8da112fd14bc8a6025f0d4fb22b4291d353268a9"
+    },
+    {
+      "path": "README.pt-BR.md",
+      "bytes": 6442,
+      "sha256": "25fb2b9f88ced2d37782996a4a4974b3590ebbd23c6c497c4c57eaaa00ec062e"
+    },
+    {
+      "path": "README.zh-CN.md",
+      "bytes": 6049,
+      "sha256": "cf7890e0910c0c06c324dfe61417cd09e335dfcf3fc4fcf207fc9f26d9c7e873"
+    },
+    {
+      "path": "scripts/audit-workflow-script-paths.cjs",
+      "bytes": 2670,
+      "sha256": "130bb8b39d8aaf0ba4b47a6d727dfbeab591eda6b903636999edf7726d5eac33"
+    },
+    {
+      "path": "scripts/base64-scan.sh",
+      "bytes": 15106,
+      "sha256": "fd14c0d3c02bc7c049d5c5d8d8ede09a202d96355aca79e4ee3a652cab5d2f39"
+    },
+    {
+      "path": "scripts/baselines/planning-prompt-drift-baseline.json",
+      "bytes": 620,
+      "sha256": "2015b5137ca7f102b35dcbe9544cbfaffcd784d8d4cd0224ce102a89cb753504"
+    },
+    {
+      "path": "scripts/baselines/planning-snapshot-bypass-baseline.json",
+      "bytes": 686,
+      "sha256": "915a815e31b35ade30f4dfe1259dc4ab1c8bd1aeaf4282deea2673c58bc8014e"
+    },
+    {
+      "path": "scripts/baselines/unreachable-guard-drift-baseline.json",
+      "bytes": 429,
+      "sha256": "ddce040868d4c9f21cb7e02d81999262579bb76fc941f63b01cfc0efc6b2001f"
+    },
+    {
+      "path": "scripts/benchmark-compact-content-variants.cjs",
+      "bytes": 12077,
+      "sha256": "4a43be2741b6b4757b35e70dabba70617400f48db2ffcff6bcd21bb7ec107dc1"
+    },
+    {
+      "path": "scripts/benchmark-compact-content.cjs",
+      "bytes": 15794,
+      "sha256": "4316f7894ecb2e89e9f81ba5bb86c21e42e6d4d391cc29cb303f7180098466c9"
+    },
+    {
+      "path": "scripts/build-hooks.js",
+      "bytes": 12540,
+      "sha256": "cab8902aee1de8ccd15a608da750c3a68dab6733035b2d40096aacb1eda5226d"
+    },
+    {
+      "path": "scripts/changeset/cli.cjs",
+      "bytes": 21195,
+      "sha256": "68f92a344b19927127406fb009c58e354e5abb7d5fc106f6f8cb383e955f2d9c"
+    },
+    {
+      "path": "scripts/changeset/github-release-notes.cjs",
+      "bytes": 6190,
+      "sha256": "795677f0c009b13210905f5868d335b3f0d854e2c7da18a90bb6821b8bfb369a"
+    },
+    {
+      "path": "scripts/changeset/lint.cjs",
+      "bytes": 9171,
+      "sha256": "41031f00b9960e2354d6f8d37c7fd31b31daceca883a26f3d54f691e348662fa"
+    },
+    {
+      "path": "scripts/changeset/new.cjs",
+      "bytes": 6572,
+      "sha256": "4991e21fd17f5541011f431ac833fdd311a230b32fc711b51f6631b14380b2c8"
+    },
+    {
+      "path": "scripts/changeset/parse.cjs",
+      "bytes": 7281,
+      "sha256": "c0a9bbc3914aee043ecc42c33b3f31f4782c0a623ed2746f30f9d04e309db5e0"
+    },
+    {
+      "path": "scripts/changeset/README.md",
+      "bytes": 5112,
+      "sha256": "86ff89331dfd94b2afd9ff9974883f137f3f0c3652e4687fecb216c0eee9e9ea"
+    },
+    {
+      "path": "scripts/changeset/render.cjs",
+      "bytes": 1127,
+      "sha256": "e47bc3e1587c3cae9747cd0d2149e9c57c1da54e7e878cd525800b0d10023631"
+    },
+    {
+      "path": "scripts/changeset/serialize.cjs",
+      "bytes": 4987,
+      "sha256": "99d0ddea7cb065225a96ceeef505772df450632fef4572b08d9d8812b6fc27d0"
+    },
+    {
+      "path": "scripts/check-alias-drift.cjs",
+      "bytes": 2570,
+      "sha256": "394339e9665ece0d57f78976d86c413127373449fb1b0bebb63e2297ab25b454"
+    },
+    {
+      "path": "scripts/check-contract-drift.cjs",
+      "bytes": 12278,
+      "sha256": "f9f65863a2152a7aa1eea4f45876ff6b744e82e3a4e6f9186986d183a580bdcb"
+    },
+    {
+      "path": "scripts/check-coverage-gate.cjs",
+      "bytes": 1475,
+      "sha256": "56e411b7d4ffcae1ce0351c4fea4db2b7753beac984025f8117a18635628b330"
+    },
+    {
+      "path": "scripts/check-env.cjs",
+      "bytes": 14622,
+      "sha256": "87ef8c55752927976a2d6d5bb0f707baa16309967cd488d44142c9165bce393b"
+    },
+    {
+      "path": "scripts/check-glossary-refs.cjs",
+      "bytes": 13629,
+      "sha256": "0434687e1194e90362d1013c1738ce009e78a2d2ca43dd6af4e4c9e7c0aaa4cb"
+    },
+    {
+      "path": "scripts/check-mutation-score-ratchet.cjs",
+      "bytes": 8111,
+      "sha256": "b4f20da19905d166c3356cd63a74af761f7ecc9d5cb5fdb1e947a31c2c45c359"
+    },
+    {
+      "path": "scripts/check-npm-integrity.cjs",
+      "bytes": 7058,
+      "sha256": "b4f40eab3c86654c7c10c3cac7402a0637ab9c11fd7d425b508009a128fdb465"
+    },
+    {
+      "path": "scripts/ci-check-job-near-cap.cjs",
+      "bytes": 1545,
+      "sha256": "78e064144786fbf827420843c17768cd5dcbfc86d5c55db0ac714ddf518a6079"
+    },
+    {
+      "path": "scripts/ci-guard-runner.cjs",
+      "bytes": 682,
+      "sha256": "a63d25fff2118a1b4ecf7a324745be7e4220e8dd8facba65c5903239314a2cb3"
+    },
+    {
+      "path": "scripts/ci-next-health.cjs",
+      "bytes": 10947,
+      "sha256": "db7055e016dd134c83180ee539a8f6261a32f0603ed9d0a091c829c0518c2d2e"
+    },
+    {
+      "path": "scripts/ci-pr-mergeability.cjs",
+      "bytes": 9358,
+      "sha256": "5bc1244cb4802bf4e3fa8a107eeb6ed97ce6a6c56566f4cae6c31d0b1c733298"
+    },
+    {
+      "path": "scripts/ci-prepare-test-scope.cjs",
+      "bytes": 3955,
+      "sha256": "a9cb60055df36b650bbb77545864a88025f666ad2f5f9abe003e57672bcba69e"
+    },
+    {
+      "path": "scripts/ci-rebase-check.cjs",
+      "bytes": 5079,
+      "sha256": "6c623d6e9c358fada81ac9c7a5a44db68aba4d882c4780a85ef541f589e0a469"
+    },
+    {
+      "path": "scripts/ci-test-scope.cjs",
+      "bytes": 32464,
+      "sha256": "49b3c4e831a331bf4db8bb6c76f9b1a645fa90945b459768d517a7457a0b6895"
+    },
+    {
+      "path": "scripts/ci-timeout-report.cjs",
+      "bytes": 7926,
+      "sha256": "757932edf956d520c98749cef8602e21ed88b5b715785a358a1fdcfbac712cfa"
+    },
+    {
+      "path": "scripts/command-contract-helpers.cjs",
+      "bytes": 39801,
+      "sha256": "84b3a3a939884cd0c7d9a88459a4122747ffa5fdb80d3c3ea3f41ecf6e79180b"
+    },
+    {
+      "path": "scripts/diff-touches-shipped-paths.cjs",
+      "bytes": 6528,
+      "sha256": "20fa5a018c33826b9389f86730d2f2af3389e3db30bd77a9a55f5685ca9d55fd"
+    },
+    {
+      "path": "scripts/docs-guard-registry.cjs",
+      "bytes": 19830,
+      "sha256": "f98199b14b8f46ef1e557283464ef21b05b13fe29e5b102355eb6655a8dc6a00"
+    },
+    {
+      "path": "scripts/fix-slash-commands.cjs",
+      "bytes": 6024,
+      "sha256": "0519742531ff3529c5daadf557244b24c9dbec475d43a621b7a3ca77e293f68b"
+    },
+    {
+      "path": "scripts/gen-adr-index.cjs",
+      "bytes": 52878,
+      "sha256": "3e7da42cac6cbed08d3b4ac108a2b8cfe2acdf0bfcc599c514d00f9f1969097d"
+    },
+    {
+      "path": "scripts/gen-capability-matrix.cjs",
+      "bytes": 14428,
+      "sha256": "b7b423080569336a0e0d02772e134bce94cc85acefbb2cf963cd4743e1603562"
+    },
+    {
+      "path": "scripts/gen-capability-registry.cjs",
+      "bytes": 42196,
+      "sha256": "6a9a9fa44944ee19edfd1bf1c9ac1c5fde242a4349096a7f081d52fefc21b752"
+    },
+    {
+      "path": "scripts/gen-context-index.cjs",
+      "bytes": 17441,
+      "sha256": "97fe39b68b1ebc0b4906338b8d1ef9df3ba580269691a4022dc39f7e1a7855eb"
+    },
+    {
+      "path": "scripts/gen-exit-code-docs.cjs",
+      "bytes": 15014,
+      "sha256": "1c9656d8c32aab5e36f13d81ef5b9005444907ef5c84fa8828c5bdc648a2d6cc"
+    },
+    {
+      "path": "scripts/gen-exit-code-registry.cjs",
+      "bytes": 36779,
+      "sha256": "2c740d01dd89090b3cd09ec91fe7abb425ec647cff6c1088ea4f76827546fa8b"
+    },
+    {
+      "path": "scripts/gen-features.cjs",
+      "bytes": 32669,
+      "sha256": "dd2a0da51601e2090414072b480c48b831bacfa24c1eaa383d2710c8d596c183"
+    },
+    {
+      "path": "scripts/gen-health-docs.cjs",
+      "bytes": 15365,
+      "sha256": "3b42ce9d90545d46cc8d78084a156560dbf7241f343abbf9cab81638533646f5"
+    },
+    {
+      "path": "scripts/gen-hooks-cli-exit.cjs",
+      "bytes": 9613,
+      "sha256": "769cbabe727c0b781a6673a5357ae723ef103808c81f84e17814bd80108b82a2"
+    },
+    {
+      "path": "scripts/gen-install-tree-fixtures.cjs",
+      "bytes": 3806,
+      "sha256": "7a16770a568489de6f509edd550a2f0c354648cd4207a8d91502031bb5132b9f"
+    },
+    {
+      "path": "scripts/gen-inventory-manifest.cjs",
+      "bytes": 9754,
+      "sha256": "71d354783e1247003301c6fdffd8466e325e67dfea194cba4f6763fdeef6ac90"
+    },
+    {
+      "path": "scripts/gen-loop-host-contract.cjs",
+      "bytes": 26729,
+      "sha256": "b06829733422a94d16573ed22b768f49dc3fa8a4882c322630742bbd208a7b70"
+    },
+    {
+      "path": "scripts/gen-platform-conformance-tier.cjs",
+      "bytes": 26037,
+      "sha256": "8af357184829d08288266a63385dc50e8b8c6cde7853ce55c4bfbad58cf35ed4"
+    },
+    {
+      "path": "scripts/gen-plugin-skills.cjs",
+      "bytes": 4638,
+      "sha256": "36616f9e7f61a45ea52c0c310635066f585f42755fdab7fa28fb8f07299cf99b"
+    },
+    {
+      "path": "scripts/gen-prompt-budget-parity-corpus.cjs",
+      "bytes": 25952,
+      "sha256": "5248b77badb6be2a330f05effb5429983b478e1b46344597adb95760be36ec5c"
+    },
+    {
+      "path": "scripts/gen-registry.cjs",
+      "bytes": 5781,
+      "sha256": "f87bc82216f4e30bee1caad66f3fe954b46aca30587b0623e84596d6b6b4ed66"
+    },
+    {
+      "path": "scripts/gen-research-agents.cjs",
+      "bytes": 10068,
+      "sha256": "560452d90cb5eb254351a2a245940b5b7159d4a38593356deb82f9e6ca62288c"
+    },
+    {
+      "path": "scripts/gen-scripts-cli-exit.cjs",
+      "bytes": 6845,
+      "sha256": "a37652c4a1b003d76d065b019047b2a61ab4b2fa0de91ebc5b39e1f7b7a3aa0c"
+    },
+    {
+      "path": "scripts/gen-section-manifest.cjs",
+      "bytes": 26706,
+      "sha256": "3cd664f1c0dbae0f4d1cdf47c6b5a8760242448af3ba53fe2994cbc4a9388673"
+    },
+    {
+      "path": "scripts/gen-state-md-docs.cjs",
+      "bytes": 33167,
+      "sha256": "0ca08ac8ab82594a5fc577da1da219635b7123012ad4d9ea5cb18ad4be9fbca2"
+    },
+    {
+      "path": "scripts/gen-test-timings.cjs",
+      "bytes": 8199,
+      "sha256": "5ec5ba5cc9fc0fcf04c4b833c337672fa31507399dafa1cdf6debb5c6cc021b5"
+    },
+    {
+      "path": "scripts/generate-package-identity.cjs",
+      "bytes": 6279,
+      "sha256": "6ded1e116fe5e8a46f8ea8f8df006693495412fc1a120a6ad80f5feee9317775"
+    },
+    {
+      "path": "scripts/gsd-test-gate-reasons.cjs",
+      "bytes": 1428,
+      "sha256": "5503e6a15c46d73e3ad525974a0e10ac96929d6a867df310f4e1fb77be8fecdb"
+    },
+    {
+      "path": "scripts/issue-dedupe.cjs",
+      "bytes": 9577,
+      "sha256": "0ae120642180e8cc6d34ac30bf5b92c1870e6d50c77c0c799e6896a208838f57"
+    },
+    {
+      "path": "scripts/issue-version-gate.cjs",
+      "bytes": 4759,
+      "sha256": "74894fa65bbaf83fa441c8518664914bd8c8c963fbd09288e4fadc71c27f2061"
+    },
+    {
+      "path": "scripts/lib/alias-drift-families.cjs",
+      "bytes": 2450,
+      "sha256": "592d79feb7bc4c19292eb43242e773ee5942c4556b8d9d13206fb9ede0c1c74c"
+    },
+    {
+      "path": "scripts/lib/allowlist-ratchet.cjs",
+      "bytes": 10534,
+      "sha256": "ffaceaac3efc2660bd85c0fe59539b63ae73f6b74ce639026c5c13ac42b212bf"
+    },
+    {
+      "path": "scripts/lib/ci-job-timing.cjs",
+      "bytes": 2214,
+      "sha256": "eba319bd6470673953597849ee9024100f5ea321b40b2904166a0d5ea83df790"
+    },
+    {
+      "path": "scripts/lib/cli-exit.cjs",
+      "bytes": 31402,
+      "sha256": "3904bf069f749c8c63cf8b86d245a5c0fd1f09c3a260d593a6814436aea3a69e"
+    },
+    {
+      "path": "scripts/lib/drift-scan.cjs",
+      "bytes": 14795,
+      "sha256": "0b83a8d6bc5bcc5a31248932833afd9ebca60fc9a590b57557927ebade871c87"
+    },
+    {
+      "path": "scripts/lib/exit-code-registry.cjs",
+      "bytes": 3460,
+      "sha256": "666a4b702f80aa05b4d7351ae90cb14313f9eb855041cca34c6a8a3cb98398f9"
+    },
+    {
+      "path": "scripts/lib/macos-conformance-tier.generated.cjs",
+      "bytes": 8700,
+      "sha256": "3f61edb40c56374d315a09dab202b3830eac97c136d52bf8832b531e1687683e"
+    },
+    {
+      "path": "scripts/lib/ndjson-reporter.cjs",
+      "bytes": 6815,
+      "sha256": "3e4d74ed20c65613f63880791c56949c1a90b1e09622a8ba27101fe6ff0f17c3"
+    },
+    {
+      "path": "scripts/lib/npm-version-check-diagnosis.cjs",
+      "bytes": 3074,
+      "sha256": "bf07576a022e08c92f316ef5531246785c5e3ae57748bc7f38e047576751c819"
+    },
+    {
+      "path": "scripts/lib/platform-conformance-tier.generated.cjs",
+      "bytes": 11500,
+      "sha256": "3bf72e8e70c80aea43cb89f0cbce6652ca6b3b22c972be166de378611182a171"
+    },
+    {
+      "path": "scripts/lib/shellcheck-fetch.cjs",
+      "bytes": 10640,
+      "sha256": "d3c52ad8ed7c745c2fbc627752b63019eef55f2cb5add2d6248ba6e9b2891c84"
+    },
+    {
+      "path": "scripts/lib/suite-detection.cjs",
+      "bytes": 1299,
+      "sha256": "58cc2f632457786d4be82141af6c6c2b2c044e0a2bc9a28667a4fbb14cca234f"
+    },
+    {
+      "path": "scripts/lint-allow-test-rule-refs.allowlist.json",
+      "bytes": 9010,
+      "sha256": "94c0f758d95c71dfe6e9b89cc3888e9b289217fc6a558320df3a9a829df6edfb"
+    },
+    {
+      "path": "scripts/lint-allow-test-rule-refs.effective-ceiling.json",
+      "bytes": 35,
+      "sha256": "0deafddd54ef9263ea6c6174d27698dcd3417698d96223a37e5172a3e4102b96"
+    },
+    {
+      "path": "scripts/lint-allow-test-rule-refs.unverified-ceiling.json",
+      "bytes": 22,
+      "sha256": "c1d45705ec4df3eaf7bf577dd3104aa6bae08018c6b797f9c511458b2601ff45"
+    },
+    {
+      "path": "scripts/lint-allowed-tools-parity.cjs",
+      "bytes": 8592,
+      "sha256": "4f2c8a2ae322e941c8c058b1b56ca5a5abcc561f22242f30593145f4080973f1"
+    },
+    {
+      "path": "scripts/lint-canary-version-leak.cjs",
+      "bytes": 2701,
+      "sha256": "b83397a9777360690081ec6297ac5a746bd01bde1581859ad74d35fb743fbe95"
+    },
+    {
+      "path": "scripts/lint-command-contract.cjs",
+      "bytes": 7012,
+      "sha256": "7595cbe9104210af03015a9f538580287b82773b8b362defe41fce25fa2b3344"
+    },
+    {
+      "path": "scripts/lint-compiled-artifact-sync.cjs",
+      "bytes": 6197,
+      "sha256": "1ce2ac82dd944a10bb887cbdcadd4dbaac04fc618e45fbd89f1ba4871e8e1f4b"
+    },
+    {
+      "path": "scripts/lint-completion-predicate-drift.cjs",
+      "bytes": 44489,
+      "sha256": "70cfa8512064d58b35bc3c3c6330676269daa0f417332fd14256340e33f5d610"
+    },
+    {
+      "path": "scripts/lint-completion-ratio-drift.cjs",
+      "bytes": 10862,
+      "sha256": "ee2d958bbcd72c22400adf4dfa0bd8d9ff3c8f01655d43f5b64336032d15a58e"
+    },
+    {
+      "path": "scripts/lint-default-flip-documentation.cjs",
+      "bytes": 7437,
+      "sha256": "5b6c067159b17b7cee38da2f5cceda36cebf9d1b6a7a5d761af89e3e6c1359d1"
+    },
+    {
+      "path": "scripts/lint-descriptions.cjs",
+      "bytes": 2515,
+      "sha256": "84a07aa2fe0adf031ff372a723ac47998e55d9c339371fce4791a19b52d77695"
+    },
+    {
+      "path": "scripts/lint-docs-command-form.cjs",
+      "bytes": 7528,
+      "sha256": "08ada0caa2a0a18245f6e34ccd31ec14e0a0ad5f13cb5d57ca3a61379fcdde7d"
+    },
+    {
+      "path": "scripts/lint-docs-guard-registration.cjs",
+      "bytes": 23704,
+      "sha256": "81c7d9b7286d5e27f37cd29fdece6a58409993d71892dfc2e018dc0e30a44611"
+    },
+    {
+      "path": "scripts/lint-docs-guard-registration.exempt-baseline.cjs",
+      "bytes": 12127,
+      "sha256": "79f1749807abd14f07ef4d385a20d29b1ad5d62e23970ac3667c749fce3a27b6"
+    },
+    {
+      "path": "scripts/lint-docs-required.cjs",
+      "bytes": 8573,
+      "sha256": "e30034eea8866b70746be61f452e957a8a71b2b60721a8ed0f4eddc2d55e8cc6"
+    },
+    {
+      "path": "scripts/lint-eslint-glob-coverage.allowlist.json",
+      "bytes": 2557,
+      "sha256": "79b887d3e8935a02d54b69b8b9cbfc9465b12e39ac4b5dab9d7d4510f3b5a359"
+    },
+    {
+      "path": "scripts/lint-eslint-glob-coverage.cjs",
+      "bytes": 14234,
+      "sha256": "24502ac0091c8efe8f83412f8e64aa70a630c5038a90bb281833acac5169f69f"
+    },
+    {
+      "path": "scripts/lint-example-parser-parity.cjs",
+      "bytes": 17038,
+      "sha256": "fe6430cee3d4debf2b149876f192f9eeece4aed10a4b6d2d5e8d3e63ebd7099d"
+    },
+    {
+      "path": "scripts/lint-fix-has-regression-tests.cjs",
+      "bytes": 4458,
+      "sha256": "cfce25ed1c26e3125031dc1dd10e39fac31aaaf4ef5973f626ca11baeabdc0ef"
+    },
+    {
+      "path": "scripts/lint-frontmatter-scalar-broad-grep.cjs",
+      "bytes": 9081,
+      "sha256": "2221d34521560e35c567dc4c51292b017f4ed49f2e633602c7cabd7cd6f8c975"
+    },
+    {
+      "path": "scripts/lint-health-diagnostic-rule-table.cjs",
+      "bytes": 21190,
+      "sha256": "63930ab82b3fe6c80d1e9fe46861f3f427228b03f31417bb4750a0c5a269d56a"
+    },
+    {
+      "path": "scripts/lint-hooks-runtime-build-seam.cjs",
+      "bytes": 11684,
+      "sha256": "268708f2ee8f734022f54663862a192cabf43e810a531fb02ab28361e1b7e51b"
+    },
+    {
+      "path": "scripts/lint-legacy-dir-name.cjs",
+      "bytes": 5360,
+      "sha256": "8b80618dac20dd2aae58dabae3c8dddb4cf2076f0c4d21f28c82a75a0c081b30"
+    },
+    {
+      "path": "scripts/lint-milestone-window-drift.cjs",
+      "bytes": 24736,
+      "sha256": "829127180abf160af07d8f5eb7a7674e8c2d21f26fa4b466f354f8fdeae084d6"
+    },
+    {
+      "path": "scripts/lint-mutation-test-derivation-drift.cjs",
+      "bytes": 4186,
+      "sha256": "90a0a2d790471cbb5fbcfad9482e20e6a3c417a74492bb5cf1f05cb5479293c5"
+    },
+    {
+      "path": "scripts/lint-package-identity-drift.cjs",
+      "bytes": 5416,
+      "sha256": "3ff40863c9712436c03c090dfc3fdba86d51bed1312007d91aef4992b8e51b8e"
+    },
+    {
+      "path": "scripts/lint-phase-enumeration-drift.cjs",
+      "bytes": 29142,
+      "sha256": "ca92c77cfb240cdbc443b37723d7d8aee205bebeced6dc1f6e6cfe411b548b24"
+    },
+    {
+      "path": "scripts/lint-phase-id-drift.cjs",
+      "bytes": 28019,
+      "sha256": "86de9fce66dd3aed21d2b7359897c7ec3c6a791f38793677307e9e479065bb4a"
+    },
+    {
+      "path": "scripts/lint-plan-count-drift.cjs",
+      "bytes": 16401,
+      "sha256": "17d63e841291220358e2fe852546b06ffa11d4248489cfa41ecf066bffd258f6"
+    },
+    {
+      "path": "scripts/lint-planning-artifact-writer-drift.cjs",
+      "bytes": 17411,
+      "sha256": "ab030b243ac3223b3f1195ffedb171c74a79480a12916dec9acb9aded3c43bed"
+    },
+    {
+      "path": "scripts/lint-planning-prompt-drift.cjs",
+      "bytes": 22699,
+      "sha256": "1faccc55ba2ae055434528d125f760a702c57f994e5d87e085f81bb93cecc7ae"
+    },
+    {
+      "path": "scripts/lint-planning-snapshot-bypass-drift.cjs",
+      "bytes": 21015,
+      "sha256": "06b61293b9574fc9effa244b2b28b56ac9680af70f0e9d3ee1f843a9bfcd598b"
+    },
+    {
+      "path": "scripts/lint-portable-grep.cjs",
+      "bytes": 7809,
+      "sha256": "c96c43695593cfe2e5b08f14b6a11d47970314fb2d0461fd21171bd233cdbd12"
+    },
+    {
+      "path": "scripts/lint-portable-timeout.cjs",
+      "bytes": 5911,
+      "sha256": "995e6f4e646d0b3ed53d8ea4593aefdd885d2c7759db238057f26f417b37a1ab"
+    },
+    {
+      "path": "scripts/lint-pr-check-project-dir.cjs",
+      "bytes": 2448,
+      "sha256": "9956820d89fc5a88740fcffbdb06faf770bd6795ca5d5196692d0cf18f7b380c"
+    },
+    {
+      "path": "scripts/lint-regression-test-names.allowlist.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "scripts/lint-regression-test-names.cjs",
+      "bytes": 4799,
+      "sha256": "68a53f8d8dbf5ca9c8211b0d7ae455bac688539512f288a0fd341b3729c021fd"
+    },
+    {
+      "path": "scripts/lint-removed-but-needed.cjs",
+      "bytes": 21517,
+      "sha256": "c2185c9b2bc2c8ac0567b68cba5e2b5fbf505bc6e312b123f75d71b042452e81"
+    },
+    {
+      "path": "scripts/lint-resolution-provenance.allowlist.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "scripts/lint-resolution-provenance.cjs",
+      "bytes": 7508,
+      "sha256": "e9e5935399370fe4d5a13e82fb60b1bf3a35b620600152e260b873f003bdcb09"
+    },
+    {
+      "path": "scripts/lint-response-language-coverage.cjs",
+      "bytes": 27575,
+      "sha256": "b5e7a3b25bcc37fd2c4d82ab573be3b4b1b937b602f90c6cfb7c2cc40cdafe40"
+    },
+    {
+      "path": "scripts/lint-seam-enforcement.cjs",
+      "bytes": 7106,
+      "sha256": "ed57988383e3c0ca09cd31e2f032ac7a8f869d2feff20226850472af939988d7"
+    },
+    {
+      "path": "scripts/lint-shell-command-projection-drift.cjs",
+      "bytes": 1896,
+      "sha256": "3ce7ad8f53031fdae3dccc756c7d779df039a7dde841f573071ef0303ff16fff"
+    },
+    {
+      "path": "scripts/lint-skill-deps.cjs",
+      "bytes": 6012,
+      "sha256": "3a29f656b3244b9c0c4937af8abc74a6e27a4bfb9c64dd40d7bc9ae179fa8100"
+    },
+    {
+      "path": "scripts/lint-slug-derivation-drift.cjs",
+      "bytes": 40586,
+      "sha256": "385d689433f9b502bb85184a8ae8cd149c5d4f43e9e993a7de4778dcf504fdd4"
+    },
+    {
+      "path": "scripts/lint-source-test-name-collision.cjs",
+      "bytes": 10280,
+      "sha256": "a919bbd5bb97d0752c1ae981a21c242ce14532b6435791e677a19e0ea6c3e8ec"
+    },
+    {
+      "path": "scripts/lint-state-field-drift.cjs",
+      "bytes": 42112,
+      "sha256": "9f0be50646fcd75a60e0861f5189a30c893bce58d22df71ed4ffa1005b590c57"
+    },
+    {
+      "path": "scripts/lint-state-write-path-drift.cjs",
+      "bytes": 43762,
+      "sha256": "0c36c16f53095e3114748a1971d44734462ec74b69cab0cf9c27d198455b0d51"
+    },
+    {
+      "path": "scripts/lint-table-schema-drift.cjs",
+      "bytes": 5562,
+      "sha256": "458be23a3923d95553f03c905e9eab119ffbef88d2c37cbfa9004b5d0659dbff"
+    },
+    {
+      "path": "scripts/lint-test-file-count.allowlist.json",
+      "bytes": 12037,
+      "sha256": "9a9ea37adb4be371f77dc21d083e17956704e0fd31b0c78e82a130dbb2b52537"
+    },
+    {
+      "path": "scripts/lint-test-file-count.cjs",
+      "bytes": 10411,
+      "sha256": "42915554d503df5bf56d4a88cda3a62ba51159e085313ccf0abcfcfd43577289"
+    },
+    {
+      "path": "scripts/lint-unreachable-guard-drift.cjs",
+      "bytes": 40769,
+      "sha256": "b181ddb05f0affda30f15a137fd0fb806ae5a2a08727783f165bfb68fd97cb46"
+    },
+    {
+      "path": "scripts/lint-vendored-deps.cjs",
+      "bytes": 17335,
+      "sha256": "98543ea7419d388dbf88d8b96306e4b9b5e62f5561bc021d1d96567f35500de1"
+    },
+    {
+      "path": "scripts/lint-workflow-shellcheck-baseline.json",
+      "bytes": 35632,
+      "sha256": "56548e87f92942507a267993ebff784c6a474bd7672a2d8c02d23cd98b7d8c2d"
+    },
+    {
+      "path": "scripts/lint-workflow-shellcheck.cjs",
+      "bytes": 26192,
+      "sha256": "9dee972fac3d622927c0d5cb91ae26d72e59d44c11f309b0482b4450e69f2ffa"
+    },
+    {
+      "path": "scripts/mutation-matrix.cjs",
+      "bytes": 47844,
+      "sha256": "abdbc18761b95c42a9c67c99bf3194ff79a9be8cf16496e54c36d597d52c0610"
+    },
+    {
+      "path": "scripts/npm-audit-baseline.cjs",
+      "bytes": 16403,
+      "sha256": "db7ba12e4abf745244197852ccbb4d8d23654d7ce10c976ff67ef7344c84b196"
+    },
+    {
+      "path": "scripts/pr-changed-files.cjs",
+      "bytes": 3032,
+      "sha256": "95e9c5241990dbff8586c4cd467581f1f0ad2cd5ffc4c40872ef3db13bdef842"
+    },
+    {
+      "path": "scripts/pr-target-policy.cjs",
+      "bytes": 2009,
+      "sha256": "79be2299dbc88fb53b42aabd54e95e59efaa092e0dc021f86d23bbe686c9bab1"
+    },
+    {
+      "path": "scripts/pr-template-policy.cjs",
+      "bytes": 7701,
+      "sha256": "3eb065d5f1cb6520437ba0e792498c68e7e1458444bb3b3d707b2a4f3eab4ee9"
+    },
+    {
+      "path": "scripts/prompt-injection-scan.sh",
+      "bytes": 16653,
+      "sha256": "9a780c9fc06efa93cfb63676f88e3b60f284f10aad6c8e748d341de716f9f1db"
+    },
+    {
+      "path": "scripts/registry-schema.cjs",
+      "bytes": 37660,
+      "sha256": "d1041d03654111ac6d4200c769967a88d497ee3282a7d40e8033cbb7e0b5ce0e"
+    },
+    {
+      "path": "scripts/release-notes/conventional-title.cjs",
+      "bytes": 4272,
+      "sha256": "199238fbeb97330fb195edcf512300eb287b9daac30781c5ecec42fd2673142c"
+    },
+    {
+      "path": "scripts/release-notes/discord-release-summary.cjs",
+      "bytes": 11778,
+      "sha256": "f968041137e97bb2430427744ee9e7d35077da71af86eeb2760662ff2f2de4ed"
+    },
+    {
+      "path": "scripts/release-notes/format-github-release-notes.cjs",
+      "bytes": 7978,
+      "sha256": "ca393f493f5fe2510cae6c3548ed8d7f5bda1dfcb827775dcd1be23c843b528e"
+    },
+    {
+      "path": "scripts/release-tarball-smoke.cjs",
+      "bytes": 24888,
+      "sha256": "0d5737923a17e9bc336b408289122826c51bba7b35c86ccfb67ec31fb31ce3a6"
+    },
+    {
+      "path": "scripts/require-issue-link-policy.cjs",
+      "bytes": 9115,
+      "sha256": "9e1a6d8347eab3d143219049b5ac52951bf7f162e71263753fdd0a23518bc80a"
+    },
+    {
+      "path": "scripts/research-profiles.cjs",
+      "bytes": 6248,
+      "sha256": "47d989c2aa2ef8c6829919688901f9d33e1c0cda06d42aaf96c860c37a684155"
+    },
+    {
+      "path": "scripts/secret-scan-lint.sh",
+      "bytes": 8225,
+      "sha256": "f4a15291b226c8e685de723ca9a3a31a94a6aa37dfd1fb5dd0b1cccc18c55130"
+    },
+    {
+      "path": "scripts/secret-scan.sh",
+      "bytes": 14995,
+      "sha256": "1aa94859e759612bbb9b155431278b6afdd1b5c21b4b6b4108cc797a8178fb1c"
+    },
+    {
+      "path": "scripts/select-docs-guards.cjs",
+      "bytes": 2322,
+      "sha256": "cce0e8e5709a6d599e14f8f2b57ba7faecbb0ddba24af8408aa68769bc126cbd"
+    },
+    {
+      "path": "scripts/setup-branch-protection.sh",
+      "bytes": 7089,
+      "sha256": "efc6dc3739859800e8c0df5c7582cc83bb9643db28c121f914e8d549debe5925"
+    },
+    {
+      "path": "scripts/slurm-adapter.cjs",
+      "bytes": 10596,
+      "sha256": "bcde5fedc4b9965254cac3bd03bbb124564b4c2d7e55cb81d794721aa5d298ec"
+    },
+    {
+      "path": "scripts/strip-prose-atrefs.cjs",
+      "bytes": 3948,
+      "sha256": "3362c4b38d985c631ee79a335d785c978379e8808bb3a4c60bcaca146e3b85de"
+    },
+    {
+      "path": "scripts/sync-manifest-versions.cjs",
+      "bytes": 9779,
+      "sha256": "1f42ea1cd90001b157f45dbae100955be869d0fea100336dac87fc951a1eec93"
+    },
+    {
+      "path": "scripts/sync-next-version.cjs",
+      "bytes": 5853,
+      "sha256": "bc5a3b6f295208d9cac896f9ea5cac85eecc1133b0c804ba4c3280e8d9f143e9"
+    },
+    {
+      "path": "scripts/sync-rulesets.sh",
+      "bytes": 1012,
+      "sha256": "bf11168d1303b1a9a5c779892783282dd3b3d7b965a6a489cb3fe7be5a7a190f"
+    },
+    {
+      "path": "scripts/sync-runtime-launcher.cjs",
+      "bytes": 15432,
+      "sha256": "dd2f64183caeb99ab347b1f2c53a36b43e47864edcca19a5f879b7648c59a0da"
+    },
+    {
+      "path": "scripts/validate-registry.cjs",
+      "bytes": 4143,
+      "sha256": "ac8c2b929a4f956bc74ac16358c8b2098527492950178a062b0afdb9246a960f"
+    },
+    {
+      "path": "scripts/verify-npm-publish.cjs",
+      "bytes": 7220,
+      "sha256": "dcc7e37dbd61359fccfbaedc234ec1830341780a3f489b02857153db5379e1d2"
+    },
+    {
+      "path": "scripts/workflow-policy.cjs",
+      "bytes": 17371,
+      "sha256": "bf3a401f41c6b9333891b4ef7e58b3bc4cabe21ed7ada1d47854612e6a45fe57"
+    },
+    {
+      "path": "scripts/workflow-size.cjs",
+      "bytes": 9298,
+      "sha256": "6f2fd53b70ad44ebcf9a080d85ae65927e4035579d90046ffbe90fa260e6e30c"
+    },
+    {
+      "path": "skills/gsd-add-tests/SKILL.md",
+      "bytes": 1048,
+      "sha256": "303c01b7dd9c7614aafa0f3f9900891ccf9df7f47cbce2fc00a9829060f963d2"
+    },
+    {
+      "path": "skills/gsd-ai-integration-phase/SKILL.md",
+      "bytes": 1152,
+      "sha256": "f0333bffe02141b7e8db895c65ff6536283680a00f66c8b5228535a96cab392f"
+    },
+    {
+      "path": "skills/gsd-audit-fix/SKILL.md",
+      "bytes": 901,
+      "sha256": "e005e777f3b607ef667bcf9b012a2139fb229eed6a1bd086240c640da8f58217"
+    },
+    {
+      "path": "skills/gsd-audit-milestone/SKILL.md",
+      "bytes": 1128,
+      "sha256": "a6eb7edcfd23c7e435623c423e0f2639fbaf1fe1c23b924af49af5ce440433e1"
+    },
+    {
+      "path": "skills/gsd-audit-uat/SKILL.md",
+      "bytes": 608,
+      "sha256": "cb5f445d66e7f9c479ce8287422716d00217a1902a5af669d26d50fb780e4333"
+    },
+    {
+      "path": "skills/gsd-autonomous/SKILL.md",
+      "bytes": 2321,
+      "sha256": "b16390b41cbff0c702c045a9451e9492826eb9c7303a4c9302853015077f800c"
+    },
+    {
+      "path": "skills/gsd-capture/SKILL.md",
+      "bytes": 2605,
+      "sha256": "c848255c134a860f24feffbebdeb12ed149206b34993000e5e7a73c2c6a03356"
+    },
+    {
+      "path": "skills/gsd-cleanup/SKILL.md",
+      "bytes": 588,
+      "sha256": "23918254c901431cde288546aaea40b92b4024526c97cbff1e463c22074bd6de"
+    },
+    {
+      "path": "skills/gsd-code-review/SKILL.md",
+      "bytes": 3341,
+      "sha256": "33f865854fec1650848929b0c14f6751b5241d357150e669eff8f4a3e362316b"
+    },
+    {
+      "path": "skills/gsd-complete-milestone/SKILL.md",
+      "bytes": 4897,
+      "sha256": "9309e79460af8945af42c0731d62db07105a304ac226c11dd3682dc677800153"
+    },
+    {
+      "path": "skills/gsd-config/SKILL.md",
+      "bytes": 2442,
+      "sha256": "6bbfec6e33be33f566eefb679449f3e5c2b5af038b47267d3e2701c96310fe68"
+    },
+    {
+      "path": "skills/gsd-debug/SKILL.md",
+      "bytes": 1723,
+      "sha256": "dcb3c59968c1b191695842eeae8c446ef51e5a5961fb98c76cde352b64e4e430"
+    },
+    {
+      "path": "skills/gsd-discuss-phase/SKILL.md",
+      "bytes": 4062,
+      "sha256": "2d8147989f129cf783a530507e32586dff40163782c456dcf426031b388df8c3"
+    },
+    {
+      "path": "skills/gsd-docs-update/SKILL.md",
+      "bytes": 2170,
+      "sha256": "8fb602920a333d738d1f733a80cda32f5f8710b7b5455b6228f869326cd6d7e4"
+    },
+    {
+      "path": "skills/gsd-eval-review/SKILL.md",
+      "bytes": 798,
+      "sha256": "00b35a36a2f16f2f3804e6367994cd81b91048821698120aa6fad3a3e202b42a"
+    },
+    {
+      "path": "skills/gsd-execute-phase/SKILL.md",
+      "bytes": 2935,
+      "sha256": "bb1855f60b90d7152cfbc0f5d6133e5322660cf375e1db1a9510503adabb48be"
+    },
+    {
+      "path": "skills/gsd-explore/SKILL.md",
+      "bytes": 706,
+      "sha256": "168a5b8d52127624a86f0066a61dc8ae0b892b1bfaee44c3552dcdeaff280f98"
+    },
+    {
+      "path": "skills/gsd-extract-learnings/SKILL.md",
+      "bytes": 696,
+      "sha256": "6de7eeaaf4939e5d109935e6962f65b1fbd2719dfc502348cb6f36b6aaf249f4"
+    },
+    {
+      "path": "skills/gsd-fast/SKILL.md",
+      "bytes": 828,
+      "sha256": "0dc6926e16dcc1cbcd150007d779a00d07523dc3407a6f5feeecb99c3cd55877"
+    },
+    {
+      "path": "skills/gsd-forensics/SKILL.md",
+      "bytes": 2232,
+      "sha256": "0169426d0dcda2dbe0730fe55fdb5819341a98ca76e270855f7cd42e92b06511"
+    },
+    {
+      "path": "skills/gsd-graphify/SKILL.md",
+      "bytes": 28643,
+      "sha256": "5fb93464a48d076645e49b453ea7cfe16596d16e0c2c69dca62dc045bfacde2d"
+    },
+    {
+      "path": "skills/gsd-health/SKILL.md",
+      "bytes": 1245,
+      "sha256": "e029d30c1b9cf74a62ab9390f4bd4961fe55266da81f16aa930747b5b5d443ad"
+    },
+    {
+      "path": "skills/gsd-help/SKILL.md",
+      "bytes": 833,
+      "sha256": "93b961bb1f1b322ba8c05fd2b6dc1b2f53b5547a3eb3be5cca1c41c51bebda89"
+    },
+    {
+      "path": "skills/gsd-import/SKILL.md",
+      "bytes": 5402,
+      "sha256": "c561f449158a8ee58bef79e1549d62dbc3942efaf50ffe36a6ab3c886d7dba5e"
+    },
+    {
+      "path": "skills/gsd-inbox/SKILL.md",
+      "bytes": 1373,
+      "sha256": "0b5f4ce8ee98ac3c423de2c846238e61463fe4fbcb9fd18a4fa3bc1878caae54"
+    },
+    {
+      "path": "skills/gsd-ingest-docs/SKILL.md",
+      "bytes": 2088,
+      "sha256": "0fadb4f9c69aa61d68d2a4915ca02d4302768135f0b5d9de78a39e9a7346eb7e"
+    },
+    {
+      "path": "skills/gsd-manager/SKILL.md",
+      "bytes": 1632,
+      "sha256": "2f6228d719073d19393302d30cd1c358abf3b1928b1134537db45ef4ba1a197f"
+    },
+    {
+      "path": "skills/gsd-map-codebase/SKILL.md",
+      "bytes": 3662,
+      "sha256": "17bc541bff399bad8d063899b407a184bfdbb478eaa0b15d8b81211f5a605f67"
+    },
+    {
+      "path": "skills/gsd-mempalace-capture/SKILL.md",
+      "bytes": 5892,
+      "sha256": "c6e375dea3bb00706c83e63f4f418b3f797dc5a29271bef8cc5bcb6ef6610c9c"
+    },
+    {
+      "path": "skills/gsd-mempalace-recall/SKILL.md",
+      "bytes": 5639,
+      "sha256": "b756396ab44017b23909505d85e4e3c72de66c1c322e61f0032a003edae68dbf"
+    },
+    {
+      "path": "skills/gsd-milestone-summary/SKILL.md",
+      "bytes": 1814,
+      "sha256": "c77f6c8ce7c57db993236c6b9a205517aea79fd815209e5b09ccd46a16bdaf49"
+    },
+    {
+      "path": "skills/gsd-mvp-phase/SKILL.md",
+      "bytes": 1815,
+      "sha256": "3455ea7562a447a2bb0eb87815d26368ab9bf47811e982533d7348cf759f06a2"
+    },
+    {
+      "path": "skills/gsd-new-milestone/SKILL.md",
+      "bytes": 1655,
+      "sha256": "d36dee7f568b2f539eacb324de90f7e593e0b616689c30366d75e57db6b083da"
+    },
+    {
+      "path": "skills/gsd-new-project/SKILL.md",
+      "bytes": 1561,
+      "sha256": "13c78513aba22094b9f98ede0893e1e534a0b7e8650eb6068d562ffa1dfabd42"
+    },
+    {
+      "path": "skills/gsd-next/SKILL.md",
+      "bytes": 935,
+      "sha256": "e75ead116b5a40743ccb058393aff3c405b026625bf8ec17e20d47b56340c3c5"
+    },
+    {
+      "path": "skills/gsd-ns-context/SKILL.md",
+      "bytes": 877,
+      "sha256": "3102e7ad9b60f1823e2feb444de85e537fff7927ed7a5083698216ffe6d42480"
+    },
+    {
+      "path": "skills/gsd-ns-ideate/SKILL.md",
+      "bytes": 780,
+      "sha256": "c2c129408a046d224d1afc3b989a5e67021651fca81a75b2769d65af48a312d1"
+    },
+    {
+      "path": "skills/gsd-ns-manage/SKILL.md",
+      "bytes": 1331,
+      "sha256": "8d786e01fa28a7bb084dc0f2b10234d99d967417a1451fd74bc133fb3194d002"
+    },
+    {
+      "path": "skills/gsd-ns-project/SKILL.md",
+      "bytes": 940,
+      "sha256": "76c77b121ad68b6caa786d644a681fe7d11d9edaa248872ffb9a60c9218ee606"
+    },
+    {
+      "path": "skills/gsd-ns-review/SKILL.md",
+      "bytes": 1015,
+      "sha256": "4111ea56e820479f5d9ccc9546d10ed2d1496916105f7d8bd1e2cb84f4770e4c"
+    },
+    {
+      "path": "skills/gsd-ns-workflow/SKILL.md",
+      "bytes": 1570,
+      "sha256": "df8f9c316f7b48535ca423869f95f56b62639199511b5f10f057dc3cd19a3f6b"
+    },
+    {
+      "path": "skills/gsd-onboard/SKILL.md",
+      "bytes": 1819,
+      "sha256": "84519552f7396347b641468504967f01300696b98c0ea9ab3568ad71e9fc4994"
+    },
+    {
+      "path": "skills/gsd-pause-work/SKILL.md",
+      "bytes": 1126,
+      "sha256": "8e04c90991512a0dda37a5dbd8fec50a0cbfc88d8213c9080d5101cd3e4b0c73"
+    },
+    {
+      "path": "skills/gsd-phase/SKILL.md",
+      "bytes": 2155,
+      "sha256": "f71e6d6c7a6b7b1d76c3ff16773502821568b4559819b0b916f150427e52d326"
+    },
+    {
+      "path": "skills/gsd-plan-phase/SKILL.md",
+      "bytes": 4861,
+      "sha256": "4ae27cbd263dc7fd54ff95d68663210750b5f64b7735b1982548d63cb3d406cc"
+    },
+    {
+      "path": "skills/gsd-plan-review-convergence/SKILL.md",
+      "bytes": 3949,
+      "sha256": "7797fb9efc7b3e80876147b48e385f25b010c05f7db74aab363d5b8e129a9f1a"
+    },
+    {
+      "path": "skills/gsd-pr-branch/SKILL.md",
+      "bytes": 697,
+      "sha256": "276975b25e9b37f5088bae80ba28e99698f15988c4513d19304dd9a4dafa49ad"
+    },
+    {
+      "path": "skills/gsd-profile-user/SKILL.md",
+      "bytes": 1619,
+      "sha256": "f57ad5e5c5899100199ecc08a132d1b5dea606818178b701d5a04b8e02d84658"
+    },
+    {
+      "path": "skills/gsd-progress/SKILL.md",
+      "bytes": 3006,
+      "sha256": "1f9e7083fc9da6d967f766641664c37a1226eb6dcbea6b92259666d16ff58279"
+    },
+    {
+      "path": "skills/gsd-quick-batch/SKILL.md",
+      "bytes": 4910,
+      "sha256": "dc24ed022a5f493b71c92baf1605483e83080ae258b8ad3512ae275542081891"
+    },
+    {
+      "path": "skills/gsd-quick/SKILL.md",
+      "bytes": 6772,
+      "sha256": "ba87a20c04174ef0a5bff3850fbbcf9241edcd3ea4a26cbd4e6899faa7eb91cb"
+    },
+    {
+      "path": "skills/gsd-resume-work/SKILL.md",
+      "bytes": 702,
+      "sha256": "359dc4ab14ed872fde261e67479db06f67c8e302fa3bf8cb42119c71e8eebe2c"
+    },
+    {
+      "path": "skills/gsd-review-backlog/SKILL.md",
+      "bytes": 1950,
+      "sha256": "82166eabf8a728818df1ea1effd4e5589da6f424b16cfde62dc3bfa10eed79de"
+    },
+    {
+      "path": "skills/gsd-review/SKILL.md",
+      "bytes": 1710,
+      "sha256": "d80db8762bec97de1c0662140584c35dba55b3572327932d27d7426bc85ff00d"
+    },
+    {
+      "path": "skills/gsd-secure-phase/SKILL.md",
+      "bytes": 790,
+      "sha256": "56ee4246050ba8b57240c971d027ff8d6c464017e7eae680e9d30984d4353e70"
+    },
+    {
+      "path": "skills/gsd-settings/SKILL.md",
+      "bytes": 850,
+      "sha256": "adfcac0bcc7d02360db979b5b2f68fa5b6a4fbafef7fdb40a58996dc082dc2d8"
+    },
+    {
+      "path": "skills/gsd-ship/SKILL.md",
+      "bytes": 681,
+      "sha256": "eb23c16b4893b03589ef1ee09a42e5fd94cfbda8e12403c5c6402dac6b93fc93"
+    },
+    {
+      "path": "skills/gsd-sketch/SKILL.md",
+      "bytes": 2297,
+      "sha256": "11ef7d436090ae0982a5081f24c74030a6e402271dde68058f02fdcdf71e24a2"
+    },
+    {
+      "path": "skills/gsd-spec-phase/SKILL.md",
+      "bytes": 2440,
+      "sha256": "052cfb21eb0ee3d45a02e41460ed2f8f0cda5cb0a509ac64c0d74b388f48efb7"
+    },
+    {
+      "path": "skills/gsd-spike/SKILL.md",
+      "bytes": 2107,
+      "sha256": "3b5e6ea4bf8d81ccfb3f85c210bbf5d18ac741b3a821c83cd822b6c848e08408"
+    },
+    {
+      "path": "skills/gsd-stats/SKILL.md",
+      "bytes": 473,
+      "sha256": "4d720ecd01eb213db08daa921dd55210af551c6064b2e72ec497c844ad8a7507"
+    },
+    {
+      "path": "skills/gsd-surface/SKILL.md",
+      "bytes": 6052,
+      "sha256": "d920ff81418e8ab77eca38ed6cd5288bdd537ed4098ef75badad8d0f8a54d1dd"
+    },
+    {
+      "path": "skills/gsd-thread/SKILL.md",
+      "bytes": 592,
+      "sha256": "f2c4d5f66a1fbbfa61f00bad02b918ec41a8e0661054824dd3931dd5a9c54105"
+    },
+    {
+      "path": "skills/gsd-ui-phase/SKILL.md",
+      "bytes": 757,
+      "sha256": "fabc841fb1f364cc077f785cf5e674de30d4309d96d14e897fcf9e8918f3fecf"
+    },
+    {
+      "path": "skills/gsd-ui-review/SKILL.md",
+      "bytes": 698,
+      "sha256": "444a4366f19899c3f3cf8fea175e3785b3cfdd26372a178420359c16389dc8e3"
+    },
+    {
+      "path": "skills/gsd-ultraplan-phase/SKILL.md",
+      "bytes": 909,
+      "sha256": "032c3412fddd02b40052f13b18fc542c23ad7a244847468603a161c5b31644e8"
+    },
+    {
+      "path": "skills/gsd-undo/SKILL.md",
+      "bytes": 898,
+      "sha256": "22d4462c987b7b6680f5c0be10e58d4a2abfb6347257e4a84359b3c025fc4a03"
+    },
+    {
+      "path": "skills/gsd-update/SKILL.md",
+      "bytes": 2180,
+      "sha256": "01ca0efbdb8f6efaba045530a6d39eaf542c567c30ba845564787a0aaa58c3dc"
+    },
+    {
+      "path": "skills/gsd-validate-phase/SKILL.md",
+      "bytes": 828,
+      "sha256": "9e1c7909c089ee460f2eb2cd8666f0d1815e6093c43da4e3d6963dcfdd4e95d2"
+    },
+    {
+      "path": "skills/gsd-verify-work/SKILL.md",
+      "bytes": 1243,
+      "sha256": "bdb4896fd636840b4e7c8785e5c6467d1b19dc51dc569bddaa1b902238d64d55"
+    },
+    {
+      "path": "skills/gsd-workspace/SKILL.md",
+      "bytes": 1909,
+      "sha256": "2fbc3117743b89f71a1bf6b9520f1cdd0fc748454948081c14fbe7558a2dce67"
+    },
+    {
+      "path": "skills/gsd-workstreams/SKILL.md",
+      "bytes": 2223,
+      "sha256": "1fb8b97642e8e58272e97192f550162edaeb64b0177ef135eeaf0fae92dc9f73"
+    },
+    {
+      "path": "vscode/browser.js",
+      "bytes": 9045,
+      "sha256": "721ab0b03843746bce9bfafec78be9b362a8e7e5af2c254966a6ec4f4f684b01"
+    },
+    {
+      "path": "vscode/extension.js",
+      "bytes": 17994,
+      "sha256": "d11538ddc8fa76616d46151af05547cf5df949522d37e3201ae85c4d9edb44a2"
+    },
+    {
+      "path": "vscode/host-binding.js",
+      "bytes": 7709,
+      "sha256": "51861a4fda283f9f14cd29d477193be3f8c2ec53aeca815b5f4f356fdf0bb603"
+    },
+    {
+      "path": "vscode/package.json",
+      "bytes": 2790,
+      "sha256": "742a18846dec32906c7a33f23eb9a4d37217d3e0c04c29bce08ce8b68768ed58"
+    }
+  ],
+  "plan": "If authorized, move only this untracked directory, compare every relative path/size/SHA256, and record a relocation pointer without rewriting historical reports or changing lint rules."
+}

@@ -1,0 +1,5 @@
+The extracted upstream snapshot was relocated with owner approval on 2026-09-19.
+Current location: .claude/value-comparison-2026-09-19/upstream-package
+All 1074 file paths, sizes and SHA-256 digests match the pre-move manifest.
+Receipt: .planning/evidence/p05-lint-snapshot-relocation-receipt-2026-09-19.json
+The original tgz archive and historical reports are unchanged. Historical absolute paths name the capture-time location.

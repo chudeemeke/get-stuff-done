@@ -1,0 +1,46 @@
+[
+  {
+    "mode": "noop",
+    "status": 0,
+    "before": {},
+    "after": {
+      "AppData": "dir",
+      "AppData/Roaming": "dir"
+    },
+    "unchanged": false
+  },
+  {
+    "mode": "starttime",
+    "status": 0,
+    "before": {},
+    "after": {
+      "AppData": "dir",
+      "AppData/Roaming": "dir"
+    },
+    "unchanged": false
+  },
+  {
+    "mode": "prepared-profile",
+    "status": 0,
+    "before": {
+      "AppData": "dir",
+      "AppData/Local": "dir",
+      "AppData/Local/owner.txt": "8b5d6aa2bc02a56450acaf5573aef21e3cfb5559d15c1fda4be7f58c658a90fb",
+      "AppData/Roaming": "dir",
+      "AppData/Roaming/owner.txt": "8b5d6aa2bc02a56450acaf5573aef21e3cfb5559d15c1fda4be7f58c658a90fb"
+    },
+    "after": {
+      "AppData": "dir",
+      "AppData/Local": "dir",
+      "AppData/Local/Microsoft": "dir",
+      "AppData/Local/Microsoft/Windows": "dir",
+      "AppData/Local/Microsoft/Windows/Caches": "dir",
+      "AppData/Local/Microsoft/Windows/PowerShell": "dir",
+      "AppData/Local/Microsoft/Windows/PowerShell/StartupProfileData-NonInteractive": "49cd61f5a4b874d896bff0b4be0f1cd96b80e1a2427b49003b39e3c0fa7ca487",
+      "AppData/Local/owner.txt": "8b5d6aa2bc02a56450acaf5573aef21e3cfb5559d15c1fda4be7f58c658a90fb",
+      "AppData/Roaming": "dir",
+      "AppData/Roaming/owner.txt": "8b5d6aa2bc02a56450acaf5573aef21e3cfb5559d15c1fda4be7f58c658a90fb"
+    },
+    "unchanged": false
+  }
+]

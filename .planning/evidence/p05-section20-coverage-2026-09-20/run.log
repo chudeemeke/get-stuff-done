@@ -1,0 +1,102 @@
+▶ expect-red: recovery observation contract
+  ✔ runtime exceptions never permit deletion, extra descendants, type or link substitution (1796.0375ms)
+  ✔ exact Windows runtime creation and regular-file updates preserve owner data (281.7187ms)
+  ✔ private runtime environment is initialized before complete home observations (284.8067ms)
+  ✔ outside-target deletion, byte damage and extra entries fail in both scenarios (1733.4812ms)
+  ✔ outside-target damage controls detect a removed home comparison (556.9483ms)
+  ✔ the real harness recognizes complete private quarantine and restored owner data (277.6967ms)
+  ✔ the real harness emits observation-error before and after partial observation (925.5548ms)
+  ✔ cleanup failure still emits a rejected report and names its retained fixture (191.8247ms)
+  ✔ the disposable upgrade independently checks owner preservation (19830.238ms)
+  ✔ known failures retain complete typed observations independently of diagnostic truncation (3.7495ms)
+✔ expect-red: recovery observation contract (25884.8427ms)
+▶ expect-red: installer recovery
+  ✔ home maps reject incomplete, malformed, aliased and falsely preserved evidence (269.1514ms)
+  ✔ runtime changes are Windows-only; preserved arbitrary owner files and links remain valid (30.6635ms)
+  ✔ the captured 27-check private-home report satisfies the approved inventory (6.58ms)
+  ✔ a real abort-shaped report keeps its failed harness diagnostic without context (1.8242ms)
+  ✔ supplied malformed termination markers are never treated as absent (0.6923ms)
+  ✔ host-specific identity rules and contradictory pass details are checked (23.2837ms)
+  ✔ recovery evidence must match the explicitly supplied source bytes and host (121.0209ms)
+  ✔ independent context must contain unambiguous relative paths and real residue (45.8697ms)
+  ✔ a self-consistent smaller twin cannot silently drop a reviewed root (9.2799ms)
+  ✔ malformed, interrupted and cleanup-failed reports return diagnostics instead of acceptance or exceptions (68.8924ms)
+  ✔ known failure labels cannot conceal missing, contradictory or additional observations (713.0183ms)
+  ✔ only the complete reviewed inventory is accepted, without duplicates or extra failures (558.4766ms)
+  ✔ the captured red from the unfixed installer is the known red (5.2776ms)
+  ✔ an additional owner-byte loss cannot hide behind the expected recovery failures (4.9068ms)
+  ✔ an unexpected pass fails and says how to retire the wrapper (2.362ms)
+  ✔ a red with harness check twin:child-failed-at-injection failing is the wrong red (6.3863ms)
+  ✔ a red with harness check twin:residue-non-empty failing is the wrong red (5.5448ms)
+  ✔ a red with harness check fresh:wrapper-child-failed-at-injection failing is the wrong red (4.063ms)
+  ✔ a red with harness check upgrade:first-install-succeeded failing is the wrong red (4.9806ms)
+  ✔ a red with harness check upgrade:picked-files-installed failing is the wrong red (4.6592ms)
+  ✔ a red with harness check upgrade:wrapper-child-failed-at-injection failing is the wrong red (4.643ms)
+  ✔ a red with harness check upgrade:child-rewrote-picked-files failing is the wrong red (5.4789ms)
+  ✔ a red that never ran harness check twin:child-failed-at-injection is the wrong red (7.2201ms)
+  ✔ a red that never ran harness check twin:residue-non-empty is the wrong red (4.9224ms)
+  ✔ a red that never ran harness check fresh:wrapper-child-failed-at-injection is the wrong red (7.4798ms)
+  ✔ a red that never ran harness check upgrade:first-install-succeeded is the wrong red (6.9998ms)
+  ✔ a red that never ran harness check upgrade:picked-files-installed is the wrong red (8.1172ms)
+  ✔ a red that never ran harness check upgrade:wrapper-child-failed-at-injection is the wrong red (5.3787ms)
+  ✔ a red that never ran harness check upgrade:child-rewrote-picked-files is the wrong red (5.7882ms)
+  ✔ a red in which fresh:outcome-exact passes is not the known red (4.4997ms)
+  ✔ a red in which fresh:top-level-exact-allowlist passes is not the known red (4.2409ms)
+  ✔ a red in which fresh:transaction-directory-shape passes is not the known red (4.5483ms)
+  ✔ a red in which upgrade:outcome-exact passes is not the known red (6.9286ms)
+  ✔ a red in which upgrade:transaction-directory-shape passes is not the known red (8.0093ms)
+  ✔ a missing compose is the wrong red (0.5735ms)
+  ✔ a crash with no report and an unexpected exit status are both refused (5.5421ms)
+✔ expect-red: installer recovery (1980.8839ms)
+▶ expect-red: install transaction coverage
+  ✔ supplied malformed termination markers are never treated as absent (1.6049ms)
+  ✔ affirmative coverage requires both exact files, every metric and consistent aggregate counts (50.3682ms)
+  ✔ coverage refuses malformed or interrupted runs and TAP tokens disguised as table rows (2.2423ms)
+  ✔ coverage aliases, malformed tables and truncated TAP are rejected (9.7772ms)
+  ✔ a normalized alias cannot replace the exact covered source identity (1.7581ms)
+  ✔ decision controls detect independently weakened recovery and coverage guards (253.1597ms)
+  ✔ the reviewed 51-case render-only red is the known red (1.1609ms)
+  ✔ old skeleton evidence and any incomplete or changed case inventory are refused (93.9608ms)
+  ✔ TAP framing, terminal counts and bounded render failure diagnostics are mandatory (14.6116ms)
+  ✔ only the actual error field can establish the permitted render failure (1.3084ms)
+  ✔ a case failing for any reason other than an unbuilt operation is the wrong red (1.2155ms)
+  ✔ a coverage shortfall on landed code is the wrong red, on either stream (2.5137ms)
+  ✔ nothing failing, a crash with no summary, and a miscounted summary are all refused (3.2761ms)
+✔ expect-red: install transaction coverage (438.1567ms)
+▶ expect-red: command line
+  ✔ Node capture preserves a complete structured report larger than one MiB (119.8074ms)
+  ✔ repository ESLint rejects unsafe code under both repaired CJS paths (626.8647ms)
+  ✔ the actual Node CLI validates the live coverage gate through private c8 capture (15808.9344ms)
+  ✔ coverage ignore directives in either watched module refuse before execution (7.8146ms)
+  ✔ capture bounds execution and isolates inherited test and coverage configuration (6.7979ms)
+  ✔ inherited Node options refuse before child execution for both gates (12.0269ms)
+  ✔ capture faults cannot pass or silently discard uncertain evidence (108.2573ms)
+  ✔ cleanup never removes a scratch path outside its exact ownership convention (8.1954ms)
+  ✔ coverage capture uses a new private report and V8 directory on every invocation (22.9604ms)
+  ✔ source or validator changes during capture invalidate the report (39.0763ms)
+  ✔ the package command is parsed from the same bytes as its evidence digest (2.4606ms)
+  ✔ the runner prints source identities and runtime provenance with its verdict (11.4958ms)
+  ✔ c8 executes the same explicit Node runtime that captured the evidence (6.9353ms)
+  ✔ the production gate refuses Bun before spawning a child (0.6656ms)
+  ✔ the gate command is read from package.json, not copied (1.9097ms)
+  ✔ package commands cannot weaken coverage or redirect the reviewed gate (1.454ms)
+  ✔ exits 0 on the known red, 1 on anything else, 2 on misuse (17.0753ms)
+✔ expect-red: command line (16804.0668ms)
+ℹ tests 76
+ℹ suites 4
+ℹ pass 76
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45589.8592
+-------------------------|---------|----------|---------|---------|-------------------
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------------|---------|----------|---------|---------|-------------------
+All files                |   99.72 |    99.28 |     100 |   99.72 |                   
+ scripts                 |     100 |      100 |     100 |     100 |                   
+  expect-red.cjs         |     100 |      100 |     100 |     100 |                   
+ tests/acceptance        |   99.34 |    97.01 |     100 |   99.34 |                   
+  installer-recovery.cjs |   99.34 |    97.01 |     100 |   99.34 | 429-431           
+-------------------------|---------|----------|---------|---------|-------------------
+ERROR: Coverage for branches (97.01%) does not meet threshold (100%) for tests/acceptance/installer-recovery.cjs

@@ -1,0 +1,326 @@
+{
+  "capturedAt": "2026-09-19T19:50:06.6061160Z",
+  "head": "e50bda5b9dc6c538bd33f1736fe59fcc957f78a7",
+  "platform": "win32",
+  "bun": "1.3.5",
+  "node": "v24.20.0",
+  "limits": "Current baseline only, not safe-lock or native-platform acceptance. Hashes measured after capture; no claim of hostile-writer-resistant evidence generation.",
+  "sourceIdentities": [
+    {
+      "path": "package.json",
+      "sha256": "e9b01b9645f12866d56f239200ed4d52901963352669e4b073f9585e8b54ed38"
+    },
+    {
+      "path": "bin/install.js",
+      "sha256": "78ba71870597700880c1dcd5c1ebb093cec790fd5393ac06507334c1160b0bb3"
+    },
+    {
+      "path": "dist/bin/install.js",
+      "sha256": "e6f691da2bdb777c7cd8b7a75b56b5626acbd77e1949d9ece0373d69b990164d"
+    },
+    {
+      "path": "bin/lib/install-names.js",
+      "sha256": "dbc41d7097662b927a01d93d7a5d5f9899c5c5be964adc10c4f095c98c9a7a88"
+    },
+    {
+      "path": "bin/lib/install-transaction.js",
+      "sha256": "9b99e963e374c983963d6ae7f70689b2e335904294cedf78ab08364c38033668"
+    },
+    {
+      "path": "tests/coverage/install-transaction.test.cjs",
+      "sha256": "5230d54f4dd545b5354bdee4f8364a37ffd5a9a1fee3893f9cdcfd57e4e15070"
+    },
+    {
+      "path": "tests/helpers/fault-fs.cjs",
+      "sha256": "7066237c9983e80af59b11ace9948cba1ec860f98ea5cfd189bd92b9e9b518f5"
+    },
+    {
+      "path": "tests/acceptance/installer-recovery.cjs",
+      "sha256": "21df2e7bc1fe1d0f0c5a23e185d92463640735057dc237a9fd918eeef7eb55d9"
+    },
+    {
+      "path": "scripts/expect-red.cjs",
+      "sha256": "6ccd3bdf7da11d7ea77fb12cb1e04e58b7fd2d836be8ad6b1e58f6eceeb47af4"
+    }
+  ],
+  "coverage": {
+    "tests": 51,
+    "fail": 10,
+    "todo": 0,
+    "cancelled": 0,
+    "reports": "coverage/coverage-summary.json",
+    "exit": 1,
+    "inventory": [
+      {
+        "number": 1,
+        "name": "names: the four classes match the accepted table exactly",
+        "expected": "pass"
+      },
+      {
+        "number": 2,
+        "name": "names: the table cannot be changed by a consumer",
+        "expected": "pass"
+      },
+      {
+        "number": 3,
+        "name": "names: no name belongs to two classes, so a root is never also protected",
+        "expected": "pass"
+      },
+      {
+        "number": 4,
+        "name": "names: the module requires nothing, so cleanup never loads the transaction to read names",
+        "expected": "pass"
+      },
+      {
+        "number": 5,
+        "name": "comparison keys: stored names are kept on linux, case folds on win32, case and NFC fold on darwin",
+        "expected": "pass"
+      },
+      {
+        "number": 6,
+        "name": "comparison keys: an unknown platform keeps stored names, like linux",
+        "expected": "pass"
+      },
+      {
+        "number": 7,
+        "name": "protected names: exact names and both generated families are recognised",
+        "expected": "pass"
+      },
+      {
+        "number": 8,
+        "name": "protected names: near misses are owner names, not protected ones",
+        "expected": "pass"
+      },
+      {
+        "number": 9,
+        "name": "protected names: a case variant is the same directory on win32 and darwin, a different one on linux",
+        "expected": "pass"
+      },
+      {
+        "number": 10,
+        "name": "transaction: the module exposes one factory and the sixteen planned operations",
+        "expected": "pass"
+      },
+      {
+        "number": 11,
+        "name": "lock: acquiring writes the pid and creation time, and releasing removes the file",
+        "expected": "pass"
+      },
+      {
+        "number": 12,
+        "name": "lock: it is published whole by a link from a finished temp file, never written in place",
+        "expected": "pass"
+      },
+      {
+        "number": 13,
+        "name": "lock: releasing never deletes a lock that now names another installer",
+        "expected": "pass"
+      },
+      {
+        "number": 14,
+        "name": "lock: a holder that is alive refuses with the exact instruction and touches nothing",
+        "expected": "pass"
+      },
+      {
+        "number": 15,
+        "name": "lock: a holder that is alive but owned by another user (EPERM) refuses with the exact instruction and touches nothing",
+        "expected": "pass"
+      },
+      {
+        "number": 16,
+        "name": "lock: a holder that is undecidable (an unexpected error) refuses with the exact instruction and touches nothing",
+        "expected": "pass"
+      },
+      {
+        "number": 17,
+        "name": "lock: a holder that is dead is taken over, and no stale file is left behind",
+        "expected": "pass"
+      },
+      {
+        "number": 18,
+        "name": "lock: a lock file that is empty cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 19,
+        "name": "lock: a lock file that is not JSON cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 20,
+        "name": "lock: a lock file that is missing its pid cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 21,
+        "name": "lock: a lock file that is carrying a pid that is not a positive integer cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 22,
+        "name": "lock: a lock file that is carrying pid 0, which a probe would read as the whole process group cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 23,
+        "name": "lock: a lock file that is missing its creation time cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 24,
+        "name": "lock: a lock file that is JSON null cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 25,
+        "name": "lock: a lock file that is a JSON array cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 26,
+        "name": "lock: a lock file that is carrying a creation time that is not a string cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 27,
+        "name": "lock: a lock file that is carrying a creation time that is not a date cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 28,
+        "name": "lock: a lock file that is carrying a creation time that is not a full UTC instant cannot prove its holder dead, so it refuses without a pid or a time",
+        "expected": "pass"
+      },
+      {
+        "number": 29,
+        "name": "lock: a lock path that is a directory cannot be read, so it refuses and leaves it alone",
+        "expected": "pass"
+      },
+      {
+        "number": 30,
+        "name": "lock race: a rival that renames the stale lock first wins, and this run refuses leaving only what the rival made",
+        "expected": "pass"
+      },
+      {
+        "number": 31,
+        "name": "lock race: a rename that moved a rival live lock, not the dead one, puts it back and refuses",
+        "expected": "pass"
+      },
+      {
+        "number": 32,
+        "name": "lock race: when a third run takes the lock before the rival lock can be put back, the third lock stands",
+        "expected": "pass"
+      },
+      {
+        "number": 33,
+        "name": "lock race: winning the rename but losing the publish to another run refuses, and that run keeps the lock",
+        "expected": "pass"
+      },
+      {
+        "number": 34,
+        "name": "lock race: a holder that releases between the refused publish and the read is a changed hand, not a crash",
+        "expected": "pass"
+      },
+      {
+        "number": 35,
+        "name": "lock: an absent target is refused and is not created",
+        "expected": "pass"
+      },
+      {
+        "number": 36,
+        "name": "lock: a temp name that already exists belongs to someone else, so it refuses and does not delete it",
+        "expected": "pass"
+      },
+      {
+        "number": 37,
+        "name": "lock: a filesystem that cannot link refuses, with no fallback to a lock written in place",
+        "expected": "pass"
+      },
+      {
+        "number": 38,
+        "name": "lock: a stale lock that cannot be renamed refuses and stays where it is",
+        "expected": "pass"
+      },
+      {
+        "number": 39,
+        "name": "lock: a temp file that cannot be removed does not undo the lock, and its name is a protected one",
+        "expected": "pass"
+      },
+      {
+        "number": 40,
+        "name": "lock: a release that cannot delete the file does not throw; the lock then names a dead pid and is taken over",
+        "expected": "pass"
+      },
+      {
+        "number": 41,
+        "name": "lock: with no ports it uses this process, the real clock and the real liveness probe",
+        "expected": "pass"
+      },
+      {
+        "number": 42,
+        "name": "render: a verified rollback exits 1 with the exact claim",
+        "expected": "not implemented: renderOutcome"
+      },
+      {
+        "number": 43,
+        "name": "render: top-level names that came or went are reported, left untouched, and exit 3",
+        "expected": "not implemented: renderOutcome"
+      },
+      {
+        "number": 44,
+        "name": "render: every rollback outcome names what was quarantined and where the full list is",
+        "expected": "not implemented: renderOutcome"
+      },
+      {
+        "number": 45,
+        "name": "render: an incomplete rollback exits 4, lists each entry with its reason, names the retired path, gives one instruction",
+        "expected": "not implemented: renderOutcome"
+      },
+      {
+        "number": 46,
+        "name": "render: a verified recovery exits 5 whatever the top-level names did, and asks for a re-run",
+        "expected": "not implemented: renderOutcome"
+      },
+      {
+        "number": 47,
+        "name": "render: a recovery whose rollback is incomplete exits 4, not 5",
+        "expected": "not implemented: renderOutcome"
+      },
+      {
+        "number": 48,
+        "name": "render: a refusal exits 6 and argument misuse exits 2, each with only its message",
+        "expected": "not implemented: renderOutcome"
+      },
+      {
+        "number": 49,
+        "name": "render: the child exit code or signal is printed and never becomes the exit code",
+        "expected": "not implemented: renderOutcome"
+      },
+      {
+        "number": 50,
+        "name": "render: a committed install exits 0, and still exits 0 with a warning when snapshot/ could not be deleted",
+        "expected": "not implemented: renderOutcome"
+      },
+      {
+        "number": 51,
+        "name": "render: the notice about a retired transaction is repeated in every outcome until the owner deletes it",
+        "expected": "not implemented: renderOutcome"
+      }
+    ],
+    "output": "coverage.stdout.txt",
+    "pass": 41,
+    "skipped": 0
+  },
+  "recovery": {
+    "fail": 13,
+    "sourceHashes": {
+      "bin/install.js": "78ba71870597700880c1dcd5c1ebb093cec790fd5393ac06507334c1160b0bb3",
+      "dist/bin/install.js": "e6f691da2bdb777c7cd8b7a75b56b5626acbd77e1949d9ece0373d69b990164d"
+    },
+    "pass": 11,
+    "fixtureRemoved": true,
+    "checks": 24,
+    "exit": 1,
+    "output": "recovery.stdout.json"
+  }
+}

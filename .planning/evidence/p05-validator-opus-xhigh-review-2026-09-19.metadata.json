@@ -1,0 +1,29 @@
+{
+  "status": "not-a-review",
+  "requestedModel": "opus",
+  "requestedEffort": "xhigh",
+  "cliVersion": "2.1.278",
+  "packet": ".planning/evidence/p05-validator-implementation-review-packet-2026-09-19.md",
+  "packetSha256": "a8d46028281d12db98beb2843c1f1e7bf6c40ec7d772bd7200dd540daaadd68f",
+  "sourceIdentities": [
+    {
+      "path": "scripts/expect-red.cjs",
+      "sha256": "a951904a007d52079be1ae7ca47c2e2cfa6ed76950c97bb091646f911ed55b81"
+    },
+    {
+      "path": "tests/expect-red.test.js",
+      "sha256": "ef6a215990c5a610af6139a6e6e3d077ad72d076895aeb51aaf39309187d1897"
+    },
+    {
+      "path": "tests/acceptance/installer-recovery.cjs",
+      "sha256": "87047200ee914ebab1c67d72fafed3a9356d8b64878c6f4d0ec0616587da6ee4"
+    }
+  ],
+  "execSession": 32509,
+  "resolvedModel": "claude-opus-5",
+  "reviewerSession": "338837fc-7455-4687-a885-8fb284e61379",
+  "effortEvidence": "CLI requested --effort xhigh; initialization does not echo effort.",
+  "exitCode": 0,
+  "resultSubtype": "success",
+  "rejectionReason": "Terminal exit0/success but no verdict or findings; simulated tool text and unverified disk claims with tools=[]; not independent review evidence."
+}

@@ -1,0 +1,17 @@
+{
+  "requestedBy": "Explicit owner request: Give the review to Opus5 at xhigh effort",
+  "cli": "Claude Code2.1.278",
+  "requestedModel": "opus",
+  "requestedEffort": "xhigh",
+  "reportedModel": "claude-opus-5",
+  "effortEchoedByInit": false,
+  "reviewerSession": "b288c2c2-9cda-42b8-b0d4-7a187577ae27",
+  "execSession": 92387,
+  "packet": ".planning/evidence/p03-validator-review-packet-2026-09-19.md",
+  "packetSha256": "651e45ed396e222fe87b9ca0352789edc533f773eb21d3ba4a17fdbc407f6581",
+  "sourceHead": "e50bda5b9dc6c538bd33f1736fe59fcc957f78a7",
+  "scope": "Packet-only, restricted plan mode, no tools/MCP, no persisted reviewer session",
+  "status": "completed: exit0, result success, conditional PASS WITH CHANGES; H1 blocks acceptance; not product acceptance",
+  "verdict": "PASS WITH CHANGES, conditional",
+  "reviewerText": ".planning/evidence/p03-validator-opus-xhigh-review-2026-09-19.md"
+}

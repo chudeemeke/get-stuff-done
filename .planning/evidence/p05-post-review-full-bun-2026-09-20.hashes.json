@@ -1,0 +1,47 @@
+{
+  "after": [
+    {
+      "Algorithm": "SHA256",
+      "Hash": "45E576291952E82DBAC3A8BDC458B6CCE5A9AE4946F8B2CE7A274222E8C214BB",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\scripts\\expect-red.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "444A786EC8312B43560CA889C671C3867390D018E47E68E4F657D07CFCF95D58",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\acceptance\\installer-recovery.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "BE7AFBE2366FA6534E2A08486A0BEBB4CA50180FA0699B8FAA7AB4AA9FA1EF53",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\expect-red.test.js"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "31144E122626B61B510E698943E8AE8CF49DD5BA99339137D084FD553308ED75",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\eslint.config.js"
+    }
+  ],
+  "before": [
+    {
+      "Algorithm": "SHA256",
+      "Hash": "45E576291952E82DBAC3A8BDC458B6CCE5A9AE4946F8B2CE7A274222E8C214BB",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\scripts\\expect-red.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "444A786EC8312B43560CA889C671C3867390D018E47E68E4F657D07CFCF95D58",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\acceptance\\installer-recovery.cjs"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "BE7AFBE2366FA6534E2A08486A0BEBB4CA50180FA0699B8FAA7AB4AA9FA1EF53",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\expect-red.test.js"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "31144E122626B61B510E698943E8AE8CF49DD5BA99339137D084FD553308ED75",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\eslint.config.js"
+    }
+  ],
+  "exit": 0
+}

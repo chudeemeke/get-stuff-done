@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: roadmap chooses active phase 41 and next roadmap phase 42 over older work and backlog
+ok 1 - roadmap chooses active phase 41 and next roadmap phase 42 over older work and backlog
+  ---
+  duration_ms: 1109.2156
+  type: 'test'
+  ...
+# Subtest: init chooses active phase 41 and next roadmap phase 42 over older work and backlog
+ok 2 - init chooses active phase 41 and next roadmap phase 42 over older work and backlog
+  ---
+  duration_ms: 1165.5247
+  type: 'test'
+  ...
+# Subtest: roadmap excludes the old milestone despite stale STATE frontmatter
+ok 3 - roadmap excludes the old milestone despite stale STATE frontmatter
+  ---
+  duration_ms: 813.8764
+  type: 'test'
+  ...
+# Subtest: execute-phase resolves the current milestone despite stale STATE frontmatter
+ok 4 - execute-phase resolves the current milestone despite stale STATE frontmatter
+  ---
+  duration_ms: 825.7584
+  type: 'test'
+  ...
+# Subtest: state includes declared future plans in its completion denominator
+ok 5 - state includes declared future plans in its completion denominator
+  ---
+  duration_ms: 808.9047
+  type: 'test'
+  ...
+# Subtest: roadmap includes declared future plans in its completion denominator
+ok 6 - roadmap includes declared future plans in its completion denominator
+  ---
+  duration_ms: 803.2203
+  type: 'test'
+  ...
+# Subtest: plan classifier excludes review packets while retaining valid legacy plans
+ok 7 - plan classifier excludes review packets while retaining valid legacy plans
+  ---
+  duration_ms: 16.8057
+  type: 'test'
+  ...
+# Subtest: roadmap mutation changes the exact phase and preserves CRLF and unrelated bytes
+ok 8 - roadmap mutation changes the exact phase and preserves CRLF and unrelated bytes
+  ---
+  duration_ms: 8680.3431
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14382.6093

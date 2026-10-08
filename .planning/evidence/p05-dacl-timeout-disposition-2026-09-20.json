@@ -1,0 +1,9 @@
+{
+  "failure": "protected Windows DACL test: roadmap native PowerShell spawnSync ETIMEDOUT at existing10000ms limit",
+  "fullSuite": "1846pass1fail,1847tests70files,389.40s",
+  "isolatedRecheck": "unchanged case1pass0fail,18.58s suite,exit0",
+  "cause": "Not established. Host CPU90-91percent observed afterward; not causal proof.",
+  "changes": "No roadmap source/test or timeout changes.",
+  "next": "One full unchanged-source recheck, exec78123, p05-final-suite-recheck-2026-09-20. Retain failure regardless of recheck outcome.",
+  "ownerTrigger": "Implementing agent: include intermittent native-timeout finding in P02/platform qualification; any source fix outside current allowlist needs bounded approval."
+}

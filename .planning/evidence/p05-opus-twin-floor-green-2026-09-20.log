@@ -1,0 +1,13 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "smaller twin|independent context|decision controls detect independently"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: installer recovery > independent context must contain unambiguous relative paths and real residue [15.00ms]
+(pass) expect-red: installer recovery > a self-consistent smaller twin cannot silently drop a reviewed root [16.00ms]
+(pass) expect-red: install transaction coverage > decision controls detect independently weakened recovery and coverage guards [94.00ms]
+
+ 3 pass
+ 66 filtered out
+ 0 fail
+ 48 expect() calls
+Ran 3 tests across 1 file. [215.00ms]

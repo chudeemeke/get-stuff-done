@@ -1,0 +1,4 @@
+markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)
+Finding: .planning/CONTINUE.md !node_modules/** !dist/** !.upstream/** !overlay/get-shit-done/**
+Linting: 1 file
+Summary: 0 issues in 0 files

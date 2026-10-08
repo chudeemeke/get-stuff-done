@@ -1,0 +1,15 @@
+{
+  "status": "relocated-and-verified",
+  "ownerApproval": "Explicit approved verified relocation answer, 2026-09-19",
+  "completedAt": "2026-09-19T22:11:54.2785564Z",
+  "source": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\package",
+  "destination": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\upstream-package",
+  "filesVerified": 1074,
+  "totalBytes": 16650699.0,
+  "sourceAbsent": true,
+  "manifest": ".planning/evidence/p05-lint-snapshot-relocation-proposal-2026-09-19.json",
+  "manifestSha256": "e2f2263cb0b0efb0588d6e17b4114b27d26143b19a36bc5a71eb30e0e341d469",
+  "archivePreserved": true,
+  "historicalReports": "unchanged; old absolute package paths describe the original capture location",
+  "lintRules": "unchanged"
+}

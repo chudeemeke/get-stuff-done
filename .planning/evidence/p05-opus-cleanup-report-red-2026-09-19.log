@@ -1,0 +1,21 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "cleanup failure still emits"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+113 | 
+114 | describe('expect-red: recovery observation contract', () => {
+115 |   test('cleanup failure still emits a rejected report and names its retained fixture', () => {
+116 |     const { run, fixture } = captureCleanupFailure();
+117 |     expect(run.status).toBe(1);
+118 |     const report = JSON.parse(run.stdout);
+                              ^
+SyntaxError: JSON Parse error: Unexpected EOF
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:118:25)
+(fail) expect-red: recovery observation contract > cleanup failure still emits a rejected report and names its retained fixture [360.00ms]
+
+ 0 pass
+ 62 filtered out
+ 1 fail
+ 8 expect() calls
+Ran 1 test across 1 file. [524.00ms]
+error: script "test" exited with code 1

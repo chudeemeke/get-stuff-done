@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-09-19T19:49:26.885Z",
+  "tool": "markdownlint-cli2 0.23.2",
+  "args": [
+    "node_modules/markdownlint-cli2/markdownlint-cli2-bin.mjs",
+    "--config",
+    ".markdownlint-cli2.yaml",
+    "-"
+  ],
+  "runs": [
+    {
+      "name": "clean",
+      "expectedExit": 0,
+      "status": 0,
+      "stdout": "markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)\nFinding: !node_modules/** !dist/** !.upstream/** !overlay/get-shit-done/**\nLinting: 1 file\nSummary: 0 issues in 0 files\n",
+      "stderr": ""
+    },
+    {
+      "name": "invalid-heading",
+      "expectedExit": 1,
+      "status": 1,
+      "stdout": "markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)\nFinding: !node_modules/** !dist/** !.upstream/** !overlay/get-shit-done/**\nLinting: 1 file\nSummary: 1 issue in 1 file\n",
+      "stderr": "stdin:1:1 error MD018/no-missing-space-atx No space after hash on atx style heading [Context: \"#Broken\"]\n"
+    }
+  ]
+}

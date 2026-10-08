@@ -1,0 +1,39 @@
+{
+  "packetSha256": "b2d516702339ade5987eef2e939fbaa0b4aef716f2c7e75987e9e19a5b51802f",
+  "scope": "packet-only no tools",
+  "sourceIdentities": [
+    {
+      "sha256": "49bc236f66d37fd5fc52bd67d6494cba00eabc89dc9689f1b0e2c486dc29f42f",
+      "path": "scripts/expect-red.cjs"
+    },
+    {
+      "sha256": "444a786ec8312b43560ca889c671c3867390d018e47e68e4f657d07cfcf95d58",
+      "path": "tests/acceptance/installer-recovery.cjs"
+    },
+    {
+      "sha256": "6701bd427655e4791fb195de30279fdd858d09b4fc6b83383fac0d02bfdab25f",
+      "path": "tests/expect-red.test.js"
+    },
+    {
+      "sha256": "ea0ed0f9646d1761e539104d6b60373fac594e2d182b2a1d95c10d46b9b0cfaa",
+      "path": "tests/fixtures/expect-red/installer-recovery-structured-red.json"
+    },
+    {
+      "sha256": "31144e122626b61b510e698943e8ae8cf49dd5ba99339137d084fd553308ed75",
+      "path": "eslint.config.js"
+    }
+  ],
+  "requestedEffort": "xhigh",
+  "requestedModel": "opus",
+  "cliVersion": "2.1.278",
+  "startedAt": "2026-09-20T00:09:29.7760919Z",
+  "status": "completed-awaiting-disposition",
+  "resolvedModel": "claude-opus-5",
+  "reviewerSession": "29e7f939-ba2a-4da9-affd-db359177d77f",
+  "execSession": 87396,
+  "effortEvidence": "CLI requested --effort xhigh; init does not echo effort.",
+  "exitCode": 0,
+  "resultSubtype": "success",
+  "completedAt": "2026-09-20T00:12:42.7812584Z",
+  "sourceStable": true
+}

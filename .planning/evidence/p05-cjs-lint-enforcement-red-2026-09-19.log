@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "repository ESLint"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+490 |   test('repository ESLint rejects unsafe code under both repaired CJS paths', async () => {
+491 |     const { ESLint } = require('eslint');
+492 |     const eslint = new ESLint({ cwd: path.resolve(__dirname, '..') });
+493 |     for (const filePath of ['scripts/expect-red.cjs', 'tests/acceptance/installer-recovery.cjs']) {
+494 |       const [unsafe] = await eslint.lintText('eval(process.argv[2]);\n', { filePath });
+495 |       expect(unsafe.messages.some(message => message.ruleId === 'security/detect-eval-with-expression' && message.severity === 2)).toBe(true);
+                                                                                                                                         ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:495:132)
+(fail) expect-red: command line > repository ESLint rejects unsafe code under both repaired CJS paths [1562.00ms]
+
+ 0 pass
+ 61 filtered out
+ 1 fail
+ 1 expect() calls
+Ran 1 test across 1 file. [1.80s]
+error: script "test" exited with code 1

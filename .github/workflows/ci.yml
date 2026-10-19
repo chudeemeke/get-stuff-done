@@ -151,6 +151,10 @@ jobs:
         with:
           bun-version-file: .bun-version
           token: ""
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          token: ""
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run lint:docs
       - name: Collect tracked markdown link targets

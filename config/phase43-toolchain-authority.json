@@ -141,7 +141,7 @@
     ".github/workflows/ci.yml": {
       "workflow-lint": "node",
       "audit-ci": "both",
-      "docs-gates": "bun",
+      "docs-gates": "both",
       "osv-scanner": "both",
       "lint": "bun",
       "test": "bun",

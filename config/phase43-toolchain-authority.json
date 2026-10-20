@@ -21,7 +21,7 @@
       },
       "actions/download-artifact": {
         "tag": "v8",
-        "sha": "3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",
+        "sha": "9000827ccba6bdab643e8b6fd33ac0654aef8333",
         "updateTrigger": "resolve tag v8 and review release notes"
       },
       "actions/github-script": {
@@ -36,7 +36,7 @@
       },
       "actions/upload-artifact": {
         "tag": "v7",
-        "sha": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+        "sha": "cf430e030ddbb5b0abf93d22962f4752f3646cd9",
         "updateTrigger": "resolve tag v7 and review release notes"
       },
       "gitleaks/gitleaks-action": {

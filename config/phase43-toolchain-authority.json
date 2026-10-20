@@ -36,7 +36,7 @@
       },
       "actions/upload-artifact": {
         "tag": "v7",
-        "sha": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+        "sha": "cf430e030ddbb5b0abf93d22962f4752f3646cd9",
         "updateTrigger": "resolve tag v7 and review release notes"
       },
       "gitleaks/gitleaks-action": {

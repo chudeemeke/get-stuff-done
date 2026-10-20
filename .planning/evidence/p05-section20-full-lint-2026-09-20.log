@@ -1,0 +1,908 @@
+$ eslint .
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\sync\cherry-pick-all.js
+  54:5  warning  Generic Object Injection Sink  security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\gsd.js
+  29:12  warning  Found non-literal argument in require  security/detect-non-literal-require
+  31:12  warning  Found non-literal argument in require  security/detect-non-literal-require
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\install.js
+  77:9   warning  Generic Object Injection Sink  security/detect-object-injection
+  77:39  warning  Generic Object Injection Sink  security/detect-object-injection
+  82:9   warning  Generic Object Injection Sink  security/detect-object-injection
+  83:14  warning  Generic Object Injection Sink  security/detect-object-injection
+  85:9   warning  Generic Object Injection Sink  security/detect-object-injection
+  86:14  warning  Generic Object Injection Sink  security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\validate-configs.js
+  115:10  warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  124:17  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  141:23  warning  Found non-literal argument to RegExp Constructor                           security/detect-non-literal-regexp
+  190:10  warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\hooks\gsd-context-monitor.js
+  45:10  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  49:32  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  70:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  72:31  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  89:7   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  96:5   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\overlay\bin\validate-configs.js
+  115:10  warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  124:17  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  141:23  warning  Found non-literal argument to RegExp Constructor                           security/detect-non-literal-regexp
+  190:10  warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\overrides\bin\install.js
+    482:48  warning  Generic Object Injection Sink                                               security/detect-object-injection
+    485:10  warning  Generic Object Injection Sink                                               security/detect-object-injection
+    514:70  warning  Generic Object Injection Sink                                               security/detect-object-injection
+    675:22  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+    676:23  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   1165:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   1176:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   1197:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1198:19  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1202:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1205:17  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1210:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1210:28  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1212:20  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1213:17  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1218:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1220:33  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1224:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1226:35  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1230:15  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1244:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   1246:19  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   1265:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   1279:10  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   1280:17  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   1323:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   1325:37  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   1488:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   1525:27  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   1527:20  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1555:27  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1556:31  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   1666:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1667:12  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1707:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1708:12  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1736:10  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1804:10  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1832:5   warning  Found non-literal argument to RegExp Constructor                            security/detect-non-literal-regexp
+   1849:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1850:12  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   1907:40  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   2015:40  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   2040:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   2072:24  warning  Found non-literal argument to RegExp Constructor                            security/detect-non-literal-regexp
+   2073:25  warning  Found non-literal argument to RegExp Constructor                            security/detect-non-literal-regexp
+   2502:17  warning  Found non-literal argument to RegExp Constructor                            security/detect-non-literal-regexp
+   2787:43  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   3195:16  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   3200:35  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   3201:14  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   3219:33  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   3220:14  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   3301:41  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   3302:29  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   3310:18  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   3349:19  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   3435:10  warning  Found non-literal argument to RegExp Constructor                            security/detect-non-literal-regexp
+   3585:16  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   3590:42  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   3640:30  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   3793:35  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   3816:45  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   4155:23  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4184:28  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4184:62  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4238:29  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4238:60  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4278:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   4283:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   4292:26  warning  Found lstatSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   4294:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   4298:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   4298:42  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   4299:9   warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   4325:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   4331:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   4339:20  warning  Found lstatSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   4353:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   4353:43  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   4354:7   warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   4356:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   4356:38  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   4357:9   warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   4379:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   4385:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   4393:20  warning  Found lstatSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   4406:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   4406:40  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   4407:7   warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   4590:29  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   4591:29  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   4594:29  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   4605:29  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   4606:29  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   4621:29  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   4694:16  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   4720:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4724:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4743:25  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4793:16  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   4821:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4825:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4843:39  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   4857:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4857:29  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4858:21  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   4862:30  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4867:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4886:43  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   4890:30  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4897:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4897:28  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4897:48  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4915:16  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   4924:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4936:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4940:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4964:44  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   4972:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4972:32  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4973:21  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   4979:30  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4988:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   4994:20  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5012:44  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   5020:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5104:26  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   5119:21  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   5419:20  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   5728:30  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5728:49  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5735:14  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   5750:17  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   5798:49  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   5800:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5801:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5809:49  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   5810:30  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5814:49  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   5815:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5825:49  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   5826:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5835:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5837:49  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   5838:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5839:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5862:40  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   5875:7   warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+   5938:19  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   5940:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5941:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5945:32  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   5947:16  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5947:26  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5949:25  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5949:51  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5952:14  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5959:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5960:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5962:33  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   5974:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5975:37  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5983:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5984:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   5988:30  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   5993:23  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6008:12  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6012:17  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   6043:38  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6043:63  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6046:34  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6046:60  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6046:86  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6060:19  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   6061:11  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6061:38  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6062:23  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6062:65  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   6065:16  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6076:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6310:16  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   6315:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6327:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6331:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6369:36  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   6436:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   6441:20  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   6702:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   6703:5   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   6707:20  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   6720:5   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   6726:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   7006:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   7008:33  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   7017:7   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   7023:7   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   7049:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   7051:24  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   7058:19  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   7102:5   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   7238:24  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   7422:24  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   7499:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   7500:19  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   7503:22  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   7563:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   7579:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   7773:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   7776:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   7778:19  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   7787:24  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   7792:21  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   7836:7   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   7838:24  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   7841:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   7843:9   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   7870:27  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   7886:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   7968:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   7979:12  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8079:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8089:5   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8097:5   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8132:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8133:25  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   8137:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8149:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8150:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8153:9   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8157:9   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   8204:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8208:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8209:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8219:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8223:13  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8227:15  warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8235:13  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   8235:56  warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8240:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8242:25  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8244:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8260:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8261:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8264:9   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8268:9   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   8277:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8278:7   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8283:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8283:40  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   8284:11  warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8302:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8303:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8310:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8310:43  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+   8311:9   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8318:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8318:35  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+   8318:69  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   8319:11  warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8326:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8327:27  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8330:13  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8334:13  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   8359:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8360:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8367:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8367:38  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   8368:9   warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8391:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8392:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8399:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8399:46  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   8400:9   warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8410:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8412:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   8426:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8428:29  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8428:65  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8434:11  warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8435:11  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   8455:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8477:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8480:30  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8480:63  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8489:9   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8490:9   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   8500:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8501:19  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   8505:9   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8517:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8521:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8522:9   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8535:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8540:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8548:9   warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8579:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8581:9   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8585:13  warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8602:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8606:13  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8609:11  warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8616:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8620:13  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8623:11  warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8631:9   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8635:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8640:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8641:11  warning  Found rmdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   8646:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8648:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8651:9   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8662:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8687:29  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8688:39  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   8689:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8689:37  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8702:28  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   8705:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8706:18  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8803:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8805:35  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8811:17  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8812:40  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   8815:26  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8815:26  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8820:31  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   8821:24  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8831:11  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   8846:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8848:35  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8854:17  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8855:40  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   8858:26  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8858:26  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8863:31  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+   8864:24  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8874:11  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   8889:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8891:38  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   8897:11  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   8910:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   8942:18  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   8964:38  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   8970:44  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9000:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   9006:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9008:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   9044:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9045:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9053:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9054:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9082:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   9099:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   9105:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9107:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   9137:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9138:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9146:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9147:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9156:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   9219:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   9291:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   9296:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9298:33  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   9322:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   9351:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9356:21  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   9372:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9396:19  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   9406:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9407:19  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   9414:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9509:70  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9510:24  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   9516:49  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9522:24  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   9528:59  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9541:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9546:71  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9555:14  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9556:24  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   9570:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9571:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9590:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9600:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9607:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9608:28  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   9622:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9622:37  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9623:26  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   9625:13  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+   9625:65  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9634:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9642:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9652:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9657:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   9715:41  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9717:11  warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   9724:12  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9734:37  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9735:7   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   9759:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9762:31  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   9781:10  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9788:7   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   9791:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9811:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9811:39  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9813:5   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   9858:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9861:32  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9870:16  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9896:41  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9899:37  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   9900:15  warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   9940:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   9943:27  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  10033:25  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10038:18  warning  Found lstatSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10041:9   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10044:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  10046:9   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  10047:15  warning  Found chmodSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10051:17  warning  Found chmodSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10225:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10226:27  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10234:30  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10241:44  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  10251:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10252:26  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10256:52  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  10262:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10263:43  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  10286:9   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10291:15  warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10292:15  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  10299:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10301:29  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10315:11  warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10316:11  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  10321:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10323:28  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10325:19  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10333:13  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  10334:16  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10335:13  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10340:12  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10342:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10348:17  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10373:31  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10463:72  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  10481:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10486:11  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  10585:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10587:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10600:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10601:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10611:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10626:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10627:33  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10640:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10641:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10654:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10655:28  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10671:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10672:28  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10709:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10714:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10715:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10717:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10724:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10725:27  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10728:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  10731:9   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  10745:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10748:33  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10748:63  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  10753:9   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  10760:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10761:24  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10839:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10840:7   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10888:98  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10889:24  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10894:9   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10915:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10916:26  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  10919:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10921:11  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  10926:14  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  10927:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  10930:26  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  10933:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  10961:34  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  10981:36  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  11034:36  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+  11050:9   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11074:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11090:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11116:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11122:5   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11132:7   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11137:13  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  11140:27  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11159:13  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11160:19  warning  Found chmodSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11164:29  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11166:15  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11167:21  warning  Found chmodSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11172:20  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  11178:11  warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11179:30  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  11182:18  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  11185:29  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11187:15  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11188:21  warning  Found chmodSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11200:16  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11226:7   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11295:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11296:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11300:11  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  11311:13  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  11335:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11356:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11360:12  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11405:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11406:41  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11424:21  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11484:43  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11485:9   warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11488:46  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11489:9   warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11494:45  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11495:9   warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11519:15  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11521:18  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11527:15  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11529:18  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11539:17  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11541:20  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11560:11  warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11565:17  warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11566:17  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11573:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11575:31  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  11598:13  warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11599:13  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11604:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11606:30  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  11610:21  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11619:15  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11621:18  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11622:15  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11635:14  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11637:25  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  11643:19  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11690:7   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11695:14  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  11698:25  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11703:11  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11704:17  warning  Found chmodSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11712:25  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11714:11  warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  11715:17  warning  Found chmodSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11723:17  warning  Found chmodSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  11747:27  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11747:55  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  11820:14  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11851:32  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11902:9   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  11903:24  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  12087:20  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  12087:47  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  12090:40  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  12095:38  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  12100:9   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  12110:13  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  12115:17  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  12116:22  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  12269:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  12271:57  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  12372:48  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  12604:21  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+  12814:20  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+  12820:17  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  12878:15  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+  12992:14  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  13003:19  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+  13024:25  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+  13026:25  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+  13160:33  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  13179:11  warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\overrides\hooks\gsd-check-update-worker.js
+   36:23  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   37:23  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   46:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   47:5   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   65:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   65:19  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   66:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+   66:19  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   76:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   78:22  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  108:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  109:26  warning  Found non-literal argument in require                                       security/detect-non-literal-require
+  127:10  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  130:12  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  134:27  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  187:7   warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+  191:31  warning  Unsafe Regular Expression                                                   security/detect-unsafe-regex
+  196:10  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  228:23  warning  Generic Object Injection Sink                                               security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\overrides\hooks\gsd-check-update.js
+   34:9   warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   35:14  warning  Found non-literal argument in require                                      security/detect-non-literal-require
+   66:35  warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   90:9   warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  113:10  warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  114:33  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  141:6   warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  142:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\overrides\hooks\gsd-statusline.js
+   27:14  warning  Found non-literal argument in require  security/detect-non-literal-require
+  174:37  warning  Unsafe Regular Expression              security/detect-unsafe-regex
+  186:32  warning  Unsafe Regular Expression              security/detect-unsafe-regex
+  198:36  warning  Unsafe Regular Expression              security/detect-unsafe-regex
+  396:35  warning  Generic Object Injection Sink          security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\bench-test-timing.js
+   41:17  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+  187:12  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  187:26  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  188:7   warning  Generic Object Injection Sink                                               security/detect-object-injection
+  194:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+  204:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  205:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  225:40  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  255:10  warning  Found non-literal argument to RegExp Constructor                            security/detect-non-literal-regexp
+  260:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  273:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  274:18  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  296:33  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  324:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\bench.js
+   69:17  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+  131:21  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  135:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  136:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  503:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+  507:10  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  569:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  626:10  warning  Found non-literal argument to RegExp Constructor                            security/detect-non-literal-regexp
+  631:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  644:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  645:18  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  694:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\check-boundary.js
+   69:8   warning  Found existsSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   71:23  warning  Found readdirSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   85:14  warning  Found lstatSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  144:8   warning  Found existsSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  146:23  warning  Found readdirSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  149:18  warning  Found statSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\check-install-drift.js
+  13:38  warning  Generic Object Injection Sink  security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\check-no-test-files-in-dist.js
+  50:15  warning  Found readdirSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  68:8   warning  Found existsSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\check-overrides.js
+   52:8   warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   54:23  warning  Found readdirSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   57:18  warning  Found statSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   78:19  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+   91:19  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  105:19  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  119:19  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  133:28  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  196:10  warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  204:10  warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  226:49  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  358:9   warning  Generic Object Injection Sink                                              security/detect-object-injection
+  361:16  warning  Generic Object Injection Sink                                              security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\check-parity.js
+   30:19  warning  Found statSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   35:19  warning  Found readdirSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   48:19  warning  Found statSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+   74:32  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  111:15  warning  Found statSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\compose.js
+  221:21  warning  Found non-literal argument to RegExp Constructor                            security/detect-non-literal-regexp
+  297:19  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  305:22  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  349:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  358:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  368:30  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  375:11  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  387:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  396:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  406:27  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  415:27  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  458:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  528:28  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+  604:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  639:10  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  731:17  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  776:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  779:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  788:5   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  792:7   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  813:7   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  823:7   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  833:5   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  839:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  854:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  945:24  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  959:32  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  964:24  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  986:32  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\expect-red.cjs
+  176:49  warning  Generic Object Injection Sink               security/detect-object-injection
+  205:45  warning  Generic Object Injection Sink               security/detect-object-injection
+  215:9   warning  Generic Object Injection Sink               security/detect-object-injection
+  217:75  warning  Generic Object Injection Sink               security/detect-object-injection
+  223:11  warning  Generic Object Injection Sink               security/detect-object-injection
+  223:68  warning  Generic Object Injection Sink               security/detect-object-injection
+  225:39  warning  Function Call Object Injection Sink         security/detect-object-injection
+  226:69  warning  Function Call Object Injection Sink         security/detect-object-injection
+  227:16  warning  Generic Object Injection Sink               security/detect-object-injection
+  227:33  warning  Generic Object Injection Sink               security/detect-object-injection
+  266:22  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  267:75  warning  Generic Object Injection Sink               security/detect-object-injection
+  324:9   warning  Generic Object Injection Sink               security/detect-object-injection
+  331:37  warning  Generic Object Injection Sink               security/detect-object-injection
+  353:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  354:10  warning  Unsafe Regular Expression                   security/detect-unsafe-regex
+  399:21  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  410:62  warning  Generic Object Injection Sink               security/detect-object-injection
+  410:62  warning  Generic Object Injection Sink               security/detect-object-injection
+  411:13  warning  Generic Object Injection Sink               security/detect-object-injection
+  411:13  warning  Generic Object Injection Sink               security/detect-object-injection
+  444:74  warning  Generic Object Injection Sink               security/detect-object-injection
+  445:9   warning  Generic Object Injection Sink               security/detect-object-injection
+  445:89  warning  Generic Object Injection Sink               security/detect-object-injection
+  447:43  warning  Generic Object Injection Sink               security/detect-object-injection
+  510:51  warning  Generic Object Injection Sink               security/detect-object-injection
+  530:78  warning  Generic Object Injection Sink               security/detect-object-injection
+  557:7   warning  Generic Object Injection Sink               security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\flake-triage.js
+  110:27  warning  Unsafe Regular Expression  security/detect-unsafe-regex
+  126:26  warning  Unsafe Regular Expression  security/detect-unsafe-regex
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\generate-override-churn.js
+   47:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   49:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   52:18  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+   71:19  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+   78:22  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   79:20  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  114:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+  198:17  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+  231:10  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  231:33  warning  Found statSync from package "fs" with non literal argument at index 0       security/detect-non-literal-fs-filename
+  256:25  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  258:7   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\lib\semantic-js.js
+  60:5   warning  Generic Object Injection Sink        security/detect-object-injection
+  60:46  warning  Function Call Object Injection Sink  security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\lib\upstream-source.js
+   59:25  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  164:8   warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  185:36  warning  Found existsSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  198:31  warning  Function Call Object Injection Sink                                        security/detect-object-injection
+  207:31  warning  Function Call Object Injection Sink                                        security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\osv-triage.js
+   31:17  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+   85:42  warning  Generic Object Injection Sink                                               security/detect-object-injection
+   85:61  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  159:32  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  185:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  186:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  199:25  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\preview-update.js
+   72:42  warning  Generic Object Injection Sink                                             security/detect-object-injection
+  182:23  warning  Found readdirSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  186:15  warning  Found statSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  276:32  warning  Found existsSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\run-fable-checkpoint.js
+   53:39  warning  Function Call Object Injection Sink                                         security/detect-object-injection
+  302:46  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  302:74  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  303:25  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  523:18  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+  525:10  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  528:17  warning  Variable Assigned to Object Injection Sink                                  security/detect-object-injection
+  529:9   warning  Generic Object Injection Sink                                               security/detect-object-injection
+  530:5   warning  Generic Object Injection Sink                                               security/detect-object-injection
+  532:57  warning  Generic Object Injection Sink                                               security/detect-object-injection
+  551:13  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  575:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  578:5   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  579:5   warning  Found renameSync from package "fs" with non literal argument at index 0,1   security/detect-non-literal-fs-filename
+  582:7   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  596:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  598:3   warning  Found writeFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  600:5   warning  Found linkSync from package "fs" with non literal argument at index 0,1     security/detect-non-literal-fs-filename
+  603:7   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  615:5   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  618:7   warning  Found unlinkSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  634:31  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  635:33  warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  639:35  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\run-upstream-compat.js
+   61:10  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+   67:21  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  133:18  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
+  241:3   warning  Found symlinkSync from package "fs" with non literal argument at index 0,1  security/detect-non-literal-fs-filename
+  254:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  256:23  warning  Found readdirSync from package "fs" with non literal argument at index 0    security/detect-non-literal-fs-filename
+  295:3   warning  Found mkdirSync from package "fs" with non literal argument at index 0      security/detect-non-literal-fs-filename
+  450:8   warning  Found existsSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\verify-fable-checkpoint.js
+   77:23  warning  Function Call Object Injection Sink         security/detect-object-injection
+  119:5   warning  Generic Object Injection Sink               security/detect-object-injection
+  181:22  warning  Function Call Object Injection Sink         security/detect-object-injection
+  345:18  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  347:10  warning  Generic Object Injection Sink               security/detect-object-injection
+  350:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  351:9   warning  Generic Object Injection Sink               security/detect-object-injection
+  352:5   warning  Generic Object Injection Sink               security/detect-object-injection
+  354:43  warning  Generic Object Injection Sink               security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\verify-hosted-ci.js
+   250:5   warning  Found lstatSync from package "fs" with non literal argument at index 0     security/detect-non-literal-fs-filename
+   806:5   warning  Generic Object Injection Sink                                              security/detect-object-injection
+   806:24  warning  Generic Object Injection Sink                                              security/detect-object-injection
+   877:27  warning  Variable Assigned to Object Injection Sink                                 security/detect-object-injection
+   878:21  warning  Variable Assigned to Object Injection Sink                                 security/detect-object-injection
+   890:26  warning  Generic Object Injection Sink                                              security/detect-object-injection
+   902:23  warning  Variable Assigned to Object Injection Sink                                 security/detect-object-injection
+   903:22  warning  Variable Assigned to Object Injection Sink                                 security/detect-object-injection
+   938:25  warning  Generic Object Injection Sink                                              security/detect-object-injection
+  1664:5   warning  Generic Object Injection Sink                                              security/detect-object-injection
+  1720:9   warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  1734:30  warning  Found readFileSync from package "fs" with non literal argument at index 0  security/detect-non-literal-fs-filename
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\acceptance\installer-recovery.cjs
+  36:14  warning  Found non-literal argument to RegExp Constructor  security/detect-non-literal-regexp
+
+✖ 844 problems (0 errors, 844 warnings)
+

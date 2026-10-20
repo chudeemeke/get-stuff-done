@@ -1,0 +1,14 @@
+{
+  "synced": 1,
+  "skipped": 63,
+  "changes": [
+    {
+      "agent": "gsd-plan-checker",
+      "from": "low",
+      "to": "high"
+    }
+  ],
+  "dry_run": false,
+  "agents_dir": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\upstream-claude-configuration-isolated-v2\\home\\.claude\\agents"
+}
+STDERR

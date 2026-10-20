@@ -1,0 +1,107 @@
+{
+  "root": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m",
+  "source": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\upstream\\1.12.0\\package",
+  "platform": "win32",
+  "node": "v24.20.0",
+  "installedSkinAcceptance": false,
+  "results": [
+    {
+      "runtime": "claude",
+      "repaired": {
+        "synced": 1,
+        "skipped": 34,
+        "changes": [
+          {
+            "agent": "gsd-plan-checker",
+            "from": "low",
+            "to": "high"
+          }
+        ],
+        "dry_run": false,
+        "agents_dir": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.claude\\agents"
+      },
+      "noop": {
+        "synced": 0,
+        "skipped": 35,
+        "changes": [],
+        "dry_run": false,
+        "agents_dir": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.claude\\agents"
+      },
+      "originalSha256": "93744b24e9cba6b934fdc68c9c26ba1cff1fa1118ef2b9ba57433588f0b108f3",
+      "repairedSha256": "93744b24e9cba6b934fdc68c9c26ba1cff1fa1118ef2b9ba57433588f0b108f3",
+      "routes": [
+        {
+          "name": "gsd-plan-phase",
+          "path": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.claude\\skills\\gsd-plan-phase\\SKILL.md",
+          "sha256": "1926577a93e97ec31e413dbd80e09770a4bba2f50efb887dc72b228cc1c84c83"
+        },
+        {
+          "name": "gsd-execute-phase",
+          "path": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.claude\\skills\\gsd-execute-phase\\SKILL.md",
+          "sha256": "3650c3e06462fa344a6648a2334aaf9820f23063ddf757603a745c0fffc74d22"
+        },
+        {
+          "name": "gsd-ns-workflow",
+          "path": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.claude\\skills\\gsd-ns-workflow\\SKILL.md",
+          "sha256": "4282c40a5e6e8bbe76ca0f80ff1db9e2f2bf53810507268a24f0983db7466a23"
+        }
+      ]
+    },
+    {
+      "runtime": "codex",
+      "repaired": {
+        "synced": 1,
+        "skipped": 34,
+        "changes": [
+          {
+            "agent": "gsd-plan-checker",
+            "field": "model",
+            "from": "sonnet",
+            "to": null
+          },
+          {
+            "agent": "gsd-plan-checker",
+            "field": "model_reasoning_effort",
+            "from": "low",
+            "to": null
+          }
+        ],
+        "dry_run": false,
+        "agents_dir": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.codex\\agents",
+        "refused": [],
+        "write_failures": [],
+        "read_failures": []
+      },
+      "noop": {
+        "synced": 0,
+        "skipped": 35,
+        "changes": [],
+        "dry_run": false,
+        "agents_dir": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.codex\\agents",
+        "refused": [],
+        "write_failures": [],
+        "read_failures": []
+      },
+      "originalSha256": "105e56f4e42cfa621d37c5e7d3261b399a8f11e350a87612b9459a29e8780c9a",
+      "repairedSha256": "105e56f4e42cfa621d37c5e7d3261b399a8f11e350a87612b9459a29e8780c9a",
+      "routes": [
+        {
+          "name": "gsd-plan-phase",
+          "path": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.agents\\skills\\gsd-plan-phase\\SKILL.md",
+          "sha256": "f2b5c14926c14224f459bf67a9375882d7ec17a3e400315843218ea955d45929"
+        },
+        {
+          "name": "gsd-execute-phase",
+          "path": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.agents\\skills\\gsd-execute-phase\\SKILL.md",
+          "sha256": "fc2e86b6aacf678a3ff826b5d24fe4f2fb65d2e174a8f690eb11a29a7dc8b030"
+        },
+        {
+          "name": "gsd-ns-workflow",
+          "path": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m\\.agents\\skills\\gsd-ns-workflow\\SKILL.md",
+          "sha256": "ec30a08de6d6349ccabde47fe76d94568d47683329e1dbea34efbd70f7751e81"
+        }
+      ]
+    }
+  ],
+  "status": "passed"
+}

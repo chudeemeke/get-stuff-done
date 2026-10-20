@@ -1,0 +1,51 @@
+▶ expect-red: installer recovery
+  ✔ recovery evidence must match the explicitly supplied source bytes and host (95.2547ms)
+  ✔ independent context must contain unambiguous relative paths and real residue (34.1379ms)
+  ✔ malformed, interrupted and cleanup-failed reports return diagnostics instead of acceptance or exceptions (39.8893ms)
+  ✔ known failure labels cannot conceal missing, contradictory or additional observations (361.5455ms)
+  ✔ only the complete reviewed inventory is accepted, without duplicates or extra failures (387.992ms)
+  ✔ the captured red from the unfixed installer is the known red (3.0564ms)
+  ✔ an additional owner-byte loss cannot hide behind the expected recovery failures (4.1421ms)
+  ✔ an unexpected pass fails and says how to retire the wrapper (1.9776ms)
+  ✔ a red with harness check twin:child-failed-at-injection failing is the wrong red (3.2167ms)
+  ✔ a red with harness check twin:residue-non-empty failing is the wrong red (3.2059ms)
+  ✔ a red with harness check fresh:wrapper-child-failed-at-injection failing is the wrong red (3.6629ms)
+  ✔ a red with harness check upgrade:first-install-succeeded failing is the wrong red (7.6393ms)
+  ✔ a red with harness check upgrade:picked-files-installed failing is the wrong red (3.1067ms)
+  ✔ a red with harness check upgrade:wrapper-child-failed-at-injection failing is the wrong red (2.9328ms)
+  ✔ a red with harness check upgrade:child-rewrote-picked-files failing is the wrong red (3.4462ms)
+  ✔ a red that never ran harness check twin:child-failed-at-injection is the wrong red (3.1717ms)
+  ✔ a red that never ran harness check twin:residue-non-empty is the wrong red (2.855ms)
+  ✔ a red that never ran harness check fresh:wrapper-child-failed-at-injection is the wrong red (2.962ms)
+  ✔ a red that never ran harness check upgrade:first-install-succeeded is the wrong red (4.3208ms)
+  ✔ a red that never ran harness check upgrade:picked-files-installed is the wrong red (3.0367ms)
+  ✔ a red that never ran harness check upgrade:wrapper-child-failed-at-injection is the wrong red (2.8565ms)
+  ✔ a red that never ran harness check upgrade:child-rewrote-picked-files is the wrong red (2.8353ms)
+  ✔ a red in which fresh:outcome-exact passes is not the known red (3.0353ms)
+  ✔ a red in which fresh:top-level-exact-allowlist passes is not the known red (2.8806ms)
+  ✔ a red in which fresh:transaction-directory-shape passes is not the known red (2.9864ms)
+  ✔ a red in which upgrade:outcome-exact passes is not the known red (4.3801ms)
+  ✔ a red in which upgrade:transaction-directory-shape passes is not the known red (2.938ms)
+  ✔ a missing compose is the wrong red (0.268ms)
+  ✔ a crash with no report and an unexpected exit status are both refused (4.2608ms)
+✔ expect-red: installer recovery (1001.6068ms)
+▶ expect-red: install transaction coverage
+  ✔ the captured red from the skeleton is the known red (1.3709ms)
+  ✔ a case failing for any reason other than an unbuilt operation is the wrong red (0.9821ms)
+  ✔ a coverage shortfall on landed code is the wrong red, on either stream (2.2818ms)
+  ✔ nothing failing, a crash with no summary, and a miscounted summary are all refused (2.5161ms)
+✔ expect-red: install transaction coverage (7.6664ms)
+▶ expect-red: command line
+  ✔ source or validator changes during capture invalidate the report (65.868ms)
+  ✔ the production gate refuses Bun before spawning a child (1.3395ms)
+  ✔ the gate command is read from package.json, not copied (3.1857ms)
+  ✔ exits 0 on the known red, 1 on anything else, 2 on misuse (142.7489ms)
+✔ expect-red: command line (213.7855ms)
+ℹ tests 37
+ℹ suites 3
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4171.8767

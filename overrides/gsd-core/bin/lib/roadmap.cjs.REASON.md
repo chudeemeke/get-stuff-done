@@ -9,8 +9,8 @@ writer intentionally canonicalizes markdown, so the fork needs a narrower
 roadmap-only persistence boundary rather than changing global document policy.
 
 ## Upstream snapshot
-- Version: 1.8.0
-- SHA-256: 760084a358867df85a4354de0790753700e1cf69c31907b20407d7abffef4906
+- Version: 1.9.1
+- SHA-256: 157260cb10eca632688f3918b12ab21149d2233a7419d9fa1ea072580bc8b155
 
 ## What's different
 - Reads current phase from STATE.md formats used by this fork and prefers it when it maps to an active roadmap phase.
@@ -61,3 +61,7 @@ Fork delta unchanged and still required (drop-experiment: roadmap.test.cjs
 fails 8 tests on pure 1.8.0): declared-plans accounting, STATE current-phase
 preference, anchored checkbox completion, byte-preserving publication via
 fork-roadmap-persistence.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.

@@ -1,0 +1,15 @@
+{
+  "node": "C:\\Program Files\\nodejs\\node.exe",
+  "results": [
+    {
+      "label": "noop",
+      "status": 0,
+      "entries": []
+    },
+    {
+      "label": "homedir",
+      "status": 0,
+      "entries": []
+    }
+  ]
+}

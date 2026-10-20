@@ -4,8 +4,8 @@
 Fork GSD project recovery exposed that `init progress` reported Phase 40.5 as current even though STATE.md records Phase 41 as active, and selected backlog 999.1 as next work instead of roadmap Phase 42.
 
 ## Upstream snapshot
-- Version: 1.8.0
-- SHA-256: d8ef469cbf2204109676e0b29de76a013146cb8d85c7b45229d583b01cee9041
+- Version: 1.9.1
+- SHA-256: 9061955d8d8d55576eefd5b0c460d9b27f953d11825d671cd19b3dc0824e33a9
 
 ## What's different
 - Reads current phase from STATE.md formats used by this fork and prefers it after merging disk and ROADMAP-only phases.
@@ -27,5 +27,9 @@ Reviewed 2026-08-30 for 1.7.0 -> 1.8.0: upstream changes are #2376 (the bulk —
 init projection refinements), #2337, and #2402 — adopted intact via the
 pure-1.8.0 base; none overlaps the fork delta's regions (patch applied with
 only line offsets). Fork delta unchanged and still required (drop-experiment:
-init.test.cjs fails 6 tests on pure 1.8.0): readStateCurrentPhase + post-sort
+init.test.cjs fails 2 tests on pure 1.8.0 after adoption corrections; see September5 full-TAP report): readStateCurrentPhase + post-sort
 STATE-preference current/next selection + state_current_phase output.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.

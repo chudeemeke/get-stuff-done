@@ -1,0 +1,33 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "captured 27-check"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+371 | 
+372 | describe('expect-red: installer recovery', () => {
+373 |   test('the captured 27-check private-home report satisfies the approved inventory', () => {
+374 |     expect(capturedRecovery.checks).toHaveLength(27);
+375 |     expect(capturedRecovery.checks.filter(row => row.ok)).toHaveLength(14);
+376 |     expect(judgeInstallerRecovery(runOf(KNOWN_RED))).toEqual([]);
+                                                           ^
+error: expect(received).toEqual(expected)
+
+- []
++ [
++   "unreviewed check: fresh:home-outside-target-preserved",
++   "unexpected or incomplete observation: fresh:home-outside-target-preserved",
++   "unreviewed check: upgrade:home-outside-target-preserved",
++   "unexpected or incomplete observation: upgrade:home-outside-target-preserved",
++ ]
+
+- Expected  - 1
++ Received  + 6
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:376:54)
+(fail) expect-red: installer recovery > the captured 27-check private-home report satisfies the approved inventory [31.00ms]
+
+ 0 pass
+ 72 filtered out
+ 1 fail
+ 3 expect() calls
+Ran 1 test across 1 file. [204.00ms]
+error: script "test" exited with code 1

@@ -4,16 +4,33 @@
 Memory-nexus recovery exposed a Codex global install crash after upstream copied files and wrote VERSION. `installCodexConfig` can pass `null` frontmatter into `extractFrontmatterField`, which then calls `.match` and aborts the installer after mutation.
 
 ## Upstream snapshot
-- Version: 1.8.0
-- SHA-256: f73a596b1bd37ddf7b96e0caef915450c7e4f127c7fb72bc60ff0eb6bfca76c1
-- Semantic SHA-256: cf0eb628035d4b6eff41f53d1589771e8092f9e919a12aae1cd733be076089e3
+- Version: 1.9.1
+- SHA-256: aa776a525a21eebf30ce0ee176b360ccb30ae9522e1c0c37f982c88509877bde
+- Semantic SHA-256: 4bbcd0f95c08f948b86e024ddc3a1db0a65b0da0fead6a6f1079eec2b6523603
 
 ## What's different
 - Treats missing or malformed YAML frontmatter as an absent field in `extractFrontmatterField`.
 - Preserves filename fallback behavior for Codex agent metadata instead of crashing during TOML generation.
+- Restores the shared `.gsd/defaults.json` bytes (or prior absence) when Codex
+  agent/config generation fails after setting runtime defaults. Composed
+  installer fault injection covers both prior states.
+- Documents `--kimi-code` as the distinct Kimi Code selector and removes the
+  obsolete example that directed the Python Kimi runtime into its directory.
+- Records script-helper ownership from regular package source files, matching
+  the copy operation, instead of claiming every destination `.cjs` file.
+  Includes copied documentation so uninstall can remove managed files without
+  recursively deleting shared helper directories.
 
 ## Review trigger
 When upstream `bin/install.js` changes, check whether Open GSD natively handles absent agent frontmatter in Codex config generation and remove this override once upstream behavior covers the case.
+
+Also retire the defaults rollback and Kimi help deltas individually when the
+same composed-installer regression cases pass against the pure candidate.
+
+Retire the script ownership delta when pure upstream passes the real install /
+uninstall owner-script regression in `tests/installer-cli-safety.test.js`,
+including complete inventory of the regular helper files it copies. The
+September 14 RED receipt proves destination enumeration claims owner scripts.
 
 ## Bump review 2026-08-30 (1.6.1 -> 1.7.0)
 
@@ -28,3 +45,7 @@ extractFrontmatterField (line 2434) STILL calls .match() unguarded, and
 uninstall STILL never removes the .gsd-source marker it writes (line 10630) —
 both fork deltas remain required. Rebuilt as pure 1.8.0 base + the null guard
 + the uninstall marker removal. Both remain upstream-contribution candidates.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.

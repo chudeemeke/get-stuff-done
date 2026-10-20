@@ -221,44 +221,41 @@ describe('paired performance adjudication', () => {
 });
 
 describe('check-perf CLI', () => {
-  test('uses validated paired evidence as the strict blocking verdict', () => {
-    const pass = runPairedCheck(captureFixture({ candidateDurationNs: 110_000_000 }));
-    const warning = runPairedCheck(captureFixture({ candidateDurationNs: 111_000_000 }));
-    const boundary = runPairedCheck(captureFixture({ candidateDurationNs: 125_000_000 }));
-    // Ratio breach (1.26) whose mean delta (26ms) is below the 500ms materiality
-    // floor: visible as a warning, never blocking.
-    const immaterial = runPairedCheck(captureFixture({ candidateDurationNs: 126_000_000 }));
-    const failure = runPairedCheck(captureFixture({
-      referenceDurationNs: 10_000_000_000,
-      candidateDurationNs: 12_600_000_000,
-    }));
+  // Each independent CLI invocation keeps the existing five-second test limit.
+  // Grouping five or six processes under one deadline hid which verdict failed.
+  for (const scenario of [
+    { label: 'pass', fixture: { candidateDurationNs: 110_000_000 }, status: 0, warning: false },
+    { label: 'warning', fixture: { candidateDurationNs: 111_000_000 }, status: 0, warning: true },
+    { label: 'boundary', fixture: { candidateDurationNs: 125_000_000 }, status: 0, warning: true },
+    // A 1.26 ratio with a 26ms delta is below the 500ms materiality floor.
+    { label: 'immaterial breach', fixture: { candidateDurationNs: 126_000_000 }, status: 0, warning: true, error: false },
+    { label: 'blocking failure', fixture: { referenceDurationNs: 10_000_000_000, candidateDurationNs: 12_600_000_000 }, status: 1, error: true },
+  ]) {
+    test(`uses validated paired evidence as the strict blocking verdict: ${scenario.label}`, () => {
+      const result = runPairedCheck(captureFixture(scenario.fixture));
+      expect(result.status).toBe(scenario.status);
+      if (scenario.warning === true) expect(result.output).toContain('::warning');
+      if (scenario.warning === false) expect(result.output).not.toContain('::warning');
+      if (scenario.error === true) expect(result.output).toContain('::error');
+      if (scenario.error === false) expect(result.output).not.toContain('::error');
+    });
+  }
 
-    expect(pass.status).toBe(0);
-    expect(pass.output).not.toContain('::warning');
-    expect(warning.status).toBe(0);
-    expect(warning.output).toContain('::warning');
-    expect(boundary.status).toBe(0);
-    expect(boundary.output).toContain('::warning');
-    expect(immaterial.status).toBe(0);
-    expect(immaterial.output).toContain('::warning');
-    expect(immaterial.output).not.toContain('::error');
-    expect(failure.status).toBe(1);
-    expect(failure.output).toContain('::error');
-  });
-
-  test('rejects mixed modes, threshold overrides, and structurally invalid paired evidence', () => {
-    for (const extraArgs of [
-      ['--baseline', 'historical.json'],
-      ['--current', 'current.json'],
-      ['--platform', 'linux'],
-      ['--warn-ratio', '9'],
-      ['--fail-ratio', '9'],
-    ]) {
+  for (const extraArgs of [
+    ['--baseline', 'historical.json'],
+    ['--current', 'current.json'],
+    ['--platform', 'linux'],
+    ['--warn-ratio', '9'],
+    ['--fail-ratio', '9'],
+  ]) {
+    test(`rejects mixed modes and threshold overrides: ${extraArgs[0]}`, () => {
       const result = runPairedCheck(captureFixture(), extraArgs);
       expect(result.status).toBe(1);
       expect(result.output).toContain('cannot be mixed');
-    }
+    });
+  }
 
+  test('rejects structurally invalid paired evidence', () => {
     const invalid = captureFixture();
     invalid.acceptedRegressions = [];
     const result = runPairedCheck(invalid);

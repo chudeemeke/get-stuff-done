@@ -1,0 +1,12 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern outside-target
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > outside-target deletion, byte damage and extra entries fail in both scenarios [3719.00ms]
+(pass) expect-red: recovery observation contract > outside-target damage controls detect a removed home comparison [922.00ms]
+
+ 2 pass
+ 65 filtered out
+ 0 fail
+ 50 expect() calls
+Ran 2 tests across 1 file. [4.82s]

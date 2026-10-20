@@ -1,0 +1,31 @@
+{
+  "date": "2026-09-20T01:24:40.9604866Z",
+  "branch": "chore/upstream-bump-1.9.1",
+  "head": "e50bda5b9dc6c538bd33f1736fe59fcc957f78a7",
+  "docsExit": 0,
+  "handoffStatus": "active-P04-P05-verified-P07-containment-proposal-awaits-owner",
+  "sourceChecks": [
+    {
+      "path": "scripts/expect-red.cjs",
+      "sha256": "d825d8788a6219ad2f0ebc4e3781b4abaa90ac187355949c5ff9a6c399f1fa19",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "tests/acceptance/installer-recovery.cjs",
+      "sha256": "444a786ec8312b43560ca889c671c3867390d018e47e68e4f657d07cfcf95d58",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "tests/expect-red.test.js",
+      "sha256": "0eb938c3908b5fb14327b19a4af713715a71ff4442ed012cae93cd4984f74a05",
+      "matchesVerifiedSource": true
+    }
+  ],
+  "protectedSourcesUnchanged": true,
+  "diffCheckExit": 0,
+  "experimentalDirectoryExists": false,
+  "goal": "ACTIVE",
+  "ownerApproval": "PENDING",
+  "review": "Opus5 PASS approval readiness, required text corrections applied",
+  "newProductTestsRun": false
+}

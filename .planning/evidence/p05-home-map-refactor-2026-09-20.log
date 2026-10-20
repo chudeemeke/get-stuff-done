@@ -1,0 +1,14 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "home maps|runtime changes|captured 27-check|decision controls"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: installer recovery > home maps reject incomplete, malformed, aliased and falsely preserved evidence [375.00ms]
+(pass) expect-red: installer recovery > runtime changes are Windows-only; preserved arbitrary owner files and links remain valid [32.00ms]
+(pass) expect-red: installer recovery > the captured 27-check private-home report satisfies the approved inventory
+(pass) expect-red: install transaction coverage > decision controls detect independently weakened recovery and coverage guards [375.00ms]
+
+ 4 pass
+ 74 filtered out
+ 0 fail
+ 130 expect() calls
+Ran 4 tests across 1 file. [1491.00ms]

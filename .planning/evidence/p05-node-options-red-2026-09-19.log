@@ -1,0 +1,74 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "expect-red: (installer recovery|command line|install transaction coverage)"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: installer recovery > recovery evidence must match the explicitly supplied source bytes and host [125.00ms]
+(pass) expect-red: installer recovery > independent context must contain unambiguous relative paths and real residue [15.00ms]
+(pass) expect-red: installer recovery > malformed, interrupted and cleanup-failed reports return diagnostics instead of acceptance or exceptions [47.00ms]
+(pass) expect-red: installer recovery > known failure labels cannot conceal missing, contradictory or additional observations [547.00ms]
+(pass) expect-red: installer recovery > only the complete reviewed inventory is accepted, without duplicates or extra failures [594.00ms]
+(pass) expect-red: installer recovery > the captured red from the unfixed installer is the known red
+(pass) expect-red: installer recovery > an additional owner-byte loss cannot hide behind the expected recovery failures
+(pass) expect-red: installer recovery > an unexpected pass fails and says how to retire the wrapper [15.00ms]
+(pass) expect-red: installer recovery > a red with harness check twin:child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check twin:residue-non-empty failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check fresh:wrapper-child-failed-at-injection failing is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red with harness check upgrade:first-install-succeeded failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:picked-files-installed failing is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red with harness check upgrade:wrapper-child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:child-rewrote-picked-files failing is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check twin:child-failed-at-injection is the wrong red [15.00ms]
+(pass) expect-red: installer recovery > a red that never ran harness check twin:residue-non-empty is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check fresh:wrapper-child-failed-at-injection is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:first-install-succeeded is the wrong red [15.00ms]
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:picked-files-installed is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:wrapper-child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:child-rewrote-picked-files is the wrong red [16.00ms]
+(pass) expect-red: installer recovery > a red in which fresh:outcome-exact passes is not the known red
+(pass) expect-red: installer recovery > a red in which fresh:top-level-exact-allowlist passes is not the known red
+(pass) expect-red: installer recovery > a red in which fresh:transaction-directory-shape passes is not the known red
+(pass) expect-red: installer recovery > a red in which upgrade:outcome-exact passes is not the known red
+(pass) expect-red: installer recovery > a red in which upgrade:transaction-directory-shape passes is not the known red [16.00ms]
+(pass) expect-red: installer recovery > a missing compose is the wrong red
+(pass) expect-red: installer recovery > a crash with no report and an unexpected exit status are both refused
+(pass) expect-red: install transaction coverage > affirmative coverage requires both exact files, every metric and consistent aggregate counts [93.00ms]
+(pass) expect-red: install transaction coverage > coverage refuses malformed or interrupted runs and TAP tokens disguised as table rows [16.00ms]
+(pass) expect-red: install transaction coverage > the reviewed 51-case render-only red is the known red
+(pass) expect-red: install transaction coverage > old skeleton evidence and any incomplete or changed case inventory are refused [156.00ms]
+(pass) expect-red: install transaction coverage > TAP framing, terminal counts and bounded render failure diagnostics are mandatory [16.00ms]
+(pass) expect-red: install transaction coverage > a case failing for any reason other than an unbuilt operation is the wrong red
+(pass) expect-red: install transaction coverage > a coverage shortfall on landed code is the wrong red, on either stream
+(pass) expect-red: install transaction coverage > nothing failing, a crash with no summary, and a miscounted summary are all refused
+(pass) expect-red: command line > coverage ignore directives in either watched module refuse before execution [406.00ms]
+(pass) expect-red: command line > capture bounds execution and isolates inherited test and coverage configuration [156.00ms]
+434 |         const result = main(['installer-recovery'], {
+435 |           packageJson, log: () => {},
+436 |           runtime: { execPath: 'node', platform: capturedRecovery.platform, nodeVersion: capturedRecovery.node, isBun: false },
+437 |           spawnSync: () => { spawned = true; return runOf(KNOWN_RED); },
+438 |         });
+439 |         expect(result).toBe(1);
+                             ^
+error: expect(received).toBe(expected)
+
+Expected: 1
+Received: 0
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:439:24)
+(fail) expect-red: command line > inherited Node test-runner options refuse before child execution [32.00ms]
+(pass) expect-red: command line > coverage capture uses a new private report and V8 directory on every invocation [172.00ms]
+(pass) expect-red: command line > source or validator changes during capture invalidate the report [78.00ms]
+(pass) expect-red: command line > the package command is parsed from the same bytes as its evidence digest
+(pass) expect-red: command line > the production gate refuses Bun before spawning a child
+(pass) expect-red: command line > the gate command is read from package.json, not copied [16.00ms]
+(pass) expect-red: command line > package commands cannot weaken coverage or redirect the reviewed gate
+(pass) expect-red: command line > exits 0 on the known red, 1 on anything else, 2 on misuse [31.00ms]
+
+1 tests failed:
+(fail) expect-red: command line > inherited Node test-runner options refuse before child execution [32.00ms]
+
+ 46 pass
+ 2 filtered out
+ 1 fail
+ 648 expect() calls
+Ran 47 tests across 1 file. [3.10s]
+error: script "test" exited with code 1

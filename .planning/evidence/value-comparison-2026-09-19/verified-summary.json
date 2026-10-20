@@ -1,0 +1,68 @@
+{
+  "timestamp": "2026-09-19T12:21:08.629Z",
+  "verification": "Expected experimental results present; NOT product acceptance",
+  "upstreamIntegrityVerified": true,
+  "summaries": [
+    {
+      "name": "upstream-state",
+      "pass": 9,
+      "fail": 3
+    },
+    {
+      "name": "skin-state",
+      "pass": 9,
+      "fail": 3
+    },
+    {
+      "name": "upstream-behavior",
+      "pass": 0,
+      "fail": 8
+    },
+    {
+      "name": "skin-behavior",
+      "pass": 8,
+      "fail": 0
+    },
+    {
+      "name": "upstream-claude-lifecycle-isolated",
+      "pass": 19,
+      "fail": 2
+    },
+    {
+      "name": "upstream-codex-lifecycle-isolated",
+      "pass": 19,
+      "fail": 2
+    },
+    {
+      "name": "skin-claude-lifecycle-isolated",
+      "pass": 21,
+      "fail": 0
+    },
+    {
+      "name": "skin-codex-lifecycle-isolated",
+      "pass": 21,
+      "fail": 0
+    },
+    {
+      "name": "upstream-claude-failure-isolated",
+      "pass": 9,
+      "fail": 1
+    },
+    {
+      "name": "skin-claude-failure-isolated",
+      "pass": 8,
+      "fail": 2
+    },
+    {
+      "name": "upstream-claude-configuration-isolated-v2",
+      "pass": 9,
+      "fail": 0
+    },
+    {
+      "name": "upstream-codex-configuration-isolated-v2",
+      "pass": 9,
+      "fail": 0
+    }
+  ],
+  "adoptionCases": 7
+}

@@ -1,0 +1,12 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "abort-shaped|decision controls detect independently"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: installer recovery > a real abort-shaped report keeps its failed harness diagnostic without context
+(pass) expect-red: install transaction coverage > decision controls detect independently weakened recovery and coverage guards [187.00ms]
+
+ 2 pass
+ 66 filtered out
+ 0 fail
+ 39 expect() calls
+Ran 2 tests across 1 file. [387.00ms]

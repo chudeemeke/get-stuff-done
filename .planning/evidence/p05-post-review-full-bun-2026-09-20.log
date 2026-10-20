@@ -1,0 +1,2012 @@
+$ node scripts/run-bun-tests.js
+bun test v1.3.5 (1e86cebd)
+
+tests\atomic-json-file.test.js:
+(pass) atomic JSON file publication > writes exact formatted bytes through an exclusive sibling and rename [31.00ms]
+(pass) atomic JSON file publication > atomically replaces an existing JSON file without leaving its sibling
+(pass) atomic JSON file publication > uses exclusive creation and never deletes a collided temp path
+(pass) atomic JSON file publication > cleans a partially created temp after a non-collision write failure
+(pass) atomic JSON file publication > retries transient replacement failures before succeeding [16.00ms]
+(pass) atomic JSON file publication > uses the bounded production delay when no retry sleeper is injected [125.00ms]
+(pass) atomic JSON file publication > exhausts transient replacement retries, cleans the sibling, and preserves the error
+(pass) atomic JSON file publication > cleans the sibling and preserves replacement failure
+(pass) atomic JSON file publication > aggregates publication and cleanup failures
+(pass) atomic JSON file publication > ignores an already-missing sibling during failure cleanup
+(pass) atomic JSON file publication > rejects invalid paths and unsafe entropy before publication
+
+tests\audit-check.test.js:
+(pass) Bun audit report authority > keeps bun.lock as the sole graph and removes audit-ci delegation [15.00ms]
+(pass) Bun audit report authority > parses the observed Bun 1.3.5 JSON schema into canonical findings
+(pass) Bun audit report authority > rejects advisory URLs that do not contain one canonical GHSA identifier
+(pass) Bun audit report authority > rejects malformed and unbounded report envelopes and package entries
+(pass) Bun audit report authority > rejects finding-field schema drift at every bounded boundary [16.00ms]
+(pass) Bun audit report authority > blocks high and critical findings while retaining moderate visibility
+(pass) Bun audit report authority > keeps a reviewed matching suppression visible while removing its blocker [140.00ms]
+(pass) Bun audit report authority > attests Bun 1.3.5 and accepts findings exit one only with valid JSON
+(pass) Bun audit report authority > fails closed on runtime, tool, JSON, schema, and status disagreement
+(pass) Bun audit report authority > keeps a severity-mismatched suppression from hiding a blocker
+(pass) Bun audit report authority > CLI composition reports moderate findings without invoking audit-ci [63.00ms]
+(pass) Bun audit report authority > CLI composition exposes blockers, suppressions, validation, and failures [62.00ms]
+(pass) Bun audit report authority > CLI argument parsing resolves custom policy paths and ignores unknown flags
+(pass) Bun audit report authority > CLI composition reads the repository-pinned Bun version by default [16.00ms]
+(pass) audit suppression validation > valid empty suppressions array passes [16.00ms]
+(pass) audit suppression validation > rejects a suppression id outside the canonical GHSA namespace [31.00ms]
+(pass) audit suppression validation > missing required field fails and names the field [31.00ms]
+(pass) audit suppression validation > additional property fails [31.00ms]
+(pass) audit suppression validation > expired entry fails with exact actionable message [32.00ms]
+(pass) audit suppression validation > reReviewDate more than 60 calendar days after reviewedDate fails [31.00ms]
+(pass) audit suppression validation > non-expired entry normalizes medium severity to moderate [31.00ms]
+(pass) audit suppression validation > duplicate advisory suppressions fail as ambiguous policy [31.00ms]
+(pass) audit suppression validation > invalid date shapes and calendar values fail closed [47.00ms]
+(pass) audit suppression validation > non-array and partially shaped policies preserve validator diagnostics [32.00ms]
+(pass) audit suppression validation > finding evaluation rejects non-array inputs
+
+tests\bench-test-timing.test.js:
+(pass) bench-test-timing JUnit parsing > parses per-file and total durations from Bun JUnit XML
+(pass) bench-test-timing merge > fails when a required platform artifact is missing [16.00ms]
+(pass) bench-test-timing merge > merges required platform artifacts into committed timing shape [15.00ms]
+
+tests\bench.test.js:
+(pass) paired benchmark scheduling > parses paired worktrees without caller-declared commit provenance
+(pass) paired benchmark scheduling > resolves executed commits, subject digests, and one shared runtime identity [62.00ms]
+(pass) paired benchmark scheduling > inspects, isolates, measures, and cleans every scheduled sample
+(pass) paired benchmark scheduling > runs production preparation and exactly one Hyperfine command per scheduled sample [16.00ms]
+(pass) paired benchmark scheduling > aborts after a production preparation failure without invoking Hyperfine
+(pass) paired benchmark scheduling > rejects observed identity, control, and subject drift after measurement [15.00ms]
+(pass) paired benchmark scheduling > accepts exactly one successful raw Hyperfine sample in integer nanoseconds
+(pass) paired benchmark scheduling > writes schema-valid paired evidence only after the complete capture succeeds [266.00ms]
+(pass) paired benchmark scheduling > aborts the complete capture and cleans the sandbox when a sample fails
+(pass) paired benchmark scheduling > derives the first order from the recorded seed and then alternates
+(pass) paired benchmark scheduling > alternates warmups independently when warmups exceed an odd measured-pair count
+(pass) paired benchmark scheduling > captures complete deterministic evidence through one benchmark executor [16.00ms]
+(pass) paired benchmark scheduling > rejects indistinguishable subjects before invoking the benchmark executor
+(pass) paired benchmark help > documents how to derive the exact observed runner fingerprint
+(pass) bench hyperfine normalization > normalizes hyperfine seconds to integer millisecond metrics
+(pass) bench hyperfine normalization > can normalize a single-operation hyperfine file
+(pass) bench hyperfine normalization > install benchmark uses Bun cwd support and --ignore-scripts in scratch directory
+(pass) bench baseline merge > fails when a required platform artifact is missing [15.00ms]
+(pass) bench baseline merge > merges required platform artifacts into committed baseline shape [16.00ms]
+(pass) paired execution identity normalization > a space-padded Windows CPU model becomes a valid identity value
+(pass) paired execution identity normalization > collapses doubled internal whitespace and tabs
+(pass) paired execution identity normalization > non-string and empty input fall through to the caller default
+
+tests\branding.test.js:
+(pass) branding engine > applyBrandingToContent > substitutes @opengsd/gsd-core with @chude/get-stuff-done (BRAND-01)
+(pass) branding engine > applyBrandingToContent > substitutes open-gsd/gsd-core with chudeemeke/get-stuff-done (BRAND-01)
+(pass) branding engine > applyBrandingToContent > substitutes TACHES with Chude Emeke using word-boundary matching (BRAND-01, BRAND-04)
+(pass) branding engine > applyBrandingToContent > does NOT replace bare gsd-core (without scope prefix) (BRAND-02)
+(pass) branding engine > applyBrandingToContent > preserves internal directory name gsd-core/ in path strings (BRAND-02)
+(pass) branding engine > applyBrandingToContent > does not modify import statements containing gsd-core paths (BRAND-03)
+(pass) branding engine > applyBrandingToContent > preserves GSD_CODEX_MARKER string unchanged (BRAND-03)
+(pass) branding engine > applyBrandingToContent > preserves GSD_COPILOT_INSTRUCTIONS_MARKER string unchanged (BRAND-03)
+(pass) branding engine > applyBrandingToContent > applies most-specific patterns first -- no double-replace artifacts (BRAND-04)
+(pass) branding engine > applyBrandingToContent > handles @opengsd/gsd-core@latest before @opengsd/gsd-core to avoid corruption (BRAND-04)
+(pass) branding engine > applyBrandingToContent > returns unchanged content when no substitutions match
+(pass) branding engine > applyBrandingToContent > handles empty content without error
+(pass) branding engine > validateBrandingConfig > accepts valid branding.json with all required fields (BRAND-06)
+(pass) branding engine > validateBrandingConfig > accepts valid branding.json without optional fields (BRAND-06)
+(pass) branding engine > validateBrandingConfig > rejects branding.json missing substitutions array (BRAND-06)
+(pass) branding engine > validateBrandingConfig > rejects branding.json with substitutions that is not an array (BRAND-06)
+(pass) branding engine > validateBrandingConfig > rejects substitution missing required from field (BRAND-06)
+(pass) branding engine > validateBrandingConfig > rejects substitution missing required to field (BRAND-06)
+(pass) branding engine > validateBrandingConfig > rejects substitution missing required scope field (BRAND-06)
+(pass) branding engine > validateBrandingConfig > rejects substitution with invalid scope value not "text" (BRAND-06)
+(pass) branding engine > validateBrandingConfig > rejects branding.json with extra unknown top-level properties (BRAND-06)
+(pass) branding engine > validateBrandingConfig > rejects substitution with extra unknown properties (BRAND-06)
+(pass) branding engine > sortSubstitutions > sorts substitutions by from-string length descending (BRAND-04)
+(pass) branding engine > sortSubstitutions > does not mutate the original array
+(pass) branding engine > sortSubstitutions > handles single-item array without error
+(pass) branding engine > sortSubstitutions > handles empty array without error
+(pass) branding engine > shouldBrandFile > returns true for upstream JS files (BRAND-01)
+(pass) branding engine > shouldBrandFile > returns true for upstream markdown files (BRAND-01)
+(pass) branding engine > shouldBrandFile > returns true for upstream JSON files (BRAND-01)
+(pass) branding engine > shouldBrandFile > returns false for binary image files (BRAND-01)
+(pass) branding engine > shouldBrandFile > returns false for binary font files (BRAND-01)
+(pass) branding engine > shouldBrandFile > returns false for files in overlay/ directory (BRAND-01)
+(pass) branding engine > shouldBrandFile > returns false for files in overrides/ directory (BRAND-01)
+(pass) branding engine > shouldBrandFile > returns false for LICENSE file -- preserve upstream credit (BRAND-05)
+(pass) branding engine > shouldBrandFile > returns false for LICENSE regardless of case (BRAND-05)
+(pass) branding engine > generateCredits > generates CREDITS.md content when preserveUpstreamCredit is true (BRAND-05)
+(pass) branding engine > generateCredits > returns null when preserveUpstreamCredit is false (BRAND-05)
+(pass) branding engine > integration: real upstream install.js branding > branded install.js has zero @opengsd/gsd-core occurrences (BRAND-01)
+(pass) branding engine > integration: real upstream install.js branding > branded install.js retains all bare gsd-core path references (BRAND-02, BRAND-03)
+(pass) branding engine > integration: real upstream install.js branding > branded install.js preserves GSD_CODEX_MARKER (BRAND-03)
+(pass) branding engine > integration: real upstream install.js branding > branded install.js preserves GSD_COPILOT_INSTRUCTIONS_MARKER (BRAND-03)
+
+tests\bun-test-authority.test.js:
+(pass) Bun test authority preload > accepts the adapter-owned child capability
+(pass) Bun test authority preload > rejects direct invocation with routing guidance
+(pass) Bun test authority preload > guard reports one error and exits through injected process ports
+(pass) Bun test authority preload > bare bun test exits once with one actionable message [172.00ms]
+
+tests\check-boundary-coverage.test.js:
+(pass) check-boundary coverage > checkBoundary returns report object [250.00ms]
+(pass) check-boundary coverage > a dangling symlink in the tree does not abort the walk [63.00ms]
+(pass) check-boundary coverage > formatReport with clean report
+(pass) check-boundary coverage > formatReport with violations
+(pass) check-boundary coverage > parseArgs with no arguments
+(pass) check-boundary coverage > parseArgs with --upstream-dir and --project-dir flags
+
+tests\check-boundary.test.js:
+(pass) check-boundary module exports > checkBoundary is an exported function
+(pass) check-boundary module exports > module can be required without error
+(pass) no boundary violations > returns ok:true and empty violations when no upstream files in repo [16.00ms]
+(pass) no boundary violations > returns ok:true when project has zero files
+(pass) boundary violations > file matching upstream path triggers a violation
+(pass) boundary violations > multiple matching files all reported as violations [16.00ms]
+(pass) allowed directories > files in overrides/ are not violations [15.00ms]
+(pass) allowed directories > files in dist/ are not violations
+(pass) allowed directories > files in node_modules/ are not violations
+(pass) allowed directories > .git/ directory is excluded from scanning [16.00ms]
+(pass) allowed directories > tests/ directory is excluded from scanning
+(pass) allowed directories > .planning/ directory is excluded from scanning [15.00ms]
+(pass) CLI exit codes > exits 0 when no violations found [188.00ms]
+(pass) CLI exit codes > exits 1 when violations found [172.00ms]
+(pass) CLI exit codes > exits 0 in report-only mode when violations found [140.00ms]
+(pass) CLI exit codes > CLI output includes violation path when violations found [157.00ms]
+(pass) CLI exit codes > CLI output includes clean message when no violations [156.00ms]
+(pass) formatReport > clean result produces no-violation message
+(pass) formatReport > violations produce count and file list
+(pass) parseArgs > parses --upstream-dir flag
+(pass) parseArgs > parses --project-dir flag
+(pass) parseArgs > parses --report-only flag
+(pass) parseArgs > parses both flags
+(pass) parseArgs > returns empty opts for no flags
+
+tests\check-debt-ratchet.test.js:
+(pass) readBaseline > reads and parses a valid baseline file [16.00ms]
+(pass) readBaseline > throws actionable error when file is missing
+(pass) readBaseline > throws when JSON is malformed
+(pass) readBaseline > throws when thresholds object is missing
+(pass) normalisePlatform > darwin maps to macos [15.00ms]
+(pass) normalisePlatform > win32 maps to windows
+(pass) normalisePlatform > linux passes through unchanged
+(pass) normalisePlatform > unknown platforms pass through unchanged (extension point)
+(pass) getThreshold — scalar values (OS-independent) > extracts scalar number with variant=scalar
+(pass) getThreshold — scalar values (OS-independent) > scalar value applies regardless of platform override
+(pass) getThreshold — per-OS map values (OS-dependent) > selects linux entry when platform=linux
+(pass) getThreshold — per-OS map values (OS-dependent) > selects macos entry when platform=darwin
+(pass) getThreshold — per-OS map values (OS-dependent) > selects windows entry when platform=win32
+(pass) getThreshold — per-OS map values (OS-dependent) > throws actionable error when no entry exists for current OS
+(pass) getThreshold — per-OS map values (OS-dependent) > error message lists known OS keys
+(pass) getThreshold — error paths > throws when key is missing
+(pass) getThreshold — error paths > throws when value is unsupported type (string)
+(pass) getThreshold — error paths > throws when value is unsupported type (array) [16.00ms]
+(pass) compare — ratchet semantics (per-OS, platform=linux) > passes when observed counts are below thresholds
+(pass) compare — ratchet semantics (per-OS, platform=linux) > passes when observed counts equal thresholds (at-threshold)
+(pass) compare — ratchet semantics (per-OS, platform=linux) > fails when boundary count exceeds threshold [16.00ms]
+(pass) compare — ratchet semantics (per-OS, platform=linux) > fails when compat count exceeds threshold
+(pass) compare — ratchet semantics (per-OS, platform=linux) > fails when both counts exceed thresholds (reports both)
+(pass) compare — ratchet semantics (per-OS, platform=linux) > paydown is reflected in summary text (under-by message)
+(pass) compare — windows uses higher threshold (133) > count of 133 passes on windows but fails on linux
+(pass) failureGuidance > returns multi-line guidance referencing baseline file
+
+tests\check-overrides-integration.test.js:
+(pass) check-overrides subprocess integration > stale override exits non-zero with actionable output [250.00ms]
+(pass) check-overrides subprocess integration > comment-only JavaScript upstream drift exits zero with semantic evidence [250.00ms]
+
+tests\check-overrides.test.js:
+(pass) check-overrides module exports > checkOverrides is an exported function [16.00ms]
+(pass) check-overrides module exports > Module can be required without error
+(pass) check-overrides module exports > hashFileContent is exported
+(pass) check-overrides module exports > extractHashFromReason is exported
+(pass) check-overrides module exports > extractVersionFromReason is exported
+(pass) check-overrides module exports > formatReport is exported
+(pass) zero overrides > overrides/ with only .gitkeep returns ok: true and summary.total: 0
+(pass) zero overrides > empty overrides summary has all-zero counts [15.00ms]
+(pass) fresh override > override with matching hash returns status: fresh [16.00ms]
+(pass) fresh override > result ok: true when all overrides are fresh [31.00ms]
+(pass) fresh override > fresh override has relPath in result [16.00ms]
+(pass) stale override > override with outdated hash returns status: stale [31.00ms]
+(pass) stale override > result ok: false when any override is stale [16.00ms]
+(pass) stale override > stale entry includes recordedHash, currentHash, and recordedVersion [15.00ms]
+(pass) stale override > summary.stale count is incremented for stale overrides [16.00ms]
+(pass) JavaScript semantic override staleness > comment-only JavaScript upstream changes return fresh-semantic when Semantic SHA-256 matches [15.00ms]
+(pass) JavaScript semantic override staleness > whitespace-only JavaScript upstream changes return fresh-semantic when Semantic SHA-256 matches [32.00ms]
+(pass) JavaScript semantic override staleness > semantic JavaScript AST changes return stale even when byte hash differs [15.00ms]
+(pass) JavaScript semantic override staleness > JavaScript byte mismatch with missing Semantic SHA-256 remains stale [32.00ms]
+(pass) JavaScript semantic override staleness > non-JS overrides keep byte-hash behavior even if Semantic SHA-256 is present [15.00ms]
+(pass) JavaScript semantic override staleness > parse failure falls back to byte-hash behavior and returns stale when hashes differ [31.00ms]
+(pass) missing REASON.md > override without companion REASON.md returns status: missing-reason [32.00ms]
+(pass) missing REASON.md > result ok: false when any REASON.md is missing
+(pass) missing REASON.md > missing-reason entry includes expectedReasonPath [31.00ms]
+(pass) missing REASON.md > summary.missingReason count is incremented for missing REASON.md
+(pass) hash extraction > extracts 64-character hex SHA-256 from REASON.md [16.00ms]
+(pass) hash extraction > returns null if REASON.md has no valid SHA-256 line
+(pass) hash extraction > handles extra whitespace around hash value
+(pass) hash extraction > returns null for a partial hash (not 64 chars)
+(pass) version extraction > extracts version string from REASON.md [15.00ms]
+(pass) version extraction > returns null if no version line found
+(pass) override with no manifest match > override for file not in upstream returns status: orphaned [16.00ms]
+(pass) mixed results > one fresh, one stale, one missing-reason: ok false with correct counts [31.00ms]
+(pass) mixed results > all fresh: ok true [31.00ms]
+(pass) formatReport > report includes header line
+(pass) formatReport > report includes summary line with counts
+(pass) formatReport > stale entry shows STALE status, hashes, and action
+(pass) formatReport > missing-reason entry shows expected path and template
+(pass) formatReport > fresh entry shows OK status
+(pass) formatReport > fresh-semantic entry shows OK semantic status
+(pass) CLI exit codes > exits 0 when overrides/ has only .gitkeep (zero overrides) [203.00ms]
+(pass) CLI exit codes > exits 0 when all overrides are fresh [188.00ms]
+(pass) CLI exit codes > exits 1 when an override is stale [156.00ms]
+(pass) CLI exit codes > stale override CLI output names path and mismatch action [188.00ms]
+(pass) CLI exit codes > exits 1 when REASON.md is missing [156.00ms]
+(pass) CLI exit codes > missing REASON.md CLI output names expected companion file [156.00ms]
+(pass) CLI exit codes > CLI output includes the report header [156.00ms]
+(pass) orphan REASON.md > standalone REASON.md without matching override file is ignored (not counted) [16.00ms]
+(pass) formatReport orphaned entry > orphaned entry shows ORPHANED status and removal action
+(pass) formatReport orphaned entry > report with mixed orphaned and fresh entries shows correct summary
+(pass) formatReport zero overrides > zero overrides shows "No overrides found" and "all fresh" is not shown
+(pass) formatReport stale version display > stale entry without recordedVersion omits recorded version line
+(pass) formatReport stale version display > stale entry without currentVersion omits current version line
+(pass) formatReport stale version display > stale entry with null recordedHash shows (none)
+(pass) readUpstreamVersion fallback > checkOverrides with missing upstream package.json returns version "unknown"
+(pass) parseArgs > parses --overrides-dir flag
+(pass) parseArgs > parses --upstream-dir flag
+(pass) parseArgs > parses both flags together
+(pass) parseArgs > returns empty object with no flags
+(pass) parseArgs > ignores unknown flags
+(pass) parseArgs > flag without value is ignored
+(pass) CLI entry: default args > node scripts/check-overrides.js with default dirs exits 0 (zero overrides) [203.00ms]
+(pass) CLI entry: default args > CLI with --overrides-dir pointing to fixture with violations exits 1 [172.00ms]
+(pass) CLI entry: default args > CLI with --overrides-dir pointing to fresh overrides exits 0 [156.00ms]
+
+tests\check-perf.test.js:
+(pass) paired performance adjudication > derives the blocking ratio and diagnostics only from raw paired samples
+(pass) paired performance adjudication > rejects stored summaries or verdicts that differ from raw-sample recomputation
+(pass) paired performance adjudication > uses exact aggregate arithmetic at the blocking failure boundary [250.00ms]
+(pass) paired performance adjudication > rejects provenance, schedule, commit, and receipt tampering [16.00ms]
+(pass) check-perf CLI > uses validated paired evidence as the strict blocking verdict: pass [218.00ms]
+(pass) check-perf CLI > uses validated paired evidence as the strict blocking verdict: warning [250.00ms]
+(pass) check-perf CLI > uses validated paired evidence as the strict blocking verdict: boundary [219.00ms]
+(pass) check-perf CLI > uses validated paired evidence as the strict blocking verdict: immaterial breach [250.00ms]
+(pass) check-perf CLI > uses validated paired evidence as the strict blocking verdict: blocking failure [219.00ms]
+(pass) check-perf CLI > rejects mixed modes and threshold overrides: --baseline [156.00ms]
+(pass) check-perf CLI > rejects mixed modes and threshold overrides: --current [109.00ms]
+(pass) check-perf CLI > rejects mixed modes and threshold overrides: --platform [141.00ms]
+(pass) check-perf CLI > rejects mixed modes and threshold overrides: --warn-ratio [125.00ms]
+(pass) check-perf CLI > rejects mixed modes and threshold overrides: --fail-ratio [141.00ms]
+(pass) check-perf CLI > rejects structurally invalid paired evidence [203.00ms]
+(pass) check-perf CLI > passes compose ratios below or exactly at warning threshold without annotations [375.00ms]
+(pass) check-perf CLI > warns above warning threshold but does not fail until ratio is greater than failure threshold [375.00ms]
+(pass) check-perf CLI > reports historical failures without granting them blocking authority [375.00ms]
+(pass) check-perf CLI > fails with an actionable message when the baseline lacks the selected platform [141.00ms]
+(pass) check-perf CLI > accepts reviewed regressions only for matching platform plus metric or explicit global scope [594.00ms]
+(pass) paired accepted-regressions policy > downgrades a matching in-bound unexpired acceptance to a non-blocking warning [265.00ms]
+(pass) paired accepted-regressions policy > blocks when the matching acceptance is expired or the ratio exceeds its bound [797.00ms]
+(pass) paired accepted-regressions policy > treats a missing policy file as no acceptances and rejects an invalid one [594.00ms]
+(pass) paired accepted-regressions policy > rejects --accepted outside paired mode [141.00ms]
+(pass) paired accepted-regressions policy > the committed acceptance policy validates against its schema [15.00ms]
+
+tests\ci-workflow.test.js:
+(pass) bun per-test timeout is applied by flag, not env > workflows running bun test pass --timeout explicitly
+(pass) bun per-test timeout is applied by flag, not env > no workflow reintroduces the ineffective BUN_TEST_TIMEOUT env var
+(pass) CI workflow security action contracts > gitleaks receives the GitHub token required for pull request scans
+(pass) CI workflow security action contracts > OSV scanner executes the reviewed container by immutable digest [15.00ms]
+(pass) CI workflow security action contracts > suppresses automatic token defaults exposed by pinned action metadata [32.00ms]
+(pass) CI workflow security action contracts > first-party Node actions use reviewed Node 24-compatible commits
+(pass) CI workflow security action contracts > macOS runners are pinned away from macos-latest migration
+(pass) Phase 43 reproducible workflow toolchains > all governed and historical workflow actions use reviewed immutable commits
+(pass) Phase 43 reproducible workflow toolchains > all governed Bun setup consumes the exact version file
+(pass) Phase 43 reproducible workflow toolchains > pull request workflows cannot publish dependency caches for fork heads
+(pass) Phase 43 reproducible workflow toolchains > pins Verdaccio and keeps historical performance capture on reviewed Hyperfine
+(pass) Phase 43 reproducible workflow toolchains > proposes GitHub Actions pin updates through Dependabot
+(pass) CI workflow informational gates > upstream compatibility reports through a non-blocking CI wrapper
+(pass) CI workflow informational gates > repository compatibility contracts are blocking in the cross-platform job
+(pass) CI workflow informational gates > functional test gates route through the canonical package script
+(pass) CI workflow informational gates > installer recovery acceptance runs on every test platform in expected-red mode
+(pass) CI workflow informational gates > installer transaction coverage gate runs on every test platform under a pinned Node [15.00ms]
+(pass) CI workflow informational gates > boundary debt reports without producing a failed-step annotation
+(pass) Phase 43 issue mutation boundary > pull-request CI is read-only and emits issue proposal artifacts
+(pass) Phase 43 issue mutation boundary > scheduled flake maintenance is report-only
+(pass) Phase 43 issue mutation boundary > manual issue mutation defaults to preview and requires explicit apply confirmation
+(pass) Phase 41 validation workflows > 10x validation workflow is manual-only and runs all pinned platform suites ten times
+(pass) Phase 41 validation workflows > flake issue maintenance workflow encodes stale closure and rel-03 guard policy
+(pass) Phase 41 validation workflows > maintenance log makes the D-11 and REL-03 escape hatch visible
+(pass) Phase 43 paired performance workflow > limits blocking authority to same-repository pull request heads
+(pass) Phase 43 paired performance workflow > verifies all four immutable subjects and preflights their authority files
+(pass) Phase 43 paired performance workflow > uses only trusted paired controls and uploads one closed evidence bundle
+(pass) Phase 42 oversight probes workflow > oversight probes run on schedule, manual dispatch, and relevant pull request paths
+(pass) Phase 42 cousin install workflow > cousin install covers OS, Node, and package-manager matrix axes
+(pass) Phase 42 cousin install workflow > cousin install tests packed PR artifacts and published scheduled artifacts
+(pass) Phase 42 cousin install workflow > cousin install binds every runtime row to exact subject and immutable receipt transport
+(pass) Phase 42 docs gates workflow > docs gate lints and link-checks tracked markdown with narrow exclusions
+(pass) Phase 43 upgrade verifier workflow > upgrade verifier runs Verdaccio-backed upgrade verification on Linux and relevant triggers
+(pass) Phase 43 compat matrix workflow > compat matrix blocks on the active pin while retaining historical evidence
+(pass) Phase 43 SBOM evidence workflow > CI generates, verifies, and uploads dist/bom.json
+
+tests\codex-installer.test.js:
+
+[36m   ██████╗ ███████╗██████╗
+  ██╔════╝ ██╔════╝██╔══██╗
+  ██║  ███╗███████╗██║  ██║
+  ██║   ██║╚════██║██║  ██║
+  ╚██████╔╝███████║██████╔╝
+   ╚═════╝ ╚══════╝╚═════╝[0m
+
+  GSD Core [2mv1.9.1[0m
+  Git. Ship. Done.
+  A meta-prompting, context engineering and spec-driven
+  development workflows for Claude Code, OpenCode, Kimi CLI, Kilo, Codex, Copilot, Antigravity, Cursor, Windsurf, Augment, Trae, Qwen Code, Hermes Agent, Cline, CodeBuddy, ZCode and pi.
+
+(pass) installCodexConfig > falls back to filename metadata when a Codex agent has no YAML frontmatter [31.00ms]
+
+tests\compose.test.js:
+(pass) pipeline stage exports (COMP-10) > resolve is an exported function
+(pass) pipeline stage exports (COMP-10) > filter is an exported function [15.00ms]
+(pass) pipeline stage exports (COMP-10) > override is an exported function
+(pass) pipeline stage exports (COMP-10) > brand is an exported function
+(pass) pipeline stage exports (COMP-10) > merge is an exported function
+(pass) pipeline stage exports (COMP-10) > compose is an exported function
+(pass) finalize-dist hook packaging > bundled hook list includes check-update worker when worker source exists
+(pass) SBOM dist pipeline > package pins CycloneDX npm SBOM generator to 6.0.0
+(pass) SBOM dist pipeline > package scripts generate SBOM after compose and before finalize-dist
+(pass) SBOM dist pipeline > package files include dist so dist/bom.json is packed
+(pass) SBOM dist pipeline > bun run dist creates dist/bom.json [15563.00ms]
+(pass) resolve() > returns a pipeline state object with manifest, branding, features, warnings, meta (COMP-01) [31.00ms]
+(pass) resolve() > manifest contains entries for all upstream files (COMP-01) [31.00ms]
+(pass) resolve() > manifest entry has relPath, sourcePath, action, stage (COMP-01) [32.00ms]
+(pass) resolve() > manifest relPaths use forward slashes on all platforms (COMP-01) [31.00ms]
+(pass) resolve() > meta.upstreamVersion is read from upstream package.json (COMP-01) [47.00ms]
+(pass) resolve() > branding config is loaded from overlay/branding.json (COMP-01) [47.00ms]
+(pass) resolve() > features config is loaded from overlay/features.json (COMP-01) [31.00ms]
+(pass) resolve() > fails fast when upstream directory does not exist (COMP-02) [15.00ms]
+(pass) resolve() > fails fast when upstream package.json is missing (COMP-02) [47.00ms]
+(pass) resolve() > fails fast when required upstream dir agents/ is missing (COMP-02) [32.00ms]
+(pass) resolve() > error message includes hint to run preview-update when upstream structure missing (COMP-02) [31.00ms]
+(pass) resolve() > fails fast when overlay/branding.json is missing (COMP-02) [31.00ms]
+(pass) resolve() > throws on collision when overlay file matches an upstream path (COMP-08) [47.00ms]
+(pass) resolve() > collision error message includes guidance to move to overrides/ (COMP-08) [31.00ms]
+(pass) resolve() > collision error names the conflicting file (COMP-08) [31.00ms]
+(pass) resolve() > non-conflicting overlay files (branding.json, features.json) do not trigger collision (COMP-08) [32.00ms]
+(pass) filter() > returns a pipeline state object (COMP-03)
+(pass) filter() > Phase 30 stub: returns all upstream files unchanged (COMP-03)
+(pass) filter() > does not mutate the input state (COMP-03)
+(pass) override() > returns a pipeline state object (COMP-04)
+(pass) override() > Phase 30 stub: returns all files unchanged (COMP-04)
+(pass) override() > does not mutate the input state (COMP-04)
+(pass) brand() > returns a pipeline state object [16.00ms]
+(pass) brand() > manifest entries for text files have brandedContent when branding targets exist
+(pass) brand() > LICENSE file is not branded (BRAND-05)
+(pass) brand() > files without branding targets have null brandedContent
+(pass) brand() > does not mutate the input state manifest
+(pass) merge() > dist/ directory is created (COMP-06)
+(pass) merge() > upstream files are written to dist/ (COMP-06)
+(pass) merge() > branded content is written (not original) for branded files (COMP-06)
+(pass) merge() > .install-meta.json is written to dist/ (COMP-07)
+(pass) merge() > .install-meta.json contains upstream_version (COMP-07)
+(pass) merge() > .install-meta.json contains overlay_version (COMP-07)
+(pass) merge() > .install-meta.json contains composed_at ISO timestamp (COMP-07)
+(pass) merge() > .install-meta.json contains features_disabled array (COMP-07)
+(pass) merge() > .install-meta.json contains overrides_applied array (COMP-07)
+(pass) merge() > .install-meta.json contains branding_rules_applied count (COMP-07)
+(pass) merge() > merge performs clean rebuild -- existing dist/ is replaced (COMP-06) [31.00ms]
+(pass) merge() > CREDITS.md is written when preserveUpstreamCredit is true (BRAND-05)
+(pass) compose() end-to-end > compose() runs full pipeline and returns summary (COMP-01 through COMP-07) [16.00ms]
+(pass) compose() end-to-end > compose() produces dist/ with .install-meta.json [47.00ms]
+(pass) compose() end-to-end > compose() dry-run returns summary without writing files (COMP-09) [15.00ms]
+(pass) compose() end-to-end > compose() diff returns file delta without writing (COMP-09) [47.00ms]
+(pass) compose() end-to-end > overlay hooks included in manifest and dist (Phase 38) [32.00ms]
+(pass) computeDelta additive outputs > --diff delta includes CREDITS.md when preserveUpstreamCredit is true [62.00ms]
+(pass) computeDelta additive outputs > --diff delta includes .install-meta.json [32.00ms]
+(pass) computeDelta additive outputs > --diff detects CREDITS.md as added when missing from dist/ [62.00ms]
+(pass) computeDelta additive outputs > --diff detects CREDITS.md as removed when credit disabled [63.00ms]
+(pass) computeDelta additive outputs > --diff detects .install-meta.json as added when missing from dist/ [46.00ms]
+(pass) CLI flags (COMP-09) > --dry-run exits 0 and outputs summary without writing dist/ [453.00ms]
+(pass) CLI flags (COMP-09) > --dry-run output contains file count [406.00ms]
+(pass) CLI flags (COMP-09) > --diff exits 0 [1079.00ms]
+(pass) CLI flags (COMP-09) > --verbose exits 0 [1328.00ms]
+(pass) CLI flags (COMP-09) > no flags: runs full composition with real upstream and exits 0 [1968.00ms]
+(pass) CLI flags (COMP-09) > no flags: dist/.install-meta.json is written [2047.00ms]
+(pass) CLI flags (COMP-09) > no flags: dist/ contains branding-applied content [2500.00ms]
+(pass) features.json schema validation (FEAT-04) > FEATURES_SCHEMA is exported [63.00ms]
+(pass) features.json schema validation (FEAT-04) > CATEGORY_DIR_MAP is exported with correct entries [15.00ms]
+(pass) features.json schema validation (FEAT-04) > validateFeaturesConfig is exported and is a function [32.00ms]
+(pass) features.json schema validation (FEAT-04) > valid features.json passes validateFeaturesConfig without throwing [31.00ms]
+(pass) features.json schema validation (FEAT-04) > features.json with invalid type for sdk (string instead of boolean) throws [47.00ms]
+(pass) features.json schema validation (FEAT-04) > features.json with extra top-level property throws (additionalProperties: false) [15.00ms]
+(pass) features.json schema validation (FEAT-04) > features.json with workflows missing required enabled field throws [32.00ms]
+(pass) features.json schema validation (FEAT-04) > features.json with workflows missing required exclude field throws [15.00ms]
+(pass) features.json schema validation (FEAT-04) > features.json with invalid enabled value (not "all") throws [63.00ms]
+(pass) features.json schema validation (FEAT-04) > features.json with extra property in workflows section throws [31.00ms]
+(pass) features.json schema validation (FEAT-04) > features.json with runtimes containing non-boolean value throws [47.00ms]
+(pass) features.json schema validation (FEAT-04) > resolve() throws when features.json has invalid schema [31.00ms]
+(pass) features.json schema validation (FEAT-04) > resolve() succeeds when features.json is minimal valid (sdk only) [63.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() with empty exclude lists preserves all manifest entries (opt-out model) [62.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() with workflows.exclude: ["help"] removes gsd-core/workflows/help.md [63.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() with commands.exclude: ["help"] removes commands/gsd/help.md [47.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() with agents.exclude: ["gsd-executor"] removes agents/gsd-executor.md [78.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() with hooks.exclude: ["gsd-statusline"] removes hooks/dist/gsd-statusline.js [62.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() with sdk: false removes all entries starting with sdk/ [47.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() manifest count decreases when entries are excluded [47.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() populates state.meta.featuresDisabled with descriptive strings [47.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() with sdk: false adds "sdk" to featuresDisabled [47.00ms]
+(pass) filter() category exclusion (FEAT-01) > filter() does not mutate the input state [47.00ms]
+(pass) filter() opt-out model (FEAT-02) > filter() with one item excluded preserves all other manifest entries [16.00ms]
+(pass) filter() opt-out model (FEAT-02) > filter() with no config (minimal features.json) passes all files through
+(pass) filter() runtimes ignored (FEAT-03) > filter() with runtimes set to various values does not change manifest count [15.00ms]
+(pass) filter() runtimes ignored (FEAT-03) > filter() with all runtimes false still passes all files through
+(pass) filter() cross-category isolation and warnings > workflows.exclude: ["help"] removes workflow help but NOT commands/gsd/help.md [47.00ms]
+(pass) filter() cross-category isolation and warnings > commands.exclude: ["help"] removes commands help but NOT gsd-core/workflows/help.md [31.00ms]
+(pass) filter() cross-category isolation and warnings > exclude entry matching no upstream file adds a warning to state.warnings [31.00ms]
+(pass) filter() cross-category isolation and warnings > valid exclude entry that matches does NOT add a warning [32.00ms]
+(pass) features_disabled propagation to .install-meta.json > compose() with exclusions writes populated features_disabled to .install-meta.json [63.00ms]
+(pass) features_disabled propagation to .install-meta.json > compose() with no exclusions writes empty features_disabled [31.00ms]
+(pass) override() file replacement (OVER-01) > override() with a file in overrides/bin/install.js swaps the manifest entry sourcePath [46.00ms]
+(pass) override() file replacement (OVER-01) > override() sets action to "override" for overridden entries [32.00ms]
+(pass) override() file replacement (OVER-01) > override() preserves all non-overridden manifest entries unchanged [47.00ms]
+(pass) override() file replacement (OVER-01) > override() with multiple overrides replaces all matching manifest entries [46.00ms]
+(pass) override() file replacement (OVER-01) > override() with override file that matches no manifest entry adds a warning [47.00ms]
+(pass) override() file replacement (OVER-01) > override() populates state.meta.overridesApplied with relPaths of overridden files [32.00ms]
+(pass) override() file replacement (OVER-01) > after compose() with overrides, .install-meta.json overrides_applied lists the override relPaths [78.00ms]
+(pass) override() REASON.md enforcement (OVER-02) > override() throws when override file exists without companion REASON.md [62.00ms]
+(pass) override() REASON.md enforcement (OVER-02) > error message includes the expected REASON.md path [63.00ms]
+(pass) override() REASON.md enforcement (OVER-02) > error message includes a paste-ready template with the REASON.md format [47.00ms]
+(pass) override() REASON.md enforcement (OVER-02) > override() succeeds when both override file and companion REASON.md exist [31.00ms]
+(pass) override() REASON.md enforcement (OVER-02) > override() skips .gitkeep files (does not treat as override) [31.00ms]
+(pass) override() REASON.md enforcement (OVER-02) > override() skips *.REASON.md files (does not treat as override files) [47.00ms]
+(pass) override() zero overrides day one (OVER-04) > override() with overrides/ containing only .gitkeep returns manifest unchanged [31.00ms]
+(pass) override() zero overrides day one (OVER-04) > override() with empty overrides/ returns manifest unchanged [31.00ms]
+(pass) override() zero overrides day one (OVER-04) > override() without overrides/ directory returns manifest unchanged [32.00ms]
+(pass) override() cross-platform path normalisation > override() matches relPaths using forward slashes (normalised paths) [16.00ms]
+(pass) CLI entry block > --dry-run output contains overlay_version field [453.00ms]
+(pass) CLI entry block > --dry-run output contains upstream_version and files_would_write [500.00ms]
+(pass) CLI entry block > --diff output contains added/modified/removed/unchanged counts [1109.00ms]
+(pass) CLI entry block > --diff --verbose includes file-level detail lines [954.00ms]
+(pass) CLI entry block > CLI error path: exits 1 and writes to stderr when compose fails [1250.00ms]
+(pass) CLI entry block > CLI error path: compose with missing overlay throws with descriptive message [343.00ms]
+(pass) resolve() additional error paths > throws when overlay/features.json is missing [32.00ms]
+(pass) resolve() additional error paths > throws with invalid branding.json content (bad schema) [62.00ms]
+(pass) resolve() additional error paths > throws with malformed branding.json (unparseable JSON) [47.00ms]
+(pass) resolve() additional error paths > throws with invalid features.json content (bad schema) [47.00ms]
+(pass) resolve() additional error paths > throws with malformed features.json (unparseable JSON) [47.00ms]
+(pass) resolve() additional error paths > throws when upstream missing multiple required directories [31.00ms]
+(pass) resolve() additional error paths > error for missing upstream dirs mentions specific missing directories [31.00ms]
+(pass) resolve() additional error paths > error for malformed upstream package.json is descriptive [47.00ms]
+(pass) walkDir > returns files with forward-slash relative paths [16.00ms]
+(pass) walkDir > returns empty array for empty directory
+(pass) walkDir > skips directory symlinks/junctions
+(pass) walkDir > follows file symlinks (iCloud reparse points) [15.00ms]
+(pass) walkDir > skips broken symlinks without error
+(pass) walkDir > respects base parameter for path prefix [16.00ms]
+(pass) compose pipeline error paths > resolve() throws when upstream directory does not exist
+(pass) compose pipeline error paths > override() handles missing overrides directory gracefully
+(pass) formatCLIOutput > default mode shows Composition complete
+(pass) formatCLIOutput > dryRun mode shows dry run header
+(pass) formatCLIOutput > dryRun with warnings shows count
+(pass) formatCLIOutput > diff mode shows file status counts
+(pass) formatCLIOutput > diff verbose lists non-unchanged files
+(pass) formatCLIOutput > default verbose with warnings lists each warning
+(pass) formatCLIOutput > default with warnings but not verbose shows count only
+(pass) resolve() error paths > throws when upstream directory does not exist
+(pass) resolve() error paths > throws when upstream package.json is missing
+(pass) resolve() error paths > throws when upstream package.json is invalid JSON [16.00ms]
+(pass) resolve() error paths > throws when branding.json is missing [15.00ms]
+(pass) resolve() error paths > throws when features.json is missing [16.00ms]
+(pass) computeDelta edge cases > handles no existing dist directory (all files show as added) [47.00ms]
+(pass) computeDelta edge cases > handles existing dist with matching content (unchanged status) [78.00ms]
+(pass) computeDelta edge cases > detects modified files when upstream content changes between compositions [78.00ms]
+(pass) computeDelta edge cases > detects modified CREDITS.md when dist content differs [78.00ms]
+(pass) computeDelta edge cases > detects removed files when upstream file is deleted [63.00ms]
+
+tests\config.test.js:
+(pass) ConfigLoader > getConfigPath() > uses GSD_CONFIG_PATH env var when set [16.00ms]
+(pass) ConfigLoader > getConfigPath() > rejects GSD_CONFIG_PATH with path traversal
+(pass) ConfigLoader > getConfigPath() > accepts GSD_CONFIG_PATH within tmpdir
+(pass) ConfigLoader > getConfigPath() > defaults to ~/.gsd/config.json when env var not set [15.00ms]
+(pass) ConfigLoader > getDefaults() > returns object with version:1
+(pass) ConfigLoader > getDefaults() > returns all expected sections
+(pass) ConfigLoader > getDefaults() > context_management has precompact_save_state
+(pass) ConfigLoader > getDefaults() > workflow has pause_between_tasks and pause_between_phases
+(pass) ConfigLoader > getDefaults() > subagents has model selections
+(pass) ConfigLoader > getDefaults() > ui has theme and progress settings
+(pass) ConfigLoader > loadConfig() > returns defaults when config file does not exist [16.00ms]
+(pass) ConfigLoader > loadConfig() > parses a valid JSON5 config file [16.00ms]
+(pass) ConfigLoader > loadConfig() > handles JSON5 features (comments, trailing commas, unquoted keys) [15.00ms]
+(pass) ConfigLoader > loadConfig() > throws on malformed JSON5 [16.00ms]
+(pass) ConfigLoader > loadConfig() > throws on invalid config (wrong version)
+(pass) ConfigLoader > getConfigValue() > traverses nested paths
+(pass) ConfigLoader > getConfigValue() > returns defaultValue for missing paths [15.00ms]
+(pass) ConfigLoader > getConfigValue() > returns defaultValue for null intermediate values
+(pass) ConfigLoader > getConfigValue() > returns defaultValue for undefined values
+(pass) ConfigLoader > getConfigValue() > handles deep nesting
+(pass) ConfigLoader > getConfigValue() > handles array-like numeric keys
+(pass) ConfigSchema > validateConfig() accepts valid config matching schema
+(pass) ConfigSchema > rejects config with wrong version
+(pass) ConfigSchema > rejects config with unknown top-level fields
+(pass) ConfigSchema > rejects config with unknown nested fields
+(pass) ConfigSchema > rejects invalid types (string where number expected)
+(pass) ConfigSchema > rejects invalid types (number where boolean expected)
+(pass) ConfigSchema > rejects auto_checkpoint_interval below minimum
+(pass) ConfigSchema > rejects auto_checkpoint_interval above maximum
+(pass) ConfigSchema > error message includes field path
+(pass) ConfigSchema > configSchema export is a valid JSON Schema object
+(pass) ConfigSchema > missing required field (version) is rejected
+(pass) ConfigSchema > accepts gsd.role maintainer as valid
+(pass) ConfigSchema > accepts gsd.role consumer as valid
+(pass) ConfigSchema > rejects gsd.role with invalid enum value
+(pass) ConfigSchema > accepts config without gsd section [16.00ms]
+
+tests\cousin-smoke.test.js:
+(pass) cousin smoke CLI contract > accepts only npm, pnpm, and bun package managers
+(pass) cousin smoke CLI contract > defaults to the published latest package spec
+(pass) cousin smoke CLI contract > prints help without requiring install inputs
+(pass) cousin smoke isolated install execution > npm mode initializes a temp project, installs the package spec, and runs local gsd provenance [15.00ms]
+(pass) cousin smoke isolated install execution > pnpm mode uses Corepack pnpm and resolves the installed local bin [16.00ms]
+(pass) cousin smoke isolated install execution > bun mode uses bun add and supports packed tarball specs for PR mode [16.00ms]
+(pass) cousin smoke isolated install execution > Windows local bin resolution supports Bun executable shims [15.00ms]
+(pass) cousin smoke isolated install execution > optional NODE_AUTH_TOKEN is written only to temp project npmrc and redacted from errors [16.00ms]
+(pass) cousin smoke isolated install execution > rejects provenance output missing required JSON keys [15.00ms]
+(pass) cousin smoke repository contract > test file covers required acceptance terms
+
+tests\docs-gates.test.js:
+(pass) Phase 42 docs gate package contract > package exposes markdownlint-cli2 through lint:docs
+(pass) Phase 42 docs gate package contract > docs lint script uses tracked markdown targets with narrow generated exclusions
+(pass) Phase 42 docs gate package contract > markdownlint and lychee configs exist without broad documentation ignores
+(pass) Phase 42 docs gate package contract > project-owned documentation failures remain blocking
+(pass) Phase 42 docs gate package contract > decorative third-party availability is scoped to a read-only scheduled report
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > fresh owner and displaced comparisons each detect a removed assertion [1797.00ms]
+(pass) expect-red: recovery observation contract > aborted harness, absent trace and unreadable transaction remain rejected with cleanup [1453.00ms]
+(pass) expect-red: recovery observation contract > private environment clears case aliases of inherited runtime cache paths [391.00ms]
+(pass) expect-red: recovery observation contract > runtime exceptions never permit deletion, extra descendants, type or link substitution [1781.00ms]
+(pass) expect-red: recovery observation contract > exact Windows runtime creation and regular-file updates preserve owner data [281.00ms]
+(pass) expect-red: recovery observation contract > private runtime environment is initialized before complete home observations [266.00ms]
+(pass) expect-red: recovery observation contract > outside-target deletion, byte damage and extra entries fail in both scenarios [1609.00ms]
+(pass) expect-red: recovery observation contract > outside-target damage controls detect a removed home comparison [485.00ms]
+(pass) expect-red: recovery observation contract > the real harness recognizes complete private quarantine and restored owner data [265.00ms]
+(pass) expect-red: recovery observation contract > the real harness emits observation-error before and after partial observation [797.00ms]
+(pass) expect-red: recovery observation contract > cleanup failure still emits a rejected report and names its retained fixture [94.00ms]
+(pass) expect-red: recovery observation contract > the disposable upgrade independently checks owner preservation [16953.00ms]
+(pass) expect-red: recovery observation contract > known failures retain complete typed observations independently of diagnostic truncation
+(pass) expect-red: installer recovery > Windows home-state paths reject illegal characters and reserved device names [94.00ms]
+(pass) expect-red: installer recovery > home maps reject incomplete, malformed, aliased and falsely preserved evidence [203.00ms]
+(pass) expect-red: installer recovery > runtime changes are Windows-only; preserved arbitrary owner files and links remain valid [16.00ms]
+(pass) expect-red: installer recovery > the captured 27-check private-home report satisfies the approved inventory
+(pass) expect-red: installer recovery > a real abort-shaped report keeps its failed harness diagnostic without context
+(pass) expect-red: installer recovery > supplied malformed termination markers are never treated as absent [15.00ms]
+(pass) expect-red: installer recovery > host-specific identity rules and contradictory pass details are checked
+(pass) expect-red: installer recovery > recovery evidence must match the explicitly supplied source bytes and host [94.00ms]
+(pass) expect-red: installer recovery > independent context must contain unambiguous relative paths and real residue [31.00ms]
+(pass) expect-red: installer recovery > a self-consistent smaller twin cannot silently drop a reviewed root [16.00ms]
+(pass) expect-red: installer recovery > malformed, interrupted and cleanup-failed reports return diagnostics instead of acceptance or exceptions [47.00ms]
+(pass) expect-red: installer recovery > known failure labels cannot conceal missing, contradictory or additional observations [609.00ms]
+(pass) expect-red: installer recovery > only the complete reviewed inventory is accepted, without duplicates or extra failures [547.00ms]
+(pass) expect-red: installer recovery > the captured red from the unfixed installer is the known red [16.00ms]
+(pass) expect-red: installer recovery > an additional owner-byte loss cannot hide behind the expected recovery failures
+(pass) expect-red: installer recovery > an unexpected pass fails and says how to retire the wrapper
+(pass) expect-red: installer recovery > a red with harness check twin:child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check twin:residue-non-empty failing is the wrong red [15.00ms]
+(pass) expect-red: installer recovery > a red with harness check fresh:wrapper-child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:first-install-succeeded failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:picked-files-installed failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:wrapper-child-failed-at-injection failing is the wrong red
+(pass) expect-red: installer recovery > a red with harness check upgrade:child-rewrote-picked-files failing is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check twin:child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check twin:residue-non-empty is the wrong red [32.00ms]
+(pass) expect-red: installer recovery > a red that never ran harness check fresh:wrapper-child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:first-install-succeeded is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:picked-files-installed is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:wrapper-child-failed-at-injection is the wrong red
+(pass) expect-red: installer recovery > a red that never ran harness check upgrade:child-rewrote-picked-files is the wrong red
+(pass) expect-red: installer recovery > a red in which fresh:outcome-exact passes is not the known red
+(pass) expect-red: installer recovery > a red in which fresh:top-level-exact-allowlist passes is not the known red [15.00ms]
+(pass) expect-red: installer recovery > a red in which fresh:transaction-directory-shape passes is not the known red
+(pass) expect-red: installer recovery > a red in which upgrade:outcome-exact passes is not the known red
+(pass) expect-red: installer recovery > a red in which upgrade:transaction-directory-shape passes is not the known red [15.00ms]
+(pass) expect-red: installer recovery > a missing compose is the wrong red
+(pass) expect-red: installer recovery > a crash with no report and an unexpected exit status are both refused
+(pass) expect-red: install transaction coverage > supplied malformed termination markers are never treated as absent
+(pass) expect-red: install transaction coverage > affirmative coverage requires both exact files, every metric and consistent aggregate counts [63.00ms]
+(pass) expect-red: install transaction coverage > coverage refuses malformed or interrupted runs and TAP tokens disguised as table rows
+(pass) expect-red: install transaction coverage > coverage aliases, malformed tables and truncated TAP are rejected
+(pass) expect-red: install transaction coverage > a normalized alias cannot replace the exact covered source identity [16.00ms]
+(pass) expect-red: install transaction coverage > decision controls detect independently weakened recovery and coverage guards [250.00ms]
+(pass) expect-red: install transaction coverage > the reviewed 51-case render-only red is the known red
+(pass) expect-red: install transaction coverage > old skeleton evidence and any incomplete or changed case inventory are refused [109.00ms]
+(pass) expect-red: install transaction coverage > TAP framing, terminal counts and bounded render failure diagnostics are mandatory [16.00ms]
+(pass) expect-red: install transaction coverage > only the actual error field can establish the permitted render failure
+(pass) expect-red: install transaction coverage > a case failing for any reason other than an unbuilt operation is the wrong red
+(pass) expect-red: install transaction coverage > a coverage shortfall on landed code is the wrong red, on either stream
+(pass) expect-red: install transaction coverage > nothing failing, a crash with no summary, and a miscounted summary are all refused
+(pass) expect-red: command line > Node capture preserves a complete structured report larger than one MiB [93.00ms]
+(pass) expect-red: command line > repository ESLint rejects unsafe code under both repaired CJS paths [1375.00ms]
+(pass) expect-red: command line > the actual Node CLI validates the live coverage gate through private c8 capture [35063.00ms]
+(pass) expect-red: command line > coverage ignore directives in either watched module refuse before execution [31.00ms]
+(pass) expect-red: command line > capture bounds execution and isolates inherited test and coverage configuration [16.00ms]
+(pass) expect-red: command line > inherited Node options refuse before child execution for both gates [15.00ms]
+(pass) expect-red: command line > capture faults cannot pass or silently discard uncertain evidence [157.00ms]
+(pass) expect-red: command line > cleanup never removes a scratch path outside its exact ownership convention [15.00ms]
+(pass) expect-red: command line > coverage capture uses a new private report and V8 directory on every invocation [31.00ms]
+(pass) expect-red: command line > source or validator changes during capture invalidate the report [94.00ms]
+(pass) expect-red: command line > the package command is parsed from the same bytes as its evidence digest [16.00ms]
+(pass) expect-red: command line > the runner prints source identities and runtime provenance with its verdict
+(pass) expect-red: command line > c8 executes the same explicit Node runtime that captured the evidence [15.00ms]
+(pass) expect-red: command line > the production gate refuses Bun before spawning a child
+(pass) expect-red: command line > the gate command is read from package.json, not copied
+(pass) expect-red: command line > package commands cannot weaken coverage or redirect the reviewed gate
+(pass) expect-red: command line > exits 0 on the known red, 1 on anything else, 2 on misuse [32.00ms]
+
+tests\flake-triage.test.js:
+(pass) JUnit flake parsing > detects a self-closing bun <failure/> and keeps the Windows path
+(pass) JUnit flake parsing > does not attribute a failure to a preceding self-closing testcase
+(pass) JUnit flake parsing > does not drop a failure when an attribute value contains "/>"
+(pass) JUnit flake parsing > prefers the earlier paired <failure> over a later self-closing <error/>
+(pass) JUnit flake parsing > adds rel-03-candidate after three hits in fourteen days
+(pass) REL-03 source scanning > scans active REL-03 skip reasons and produces a Markdown summary table
+(pass) REL-03 source scanning > validates active REL-03 skips use issue URL and deadline wrapper shape [15.00ms]
+(pass) flake-triage CLI > writes flake events from JUnit XML [16.00ms]
+(pass) flake-triage CLI > scan-rel03 writes a Markdown section beginning with Active REL-03 skips [16.00ms]
+
+tests\fork-roadmap-persistence.test.js:
+(pass) fork roadmap EOL projection > preserves LF input without changing unrelated bytes
+(pass) fork roadmap EOL projection > restores CRLF when the original roadmap uses CRLF
+(pass) fork roadmap EOL projection > uses the dominant original EOL and the first EOL to break ties
+(pass) fork roadmap EOL projection > defaults documents without line endings to LF and rejects non-string content
+(pass) fork roadmap atomic publication > rejects an empty roadmap path
+(pass) fork roadmap atomic publication > rejects non-string roadmap publication content
+(pass) fork roadmap atomic publication > does not publish when projected content is unchanged
+(pass) fork roadmap atomic publication > does not normalize an unchanged mixed-EOL document
+(pass) fork roadmap atomic publication > publishes changed content through an exclusive metadata-preserving sibling copy
+(pass) fork roadmap atomic publication > refuses a temp collision without modifying or deleting the existing path
+(pass) fork roadmap atomic publication > cleans a partially created temp after a non-collision copy failure
+(pass) fork roadmap atomic publication > preserves copy and cleanup failures when partial-copy cleanup fails
+(pass) fork roadmap atomic publication > rejects unsafe or empty injected temp entropy before touching the filesystem
+(pass) fork roadmap atomic publication > preserves source mode bits across real publication where the platform exposes them [16.00ms]
+(pass) fork roadmap atomic publication > uses the Windows destination-preserving replacement primitive [15.00ms]
+(pass) fork roadmap atomic publication > constructs the target Windows executable independently of host separators
+(pass) fork roadmap atomic publication > passes Windows replacement paths through the child environment only [16.00ms]
+(pass) fork roadmap atomic publication > maps native Windows replacement failures without hiding process errors [109.00ms]
+(pass) fork roadmap atomic publication > reconciles every documented ReplaceFileW partial-failure state [32.00ms]
+(pass) fork roadmap atomic publication > preserves replacement and backup when a 1177 restoration cannot complete [15.00ms]
+(pass) fork roadmap atomic publication > restores the backup from an ambiguous changed-target failure state
+(pass) fork roadmap atomic publication > preserves all copies when the reserved Windows backup is changed [16.00ms]
+(pass) fork roadmap atomic publication > preserves all copies when an ambiguous target cannot be isolated [141.00ms]
+(pass) fork roadmap atomic publication > rolls an isolated changed target back when original restoration fails [125.00ms]
+(pass) fork roadmap atomic publication > restores a surviving replacement when the target and backup are missing
+(pass) fork roadmap atomic publication > surfaces missing copies and a failed surviving-replacement restore [31.00ms]
+(pass) fork roadmap atomic publication > surfaces recovery cleanup failures without deleting the replacement [15.00ms]
+(pass) fork roadmap atomic publication > surfaces post-publication backup cleanup failure as already published
+(pass) fork roadmap atomic publication > rejects unsafe Windows recovery entropy and removes the prepared replacement [16.00ms]
+(pass) fork roadmap atomic publication > rejects target identity drift before Windows child startup
+(pass) fork roadmap atomic publication > surfaces backup hardlink reservation and directory cleanup failures [141.00ms]
+(pass) fork roadmap atomic publication > keeps the displaced target until restored-original validation succeeds [15.00ms]
+(pass) fork roadmap atomic publication > preserves both copies when a real child substitutes a directory at the backup path [188.00ms]
+(pass) fork roadmap atomic publication > preserves a protected Windows DACL and its exact access SDDL [16187.00ms]
+(pass) fork roadmap atomic publication > ACL bootstrap stops before the probe body when the inbox manifest is unavailable [953.00ms]
+(pass) fork roadmap atomic publication > retries the injected Windows replacement primitive on transient locks
+(pass) fork roadmap atomic publication > retries each transient Windows lock error with bounded backoff [16.00ms]
+(pass) fork roadmap atomic publication > uses the production backoff when no sleep dependency is injected [63.00ms]
+(pass) fork roadmap atomic publication > cleans the temp file and surfaces a transient error after the retry bound
+(pass) fork roadmap atomic publication > does not retry a non-transient rename failure and removes the temp file
+(pass) fork roadmap atomic publication > cleans a failed temp write and preserves the original write error
+(pass) fork roadmap atomic publication > ignores an already-missing temp during failure cleanup
+(pass) fork roadmap atomic publication > preserves both publication and cleanup failures
+(pass) fork roadmap persistence boundary > only the roadmap override imports the fork-private adapter [62.00ms]
+
+tests\generate-sbom.test.js:
+(pass) CycloneDX dependency authority > exact-pins CycloneDX 6 in package.json and the sole Bun lock [63.00ms]
+(pass) CycloneDX generator port > selects only a direct local executable and never falls back to bunx
+(pass) CycloneDX generator port > builds the reviewed CycloneDX 6 reproducible validation arguments
+(pass) CycloneDX generator port > removes npm launcher identity while preserving unrelated environment
+(pass) CycloneDX generator port > invokes the local binary without a shell and validates package identity [15.00ms]
+(pass) CycloneDX generator port > fails before invocation when dist or the local executable is absent
+(pass) CycloneDX generator port > fails closed on child errors without exposing child output [16.00ms]
+(pass) CycloneDX generator port > rejects malformed SBOM metadata and mismatched root package identity [16.00ms]
+(pass) CycloneDX generator port > validates an unscoped package identity through an injected manifest
+(pass) CycloneDX generator port > rejects output paths outside the project dist directory [15.00ms]
+(pass) CycloneDX generator port > produces byte-identical output for repeated identical invocations [16.00ms]
+(pass) CycloneDX generator port > main reports generated paths and redacted failures through injected ports
+
+tests\gsd-tools.test.js:
+(pass) history-digest command > empty phases directory returns valid schema [203.00ms]
+(pass) history-digest command > nested frontmatter fields extracted correctly [265.00ms]
+(pass) history-digest command > multiple phases merged into single digest [313.00ms]
+(pass) history-digest command > malformed SUMMARY.md skipped gracefully [281.00ms]
+(pass) history-digest command > flat provides field still works (backward compatibility) [250.00ms]
+(pass) history-digest command > inline array syntax supported [219.00ms]
+(pass) phases list command > empty phases directory returns empty array [265.00ms]
+(pass) phases list command > lists phase directories sorted numerically [266.00ms]
+(pass) phases list command > handles decimal phases in sort order [266.00ms]
+(pass) phases list command > --type plans lists only PLAN.md files [234.00ms]
+(pass) phases list command > --type summaries lists only SUMMARY.md files [250.00ms]
+(pass) phases list command > --phase filters to specific phase directory [234.00ms]
+(pass) roadmap get-phase command > extracts phase section from ROADMAP.md [250.00ms]
+(pass) roadmap get-phase command > returns not found for missing phase [266.00ms]
+(pass) roadmap get-phase command > handles decimal phase numbers [234.00ms]
+(pass) roadmap get-phase command > extracts full section content [219.00ms]
+(pass) roadmap get-phase command > handles missing ROADMAP.md gracefully [203.00ms]
+(pass) roadmap get-phase command > accepts ## phase headers (two hashes) [203.00ms]
+(pass) roadmap get-phase command > detects malformed ROADMAP with summary list but no detail sections [188.00ms]
+(pass) phase next-decimal command > returns X.1 when no decimal phases exist [187.00ms]
+(pass) phase next-decimal command > increments from existing decimal phases [172.00ms]
+(pass) phase next-decimal command > handles gaps in decimal sequence [188.00ms]
+(pass) phase next-decimal command > handles single-digit phase input [172.00ms]
+(pass) phase next-decimal command > returns error if base phase does not exist [172.00ms]
+(pass) validation wiring > gsd-tools.cjs imports all validators from src/validation [15.00ms]
+(pass) validation wiring > gsd-tools.cjs has requireValid bridge with explicit process.exit(1)
+(pass) validation wiring > verify-summary command wires validateGitSHA through requireValid
+(pass) validation wiring > commit command rejects file paths outside project root (path traversal) [422.00ms]
+(pass) validation wiring > ConfigLoader.js imports validateConfigPath from validation module
+(pass) dist: gsd-tools bundled (regression guard for GAP-1) > bundled gsd-tools.cjs exists and is a non-trivial bundle
+(pass) dist: gsd-tools bundled (regression guard for GAP-1) > bundled gsd-tools.cjs contains no relative src/ require paths
+(pass) dist: gsd-tools bundled (regression guard for GAP-1) > bundled gsd-tools.cjs resolves without MODULE_NOT_FOUND from isolated dir [141.00ms]
+(pass) dist: gsd-tools bundled (regression guard for GAP-1) > bundled gsd-tools.cjs validation commands work from isolated dir [140.00ms]
+(pass) phase complete command > updates REQUIREMENTS.md traceability when phase completes [203.00ms]
+(pass) phase complete command > handles phase with no requirements mapping [188.00ms]
+(pass) phase complete command > handles missing REQUIREMENTS.md gracefully [187.00ms]
+
+tests\hooks-manifest.test.js:
+(pass) hooks/index.js manifest (invariants) > exports HOOKS array
+(pass) hooks/index.js manifest (invariants) > HOOKS array is frozen (immutable)
+(pass) hooks/index.js manifest (invariants) > every HOOKS entry is frozen (immutable)
+(pass) hooks/index.js manifest (invariants) > every entry has required fields (name, source, kind)
+(pass) hooks/index.js manifest (invariants) > every entry kind is "override" or "overlay"
+(pass) hooks/index.js manifest (invariants) > no two hooks share the same name
+(pass) hooks/index.js manifest (invariants) > every source path resolves to an existing file
+(pass) hooks/index.js manifest (invariants) > overrides/ hooks have a corresponding upstream file (kind invariant)
+(pass) hooks/index.js manifest (invariants) > sourcePath() throws on bad input (defensive contract)
+(pass) hooks/index.js manifest (invariants) > distPath() throws on bad input (defensive contract)
+(pass) hooks/index.js manifest (invariants) > findByName returns the entry when present
+(pass) hooks/index.js manifest (invariants) > findByName returns undefined when absent
+(pass) hooks/index.js manifest (invariants) > filterByKind returns matching entries only
+(pass) hooks/index.js manifest (invariants) > check-update worker is registered as an override when present in overrides/
+
+tests\hooks.test.js:
+(pass) overrides/hooks/gsd-check-update.js > creates cache directory if missing [297.00ms]
+(pass) overrides/hooks/gsd-check-update.js > handles missing VERSION file gracefully [328.00ms]
+(pass) overrides/hooks/gsd-check-update.js > declares the update resilience seams without dropping fork routing [16.00ms]
+(pass) overrides/hooks/gsd-check-update.js > reads VERSION file when present [2390.00ms]
+(pass) overrides/hooks/gsd-check-update.js > writes cache with timestamp [1844.00ms]
+(pass) overrides/hooks/gsd-check-update.js > records stale installed hooks before a throttled no-update result [563.00ms]
+(pass) overlay/hooks/gsd-check-update.js (maintainer path) > maintainer path writes extended cache with upstream_count when commits exist [1687.00ms]
+(pass) overlay/hooks/gsd-check-update.js (maintainer path) > maintainer path: fetch failure leaves existing cache unchanged [1984.00ms]
+(pass) overlay/hooks/gsd-check-update.js (maintainer path) > skips background spawn when cache is fresh (< 4 hours old) [250.00ms]
+(pass) overlay/hooks/gsd-check-update.js (maintainer path) > maintainer background process: classifies commits by subject and writes extended cache fields [2157.00ms]
+(pass) overlay/hooks/gsd-check-update.js (maintainer path) > maintainer path: zero upstream commits writes update_available=false [1015.00ms]
+(pass) overlay/hooks/gsd-check-update.js (maintainer path) > severity classification: security keyword detected correctly [78.00ms]
+(pass) overlay/hooks/gsd-check-update.js (maintainer path) > 7-day throttle > background process skips network check when cache is 5 days old [8297.00ms]
+(pass) overlay/hooks/gsd-check-update.js (maintainer path) > 7-day throttle > background process performs full check when cache is 8 days old [516.00ms]
+(pass) overlay/hooks/gsd-check-update.js (maintainer path) > 7-day throttle > background process performs full check when no cache exists [500.00ms]
+(pass) overrides/hooks/gsd-statusline.js > produces output string (non-empty stdout) [281.00ms]
+(pass) overrides/hooks/gsd-statusline.js > reads stdin input from Claude Code [281.00ms]
+(pass) overrides/hooks/gsd-statusline.js > handles missing .planning/ directory gracefully [297.00ms]
+(pass) overrides/hooks/gsd-statusline.js > handles missing config file gracefully [313.00ms]
+(pass) overrides/hooks/gsd-statusline.js > handles malformed JSON input gracefully [297.00ms]
+(pass) overrides/hooks/gsd-statusline.js > renders active phase lifecycle fields from STATE frontmatter [297.00ms]
+(pass) overrides/hooks/gsd-statusline.js > renders next_action and next_phases when no active phase exists [265.00ms]
+(pass) overrides/hooks/gsd-statusline.js > preserves lifecycle fields from CRLF frontmatter and block-list phases [281.00ms]
+(pass) overrides/hooks/gsd-statusline.js > uses CLAUDE_CODE_AUTO_COMPACT_WINDOW for context scaling [250.00ms]
+(pass) overlay/hooks/gsd-statusline.js (maintainer notification) > maintainer role with 5 upstream commits shows rich notification [282.00ms]
+(pass) overlay/hooks/gsd-statusline.js (maintainer notification) > maintainer role with 1 upstream commit shows singular "1 commit" [281.00ms]
+(pass) overlay/hooks/gsd-statusline.js (maintainer notification) > maintainer role with security severity shows "security fixes" [500.00ms]
+(pass) overlay/hooks/gsd-statusline.js (maintainer notification) > maintainer role with breaking severity shows "breaking changes" [766.00ms]
+(pass) overlay/hooks/gsd-statusline.js (maintainer notification) > maintainer role with fetch_error shows no notification [546.00ms]
+(pass) overlay/hooks/gsd-statusline.js (maintainer notification) > consumer role shows version update notification with correct cache fields [485.00ms]
+(pass) overlay/hooks/gsd-statusline.js (maintainer notification) > no notification when update_available is false [515.00ms]
+(pass) hooks/pre-compact.js > reads stdin JSON input with trigger type [266.00ms]
+(pass) hooks/pre-compact.js > handles missing .planning/ directory (clean exit) [234.00ms]
+(pass) hooks/pre-compact.js > creates events.log entry [219.00ms]
+(pass) hooks/pre-compact.js > creates CONTINUE.md file [219.00ms]
+(pass) hooks/pre-compact.js > exits with code 0 (allow compaction) [250.00ms]
+(pass) hooks/pre-compact.js > blocks compaction on invalid JSON (exit 2) [219.00ms]
+(pass) hooks/pre-compact.js > includes STATE.md snapshot in CONTINUE.md [218.00ms]
+(pass) hooks/dist build verification > dist files exist and are self-contained bundles
+(pass) hooks/dist build verification > dist files contain no unresolved require(../src/) references
+(pass) hooks/dist/gsd-check-update.js (bundled) > creates cache directory if missing [297.00ms]
+(pass) hooks/dist/gsd-check-update.js (bundled) > handles missing VERSION file gracefully [328.00ms]
+(pass) hooks/dist/gsd-statusline.js (bundled) > produces output string containing model name [375.00ms]
+(pass) hooks/dist/gsd-statusline.js (bundled) > handles missing config file gracefully [375.00ms]
+(pass) hooks/dist/gsd-statusline.js (bundled) > handles malformed JSON input gracefully [360.00ms]
+(pass) hooks/dist/pre-compact.js (bundled) > creates events.log entry (proves gsdPaths inlined correctly) [172.00ms]
+(pass) hooks/dist/pre-compact.js (bundled) > creates CONTINUE.md file [156.00ms]
+(pass) hooks/dist/pre-compact.js (bundled) > exits with code 0 on valid input [156.00ms]
+(pass) hooks/dist/pre-compact.js (bundled) > blocks compaction on invalid JSON (exit 2) [141.00ms]
+(pass) overlay/hooks/gsd-check-update.js (timeout and paths) > maintainer git fetch uses 3-second timeout
+(pass) overlay/hooks/gsd-check-update.js (timeout and paths) > require paths use ../../src/ for overlay/hooks/ depth
+(pass) overlay/hooks/gsd-statusline.js (timeout and paths) > declares phase lifecycle and autocompact env-var seams
+(pass) overlay/hooks/gsd-statusline.js (timeout and paths) > has stdin timeout guard (3s safety net per D-08)
+(pass) overlay/hooks/gsd-statusline.js (timeout and paths) > clears stdin timeout on normal end
+(pass) overlay/hooks/gsd-statusline.js (timeout and paths) > require paths use ../../src/ for overlay/hooks/ depth
+(pass) build and parity scripts consume hooks manifest (SSOT) > build.js imports the hooks manifest
+(pass) build and parity scripts consume hooks manifest (SSOT) > build.js does NOT hardcode hook source directories
+(pass) build and parity scripts consume hooks manifest (SSOT) > check-parity.js imports the hooks manifest
+(pass) build and parity scripts consume hooks manifest (SSOT) > check-parity.js does NOT hardcode hook file paths
+
+tests\hosted-evidence-binding.test.js:
+(pass) hosted evidence binding > rejects pull-request subject expressions reused for push
+(pass) hosted evidence binding > denies blocking paired authority to fork pull-request heads
+(pass) hosted evidence binding > rejects check names or PR-side workflow definitions as authority
+(pass) hosted evidence binding > derives the current evidence transport topology without timeless count constants [15.00ms]
+(pass) hosted evidence binding > fails closed on ambiguous runtime jobs and malformed evidence transport policy
+(pass) hosted evidence binding > bounds derived workflow, matrix, runtime-subject, and artifact identities
+(pass) hosted evidence binding > validates a closed paired manifest without collector-owned identity
+(pass) hosted evidence binding > joins one complete same-repository first-attempt evidence cycle [32.00ms]
+(pass) hosted evidence binding > rejects a caller-supplied canonical repository that differs from the contract
+(pass) hosted evidence binding > returns an explicit no-authority outcome for a fork without accepting evidence
+(pass) hosted evidence binding > rejects missing, duplicate, extraneous, or cross-cycle runs and Tier A jobs [93.00ms]
+(pass) hosted evidence binding > rejects missing, duplicate, extraneous, or mismatched runtime artifacts [94.00ms]
+(pass) hosted evidence binding > rejects malformed Tier A runner authority before joining identities [31.00ms]
+(pass) hosted evidence binding > rejects malformed Tier B runtime claims before joining artifacts [78.00ms]
+(pass) hosted evidence binding > binds Tier B runtime claims to each governed subject authority [16.00ms]
+(pass) hosted evidence binding > rejects malformed join events, no-authority payloads, and paired checkout authority [47.00ms]
+(pass) hosted evidence binding > fails closed on malformed event, repository, and authority inputs
+
+tests\hosted-runtime-receipt.test.js:
+(pass) hosted Tier B runtime receipt > keeps the hosted producer independent from uninstalled verifier dependencies
+(pass) hosted Tier B runtime receipt > emits only bounded runner observation and runtime claims
+(pass) hosted Tier B runtime receipt > fails closed on malformed claims, duplicate tools, and unresolved versions
+(pass) hosted Tier B runtime receipt > accepts only reviewed runtime tools and supported runner platforms
+(pass) hosted Tier B runtime receipt > defaults optional claims and fails closed on invalid options and probe output
+(pass) hosted Tier B runtime receipt > runs version probes without a shell or inherited unrelated environment [485.00ms]
+(pass) hosted Tier B runtime receipt > parses a closed repeatable CLI without reading arbitrary environment
+(pass) hosted Tier B runtime receipt > publishes one create-only receipt inside the project root [15.00ms]
+(pass) hosted Tier B runtime receipt > executes the real CLI with default adapters and bounded output [547.00ms]
+(pass) hosted Tier B runtime receipt > CLI uses allowlisted hosted variables and sanitizes failures
+
+tests\install-drift.test.js:
+(pass) reports matching upstream generations independently of fork version [31.00ms]
+(pass) distinguishes legacy, absent, missing and invalid provenance without comparing lineages [16.00ms]
+(pass) CLI reports truthful exit codes for isolated homes and invalid arguments [421.00ms]
+
+tests\install-hyperfine.test.js:
+(pass) Hyperfine installer > selects the reviewed Hyperfine 1.20.0 Linux x64 asset
+(pass) Hyperfine installer > supports only the reviewed hosted-runner platform assets
+(pass) Hyperfine installer > rejects tampered download bytes before extraction
+(pass) Hyperfine installer > rejects an installed executable that does not resolve to exactly 1.20.0
+(pass) Hyperfine installer > extracts and verifies the reviewed executable before installing it [16.00ms]
+(pass) Hyperfine installer > rejects an unsuccessful official release download [15.00ms]
+(pass) Hyperfine installer > rejects an unreviewed sibling release asset before network access
+(pass) Hyperfine installer > accepts only bounded bytes from exact reviewed release URLs
+(pass) Hyperfine installer > fails closed on archive extraction, payload, and version anomalies [63.00ms]
+(pass) Hyperfine installer > uses a private default temp directory for tar archives [15.00ms]
+(pass) Hyperfine installer > fails closed on invalid destinations, adapters, bytes, and adapter results [16.00ms]
+(pass) Hyperfine installer > requires one explicit destination from the installer CLI
+(pass) Hyperfine installer > emits one machine-readable record for a successful CLI install
+(pass) Hyperfine installer > prints CLI help and sanitized failures [172.00ms]
+
+tests\installer-cli-safety.test.js:
+(pass) installer CLI safety > unsupported --all refuses before legacy cleanup can remove owner content [125.00ms]
+(pass) installer CLI safety > CLI uninstall refuses the isolated home without deleting its inventory [140.00ms]
+(pass) installer CLI safety > corrupt overlay ownership refuses legacy install before cleanup or upstream writes [172.00ms]
+(pass) installer CLI safety > corrupt installed ownership refuses uninstall without removing owner or legacy files [125.00ms]
+(pass) installer CLI safety > --help documents the public installer without creating a runtime [125.00ms]
+(pass) installer CLI safety > -h documents the public installer without creating a runtime [141.00ms]
+(pass) installer CLI safety > CLI uninstall is idempotent and preserves untracked owner files [406.00ms]
+(pass) installer CLI safety > real install and uninstall preserve owner script helpers without claiming them [2672.00ms]
+(pass) installer CLI safety > real CLI migration preserves owner content and installs composed metadata [2265.00ms]
+
+tests\installer-codex-defaults.test.js:
+(pass) failed Codex agent generation restores absent shared defaults [1922.00ms]
+(pass) failed Codex agent generation restores existing shared defaults [1969.00ms]
+(pass) installer help selects Kimi Code with its distinct runtime flag [1078.00ms]
+
+tests\installer-exports.test.js:
+(pass) bin/install.js module exports > exports all 10 safety functions + uninstall
+(pass) bin/install.js module exports > exports INSTALLED_MANIFEST_NAME constant
+(pass) bin/install.js module exports > require() produces no stdout or stderr output [156.00ms]
+(pass) bin/install.js module exports > stale src/ fingerprint test is removed from installer-v3.test.js
+
+tests\installer-safety.test.js:
+(pass) installer arguments and metadata > config directory parsing: []
+(pass) installer arguments and metadata > config directory parsing: ["--claude"]
+(pass) installer arguments and metadata > config directory parsing: ["--config-dir"]
+(pass) installer arguments and metadata > config directory parsing: ["--config-dir","--global"]
+(pass) installer arguments and metadata > config directory parsing: ["--config-dir","custom"]
+(pass) installer arguments and metadata > config directory parsing: ["-c","\"quoted path\""]
+(pass) installer arguments and metadata > config directory parsing: ["--config-dir=custom"]
+(pass) installer arguments and metadata > config directory parsing: ["-c='quoted path'"]
+(pass) installer arguments and metadata > target resolution respects local paths, explicit paths and runtime environment priorities
+(pass) installer arguments and metadata > metadata supports both upstream naming schemes and explicit package identity [47.00ms]
+(pass) installer arguments and metadata > overlay copying refuses an incomplete manifest before copying any files [16.00ms]
+(pass) installer transaction safety > preflightInstallTarget rejects missing dist manifests before mutation [15.00ms]
+(pass) installer transaction safety > createInstallTransaction snapshots previous metadata and settings.json [63.00ms]
+(pass) installer transaction safety > rollback restores settings.json and removes newly copied overlay files [78.00ms]
+(pass) installer transaction safety > rollback preserves previously installed overlay files while removing new overlay files [47.00ms]
+(pass) installer transaction safety > install reports rollback: "applied" when overlay copy fails after upstream success [31.00ms]
+(pass) installer transaction safety > snapshot copy failure preserves diagnostics and never spawns upstream (cleanup failure: false) [31.00ms]
+(pass) installer transaction safety > snapshot copy failure preserves diagnostics and never spawns upstream (cleanup failure: true) [32.00ms]
+(pass) installer transaction safety > spawn error followed by exit 0 settles once without subsequent mutation [31.00ms]
+(pass) installer transaction safety > spawn error followed by exit 1 settles once without subsequent mutation [31.00ms]
+(pass) installer transaction safety > preflight refuses unsafe-target without running the installer [31.00ms]
+(pass) installer transaction safety > preflight refuses missing-installer without running the installer [16.00ms]
+(pass) installer transaction safety > preflight refuses corrupt-overlay without running the installer
+(pass) installer transaction safety > preflight refuses nonarray-overlay without running the installer [16.00ms]
+(pass) installer transaction safety > preflight refuses corrupt-metadata without running the installer
+(pass) installer transaction safety > upstream throw produces a nonzero result and restores owner settings [62.00ms]
+(pass) installer transaction safety > upstream signal produces a nonzero result and restores owner settings [31.00ms]
+(pass) installer transaction safety > upstream noninteger produces a nonzero result and restores owner settings [32.00ms]
+(pass) installer transaction safety > successful install keeps a custom statusline and archives patches without a pristine tree [62.00ms]
+(pass) installer transaction safety > malformed overlay ownership refuses a transaction before mutation { [16.00ms]
+(pass) installer transaction safety > malformed overlay ownership refuses a transaction before mutation {} [31.00ms]
+(pass) installer transaction safety > malformed overlay ownership refuses a transaction before mutation [null, "", "hooks/old.js"] [31.00ms]
+(pass) installer transaction safety > unsafe managed install path ../outside.txt refuses upstream before owner bytes change [31.00ms]
+(pass) installer transaction safety > unsafe managed install path . refuses upstream before owner bytes change [16.00ms]
+(pass) installer transaction safety > unsafe managed install path hooks/gsd-statusline.js refuses upstream before owner bytes change [31.00ms]
+(pass) installer transaction safety > a later install preserves earlier patch generations before upstream runs (status 0) [172.00ms]
+(pass) installer transaction safety > a later install preserves earlier patch generations before upstream runs (status 1) [78.00ms]
+(pass) installer transaction safety > failed archive copy cannot expose a partial completed generation or spawn upstream [47.00ms]
+(pass) installer transaction safety > install refuses linked backup content at gsd-local-patches before upstream mutation [16.00ms]
+(pass) installer transaction safety > install refuses linked backup content at gsd-pristine before upstream mutation [31.00ms]
+(pass) installer transaction safety > install refuses linked backup content at gsd-local-patches/nested before upstream mutation [16.00ms]
+(pass) installer transaction safety > install refuses linked backup content at gsd-local-patch-history before upstream mutation [15.00ms]
+(pass) readInstalledManifest > returns array of relative paths when valid manifest exists [16.00ms]
+(pass) readInstalledManifest > returns empty array when no manifest file exists
+(pass) readInstalledManifest > refuses corrupt JSON instead of interpreting missing ownership
+(pass) readInstalledManifest > refuses a non-file ownership manifest [16.00ms]
+(pass) readInstalledManifest > refuses linked ownership metadata without reading or deleting its target
+(pass) readInstalledManifest > invalid installed ownership refuses removal: null [15.00ms]
+(pass) readInstalledManifest > invalid installed ownership refuses removal: []
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {}
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {"files":null} [16.00ms]
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {"files":[]} [15.00ms]
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {"files":"owned"}
+(pass) readInstalledManifest > invalid installed ownership refuses removal: {"files":{"owned.js":null}}
+(pass) removeGsdFiles > a valid empty ownership manifest does not activate recursive legacy cleanup [16.00ms]
+(pass) removeGsdFiles > cleanup does not follow a linked scripts directory into owner content [31.00ms]
+(pass) removeGsdFiles > INST-01: manifest strategy removes listed files, user content survives [47.00ms]
+(pass) removeGsdFiles > INST-03: legacy fallback removes only known GSD package roots [47.00ms]
+(pass) removeGsdFiles > manifest strategy prunes empty directories after file removal [16.00ms]
+(pass) removeGsdFiles > manifest strategy also removes overlay-manifest files [15.00ms]
+(pass) removeGsdFiles > does NOT prune directory containing user file (co-located content) [16.00ms]
+  [2mStrategy: manifest (3 items removed)[0m
+(pass) removeGsdFiles > uninstall removes listed script helpers and preserves co-located owner scripts [16.00ms]
+(pass) removeGsdFiles > always removes GSD metadata files [31.00ms]
+(pass) removeGsdFiles > returns correct strategy and removed count [15.00ms]
+(pass) removeGsdFiles > path containment (traversal rejection) > rejects manifest entry with ../ traversal [16.00ms]
+(pass) removeGsdFiles > path containment (traversal rejection) > rejects manifest entry with deeply nested traversal (../../) [16.00ms]
+(pass) removeGsdFiles > path containment (traversal rejection) > rejects absolute paths that resolve outside targetDir
+(pass) removeGsdFiles > path containment (traversal rejection) > rejects entries using platform-native absolute paths [15.00ms]
+(pass) removeGsdFiles > path containment (traversal rejection) > mixed valid and traversal entries: deletes valid, skips traversal, user content intact [32.00ms]
+(pass) detectV2 > INST-02: returns false for overlay-installed dir with src/ and overlay_version [31.00ms]
+(pass) detectV2 > INST-02: returns false when only src/ exists (no meta files)
+(pass) detectV2 > returns true with signal meta for v2.x meta without overlay_version
+(pass) detectV2 > returns true with version string from v2.x meta [15.00ms]
+(pass) detectV2 > returns true with signal meta-corrupt for corrupt meta JSON
+(pass) detectV2 > returns true with signal directory-name when get-stuff-done/ exists without gsd-core/ [16.00ms]
+(pass) detectV2 > returns false for empty directory
+(pass) detectV2 > returns false when both get-stuff-done/ and gsd-core/ exist (active install present)
+(pass) detectV2 > returns false when only get-shit-done/ exists (v3 baseline, not v2)
+(pass) isSafeToClean > refuses home directory
+(pass) isSafeToClean > refuses filesystem root
+(pass) isSafeToClean > refuses shallow paths (single segment below root)
+(pass) isSafeToClean > accepts valid deep path
+(pass) uninstall > refuses the home directory before deleting even manifest-listed files [16.00ms]
+(pass) uninstall > home-directory protection also covers a selected directory alias [15.00ms]
+  [2mStrategy: manifest (3 items removed)[0m
+(pass) uninstall > removes GSD files via manifest and preserves user content [32.00ms]
+(pass) uninstall > handles non-existent directory without throwing
+  [2mStrategy: legacy-fallback (1 items removed)[0m
+(pass) uninstall > legacy fallback path through uninstall removes only known dirs [46.00ms]
+(pass) patchStatusLine > creates settings.json and adds statusLine when file missing
+(pass) patchStatusLine > adds statusLine to existing settings with other keys [16.00ms]
+(pass) patchStatusLine > preserves custom non-GSD statusLine (per D-06)
+(pass) patchStatusLine > updates existing GSD statusLine path [16.00ms]
+(pass) patchStatusLine > uses forward-slash paths in command
+  Warning: C:\Users\Destiny\AppData\Local\Temp\gsd-test-aBUC3u\settings.json is corrupt JSON. Backed up to C:\Users\Destiny\AppData\Local\Temp\gsd-test-aBUC3u\settings.json.backup
+(pass) patchStatusLine > handles corrupt settings.json with backup and warning (not silent reset) [15.00ms]
+(pass) patchStatusLine > returns correct action for empty settings (no statusLine key)
+(pass) patchStatusLine > uses atomic write (temp file + rename) to prevent TOCTOU
+(pass) copyOverlayManifest > copies .overlay-manifest.json to target root [16.00ms]
+(pass) copyOverlayManifest > does not require an upstream package root in target
+(pass) copyOverlayManifest > skips gracefully if .overlay-manifest.json does not exist in dist [16.00ms]
+(pass) cleanOrphanedPaths > removes an empty hooks/dist/ directory [15.00ms]
+(pass) cleanOrphanedPaths > returns 0 if no orphans exist
+(pass) cleanOrphanedPaths > does not touch hooks/ directory itself
+(pass) cleanOrphanedPaths > preserves local patch bytes and metadata for owner reconciliation
+(pass) cleanOrphanedPaths > preserves unclassified hook bytes and local patch metadata [16.00ms]
+(pass) cleanOrphanedPaths > orphan cleanup does not traverse a linked hooks ancestor [15.00ms]
+(pass) reviewed installer publication boundaries > rejects all-runtime installation before spawning or writing a target [16.00ms]
+(pass) reviewed installer publication boundaries > missing overlay source refuses before upstream mutation
+(pass) reviewed installer publication boundaries > overlay publication refuses a destination redirected by upstream [47.00ms]
+(pass) reviewed installer publication boundaries > rollback continues after a locked first file and retains recovery evidence [31.00ms]
+(pass) reviewed installer publication boundaries > rollback restores an incompatible leaf without writing through a link [47.00ms]
+
+tests\installer-target.test.js:
+(pass) Codex global uses its home, independently of Claude configuration [250.00ms]
+(pass) Codex local and explicit configuration match the selected runtime [219.00ms]
+(pass) runtime home overrides expand tilde consistently with upstream [406.00ms]
+
+tests\installer-v3.test.js:
+(pass) v3.0 Delegation Installer > pre-condition: dist/.overlay-manifest.json exists
+(pass) v3.0 Delegation Installer > INST-01: subprocess delegation > delegates to upstream and produces installed file structure [2281.00ms]
+(pass) v3.0 Delegation Installer > INST-01: subprocess delegation > passes all user flags through to upstream [2016.00ms]
+(pass) v3.0 Delegation Installer > INST-02: overlay files copied > overlay-only files exist in target after install [2265.00ms]
+(pass) v3.0 Delegation Installer > INST-02: overlay files copied > all manifest files are copied to target [2344.00ms]
+(pass) v3.0 Delegation Installer > INST-03: .install-meta.json written > writes v3.0 format install metadata [2250.00ms]
+(pass) v3.0 Delegation Installer > INST-03: .install-meta.json written > upstream_version matches dist metadata [2422.00ms]
+(pass) v3.0 Delegation Installer > INST-04: --uninstall > removes installed files and exits 0 [3062.00ms]
+(pass) v3.0 Delegation Installer > INST-04: --uninstall > idempotent: uninstall on empty dir exits 0 [157.00ms]
+(pass) v3.0 Delegation Installer > INST-04: --uninstall > idempotent: double uninstall exits 0 [3765.00ms]
+(pass) v3.0 Delegation Installer > INST-05: v2.x detection > detects v2.x via .install-meta.json (no overlay_version) [5422.00ms]
+(pass) v3.0 Delegation Installer > INST-05: v2.x detection > detects v2.x via get-stuff-done/ without Open GSD root/ [3031.00ms]
+(pass) v3.0 Delegation Installer > INST-05: v2.x detection > --force suppresses migration banner (quiet mode) [1985.00ms]
+(pass) v3.0 Delegation Installer > INST-05b: negative v2.x detection > does NOT detect v2.x for fresh empty directory [2031.00ms]
+(pass) v3.0 Delegation Installer > INST-05b: negative v2.x detection > does NOT detect v2.x for v3.0 installation [2266.00ms]
+(pass) v3.0 Delegation Installer > INST-05c: safety guard (isSafeToClean) > safety guard function exists in install.js
+(pass) v3.0 Delegation Installer > INST-05c: safety guard (isSafeToClean) > readline is not imported in install.js
+(pass) v3.0 Delegation Installer > INST-05c: safety guard (isSafeToClean) > askConfirmation function does not exist in install.js
+
+tests\launcher.test.js:
+(pass) bin/gsd.js launcher > gsdPaths uses correct home directory [31.00ms]
+(pass) bin/gsd.js launcher > creates .gsd directory structure
+(pass) bin/gsd.js launcher > creates default config with proper structure
+(pass) bin/gsd.js launcher > reads version from package.json
+(pass) bin/gsd.js launcher > config migration adds version field
+(pass) bin/gsd.js launcher > detects .planning/STATE.md in current directory
+(pass) bin/gsd.js launcher > detects .planning/CONTINUE.md for continuation context
+(pass) bin/gsd.js launcher > launcher script exists and is executable [16.00ms]
+(pass) bin/gsd.js launcher > launcher imports required modules
+(pass) bin/gsd.js launcher > launcher has error handling for claude not found
+
+tests\osv-triage.test.js:
+(pass) OSV triage normalization > deduplicates medium and low findings by vulnerability id plus package name
+(pass) OSV triage normalization > emits deterministic issue titles, bodies, labels, and normalized severities [16.00ms]
+(pass) OSV triage normalization > classifies high and critical vulnerabilities as blocking severities
+Wrote 2 OSV triage finding(s) to C:\Users\Destiny\AppData\Local\Temp\gsd-osv-triage-MZWU66\triage.json
+(pass) OSV triage CLI > writes deterministic JSON output for medium and low findings
+(pass) OSV triage CLI > exits non-zero when --fail-on matches high or critical findings [109.00ms]
+
+tests\override-churn.test.js:
+(pass) override churn classification > classifies changed, carried, orphaned, added, and removed overrides deterministically [31.00ms]
+(pass) override churn classification > markdown output includes every churn class in path order [31.00ms]
+(pass) CHANGELOG marker replacement > replaces only content between override-churn:start and override-churn:end
+(pass) override churn CLI > prints help and exits 0 [110.00ms]
+(pass) override churn CLI > emits deterministic JSON for fixture inputs [125.00ms]
+(pass) override churn CLI > documents required fixture inputs when --json is used without upstream dirs [94.00ms]
+
+tests\owned-temp.test.js:
+(pass) owned temp lifecycle > marks canonical ownership and supports dry-run before deletion [15.00ms]
+(pass) owned temp lifecycle > rejects unmarked, protected, lookalike, and link-escape targets [16.00ms]
+(pass) owned temp lifecycle > allows internal links but rejects unregistered links outside the owned tree [15.00ms]
+(pass) owned temp lifecycle > protects a root when temp paths reach it through a junction alias [16.00ms]
+
+tests\package-launcher-v3.test.js:
+(pass) v3.0 package configuration > package.json files array contains exactly the v3.0 entries
+(pass) v3.0 package configuration > package.json prepublishOnly equals "bun run dist"
+(pass) v3.0 launcher imports > bin/gsd.js contains require for dist/src/platform/paths as primary import
+(pass) v3.0 launcher imports > bin/gsd.js contains require for dist/src/platform/terminal as primary import
+(pass) v3.0 launcher imports > bin/gsd.js contains require for dist/src/config/ConfigLoader as primary import
+(pass) v3.0 launcher imports > bin/gsd.js contains fallback to overlay/src/platform/paths
+(pass) v3.0 launcher imports > bin/gsd.js --help exits without MODULE_NOT_FOUND [328.00ms]
+(pass) runtime package provenance output > bin/gsd.js --version prints fork and upstream provenance without launching claude [234.00ms]
+(pass) runtime package provenance output > bin/gsd.js --version --json emits parseable package provenance [235.00ms]
+(pass) runtime package provenance output > test source covers the machine-readable provenance contract
+
+tests\paired-binding-manifest.test.js:
+(pass) paired binding manifest emitter > binds four immutable subjects to collector-recomputable content digests
+(pass) paired binding manifest emitter > parses one closed CLI shape and rejects duplicates or incomplete flags
+(pass) paired binding manifest emitter > rejects malformed subjects, paths, bytes, and adapters before publication
+(pass) paired binding manifest emitter > reads bounded regular files and publishes one create-only private manifest [31.00ms]
+(pass) paired binding manifest emitter > routes CLI publication and sanitizes failures
+(pass) paired binding manifest emitter > executes the real CLI through default bounded adapters [94.00ms]
+
+tests\perf-baseline-schema.test.js:
+(pass) perf-baseline schema > accepts the committed three-platform baseline shape [47.00ms]
+(pass) perf-baseline schema > rejects an extra top-level property [31.00ms]
+(pass) perf-baseline schema > rejects a missing windows platform [31.00ms]
+(pass) perf-baseline schema > rejects an install metric missing samples [31.00ms]
+(pass) perf-baseline schema > accepts an accepted regression scoped to platform and metric [32.00ms]
+(pass) perf-baseline schema > accepts an accepted regression with explicit global scope [15.00ms]
+(pass) perf-baseline schema > rejects accepted regressions without target fields or required review metadata [32.00ms]
+
+tests\perf-comparison-schema.test.js:
+(pass) paired performance comparison schema > accepts a complete ten-pair blocking comparison artifact [46.00ms]
+(pass) paired performance comparison schema > requires a complete non-placeholder execution identity [47.00ms]
+(pass) paired performance comparison schema > binds shared controls separately from each immutable subject [16.00ms]
+(pass) paired performance comparison schema > locks deterministic scheduling and the approved performance budgets [47.00ms]
+(pass) paired performance comparison schema > requires complete warmup and ten-pair evidence for both metrics [47.00ms]
+(pass) paired performance comparison schema > records closed indexed pair order with exactly two subject samples [15.00ms]
+(pass) paired performance comparison schema > requires successful immutable receipts with safe positive nanosecond timings [63.00ms]
+(pass) paired performance comparison schema > requires closed ratio and order-effect summary diagnostics [47.00ms]
+(pass) paired performance comparison schema > excludes waivers, calendars, and historical baselines from blocking evidence [15.00ms]
+
+tests\platform-internal.test.js:
+(pass) _detectShell direct tests > Windows + MSYSTEM set detects mingw bash
+(pass) _detectShell direct tests > Windows + PSModulePath detects pwsh
+(pass) _detectShell direct tests > Windows + POWERSHELL_DISTRIBUTION_CHANNEL detects pwsh
+(pass) _detectShell direct tests > Windows + no shell indicators defaults to cmd
+(pass) _detectShell direct tests > Unix + SHELL=/bin/zsh detects zsh
+(pass) _detectShell direct tests > Unix + SHELL=/bin/bash detects bash
+(pass) _detectShell direct tests > Unix + unknown SHELL=/bin/fish defaults to bash with unknown variant
+(pass) _detectShell direct tests > Unix + empty SHELL defaults to bash with unknown variant
+(pass) _detectEnvironment direct tests > Linux + /proc/version with Microsoft detects WSL
+(pass) _detectEnvironment direct tests > Linux + /proc/version throws + WSL_DISTRO_NAME set detects WSL
+(pass) _detectEnvironment direct tests > Linux + /proc/version throws + no WSL_DISTRO_NAME is not WSL
+(pass) _detectEnvironment direct tests > Windows + MSYSTEM + EXEPATH with git detects isGitBash
+(pass) _detectEnvironment direct tests > Windows + MINGW_PREFIX set detects isMingw
+(pass) _detectEnvironment direct tests > Windows + EXEPATH with git but no MSYSTEM detects isMingw
+(pass) _detectEnvironment direct tests > Darwin + no mingw or WSL vars detects isNative
+(pass) _detectNodeVersion direct tests > returns version info for current Node.js
+(pass) _detectNodeVersion direct tests > version matches process.versions.node
+(pass) _detectGit direct tests > git available: returns available=true with path and version strings [234.00ms]
+(pass) _detectGit direct tests > _detectGit returns object with expected shape [313.00ms]
+(pass) _detectTerminalEmulator direct tests > Windows Console Host: win32 without WT_SESSION or MSYSTEM
+(pass) _detectTerminalEmulator direct tests > unknown emulator on non-Windows with no terminal vars
+(pass) _detectTerminalEmulator direct tests > WT_SESSION set returns Windows Terminal
+(pass) _detectTerminalEmulator direct tests > ConEmuTask set returns ConEmu
+(pass) _detectTerminalEmulator direct tests > TERM_PROGRAM=iTerm.app returns iTerm2
+(pass) _detectTerminalEmulator direct tests > TERM_PROGRAM=vscode returns VS Code
+(pass) _detectTerminalEmulator direct tests > TERM_PROGRAM=Apple_Terminal returns Apple Terminal
+(pass) _detectTerminalEmulator direct tests > TERM_PROGRAM=Hyper returns Hyper
+(pass) _detectTerminalEmulator direct tests > TERM=kitty returns Kitty [15.00ms]
+(pass) _detectTerminalEmulator direct tests > TERM=alacritty returns Alacritty
+(pass) _detectTerminalEmulator direct tests > TERM=xterm returns xterm
+(pass) _detectTerminalEmulator direct tests > TERM=screen returns GNU Screen
+(pass) _detectTerminalEmulator direct tests > TERM=tmux-256color returns tmux
+(pass) _detectUnicodeSupport direct tests > Windows Console Host (win32 no MSYSTEM/WT_SESSION) returns false
+(pass) _detectUnicodeSupport direct tests > Linux framebuffer (TERM=linux) returns false
+(pass) _detectUnicodeSupport direct tests > Unix with xterm TERM returns true
+(pass) _detectUnicodeSupport direct tests > Windows unknown terminal (TERM=unknown-terminal) returns false
+(pass) _detectUnicodeSupport direct tests > GSD_UNICODE=true override returns true
+(pass) _detectUnicodeSupport direct tests > GSD_UNICODE=false override returns false
+(pass) _detectUnicodeSupport direct tests > WT_SESSION set returns true
+(pass) _detectUnicodeSupport direct tests > TERM_PROGRAM=iTerm.app returns true
+(pass) _detectUnicodeSupport direct tests > TERM_PROGRAM=vscode returns true
+(pass) _detectUnicodeSupport direct tests > TERM_PROGRAM=Hyper returns true
+(pass) _detectUnicodeSupport direct tests > TERM=xterm-kitty returns true
+(pass) _detectUnicodeSupport direct tests > TERM=alacritty returns true
+(pass) _detectColorLevel direct tests > NODE_DISABLE_COLORS=1 disables color (returns 0)
+(pass) _detectColorLevel direct tests > Default basic color for unknown env (returns 1)
+(pass) _detectColorLevel direct tests > FORCE_COLOR=0 disables color (returns 0)
+(pass) _detectColorLevel direct tests > FORCE_COLOR=1 enables basic color (returns 1)
+(pass) _detectColorLevel direct tests > FORCE_COLOR=2 enables 256 color (returns 2)
+(pass) _detectColorLevel direct tests > FORCE_COLOR=3 enables truecolor (returns 3)
+(pass) _detectColorLevel direct tests > NO_COLOR disables color (returns 0)
+(pass) _detectColorLevel direct tests > WT_SESSION enables truecolor (returns 3)
+(pass) _detectColorLevel direct tests > COLORTERM=truecolor enables truecolor (returns 3)
+(pass) _detectColorLevel direct tests > COLORTERM=24bit enables truecolor (returns 3)
+(pass) _detectColorLevel direct tests > TERM=dumb disables color (returns 0)
+(pass) _detectColorLevel direct tests > TERM with 256color enables 256 color (returns 2)
+(pass) _detectColorLevel direct tests > TERM=xterm enables basic color (returns 1)
+(pass) _detectColorLevel direct tests > TERM=ansi enables basic color (returns 1)
+(pass) _detectColorLevel direct tests > TERM=screen enables basic color (returns 1)
+(pass) _detectColorLevel direct tests > ConEmuTask set enables 256 color (returns 2)
+(pass) _detectColorLevel direct tests > TERM_PROGRAM=iTerm.app enables truecolor (returns 3)
+(pass) _detectColorLevel direct tests > TERM_PROGRAM=vscode enables truecolor (returns 3)
+(pass) _detectColorLevel direct tests > TERM_PROGRAM=Apple_Terminal enables 256 color (returns 2)
+(pass) _detectColorLevel direct tests > TERM_PROGRAM=Hyper enables truecolor (returns 3)
+(pass) _detectColorLevel direct tests > TERM=kitty enables truecolor (returns 3) [16.00ms]
+(pass) _detectColorLevel direct tests > TERM=alacritty enables truecolor (returns 3)
+(pass) detectTerminal aggregate direct tests > detectTerminal() returns complete terminal object
+(pass) detectTerminal aggregate direct tests > detectTerminal() caches on repeat call
+(pass) detectPlatform aggregate direct tests > detectPlatform() returns complete platform object [266.00ms]
+(pass) detectPlatform aggregate direct tests > detectPlatform() caches on repeat call [234.00ms]
+(pass) detectPlatform aggregate direct tests > detectPlatform() os matches process.platform [234.00ms]
+(pass) _getTerminalDimensions direct tests > returns columns and rows with positive numbers
+(pass) _getTerminalDimensions direct tests > defaults to 80 columns when process.stdout.columns is undefined
+(pass) gsdPaths direct tests > relative() > returns relative path from base to target
+(pass) gsdPaths direct tests > relative() > returns relative path across directories
+(pass) gsdPaths direct tests > gsdHome() > returns path ending with .gsd when no args
+(pass) gsdPaths direct tests > gsdHome() > joins segment to GSD home
+(pass) gsdPaths direct tests > claudeHome() > returns path ending with .claude when no args
+(pass) gsdPaths direct tests > claudeHome() > joins segment to Claude home
+(pass) gsdPaths direct tests > toForwardSlash() > converts backslashes to forward slashes
+(pass) gsdPaths direct tests > toForwardSlash() > preserves forward-slash paths unchanged
+(pass) gsdPaths direct tests > expandTilde() > expands ~ to homedir [16.00ms]
+(pass) gsdPaths direct tests > expandTilde() > expands bare ~ to homedir
+(pass) gsdPaths direct tests > expandTilde() > returns non-tilde paths unchanged
+(pass) gsdPaths direct tests > expandTilde() > returns relative paths unchanged
+(pass) gsdPaths direct tests > isAbsolute() > detects Unix absolute paths
+(pass) gsdPaths direct tests > isAbsolute() > detects Windows absolute paths
+(pass) gsdPaths direct tests > isAbsolute() > detects relative paths
+
+tests\platform.test.js:
+(pass) detectPlatform > return shape and caching > returns object with required fields [234.00ms]
+(pass) detectPlatform > return shape and caching > caches result on repeated calls (same object reference) [203.00ms]
+(pass) detectPlatform > return shape and caching > clearCache() makes next call re-detect [453.00ms]
+(pass) detectPlatform > OS detection > os field matches process.platform [266.00ms]
+(pass) detectPlatform > OS detection > boolean flags match os value [219.00ms]
+(pass) detectPlatform > shell detection > shell is a non-empty string [234.00ms]
+(pass) detectPlatform > shell detection > shell is one of known values [313.00ms]
+(pass) detectPlatform > shell detection > exactly one shell boolean is true [296.00ms]
+(pass) detectPlatform > shell detection > shell detection respects MSYSTEM env var (MinGW) [250.00ms]
+(pass) detectPlatform > shell detection > shell detection respects PSModulePath env var (PowerShell) [235.00ms]
+(pass) detectPlatform > shell detection > shell detection respects SHELL env var on Unix
+(pass) detectPlatform > environment flags > isMingw, isWSL, isGitBash, isNative are booleans [250.00ms]
+(pass) detectPlatform > environment flags > isMingw is true when MSYSTEM set [219.00ms]
+(pass) detectPlatform > environment flags > isGitBash stays boolean when MSYSTEM is set without EXEPATH [234.00ms]
+(pass) detectPlatform > environment flags > isNative is true when not MinGW or WSL [219.00ms]
+(pass) detectPlatform > Node.js version > nodeVersion matches process.versions.node [218.00ms]
+(pass) detectPlatform > Node.js version > nodeMajor is a number [266.00ms]
+(pass) detectPlatform > Node.js version > nodeIsLTS is a boolean [234.00ms]
+(pass) detectPlatform > Node.js version > nodeMajor >= 20 means nodeIsLTS is true [188.00ms]
+(pass) detectPlatform > git detection > gitAvailable is a boolean [203.00ms]
+(pass) detectPlatform > git detection > when git is available, gitPath and gitVersion are strings [188.00ms]
+(pass) detectPlatform > git detection > when git is unavailable, gitPath and gitVersion are null [203.00ms]
+(pass) detectPlatform > system information > arch is a non-empty string [172.00ms]
+(pass) detectPlatform > system information > cpus is a positive number [187.00ms]
+(pass) detectPlatform > system information > homedir is a non-empty string [188.00ms]
+(pass) gsdPaths > gsdHome() > returns path ending with .gsd
+(pass) gsdPaths > gsdHome() > gsdHome() with argument appends segment
+(pass) gsdPaths > gsdHome() > gsdHome() with multiple arguments joins all segments
+(pass) gsdPaths > gsdHome() > respects GSD_HOME env var override
+(pass) gsdPaths > claudeHome() > returns path ending with .claude
+(pass) gsdPaths > claudeHome() > claudeHome() with argument appends segment
+(pass) gsdPaths > claudeHome() > respects CLAUDE_CONFIG_DIR env var override
+(pass) gsdPaths > path normalization > toForwardSlash() converts backslashes to forward slashes
+(pass) gsdPaths > path normalization > toForwardSlash() preserves already-forward-slash paths
+(pass) gsdPaths > path normalization > toForwardSlash() handles mixed slashes
+(pass) gsdPaths > expandTilde() > expands ~ to homedir
+(pass) gsdPaths > expandTilde() > expands bare ~ to homedir
+(pass) gsdPaths > expandTilde() > returns non-tilde paths unchanged
+(pass) gsdPaths > expandTilde() > returns relative paths unchanged
+(pass) gsdPaths > isAbsolute() > detects Unix absolute paths
+(pass) gsdPaths > isAbsolute() > detects Windows absolute paths
+(pass) gsdPaths > isAbsolute() > detects relative paths
+(pass) gsdPaths > pathe operations produce forward slashes > join produces forward slashes
+(pass) gsdPaths > pathe operations produce forward slashes > resolve produces forward slashes
+(pass) gsdPaths > pathe operations produce forward slashes > dirname produces forward slashes
+(pass) gsdPaths > relative() > returns relative path from base to target
+(pass) gsdPaths > relative() > returns relative path across directories
+(pass) detectPlatform - coverage gap closure > PowerShell detection > detects PowerShell via PSModulePath on Windows
+(pass) detectPlatform - coverage gap closure > PowerShell detection > detects PowerShell via POWERSHELL_DISTRIBUTION_CHANNEL on Windows
+(pass) detectPlatform - coverage gap closure > cmd default on Windows > defaults to cmd when no shell indicators present on Windows [15.00ms]
+(pass) detectPlatform - coverage gap closure > zsh detection on Unix > detects zsh via SHELL env var on Linux
+(pass) detectPlatform - coverage gap closure > zsh detection on Unix > detects zsh with full path on Linux
+(pass) detectPlatform - coverage gap closure > bash detection on Unix > detects bash via SHELL env var on Linux
+(pass) detectPlatform - coverage gap closure > bash detection on Unix > detects bash with full path on Linux
+(pass) detectPlatform - coverage gap closure > unknown shell fallback > defaults to bash for unknown shell on Unix
+(pass) detectPlatform - coverage gap closure > unknown shell fallback > defaults to bash for empty SHELL on Unix
+(pass) detectPlatform - coverage gap closure > WSL detection > detects WSL via /proc/version
+(pass) detectPlatform - coverage gap closure > WSL detection > detects WSL fallback via WSL_DISTRO_NAME when /proc/version throws
+(pass) detectPlatform - coverage gap closure > isGitBash detection > detects Git Bash via MSYSTEM and EXEPATH
+(pass) detectTerminal > return shape > returns object with expected shape
+(pass) detectTerminal > return shape > caches result on repeated calls
+(pass) detectTerminal > return shape > clearCache() makes next call re-detect
+(pass) detectTerminal > color support detection > colorLevel is 0-3
+(pass) detectTerminal > color support detection > supportsColor is boolean matching colorLevel > 0
+(pass) detectTerminal > color support detection > supports256Color is boolean matching colorLevel >= 2
+(pass) detectTerminal > color support detection > supportsTruecolor is boolean matching colorLevel >= 3
+(pass) detectTerminal > color support detection > NO_COLOR env var disables color
+(pass) detectTerminal > color support detection > FORCE_COLOR=3 enables truecolor
+(pass) detectTerminal > color support detection > Windows Terminal (WT_SESSION) supports truecolor
+(pass) detectTerminal > color support detection > COLORTERM=truecolor enables truecolor
+(pass) detectTerminal > Unicode support > supportsUnicode is a boolean
+(pass) detectTerminal > Unicode support > GSD_UNICODE env var overrides detection
+(pass) detectTerminal > Unicode support > GSD_UNICODE=0 disables Unicode
+(pass) detectTerminal > dimensions > columns is a positive integer
+(pass) detectTerminal > dimensions > rows is a positive integer
+(pass) detectTerminal > terminal emulator > emulator is a non-empty string
+(pass) detectTerminal > terminal emulator > emulator boolean flags match emulator string
+(pass) detectTerminal > TTY detection > isTTY is a boolean
+(pass) detectTerminal - coverage gap closure > FORCE_COLOR levels > FORCE_COLOR=0 disables color
+(pass) detectTerminal - coverage gap closure > FORCE_COLOR levels > FORCE_COLOR=1 enables basic color
+(pass) detectTerminal - coverage gap closure > FORCE_COLOR levels > FORCE_COLOR=2 enables 256 color
+(pass) detectTerminal - coverage gap closure > FORCE_COLOR levels > FORCE_COLOR=3 enables truecolor
+(pass) detectTerminal - coverage gap closure > COLORTERM detection > COLORTERM=truecolor enables truecolor
+(pass) detectTerminal - coverage gap closure > COLORTERM detection > COLORTERM=24bit enables truecolor
+(pass) detectTerminal - coverage gap closure > TERM detection > TERM=dumb disables color
+(pass) detectTerminal - coverage gap closure > TERM detection > TERM with 256color enables 256 color
+(pass) detectTerminal - coverage gap closure > TERM detection > TERM=xterm enables basic color
+(pass) detectTerminal - coverage gap closure > TERM detection > TERM=screen enables basic color
+(pass) detectTerminal - coverage gap closure > TERM detection > TERM with color enables basic color
+(pass) detectTerminal - coverage gap closure > TERM detection > TERM with ansi enables basic color
+(pass) detectTerminal - coverage gap closure > ConEmuTask detection > ConEmuTask set enables 256 color
+(pass) detectTerminal - coverage gap closure > TERM_PROGRAM detection > TERM_PROGRAM=iTerm.app enables truecolor
+(pass) detectTerminal - coverage gap closure > TERM_PROGRAM detection > TERM_PROGRAM=vscode enables truecolor
+(pass) detectTerminal - coverage gap closure > TERM_PROGRAM detection > TERM_PROGRAM=Apple_Terminal enables 256 color
+(pass) detectTerminal - coverage gap closure > TERM_PROGRAM detection > TERM_PROGRAM=Hyper enables truecolor
+(pass) detectTerminal - coverage gap closure > TERM kitty/alacritty detection > TERM=kitty enables truecolor
+(pass) detectTerminal - coverage gap closure > TERM kitty/alacritty detection > TERM=alacritty enables truecolor
+(pass) detectTerminal - coverage gap closure > terminal emulator detection > detects xterm emulator
+(pass) detectTerminal - coverage gap closure > terminal emulator detection > detects GNU Screen emulator
+(pass) detectTerminal - coverage gap closure > terminal emulator detection > detects tmux emulator
+(pass) detectTerminal - coverage gap closure > terminal emulator detection > detects Windows Console Host on Windows without WT_SESSION or MSYSTEM
+(pass) detectTerminal - coverage gap closure > Unicode support detection > Windows Terminal supports Unicode
+(pass) detectTerminal - coverage gap closure > Unicode support detection > iTerm2 supports Unicode
+(pass) detectTerminal - coverage gap closure > Unicode support detection > VS Code supports Unicode
+(pass) detectTerminal - coverage gap closure > Unicode support detection > Hyper supports Unicode
+(pass) detectTerminal - coverage gap closure > Unicode support detection > Kitty supports Unicode
+(pass) detectTerminal - coverage gap closure > Unicode support detection > Alacritty supports Unicode
+(pass) detectTerminal - coverage gap closure > Unicode support detection > Windows Console Host does not support Unicode well
+(pass) detectTerminal - coverage gap closure > Unicode support detection > Linux framebuffer (TERM=linux) does not support Unicode
+(pass) detectTerminal - coverage gap closure > Unicode support detection > Unix defaults to Unicode support
+(pass) detectTerminal - coverage gap closure > Unicode support detection > Windows defaults to no Unicode for unknown terminals
+(pass) _detectShell direct tests > Windows + MSYSTEM set detects mingw bash
+(pass) _detectShell direct tests > Windows + PSModulePath detects pwsh
+(pass) _detectShell direct tests > Windows + POWERSHELL_DISTRIBUTION_CHANNEL detects pwsh
+(pass) _detectShell direct tests > Windows + no shell indicators defaults to cmd
+(pass) _detectShell direct tests > Unix + SHELL=/bin/zsh detects zsh
+(pass) _detectShell direct tests > Unix + SHELL=/bin/bash detects bash
+(pass) _detectShell direct tests > Unix + unknown SHELL=/bin/fish defaults to bash with unknown variant
+(pass) _detectShell direct tests > Unix + empty SHELL defaults to bash with unknown variant
+(pass) _detectEnvironment direct tests > Linux + /proc/version with Microsoft detects WSL
+(pass) _detectEnvironment direct tests > Linux + /proc/version throws + WSL_DISTRO_NAME set detects WSL
+(pass) _detectEnvironment direct tests > Linux + /proc/version throws + no WSL_DISTRO_NAME is not WSL
+(pass) _detectEnvironment direct tests > Windows + MSYSTEM + EXEPATH with git detects isGitBash
+(pass) _detectEnvironment direct tests > Windows + MINGW_PREFIX set detects isMingw
+(pass) _detectEnvironment direct tests > Windows + EXEPATH with git but no MSYSTEM detects isMingw
+(pass) _detectEnvironment direct tests > Darwin + no mingw or WSL vars detects isNative
+(pass) _detectNodeVersion direct tests > returns version info for current Node.js
+(pass) _detectGit direct tests > git available: returns available=true with path and version strings [203.00ms]
+(pass) _detectGit direct tests > _detectGit returns object with expected shape [188.00ms]
+(pass) _detectTerminalEmulator direct tests > Windows Console Host: win32 without WT_SESSION or MSYSTEM
+(pass) _detectTerminalEmulator direct tests > unknown emulator on non-Windows with no terminal vars
+(pass) _detectUnicodeSupport direct tests > Windows Console Host (win32 no MSYSTEM/WT_SESSION) returns false
+(pass) _detectUnicodeSupport direct tests > Linux framebuffer (TERM=linux) returns false
+(pass) _detectUnicodeSupport direct tests > Unix with xterm TERM returns true
+(pass) _detectUnicodeSupport direct tests > Windows unknown terminal (TERM=unknown-terminal) returns false
+(pass) _detectUnicodeSupport direct tests > GSD_UNICODE=true override returns true
+(pass) _detectUnicodeSupport direct tests > GSD_UNICODE=false override returns false
+(pass) _detectColorLevel direct tests > NODE_DISABLE_COLORS=1 disables color (returns 0)
+(pass) _detectColorLevel direct tests > Default basic color for unknown env (returns 1)
+
+tests\pre-push-hook.test.js:
+(pass) pre-push hook > clears Git hook-local repository env before running test gates
+
+tests\preview-update-coverage.test.js:
+(pass) generateReport() coverage paths > no-update case returns early with "up to date" message
+(pass) generateReport() coverage paths > all-clean report: no findings, no overrides
+(pass) generateReport() coverage paths > report with high-severity finding includes WARNING line
+(pass) generateReport() coverage paths > report with elevated-severity finding includes [!!] marker [16.00ms]
+(pass) generateReport() coverage paths > report with multiple findings lists high severity before low
+(pass) generateReport() coverage paths > report with stale overrides lists them explicitly
+(pass) generateReport() coverage paths > report with fresh overrides shows count without stale listing
+(pass) generateReport() coverage paths > report with missingReason overrides shows count
+(pass) generateReport() coverage paths > report with orphaned overrides shows count
+(pass) generateReport() coverage paths > next steps section references the latest version
+(pass) generateReport() coverage paths > rollback section references the pinned version
+(pass) generateReport() coverage paths > finding with no evidence array omits evidence line
+(pass) runPreviewScan() fallback path > returns array of findings when called with mock file list
+(pass) runPreviewScan() fallback path > fallback execution-path check triggers for install-related files
+(pass) runPreviewScan() fallback path > fallback prompt-integrity check triggers for prompt injection in workflow diffs [16.00ms]
+(pass) runPreviewScan() fallback path > fallback returns empty when no patterns match
+(pass) runPreviewScan() fallback path > prompt-integrity does not trigger when no diff is provided
+(pass) getOverrideImpact() delegation > delegates to checkOverrides and returns structured result [15.00ms]
+(pass) getOverrideImpact() delegation > reports stale overrides through delegation
+(pass) getVersionDelta() coverage paths > with both arguments provided, skips package.json and npm
+(pass) getVersionDelta() coverage paths > with equal versions returns hasUpdate false
+(pass) getVersionDelta() coverage paths > with both arguments provided, skips package.json read and npm query
+(pass) getVersionDelta() coverage paths > with both arguments provided, returns correct delta
+(pass) runPreviewScan() with explicit file list > with opts.files, uses provided file list instead of buildFileList
+(pass) CLI entry subprocess > CLI wrapper runs and produces output (may succeed or fail based on network) [1422.00ms]
+(pass) CLI entry subprocess > CLI wrapper outputs "preview-update" prefix in output [1344.00ms]
+(pass) runFallbackChecks additional coverage > runFallbackChecks returns findings array for clean input
+(pass) runFallbackChecks additional coverage > runFallbackChecks detects suspicious patterns in diff
+(pass) runCLI structured result > runCLI returns structured result [1344.00ms]
+(pass) runPreviewScan default file list coverage > without opts.files, uses buildFileList to enumerate upstream package
+(pass) runFallbackChecks > detects execution-path files
+(pass) runFallbackChecks > detects hooks/ as execution-path
+(pass) runFallbackChecks > detects scripts/ as execution-path
+(pass) runFallbackChecks > returns empty for non-sensitive files
+(pass) runFallbackChecks > detects prompt-injection in diff content for markdown files
+(pass) runFallbackChecks > no prompt-integrity finding without injection patterns
+(pass) runFallbackChecks > no prompt-integrity finding for non-markdown files
+(pass) runFallbackChecks > no prompt-integrity without diff content
+(pass) runFallbackChecks > handles files with null path
+(pass) runCLI > produces output with update check header [1859.00ms]
+(pass) runCLI > returns structured result regardless of network availability [1625.00ms]
+(pass) runCLI > accepts pinnedVersion and latestVersion params (no network) [16.00ms]
+(pass) runCLI > reports no update when pinned equals latest
+(pass) runCLI > returns exitCode 1 and error message when internal error occurs
+(pass) bin/preview-update-cli.js (SRP extraction) > CLI wrapper file exists at bin/preview-update-cli.js
+(pass) bin/preview-update-cli.js (SRP extraction) > CLI wrapper requires preview-update module and calls runCLI
+(pass) bin/preview-update-cli.js (SRP extraction) > scripts/preview-update.js does NOT contain require.main === module
+(pass) bin/preview-update-cli.js (SRP extraction) > package.json preview-update script points to bin/preview-update-cli.js
+(pass) bin/preview-update-cli.js (SRP extraction) > CLI wrapper executes without error (subprocess) [1375.00ms]
+
+tests\preview-update.test.js:
+(pass) UPD-01: getVersionDelta() > returns hasUpdate: true when pinned < latest
+(pass) UPD-01: getVersionDelta() > returns hasUpdate: false when pinned === latest
+(pass) UPD-01: getVersionDelta() > returns hasUpdate: true when major version differs
+(pass) UPD-01: getVersionDelta() > reads pinned version from package.json devDependencies
+(pass) UPD-02: runPreviewScan() > returns an array of findings [15.00ms]
+(pass) UPD-02: runPreviewScan() > each finding has check, severity, triggered fields
+(pass) UPD-02: runPreviewScan() > execution-path check triggers for bin/ and hooks/ files
+(pass) UPD-02: runPreviewScan() > skips author-anomaly check (irrelevant for npm packages)
+(pass) UPD-02: runPreviewScan() > critical findings have severity elevated or high
+(pass) UPD-03: getOverrideImpact() > returns structured result with ok, overrides, summary fields
+(pass) UPD-03: getOverrideImpact() > zero overrides returns ok: true with empty overrides array
+(pass) UPD-03: getOverrideImpact() > stale overrides appear in result [32.00ms]
+(pass) UPD-03: getOverrideImpact() > invokes checkOverrides from check-overrides.js
+(pass) UPD-04: generateReport() > report includes Version Delta section
+(pass) UPD-04: generateReport() > report includes Supply Chain Scan section
+(pass) UPD-04: generateReport() > critical findings flagged prominently in report
+(pass) UPD-04: generateReport() > clean scan shows appropriate message
+(pass) UPD-04: generateReport() > report includes Override Impact section
+(pass) UPD-04: generateReport() > zero overrides shows "No overrides to review"
+(pass) UPD-04: generateReport() > report includes Next Steps section
+(pass) UPD-04: generateReport() > report includes Rollback section with previous version
+(pass) UPD-04: generateReport() > severity sort places elevated before high
+(pass) UPD-04: generateReport() > no-update report shows "up to date"
+(pass) Read-only safety > script does not export fs.writeFileSync or modify files
+(pass) Module exports > exports getVersionDelta function
+(pass) Module exports > exports runPreviewScan function
+(pass) Module exports > exports getOverrideImpact function
+(pass) Module exports > exports generateReport function
+
+tests\prototype-installer.test.js:
+(pass) Phase 29: Prototype Gate > PROTO-01: upstream install.js runs from composed dir preserving internal structure [2781.00ms]
+(pass) Phase 29: Prototype Gate > PROTO-02: surface branding does not break installation [4985.00ms]
+(pass) Phase 29: Prototype Gate > PROTO-03: overlay additions can be copied after upstream install [6937.00ms]
+
+tests\run-bun-tests.test.js:
+(pass) canonical Bun functional runner > always prepends the explicit .test.js authority filter
+(pass) canonical Bun functional runner > uses an explicit .test.js path as a focused selector
+(pass) canonical Bun functional runner > normalizes bun run argument separators
+(pass) canonical Bun functional runner > rejects Node-native suites and silent-empty flags
+(pass) canonical Bun functional runner > spawns Bun without a shell and propagates its status
+(pass) canonical Bun functional runner > fails closed on spawn errors and missing child status
+(pass) canonical Bun functional runner > main translates validation errors into one actionable failure
+
+tests\run-repository-compat.test.js:
+(pass) repository compatibility runner > derives every repository suite from the validated compatibility contract [31.00ms]
+(pass) repository compatibility runner > runs the derived suites through the current Node test runner
+(pass) repository compatibility runner > propagates test failures and spawn errors as blocking exits [16.00ms]
+(pass) repository compatibility runner > fails closed when the validated contract selects no repository suites
+(pass) repository compatibility runner > maps runner success and errors onto CLI exit semantics [15.00ms]
+
+tests\run-upstream-compat-ci.test.js:
+(pass) run-upstream-compat-ci > returns success even when upstream compatibility detects expected drift
+(pass) run-upstream-compat-ci > writes a GitHub step summary when GITHUB_STEP_SUMMARY is available [16.00ms]
+(pass) run-compat-matrix > cleans its owned installer root when candidate installation fails [31.00ms]
+(pass) run-compat-matrix > runs the compatibility runner once per manifest entry and classifies results [16.00ms]
+(pass) run-compat-matrix > preserves a repository-relative evidence path through a junction worktree
+(pass) run-compat-matrix > returns non-zero only when the blocking manifest entry fails [15.00ms]
+(pass) run-compat-matrix > --require-all returns non-zero when a historical row is red [16.00ms]
+(pass) run-compat-matrix > failed suite evidence overrides an inconsistent green row result
+(pass) run-compat-matrix > records candidate runner errors and continues through the matrix [15.00ms]
+(pass) run-compat-matrix > invalid manifests exit non-zero before any matrix entry runs [16.00ms]
+(pass) run-compat-matrix > CLI JSON report contains required compatibility matrix fields [16.00ms]
+(pass) run-compat-matrix > report publication failures propagate without changing an existing report [15.00ms]
+
+tests\run-upstream-compat.test.js:
+(pass) run-upstream-compat package root resolution > uses active authority gsdTools path instead of legacy get-shit-done path
+(pass) run-upstream-compat package root resolution > falls back to dist root when gsdTools is directly under bin
+(pass) run-upstream-compat test discovery > classifies every discovered root compatibility suite exactly once
+(pass) run-upstream-compat test discovery > rejects unclassified, missing, and duplicate suite paths [16.00ms]
+(pass) run-upstream-compat test discovery > rejects invalid classifications and incomplete policy metadata [16.00ms]
+(pass) run-upstream-compat output parsing > refuses success without a complete TAP summary [15.00ms]
+(pass) run-upstream-compat output parsing > parses TAP pass fail and skipped counts
+(pass) run-upstream-compat timeout policy > uses a longer default timeout on Windows and supports env override
+(pass) run-upstream-compat helper staging > copies helpers.cjs and its local helper dependency tree [16.00ms]
+(pass) run-upstream-compat per-suite execution > rejects an absent candidate package root before spawning [15.00ms]
+(pass) run-upstream-compat per-suite execution > rejects a candidate package root without bin/gsd-tools.cjs before spawning [32.00ms]
+(pass) run-upstream-compat per-suite execution > continues after a failed suite and derives aggregate evidence from suite records [47.00ms]
+(pass) run-upstream-compat per-suite execution > normalizes timeout and spawn errors without launching classified exclusions [62.00ms]
+(pass) run-upstream-compat per-suite execution > cleans the owned workspace without masking a staging failure [31.00ms]
+(pass) run-upstream-compat per-suite execution > uses the final TAP summary and reports actionable failure context [63.00ms]
+
+tests\subprocess-with-timeout.test.js:
+(pass) subprocess timeout helpers > successful command returns status, stdout, and stderr [140.00ms]
+(pass) subprocess timeout helpers > non-zero command returns status and stderr without throwing by default [125.00ms]
+(pass) subprocess timeout helpers > throwOnError throws with captured result for non-zero exit [141.00ms]
+(pass) subprocess timeout helpers > timeout kills process and marks timedOut true [78.00ms]
+(pass) subprocess timeout helpers > heavy option uses HEAVY_SUBPROCESS_TIMEOUT by default [31.00ms]
+(pass) subprocess timeout helpers > default timeout comes from SUBPROCESS_TIMEOUT [32.00ms]
+(pass) subprocess timeout helpers > runShellWithTimeout is available for explicit shell parsing cases [125.00ms]
+
+tests\sync-shim.test.js:
+(pass) an inaccessible dangling sync shim records skips without loading sync [16.00ms]
+
+tests\test-config-hygiene.test.js:
+(pass) test-config hygiene (meta-test) > bunfig.toml exists
+(pass) test-config hygiene (meta-test) > bunfig.toml has [test] section
+(pass) test-config hygiene (meta-test) > bunfig.toml bounds discovery to the fork-owned tests directory
+(pass) test-config hygiene (meta-test) > bunfig.toml uses pathIgnorePatterns for Node-native .test.cjs suites
+(pass) test-config hygiene (meta-test) > bunfig.toml contains no unsupported legacy discovery keys [16.00ms]
+(pass) test-config hygiene (meta-test) > package scripts route Bun tests through the canonical adapter
+(pass) test-config hygiene (meta-test) > Phase 43 hosted coverage governs every current executable boundary
+(pass) test-config hygiene (meta-test) > installer transaction modules are gated per file at 100 on all four metrics (Tier S)
+(pass) test-config hygiene (meta-test) > hosted CI verdict uses canonical tracked immutable envelope authority
+(pass) test-config hygiene (meta-test) > hosted CI contract exactly matches structured workflow job topology
+(pass) test-config hygiene (meta-test) > every repository test file has exactly one runner classification [15.00ms]
+(pass) test-config hygiene (meta-test) > shipped workflow guidance routes Bun projects through the adapter [16.00ms]
+(pass) test-config hygiene (meta-test) > zero test files exist in dist/ at test time [31.00ms]
+(pass) test-config hygiene (meta-test) > eslint.config.js ignores dist/**
+
+tests\test-file-exit-hygiene.test.js:
+(pass) test-file exit hygiene (issue #45) > flags literal computed exits and immediately invoked functions
+(pass) test-file exit hygiene (issue #45) > the walker flags a module-scope exit and ignores exits inside functions
+(pass) test-file exit hygiene (issue #45) > no test file calls process.exit at module scope [688.00ms]
+
+tests\test-path-validation.test.js:
+(pass) test-path-validation (meta-test) > found at least 1 test file to scan
+(pass) test-path-validation (meta-test) > meta-test:skip marker excludes the line from extraction
+(pass) test-path-validation (meta-test) > every fork-owned path constant in test files resolves to an existing file or directory [47.00ms]
+
+tests\test-timing-schema.test.js:
+(pass) test-timing schema > accepts the committed three-platform timing shape [47.00ms]
+(pass) test-timing schema > rejects an extra top-level property [16.00ms]
+(pass) test-timing schema > rejects a missing windows platform [15.00ms]
+(pass) test-timing schema > rejects partial local timing as the committed merged artifact [16.00ms]
+
+tests\theme.test.js:
+(pass) Style > construction and chaining > new Style() creates instance
+(pass) Style > construction and chaining > bold() returns Style instance
+(pass) Style > construction and chaining > fg() returns Style instance [15.00ms]
+(pass) Style > construction and chaining > bg() returns Style instance
+(pass) Style > construction and chaining > chaining multiple styles works
+(pass) Style > construction and chaining > chained styles are immutable (new instance each time)
+(pass) Style > foreground colors > fg() with basic color name sets foreground
+(pass) Style > foreground colors > fg() with 256-color number sets foreground
+(pass) Style > foreground colors > fg() with invalid color returns unchanged style
+(pass) Style > background colors > bg() with basic color name sets background
+(pass) Style > background colors > bg() with 256-color number sets background
+(pass) Style > background colors > bg() with invalid color returns unchanged style
+(pass) Style > text decorations > bold() applies bold modifier
+(pass) Style > text decorations > dim() applies dim modifier
+(pass) Style > text decorations > italic() applies italic modifier
+(pass) Style > text decorations > underline() applies underline modifier
+(pass) Style > text decorations > reverse() applies reverse modifier
+(pass) Style > text decorations > strikethrough() applies strikethrough modifier
+(pass) Style > render() > render() wraps text in ANSI codes and reset
+(pass) Style > render() > render() on empty style returns plain text
+(pass) Style > render() > render() with multiple styles combines codes
+(pass) Style > render() > render() handles empty string
+(pass) Style > build() > build() returns ANSI escape codes without text
+(pass) Style > build() > build() on empty style returns empty string
+(pass) Style > build() > build() combines multiple codes with semicolons
+(pass) Style > static methods > Style.reset() returns ANSI reset sequence
+(pass) Style > exports > SGR export is object with expected keys
+(pass) Style > exports > FG_BASIC export is object with expected keys
+(pass) Style > exports > BG_BASIC export is object with expected keys
+(pass) themes > supports256Color() > returns a boolean
+(pass) themes > createTheme() > returns theme object with expected structure
+(pass) themes > createTheme() > theme.brand has icon and text styles
+(pass) themes > createTheme() > theme.status has health stage styles
+(pass) themes > createTheme() > theme.text has muted, separator, notice styles
+(pass) themes > createTheme() > createTheme(true) creates default theme with 256-color [16.00ms]
+(pass) themes > createTheme() > createTheme(false) creates basic theme without 256-color
+(pass) themes > createTheme() > theme.reset is ANSI reset code
+(pass) themes > getTheme() > getTheme() returns a theme object
+(pass) themes > getTheme() > getTheme("default") returns default theme
+(pass) themes > getTheme() > getTheme("basic") returns basic theme
+(pass) themes > getTheme() > getTheme("auto") returns auto-detected theme
+(pass) themes > getTheme() > getTheme(unknown) falls back to default
+(pass) themes > getTheme() > repeated calls to getTheme() return cached theme
+(pass) themes > theme styles are functional > brand.icon.render() produces styled output
+(pass) themes > theme styles are functional > status.healthy.render() produces styled output
+(pass) themes > theme styles are functional > text.muted.render() produces styled output
+(pass) tokens > primitives > primitives export is an object
+(pass) tokens > primitives > primitives has basic colors
+(pass) tokens > primitives > primitives has 256-color values
+(pass) tokens > primitives > 256-color values are in valid range (0-255)
+(pass) tokens > semantic > semantic export is an object
+(pass) tokens > semantic > semantic has brand color
+(pass) tokens > semantic > semantic has status colors
+(pass) tokens > semantic > semantic has text hierarchy
+(pass) tokens > semantic > semantic colors map to primitives or modifiers
+(pass) tokens > contextual > contextual export is an object
+(pass) tokens > contextual > contextual has statusbar section
+(pass) tokens > contextual > statusbar has brand elements
+(pass) tokens > contextual > statusbar has progress stage elements
+(pass) tokens > contextual > statusbar token definitions have color and modifiers
+(pass) tokens > contextual > modifier arrays contain valid modifier names
+(pass) tokens > three-layer abstraction > semantic tokens reference primitives
+(pass) tokens > three-layer abstraction > contextual tokens reference semantic tokens
+(pass) tokens > three-layer abstraction > changing semantic token affects contextual tokens
+(pass) Style - coverage gap closure > blink() applies SGR blink code
+(pass) Style - coverage gap closure > blink() can be chained with other styles
+(pass) Style - coverage gap closure > hidden() applies SGR hidden code
+(pass) Style - coverage gap closure > hidden() can be chained with other styles
+(pass) themes - coverage gap closure > supports256Color() detection > returns true when COLORTERM=truecolor
+(pass) themes - coverage gap closure > supports256Color() detection > returns true when COLORTERM=256color
+(pass) themes - coverage gap closure > supports256Color() detection > returns true when TERM includes 256color
+(pass) themes - coverage gap closure > supports256Color() detection > returns true when WT_SESSION is set
+(pass) themes - coverage gap closure > supports256Color() detection > returns true when TERM_PROGRAM=vscode
+(pass) themes - coverage gap closure > supports256Color() detection > returns true when ConEmuTask is set
+(pass) themes - coverage gap closure > supports256Color() detection > returns false when no 256-color indicators present
+
+tests\toolchain-authority.test.js:
+(pass) toolchain authority > repository manifest owns exact execution pins and reviewed runtime assets
+(pass) toolchain authority > hosted authority governs every toolchain authority input
+(pass) toolchain authority > declares a closed and reasoned automatic-token allowlist
+(pass) toolchain authority > rejects malformed nested execution-subject authority records [31.00ms]
+(pass) toolchain authority > static repository verification parses workflows and reports current drift [31.00ms]
+(pass) toolchain authority > rejects automatic-token exposure outside pinned allowlisted actions and read-only permissions
+(pass) toolchain authority > rejects an omitted suppression for a pinned action token default
+(pass) toolchain authority > rejects indirect token contexts and token-shaped bindings outside the allowlist [16.00ms]
+(pass) toolchain authority > bounds and strictly decodes the toolchain manifest before parsing
+(pass) toolchain authority > bounds and strictly decodes governed workflows before YAML parsing [15.00ms]
+(pass) toolchain authority > bounds and strictly decodes the Bun version authority file
+(pass) toolchain authority > CLI emits a machine-readable verdict and fails closed
+(pass) toolchain authority > CLI loads local runtime evidence and exposes help and bounded errors
+(pass) toolchain authority > names caller-supplied evidence local-runtime and reserves hosted-runtime
+(pass) toolchain authority > default Node CLI and runtime-evidence adapters are executable and bounded [375.00ms]
+(pass) toolchain authority > validates an unambiguous closed manifest schema
+(pass) toolchain authority > accepts exact per-job runtime declarations for payload jobs [16.00ms]
+(pass) toolchain authority > rejects a payload job omitted from runtime requirements
+(pass) toolchain authority > accepts bounded scalar matrix values and rejects ambiguous authority identities
+(pass) toolchain authority > rejects malformed nested authority records fail-closed
+(pass) toolchain authority > rejects floating Bun instead of treating latest as authority
+(pass) toolchain authority > handles default evaluation inputs and irregular workflow dependency shapes
+(pass) toolchain authority > rejects ambiguous and subject-mismatched Node setup
+(pass) toolchain authority > rejects movable GitHub Action tags in governed workflows
+(pass) toolchain authority > rejects setup-bun steps that bypass the Bun version file
+(pass) toolchain authority > rejects runtime setup source overrides and unknown inputs
+(pass) toolchain authority > requires authoritative Bun setup in every job that executes Bun [16.00ms]
+(pass) toolchain authority > rejects conditional or non-blocking runtime setup actions
+(pass) toolchain authority > requires authoritative setup-node in every Node-executing or runtime-evidence job
+(pass) toolchain authority > requires declared setup-node without guessing executable aliases
+(pass) toolchain authority > requires setup-bun for indirect shell and runtime-subject execution
+(pass) toolchain authority > rejects a runtime setup outside the declared exact set
+(pass) toolchain authority > exempts only the injected byte-exact pre-payload control step
+(pass) toolchain authority > classifies every control-step byte or position deviation as payload
+(pass) toolchain authority > requires runtime subjects for every governed matrix row
+(pass) toolchain authority > rejects runtime matrices above the evidence cardinality bound before expansion [15.00ms]
+(pass) toolchain authority > rejects duplicate runtime matrix rows instead of reusing one subject
+(pass) toolchain authority > rejects ambiguous Bun setup in one job
+(pass) toolchain authority > discovers only semantic workflow action and container locations
+(pass) toolchain authority > fails closed when a governed workflow is missing
+(pass) toolchain authority > rejects remote actions missing from repository authority
+(pass) toolchain authority > fails closed on ungoverned local action definitions
+(pass) toolchain authority > rejects mutable container tags where a digest is required
+(pass) toolchain authority > governs Docker-based actions as exact container dependencies
+(pass) toolchain authority > rejects container images missing from repository authority
+(pass) toolchain authority > governs container images started from run commands
+(pass) toolchain authority > rejects performance tools absent from repository authority
+(pass) toolchain authority > does not treat prototype-chain properties as governed runtime tools
+(pass) toolchain authority > rejects resolved Node versions outside declared compatibility majors
+(pass) toolchain authority > requires a resolved Node patch rather than major-only runtime evidence
+(pass) toolchain authority > requires runtime evidence for every governed subject
+(pass) toolchain authority > binds runtime evidence to the declared subject and exact Bun version
+(pass) toolchain authority > requires each subject-specific runtime tool and rejects unbound subjects
+(pass) toolchain authority > rejects malformed runtime evidence before producing diagnostics
+(pass) toolchain authority > rejects a resolved Node major assigned to the wrong runtime subject
+(pass) toolchain authority > accepts exact execution pins and exact governed runtimes
+(pass) toolchain authority > rejects floating versions for declared runtime tools
+(pass) toolchain authority > requires runtime versions to be resolved and equal exact authority [16.00ms]
+(pass) toolchain authority > bounds diagnostics from adversarial workflow payloads
+(pass) toolchain authority > bounds diagnostic strings and safely traverses cyclic workflow objects
+
+tests\upstream-source.test.js:
+(pass) upstream-source authority helper > reads active package identity from the maintainer authority contract [15.00ms]
+(pass) upstream-source authority helper > falls back to embedded Open GSD authority when package runtime has no planning manifest
+(pass) upstream-source authority helper > can require disk authority explicitly when fallback is disabled
+(pass) upstream-source authority helper > resolves scoped npm packages under node_modules without shell escaping
+(pass) upstream-source authority helper > resolves the package source root from manifest data
+(pass) upstream-source authority helper > maps compose categories to the Open GSD package layout
+(pass) upstream-source authority helper > required upstream entries include gsd-core and exclude legacy get-shit-done root
+(pass) upstream-source authority helper > rejects mutable tags and prerelease channels for active package pins
+(pass) upstream-source authority helper > rejects traversal and absolute manifest-controlled paths
+(pass) upstream-source authority helper > reports a clear error when the upstream package directory is missing
+(pass) upstream-source authority helper > reports a clear error when the manifest source root is missing [16.00ms]
+(pass) upstream-source authority helper > reports a clear error for missing expected bin entries
+
+tests\validate-configs.test.js:
+(pass) planningConfigSchema > exports schema object with $schema and type fields
+(pass) planningConfigSchema > schema has memory section with required sub-properties
+(pass) planningConfigSchema > schema has effort section with agents sub-property
+(pass) planningConfigSchema > schema has teams section with oversight sub-object
+(pass) validatePlanningConfig > accepts minimal valid config with only model_profile
+(pass) validatePlanningConfig > accepts config with all memory, effort, and teams sections
+(pass) validatePlanningConfig > rejects unknown top-level key (additionalProperties: false)
+(pass) validatePlanningConfig > rejects invalid model_profile value
+(pass) validatePlanningConfig > rejects invalid memory.curation value (not auto or manual)
+(pass) validatePlanningConfig > rejects memory with unknown property (additionalProperties: false)
+(pass) validatePlanningConfig > rejects teams.soft_cap below minimum of 1
+(pass) validatePlanningConfig > accepts empty object (all fields are optional)
+(pass) validatePlanningConfig > returns errors array when validation fails
+(pass) real .planning/config.json > validates successfully against schema
+(pass) schema-config parity > every top-level key in config.json has a matching schema property
+(pass) schema-config parity > every key in config.json nested objects has a matching schema sub-property
+(pass) schema-config parity > config with _auto_chain_active in workflow section validates
+(pass) schema-config parity > config with unknown_future_key in workflow section is rejected
+(pass) validate-configs.js script > SKIP_CONFIG_VALIDATION escape hatch > exits 0 with warning to stderr when SKIP_CONFIG_VALIDATION=1 [110.00ms]
+(pass) validate-configs.js script > SKIP_CONFIG_VALIDATION escape hatch > warning message goes to stderr [93.00ms]
+(pass) validate-configs.js script > conflict marker detection > detects <<<<<< conflict markers and reports errors
+(pass) validate-configs.js script > markdown section validation > valid markdown with required sections passes
+(pass) validate-configs.js script > markdown section validation > markdown missing a required section fails section check
+(pass) validate-configs.js script > package.json files array > real package.json files array entries all exist on disk
+(pass) validate-configs.js script > full script run against real project > exits 0 when run against real project files [235.00ms]
+(pass) validate-configs.js script > full script run against real project > reports all required files as passed with no failures [203.00ms]
+(pass) validate-configs.js script > full script run against real project > --quiet flag suppresses PASS lines but shows summary [234.00ms]
+
+tests\validation.test.js:
+(pass) validateGitSHA > accepts valid SHAs > accepts full 40-char hex SHA
+(pass) validateGitSHA > accepts valid SHAs > accepts short 7-char hex SHA
+(pass) validateGitSHA > accepts valid SHAs > accepts 8-char hex SHA
+(pass) validateGitSHA > accepts valid SHAs > accepts 12-char hex SHA
+(pass) validateGitSHA > accepts valid SHAs > accepts mixed-case hex (normalizes to lowercase)
+(pass) validateGitSHA > accepts valid SHAs > accepts uppercase hex (normalizes to lowercase)
+(pass) validateGitSHA > accepts valid SHAs > accepts all numeric SHA
+(pass) validateGitSHA > accepts valid SHAs > accepts all alphabetic SHA
+(pass) validateGitSHA > rejects invalid SHAs > rejects non-hex characters (g)
+(pass) validateGitSHA > rejects invalid SHAs > rejects non-hex characters (z)
+(pass) validateGitSHA > rejects invalid SHAs > rejects special characters
+(pass) validateGitSHA > rejects invalid SHAs > rejects whitespace
+(pass) validateGitSHA > rejects invalid SHAs > rejects too-short SHA (6 chars)
+(pass) validateGitSHA > rejects invalid SHAs > rejects too-long SHA (41 chars)
+(pass) validateGitSHA > rejects invalid SHAs > rejects empty string
+(pass) validateGitSHA > rejects invalid SHAs > rejects non-string input (number)
+(pass) validateGitSHA > rejects invalid SHAs > rejects non-string input (null)
+(pass) validateGitSHA > rejects invalid SHAs > rejects non-string input (undefined)
+(pass) validateGitSHA > rejects invalid SHAs > rejects non-string input (object)
+(pass) validateBranchName > accepts valid branch names > accepts standard branch name (main)
+(pass) validateBranchName > accepts valid branch names > accepts standard branch name (feature/add-login)
+(pass) validateBranchName > accepts valid branch names > accepts branch name with hyphens (fix-123)
+(pass) validateBranchName > accepts valid branch names > accepts branch name with underscores (test_branch)
+(pass) validateBranchName > accepts valid branch names > accepts branch name with dots (release-v1.0.0)
+(pass) validateBranchName > accepts valid branch names > accepts branch name with slashes (team/feature/name)
+(pass) validateBranchName > accepts valid branch names > accepts branch name with numbers
+(pass) validateBranchName > accepts valid branch names > accepts branch name starting with uppercase
+(pass) validateBranchName > accepts valid branch names > accepts long branch name (under 255 chars)
+(pass) validateBranchName > rejects invalid branch names > rejects shell metacharacter (;)
+(pass) validateBranchName > rejects invalid branch names > rejects shell metacharacter (|)
+(pass) validateBranchName > rejects invalid branch names > rejects shell metacharacter (&)
+(pass) validateBranchName > rejects invalid branch names > rejects shell metacharacter ($)
+(pass) validateBranchName > rejects invalid branch names > rejects shell metacharacter (backtick)
+(pass) validateBranchName > rejects invalid branch names > rejects shell metacharacter (>)
+(pass) validateBranchName > rejects invalid branch names > rejects shell metacharacter (<)
+(pass) validateBranchName > rejects invalid branch names > rejects names starting with hyphen (looks like flag)
+(pass) validateBranchName > rejects invalid branch names > rejects names with double-dot (git traversal)
+(pass) validateBranchName > rejects invalid branch names > rejects names ending with .lock
+(pass) validateBranchName > rejects invalid branch names > rejects names with reflog syntax (@{)
+(pass) validateBranchName > rejects invalid branch names > rejects empty string
+(pass) validateBranchName > rejects invalid branch names > rejects non-string input
+(pass) validateBranchName > rejects invalid branch names > rejects branch name exceeding 255 chars
+(pass) validateBranchName > rejects invalid branch names > rejects whitespace
+(pass) validateBranchName > rejects invalid branch names > rejects parentheses
+(pass) validateBranchName > rejects invalid branch names > rejects square brackets
+(pass) validateBranchName > rejects invalid branch names > rejects asterisk (glob pattern)
+(pass) validateBranchName > rejects invalid branch names > rejects question mark (glob pattern)
+(pass) validateConfigPath > accepts valid paths > accepts path within allowed base directory
+(pass) validateConfigPath > accepts valid paths > accepts nested path within base directory
+(pass) validateConfigPath > accepts valid paths > accepts absolute path within base directory
+(pass) validateConfigPath > rejects path traversal > rejects path traversal (../../etc/passwd)
+(pass) validateConfigPath > rejects path traversal > rejects path traversal (../../../root)
+(pass) validateConfigPath > rejects path traversal > rejects URL-encoded traversal (%2e%2e) [16.00ms]
+(pass) validateConfigPath > rejects path traversal > rejects double URL-encoded traversal
+(pass) validateConfigPath > rejects path traversal > rejects absolute path outside base directory
+(pass) validateConfigPath > rejects path traversal > rejects paths starting with base but then escaping
+(pass) validateConfigPath > handles platform-specific paths > handles Windows backslash paths
+(pass) validateConfigPath > handles platform-specific paths > handles mixed slashes
+(pass) validateConfigPath > handles platform-specific paths > rejects Windows-style traversal (..\..\etc)
+(pass) validateConfigPath > rejects invalid input > rejects non-string input
+(pass) validateConfigPath > rejects invalid input > rejects null input
+(pass) validateConfigPath > rejects invalid input > rejects undefined input [15.00ms]
+(pass) validateTagName > accepts valid tag names > accepts simple version tag (v1.0.0)
+(pass) validateTagName > accepts valid tag names > accepts tag with path-like structure (release/1.0)
+(pass) validateTagName > accepts valid tag names > accepts tag with hyphens (my-tag)
+(pass) validateTagName > accepts valid tag names > accepts mixed-case tag (MyTag)
+(pass) validateTagName > accepts valid tag names > accepts tag with dots (tag.with.dots)
+(pass) validateTagName > accepts valid tag names > accepts tag with underscore (tag_underscore)
+(pass) validateTagName > accepts valid tag names > accepts long tag name under 255 chars
+(pass) validateTagName > accepts valid tag names > preserves case (no lowercase normalization)
+(pass) validateTagName > rejects invalid tag names > rejects empty string
+(pass) validateTagName > rejects invalid tag names > rejects non-string input (number)
+(pass) validateTagName > rejects invalid tag names > rejects non-string input (null)
+(pass) validateTagName > rejects invalid tag names > rejects names starting with hyphen
+(pass) validateTagName > rejects invalid tag names > rejects names starting with dot
+(pass) validateTagName > rejects invalid tag names > rejects names containing double-dot (git traversal)
+(pass) validateTagName > rejects invalid tag names > rejects names ending with .lock
+(pass) validateTagName > rejects invalid tag names > rejects names containing @{
+(pass) validateTagName > rejects invalid tag names > rejects shell metacharacter (;)
+(pass) validateTagName > rejects invalid tag names > rejects shell metacharacter (|)
+(pass) validateTagName > rejects invalid tag names > rejects shell metacharacter (&)
+(pass) validateTagName > rejects invalid tag names > rejects shell metacharacter ($)
+(pass) validateTagName > rejects invalid tag names > rejects shell metacharacter (backtick)
+(pass) validateTagName > rejects invalid tag names > rejects tag name exceeding 255 chars
+(pass) validateTagName > rejects invalid tag names > rejects spaces in tag name
+(pass) validateTagName > rejects invalid tag names > rejects tilde (git ancestor syntax)
+(pass) validateTagName > rejects invalid tag names > rejects caret (git parent syntax)
+(pass) validateTagName > rejects invalid tag names > rejects colon (git range separator)
+(pass) validateTagName > rejects invalid tag names > rejects question mark (glob pattern)
+(pass) validateTagName > rejects invalid tag names > rejects asterisk (glob pattern)
+(pass) validateTagName > rejects invalid tag names > rejects backslash
+(pass) validateRemoteURL > accepts valid remote URLs > accepts https:// GitHub URL with .git suffix
+(pass) validateRemoteURL > accepts valid remote URLs > accepts https:// GitLab URL without .git suffix
+(pass) validateRemoteURL > accepts valid remote URLs > accepts ssh:// URI form
+(pass) validateRemoteURL > accepts valid remote URLs > accepts git@host:path scp-like SSH syntax (GitHub)
+(pass) validateRemoteURL > accepts valid remote URLs > accepts git@host:path scp-like SSH syntax (GitLab)
+(pass) validateRemoteURL > accepts valid remote URLs > accepts git@host:path with nested group path
+(pass) validateRemoteURL > accepts valid remote URLs > preserves URL case (no normalization)
+(pass) validateRemoteURL > rejects disallowed protocols > rejects git:// protocol (disabled by GitHub 2022, no encryption)
+(pass) validateRemoteURL > rejects disallowed protocols > rejects file:// protocol (SSRF/LFI vector)
+(pass) validateRemoteURL > rejects disallowed protocols > rejects http:// protocol (no TLS)
+(pass) validateRemoteURL > rejects disallowed protocols > rejects ftp:// protocol
+(pass) validateRemoteURL > rejects disallowed protocols > rejects javascript: protocol
+(pass) validateRemoteURL > rejects invalid input > rejects empty string
+(pass) validateRemoteURL > rejects invalid input > rejects non-string input (null)
+(pass) validateRemoteURL > rejects invalid input > rejects non-string input (number)
+(pass) validateRemoteURL > rejects invalid input > rejects random text without protocol
+
+tests\verify-fable-checkpoint.test.js:
+(pass) Fable checkpoint authority > canonicalizes checkpoint input recursively with one trailing LF
+(pass) Fable checkpoint authority > accepts a versioned subject-bound input manifest
+(pass) Fable checkpoint authority > resolves tracked evidence from the exact subject commit
+(pass) Fable checkpoint authority > binds external evidence to its declared authority and checked commit
+(pass) Fable checkpoint authority > fails closed on stale subjects, digests, unsafe paths, and invalid UTF-8
+(pass) Fable checkpoint authority > never accepts hosted CI bytes as ambient external evidence
+(pass) Fable checkpoint authority > rejects duplicate evidence ids and unknown manifest fields
+(pass) Fable checkpoint authority > builds a deterministic nonce-bound packet with inert evidence
+(pass) Fable checkpoint authority > extracts exact lead fields and hashes normalized returned-review bytes
+(pass) Fable checkpoint authority > rejects replayed, duplicate, missing, empty, or misordered response markers
+(pass) Fable checkpoint authority > captures the exact Fable subprocess into a pending receipt and record [16.00ms]
+(pass) Fable checkpoint authority > child environment contains only explicit runtime and authentication keys
+(pass) Fable checkpoint authority > accepts a fully bound zero-finding disposition record
+(pass) Fable checkpoint authority > connects every finding to one metadata-complete classification
+(pass) Fable checkpoint authority > fails on pending, disconnected, count-mismatched, or rewritten records
+(pass) Fable checkpoint authority > requires rejection, revision, and deferral metadata
+(pass) Fable checkpoint authority > strict verification reconstructs manifest, evidence, packet, and record digests
+(pass) Fable checkpoint authority > both CLI help paths are side-effect free and reject incomplete arguments
+(pass) Fable checkpoint authority > verification diagnostics redact authentication material
+(pass) Fable checkpoint authority > contained-path resolution rejects symlink and junction escapes [15.00ms]
+(pass) Fable checkpoint authority > receipt publication is atomic and never replaces an existing receipt
+(pass) Fable checkpoint authority > evidence changed while Fable runs aborts publication
+(pass) Fable checkpoint authority > output aliases and unsafe write paths fail before Fable starts
+(pass) Fable checkpoint authority > an existing checkpoint section fails before Fable starts
+(pass) Fable checkpoint authority > a record changed while Fable runs aborts publication [16.00ms]
+(pass) Fable checkpoint authority > a manifest changed while Fable runs aborts publication
+(pass) Fable checkpoint authority > a receipt created while Fable runs aborts publication
+(pass) Fable checkpoint authority > failed Fable execution publishes neither receipt nor record
+
+tests\verify-hosted-ci.test.js:
+(pass) hosted CI verdict authority > validates the tracked-envelope contract against exact workflow YAML topology and subject semantics [31.00ms]
+(pass) hosted CI verdict authority > repository workflows implement the exact execution-subject contract [16.00ms]
+(pass) hosted CI verdict authority > requires versioned execution-subject authority in the hosted contract
+(pass) hosted CI verdict authority > declares one closed security prelude and one checkout-input exception
+(pass) hosted CI verdict authority > declares closed Tier A runner and Tier B runtime receipt fields
+(pass) hosted CI verdict authority > accepts complete run-attempt-bound Tier A and Tier B receipts
+(pass) hosted CI verdict authority > rejects incomplete or unsafe runner and runtime receipt identity [15.00ms]
+(pass) hosted CI verdict authority > rejects security-prelude and per-job checkout-input drift [125.00ms]
+(pass) hosted CI verdict authority > rejects incomplete, reordered, or weakened paired-performance controls [94.00ms]
+(pass) hosted CI verdict authority > requires the exact same-repository authority condition on paired jobs [94.00ms]
+(pass) hosted CI verdict authority > validates scalar matrix values and rejects closed contract boundary drift
+(pass) hosted CI verdict authority > rejects named no-op subject steps and checkout-ref drift [31.00ms]
+(pass) hosted CI verdict authority > rejects any second checkout after execution-subject verification [31.00ms]
+(pass) hosted CI verdict authority > rejects side-workspace and inherited execution-subject overrides [204.00ms]
+(pass) hosted CI verdict authority > rejects oversized contract and workflow matrices before Cartesian expansion [15.00ms]
+(pass) hosted CI verdict authority > rejects aggregate workflow matrix rows before Cartesian expansion [16.00ms]
+(pass) hosted CI verdict authority > rejects unsupported workflow matrix axes instead of discarding them [15.00ms]
+(pass) hosted CI verdict authority > fails closed on duplicate, missing, and malformed workflow matrix topology [110.00ms]
+(pass) hosted CI verdict authority > applies toolchain manifest byte authority during hosted topology verification
+(pass) hosted CI verdict authority > applies governed workflow byte authority during hosted topology verification
+(pass) hosted CI verdict authority > rejects contract drift, evidence self-governance, and workflow topology drift
+(pass) hosted CI verdict authority > requires hosted and toolchain authority to govern the same workflow set
+(pass) hosted CI verdict authority > computes canonical governed digests by category from exact commit bytes [15.00ms]
+(pass) hosted CI verdict authority > builds only passed immutable envelopes with subject and purpose authority [16.00ms]
+(pass) hosted CI verdict authority > accepts only a complete successful exact-head workflow contract
+(pass) hosted CI verdict authority > applies safe defaults to absent hosted collections and deduplicates unexpected runs
+(pass) hosted CI verdict authority > rejects PR-head metadata when a required job lacks execution-subject evidence
+(pass) hosted CI verdict authority > requires the execution-subject step to complete successfully
+(pass) hosted CI verdict authority > requires the governed checkout step to complete successfully
+(pass) hosted CI verdict authority > requires every paired-performance checkout and verification to succeed in order
+(pass) hosted CI verdict authority > requires subject verification immediately after the governed checkout step
+(pass) hosted CI verdict authority > checks execution-subject evidence on every expanded matrix job
+(pass) hosted CI verdict authority > rejects ambiguous duplicate execution-subject evidence
+(pass) hosted CI verdict authority > rejects execution-subject evidence assigned to a different workflow run
+(pass) hosted CI verdict authority > fails when the live PR head differs from local HEAD
+(pass) hosted CI verdict authority > fails closed on missing and unexpected workflows [16.00ms]
+(pass) hosted CI verdict authority > rejects a same-name run from a different workflow path
+(pass) hosted CI verdict authority > fails closed on missing jobs, pending jobs, and executed failures
+(pass) hosted CI verdict authority > selects the latest run attempt for each workflow
+(pass) hosted CI verdict authority > rejects missing or unsafe run-attempt authority
+(pass) hosted CI verdict authority > uses update time and run ID to break equal-attempt ties deterministically
+(pass) hosted CI verdict authority > does not let an older rerun eclipse a newer workflow run
+(pass) hosted CI verdict authority > orders equal and partially populated runs deterministically [15.00ms]
+(pass) hosted CI verdict authority > rejects malformed job-matrix cardinality and placeholder contracts
+(pass) hosted CI verdict authority > classifies the verified zero-step billing lock as unavailable evidence
+(pass) hosted CI verdict authority > does not misclassify an unannotated zero-step failure as billing lock
+(pass) hosted CI verdict authority > handles missing billing annotations, jobs, and execution-subject steps
+(pass) hosted CI verdict authority > rejects collection drift, wrong PR or trigger authority, incomplete runs, and unclassified jobs
+(pass) hosted CI verdict authority > repository contract names the full workflow and cousin matrix authority
+(pass) hosted CI infrastructure ports > runs structured commands without a shell and parses JSON [125.00ms]
+(pass) hosted CI infrastructure ports > rejects command failures and malformed JSON without echoing environment
+(pass) hosted CI infrastructure ports > runs text commands without a shell and fails closed on command errors [125.00ms]
+(pass) hosted CI infrastructure ports > collects exact-head runs, latest jobs, and zero-step annotations
+(pass) hosted CI infrastructure ports > rejects incomplete workflow and job pagination
+(pass) hosted CI infrastructure ports > uses default command adapters and rejects unsafe collected run identity
+(pass) hosted CI infrastructure ports > parses explicit collect and offline verification modes
+(pass) hosted CI infrastructure ports > receipt paths stay inside the hosted directory and never target existing bytes [16.00ms]
+(pass) hosted CI infrastructure ports > receipt expectations use native canonical identity for a linked project root
+(pass) hosted CI infrastructure ports > native canonical expectations account for platform path aliases
+(pass) hosted CI infrastructure ports > atomic receipt publication is create-only [16.00ms]
+(pass) hosted CI infrastructure ports > atomic receipt publication rolls back a linked receipt when cleanup fails
+(pass) hosted CI infrastructure ports > atomic receipt publication reports cleanup failures without hiding the cause
+(pass) hosted CI infrastructure ports > keeps legacy collection inactive until Plan 11AJ owns the first live join
+(pass) hosted CI infrastructure ports > pending verification is offline, untracked, and bound to current HEAD [125.00ms]
+(pass) hosted CI infrastructure ports > tracked verification requires strict ancestry and unchanged governed bytes [31.00ms]
+(pass) hosted CI infrastructure ports > tracked verification rejects malformed authority before invoking Git adapters
+(pass) hosted CI infrastructure ports > CLI help is side-effect free and mode routing redacts failures
+(pass) hosted CI infrastructure ports > default Node CLI and filesystem adapters are executable and bounded [281.00ms]
+(pass) hosted CI infrastructure ports > CLI routes both offline verification modes without constructing real adapters
+(pass) hosted CI infrastructure ports > default Git adapters distinguish tracked, missing, and ancestor evidence [328.00ms]
+
+tests\verify-oversight-probes.test.js:
+(pass) oversight trigger contract > required trigger definitions are exact, compact, and evidence-governed [16.00ms]
+(pass) oversight trigger contract > curated fixtures map to their expected trigger IDs and abstain case
+(pass) oversight trigger contract > canonical Bun package command counts as command evidence
+(pass) oversight trigger contract > fixture verification reports fixture name and trigger ID when detection fails
+(pass) oversight trigger contract > CLI verifier exits zero for repository fixtures [109.00ms]
+
+tests\verify-upgrade.test.js:
+(pass) verify-upgrade CLI contract > help documents maintainer upgrade verification options [93.00ms]
+(pass) verify-upgrade CLI contract > rejects latest tags for the source version [110.00ms]
+(pass) verify-upgrade CLI contract > rejects prerelease tags for the target version [125.00ms]
+(pass) verify-upgrade CLI contract > parses inline options and rejects missing or unknown values [15.00ms]
+(pass) verify-upgrade CLI contract > resolves Node, npm, and Bun without a command shell [32.00ms]
+(pass) verify-upgrade CLI contract > emits JSON and text reports through the CLI boundary [15.00ms]
+(pass) verify-upgrade orchestration report > emits D-03 report fields and temp-scoped runner environment [141.00ms]
+(pass) verify-upgrade orchestration report > classifies compose failures [78.00ms]
+(pass) verify-upgrade orchestration report > classifies reinstall failures [109.00ms]
+(pass) verify-upgrade orchestration report > classifies install-from failures before target materialization [63.00ms]
+(pass) verify-upgrade orchestration report > classifies pack-current failure before any publication [62.00ms]
+(pass) verify-upgrade orchestration report > accepts only credential-free loopback HTTP registry URLs [16.00ms]
+(pass) verify-upgrade orchestration report > authenticates through the bounded HTTP port and redacts every observable surface [109.00ms]
+(pass) verify-upgrade orchestration report > registers through the real bounded HTTP adapter [172.00ms]
+(pass) verify-upgrade orchestration report > uses default entropy and an OS-owned run root when no temp parent is supplied [110.00ms]
+(pass) verify-upgrade orchestration report > rejects an oversized real registry identity response [109.00ms]
+(pass) verify-upgrade orchestration report > prepares a copied bump workspace without build or dependency artifacts [141.00ms]
+(pass) verify-upgrade orchestration report > discovers a contained packed artifact from disk and accepts object pack output [109.00ms]
+(pass) verify-upgrade orchestration report > classifies bump and bumped-pack failures at their stopping step [172.00ms]
+(pass) verify-upgrade orchestration report > rejects a successful bumped pack command that produces no new artifact [94.00ms]
+(pass) verify-upgrade orchestration report > rejects npm JSON that reuses the current tarball as the bumped artifact [109.00ms]
+(pass) verify-upgrade orchestration report > fails before compose when the exact target upstream is absent from the workspace [94.00ms]
+(pass) verify-upgrade orchestration report > fails before compose when the workspace target has the wrong exact version [78.00ms]
+(pass) verify-upgrade orchestration report > fails before compose when target package metadata is not a regular file [78.00ms]
+(pass) verify-upgrade orchestration report > rejects unreviewed prepare scripts and invalid installed Ajv authority [219.00ms]
+(pass) verify-upgrade orchestration report > rejects pack metadata that disagrees with the exact bumped identity [94.00ms]
+(pass) verify-upgrade orchestration report > rejects a composed overlay manifest that is not a regular file [93.00ms]
+(pass) verify-upgrade orchestration report > fails closed when the checkout upstream pin does not match --from [47.00ms]
+(pass) verify-upgrade orchestration report > fails closed when the checkout has no active upstream pin [63.00ms]
+(pass) verify-upgrade orchestration report > fails before publication on rejected or malformed registry identity responses [156.00ms]
+(pass) verify-upgrade orchestration report > redacts an authenticated publish failure and preserves ambient npm config [78.00ms]
+(pass) verify-upgrade orchestration report > attempts owned-root cleanup and reports a bounded cleanup failure [109.00ms]
+(pass) verify-upgrade orchestration report > detects ambient npm configuration mutation after execution [110.00ms]
+(pass) verify-upgrade orchestration report > accepts a non-file npm config fingerprint and rejects an unreadable one [234.00ms]
+(pass) verify-upgrade orchestration report > deletes the owned root even if credential-file neutralization fails [94.00ms]
+(pass) verify-upgrade orchestration report > accepts root deletion as authority when direct credential unlink fails [78.00ms]
+(pass) verify-upgrade orchestration report > removes the credential file when neutralization and root deletion both fail [94.00ms]
+(pass) verify-upgrade orchestration report > uses a minimum child environment and never invokes a command shell [78.00ms]
+(pass) verify-upgrade orchestration report > supports an isolated fake-runner lifecycle without an inherited PATH [62.00ms]
+(pass) verify-upgrade orchestration report > rejects a verifier temp parent nested inside the source checkout [32.00ms]
+(pass) verify-upgrade orchestration report > rejects a temp parent whose canonical alias points inside the source checkout [15.00ms]
+(pass) verify-upgrade orchestration report > resolves outer npm from the baseline path instead of the prepare compatibility path [125.00ms]
+(pass) verify-upgrade orchestration report > refuses a project-controlled outer npm even when it is on the baseline path [32.00ms]
+(pass) verify-upgrade orchestration report > rejects missing, escaping, and non-file pack artifacts [140.00ms]
+(pass) verify-upgrade orchestration report > fails closed when smoke exits zero with the wrong installed provenance [78.00ms]
+(pass) verify-upgrade orchestration report > fails closed when smoke reports a different valid manifest digest [94.00ms]
+(pass) verify-upgrade orchestration report > accepts only complete exact smoke provenance JSON
+(pass) verify-upgrade orchestration report > turns an unexpected runner exception into a redacted verifier report [47.00ms]
+(pass) verify-upgrade orchestration report > uses the real process runner for a deterministic failed health probe [31.00ms]
+(pass) verify-upgrade orchestration report > contains setup failures even when best-effort setup cleanup also fails [31.00ms]
+(pass) verify-upgrade orchestration report > rejects invalid entropy and sanitizes malformed process results [79.00ms]
+(pass) verify-upgrade orchestration report > cleans its owned root and preserves ambient npm config on health failure [31.00ms]
+(pass) verify-upgrade orchestration report > central sanitizer removes secret values and npm authentication lines [15.00ms]
+(pass) verify-upgrade orchestration report > test file covers required acceptance terms
+
+tests\version-provenance.test.js:
+(pass) VERSION and package provenance clarity > install metadata records fork package/version separately from upstream package/version [16.00ms]
+(pass) VERSION and package provenance clarity > launcher provenance reads forkVersion from package.json and upstreamVersion from dist metadata [15.00ms]
+(pass) VERSION and package provenance clarity > cousin smoke requires explicit forkPackage and upstreamPackage provenance fields
+(pass) VERSION and package provenance clarity > no provenance code path reports upstream @opengsd/gsd-core as the fork package [16.00ms]
+(pass) VERSION and package provenance clarity > test source contains the explicit provenance field names
+
+tests\vetted-upstream-versions.test.js:
+(pass) evidence validation rejects changed or missing report bytes [16.00ms]
+(pass) evidence validation rejects a directory link outside the project even with matching bytes
+(pass) vetted upstream versions manifest > loads the repository manifest with exactly 3 stable semver entries [16.00ms]
+(pass) vetted upstream versions manifest > JSON Schema requires the same evidence fields as runtime validation [62.00ms]
+(pass) vetted upstream versions manifest > fewer or more than exactly 3 versions fails validation
+(pass) vetted upstream versions manifest > latest, next, and prerelease versions fail with stable semver errors
+(pass) vetted upstream versions manifest > exactly one blocking entry must match upstream authority active version
+(pass) vetted upstream versions manifest > candidate entries may keep vettedAt null before matrix evidence exists
+(pass) vetted upstream versions manifest > vettedAt requires non-empty evidence.matrixReport
+(pass) vetted upstream versions manifest > vettedAt rejects failed matrix evidence loaded from disk
+(pass) vetted upstream versions manifest > vettedAt accepts only real ISO calendar dates
+(pass) vetted upstream versions manifest > vettedAt requires a lowercase SHA-256 digest of the exact matrix report bytes
+(pass) vetted upstream versions manifest > matrix evidence clears vettedAt for red rows and dates only green rows
+(pass) vetted upstream versions manifest > matrix evidence cannot vet a row with a failed suite
+(pass) vetted upstream versions manifest > matrix evidence defaults vettedAt to an ISO calendar date
+(pass) vetted upstream versions manifest > applyMatrixEvidence never vets a row the validator would reject [31.00ms]
+(pass) vetted upstream versions manifest > CLI applies the SHA-256 of exact durable report bytes to every manifest row [16.00ms]
+(pass) vetted upstream versions manifest > matrix evidence application rejects non-closeout and incomplete reports [31.00ms]
+(pass) vetted upstream versions manifest > current-pin evidence validates as a subset that must include a fully passing blocking row [31.00ms]
+(pass) vetted upstream versions manifest > CLI applies current-pin evidence to present rows and leaves absent historical evidence untouched [32.00ms]
+(pass) vetted upstream versions manifest > manifest publication failures propagate without changing the existing manifest [15.00ms]
+(pass) vetted upstream versions manifest > listMatrixEntries returns the three manifest entries in order
+(pass) vetted upstream versions manifest > pruneForBump drops the oldest historical version and keeps exactly 3 versions
+(pass) vetted upstream versions manifest > pruneForBump stamps the outgoing pin as superseded by the new version
+(pass) vetted upstream versions manifest > supersededBy is rejected on the blocking row and on self-reference
+(pass) vetted upstream versions manifest > re-running a superseded row against live overrides clears its marker
+(pass) vetted upstream versions manifest > the live manifest validates against its own JSON schema [32.00ms]
+(pass) vetted upstream versions manifest > test source covers acceptance terms
+
+ 1847 pass
+ 0 fail
+ 7802 expect() calls
+Ran 1847 tests across 70 files. [271.28s]

@@ -1,0 +1,12 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "capture faults|cleanup never removes"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: command line > capture faults cannot pass or silently discard uncertain evidence [859.00ms]
+(pass) expect-red: command line > cleanup never removes a scratch path outside its exact ownership convention [31.00ms]
+
+ 2 pass
+ 55 filtered out
+ 0 fail
+ 59 expect() calls
+Ran 2 tests across 1 file. [1347.00ms]

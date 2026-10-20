@@ -40,6 +40,25 @@ function loadVettedManifest(filePath = DEFAULT_MANIFEST_PATH) {
   return readJsonFile(filePath, 'vetted upstream versions manifest');
 }
 
+function verifyEvidenceFiles(manifest, projectRoot = PROJECT_ROOT) {
+  const root = fs.realpathSync(projectRoot);
+  for (const entry of manifest.versions) {
+    if (!entry.vettedAt) continue;
+    const reportPath = path.resolve(root, entry.evidence.matrixReport);
+    const inside = candidate => {
+      const relative = path.relative(root, candidate);
+      return relative && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+    };
+    if (!inside(reportPath) || !inside(fs.realpathSync(reportPath))) {
+      throw new Error(`Evidence report is outside the project: ${entry.version}`);
+    }
+    const actual = crypto.createHash('sha256').update(fs.readFileSync(reportPath)).digest('hex');
+    if (actual !== entry.evidence.matrixReportSha256) {
+      throw new Error(`Evidence report SHA-256 mismatch: ${entry.version}`);
+    }
+  }
+}
+
 function validateStableVersion(version) {
   try {
     return validatePinnedVersion(version);
@@ -516,6 +535,7 @@ function main(argv = process.argv.slice(2), io = process, deps = {}) {
     validateVettedManifest(manifest, authority);
 
     if (options.mode === 'validate') {
+      verifyEvidenceFiles(manifest, deps.evidenceRoot || PROJECT_ROOT);
       io.stdout.write(`Vetted upstream manifest valid: ${manifest.versions.length} versions\n`);
       return 0;
     }
@@ -574,4 +594,5 @@ module.exports = {
   pruneForBump,
   validateMatrixEvidenceReport,
   validateVettedManifest,
+  verifyEvidenceFiles,
 };

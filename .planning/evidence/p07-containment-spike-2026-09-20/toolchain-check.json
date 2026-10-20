@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-09-21T20:21:44.9982707Z",
+  "compiler": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc/bin/rustc.exe",
+  "compilerSha256": "777119d5feeca3d9fc163dc0e0d8be896cfcb65c45255328cef214d833546c6a",
+  "sysroot": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+  "args": [
+    "--edition=2021",
+    "--crate-name",
+    "containment_toolchain_check",
+    "--sysroot",
+    "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+    "-D",
+    "warnings",
+    "-C",
+    "incremental=C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\incremental",
+    "-o",
+    "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\toolchain-check.exe",
+    "-"
+  ],
+  "stdin": "fn main() {}",
+  "versionExit": 0,
+  "buildExit": 0,
+  "privateBuildHome": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build-home",
+  "experimentalCasesRun": 0,
+  "correctionCount": 0
+}

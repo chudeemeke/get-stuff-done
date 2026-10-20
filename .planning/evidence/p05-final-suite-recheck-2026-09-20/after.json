@@ -1,0 +1,32 @@
+[
+  {
+    "Algorithm": "SHA256",
+    "Hash": "D825D8788A6219AD2F0EBC4E3781B4ABAA90AC187355949C5FF9A6C399F1FA19",
+    "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\scripts\\expect-red.cjs"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "444A786EC8312B43560CA889C671C3867390D018E47E68E4F657D07CFCF95D58",
+    "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\acceptance\\installer-recovery.cjs"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "0EB938C3908B5FB14327B19A4AF713715A71FF4442ED012CAE93CD4984F74A05",
+    "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\expect-red.test.js"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "31144E122626B61B510E698943E8AE8CF49DD5BA99339137D084FD553308ED75",
+    "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\eslint.config.js"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "31D0BA65F894D27AB16F4A7A9DCB8BFEFF343B76CDFC15B87B3059C36A7D85C5",
+    "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\fork-roadmap-persistence.test.js"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "B8D04E773A8EEA3587A895D27F49C4D294A41EE2F415C73C36959CD3A4D52361",
+    "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\overlay\\gsd-core\\bin\\lib\\fork-roadmap-persistence.cjs"
+  }
+]

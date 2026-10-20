@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "inherited Node options"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+568 |         const result = main([gate], {
+569 |           packageJson, log: () => {},
+570 |           runtime: { execPath: 'node', platform: capturedRecovery.platform, nodeVersion: capturedRecovery.node, isBun: false },
+571 |           spawnSync: () => { spawned = true; return runOf(KNOWN_RED); },
+572 |         });
+573 |         expect(result).toBe(1);
+                             ^
+error: expect(received).toBe(expected)
+
+Expected: 1
+Received: 0
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:573:24)
+(fail) expect-red: command line > inherited Node options refuse before child execution for both gates [78.00ms]
+
+ 0 pass
+ 60 filtered out
+ 1 fail
+ 17 expect() calls
+Ran 1 test across 1 file. [630.00ms]
+error: script "test" exited with code 1

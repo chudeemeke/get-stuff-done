@@ -4,8 +4,8 @@
 Memory-nexus recovery exposed that runtime phase execution selected stale `STATE.md` frontmatter milestone metadata (`v4.0`) over the current body milestone and active ROADMAP milestone (`v5.0`). That routed Phase 42 under the wrong milestone and made roadmap analysis miss the current milestone's phases.
 
 ## Upstream snapshot
-- Version: 1.8.0
-- SHA-256: 35f6d5764fe5796165251b2be225d427ca3e53af4d764c49003d7f2fddfbe6da
+- Version: 1.9.1
+- SHA-256: d6039cfe53a02f90d03874f3eae02eb6ba68f67238822b4deefe9818060da371
 
 ## What's different
 - Resolves the current milestone by preferring explicit `STATE.md` body milestone text, then active/in-progress ROADMAP declarations, then frontmatter as a fallback.
@@ -33,3 +33,7 @@ delta unchanged and still required (drop-experiment: runtime-overrides and
 init suites fail on pure 1.8.0): milestone selection order (state-body >
 roadmap-active > frontmatter), text ACTIVE/IN PROGRESS/WIP/STARTED markers,
 Phase Details milestone filtering.
+
+## Bump review 2026-09-05 (1.8.0 -> 1.9.1)
+
+Forward-port from the exact 1.9.1 base. See `.planning/evidence/bump-1.9.1-port.md` for per-file disposition and candidate evidence. Base hashes do not independently prove behavior.

@@ -1,0 +1,12 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "private environment clears|private runtime environment"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > private environment clears case aliases of inherited runtime cache paths [406.00ms]
+(pass) expect-red: recovery observation contract > private runtime environment is initialized before complete home observations [312.00ms]
+
+ 2 pass
+ 75 filtered out
+ 0 fail
+ 32 expect() calls
+Ran 2 tests across 1 file. [809.00ms]

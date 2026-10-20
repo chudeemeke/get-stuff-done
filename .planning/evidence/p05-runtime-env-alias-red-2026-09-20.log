@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "private environment clears"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+264 | }
+265 | 
+266 | describe('expect-red: recovery observation contract', () => {
+267 |   test('private environment clears case aliases of inherited runtime cache paths', () => {
+268 |     const { run, report } = captureHarnessOracle('private-environment-alias');
+269 |     expect(run.status).toBe(0);
+                             ^
+error: expect(received).toBe(expected)
+
+Expected: 0
+Received: 1
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:269:24)
+(fail) expect-red: recovery observation contract > private environment clears case aliases of inherited runtime cache paths [172.00ms]
+
+ 0 pass
+ 76 filtered out
+ 1 fail
+ 9 expect() calls
+Ran 1 test across 1 file. [265.00ms]
+error: script "test" exited with code 1

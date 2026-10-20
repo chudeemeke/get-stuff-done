@@ -1,0 +1,21 @@
+{
+  "root": "C:\\Users\\Destiny\\AppData\\Local\\Temp\\gsd-pure-runtime-proof-96009m",
+  "source": "C:\\Users\\Destiny\\.codex\\reports\\gsd-skin-2026-09-05\\upstream\\1.12.0\\package",
+  "installedSkinAcceptance": false,
+  "purpose": "Verify native planner agent_skills routing using an existing installed skill; does not prove digest delivery or planner execution.",
+  "results": [
+    {
+      "runtime": "claude",
+      "expected": "C:/Users/Destiny/AppData/Local/Temp/gsd-pure-runtime-proof-96009m/.claude/skills/gsd-plan-phase/SKILL.md",
+      "block": "<agent_skills>\nRead these user-configured skills:\n- @C:/Users/Destiny/AppData/Local/Temp/gsd-pure-runtime-proof-96009m/.claude/skills/gsd-plan-phase/SKILL.md\n</agent_skills>",
+      "diagnostics": ""
+    },
+    {
+      "runtime": "codex",
+      "expected": "C:/Users/Destiny/AppData/Local/Temp/gsd-pure-runtime-proof-96009m/.agents/skills/gsd-plan-phase/SKILL.md",
+      "block": "<agent_skills>\nRead these user-configured skills:\n- @C:/Users/Destiny/AppData/Local/Temp/gsd-pure-runtime-proof-96009m/.agents/skills/gsd-plan-phase/SKILL.md\n</agent_skills>",
+      "diagnostics": ""
+    }
+  ],
+  "status": "passed"
+}

@@ -1,0 +1,24 @@
+{
+  "synced": 1,
+  "skipped": 34,
+  "changes": [
+    {
+      "agent": "gsd-plan-checker",
+      "field": "model",
+      "from": "sonnet",
+      "to": null
+    },
+    {
+      "agent": "gsd-plan-checker",
+      "field": "model_reasoning_effort",
+      "from": "low",
+      "to": null
+    }
+  ],
+  "dry_run": false,
+  "agents_dir": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\upstream-codex-configuration-isolated-v2\\home\\.codex\\agents",
+  "refused": [],
+  "write_failures": [],
+  "read_failures": []
+}
+STDERR

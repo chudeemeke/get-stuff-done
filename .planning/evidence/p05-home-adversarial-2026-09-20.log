@@ -1,0 +1,16 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "runtime exceptions|home maps|runtime changes|outside-target|host-specific"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > runtime exceptions never permit deletion, extra descendants, type or link substitution [1203.00ms]
+(pass) expect-red: recovery observation contract > outside-target deletion, byte damage and extra entries fail in both scenarios [1141.00ms]
+(pass) expect-red: recovery observation contract > outside-target damage controls detect a removed home comparison [344.00ms]
+(pass) expect-red: installer recovery > home maps reject incomplete, malformed, aliased and falsely preserved evidence [109.00ms]
+(pass) expect-red: installer recovery > runtime changes are Windows-only; preserved arbitrary owner files and links remain valid [16.00ms]
+(pass) expect-red: installer recovery > host-specific identity rules and contradictory pass details are checked [15.00ms]
+
+ 6 pass
+ 70 filtered out
+ 0 fail
+ 191 expect() calls
+Ran 6 tests across 1 file. [2.92s]

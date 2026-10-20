@@ -1,0 +1,99 @@
+{
+  "candidate": "skin",
+  "runtime": "claude",
+  "mode": "lifecycle",
+  "installer": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\wrapper-package\\bin\\install.js",
+  "installerSha256": "78ba71870597700880c1dcd5c1ebb093cec790fd5393ac06507334c1160b0bb3",
+  "platform": "win32",
+  "node": "v24.20.0",
+  "scratch": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\skin-claude-lifecycle",
+  "checks": [
+    {
+      "id": "install:exit-zero",
+      "ok": true
+    },
+    {
+      "id": "install:preserve:owner.txt",
+      "ok": true
+    },
+    {
+      "id": "install:preserve:scripts/lib/owner-helper.cjs",
+      "ok": true
+    },
+    {
+      "id": "install:preserve:scripts/changeset/owner-check.cjs",
+      "ok": true
+    },
+    {
+      "id": "install:preserve:settings.json",
+      "ok": true
+    },
+    {
+      "id": "install:installed-tool",
+      "ok": true
+    },
+    {
+      "id": "install:does-not-claim-owner-scripts",
+      "ok": true
+    },
+    {
+      "id": "reinstall:exit-zero",
+      "ok": true
+    },
+    {
+      "id": "reinstall:preserve:owner.txt",
+      "ok": true
+    },
+    {
+      "id": "reinstall:preserve:scripts/lib/owner-helper.cjs",
+      "ok": true
+    },
+    {
+      "id": "reinstall:preserve:scripts/changeset/owner-check.cjs",
+      "ok": true
+    },
+    {
+      "id": "reinstall:preserve:settings.json",
+      "ok": true
+    },
+    {
+      "id": "reinstall:installed-tool",
+      "ok": true
+    },
+    {
+      "id": "reinstall:does-not-claim-owner-scripts",
+      "ok": true
+    },
+    {
+      "id": "uninstall:exit-zero",
+      "ok": true
+    },
+    {
+      "id": "uninstall:preserve:owner.txt",
+      "ok": true
+    },
+    {
+      "id": "uninstall:preserve:scripts/lib/owner-helper.cjs",
+      "ok": true
+    },
+    {
+      "id": "uninstall:preserve:scripts/changeset/owner-check.cjs",
+      "ok": true
+    },
+    {
+      "id": "uninstall:preserve:settings.json",
+      "ok": true
+    },
+    {
+      "id": "write-guard-loaded",
+      "ok": true
+    },
+    {
+      "id": "no-blocked-external-write",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "passed": 21,
+  "failed": 0
+}

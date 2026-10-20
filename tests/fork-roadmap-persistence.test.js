@@ -9,6 +9,7 @@ const {
   projectRoadmapEol,
   publishRoadmapPreservingBytes,
 } = require('../overlay/gsd-core/bin/lib/fork-roadmap-persistence.cjs');
+const { fileError } = require('./helpers/fault-fs.cjs');
 
 function createPublicationHarness(options = {}) {
   const calls = [];
@@ -50,10 +51,6 @@ function createPublicationHarness(options = {}) {
       sleep: (ms) => calls.push(['sleep', ms]),
     },
   };
-}
-
-function fileError(code) {
-  return Object.assign(new Error(code), { code });
 }
 
 function walkFiles(rootPath) {

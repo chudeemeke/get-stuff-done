@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "Windows home-state paths"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+446 |     for (const name of ['bad?', 'bad*', 'bad<', 'bad>', 'bad|', 'bad"', 'CON', 'nul.txt', 'AUX', 'PRN', 'COM1.log', 'LPT9']) {
+447 |       const report = mutated(value => {
+448 |         const state = value.checks.find(row => keyOfCheck(row) === 'fresh:home-outside-target-preserved').evidence.actual;
+449 |         state.before[name] = state.after[name] = 'dir';
+450 |       });
+451 |       expect(judgeInstallerRecovery(runOf(report))).toContain('unexpected or incomplete observation: fresh:home-outside-target-preserved');
+                                                          ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "unexpected or incomplete observation: fresh:home-outside-target-preserved"
+Received: []
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:451:53)
+(fail) expect-red: installer recovery > Windows home-state paths reject illegal characters and reserved device names [32.00ms]
+
+ 0 pass
+ 78 filtered out
+ 1 fail
+ 1 expect() calls
+Ran 1 test across 1 file. [267.00ms]
+error: script "test" exited with code 1

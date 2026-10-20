@@ -1,0 +1,417 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-09-21T20:55:36.921Z",
+  "reviewer": "implementing agent",
+  "independentReview": "runtime-review.md PASS; limitations/dispositions completion.json",
+  "runs": [
+    {
+      "caseId": "parent-swap",
+      "receipt": "96bd71aa-e788-4600-b1cb-86d12c10c059-parent-swap.json",
+      "sha256": "644faa4fbf798ecf141710d29210094dc8571b6ce6412afd24563259be37697b",
+      "verdict": "mechanism-observed-in-fixture",
+      "claims": [
+        {
+          "id": "parent-outside-preserved",
+          "status": "mechanism-observed-in-fixture",
+          "positive": "api-success-observed",
+          "unsafe": "violation-observed"
+        },
+        {
+          "id": "alias-same-object",
+          "status": "mechanism-observed-in-fixture",
+          "positive": "api-success-observed",
+          "unsafe": "violation-observed"
+        },
+        {
+          "id": "owner-file-write-preserved",
+          "status": "mechanism-observed-in-fixture",
+          "positive": "api-success-observed",
+          "unsafe": "violation-observed"
+        }
+      ],
+      "deltas": [
+        {
+          "path": "guarded/ancestor/target/owner.txt",
+          "before": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "after": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e"
+        },
+        {
+          "path": "positive/ancestor/target/owner.txt",
+          "before": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "after": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e"
+        },
+        {
+          "path": "unsafe/alias",
+          "before": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\96bd71aa-e788-4600-b1cb-86d12c10c059\\unsafe\\ancestor\\target",
+          "after": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\96bd71aa-e788-4600-b1cb-86d12c10c059\\unsafe\\outside"
+        },
+        {
+          "path": "unsafe/ancestor/target",
+          "before": "dir",
+          "after": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\96bd71aa-e788-4600-b1cb-86d12c10c059\\unsafe\\outside"
+        },
+        {
+          "path": "unsafe/ancestor/target/owner.txt",
+          "before": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "after": null
+        },
+        {
+          "path": "unsafe/moved",
+          "before": null,
+          "after": "dir"
+        },
+        {
+          "path": "unsafe/moved/owner.txt",
+          "before": null,
+          "after": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db"
+        },
+        {
+          "path": "unsafe/outside/probe.txt",
+          "before": "file:f9bf0212b68528206e400f811829dea79e2ccac31d8275aec5f5ce41435dad84",
+          "after": "file:614c36228f69c2dadcdf999a67990381671d1c287e4905c0eb828d7519dfa39d"
+        }
+      ],
+      "manualMapReview": "Only preregistered unsafe phase changes, owner.txt updates in positive/guarded phases, and moved-directory guarded post-exit owner rename; no other map deltas",
+      "provenance": {
+        "sources": [
+          {
+            "path": "probe.rs",
+            "sha256": "0fb2a08b1025198f350b3707753ba44fff402010e8c7234d84499a6c64194e5d"
+          },
+          {
+            "path": "supervisor.cjs",
+            "sha256": "dd2b5d8d2673a5541a179ccb878772593bb4c554669a48ab8b14df5b1ded74af"
+          },
+          {
+            "path": "README.md",
+            "sha256": "236ac767199719a6992a8fd9e3051f212dd4bb39168b178d2a999276201fd0d0"
+          }
+        ],
+        "compilerExecutable": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc/bin/rustc.exe",
+        "compilerVersion": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: x86_64-pc-windows-msvc\nrelease: 1.98.0\nLLVM version: 22.1.8",
+        "sysroot": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+        "buildCommand": [
+          "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc/bin/rustc.exe",
+          "--edition=2021",
+          "--crate-name",
+          "containment_probe",
+          "--sysroot",
+          "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+          "-D",
+          "warnings",
+          "-C",
+          "incremental=C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\96bd71aa-e788-4600-b1cb-86d12c10c059\\incremental",
+          "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\probe.rs",
+          "-o",
+          "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\96bd71aa-e788-4600-b1cb-86d12c10c059\\probe.exe"
+        ],
+        "binaryPath": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\96bd71aa-e788-4600-b1cb-86d12c10c059\\probe.exe",
+        "binarySha256": "1b027c539e5eb6605bac5a7559d03f84cda275cc3df55a74c2ff8fd44feeda5e",
+        "sourceStable": true,
+        "binaryStable": true
+      },
+      "timing": {
+        "startedAt": "2026-09-21T20:52:19.113Z",
+        "endedAt": "2026-09-21T20:52:31.894Z",
+        "deadlineMs": 180000
+      },
+      "children": [
+        {
+          "actor": "candidate",
+          "pid": 62068,
+          "exitCode": 0,
+          "signal": null,
+          "closeObserved": true
+        },
+        {
+          "actor": "candidate",
+          "pid": 47512,
+          "exitCode": 0,
+          "signal": null,
+          "closeObserved": true
+        }
+      ],
+      "cleanup": {
+        "complete": true,
+        "retainedPaths": [],
+        "errors": []
+      }
+    },
+    {
+      "caseId": "leaf-swap",
+      "receipt": "5bb7f563-fa48-4ad7-8265-b320dee1f70e-leaf-swap.json",
+      "sha256": "6792dbb3ce408720cf32fee1cb78341fdc50f224b5ccbd8d48d0f3c4f32b9d14",
+      "verdict": "mechanism-observed-in-fixture",
+      "claims": [
+        {
+          "id": "leaf-replacement-preserved",
+          "status": "mechanism-observed-in-fixture",
+          "positive": "api-success-observed",
+          "unsafe": "violation-observed"
+        },
+        {
+          "id": "leaf-type-enforced",
+          "status": "mechanism-observed-in-fixture",
+          "positive": "api-success-observed",
+          "unsafe": "violation-observed"
+        },
+        {
+          "id": "owner-rename-effect-recorded",
+          "status": "mechanism-observed-in-fixture",
+          "positive": "api-success-observed",
+          "unsafe": "violation-observed"
+        }
+      ],
+      "deltas": [
+        {
+          "path": "guarded/ancestor/target/owner.txt",
+          "before": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "after": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e"
+        },
+        {
+          "path": "positive/ancestor/target/owner.txt",
+          "before": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "after": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e"
+        },
+        {
+          "path": "unsafe/ancestor/target",
+          "before": "dir",
+          "after": null
+        },
+        {
+          "path": "unsafe/ancestor/target/owner.txt",
+          "before": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "after": null
+        },
+        {
+          "path": "unsafe/moved",
+          "before": null,
+          "after": "dir"
+        },
+        {
+          "path": "unsafe/moved/owner.txt",
+          "before": null,
+          "after": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db"
+        },
+        {
+          "path": "unsafe/moved/probe.txt",
+          "before": null,
+          "after": "link:C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\runs\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\unsafe\\outside"
+        }
+      ],
+      "manualMapReview": "Only preregistered unsafe phase changes, owner.txt updates in positive/guarded phases, and moved-directory guarded post-exit owner rename; no other map deltas",
+      "provenance": {
+        "sources": [
+          {
+            "path": "probe.rs",
+            "sha256": "0fb2a08b1025198f350b3707753ba44fff402010e8c7234d84499a6c64194e5d"
+          },
+          {
+            "path": "supervisor.cjs",
+            "sha256": "dd2b5d8d2673a5541a179ccb878772593bb4c554669a48ab8b14df5b1ded74af"
+          },
+          {
+            "path": "README.md",
+            "sha256": "236ac767199719a6992a8fd9e3051f212dd4bb39168b178d2a999276201fd0d0"
+          }
+        ],
+        "compilerExecutable": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc/bin/rustc.exe",
+        "compilerVersion": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: x86_64-pc-windows-msvc\nrelease: 1.98.0\nLLVM version: 22.1.8",
+        "sysroot": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+        "buildCommand": [
+          "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc/bin/rustc.exe",
+          "--edition=2021",
+          "--crate-name",
+          "containment_probe",
+          "--sysroot",
+          "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+          "-D",
+          "warnings",
+          "-C",
+          "incremental=C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\incremental",
+          "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\probe.rs",
+          "-o",
+          "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\probe.exe"
+        ],
+        "binaryPath": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\5bb7f563-fa48-4ad7-8265-b320dee1f70e\\probe.exe",
+        "binarySha256": "d1e256ebfea372a391ca515ef1046e5fe2e532c1f05cdeb4b778e192aa770568",
+        "sourceStable": true,
+        "binaryStable": true
+      },
+      "timing": {
+        "startedAt": "2026-09-21T20:53:09.222Z",
+        "endedAt": "2026-09-21T20:53:26.237Z",
+        "deadlineMs": 180000
+      },
+      "children": [
+        {
+          "actor": "candidate",
+          "pid": 14928,
+          "exitCode": 0,
+          "signal": null,
+          "closeObserved": true
+        },
+        {
+          "actor": "candidate",
+          "pid": 22088,
+          "exitCode": 0,
+          "signal": null,
+          "closeObserved": true
+        }
+      ],
+      "cleanup": {
+        "complete": true,
+        "retainedPaths": [],
+        "errors": []
+      }
+    },
+    {
+      "caseId": "moved-directory",
+      "receipt": "dabc7833-5535-40c3-b09d-3a1ccc4fc05b-moved-directory.json",
+      "sha256": "93ce2e96d1c6fe15a83c130e7c83e422d0e01508bf72965c51befff1ae3de2d2",
+      "verdict": "mechanism-observed-in-fixture",
+      "claims": [
+        {
+          "id": "moved-object-boundary",
+          "status": "mechanism-observed-in-fixture",
+          "positive": "api-success-observed",
+          "unsafe": "violation-observed"
+        },
+        {
+          "id": "ancestor-rename-effect-recorded",
+          "status": "mechanism-observed-in-fixture",
+          "positive": "api-success-observed",
+          "unsafe": "violation-observed"
+        },
+        {
+          "id": "guard-exit-effect-recorded",
+          "status": "mechanism-observed-in-fixture",
+          "positive": "api-success-observed",
+          "unsafe": "violation-observed"
+        }
+      ],
+      "deltas": [
+        {
+          "path": "guarded/after-exit",
+          "before": null,
+          "after": "dir"
+        },
+        {
+          "path": "guarded/after-exit/owner.txt",
+          "before": null,
+          "after": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e"
+        },
+        {
+          "path": "guarded/ancestor/target",
+          "before": "dir",
+          "after": null
+        },
+        {
+          "path": "guarded/ancestor/target/owner.txt",
+          "before": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "after": null
+        },
+        {
+          "path": "positive/ancestor/target/owner.txt",
+          "before": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "after": "file:3dd1d2a218deefaca046d30d322ee25ad62685c1a8a914feb938df3f0f89186e"
+        },
+        {
+          "path": "unsafe/ancestor",
+          "before": "dir",
+          "after": null
+        },
+        {
+          "path": "unsafe/ancestor-moved",
+          "before": null,
+          "after": "dir"
+        },
+        {
+          "path": "unsafe/ancestor/target",
+          "before": "dir",
+          "after": null
+        },
+        {
+          "path": "unsafe/ancestor/target/owner.txt",
+          "before": "file:00e4856164dc9d3bce953d3df29654c76a6158a3524bae512cc4bc16e3ae31db",
+          "after": null
+        },
+        {
+          "path": "unsafe/moved",
+          "before": null,
+          "after": "dir"
+        },
+        {
+          "path": "unsafe/moved/owner.txt",
+          "before": null,
+          "after": "file:720b2e8413b3bb69f952ee53cbd45dabebe7e80d250ae4c7882bb351037786bc"
+        }
+      ],
+      "manualMapReview": "Only preregistered unsafe phase changes, owner.txt updates in positive/guarded phases, and moved-directory guarded post-exit owner rename; no other map deltas",
+      "provenance": {
+        "sources": [
+          {
+            "path": "probe.rs",
+            "sha256": "0fb2a08b1025198f350b3707753ba44fff402010e8c7234d84499a6c64194e5d"
+          },
+          {
+            "path": "supervisor.cjs",
+            "sha256": "dd2b5d8d2673a5541a179ccb878772593bb4c554669a48ab8b14df5b1ded74af"
+          },
+          {
+            "path": "README.md",
+            "sha256": "236ac767199719a6992a8fd9e3051f212dd4bb39168b178d2a999276201fd0d0"
+          }
+        ],
+        "compilerExecutable": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc/bin/rustc.exe",
+        "compilerVersion": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: x86_64-pc-windows-msvc\nrelease: 1.98.0\nLLVM version: 22.1.8",
+        "sysroot": "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+        "buildCommand": [
+          "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc/bin/rustc.exe",
+          "--edition=2021",
+          "--crate-name",
+          "containment_probe",
+          "--sysroot",
+          "C:/Users/Destiny/.rustup/toolchains/1.98.0-x86_64-pc-windows-msvc",
+          "-D",
+          "warnings",
+          "-C",
+          "incremental=C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\dabc7833-5535-40c3-b09d-3a1ccc4fc05b\\incremental",
+          "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\probe.rs",
+          "-o",
+          "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\dabc7833-5535-40c3-b09d-3a1ccc4fc05b\\probe.exe"
+        ],
+        "binaryPath": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\p07-containment-spike-2026-09-20\\build\\dabc7833-5535-40c3-b09d-3a1ccc4fc05b\\probe.exe",
+        "binarySha256": "0cb7089709bdeadd05dcb8eebcdc922f3cc687ccc6ec9b82d2296734876864e6",
+        "sourceStable": true,
+        "binaryStable": true
+      },
+      "timing": {
+        "startedAt": "2026-09-21T20:53:50.544Z",
+        "endedAt": "2026-09-21T20:54:03.088Z",
+        "deadlineMs": 180000
+      },
+      "children": [
+        {
+          "actor": "candidate",
+          "pid": 12000,
+          "exitCode": 0,
+          "signal": null,
+          "closeObserved": true
+        },
+        {
+          "actor": "candidate",
+          "pid": 20784,
+          "exitCode": 0,
+          "signal": null,
+          "closeObserved": true
+        }
+      ],
+      "cleanup": {
+        "complete": true,
+        "retainedPaths": [],
+        "errors": []
+      }
+    }
+  ]
+}

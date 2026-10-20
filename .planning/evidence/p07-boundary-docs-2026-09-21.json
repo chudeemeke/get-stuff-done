@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-09-21T21:16:34.173Z",
+  "kind": "explicit scoped Markdown API check using repository config and installed CLI YAML parser",
+  "files": [
+    ".planning/CONTINUE.md",
+    ".planning/evidence/p07-containment-spike-2026-09-20/findings.md",
+    "docs/plans/features/skin-completion-execution-2026-09-19.md"
+  ],
+  "issueCount": 0,
+  "result": {
+    ".planning/CONTINUE.md": [],
+    ".planning/evidence/p07-containment-spike-2026-09-20/findings.md": [],
+    "docs/plans/features/skin-completion-execution-2026-09-19.md": []
+  },
+  "earlierInvocation": "unavailable standalone yaml import; no files checked; corrected to installed markdownlint-cli2 parser without dependency changes"
+}

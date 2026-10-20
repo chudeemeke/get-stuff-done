@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "private runtime environment"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+239 | }
+240 | 
+241 | describe('expect-red: recovery observation contract', () => {
+242 |   test('private runtime environment is initialized before complete home observations', () => {
+243 |     const { run, report } = captureHarnessOracle('private-environment');
+244 |     expect(run.status).toBe(0);
+                             ^
+error: expect(received).toBe(expected)
+
+Expected: 0
+Received: 1
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:244:24)
+(fail) expect-red: recovery observation contract > private runtime environment is initialized before complete home observations [313.00ms]
+
+ 0 pass
+ 70 filtered out
+ 1 fail
+ 9 expect() calls
+Ran 1 test across 1 file. [741.00ms]
+error: script "test" exited with code 1

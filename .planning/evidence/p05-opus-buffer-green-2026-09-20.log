@@ -1,0 +1,30 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "Node capture preserves|the real harness|outside-target|cleanup failure still emits"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > outside-target deletion, byte damage and extra entries fail in both scenarios [1282.00ms]
+(pass) expect-red: recovery observation contract > outside-target damage controls detect a removed home comparison [390.00ms]
+(pass) expect-red: recovery observation contract > the real harness recognizes complete private quarantine and restored owner data [188.00ms]
+268 |     for (const mode of ['before-observe', 'after-observe', 'without-code']) {
+269 |       const { run, report } = captureHarnessOracle(mode);
+270 |       expect(run.status).toBe(1);
+271 |       const id = mode === 'before-observe' ? 'top-level-exact-allowlist' : 'transaction-directory-shape';
+272 |       const check = report.checks.find(row => row.scenario === 'fresh' && row.id === id);
+273 |       expect(check.ok).toBe(false);
+                             ^
+error: expect(received).toBe(expected)
+
+Expected: false
+Received: true
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:273:24)
+(fail) expect-red: recovery observation contract > the real harness emits observation-error before and after partial observation [203.00ms]
+(pass) expect-red: recovery observation contract > cleanup failure still emits a rejected report and names its retained fixture [125.00ms]
+(pass) expect-red: command line > Node capture preserves a complete structured report larger than one MiB [78.00ms]
+
+ 5 pass
+ 64 filtered out
+ 1 fail
+ 90 expect() calls
+Ran 6 tests across 1 file. [2.40s]
+error: script "test" exited with code 1

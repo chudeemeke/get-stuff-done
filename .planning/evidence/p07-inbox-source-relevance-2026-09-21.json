@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "checkedAt": "2026-09-21T21:08:26.857Z",
+  "kind": "read-only-source-relevance-not-runtime-triage",
+  "worktree": "C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign",
+  "head": "e50bda5b9dc6c538bd33f1736fe59fcc957f78a7",
+  "composedUpstreamVersion": "1.9.1",
+  "sources": [
+    {
+      "path": "get-stuff-done/bin/lib/core.cjs",
+      "sha256": "bae780d297d02b93035ffaf5bef8211c54d1291b75ce7561dfea7884f3bb3830"
+    },
+    {
+      "path": "get-stuff-done/bin/lib/phase.cjs",
+      "sha256": "92857328c90915f7f37065778d91d534da921d2a7fa781714844d893c707a922"
+    },
+    {
+      "path": "get-stuff-done/templates/phase-prompt.md",
+      "sha256": "e832fed6620e0e2102f5cef22cefff4ab07ba550ecf0bf838536f12972b2dcb8"
+    },
+    {
+      "path": "dist/gsd-core/bin/lib/config-loader.cjs",
+      "sha256": "4b32157762d53afac042ac5a39ded0a3f412d2367aee56f210c09935e457a55a"
+    },
+    {
+      "path": "dist/gsd-core/bin/lib/model-resolver.cjs",
+      "sha256": "7effab00f9560e1098e7cdeadc28b6bf4aa49fc14c3be1ebdaf283c269366353"
+    },
+    {
+      "path": "dist/gsd-core/bin/lib/phase.cjs",
+      "sha256": "09885f3210d7d9686fc8b4410ea0db802fe57a23de7e1a5f2acba3f86454a4a5"
+    },
+    {
+      "path": "tests/helpers/compat-package-root.cjs",
+      "sha256": "cd5390b3e4575e170e4b8322087fac721416bd8ced03e3a64b39eb7e2637e08e"
+    },
+    {
+      "path": "tests/phase.test.cjs",
+      "sha256": "84da5adbe624b518a62778d5fcc991ee677e5bbe40738f5975cd8aac5da9f8ea"
+    }
+  ],
+  "findings": [
+    {
+      "id": "model-overrides-loader",
+      "legacy": "loadConfig returns a closed object omitting model_overrides, while resolveModelInternal reads it",
+      "candidate": "dist config-loader includes model_overrides and model-resolver consumes it; runtime semantics and invalid-input behavior not proven",
+      "status": "reported legacy source defect corroborated; composed runtime unverified"
+    },
+    {
+      "id": "plan-index-schema",
+      "legacy": "phase.cjs counts Markdown task headings, reads files-modified and fm.objective; canonical phase-prompt uses XML tasks/objective and files_modified",
+      "candidate": "dist phase parser recognizes XML tasks, both file-key spellings and XML objective; tests default to dist/gsd-core and the inspected test uses old Markdown fixture",
+      "status": "reported legacy mismatch corroborated; canonical-template end-to-end regression proof remains required"
+    }
+  ],
+  "owner": "get-stuff-done implementing agent",
+  "nextAction": "Before closure, use authorized fixture/source scope to test both reported source entrypoint and composed/installed delivery, classify repair versus supported-entrypoint migration, record inbox disposition and notify ez-deploy only through authorized closure workflow",
+  "limits": [
+    "Main checkout source/planning not inspected or edited",
+    "No product edits or new tests",
+    "No runtime proof or claim either inbox report resolved",
+    "No generated dist edit"
+  ]
+}

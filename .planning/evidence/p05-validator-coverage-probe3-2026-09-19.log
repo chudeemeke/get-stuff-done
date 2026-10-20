@@ -1,0 +1,76 @@
+▶ expect-red: installer recovery
+  ✔ host-specific identity rules and contradictory pass details are checked (107.5442ms)
+  ✔ recovery evidence must match the explicitly supplied source bytes and host (206.6503ms)
+  ✔ independent context must contain unambiguous relative paths and real residue (65.4466ms)
+  ✔ malformed, interrupted and cleanup-failed reports return diagnostics instead of acceptance or exceptions (85.4063ms)
+  ✔ known failure labels cannot conceal missing, contradictory or additional observations (744.3001ms)
+  ✔ only the complete reviewed inventory is accepted, without duplicates or extra failures (415.8302ms)
+  ✔ the captured red from the unfixed installer is the known red (6.184ms)
+  ✔ an additional owner-byte loss cannot hide behind the expected recovery failures (9.3772ms)
+  ✔ an unexpected pass fails and says how to retire the wrapper (4.5961ms)
+  ✔ a red with harness check twin:child-failed-at-injection failing is the wrong red (10.0798ms)
+  ✔ a red with harness check twin:residue-non-empty failing is the wrong red (8.5696ms)
+  ✔ a red with harness check fresh:wrapper-child-failed-at-injection failing is the wrong red (6.9263ms)
+  ✔ a red with harness check upgrade:first-install-succeeded failing is the wrong red (8.5139ms)
+  ✔ a red with harness check upgrade:picked-files-installed failing is the wrong red (6.2977ms)
+  ✔ a red with harness check upgrade:wrapper-child-failed-at-injection failing is the wrong red (6.7ms)
+  ✔ a red with harness check upgrade:child-rewrote-picked-files failing is the wrong red (8.3063ms)
+  ✔ a red that never ran harness check twin:child-failed-at-injection is the wrong red (8.2497ms)
+  ✔ a red that never ran harness check twin:residue-non-empty is the wrong red (15.5242ms)
+  ✔ a red that never ran harness check fresh:wrapper-child-failed-at-injection is the wrong red (11.8292ms)
+  ✔ a red that never ran harness check upgrade:first-install-succeeded is the wrong red (18.0793ms)
+  ✔ a red that never ran harness check upgrade:picked-files-installed is the wrong red (10.2457ms)
+  ✔ a red that never ran harness check upgrade:wrapper-child-failed-at-injection is the wrong red (5.8373ms)
+  ✔ a red that never ran harness check upgrade:child-rewrote-picked-files is the wrong red (10.0457ms)
+  ✔ a red in which fresh:outcome-exact passes is not the known red (8.9792ms)
+  ✔ a red in which fresh:top-level-exact-allowlist passes is not the known red (5.7202ms)
+  ✔ a red in which fresh:transaction-directory-shape passes is not the known red (5.4893ms)
+  ✔ a red in which upgrade:outcome-exact passes is not the known red (7.6718ms)
+  ✔ a red in which upgrade:transaction-directory-shape passes is not the known red (5.4871ms)
+  ✔ a missing compose is the wrong red (0.4506ms)
+  ✔ a crash with no report and an unexpected exit status are both refused (4.1994ms)
+✔ expect-red: installer recovery (1830.9095ms)
+▶ expect-red: install transaction coverage
+  ✔ affirmative coverage requires both exact files, every metric and consistent aggregate counts (54.9061ms)
+  ✔ coverage refuses malformed or interrupted runs and TAP tokens disguised as table rows (3.0313ms)
+  ✔ coverage aliases, malformed tables and truncated TAP are rejected (7.9606ms)
+  ✔ a normalized alias cannot replace the exact covered source identity (1.312ms)
+  ✔ the reviewed 51-case render-only red is the known red (1.1831ms)
+  ✔ old skeleton evidence and any incomplete or changed case inventory are refused (211.1161ms)
+  ✔ TAP framing, terminal counts and bounded render failure diagnostics are mandatory (9.8854ms)
+  ✔ only the actual error field can establish the permitted render failure (0.7816ms)
+  ✔ a case failing for any reason other than an unbuilt operation is the wrong red (0.7866ms)
+  ✔ a coverage shortfall on landed code is the wrong red, on either stream (1.5565ms)
+  ✔ nothing failing, a crash with no summary, and a miscounted summary are all refused (2.5513ms)
+✔ expect-red: install transaction coverage (296.0005ms)
+▶ expect-red: command line
+  ✔ the actual Node CLI validates the live coverage gate through private c8 capture (39732.4617ms)
+  ✔ coverage ignore directives in either watched module refuse before execution (125.5286ms)
+  ✔ capture bounds execution and isolates inherited test and coverage configuration (20.0453ms)
+  ✔ inherited Node test-runner options refuse before child execution (1.3384ms)
+  ✔ capture faults cannot pass or silently discard uncertain evidence (555.1812ms)
+  ✔ cleanup never removes a scratch path outside its exact ownership convention (61.76ms)
+  ✔ coverage capture uses a new private report and V8 directory on every invocation (76.4397ms)
+  ✔ source or validator changes during capture invalidate the report (654.2412ms)
+  ✔ the package command is parsed from the same bytes as its evidence digest (7.4404ms)
+  ✔ the runner prints source identities and runtime provenance with its verdict (19.4008ms)
+  ✔ c8 executes the same explicit Node runtime that captured the evidence (15.8602ms)
+  ✔ the production gate refuses Bun before spawning a child (1.1491ms)
+  ✔ the gate command is read from package.json, not copied (5.3253ms)
+  ✔ package commands cannot weaken coverage or redirect the reviewed gate (2.8361ms)
+  ✔ exits 0 on the known red, 1 on anything else, 2 on misuse (42.1383ms)
+✔ expect-red: command line (41323.2843ms)
+ℹ tests 56
+ℹ suites 3
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45321.6571
+----------------|---------|----------|---------|---------|-------------------
+File            | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+----------------|---------|----------|---------|---------|-------------------
+All files       |     100 |      100 |     100 |     100 |                   
+ expect-red.cjs |     100 |      100 |     100 |     100 |                   
+----------------|---------|----------|---------|---------|-------------------

@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Ship-Ready Hardening
-status: in_progress
-stopped_at: "PLAN EXECUTION stopped at Plan 11AH (2026-07-20). SESSION work continued 2026-08-26/28 without advancing plans: recovered 86 stranded commits, merged main, took CI to 15/18. Current position is .planning/HANDOFF.json, NOT the progress block below."
-last_updated: "2026-08-28T08:00:00+01:00"
-last_activity: 2026-08-28
+status: in-progress
+stopped_at: "Section24 source assessment complete. Next prepare Q1/Q2 qualification packet; owner approval before execution. Read .planning/.continue-here.md; phase counters remain historical."
+last_updated: "2026-09-22"
+last_activity: 2026-09-22
 progress:
   total_phases: 10
   completed_phases: 3
@@ -16,30 +16,17 @@ progress:
 
 # Project State
 
-> ## READ FIRST — this file's progress block is about PLAN EXECUTION only
+> Section24 source compatibility assessment is complete. Private preparation and
+> destination binding are recommended for qualification; no architecture or
+> experiment is approved. Next prepare the Q1/Q2 packet. Section23 remains
+> withdrawn. See `.planning/.continue-here.md`. All campaign acceptance rows
+> remain pending; older phase narrative/counters do not select the next task.
+
+> ## READ FIRST — plan counters are historical; session position is in HANDOFF.json
 >
-> `CLAUDE.md` names this file canonical for position, and for **plan execution** it is:
-> plan work stopped at **Plan 11AH on 2026-07-20**, and the `percent: 61` /
-> `completed_plans: 44` figures still describe that point. They have deliberately **not** been
-> edited, because no plan was executed since.
->
-> But sessions on **2026-08-26 and 2026-08-28** did substantial non-plan work: they recovered
-> 86 commits stranded in an orphaned worktree, merged `main` into the Phase 43 branch, cleared
-> 4 blocking advisories, and took CI from mostly-red to **15 of 18 jobs green**. None of that
-> moves the plan counter, and none of it is visible here.
->
-> **The current position — branch, HEAD, live CI, and the three decisions that block PR #23 —
-> is `.planning/HANDOFF.json` and
-> `.planning/phases/43-upgrade-resilience-verify-matrix-dogfood/.continue-here.md`.**
-> Read those before acting on anything below.
->
-> Concretely: a session that resumes from this file alone will start at Plan 11AH and miss
-> issues **#46**, **#47** and **#48**, which are the only things standing between PR #23 and a
-> green CI run.
->
-> Also note `progress.total_plans: 72` counts the whole milestone. Phase 43 alone now has 50
-> PLAN files against 22 SUMMARY files; whether those 28 gaps are unexecuted or merely
-> unsummarized was not established (several were executed inside the 86 recovered commits).
+> PR23 merged as ece379db; issues46/47/48 are closed. The active work is the September5 Open-GSD skin completion contract in `.planning/SKIN-COMPLETION.md`.
+> D1-D11 are resolved. Follow `.planning/HANDOFF.json` for the current branch and integration gates.
+> Existing progress counters are unchanged pending candidate state-integrity proof (D3).
 
 ## Project Reference
 

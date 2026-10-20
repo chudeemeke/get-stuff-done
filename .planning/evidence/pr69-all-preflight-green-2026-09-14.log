@@ -1,0 +1,15 @@
+▶ installer CLI safety
+  ✔ unsupported --all refuses before legacy cleanup can remove owner content (545.8164ms)
+  ✔ --help documents the public installer without creating a runtime (339.8356ms)
+✔ installer CLI safety (891.046ms)
+▶ installer transaction safety
+  ✔ install reports rollback: "applied" when overlay copy fails after upstream success (244.6859ms)
+✔ installer transaction safety (269.1182ms)
+ℹ tests 3
+ℹ suites 2
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1742.8632

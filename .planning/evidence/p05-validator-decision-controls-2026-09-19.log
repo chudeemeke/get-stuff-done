@@ -1,0 +1,11 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "decision controls detect"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: install transaction coverage > decision controls detect independently weakened recovery and coverage guards [203.00ms]
+
+ 1 pass
+ 58 filtered out
+ 0 fail
+ 37 expect() calls
+Ran 1 test across 1 file. [1030.00ms]

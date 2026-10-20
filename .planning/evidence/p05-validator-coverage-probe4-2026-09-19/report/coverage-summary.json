@@ -1,0 +1,3 @@
+{"total": {"lines":{"total":571,"covered":571,"skipped":0,"pct":100},"statements":{"total":571,"covered":571,"skipped":0,"pct":100},"functions":{"total":18,"covered":18,"skipped":0,"pct":100},"branches":{"total":361,"covered":361,"skipped":0,"pct":100},"branchesTrue":{"total":0,"covered":0,"skipped":0,"pct":"Unknown"}}
+,"C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\scripts\\expect-red.cjs": {"lines":{"total":571,"covered":571,"skipped":0,"pct":100},"functions":{"total":18,"covered":18,"skipped":0,"pct":100},"statements":{"total":571,"covered":571,"skipped":0,"pct":100},"branches":{"total":361,"covered":361,"skipped":0,"pct":100}}
+}

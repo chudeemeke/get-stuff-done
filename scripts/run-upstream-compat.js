@@ -40,7 +40,7 @@ const AUTHORITY_BOUNDARIES = new Set([
   'upstream-internal-observed',
   'fork-runtime',
 ]);
-const COMMON_COMPAT_VERSIONS = ['1.6.1', '1.7.0', '1.8.0'];
+const COMMON_COMPAT_VERSIONS = ['1.7.0', '1.8.0', '1.9.1'];
 const SYNC_REVIEW_TRIGGER = 'port when the sync helper can consume the composed Open GSD package or retire when that source-only helper is removed';
 const TEMP_OWNER = 'get-stuff-done/upstream-compat';
 const MAX_FAILURE_LINES = 5;

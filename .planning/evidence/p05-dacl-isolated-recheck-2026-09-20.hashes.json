@@ -1,0 +1,27 @@
+{
+  "before": [
+    {
+      "Algorithm": "SHA256",
+      "Hash": "31D0BA65F894D27AB16F4A7A9DCB8BFEFF343B76CDFC15B87B3059C36A7D85C5",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\fork-roadmap-persistence.test.js"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "B8D04E773A8EEA3587A895D27F49C4D294A41EE2F415C73C36959CD3A4D52361",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\overlay\\gsd-core\\bin\\lib\\fork-roadmap-persistence.cjs"
+    }
+  ],
+  "exit": 0,
+  "after": [
+    {
+      "Algorithm": "SHA256",
+      "Hash": "31D0BA65F894D27AB16F4A7A9DCB8BFEFF343B76CDFC15B87B3059C36A7D85C5",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\fork-roadmap-persistence.test.js"
+    },
+    {
+      "Algorithm": "SHA256",
+      "Hash": "B8D04E773A8EEA3587A895D27F49C4D294A41EE2F415C73C36959CD3A4D52361",
+      "Path": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\overlay\\gsd-core\\bin\\lib\\fork-roadmap-persistence.cjs"
+    }
+  ]
+}

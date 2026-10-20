@@ -1,0 +1,16 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "Node capture preserves|the real harness|outside-target|cleanup failure still emits"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > outside-target deletion, byte damage and extra entries fail in both scenarios [1281.00ms]
+(pass) expect-red: recovery observation contract > outside-target damage controls detect a removed home comparison [375.00ms]
+(pass) expect-red: recovery observation contract > the real harness recognizes complete private quarantine and restored owner data [187.00ms]
+(pass) expect-red: recovery observation contract > the real harness emits observation-error before and after partial observation [594.00ms]
+(pass) expect-red: recovery observation contract > cleanup failure still emits a rejected report and names its retained fixture [109.00ms]
+(pass) expect-red: command line > Node capture preserves a complete structured report larger than one MiB [79.00ms]
+
+ 6 pass
+ 64 filtered out
+ 0 fail
+ 109 expect() calls
+Ran 6 tests across 1 file. [2.73s]

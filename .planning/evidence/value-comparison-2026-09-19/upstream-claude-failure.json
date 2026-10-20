@@ -1,0 +1,72 @@
+{
+  "candidate": "upstream",
+  "runtime": "claude",
+  "mode": "failure",
+  "installer": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\package\\bin\\install.js",
+  "installerSha256": "0acbd01933783537f934b33b6cc9132ff8e11ae37f0fa88ff63bc402aa0ae861",
+  "platform": "win32",
+  "node": "v24.20.0",
+  "scratch": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\upstream-claude-failure",
+  "checks": [
+    {
+      "id": "injection-reached",
+      "ok": true
+    },
+    {
+      "id": "failure-exits-nonzero",
+      "ok": true
+    },
+    {
+      "id": "failure:preserve:owner.txt",
+      "ok": true
+    },
+    {
+      "id": "failure:preserve:scripts/lib/owner-helper.cjs",
+      "ok": true
+    },
+    {
+      "id": "failure:preserve:scripts/changeset/owner-check.cjs",
+      "ok": true
+    },
+    {
+      "id": "failure:preserve:settings.json",
+      "ok": true
+    },
+    {
+      "id": "no-unquarantined-residue",
+      "ok": false,
+      "detail": {
+        "count": 946,
+        "sample": [
+          ".gsd-source",
+          "agents/gsd-advisor-researcher.compact.md",
+          "agents/gsd-advisor-researcher.md",
+          "agents/gsd-ai-researcher.compact.md",
+          "agents/gsd-ai-researcher.md",
+          "agents/gsd-assumptions-analyzer.compact.md",
+          "agents/gsd-assumptions-analyzer.md",
+          "agents/gsd-code-fixer.compact.md",
+          "agents/gsd-code-fixer.md",
+          "agents/gsd-code-reviewer.compact.md",
+          "agents/gsd-code-reviewer.md",
+          "agents/gsd-codebase-mapper.compact.md"
+        ]
+      }
+    },
+    {
+      "id": "no-false-rollback-claim",
+      "ok": true
+    },
+    {
+      "id": "write-guard-loaded",
+      "ok": true
+    },
+    {
+      "id": "no-blocked-external-write",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "passed": 9,
+  "failed": 1
+}

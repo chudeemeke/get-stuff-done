@@ -1,0 +1,30 @@
+{
+  "startedAt": "2026-09-20T00:28:21.9320403Z",
+  "scope": "D1 directive-prefix fix only; prior full and delta review remain source-qualified",
+  "status": "PASS-final-local-gates-verified; native limits retained",
+  "sourceIdentities": [
+    {
+      "sha256": "d825d8788a6219ad2f0ebc4e3781b4abaa90ac187355949c5ff9a6c399f1fa19",
+      "path": "scripts/expect-red.cjs"
+    },
+    {
+      "sha256": "444a786ec8312b43560ca889c671c3867390d018e47e68e4f657d07cfcf95d58",
+      "path": "tests/acceptance/installer-recovery.cjs"
+    },
+    {
+      "sha256": "0eb938c3908b5fb14327b19a4af713715a71ff4442ed012cae93cd4984f74a05",
+      "path": "tests/expect-red.test.js"
+    }
+  ],
+  "packetSha256": "20e37c3500486a44e95f9711db417e49b8516bea3186f562274daddd748d1773",
+  "cliVersion": "2.1.278 (Claude Code)",
+  "requestedModel": "opus",
+  "requestedEffort": "xhigh",
+  "resolvedModel": "claude-opus-5",
+  "reviewerSession": "c2e3a66f-7591-4d8c-af1e-49bb9de6fe63",
+  "toolCount": 0,
+  "resultSubtype": "success",
+  "exitCode": 0,
+  "effortEvidence": "CLI requested --effort xhigh; init does not echo effort.",
+  "sourceStable": true
+}

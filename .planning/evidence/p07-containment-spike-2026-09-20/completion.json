@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "completedAt": "2026-09-21T21:00:08.823Z",
+  "status": "PASS-bounded-Windows-NTFS-fixture-evidence-only",
+  "review": {
+    "requestedModel": "opus",
+    "resolvedModel": "claude-opus-5",
+    "requestedEffort": "xhigh",
+    "sessionId": "91545cf2-5477-4145-aa3b-280bb1e2469c",
+    "tools": [],
+    "terminalSubtype": "success",
+    "packetSha256": "e06d92fb3b0f42c137aa5bb0d6f82ed2ac0c9bf28630efe1377c6ac828180aac",
+    "receipt": "runtime-review.md"
+  },
+  "sources": [
+    {
+      "path": "probe.rs",
+      "sha256": "0fb2a08b1025198f350b3707753ba44fff402010e8c7234d84499a6c64194e5d",
+      "currentSha256": "0fb2a08b1025198f350b3707753ba44fff402010e8c7234d84499a6c64194e5d"
+    },
+    {
+      "path": "supervisor.cjs",
+      "sha256": "dd2b5d8d2673a5541a179ccb878772593bb4c554669a48ab8b14df5b1ded74af",
+      "currentSha256": "dd2b5d8d2673a5541a179ccb878772593bb4c554669a48ab8b14df5b1ded74af"
+    },
+    {
+      "path": "README.md",
+      "sha256": "236ac767199719a6992a8fd9e3051f212dd4bb39168b178d2a999276201fd0d0",
+      "currentSha256": "236ac767199719a6992a8fd9e3051f212dd4bb39168b178d2a999276201fd0d0"
+    }
+  ],
+  "index": {
+    "schema": 1,
+    "candidate": "windows-relative-handles-v1",
+    "correctionCount": 1,
+    "preparationCorrection": {
+      "reason": "One pre-execution source-review correction batch; conservatively consumes total allowance",
+      "reviewReceipt": "source-review.md",
+      "verification": "source-correction.md: Opus5 PASS, source hashes verified; advisories deferred, approved deadlines unchanged",
+      "furtherCorrectionsAuthorized": false
+    },
+    "stopped": false,
+    "cases": {
+      "parent-swap": {
+        "status": "mechanism-observed-in-fixture",
+        "receipt": "96bd71aa-e788-4600-b1cb-86d12c10c059-parent-swap.json",
+        "reason": "see claim/control records"
+      },
+      "leaf-swap": {
+        "status": "mechanism-observed-in-fixture",
+        "receipt": "5bb7f563-fa48-4ad7-8265-b320dee1f70e-leaf-swap.json",
+        "reason": "see claim/control records"
+      },
+      "moved-directory": {
+        "status": "mechanism-observed-in-fixture",
+        "receipt": "dabc7833-5535-40c3-b09d-3a1ccc4fc05b-moved-directory.json",
+        "reason": "see claim/control records"
+      }
+    },
+    "runs": [
+      {
+        "runId": "96bd71aa-e788-4600-b1cb-86d12c10c059",
+        "caseId": "parent-swap",
+        "receipt": "96bd71aa-e788-4600-b1cb-86d12c10c059-parent-swap.json",
+        "supersedes": null
+      },
+      {
+        "runId": "5bb7f563-fa48-4ad7-8265-b320dee1f70e",
+        "caseId": "leaf-swap",
+        "receipt": "5bb7f563-fa48-4ad7-8265-b320dee1f70e-leaf-swap.json",
+        "supersedes": null
+      },
+      {
+        "runId": "dabc7833-5535-40c3-b09d-3a1ccc4fc05b",
+        "caseId": "moved-directory",
+        "receipt": "dabc7833-5535-40c3-b09d-3a1ccc4fc05b-moved-directory.json",
+        "supersedes": null
+      }
+    ],
+    "stopReason": null
+  },
+  "logs": [
+    {
+      "name": "5bb7f563-fa48-4ad7-8265-b320dee1f70e-build.json",
+      "sha256": "3627f332540eeb352e419ecce845f0d682b680b46613039ebe272ef2ddaec1c1"
+    },
+    {
+      "name": "96bd71aa-e788-4600-b1cb-86d12c10c059-build.json",
+      "sha256": "83212a918a76c23698cb9ba5099e61c5d588d64d6d324280abd1f3e1d45d82ff"
+    },
+    {
+      "name": "compiler-version.txt",
+      "sha256": "59684b7b864de11d3d0055484bd3a00a57a835e72eda1306404c1e0d6f084ee4"
+    },
+    {
+      "name": "dabc7833-5535-40c3-b09d-3a1ccc4fc05b-build.json",
+      "sha256": "3b9037c70f27aebf37e71361311384389e79b55b277b2cf1b1b39908e4bfcd37"
+    },
+    {
+      "name": "probe-compile.exit.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "probe-compile.json",
+      "sha256": "9d2d223d90cd2763ce2dccdb8ef9a5b3ae58e6b34b36f3edeae45a4feb53a075"
+    },
+    {
+      "name": "probe-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "toolchain-build.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "scopeLimits": [
+    "no production acceptance",
+    "no post-successful-move safety proof",
+    "no approval of rename restrictions",
+    "no production API or helper authorized"
+  ],
+  "dispositions": [
+    {
+      "id": "R1",
+      "status": "recorded-no-source-correction",
+      "finding": "positive:owner-rename-effect-recorded links guard open/close instead of preregistered ready plus owner write",
+      "evidence": "leaf-swap raw events10/18 contain required observations; events7/19 are linked; reviewer nonblocking; correction allowance exhausted"
+    },
+    {
+      "id": "R2",
+      "status": "read-only-evidence-attached",
+      "finding": "review packet omitted index/build logs and cannot independently recompute file hashes",
+      "evidence": "this receipt embeds exact index, live compared hashes and build log hashes; raw logs retained; no further runtime run"
+    },
+    {
+      "id": "R3-R8",
+      "status": "limitations-retained",
+      "finding": "rename denial, libuv attribution, observational claims, non-adversarial aliases/writes, one compressed-NTFS sample, run-directory-only maps",
+      "owner": "implementing agent",
+      "trigger": "production P07 contract/proof design before RED tests"
+    }
+  ]
+}

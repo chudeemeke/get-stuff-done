@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "a normalized alias"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+346 |     const evidence = structuredClone(COVERAGE_EVIDENCE);
+347 |     const file = Object.keys(evidence.coverageSummary).find(name => name !== 'total');
+348 |     const alias = `${path.win32.dirname(file)}/../lib/${path.win32.basename(file)}`;
+349 |     evidence.coverageSummary[alias] = evidence.coverageSummary[file];
+350 |     delete evidence.coverageSummary[file];
+351 |     expect(judgeInstallTransactionCoverage(tapRun(KNOWN_TAP), evidence).length).toBeGreaterThan(0);
+                                                                                      ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:351:81)
+(fail) expect-red: install transaction coverage > a normalized alias cannot replace the exact covered source identity [32.00ms]
+
+ 0 pass
+ 54 filtered out
+ 1 fail
+ 1 expect() calls
+Ran 1 test across 1 file. [413.00ms]
+error: script "test" exited with code 1

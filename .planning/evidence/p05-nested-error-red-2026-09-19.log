@@ -1,0 +1,25 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "only the actual error field"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+345 |   });
+346 | 
+347 |   test('only the actual error field can establish the permitted render failure', () => {
+348 |     const disguised = KNOWN_TAP.replace(`  ${FIRST_REASON}`,
+349 |       `  futureMetadata: |-\n    ${FIRST_REASON}\n  error: 'unexpected owner loss'`);
+350 |     expect(judgeInstallTransactionCoverage(tapRun(disguised)).length).toBeGreaterThan(0);
+                                                                            ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\expect-red.test.js:350:71)
+(fail) expect-red: install transaction coverage > only the actual error field can establish the permitted render failure [16.00ms]
+
+ 0 pass
+ 51 filtered out
+ 1 fail
+ 1 expect() calls
+Ran 1 test across 1 file. [477.00ms]
+error: script "test" exited with code 1

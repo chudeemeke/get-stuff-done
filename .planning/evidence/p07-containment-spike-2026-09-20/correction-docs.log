@@ -1,0 +1,4 @@
+markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)
+Finding: .claude/p07-containment-spike-2026-09-20/README.md .planning/CONTINUE.md !node_modules/** !dist/** !.upstream/** !overlay/get-shit-done/**
+Linting: 2 files
+Summary: 0 issues in 0 files

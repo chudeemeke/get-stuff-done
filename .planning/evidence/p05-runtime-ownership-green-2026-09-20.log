@@ -1,0 +1,17 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "exact Windows runtime|private runtime environment|outside-target|the real harness|cleanup failure still emits"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > exact Windows runtime creation and regular-file updates preserve owner data [593.00ms]
+(pass) expect-red: recovery observation contract > private runtime environment is initialized before complete home observations [547.00ms]
+(pass) expect-red: recovery observation contract > outside-target deletion, byte damage and extra entries fail in both scenarios [2344.00ms]
+(pass) expect-red: recovery observation contract > outside-target damage controls detect a removed home comparison [703.00ms]
+(pass) expect-red: recovery observation contract > the real harness recognizes complete private quarantine and restored owner data [359.00ms]
+(pass) expect-red: recovery observation contract > the real harness emits observation-error before and after partial observation [1079.00ms]
+(pass) expect-red: recovery observation contract > cleanup failure still emits a rejected report and names its retained fixture [187.00ms]
+
+ 7 pass
+ 65 filtered out
+ 0 fail
+ 147 expect() calls
+Ran 7 tests across 1 file. [5.97s]

@@ -1,0 +1,23 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "install transaction coverage"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: install transaction coverage > supplied malformed termination markers are never treated as absent
+(pass) expect-red: install transaction coverage > affirmative coverage requires both exact files, every metric and consistent aggregate counts [140.00ms]
+(pass) expect-red: install transaction coverage > coverage refuses malformed or interrupted runs and TAP tokens disguised as table rows
+(pass) expect-red: install transaction coverage > coverage aliases, malformed tables and truncated TAP are rejected [16.00ms]
+(pass) expect-red: install transaction coverage > a normalized alias cannot replace the exact covered source identity [16.00ms]
+(pass) expect-red: install transaction coverage > decision controls detect independently weakened recovery and coverage guards [484.00ms]
+(pass) expect-red: install transaction coverage > the reviewed 51-case render-only red is the known red
+(pass) expect-red: install transaction coverage > old skeleton evidence and any incomplete or changed case inventory are refused [156.00ms]
+(pass) expect-red: install transaction coverage > TAP framing, terminal counts and bounded render failure diagnostics are mandatory [32.00ms]
+(pass) expect-red: install transaction coverage > only the actual error field can establish the permitted render failure
+(pass) expect-red: install transaction coverage > a case failing for any reason other than an unbuilt operation is the wrong red
+(pass) expect-red: install transaction coverage > a coverage shortfall on landed code is the wrong red, on either stream
+(pass) expect-red: install transaction coverage > nothing failing, a crash with no summary, and a miscounted summary are all refused
+
+ 13 pass
+ 65 filtered out
+ 0 fail
+ 691 expect() calls
+Ran 13 tests across 1 file. [1093.00ms]

@@ -1,0 +1,48 @@
+{
+  "checkedAt": "2026-09-21T20:58:34.502Z",
+  "sourceHashes": [
+    {
+      "path": "probe.rs",
+      "sha256": "0fb2a08b1025198f350b3707753ba44fff402010e8c7234d84499a6c64194e5d"
+    },
+    {
+      "path": "supervisor.cjs",
+      "sha256": "dd2b5d8d2673a5541a179ccb878772593bb4c554669a48ab8b14df5b1ded74af"
+    },
+    {
+      "path": "README.md",
+      "sha256": "236ac767199719a6992a8fd9e3051f212dd4bb39168b178d2a999276201fd0d0"
+    }
+  ],
+  "runCount": 3,
+  "correctionCount": 1,
+  "checks": [
+    {
+      "caseId": "parent-swap",
+      "sourceStable": true,
+      "binaryStable": true,
+      "claimCount": 3,
+      "closedChildren": 2,
+      "fixtureAbsent": true,
+      "cleanup": true
+    },
+    {
+      "caseId": "leaf-swap",
+      "sourceStable": true,
+      "binaryStable": true,
+      "claimCount": 3,
+      "closedChildren": 2,
+      "fixtureAbsent": true,
+      "cleanup": true
+    },
+    {
+      "caseId": "moved-directory",
+      "sourceStable": true,
+      "binaryStable": true,
+      "claimCount": 3,
+      "closedChildren": 2,
+      "fixtureAbsent": true,
+      "cleanup": true
+    }
+  ]
+}

@@ -1,0 +1,275 @@
+TAP version 13
+# Subtest: roadmap chooses active phase 41 and next roadmap phase 42 over older work and backlog
+not ok 1 - roadmap chooses active phase 41 and next roadmap phase 42 over older work and backlog
+  ---
+  duration_ms: 1316.8522
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\behavior.test.cjs:43:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"milestones":[{"heading":"v1.2.0 Current Milestone -- ACTIVE","version":"v1.2.0"}],"phases":[{"number":"40.5","name":"Older Work","goal":null,"mode":null,"depends_on":null,"plan_count":1,"summary_count":0,"has_context":false,"has_research":false,"disk_status":"planned","roadmap_complete":false,"context_read_error":null,"context_scope":"complete"},{"number":"41","name":"Current Work","goal":null,"mode":null,"depends_on":null,"plan_count":1,"summary_count":0,"has_context":false,"has_research":false,"disk_status":"planned","roadmap_complete":false,"context_read_error":null,"context_scope":"complete"},{"number":"42","name":"Next Work","goal":null,"mode":null,"depends_on":null,"plan_count":0,"summary_count":0,"has_context":false,"has_research":false,"disk_status":"no_directory","roadmap_complete":false,"context_read_error":null,"context_scope":"complete"}],"phase_count":3,"completed_phases":0,"total_plans":2,"total_summaries":0,"progress_percent":null,"progress_scope":"unscoped","current_phase":"40.5","next_phase":"42","missing_phase_details":null,"scope":"unscoped"}
+    
+    '40.5' !== '41'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '41'
+  actual: '40.5'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\behavior.test.cjs:45:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.start (node:internal/test_runner/test:1257:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: init chooses active phase 41 and next roadmap phase 42 over older work and backlog
+not ok 2 - init chooses active phase 41 and next roadmap phase 42 over older work and backlog
+  ---
+  duration_ms: 1194.068
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\behavior.test.cjs:48:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"executor_model":"sonnet","planner_model":"opus","commit_docs":true,"milestone_version":"v1.2.0","milestone_name":"Current Milestone -- ACTIVE","phases":[{"number":"40.5","name":"older-work","directory":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-UuydqW/.planning/phases/40.5-older-work","status":"in_progress","plan_count":1,"summary_count":0,"has_research":false,"implementation_complete":false,"verification_status":"missing","verification_passed":false,"phase_complete":false,"completion_status":"incomplete","verification_next_action":"No verification report found — the verify step never completed. Running execute-phase is safe here: it resumes at the verification gates and does not re-run plans that already have a SUMMARY.md (see #2868).","verification_next_command":"/gsd-execute-phase 40.5","verification_stale_check_indeterminate":false},{"number":"41","name":"current-work","directory":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-UuydqW/.planning/phases/41-current-work","status":"in_progress","plan_count":1,"summary_count":0,"has_research":false,"implementation_complete":false,"verification_status":"missing","verification_passed":false,"phase_complete":false,"completion_status":"incomplete","verification_next_action":"No verification report found — the verify step never completed. Running execute-phase is safe here: it resumes at the verification gates and does not re-run plans that already have a SUMMARY.md (see #2868).","verification_next_command":"/gsd-execute-phase 41","verification_stale_check_indeterminate":false},{"number":"42","name":"next-work","directory":null,"status":"not_started","plan_count":0,"summary_count":0,"has_research":false,"roadmap_complete":false,"implementation_complete":false,"verification_status":"missing","verification_passed":false,"phase_complete":false,"completion_status":"incomplete","verification_next_action":"No verification report found — the verify step never completed. Running execute-phase is safe here: it resumes at the verification gates and does not re-run plans that already have a SUMMARY.md (see #2868).","verification_next_command":"/gsd-execute-phase 42","verification_stale_check_indeterminate":false}],"phase_count":3,"completed_count":0,"in_progress_count":2,"current_phase":{"number":"40.5","name":"older-work","directory":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-UuydqW/.planning/phases/40.5-older-work","status":"in_progress","plan_count":1,"summary_count":0,"has_research":false,"implementation_complete":false,"verification_status":"missing","verification_passed":false,"phase_complete":false,"completion_status":"incomplete","verification_next_action":"No verification report found — the verify step never completed. Running execute-phase is safe here: it resumes at the verification gates and does not re-run plans that already have a SUMMARY.md (see #2868).","verification_next_command":"/gsd-execute-phase 40.5","verification_stale_check_indeterminate":false},"next_phase":{"number":"42","name":"next-work","directory":null,"status":"not_started","plan_count":0,"summary_count":0,"has_research":false,"roadmap_complete":false,"implementation_complete":false,"verification_status":"missing","verification_passed":false,"phase_complete":false,"completion_status":"incomplete","verification_next_action":"No verification report found — the verify step never completed. Running execute-phase is safe here: it resumes at the verification gates and does not re-run plans that already have a SUMMARY.md (see #2868).","verification_next_command":"/gsd-execute-phase 42","verification_stale_check_indeterminate":false},"paused_at":null,"has_work_in_progress":true,"phase_mvp_mode":false,"project_exists":false,"roadmap_exists":true,"state_exists":true,"planning_exists":true,"requirements_exists":false,"milestones_exists":false,"init_incomplete":true,"state_path":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-UuydqW/.planning/STATE.md","roadmap_path":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-UuydqW/.planning/ROADMAP.md","project_path":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-UuydqW/.planning/PROJECT.md","config_path":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-UuydqW/.planning/config.json","section_manifest":{"workflow":"progress","included":[],"excluded":["mvp-display","forensic-audit"],"read":[]},"project_root":"C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\upstream-behavior\\temp\\behavior-UuydqW","agents_installed":true,"missing_agents":[],"agents_dir":"C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\package\\agents","agent_runtime":"claude"}
+    
+    '40.5' !== '41'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '41'
+  actual: '40.5'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\behavior.test.cjs:50:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: roadmap excludes the old milestone despite stale STATE frontmatter
+not ok 3 - roadmap excludes the old milestone despite stale STATE frontmatter
+  ---
+  duration_ms: 940.003
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\behavior.test.cjs:59:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"milestones":[{"heading":"v4.0 Intelligence Layer (Phases 30-37)","version":"v4.0"}],"phases":[],"phase_count":0,"completed_phases":0,"total_plans":0,"total_summaries":0,"progress_percent":0,"progress_scope":"complete","current_phase":null,"next_phase":null,"missing_phase_details":["30"],"scope":"complete"}
+    
+    null !== '42'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '42'
+  actual: ~
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\behavior.test.cjs:61:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: execute-phase resolves the current milestone despite stale STATE frontmatter
+not ok 4 - execute-phase resolves the current milestone despite stale STATE frontmatter
+  ---
+  duration_ms: 938.3611
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\behavior.test.cjs:65:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"executor_model":"sonnet","verifier_model":"sonnet","tdd_mode":false,"commit_docs":true,"sub_repos":[],"parallelization":true,"context_window":200000,"branching_strategy":"none","phase_branch_template":"gsd/phase-{phase}-{slug}","milestone_branch_template":"gsd/{milestone}-{slug}","verifier_enabled":true,"phase_found":true,"phase_dir":null,"phase_number":"42","phase_name":"Dreaming Consolidation","phase_slug":"dreaming-consolidation","phase_req_ids":null,"plans":[],"summaries":[],"incomplete_plans":[],"plan_count":0,"incomplete_count":0,"halted_plans":[],"blocked_by":{},"runnable_plans":[],"runnable_count":0,"branch_name":null,"milestone_version":"v4.0","milestone_name":"Intelligence Layer (Phases 30-37)","milestone_slug":"intelligence-layer-phases-30-37","state_exists":true,"roadmap_exists":true,"config_exists":false,"state_path":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-6sTBX2/.planning/STATE.md","roadmap_path":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-6sTBX2/.planning/ROADMAP.md","config_path":"C:/Projects/get-stuff-done/.claude/worktrees/skin-campaign/.claude/value-comparison-2026-09-19/upstream-behavior/temp/behavior-6sTBX2/.planning/config.json","requirements_path":null,"section_manifest":{"workflow":"execute-phase","included":[],"excluded":["partial-wave","gap-closure-artifacts","regression-gate"],"read":[]},"project_root":"C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\upstream-behavior\\temp\\behavior-6sTBX2","agents_installed":true,"missing_agents":[],"agents_dir":"C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\package\\agents","agent_runtime":"claude"}
+    
+    'v4.0' !== 'v5.0'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'v5.0'
+  actual: 'v4.0'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\behavior.test.cjs:68:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: state includes declared future plans in its completion denominator
+not ok 5 - state includes declared future plans in its completion denominator
+  ---
+  duration_ms: 974.7775
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\behavior.test.cjs:78:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"updated":false,"reason":"phase scope is unscoped, not complete"}
+    
+    undefined !== 20
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 20
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\behavior.test.cjs:80:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: roadmap includes declared future plans in its completion denominator
+not ok 6 - roadmap includes declared future plans in its completion denominator
+  ---
+  duration_ms: 1018.1693
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\behavior.test.cjs:84:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"milestones":[{"heading":"v1.2.0 Current Milestone -- ACTIVE","version":"v1.2.0"}],"phases":[{"number":"1","name":"Complete Slice","goal":null,"mode":null,"depends_on":null,"plan_count":1,"summary_count":1,"has_context":false,"has_research":false,"disk_status":"partial","roadmap_complete":false,"context_read_error":null,"context_scope":"complete"},{"number":"2","name":"Future Slice","goal":null,"mode":null,"depends_on":null,"plan_count":0,"summary_count":0,"has_context":false,"has_research":false,"disk_status":"no_directory","roadmap_complete":false,"context_read_error":null,"context_scope":"complete"}],"phase_count":2,"completed_phases":0,"total_plans":1,"total_summaries":1,"progress_percent":null,"progress_scope":"unscoped","current_phase":"1","next_phase":"2","missing_phase_details":null,"scope":"unscoped"}
+    
+    1 !== 5
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 5
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\behavior.test.cjs:86:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: plan classifier excludes review packets while retaining valid legacy plans
+not ok 7 - plan classifier excludes review packets while retaining valid legacy plans
+  ---
+  duration_ms: 43.6973
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\behavior.test.cjs:90:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    legacy-plan-draft.md
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\behavior.test.cjs:96:12)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: roadmap mutation changes the exact phase and preserves CRLF and unrelated bytes
+not ok 8 - roadmap mutation changes the exact phase and preserves CRLF and unrelated bytes
+  ---
+  duration_ms: 1059.7417
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\behavior.test.cjs:99:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + '# Roadmap\n' +
+    +   '\n' +
+    +   '- [x] **Phase 09.2:** Prep notes that mention Phase 09.3 follow-up\r (completed 2026-09-19)\n' +
+    +   '- [ ] **Phase 09.3:** Secure note flow\n' +
+    +   '\n' +
+    +   '### Phase 09.2: Prep\n' +
+    +   '\n' +
+    +   '**Plans:** 1 plan\n' +
+    +   '\n' +
+    +   '### Phase 09.3: Secure Notes\n' +
+    +   '\n' +
+    +   '**Plans:** 1/1 plans complete\n' +
+    +   '\n' +
+    +   '- [x] 09.3-01-PLAN.md\n' +
+    +   '\n' +
+    +   'Owner text with trailing spaces  \n'
+    - '# Roadmap\r\n' +
+    -   '\r\n' +
+    -   '- [ ] **Phase 09.2:** Prep notes that mention Phase 09.3 follow-up\r\n' +
+    -   '- [x] **Phase 09.3:** Secure note flow (completed 2026-09-19)\r\n' +
+    -   '\r\n' +
+    -   '### Phase 09.2: Prep\r\n' +
+    -   '**Plans:** 1 plan\r\n' +
+    -   '\r\n' +
+    -   '### Phase 09.3: Secure Notes\r\n' +
+    -   '**Plans:** 1/1 plans complete\r\n' +
+    -   '- [x] 09.3-01-PLAN.md\r\n' +
+    -   '\r\n' +
+    -   'Owner text with trailing spaces  \r\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: |-
+    # Roadmap
+    
+    - [ ] **Phase 09.2:** Prep notes that mention Phase 09.3 follow-up
+    - [x] **Phase 09.3:** Secure note flow (completed 2026-09-19)
+    
+    ### Phase 09.2: Prep
+    **Plans:** 1 plan
+    
+    ### Phase 09.3: Secure Notes
+    **Plans:** 1/1 plans complete
+    - [x] 09.3-01-PLAN.md
+    
+    Owner text with trailing spaces  
+    
+  actual: |-
+    # Roadmap
+    
+    - [x] **Phase 09.2:** Prep notes that mention Phase 09.3 follow-up (completed 2026-09-19)
+    - [ ] **Phase 09.3:** Secure note flow
+    
+    ### Phase 09.2: Prep
+    
+    **Plans:** 1 plan
+    
+    ### Phase 09.3: Secure Notes
+    
+    **Plans:** 1/1 plans complete
+    
+    - [x] 09.3-01-PLAN.md
+    
+    Owner text with trailing spaces  
+    
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\behavior.test.cjs:115:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 0
+# fail 8
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7707.9748

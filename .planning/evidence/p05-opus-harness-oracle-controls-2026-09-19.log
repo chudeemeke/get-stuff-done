@@ -1,0 +1,12 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "the real harness"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > the real harness recognizes complete private quarantine and restored owner data [640.00ms]
+(pass) expect-red: recovery observation contract > the real harness emits observation-error before and after partial observation [2844.00ms]
+
+ 2 pass
+ 63 filtered out
+ 0 fail
+ 30 expect() calls
+Ran 2 tests across 1 file. [4.52s]

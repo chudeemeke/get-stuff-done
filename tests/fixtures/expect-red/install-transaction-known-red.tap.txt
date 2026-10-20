@@ -1,0 +1,519 @@
+TAP version 13
+# Subtest: names: the four classes match the accepted table exactly
+ok 1 - names: the four classes match the accepted table exactly
+  ---
+  duration_ms: 2.1656
+  type: 'test'
+  ...
+# Subtest: names: the table cannot be changed by a consumer
+ok 2 - names: the table cannot be changed by a consumer
+  ---
+  duration_ms: 0.5935
+  type: 'test'
+  ...
+# Subtest: names: no name belongs to two classes, so a root is never also protected
+ok 3 - names: no name belongs to two classes, so a root is never also protected
+  ---
+  duration_ms: 0.3623
+  type: 'test'
+  ...
+# Subtest: names: the module requires nothing, so cleanup never loads the transaction to read names
+ok 4 - names: the module requires nothing, so cleanup never loads the transaction to read names
+  ---
+  duration_ms: 0.5125
+  type: 'test'
+  ...
+# Subtest: comparison keys: stored names are kept on linux, case folds on win32, case and NFC fold on darwin
+ok 5 - comparison keys: stored names are kept on linux, case folds on win32, case and NFC fold on darwin
+  ---
+  duration_ms: 0.1686
+  type: 'test'
+  ...
+# Subtest: comparison keys: an unknown platform keeps stored names, like linux
+ok 6 - comparison keys: an unknown platform keeps stored names, like linux
+  ---
+  duration_ms: 0.0778
+  type: 'test'
+  ...
+# Subtest: protected names: exact names and both generated families are recognised
+ok 7 - protected names: exact names and both generated families are recognised
+  ---
+  duration_ms: 0.1692
+  type: 'test'
+  ...
+# Subtest: protected names: near misses are owner names, not protected ones
+ok 8 - protected names: near misses are owner names, not protected ones
+  ---
+  duration_ms: 0.098
+  type: 'test'
+  ...
+# Subtest: protected names: a case variant is the same directory on win32 and darwin, a different one on linux
+ok 9 - protected names: a case variant is the same directory on win32 and darwin, a different one on linux
+  ---
+  duration_ms: 0.0881
+  type: 'test'
+  ...
+# Subtest: transaction: the module exposes one factory and the sixteen planned operations
+ok 10 - transaction: the module exposes one factory and the sixteen planned operations
+  ---
+  duration_ms: 1.8272
+  type: 'test'
+  ...
+# Subtest: lock: acquiring writes the pid and creation time, and releasing removes the file
+not ok 11 - lock: acquiring writes the pid and creation time, and releasing removes the file
+  ---
+  duration_ms: 1.7984
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:133:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:135:26)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: it is published whole by a link from a finished temp file, never written in place
+not ok 12 - lock: it is published whole by a link from a finished temp file, never written in place
+  ---
+  duration_ms: 0.863
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:143:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:152:37)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: releasing never deletes a lock that now names another installer
+not ok 13 - lock: releasing never deletes a lock that now names another installer
+  ---
+  duration_ms: 0.8287
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:160:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:162:26)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: a holder that is alive refuses with the exact instruction and touches nothing
+not ok 14 - lock: a holder that is alive refuses with the exact instruction and touches nothing
+  ---
+  duration_ms: 2.1145
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:174:3'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:178:62
+    refusalOf (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:118:5)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:178:19)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: a holder that is alive but owned by another user (EPERM) refuses with the exact instruction and touches nothing
+not ok 15 - lock: a holder that is alive but owned by another user (EPERM) refuses with the exact instruction and touches nothing
+  ---
+  duration_ms: 1.8169
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:174:3'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:178:62
+    refusalOf (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:118:5)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:178:19)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: a holder that is undecidable (an unexpected error) refuses with the exact instruction and touches nothing
+not ok 16 - lock: a holder that is undecidable (an unexpected error) refuses with the exact instruction and touches nothing
+  ---
+  duration_ms: 2.0288
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:174:3'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:178:62
+    refusalOf (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:118:5)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:178:19)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: a holder that is dead is taken over, and no stale file is left behind
+not ok 17 - lock: a holder that is dead is taken over, and no stale file is left behind
+  ---
+  duration_ms: 1.6872
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:188:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:196:43)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: a lock file that is empty cannot prove its holder dead, so it refuses without a pid or a time
+not ok 18 - lock: a lock file that is empty cannot prove its holder dead, so it refuses without a pid or a time
+  ---
+  duration_ms: 1.7266
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:210:3'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:101
+    refusalOf (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:118:5)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:19)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: a lock file that is not JSON cannot prove its holder dead, so it refuses without a pid or a time
+not ok 19 - lock: a lock file that is not JSON cannot prove its holder dead, so it refuses without a pid or a time
+  ---
+  duration_ms: 2.1568
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:210:3'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:101
+    refusalOf (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:118:5)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:19)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: a lock file that is missing its pid cannot prove its holder dead, so it refuses without a pid or a time
+not ok 20 - lock: a lock file that is missing its pid cannot prove its holder dead, so it refuses without a pid or a time
+  ---
+  duration_ms: 1.727
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:210:3'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:101
+    refusalOf (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:118:5)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:19)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: a lock file that is carrying a pid that is not a positive integer cannot prove its holder dead, so it refuses without a pid or a time
+not ok 21 - lock: a lock file that is carrying a pid that is not a positive integer cannot prove its holder dead, so it refuses without a pid or a time
+  ---
+  duration_ms: 1.7229
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:210:3'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:101
+    refusalOf (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:118:5)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:19)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: lock: a lock file that is missing its creation time cannot prove its holder dead, so it refuses without a pid or a time
+not ok 22 - lock: a lock file that is missing its creation time cannot prove its holder dead, so it refuses without a pid or a time
+  ---
+  duration_ms: 1.4398
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:210:3'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: acquireLock'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.acquireLock (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:101
+    refusalOf (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:118:5)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:214:19)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: a verified rollback exits 1 with the exact claim
+not ok 23 - render: a verified rollback exits 1 with the exact claim
+  ---
+  duration_ms: 0.2818
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:252:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    render (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:246:30)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:253:31)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: top-level names that came or went are reported, left untouched, and exit 3
+not ok 24 - render: top-level names that came or went are reported, left untouched, and exit 3
+  ---
+  duration_ms: 0.1056
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:258:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    render (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:246:30)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:259:31)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: every rollback outcome names what was quarantined and where the full list is
+not ok 25 - render: every rollback outcome names what was quarantined and where the full list is
+  ---
+  duration_ms: 0.2154
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:265:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    render (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:246:30)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:271:22)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: an incomplete rollback exits 4, lists each entry with its reason, names the retired path, gives one instruction
+not ok 26 - render: an incomplete rollback exits 4, lists each entry with its reason, names the retired path, gives one instruction
+  ---
+  duration_ms: 0.1095
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:278:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    render (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:246:30)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:279:37)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: a verified recovery exits 5 whatever the top-level names did, and asks for a re-run
+not ok 27 - render: a verified recovery exits 5 whatever the top-level names did, and asks for a re-run
+  ---
+  duration_ms: 0.1119
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:291:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    render (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:246:30)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:293:39)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: a recovery whose rollback is incomplete exits 4, not 5
+not ok 28 - render: a recovery whose rollback is incomplete exits 4, not 5
+  ---
+  duration_ms: 0.0737
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:302:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    render (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:246:30)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:303:30)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: a refusal exits 6 and argument misuse exits 2, each with only its message
+not ok 29 - render: a refusal exits 6 and argument misuse exits 2, each with only its message
+  ---
+  duration_ms: 0.078
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:308:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:309:30)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: the child exit code or signal is printed and never becomes the exit code
+not ok 30 - render: the child exit code or signal is printed and never becomes the exit code
+  ---
+  duration_ms: 0.1341
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:315:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    render (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:246:30)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:321:32)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: a committed install exits 0, and still exits 0 with a warning when snapshot/ could not be deleted
+not ok 31 - render: a committed install exits 0, and still exits 0 with a warning when snapshot/ could not be deleted
+  ---
+  duration_ms: 0.0899
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:327:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:328:30)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+# Subtest: render: the notice about a retired transaction is repeated in every outcome until the owner deletes it
+not ok 32 - render: the notice about a retired transaction is repeated in every outcome until the owner deletes it
+  ---
+  duration_ms: 0.1334
+  type: 'test'
+  location: 'C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\tests\\coverage\\install-transaction.test.cjs:334:1'
+  failureType: 'testCodeFailure'
+  error: 'not implemented: renderOutcome'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    Object.renderOutcome (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\bin\lib\install-transaction.js:37:11)
+    render (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:246:30)
+    TestContext.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\coverage\install-transaction.test.cjs:338:22)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 10
+# fail 22
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 159.4892
+------------------------|---------|----------|---------|---------|-------------------
+File                    | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+------------------------|---------|----------|---------|---------|-------------------
+[32;1mAll files              [0m | [32;1m    100[0m | [32;1m     100[0m | [32;1m    100[0m | [32;1m    100[0m | [33;1m                 [0m 
+[32;1m install-names.js      [0m | [32;1m    100[0m | [32;1m     100[0m | [32;1m    100[0m | [32;1m    100[0m | [33;1m                 [0m 
+[32;1m install-transaction.js[0m | [32;1m    100[0m | [32;1m     100[0m | [32;1m    100[0m | [32;1m    100[0m | [33;1m                 [0m 
+------------------------|---------|----------|---------|---------|-------------------

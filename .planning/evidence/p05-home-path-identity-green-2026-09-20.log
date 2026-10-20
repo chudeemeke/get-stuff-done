@@ -1,0 +1,13 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "Windows home-state paths|home maps|runtime changes"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: installer recovery > Windows home-state paths reject illegal characters and reserved device names [94.00ms]
+(pass) expect-red: installer recovery > home maps reject incomplete, malformed, aliased and falsely preserved evidence [281.00ms]
+(pass) expect-red: installer recovery > runtime changes are Windows-only; preserved arbitrary owner files and links remain valid [31.00ms]
+
+ 3 pass
+ 76 filtered out
+ 0 fail
+ 90 expect() calls
+Ran 3 tests across 1 file. [584.00ms]

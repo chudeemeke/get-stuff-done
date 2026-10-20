@@ -1,0 +1,4 @@
+markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)
+Finding: docs/reviews/opengsd-value-comparison-2026-09-19.md docs/plans/features/installer-transaction-codex-brief.md .planning/CONTINUE.md !node_modules/** !dist/** !.upstream/** !overlay/get-shit-done/**
+Linting: 3 files
+Summary: 0 issues in 0 files

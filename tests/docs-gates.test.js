@@ -93,3 +93,52 @@ describe('Phase 42 docs gate package contract', () => {
     expect(workflow).toContain('decorative-link-availability-${{ github.run_id }}');
   });
 });
+
+// A captured record (a review packet, a transcript) is not a document the project
+// maintains: its bytes are bound by a receipt and cannot be restyled. It is exempt from
+// the style lint by identity, never by location, so the gate keeps its full scope.
+describe('docs lint: registered captures', () => {
+  const { createHash } = require('crypto');
+  const lintDocs = require('../scripts/lint-docs.js');
+  const digestOf = name => createHash('sha256').update(fs.readFileSync(path.join(PROJECT_ROOT, name))).digest('hex');
+  const A = 'a'.repeat(64);
+  const B = 'b'.repeat(64);
+
+  test('a registered capture with its registered bytes is not linted; everything else is', () => {
+    const result = lintDocs.partitionCaptures(['kept.md', 'capture.md'], { 'capture.md': A }, () => A);
+    expect(result).toEqual({ targets: ['kept.md'], problems: [] });
+  });
+
+  test('a registered capture whose bytes changed fails the gate instead of being skipped', () => {
+    const result = lintDocs.partitionCaptures(['capture.md'], { 'capture.md': A }, () => B);
+    expect(result.targets).toEqual([]);
+    expect(result.problems).toEqual(['registered capture changed: capture.md']);
+  });
+
+  test('a registered capture that is not a tracked markdown file fails the gate', () => {
+    const result = lintDocs.partitionCaptures(['kept.md'], { 'gone.md': A }, () => A);
+    expect(result.targets).toEqual(['kept.md']);
+    expect(result.problems).toEqual(['registered capture is not a tracked markdown file: gone.md']);
+  });
+
+  test('a registry that is not a map of path to SHA-256 is refused', () => {
+    for (const registry of [null, [], { captures: [] }, { captures: { 'x.md': 'short' } }, { captures: { 'x.md': 7 } },
+      { captures: { 'x.md': A }, extra: true }]) {
+      expect(() => lintDocs.parseCaptures(JSON.stringify(registry))).toThrow();
+    }
+    expect(lintDocs.parseCaptures(JSON.stringify({ captures: { 'x.md': A } }))).toEqual({ 'x.md': A });
+  });
+
+  test('the committed registry holds only evidence captures, each tracked and byte-identical', () => {
+    const captures = lintDocs.parseCaptures(readText(lintDocs.CAPTURES_FILE));
+    const names = Object.keys(captures);
+    expect(names.length).toBeGreaterThan(0);
+    for (const name of names) expect(name.startsWith('.planning/evidence/')).toBe(true);
+    const result = lintDocs.partitionCaptures(lintDocs.runGitLsFiles(), captures, digestOf);
+    expect(result.problems).toEqual([]);
+  });
+
+  test('evidence is stored byte-exact, so a registered digest holds on every platform', () => {
+    expect(readText(path.join(PROJECT_ROOT, '.gitattributes'))).toContain('.planning/evidence/** -text');
+  });
+});

@@ -1,0 +1,27 @@
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\scripts\expect-red.cjs
+  170:49  warning  Generic Object Injection Sink               security/detect-object-injection
+  213:22  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  214:75  warning  Generic Object Injection Sink               security/detect-object-injection
+  268:9   warning  Generic Object Injection Sink               security/detect-object-injection
+  275:37  warning  Generic Object Injection Sink               security/detect-object-injection
+  297:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  298:10  warning  Unsafe Regular Expression                   security/detect-unsafe-regex
+  343:21  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  354:62  warning  Generic Object Injection Sink               security/detect-object-injection
+  354:62  warning  Generic Object Injection Sink               security/detect-object-injection
+  355:13  warning  Generic Object Injection Sink               security/detect-object-injection
+  355:13  warning  Generic Object Injection Sink               security/detect-object-injection
+  388:74  warning  Generic Object Injection Sink               security/detect-object-injection
+  389:9   warning  Generic Object Injection Sink               security/detect-object-injection
+  389:89  warning  Generic Object Injection Sink               security/detect-object-injection
+  391:43  warning  Generic Object Injection Sink               security/detect-object-injection
+  454:51  warning  Generic Object Injection Sink               security/detect-object-injection
+  474:78  warning  Generic Object Injection Sink               security/detect-object-injection
+  500:7   warning  Generic Object Injection Sink               security/detect-object-injection
+
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\tests\acceptance\installer-recovery.cjs
+  29:14  warning  Found non-literal argument to RegExp Constructor  security/detect-non-literal-regexp
+
+✖ 20 problems (0 errors, 20 warnings)
+Explicit CJS security lint: 2 files; 0 errors; 20 warnings.

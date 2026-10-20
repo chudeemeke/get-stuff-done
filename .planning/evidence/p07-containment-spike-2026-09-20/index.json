@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "candidate": "windows-relative-handles-v1",
+  "correctionCount": 1,
+  "preparationCorrection": {
+    "reason": "One pre-execution source-review correction batch; conservatively consumes total allowance",
+    "reviewReceipt": "source-review.md",
+    "verification": "source-correction.md: Opus5 PASS, source hashes verified; advisories deferred, approved deadlines unchanged",
+    "furtherCorrectionsAuthorized": false
+  },
+  "stopped": false,
+  "cases": {
+    "parent-swap": {
+      "status": "mechanism-observed-in-fixture",
+      "receipt": "96bd71aa-e788-4600-b1cb-86d12c10c059-parent-swap.json",
+      "reason": "see claim/control records"
+    },
+    "leaf-swap": {
+      "status": "mechanism-observed-in-fixture",
+      "receipt": "5bb7f563-fa48-4ad7-8265-b320dee1f70e-leaf-swap.json",
+      "reason": "see claim/control records"
+    },
+    "moved-directory": {
+      "status": "mechanism-observed-in-fixture",
+      "receipt": "dabc7833-5535-40c3-b09d-3a1ccc4fc05b-moved-directory.json",
+      "reason": "see claim/control records"
+    }
+  },
+  "runs": [
+    {
+      "runId": "96bd71aa-e788-4600-b1cb-86d12c10c059",
+      "caseId": "parent-swap",
+      "receipt": "96bd71aa-e788-4600-b1cb-86d12c10c059-parent-swap.json",
+      "supersedes": null
+    },
+    {
+      "runId": "5bb7f563-fa48-4ad7-8265-b320dee1f70e",
+      "caseId": "leaf-swap",
+      "receipt": "5bb7f563-fa48-4ad7-8265-b320dee1f70e-leaf-swap.json",
+      "supersedes": null
+    },
+    {
+      "runId": "dabc7833-5535-40c3-b09d-3a1ccc4fc05b",
+      "caseId": "moved-directory",
+      "receipt": "dabc7833-5535-40c3-b09d-3a1ccc4fc05b-moved-directory.json",
+      "supersedes": null
+    }
+  ],
+  "stopReason": null
+}

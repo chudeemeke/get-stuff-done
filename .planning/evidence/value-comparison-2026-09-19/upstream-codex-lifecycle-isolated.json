@@ -1,0 +1,99 @@
+{
+  "candidate": "upstream",
+  "runtime": "codex",
+  "mode": "lifecycle",
+  "installer": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\package\\bin\\install.js",
+  "installerSha256": "0acbd01933783537f934b33b6cc9132ff8e11ae37f0fa88ff63bc402aa0ae861",
+  "platform": "win32",
+  "node": "v24.20.0",
+  "scratch": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\upstream-codex-lifecycle-isolated",
+  "checks": [
+    {
+      "id": "install:exit-zero",
+      "ok": true
+    },
+    {
+      "id": "install:preserve:owner.txt",
+      "ok": true
+    },
+    {
+      "id": "install:preserve:scripts/lib/owner-helper.cjs",
+      "ok": true
+    },
+    {
+      "id": "install:preserve:scripts/changeset/owner-check.cjs",
+      "ok": true
+    },
+    {
+      "id": "install:preserve:config.toml",
+      "ok": true
+    },
+    {
+      "id": "install:installed-tool",
+      "ok": true
+    },
+    {
+      "id": "install:does-not-claim-owner-scripts",
+      "ok": false
+    },
+    {
+      "id": "reinstall:exit-zero",
+      "ok": true
+    },
+    {
+      "id": "reinstall:preserve:owner.txt",
+      "ok": true
+    },
+    {
+      "id": "reinstall:preserve:scripts/lib/owner-helper.cjs",
+      "ok": true
+    },
+    {
+      "id": "reinstall:preserve:scripts/changeset/owner-check.cjs",
+      "ok": true
+    },
+    {
+      "id": "reinstall:preserve:config.toml",
+      "ok": true
+    },
+    {
+      "id": "reinstall:installed-tool",
+      "ok": true
+    },
+    {
+      "id": "reinstall:does-not-claim-owner-scripts",
+      "ok": false
+    },
+    {
+      "id": "uninstall:exit-zero",
+      "ok": true
+    },
+    {
+      "id": "uninstall:preserve:owner.txt",
+      "ok": true
+    },
+    {
+      "id": "uninstall:preserve:scripts/lib/owner-helper.cjs",
+      "ok": true
+    },
+    {
+      "id": "uninstall:preserve:scripts/changeset/owner-check.cjs",
+      "ok": true
+    },
+    {
+      "id": "uninstall:preserve:config.toml",
+      "ok": true
+    },
+    {
+      "id": "write-guard-loaded",
+      "ok": true
+    },
+    {
+      "id": "no-blocked-external-write",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "passed": 19,
+  "failed": 2
+}

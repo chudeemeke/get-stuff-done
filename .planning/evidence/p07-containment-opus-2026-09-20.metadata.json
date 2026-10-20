@@ -1,0 +1,17 @@
+{
+  "startedAt": "2026-09-20T01:16:34.2030586Z",
+  "requestedModel": "opus",
+  "requestedEffort": "xhigh",
+  "cliVersion": "2.1.278",
+  "packetSha256": "c4f55b532097903e708765174c6abef5ca36d9fd6d8948fca5e50377a4ffc5c9",
+  "planSha256": "c3eb73de2a728b6d6025e5d1236d497f16ce6fc560276a38528dcb7b62f0f614",
+  "status": "PASS for experiment approval readiness; three text preregistration corrections required, no further review requested",
+  "resolvedModel": "claude-opus-5",
+  "reviewerSession": "c99b25ee-82ad-4c0d-916c-863b64797b28",
+  "toolCount": 0,
+  "resultSubtype": "success",
+  "sourceStable": true,
+  "effortEvidence": "Requested --effort xhigh; init does not echo effort",
+  "finalPlanSha256": "8fe92493fd0acc280591c30ef11bfe46a31fe53ef0f4b7f7c49ef76c0e7a1819",
+  "finalDisposition": "All three required text-only corrections applied; selected non-scope-expanding optional clarifications applied. Reviewer explicitly requested no additional review for required corrections. Await owner scope approval."
+}

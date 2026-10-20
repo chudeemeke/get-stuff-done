@@ -1,0 +1,31 @@
+{
+  "packetSha256": "36436e523edef4ea99d2650f20f5a228d708357b3031d1430802ed8dd6d938ef",
+  "scope": "packet-only, no tools, no disk or execution verification",
+  "requestedModel": "opus",
+  "cliVersion": "2.1.278",
+  "sourceIdentities": [
+    {
+      "path": "scripts/expect-red.cjs",
+      "sha256": "a951904a007d52079be1ae7ca47c2e2cfa6ed76950c97bb091646f911ed55b81"
+    },
+    {
+      "path": "tests/expect-red.test.js",
+      "sha256": "ef6a215990c5a610af6139a6e6e3d077ad72d076895aeb51aaf39309187d1897"
+    },
+    {
+      "path": "tests/acceptance/installer-recovery.cjs",
+      "sha256": "87047200ee914ebab1c67d72fafed3a9356d8b64878c6f4d0ec0616587da6ee4"
+    }
+  ],
+  "requestedEffort": "xhigh",
+  "startedAt": "2026-09-19T22:18:04.8884224Z",
+  "packet": ".planning/evidence/p05-validator-opus-xhigh-retry-2026-09-19-packet.md",
+  "status": "completed-awaiting-disposition",
+  "execSession": 95419,
+  "resolvedModel": "claude-opus-5",
+  "reviewerSession": "7478df97-c038-495f-882c-fa3652dcad26",
+  "effortEvidence": "CLI requested --effort xhigh; initialization does not echo effort.",
+  "exitCode": 0,
+  "resultSubtype": "success",
+  "completedAt": "2026-09-19T22:29:22.5780055Z"
+}

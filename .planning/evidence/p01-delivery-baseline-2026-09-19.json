@@ -1,0 +1,176 @@
+{
+  "capturedAt": "2026-09-19T19:45:56.3962453Z",
+  "cwd": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign",
+  "head": "e50bda5b9dc6c538bd33f1736fe59fcc957f78a7",
+  "branch": "chore/upstream-bump-1.9.1",
+  "localTrackingComparison": "0\t10",
+  "prs": [
+    {
+      "baseRefName": "main",
+      "headRefName": "worktree-gsd-doctor",
+      "headRefOid": "17278b2a9b28e58f561fcbdf02c96a20cb5415c8",
+      "isDraft": false,
+      "mergedAt": null,
+      "number": 4,
+      "state": "OPEN",
+      "title": "feat(scripts): gsd-doctor — diagnose and repair stale hook config in settings.json",
+      "url": "https://github.com/chudeemeke/get-stuff-done/pull/4"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "chore/upstream-bump-1.9.1",
+      "headRefOid": "897116f96adf8cd8cf47f6e69b7663f16590457f",
+      "isDraft": true,
+      "mergedAt": null,
+      "number": 69,
+      "state": "OPEN",
+      "title": "chore(upstream): advance vetted engine to Open GSD 1.9.1",
+      "url": "https://github.com/chudeemeke/get-stuff-done/pull/69"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "feat/research-digest",
+      "headRefOid": "573d9f91f291c0569d2c351e7d89e165dbd659c6",
+      "isDraft": true,
+      "mergedAt": null,
+      "number": 70,
+      "state": "OPEN",
+      "title": "feat: add bounded research digests for planner inputs",
+      "url": "https://github.com/chudeemeke/get-stuff-done/pull/70"
+    }
+  ],
+  "ciRun": {
+    "conclusion": "failure",
+    "createdAt": "2026-09-19T07:47:32Z",
+    "databaseId": 35430281217,
+    "headSha": "897116f96adf8cd8cf47f6e69b7663f16590457f",
+    "status": "completed",
+    "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217"
+  },
+  "ciJobs": [
+    {
+      "name": "Docs Gates",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490637"
+    },
+    {
+      "name": "Secret Scan",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490639"
+    },
+    {
+      "name": "Workflow Lint",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490643"
+    },
+    {
+      "name": "Audit CI (blocking HIGH/CRITICAL)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490644"
+    },
+    {
+      "name": "Test (ubuntu-latest)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490653"
+    },
+    {
+      "name": "OSV Scanner",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490664"
+    },
+    {
+      "name": "Override Staleness Check (blocking)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490669"
+    },
+    {
+      "name": "Perf Budget (linux)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490686"
+    },
+    {
+      "name": "Test (windows-latest)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490689"
+    },
+    {
+      "name": "Test (macos-15)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490691"
+    },
+    {
+      "name": "Boundary Check (informational)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490704"
+    },
+    {
+      "name": "Upstream Compat (ubuntu-latest)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490709"
+    },
+    {
+      "name": "Perf Budget (macos)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490712"
+    },
+    {
+      "name": "Upstream Compat (windows-latest)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490735"
+    },
+    {
+      "name": "Upstream Compat (macos-15)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490736"
+    },
+    {
+      "name": "Perf Budget (windows)",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490737"
+    },
+    {
+      "name": "Lint",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490760"
+    },
+    {
+      "name": "Source Parity Check",
+      "conclusion": "failure",
+      "stepCount": 0,
+      "url": "https://github.com/chudeemeke/get-stuff-done/actions/runs/35430281217/job/105863490788"
+    }
+  ],
+  "dirty": [
+    " M .planning/CONTINUE.md",
+    " M .planning/HANDOFF.json",
+    " M docs/plans/features/installer-transaction-codex-brief.md",
+    " M docs/reviews/installer-rollback-design-review-2026-09-18.md",
+    " M docs/reviews/installer-rollback-redesign-2026-09-18.md",
+    "?? .planning/evidence/codex-lock-seam-review-2026-09-19.final.md",
+    "?? .planning/evidence/codex-lock-seam-review-2026-09-19.heartbeat",
+    "?? .planning/evidence/codex-lock-seam-review-2026-09-19.log",
+    "?? .planning/evidence/pr69-all-preflight-green-2026-09-14.log",
+    "?? .planning/evidence/pr69-rollback-astra-2026-09-14.log",
+    "?? .planning/evidence/pr69-rollback-fable-2026-09-14.log",
+    "?? .planning/evidence/value-comparison-2026-09-19/",
+    "?? docs/plans/features/skin-completion-execution-2026-09-19.md",
+    "?? docs/reviews/opengsd-value-comparison-2026-09-19.md"
+  ]
+}

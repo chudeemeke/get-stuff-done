@@ -1,0 +1,79 @@
+▶ expect-red: installer recovery
+  ✔ supplied malformed termination markers are never treated as absent (4.0125ms)
+  ✔ host-specific identity rules and contradictory pass details are checked (37.4041ms)
+  ✔ recovery evidence must match the explicitly supplied source bytes and host (103.4412ms)
+  ✔ independent context must contain unambiguous relative paths and real residue (45.8963ms)
+  ✔ malformed, interrupted and cleanup-failed reports return diagnostics instead of acceptance or exceptions (64.1784ms)
+  ✔ known failure labels cannot conceal missing, contradictory or additional observations (583.6823ms)
+  ✔ only the complete reviewed inventory is accepted, without duplicates or extra failures (496.2605ms)
+  ✔ the captured red from the unfixed installer is the known red (5.2247ms)
+  ✔ an additional owner-byte loss cannot hide behind the expected recovery failures (5.5808ms)
+  ✔ an unexpected pass fails and says how to retire the wrapper (2.4661ms)
+  ✔ a red with harness check twin:child-failed-at-injection failing is the wrong red (4.5252ms)
+  ✔ a red with harness check twin:residue-non-empty failing is the wrong red (4.3637ms)
+  ✔ a red with harness check fresh:wrapper-child-failed-at-injection failing is the wrong red (5.46ms)
+  ✔ a red with harness check upgrade:first-install-succeeded failing is the wrong red (4.6806ms)
+  ✔ a red with harness check upgrade:picked-files-installed failing is the wrong red (4.714ms)
+  ✔ a red with harness check upgrade:wrapper-child-failed-at-injection failing is the wrong red (5.4585ms)
+  ✔ a red with harness check upgrade:child-rewrote-picked-files failing is the wrong red (4.8152ms)
+  ✔ a red that never ran harness check twin:child-failed-at-injection is the wrong red (4.9732ms)
+  ✔ a red that never ran harness check twin:residue-non-empty is the wrong red (6.1377ms)
+  ✔ a red that never ran harness check fresh:wrapper-child-failed-at-injection is the wrong red (5.152ms)
+  ✔ a red that never ran harness check upgrade:first-install-succeeded is the wrong red (4.5448ms)
+  ✔ a red that never ran harness check upgrade:picked-files-installed is the wrong red (6.1139ms)
+  ✔ a red that never ran harness check upgrade:wrapper-child-failed-at-injection is the wrong red (6.5378ms)
+  ✔ a red that never ran harness check upgrade:child-rewrote-picked-files is the wrong red (4.8246ms)
+  ✔ a red in which fresh:outcome-exact passes is not the known red (5.6491ms)
+  ✔ a red in which fresh:top-level-exact-allowlist passes is not the known red (4.7475ms)
+  ✔ a red in which fresh:transaction-directory-shape passes is not the known red (4.4178ms)
+  ✔ a red in which upgrade:outcome-exact passes is not the known red (4.5044ms)
+  ✔ a red in which upgrade:transaction-directory-shape passes is not the known red (5.3095ms)
+  ✔ a missing compose is the wrong red (0.6157ms)
+  ✔ a crash with no report and an unexpected exit status are both refused (4.0652ms)
+✔ expect-red: installer recovery (1456.0304ms)
+▶ expect-red: install transaction coverage
+  ✔ supplied malformed termination markers are never treated as absent (1.8841ms)
+  ✔ affirmative coverage requires both exact files, every metric and consistent aggregate counts (50.5214ms)
+  ✔ coverage refuses malformed or interrupted runs and TAP tokens disguised as table rows (2.8174ms)
+  ✔ coverage aliases, malformed tables and truncated TAP are rejected (7.3245ms)
+  ✔ a normalized alias cannot replace the exact covered source identity (1.4212ms)
+  ✔ decision controls detect independently weakened recovery and coverage guards (143.3664ms)
+  ✔ the reviewed 51-case render-only red is the known red (1.4529ms)
+  ✔ old skeleton evidence and any incomplete or changed case inventory are refused (91.5639ms)
+  ✔ TAP framing, terminal counts and bounded render failure diagnostics are mandatory (14.0258ms)
+  ✔ only the actual error field can establish the permitted render failure (1.1524ms)
+  ✔ a case failing for any reason other than an unbuilt operation is the wrong red (1.3482ms)
+  ✔ a coverage shortfall on landed code is the wrong red, on either stream (2.377ms)
+  ✔ nothing failing, a crash with no summary, and a miscounted summary are all refused (4.7284ms)
+✔ expect-red: install transaction coverage (325.6618ms)
+▶ expect-red: command line
+  ✔ the actual Node CLI validates the live coverage gate through private c8 capture (36044.9464ms)
+  ✔ coverage ignore directives in either watched module refuse before execution (19.7366ms)
+  ✔ capture bounds execution and isolates inherited test and coverage configuration (20.3733ms)
+  ✔ inherited Node test-runner options refuse before child execution (1.2513ms)
+  ✔ capture faults cannot pass or silently discard uncertain evidence (251.3473ms)
+  ✔ cleanup never removes a scratch path outside its exact ownership convention (22.9339ms)
+  ✔ coverage capture uses a new private report and V8 directory on every invocation (58.0208ms)
+  ✔ source or validator changes during capture invalidate the report (88.5602ms)
+  ✔ the package command is parsed from the same bytes as its evidence digest (7.6787ms)
+  ✔ the runner prints source identities and runtime provenance with its verdict (20.3727ms)
+  ✔ c8 executes the same explicit Node runtime that captured the evidence (21.6846ms)
+  ✔ the production gate refuses Bun before spawning a child (1.6011ms)
+  ✔ the gate command is read from package.json, not copied (3.5712ms)
+  ✔ package commands cannot weaken coverage or redirect the reviewed gate (5.2963ms)
+  ✔ exits 0 on the known red, 1 on anything else, 2 on misuse (38.1823ms)
+✔ expect-red: command line (36607.9164ms)
+ℹ tests 59
+ℹ suites 3
+ℹ pass 59
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39381.4745
+----------------|---------|----------|---------|---------|-------------------
+File            | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+----------------|---------|----------|---------|---------|-------------------
+All files       |     100 |      100 |     100 |     100 |                   
+ expect-red.cjs |     100 |      100 |     100 |     100 |                   
+----------------|---------|----------|---------|---------|-------------------

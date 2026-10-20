@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-09-20T01:07:11.6155968Z",
+  "requestedModel": "opus",
+  "requestedEffort": "xhigh",
+  "cliVersion": "2.1.278",
+  "packetSha256": "43f3f7a0fdde4769e67ba936ff7823171529a1e264e518c57b49703ad5d8e687",
+  "planSha256": "3bf95e087d1814b0b4f953f5e92eac243f84580bfa0245a3b254756bdb58d52e",
+  "scope": "Section21 bounded qualification proposal; not production approval",
+  "status": "PASS WITH CHANGES; proposal must be narrowed before owner approval",
+  "resolvedModel": "claude-opus-5",
+  "reviewerSession": "9d124829-3290-4276-af0d-3f1fd78209a2",
+  "toolCount": 0,
+  "resultSubtype": "success",
+  "sourceStable": true,
+  "effortEvidence": "Requested --effort xhigh; init does not echo effort"
+}

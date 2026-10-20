@@ -1,0 +1,11 @@
+$ node scripts/run-bun-tests.js tests/expect-red.test.js --test-name-pattern "cleanup failure still emits"
+bun test v1.3.5 (1e86cebd)
+
+tests\expect-red.test.js:
+(pass) expect-red: recovery observation contract > cleanup failure still emits a rejected report and names its retained fixture [265.00ms]
+
+ 1 pass
+ 62 filtered out
+ 0 fail
+ 14 expect() calls
+Ran 1 test across 1 file. [1367.00ms]

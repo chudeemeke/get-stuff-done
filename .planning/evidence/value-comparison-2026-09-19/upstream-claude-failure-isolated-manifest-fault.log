@@ -1,0 +1,52 @@
+
+[36m   ██████╗ ███████╗██████╗
+  ██╔════╝ ██╔════╝██╔══██╗
+  ██║  ███╗███████╗██║  ██║
+  ██║   ██║╚════██║██║  ██║
+  ╚██████╔╝███████║██████╔╝
+   ╚═════╝ ╚══════╝╚═════╝[0m
+
+  GSD Core [2mv1.14.0[0m
+  Git. Ship. Done.
+  A meta-prompting, context engineering and spec-driven
+  development workflows for Claude Code, OpenCode, Kimi CLI, Kilo, Codex, Copilot, Antigravity, Cursor, Windsurf, Augment, Trae, Qwen Code, Hermes Agent, Cline, CodeBuddy, ZCode and pi.
+
+  Installing for [36mClaude Code[0m to [36m~\.claude[0m
+
+  [32m✓[0m Installer migrations
+     preserved [2m1 user baseline file[0m — first-time baseline scan
+  [32m✓[0m Installed workflow assets
+  [32m✓[0m Installed 72 skills to skills/
+  [32m✓[0m Installed gsd-core/bin/shared/model-catalog.json
+  [32m✓[0m Installed gsd-core/bin/shared/config-defaults.manifest.json
+  [32m✓[0m Installed gsd-core/bin/shared/config-schema.manifest.json
+  [32m✓[0m Installed gsd-core/bin/shared/runtime-aliases.manifest.json
+  [2m↳[0m Agents installed via descriptor-driven layout (claude)
+  [32m✓[0m Wrote VERSION (1.14.0)
+  [32m✓[0m Wrote runtime marker (.gsd-runtime: claude)
+  [32m✓[0m Installed hooks (bundled)
+  [32m✓[0m Installed hooks/lib/ helpers (git-cmd, graphify-rebuild, ...)
+  [32m✓[0m Wrote hooks/package.json (CommonJS mode)
+  [32m✓[0m Installed scripts/changeset/ (changelog preview CLI)
+[legacy-cleanup] Removed 0 legacy artifact(s).
+
+STDERR
+C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\package\bin\install.js:14048
+    throw error;
+    ^
+
+Error: COMPARISON_MANIFEST_FAILURE
+    at fs.<computed> [as writeFileSync] (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\guard.cjs:27:21)
+    at writeManifest (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\package\bin\install.js:10067:6)
+    at install (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\package\bin\install.js:11993:3)
+    at installAllRuntimes (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\package\bin\install.js:14043:22)
+    at Object.<anonymous> (C:\Projects\get-stuff-done\.claude\worktrees\skin-campaign\.planning\evidence\value-comparison-2026-09-19\package\bin\install.js:14358:7)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19) {
+  code: 'ENOSPC'
+}
+
+Node.js v24.20.0

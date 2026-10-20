@@ -1,0 +1,8 @@
+--- a/eslint.config.js
++++ b/eslint.config.js
+@@
+-    files: ['**/*.js'],
++    files: ['**/*.js', 'scripts/expect-red.cjs', 'tests/acceptance/installer-recovery.cjs'],
+@@
+-    files: ['tests/**/*.js'],
++    files: ['tests/**/*.js', 'tests/acceptance/installer-recovery.cjs'],

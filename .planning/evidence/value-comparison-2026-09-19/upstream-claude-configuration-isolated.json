@@ -1,0 +1,52 @@
+{
+  "candidate": "upstream",
+  "runtime": "claude",
+  "mode": "configuration",
+  "installer": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.planning\\evidence\\value-comparison-2026-09-19\\package\\bin\\install.js",
+  "installerSha256": "0acbd01933783537f934b33b6cc9132ff8e11ae37f0fa88ff63bc402aa0ae861",
+  "platform": "win32",
+  "node": "v24.20.0",
+  "scratch": "C:\\Projects\\get-stuff-done\\.claude\\worktrees\\skin-campaign\\.claude\\value-comparison-2026-09-19\\upstream-claude-configuration-isolated",
+  "checks": [
+    {
+      "id": "install:exit-zero",
+      "ok": true
+    },
+    {
+      "id": "agent-skills:exit-zero",
+      "ok": true
+    },
+    {
+      "id": "native-planner-skill-routing",
+      "ok": true
+    },
+    {
+      "id": "effort-sync:exit-zero",
+      "ok": false
+    },
+    {
+      "id": "native-effort-sync-repairs-stale-agent",
+      "ok": false
+    },
+    {
+      "id": "effort-sync-noop:exit-zero",
+      "ok": false
+    },
+    {
+      "id": "effort-sync-idempotent",
+      "ok": false,
+      "detail": "Missing JSON"
+    },
+    {
+      "id": "write-guard-loaded",
+      "ok": true
+    },
+    {
+      "id": "no-blocked-external-write",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "passed": 5,
+  "failed": 4
+}

@@ -5,7 +5,7 @@ const path = require('path');
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const PACKAGE_JSON = path.join(PROJECT_ROOT, 'package.json');
 const LINT_DOCS = path.join(PROJECT_ROOT, 'scripts', 'lint-docs.js');
-const MARKDOWNLINT_CONFIG = path.join(PROJECT_ROOT, '.markdownlint-cli2.yaml');
+const MARKDOWNLINT_CONFIG = path.join(PROJECT_ROOT, '.markdownlint.json');
 const LYCHEE_CONFIG = path.join(PROJECT_ROOT, 'lychee.toml');
 const CI_WORKFLOW = path.join(PROJECT_ROOT, '.github', 'workflows', 'ci.yml');
 const AVAILABILITY_WORKFLOW = path.join(
@@ -20,13 +20,13 @@ function readText(filePath) {
 }
 
 describe('Phase 42 docs gate package contract', () => {
-  test('package exposes markdownlint-cli2 through lint:docs', () => {
+  test('package exposes markdownlint-cli through lint:docs', () => {
     const pkg = JSON.parse(readText(PACKAGE_JSON));
 
     expect(pkg.scripts['lint:docs']).toBe('node scripts/lint-docs.js');
     // Phase 42 contract: an exact pin (no range), so the docs gate is
     // reproducible. The specific version moves with security bumps.
-    expect(pkg.devDependencies['markdownlint-cli2']).toMatch(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/);
+    expect(pkg.devDependencies['markdownlint-cli']).toMatch(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/);
   });
 
   test('docs lint script uses tracked markdown targets with narrow generated exclusions', () => {

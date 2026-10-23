@@ -43,7 +43,7 @@ jobs:
       # Cross-run artifact download requires the read-only GitHub token.
       - name: Download OSV proposals
         if: ${{ inputs.proposal_type == 'osv' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: osv-issue-proposals-${{ inputs.source_run_id }}
           path: proposals
@@ -51,7 +51,7 @@ jobs:
           github-token: ${{ github.token }}
       - name: Download Windows flake proposals
         if: ${{ inputs.proposal_type == 'windows-flake' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: windows-flake-issue-proposals-${{ inputs.source_run_id }}
           path: proposals
@@ -59,7 +59,7 @@ jobs:
           github-token: ${{ github.token }}
       - name: Download stale flake proposals
         if: ${{ inputs.proposal_type == 'stale-flake' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: stale-flake-proposals-${{ inputs.source_run_id }}
           path: proposals
@@ -105,7 +105,7 @@ jobs:
       # Cross-run artifact download requires the read-only GitHub token.
       - name: Download OSV proposals
         if: ${{ inputs.proposal_type == 'osv' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: osv-issue-proposals-${{ inputs.source_run_id }}
           path: proposals
@@ -113,7 +113,7 @@ jobs:
           github-token: ${{ github.token }}
       - name: Download Windows flake proposals
         if: ${{ inputs.proposal_type == 'windows-flake' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: windows-flake-issue-proposals-${{ inputs.source_run_id }}
           path: proposals
@@ -121,7 +121,7 @@ jobs:
           github-token: ${{ github.token }}
       - name: Download stale flake proposals
         if: ${{ inputs.proposal_type == 'stale-flake' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: stale-flake-proposals-${{ inputs.source_run_id }}
           path: proposals

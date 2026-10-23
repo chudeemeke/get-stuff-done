@@ -243,7 +243,7 @@ Problems that look simple but have existing solutions:
 
 **Sources:**
 - [VS Code terminal ANSI blink not supported](https://github.com/microsoft/vscode/issues/173011)
-- [Terminal ANSI blink compatibility](https://misc.flogisoft.com/bash/tip_colors_and_formatting)
+- [Terminal ANSI blink compatibility (SGR 5/6)](https://en.wikipedia.org/wiki/ANSI_escape_code#Select_Graphic_Rendition_parameters) (replaces a misc.flogisoft.com reference whose host stopped completing TLS on 2026-10-22)
 
 ### Pitfall 2: Unicode Icons Break in Windows Console Host
 

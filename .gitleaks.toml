@@ -9,25 +9,22 @@
 [extend]
 useDefault = true
 
-# Every allowlist entry below has a local fixture rationale. If a future finding
-# needs suppression, prefer moving the fake value into tests/fixtures/<scope>/
-# and allowlisting that exact fixture path.
-
-[[allowlists]]
-description = "Historical upstream fake-secret scanner tests; issue: Phase 41 D-07 allowlist audit"
-# reason: inherited full-history test fixtures intentionally contained scanner
-# bait strings to prove prompt-injection and secret-detection behavior.
+# The workflow-pinned Gitleaks 8.24.3 supports one legacy global [allowlist].
+# Gitleaks 8.25.0 introduced the repeatable [[allowlists]] form. Keep the
+# exemptions consolidated here until the action upgrades to 8.25.0 or newer.
+#
+# Every path below is an exact fake-secret fixture or historical scanner example.
+# If a future finding needs suppression, prefer moving the fake value into
+# tests/fixtures/<scope>/ and allowlisting that exact fixture path.
+[allowlist]
+description = "Historical upstream fake-secret fixtures; issue: Phase 41 D-07 allowlist audit"
+# reason: inherited full-history test fixtures intentionally contain scanner bait
+# strings and API-shaped path segments to prove security and scaffold behavior.
 paths = [
   '''^tests/security-scan\.test\.(cjs|js|ts)$''',
   '''^tests/prompt-injection-scan\.test\.(cjs|js|ts)$''',
-]
-
-[[allowlists]]
-description = "Historical upstream fake-secret example allowlist files; issue: Phase 41 D-07 allowlist audit"
-# reason: inherited full-history scanner example files documented fake
-# secret-like patterns. These exact root filenames are retained for full-history
-# scans only; this is not a repository-root wildcard.
-paths = [
+  '''^tests/commands\.test\.cjs$''',
+  '''^get-shit-done/bin/gsd-tools\.test\.js$''',
   '''^\.secretscanignore$''',
   '''^\.base64scanignore$''',
 ]

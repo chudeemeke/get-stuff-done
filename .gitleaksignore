@@ -9,3 +9,11 @@
 5a7019849fb38bd753718db4ee5e089e205581d2:tests/commands.test.cjs:generic-api-key:595
 dccfba8398aa5b2cfd4bd9acb0d86cbe64dd1fe2:tests/commands.test.cjs:generic-api-key:595
 fa2e15688706ee66050504a3092033a40f1d539f:tests/commands.test.cjs:generic-api-key:595
+
+# get-shit-done/bin/gsd-tools.test.js:2003 generic-api-key -- same false positive
+# (fixture phase-directory path segment for the "03" API phase, not a credential).
+# Only in historical upstream commits reachable from release tags (v1.16.0+), not
+# on main; listed so full-history scans across all refs stay clean without
+# exempting the whole file.
+14c84ff0ad23802decfc768b3a4ed9fc8816c5d6:get-shit-done/bin/gsd-tools.test.js:generic-api-key:2003
+36f5bb3d5f859406b7007f7ff54c9a95c267bbb9:get-shit-done/bin/gsd-tools.test.js:generic-api-key:2003

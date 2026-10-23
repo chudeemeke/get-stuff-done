@@ -43,15 +43,17 @@ function runGitLsFiles() {
 }
 
 function resolveMarkdownlintCli() {
-  const cliPath = path.join(PROJECT_ROOT, 'node_modules', 'markdownlint-cli2', 'markdownlint-cli2-bin.mjs');
+  const cliPath = path.join(PROJECT_ROOT, 'node_modules', 'markdownlint-cli', 'markdownlint.js');
   if (!fs.existsSync(cliPath)) {
-    throw new Error('markdownlint-cli2 is not installed; run bun install --frozen-lockfile --ignore-scripts');
+    throw new Error('markdownlint-cli is not installed; run bun install --frozen-lockfile --ignore-scripts');
   }
   return cliPath;
 }
 
+// markdownlint-cli takes existing file paths literally (it only globs a
+// pattern that is not an existing file), so tracked paths pass through as-is.
 function toLiteralMarkdownlintPath(filePath) {
-  return `:${filePath}`;
+  return filePath;
 }
 
 function createBatches(files) {
@@ -88,7 +90,9 @@ function runMarkdownlint(files) {
     const result = spawnSync(process.execPath, [
       cliPath,
       '--config',
-      '.markdownlint-cli2.yaml',
+      '.markdownlint.json',
+      '--ignore-path',
+      '.markdownlintignore',
       ...batch,
     ], {
       cwd: PROJECT_ROOT,

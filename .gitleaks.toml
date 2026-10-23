@@ -9,9 +9,12 @@
 [extend]
 useDefault = true
 
-# The workflow-pinned Gitleaks 8.24.3 supports one legacy global [allowlist].
-# Gitleaks 8.25.0 introduced the repeatable [[allowlists]] form. Keep the
-# exemptions consolidated here until the action upgrades to 8.25.0 or newer.
+# CI pins the Gitleaks CLI via GITLEAKS_VERSION in .github/workflows/ci.yml.
+# This single legacy [allowlist] table remains valid on current 8.x releases.
+#
+# Single historical false positives (e.g. path segments such as '03-api' that
+# match generic-api-key) are suppressed by exact fingerprint in .gitleaksignore,
+# not by allowlisting whole active test files.
 #
 # Every path below is an exact fake-secret fixture or historical scanner example.
 # If a future finding needs suppression, prefer moving the fake value into
@@ -23,7 +26,6 @@ description = "Historical upstream fake-secret fixtures; issue: Phase 41 D-07 al
 paths = [
   '''^tests/security-scan\.test\.(cjs|js|ts)$''',
   '''^tests/prompt-injection-scan\.test\.(cjs|js|ts)$''',
-  '''^tests/commands\.test\.cjs$''',
   '''^get-shit-done/bin/gsd-tools\.test\.js$''',
   '''^\.secretscanignore$''',
   '''^\.base64scanignore$''',

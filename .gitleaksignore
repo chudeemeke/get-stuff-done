@@ -1,0 +1,10 @@
+# Exact Gitleaks fingerprints (commit:path:rule:line) for reviewed false positives.
+# Derived from a real full-history run: gitleaks 8.30.1 `gitleaks git .` with .gitleaks.toml.
+#
+# tests/commands.test.cjs:595 generic-api-key -- fixture path segment
+# path.join(tmpDir, '.planning', 'phases', '03-api', '03-VERIFICATION.md'); not a credential.
+# Same line in the original commit and its cherry-picks/rewrites on other branches.
+529df75194785fc609dc1510ecbd38782b510c4b:tests/commands.test.cjs:generic-api-key:595
+5a7019849fb38bd753718db4ee5e089e205581d2:tests/commands.test.cjs:generic-api-key:595
+dccfba8398aa5b2cfd4bd9acb0d86cbe64dd1fe2:tests/commands.test.cjs:generic-api-key:595
+fa2e15688706ee66050504a3092033a40f1d539f:tests/commands.test.cjs:generic-api-key:595

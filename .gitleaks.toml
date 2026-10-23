@@ -26,7 +26,6 @@ description = "Historical upstream fake-secret fixtures; issue: Phase 41 D-07 al
 paths = [
   '''^tests/security-scan\.test\.(cjs|js|ts)$''',
   '''^tests/prompt-injection-scan\.test\.(cjs|js|ts)$''',
-  '''^get-shit-done/bin/gsd-tools\.test\.js$''',
   '''^\.secretscanignore$''',
   '''^\.base64scanignore$''',
 ]

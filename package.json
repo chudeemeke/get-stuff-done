@@ -52,7 +52,7 @@
   },
   "overrides": {
     "@hono/node-server": "1.19.15",
-    "body-parser": "2.3.0",
+    "body-parser": "2.4.0",
     "fast-uri": "3.1.8",
     "flatted": "3.4.2",
     "hono": "4.13.13",
@@ -64,7 +64,8 @@
     "proxy-addr": "2.0.8",
     "http-cache-semantics": "4.3.0",
     "@modelcontextprotocol/sdk": "1.32.1",
-    "markdown-it": "14.3.3"
+    "markdown-it": "14.3.3",
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "6.0.1",
